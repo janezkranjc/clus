@@ -1,0 +1,30 @@
+@relation weather
+
+@attribute outlook {sunny, overcast, rainy}
+@attribute temperature real
+@attribute humidity real
+@attribute windy {TRUE, FALSE}
+@attribute play {yes, no}
+@attribute playn real
+
+%  id(A,B)
+%  play(A,overcast,C,D,E,F) ?
+%  +--yes: [yes] [4.0/4.0]
+%  +--no:  play(A,H,I,J,K,L),ge(J,82.5) ?
+%  	   +--yes: [no] [4.0/5.0]
+%  	   +--no:  [yes] [4.0/5.0]
+
+@data
+sunny,85,85,FALSE,no,0
+sunny,80,90,TRUE,no,0
+overcast,83,86,FALSE,yes,1
+rainy,70,96,FALSE,yes,1
+rainy,68,80,FALSE,yes,1
+rainy,65,70,TRUE,no,0
+overcast,64,65,TRUE,yes,1
+sunny,72,95,FALSE,no,0
+sunny,69,70,FALSE,yes,1
+rainy,75,80,FALSE,yes,1
+sunny,75,70,TRUE,yes,1
+overcast,72,90,TRUE,yes,1
+overcast,81,75,FALSE,yes,1

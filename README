@@ -1,0 +1,31 @@
+
+Note:
+-----
+
+You need Java 2 version 1.4.x or above.
+
+To compile:
+-----------
+
+(Windows)
+
+cd C:\Clus
+javac clus/Clus.java
+
+(Unix)
+
+cd /home/jan/Clus
+javac clus/Clus.java
+
+To execute:
+-----------
+
+(Windows)
+
+cd path\to\appfile.s
+java -cp "C:\Clus;." clus.Clus appfile
+
+(Unix)
+
+cd path/to/appfile.s
+java -cp "/home/jan/Clus:." clus.Clus appfile

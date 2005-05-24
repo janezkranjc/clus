@@ -1,0 +1,243 @@
+Clus run "Test"
+***************
+
+Date: 4/15/05 9:00 PM
+File: numtest.xval
+Attributes: 4 (input: 2, output: 1)
+Rows: 16
+
+[Data]
+Target = 4
+Disable = NULL
+Key = 1
+Testset = 0
+XVal = 3
+Sets = 25
+File = numtest.arff
+TestFile = NULL
+PruneFile = NULL
+Heuristic = NULL
+
+[Numeric]
+FTest = 0.1
+Normalize = FALSE
+MultiScore = NULL
+
+[Nominal]
+GainRatio = FALSE
+
+[Tree]
+MinimalWeight = 2.0
+BinarySplit = TRUE
+VSBPrune = 0.0
+SizeConstraintPrune = -1
+MaxDepth = -1
+
+[Settings]
+PresetRandom = 0
+
+[Hierarchical]
+WParam = 0.75
+HSeparator = .
+HierLoad = FALSE
+HierSave = FALSE
+HierFlat = FALSE
+ContinueProto = TRUE
+UseAbundances = FALSE
+NodeAbundances = FALSE
+SSWAHND = FALSE
+
+[Output]
+FoldTrees = TRUE
+FoldErrors = FALSE
+TrainErros = FALSE
+UnknownFrequency = FALSE
+BranchFrequency = FALSE
+XValForest = FALSE
+
+[kNN]
+k = 3
+VectorDistance = Euclidian
+DistanceWeighted = FALSE
+Normalizing = TRUE
+AttributeWeighted = FALSE
+
+[kNNTree]
+k = 3
+VectorDistance = Euclidian
+DistanceWeighted = FALSE
+Normalizing = TRUE
+AttributeWeighted = FALSE
+
+[Beam]
+SizePenalty = 0.1
+BeamWidth = 10
+BeamBestN = 5
+MaxSize = -1
+
+Run: 01
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 0.1
+FoldsInfo
+Nodes:  [1.0, 1.0, 0.0, 0.0]
+f(i-1): [1.0, 1.0, 0.0, 0.0]
+Time:   [0.0, 0.0, 0.0, 0.0]
+
+Time: 0 sec
+Number of tests
+     Default: 1
+     Original: 5
+     Pruned: 5
+
+
+Default Model
+*************
+
+[2.090909]
+
+
+Pruned Model
+************
+
+b = 1
++--yes: [3]
++--no:  a <= 2.5
+        +--yes: [1]
+        +--no:  [2]
+
+Run: 02
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 0.1
+FoldsInfo
+Nodes:  [1.0, 1.0, 0.0, 0.0]
+f(i-1): [1.0, 1.0, 0.0, 0.0]
+Time:   [0.0, 0.0, 0.0, 0.0]
+
+Time: 0 sec
+Number of tests
+     Default: 1
+     Original: 5
+     Pruned: 5
+
+
+Default Model
+*************
+
+[2]
+
+
+Pruned Model
+************
+
+a <= 2.5
++--yes: [1]
++--no:  b = 1
+        +--yes: [3]
+        +--no:  [2]
+
+Run: 03
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 0.1
+FoldsInfo
+Nodes:  [1.0, 1.0, 0.0, 0.0]
+f(i-1): [1.0, 1.0, 0.0, 0.0]
+Time:   [0.0, 0.0, 0.0, 0.0]
+
+Time: 0 sec
+Number of tests
+     Default: 1
+     Original: 5
+     Pruned: 5
+
+
+Default Model
+*************
+
+[2.272727]
+
+
+Pruned Model
+************
+
+b = 1
++--yes: [3]
++--no:  a <= 2
+        +--yes: [1]
+        +--no:  [2]
+
+Summary
+*******
+
+Runs: 3
+Induction time: 0 sec
+Preprocessing time: 0 sec
+Mean number of tests
+     Original: 5
+     Pruned: 5
+
+Testing error
+-------------
+
+Number of examples: 16
+Mean absolute error (MAE)
+   Default        : [0.7159]
+   Original       : [0.0625]
+   Pruned         : [0.0625]
+Root mean squared error (RMSE)
+   Default        : [0.8207]
+   Original       : [0.25]
+   Pruned         : [0.25]
+Pearson correlation coefficient
+   Default        : [-0.2882]
+   Original       : [0.9509]
+   Pruned         : [0.9509]
+Classification Error
+   Default        :    Attribute: c
+
+     REAL\PRED |  1 | 0 |
+     -----------------------
+             1 | 16 | 0 | 16
+             0 |  0 | 0 |  0
+     -----------------------
+               | 16 | 0 | 16
+
+     Accuracy: 1
+     Cramer's coefficient: 0
+
+   Original       :    Attribute: c
+
+     REAL\PRED |  1 | 0 |
+     -----------------------
+             1 | 16 | 0 | 16
+             0 |  0 | 0 |  0
+     -----------------------
+               | 16 | 0 | 16
+
+     Accuracy: 1
+     Cramer's coefficient: 0
+
+   Pruned         :    Attribute: c
+
+     REAL\PRED |  1 | 0 |
+     -----------------------
+             1 | 16 | 0 | 16
+             0 |  0 | 0 |  0
+     -----------------------
+               | 16 | 0 | 16
+
+     Accuracy: 1
+     Cramer's coefficient: 0
+
+

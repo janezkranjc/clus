@@ -1,0 +1,4941 @@
+Initial beam:
+*********************************************
+Model: 0 value: -100.0 parent: 0
+[50,50,50] : 150
+
+Step:0
+*********************************************
+Model: 0 value: -50.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  [50,28,0] : 78
+
+Model: 1 value: -50.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  [50,29,0] : 79
+
+Model: 2 value: -54.0 parent: 0
+sepallength <= 5.7 (51.3%)
++--yes: [1,29,47] : 77
++--no:  [49,21,3] : 73
+
+Model: 3 value: -66.0 parent: 0
+sepalwidth <= 3 (44.7%)
++--yes: [42,8,17] : 67
++--no:  [8,42,33] : 83
+
+Model: 4 value: -100.0 parent: -1
+[50,50,50] : 150
+
+Step:1
+*********************************************
+Model: 0 value: -22.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 1 value: -23.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 2 value: -23.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 3 value: -24.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 4 value: -26.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: [48,2,0] : 50
+        +--no:  [2,26,0] : 28
+
+Model: 5 value: -28.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepalwidth <= 2.9 (67.1%)
+        +--yes: [48,5,0] : 53
+        +--no:  [2,24,0] : 26
+
+Model: 6 value: -30.0 parent: 2
+sepallength <= 5.7 (51.3%)
++--yes: petalwidth <= 1.7 (57.1%)
+|       +--yes: [0,1,43] : 44
+|       +--no:  [1,28,4] : 33
++--no:  [49,21,3] : 73
+
+Model: 7 value: -31.0 parent: 2
+sepallength <= 5.7 (51.3%)
++--yes: petallength <= 4.9 (58.4%)
+|       +--yes: [0,2,43] : 45
+|       +--no:  [1,27,4] : 32
++--no:  [49,21,3] : 73
+
+Model: 8 value: -31.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepallength <= 5.4 (36.7%)
+        +--yes: [5,24,0] : 29
+        +--no:  [45,5,0] : 50
+
+Model: 9 value: -31.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepallength <= 5.4 (37.2%)
+        +--yes: [5,24,0] : 29
+        +--no:  [45,4,0] : 49
+
+Model: 10 value: -34.0 parent: 2
+sepallength <= 5.7 (51.3%)
++--yes: [1,29,47] : 77
++--no:  petalwidth <= 0.5 (34.2%)
+        +--yes: [1,21,3] : 25
+        +--no:  [48,0,0] : 48
+
+Model: 11 value: -34.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  [50,28,0] : 78
+
+Model: 12 value: -35.0 parent: 2
+sepallength <= 5.7 (51.3%)
++--yes: [1,29,47] : 77
++--no:  petallength <= 1.7 (35.6%)
+        +--yes: [2,21,3] : 26
+        +--no:  [47,0,0] : 47
+
+Model: 13 value: -35.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  [50,29,0] : 79
+
+Model: 14 value: -35.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  [50,28,0] : 78
+
+Model: 15 value: -36.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  [50,29,0] : 79
+
+Model: 16 value: -38.0 parent: 3
+sepalwidth <= 3 (44.7%)
++--yes: [42,8,17] : 67
++--no:  petalwidth <= 1.6 (36.1%)
+        +--yes: [0,1,29] : 30
+        +--no:  [8,41,4] : 53
+
+Model: 17 value: -38.0 parent: 3
+sepalwidth <= 3 (44.7%)
++--yes: [42,8,17] : 67
++--no:  petallength <= 4.7 (43.4%)
+        +--yes: [0,4,32] : 36
+        +--no:  [8,38,1] : 47
+
+Model: 18 value: -39.0 parent: 2
+sepallength <= 5.7 (51.3%)
++--yes: [1,29,47] : 77
++--no:  sepalwidth <= 2.9 (69.9%)
+        +--yes: [47,4,0] : 51
+        +--no:  [2,17,3] : 22
+
+Model: 19 value: -43.0 parent: 2
+sepallength <= 5.7 (51.3%)
++--yes: [1,29,47] : 77
++--no:  sepallength <= 5.4 (28.8%)
+        +--yes: [4,15,2] : 21
+        +--no:  [45,6,1] : 52
+
+Model: 20 value: -49.0 parent: 3
+sepalwidth <= 3 (44.7%)
++--yes: petalwidth <= 1.6 (26.9%)
+|       +--yes: [0,1,17] : 18
+|       +--no:  [42,7,0] : 49
++--no:  [8,42,33] : 83
+
+Model: 21 value: -49.0 parent: 3
+sepalwidth <= 3 (44.7%)
++--yes: petallength <= 4.8 (26.9%)
+|       +--yes: [0,1,17] : 18
+|       +--no:  [42,7,0] : 49
++--no:  [8,42,33] : 83
+
+Model: 22 value: -49.0 parent: 3
+sepalwidth <= 3 (44.7%)
++--yes: sepallength <= 5.9 (35.8%)
+|       +--yes: [0,7,17] : 24
+|       +--no:  [42,1,0] : 43
++--no:  [8,42,33] : 83
+
+Model: 23 value: -49.0 parent: 2
+sepallength <= 5.7 (51.3%)
++--yes: sepallength <= 6.2 (66.2%)
+|       +--yes: [0,14,37] : 51
+|       +--no:  [1,15,10] : 26
++--no:  [49,21,3] : 73
+
+Model: 24 value: -49.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: sepallength <= 5.4 (95.8%)
+|       +--yes: [0,20,49] : 69
+|       +--no:  [0,2,1] : 3
++--no:  [50,28,0] : 78
+
+Model: 25 value: -50.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [0,21,50] : 71
++--no:  [50,29,0] : 79
+
+Model: 26 value: -50.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: sepallength <= 7.9 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [0,21,50] : 71
++--no:  [50,29,0] : 79
+
+Model: 27 value: -50.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [0,22,50] : 72
++--no:  [50,28,0] : 78
+
+Model: 28 value: -50.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  [50,28,0] : 78
+
+Model: 29 value: -50.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  [50,29,0] : 79
+
+Model: 30 value: -52.0 parent: 2
+sepallength <= 5.7 (51.3%)
++--yes: sepalwidth <= 2.3 (94.8%)
+|       +--yes: [1,26,46] : 73
+|       +--no:  [0,3,1] : 4
++--no:  [49,21,3] : 73
+
+Model: 31 value: -53.0 parent: 3
+sepalwidth <= 3 (44.7%)
++--yes: [42,8,17] : 67
++--no:  sepallength <= 6.2 (34.9%)
+        +--yes: [0,8,21] : 29
+        +--no:  [8,34,12] : 54
+
+Model: 32 value: -54.0 parent: -1
+sepallength <= 5.7 (51.3%)
++--yes: [1,29,47] : 77
++--no:  [49,21,3] : 73
+
+Model: 33 value: -62.0 parent: 3
+sepalwidth <= 3 (44.7%)
++--yes: [42,8,17] : 67
++--no:  sepalwidth <= 2.9 (31.3%)
+        +--yes: [6,8,12] : 26
+        +--no:  [2,34,21] : 57
+
+Model: 34 value: -66.0 parent: 3
+sepalwidth <= 3 (44.7%)
++--yes: sepalwidth <= 4.4 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [42,8,17] : 67
++--no:  [8,42,33] : 83
+
+Model: 35 value: -66.0 parent: -1
+sepalwidth <= 3 (44.7%)
++--yes: [42,8,17] : 67
++--no:  [8,42,33] : 83
+
+Model: 36 value: -100.0 parent: -1
+[50,50,50] : 150
+
+Step:2
+*********************************************
+Model: 0 value: -7.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 1 value: -7.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 2 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 3 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 4 value: -8.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 5 value: -8.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 6 value: -9.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 7 value: -9.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 8 value: -10.0 parent: 6
+sepallength <= 5.7 (51.3%)
++--yes: petalwidth <= 1.7 (57.1%)
+|       +--yes: [0,1,43] : 44
+|       +--no:  [1,28,4] : 33
++--no:  petalwidth <= 0.5 (34.2%)
+        +--yes: [1,21,3] : 25
+        +--no:  [48,0,0] : 48
+
+Model: 9 value: -10.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: [48,2,0] : 50
+        +--no:  [2,26,0] : 28
+
+Model: 10 value: -11.0 parent: 7
+sepallength <= 5.7 (51.3%)
++--yes: petallength <= 4.9 (58.4%)
+|       +--yes: [0,2,43] : 45
+|       +--no:  [1,27,4] : 32
++--no:  petalwidth <= 0.5 (34.2%)
+        +--yes: [1,21,3] : 25
+        +--no:  [48,0,0] : 48
+
+Model: 11 value: -11.0 parent: 6
+sepallength <= 5.7 (51.3%)
++--yes: petalwidth <= 1.7 (57.1%)
+|       +--yes: [0,1,43] : 44
+|       +--no:  [1,28,4] : 33
++--no:  petallength <= 1.7 (35.6%)
+        +--yes: [2,21,3] : 26
+        +--no:  [47,0,0] : 47
+
+Model: 12 value: -11.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: [48,2,0] : 50
+        +--no:  [2,26,0] : 28
+
+Model: 13 value: -12.0 parent: 7
+sepallength <= 5.7 (51.3%)
++--yes: petallength <= 4.9 (58.4%)
+|       +--yes: [0,2,43] : 45
+|       +--no:  [1,27,4] : 32
++--no:  petallength <= 1.7 (35.6%)
+        +--yes: [2,21,3] : 26
+        +--no:  [47,0,0] : 47
+
+Model: 14 value: -13.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  sepalwidth <= 2.9 (67.1%)
+        +--yes: [48,5,0] : 53
+        +--no:  [2,24,0] : 26
+
+Model: 15 value: -14.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  sepalwidth <= 2.9 (67.1%)
+        +--yes: [48,5,0] : 53
+        +--no:  [2,24,0] : 26
+
+Model: 16 value: -15.0 parent: 9
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  sepallength <= 5.4 (37.2%)
+        +--yes: [5,24,0] : 29
+        +--no:  [45,4,0] : 49
+
+Model: 17 value: -15.0 parent: 6
+sepallength <= 5.7 (51.3%)
++--yes: petalwidth <= 1.7 (57.1%)
+|       +--yes: [0,1,43] : 44
+|       +--no:  [1,28,4] : 33
++--no:  sepalwidth <= 2.9 (69.9%)
+        +--yes: [47,4,0] : 51
+        +--no:  [2,17,3] : 22
+
+Model: 18 value: -16.0 parent: 9
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  sepallength <= 5.4 (37.2%)
+        +--yes: [5,24,0] : 29
+        +--no:  [45,4,0] : 49
+
+Model: 19 value: -16.0 parent: 8
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  sepallength <= 5.4 (36.7%)
+        +--yes: [5,24,0] : 29
+        +--no:  [45,5,0] : 50
+
+Model: 20 value: -16.0 parent: 7
+sepallength <= 5.7 (51.3%)
++--yes: petallength <= 4.9 (58.4%)
+|       +--yes: [0,2,43] : 45
+|       +--no:  [1,27,4] : 32
++--no:  sepalwidth <= 2.9 (69.9%)
+        +--yes: [47,4,0] : 51
+        +--no:  [2,17,3] : 22
+
+Model: 21 value: -17.0 parent: 8
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  sepallength <= 5.4 (36.7%)
+        +--yes: [5,24,0] : 29
+        +--no:  [45,5,0] : 50
+
+Model: 22 value: -19.0 parent: 6
+sepallength <= 5.7 (51.3%)
++--yes: petalwidth <= 1.7 (57.1%)
+|       +--yes: [0,1,43] : 44
+|       +--no:  [1,28,4] : 33
++--no:  sepallength <= 5.4 (28.8%)
+        +--yes: [4,15,2] : 21
+        +--no:  [45,6,1] : 52
+
+Model: 23 value: -20.0 parent: 7
+sepallength <= 5.7 (51.3%)
++--yes: petallength <= 4.9 (58.4%)
+|       +--yes: [0,2,43] : 45
+|       +--no:  [1,27,4] : 32
++--no:  sepallength <= 5.4 (28.8%)
+        +--yes: [4,15,2] : 21
+        +--no:  [45,6,1] : 52
+
+Model: 24 value: -21.0 parent: 17
+sepalwidth <= 3 (44.7%)
++--yes: petalwidth <= 1.6 (26.9%)
+|       +--yes: [0,1,17] : 18
+|       +--no:  [42,7,0] : 49
++--no:  petallength <= 4.7 (43.4%)
+        +--yes: [0,4,32] : 36
+        +--no:  [8,38,1] : 47
+
+Model: 25 value: -21.0 parent: 17
+sepalwidth <= 3 (44.7%)
++--yes: petallength <= 4.8 (26.9%)
+|       +--yes: [0,1,17] : 18
+|       +--no:  [42,7,0] : 49
++--no:  petallength <= 4.7 (43.4%)
+        +--yes: [0,4,32] : 36
+        +--no:  [8,38,1] : 47
+
+Model: 26 value: -21.0 parent: 17
+sepalwidth <= 3 (44.7%)
++--yes: sepallength <= 5.9 (35.8%)
+|       +--yes: [0,7,17] : 24
+|       +--no:  [42,1,0] : 43
++--no:  petallength <= 4.7 (43.4%)
+        +--yes: [0,4,32] : 36
+        +--no:  [8,38,1] : 47
+
+Model: 27 value: -21.0 parent: 16
+sepalwidth <= 3 (44.7%)
++--yes: petalwidth <= 1.6 (26.9%)
+|       +--yes: [0,1,17] : 18
+|       +--no:  [42,7,0] : 49
++--no:  petalwidth <= 1.6 (36.1%)
+        +--yes: [0,1,29] : 30
+        +--no:  [8,41,4] : 53
+
+Model: 28 value: -21.0 parent: 16
+sepalwidth <= 3 (44.7%)
++--yes: petallength <= 4.8 (26.9%)
+|       +--yes: [0,1,17] : 18
+|       +--no:  [42,7,0] : 49
++--no:  petalwidth <= 1.6 (36.1%)
+        +--yes: [0,1,29] : 30
+        +--no:  [8,41,4] : 53
+
+Model: 29 value: -21.0 parent: 16
+sepalwidth <= 3 (44.7%)
++--yes: sepallength <= 5.9 (35.8%)
+|       +--yes: [0,7,17] : 24
+|       +--no:  [42,1,0] : 43
++--no:  petalwidth <= 1.6 (36.1%)
+        +--yes: [0,1,29] : 30
+        +--no:  [8,41,4] : 53
+
+Model: 30 value: -22.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: sepallength <= 5.4 (95.8%)
+|       +--yes: [0,20,49] : 69
+|       +--no:  [0,2,1] : 3
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 31 value: -22.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: petalwidth <= 0.2 (96.8%)
+        |       +--yes: [1,29,0] : 30
+        |       +--no:  [1,0,0] : 1
+        +--no:  [48,0,0] : 48
+
+Model: 32 value: -22.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: sepalwidth <= 3 (9.7%)
+        |       +--yes: [2,1,0] : 3
+        |       +--no:  [0,28,0] : 28
+        +--no:  [48,0,0] : 48
+
+Model: 33 value: -22.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  petalwidth <= 0.5 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 34 value: -22.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  petallength <= 1.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 35 value: -22.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 36 value: -22.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 37 value: -22.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: petalwidth <= 1.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 38 value: -22.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: petallength <= 4.4 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 39 value: -22.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: sepalwidth <= 3.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 40 value: -22.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: sepallength <= 6.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 41 value: -22.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 42 value: -22.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: sepallength <= 7.9 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 43 value: -22.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 44 value: -23.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: petalwidth <= 0.2 (96.7%)
+        |       +--yes: [1,28,0] : 29
+        |       +--no:  [1,0,0] : 1
+        +--no:  [48,0,0] : 48
+
+Model: 45 value: -23.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: sepallength <= 5.4 (95.8%)
+|       +--yes: [0,20,49] : 69
+|       +--no:  [0,2,1] : 3
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 46 value: -23.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petalwidth <= 0.5 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 47 value: -23.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petallength <= 1.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 48 value: -23.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 49 value: -23.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 50 value: -23.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petalwidth <= 1.3 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 51 value: -23.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petallength <= 4.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 52 value: -23.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepalwidth <= 3.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 53 value: -23.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepallength <= 6.6 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 54 value: -23.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [0,22,50] : 72
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 55 value: -23.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  petalwidth <= 0.6 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 56 value: -23.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  petallength <= 1.7 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 57 value: -23.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 58 value: -23.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 59 value: -23.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: petallength <= 4.4 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 60 value: -23.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: sepallength <= 6.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 61 value: -23.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 62 value: -23.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: sepallength <= 7.9 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 63 value: -23.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 64 value: -23.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 65 value: -24.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepalwidth <= 2.9 (67.1%)
+        +--yes: petalwidth <= 0.5 (11.3%)
+        |       +--yes: [1,5,0] : 6
+        |       +--no:  [47,0,0] : 47
+        +--no:  [2,24,0] : 26
+
+Model: 66 value: -24.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  petalwidth <= 0.6 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 67 value: -24.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  petallength <= 1.7 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 68 value: -24.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 69 value: -24.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 70 value: -24.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: petallength <= 4.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 71 value: -24.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: sepalwidth <= 3.8 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 72 value: -24.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: sepallength <= 6.6 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 73 value: -24.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [0,22,50] : 72
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 74 value: -24.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 75 value: -25.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepalwidth <= 2.9 (67.1%)
+        +--yes: petallength <= 1.7 (13.2%)
+        |       +--yes: [2,5,0] : 7
+        |       +--no:  [46,0,0] : 46
+        +--no:  [2,24,0] : 26
+
+Model: 76 value: -25.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: [48,2,0] : 50
+        +--no:  petalwidth <= 0.2 (96.4%)
+                +--yes: [1,26,0] : 27
+                +--no:  [1,0,0] : 1
+
+Model: 77 value: -25.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: [48,2,0] : 50
+        +--no:  petallength <= 1.3 (96.4%)
+                +--yes: [1,26,0] : 27
+                +--no:  [1,0,0] : 1
+
+Model: 78 value: -25.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: [48,2,0] : 50
+        +--no:  sepallength <= 4.4 (96.4%)
+                +--yes: [1,26,0] : 27
+                +--no:  [1,0,0] : 1
+
+Model: 79 value: -25.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: petalwidth <= 0.5 (6%)
+        |       +--yes: [1,2,0] : 3
+        |       +--no:  [47,0,0] : 47
+        +--no:  [2,26,0] : 28
+
+Model: 80 value: -25.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: sepallength <= 5.4 (95.8%)
+|       +--yes: [0,20,49] : 69
+|       +--no:  [0,2,1] : 3
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: [48,2,0] : 50
+        +--no:  [2,26,0] : 28
+
+Model: 81 value: -26.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepalwidth <= 2.9 (67.1%)
+        +--yes: sepallength <= 5.7 (7.5%)
+        |       +--yes: [1,3,0] : 4
+        |       +--no:  [47,2,0] : 49
+        +--no:  [2,24,0] : 26
+
+Model: 82 value: -26.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: [48,2,0] : 50
+        +--no:  sepalwidth <= 2.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [2,26,0] : 28
+
+Model: 83 value: -26.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: petallength <= 4.2 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [48,2,0] : 50
+        +--no:  [2,26,0] : 28
+
+Model: 84 value: -26.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: sepalwidth <= 4.4 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [48,2,0] : 50
+        +--no:  [2,26,0] : 28
+
+Model: 85 value: -26.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: sepallength <= 5.8 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [48,2,0] : 50
+        +--no:  [2,26,0] : 28
+
+Model: 86 value: -26.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [0,22,50] : 72
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: [48,2,0] : 50
+        +--no:  [2,26,0] : 28
+
+Model: 87 value: -26.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepalwidth <= 2.9 (64.1%)
+        +--yes: [48,2,0] : 50
+        +--no:  [2,26,0] : 28
+
+Model: 88 value: -27.0 parent: 9
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepallength <= 5.4 (37.2%)
+        +--yes: petalwidth <= 0.3 (86.2%)
+        |       +--yes: [1,24,0] : 25
+        |       +--no:  [4,0,0] : 4
+        +--no:  [45,4,0] : 49
+
+Model: 89 value: -27.0 parent: 9
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepallength <= 5.4 (37.2%)
+        +--yes: petallength <= 1.5 (86.2%)
+        |       +--yes: [1,24,0] : 25
+        |       +--no:  [4,0,0] : 4
+        +--no:  [45,4,0] : 49
+
+Model: 90 value: -27.0 parent: 8
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepallength <= 5.4 (36.7%)
+        +--yes: [5,24,0] : 29
+        +--no:  petalwidth <= 0.5 (12%)
+                +--yes: [1,5,0] : 6
+                +--no:  [44,0,0] : 44
+
+Model: 91 value: -27.0 parent: 8
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepallength <= 5.4 (36.7%)
+        +--yes: petalwidth <= 0.3 (86.2%)
+        |       +--yes: [1,24,0] : 25
+        |       +--no:  [4,0,0] : 4
+        +--no:  [45,5,0] : 50
+
+Model: 92 value: -27.0 parent: 8
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepallength <= 5.4 (36.7%)
+        +--yes: petallength <= 1.5 (86.2%)
+        |       +--yes: [1,24,0] : 25
+        |       +--no:  [4,0,0] : 4
+        +--no:  [45,5,0] : 50
+
+Model: 93 value: -27.0 parent: 8
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepallength <= 5.4 (36.7%)
+        +--yes: sepalwidth <= 3 (20.7%)
+        |       +--yes: [5,1,0] : 6
+        |       +--no:  [0,23,0] : 23
+        +--no:  [45,5,0] : 50
+
+Model: 94 value: -27.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepalwidth <= 2.9 (67.1%)
+        +--yes: [48,5,0] : 53
+        +--no:  petalwidth <= 0.2 (96.2%)
+                +--yes: [1,24,0] : 25
+                +--no:  [1,0,0] : 1
+
+Model: 95 value: -27.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepalwidth <= 2.9 (67.1%)
+        +--yes: [48,5,0] : 53
+        +--no:  petallength <= 1.3 (96.2%)
+                +--yes: [1,24,0] : 25
+                +--no:  [1,0,0] : 1
+
+Model: 96 value: -27.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepalwidth <= 2.9 (67.1%)
+        +--yes: [48,5,0] : 53
+        +--no:  sepallength <= 4.4 (96.2%)
+                +--yes: [1,24,0] : 25
+                +--no:  [1,0,0] : 1
+
+Model: 97 value: -28.0 parent: 9
+petalwidth <= 1.3 (48%)
++--yes: [0,22,50] : 72
++--no:  sepallength <= 5.4 (37.2%)
+        +--yes: sepalwidth <= 2.9 (24.1%)
+        |       +--yes: [5,2,0] : 7
+        |       +--no:  [0,22,0] : 22
+        +--no:  [45,4,0] : 49
+
+Model: 98 value: -28.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: sepallength <= 7.9 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  [0,21,50] : 71
++--no:  sepalwidth <= 2.9 (67.1%)
+        +--yes: [48,5,0] : 53
+        +--no:  [2,24,0] : 26
+
+Model: 99 value: -28.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: [0,21,50] : 71
++--no:  sepalwidth <= 2.9 (67.1%)
+        +--yes: [48,5,0] : 53
+        +--no:  [2,24,0] : 26
+
+Step:3
+*********************************************
+Model: 0 value: -5.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 1 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 2 value: -6.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 3 value: -6.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 4 value: -7.0 parent: 54
+petalwidth <= 1.3 (48%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  petalwidth <= 1.7 (63.9%)
+|               +--yes: [0,1,45] : 46
+|               +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 5 value: -7.0 parent: 42
+petallength <= 4.4 (47.3%)
++--yes: sepallength <= 7.9 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  petalwidth <= 1.7 (64.8%)
+|               +--yes: [0,1,45] : 46
+|               +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 6 value: -7.0 parent: 41
+petallength <= 4.4 (47.3%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  petalwidth <= 1.7 (64.8%)
+|               +--yes: [0,1,45] : 46
+|               +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 7 value: -7.0 parent: 30
+petalwidth <= 1.3 (48%)
++--yes: sepallength <= 5.4 (95.8%)
+|       +--yes: petalwidth <= 1.7 (66.7%)
+|       |       +--yes: [0,1,45] : 46
+|       |       +--no:  [0,19,4] : 23
+|       +--no:  [0,2,1] : 3
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 8 value: -7.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  petalwidth <= 1.7 (15%)
+|               +--yes: [0,1,2] : 3
+|               +--no:  [0,16,1] : 17
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 9 value: -7.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: petalwidth <= 0.2 (96.8%)
+        |       +--yes: [1,29,0] : 30
+        |       +--no:  [1,0,0] : 1
+        +--no:  [48,0,0] : 48
+
+Model: 10 value: -7.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: sepalwidth <= 3 (9.7%)
+        |       +--yes: [2,1,0] : 3
+        |       +--no:  [0,28,0] : 28
+        +--no:  [48,0,0] : 48
+
+Model: 11 value: -7.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  petalwidth <= 1.7 (14.3%)
+|               +--yes: [0,1,2] : 3
+|               +--no:  [0,17,1] : 18
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 12 value: -7.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: petalwidth <= 0.2 (96.7%)
+        |       +--yes: [1,28,0] : 29
+        |       +--no:  [1,0,0] : 1
+        +--no:  [48,0,0] : 48
+
+Model: 13 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  petalwidth <= 0.5 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 14 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  petallength <= 1.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 15 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 16 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 17 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: petalwidth <= 1.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 18 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: petallength <= 4.4 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 19 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: sepalwidth <= 3.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 20 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: sepallength <= 6.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 21 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 22 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 23 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 24 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 25 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 26 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 27 value: -7.0 parent: 1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 28 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petalwidth <= 0.5 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 29 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petallength <= 1.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 30 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 31 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 32 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petalwidth <= 1.3 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 33 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petallength <= 4.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 34 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepalwidth <= 3.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 35 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepallength <= 6.6 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 36 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 37 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 38 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 39 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 40 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 41 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 42 value: -7.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 43 value: -7.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 44 value: -7.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 45 value: -8.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 46 value: -8.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: sepallength <= 6.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 47 value: -8.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  petallength <= 4.8 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,17,3] : 20
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 48 value: -8.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,17,3] : 20
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 49 value: -8.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  sepallength <= 7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,17,3] : 20
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 50 value: -8.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 51 value: -8.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 52 value: -8.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 53 value: -8.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 54 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  petalwidth <= 0.6 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 55 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  petallength <= 1.7 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 56 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 57 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 58 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: petallength <= 4.4 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 59 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: sepallength <= 6.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 60 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 61 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 62 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 63 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 64 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 65 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 66 value: -8.0 parent: 4
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 67 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petalwidth <= 0.5 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 68 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petallength <= 1.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 69 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 70 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 71 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petalwidth <= 1.3 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 72 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petallength <= 4.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 73 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepalwidth <= 3.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 74 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepallength <= 6.6 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 75 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  petallength <= 4.8 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 76 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 77 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  sepallength <= 7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 78 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 79 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 80 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 81 value: -8.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 82 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  petalwidth <= 0.6 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 83 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  petallength <= 1.7 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 84 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 85 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 86 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: petallength <= 4.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 87 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: sepalwidth <= 3.8 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 88 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: sepallength <= 6.6 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 89 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 90 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 91 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 92 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 93 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 94 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 95 value: -8.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 96 value: -8.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,21,5] : 26
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 97 value: -8.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petallength <= 4.8 (70.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,18,3] : 21
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 98 value: -8.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  [0,20,5] : 25
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 99 value: -8.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petallength <= 4.8 (71.8%)
+|       +--yes: [0,4,47] : 51
+|       +--no:  [0,17,3] : 20
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Step:4
+*********************************************
+Model: 0 value: -5.0 parent: 38
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 1 value: -5.0 parent: 37
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 2 value: -5.0 parent: 36
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 3 value: -5.0 parent: 23
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 4 value: -5.0 parent: 22
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 5 value: -5.0 parent: 21
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 6 value: -5.0 parent: 7
+petalwidth <= 1.3 (48%)
++--yes: sepallength <= 5.4 (95.8%)
+|       +--yes: petalwidth <= 1.7 (66.7%)
+|       |       +--yes: [0,1,45] : 46
+|       |       +--no:  petallength <= 5 (17.4%)
+|       |               +--yes: [0,1,3] : 4
+|       |               +--no:  [0,18,1] : 19
+|       +--no:  [0,2,1] : 3
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 7 value: -5.0 parent: 6
+petallength <= 4.4 (47.3%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  petalwidth <= 1.7 (64.8%)
+|               +--yes: [0,1,45] : 46
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 8 value: -5.0 parent: 5
+petallength <= 4.4 (47.3%)
++--yes: sepallength <= 7.9 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  petalwidth <= 1.7 (64.8%)
+|               +--yes: [0,1,45] : 46
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 9 value: -5.0 parent: 4
+petalwidth <= 1.3 (48%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  petalwidth <= 1.7 (63.9%)
+|               +--yes: [0,1,45] : 46
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 10 value: -5.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: petalwidth <= 0.2 (96.7%)
+        |       +--yes: [1,28,0] : 29
+        |       +--no:  [1,0,0] : 1
+        +--no:  [48,0,0] : 48
+
+Model: 11 value: -5.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: petalwidth <= 0.2 (96.8%)
+        |       +--yes: [1,29,0] : 30
+        |       +--no:  [1,0,0] : 1
+        +--no:  [48,0,0] : 48
+
+Model: 12 value: -5.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: sepalwidth <= 3 (9.7%)
+        |       +--yes: [2,1,0] : 3
+        |       +--no:  [0,28,0] : 28
+        +--no:  [48,0,0] : 48
+
+Model: 13 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petalwidth <= 0.5 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 14 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petallength <= 1.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 15 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 16 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 17 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petalwidth <= 1.3 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 18 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petallength <= 4.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 19 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepalwidth <= 3.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 20 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepallength <= 6.6 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 21 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petalwidth <= 1.7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 22 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petallength <= 5 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 23 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepalwidth <= 3.4 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 24 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepallength <= 7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 25 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: petalwidth <= 1.6 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 26 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: petallength <= 5.8 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 27 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: sepalwidth <= 3 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 28 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: sepallength <= 7.2 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 29 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 30 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 31 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 32 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 33 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  petalwidth <= 0.5 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 34 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  petallength <= 1.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 35 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 36 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 37 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: petalwidth <= 1.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 38 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: petallength <= 4.4 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 39 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: sepalwidth <= 3.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 40 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: sepallength <= 6.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 41 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petalwidth <= 1.7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 42 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petallength <= 5 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 43 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepalwidth <= 3.4 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 44 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepallength <= 7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 45 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: petalwidth <= 1.6 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 46 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: petallength <= 5.8 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 47 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: sepalwidth <= 3 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 48 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: sepallength <= 7.2 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 49 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 50 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 51 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 52 value: -5.0 parent: 0
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 53 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 54 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 55 value: -6.0 parent: 91
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 56 value: -6.0 parent: 90
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 57 value: -6.0 parent: 89
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 58 value: -6.0 parent: 62
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 59 value: -6.0 parent: 61
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 60 value: -6.0 parent: 60
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 61 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  petalwidth <= 0.6 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 62 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  petallength <= 1.7 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 63 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 64 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 65 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: petallength <= 4.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 66 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: sepalwidth <= 3.8 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 67 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: sepallength <= 6.6 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 68 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petalwidth <= 1.7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 69 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petallength <= 5 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 70 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepalwidth <= 3.4 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 71 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepallength <= 7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 72 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: petalwidth <= 1.6 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 73 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: petallength <= 5.8 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 74 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: sepalwidth <= 3 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 75 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: sepallength <= 7.2 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 76 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 77 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 78 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 79 value: -6.0 parent: 3
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Model: 80 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  petalwidth <= 0.6 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 81 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  petallength <= 1.7 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 82 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 83 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [48,0,0] : 48
+
+Model: 84 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: petallength <= 4.4 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 85 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: sepallength <= 6.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 86 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petalwidth <= 1.7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 87 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petallength <= 5 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 88 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepalwidth <= 3.4 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 89 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepallength <= 7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 90 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: petalwidth <= 1.6 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 91 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: petallength <= 5.8 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 92 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: sepalwidth <= 3 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 93 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: sepallength <= 7.2 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 94 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 95 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 96 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 97 value: -6.0 parent: 2
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 98 value: -6.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: [2,29,0] : 31
+        +--no:  [48,0,0] : 48
+
+Model: 99 value: -6.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: [2,28,0] : 30
+        +--no:  [48,0,0] : 48
+
+Step:5
+*********************************************
+Model: 0 value: -5.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: sepallength <= 7.2 (0%)
+|                       |       +--yes: [0,0,0] : 0
+|                       |       +--no:  [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 1 value: -5.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 2 value: -5.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 3 value: -5.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 4 value: -5.0 parent: 2
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 5 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petalwidth <= 0.5 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 6 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petallength <= 1.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 7 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 8 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 9 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petalwidth <= 1.3 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 10 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petallength <= 4.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 11 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepalwidth <= 3.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 12 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepallength <= 6.6 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 13 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  petalwidth <= 1.7 (0%)
+|                               +--yes: [0,0,0] : 0
+|                               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 14 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  petallength <= 5 (0%)
+|                               +--yes: [0,0,0] : 0
+|                               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 15 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  sepalwidth <= 3.4 (0%)
+|                               +--yes: [0,0,0] : 0
+|                               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 16 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  sepallength <= 7 (0%)
+|                               +--yes: [0,0,0] : 0
+|                               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 17 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: petalwidth <= 1.6 (0%)
+|                       |       +--yes: [0,0,0] : 0
+|                       |       +--no:  [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 18 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: petallength <= 5.8 (0%)
+|                       |       +--yes: [0,0,0] : 0
+|                       |       +--no:  [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 19 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: sepalwidth <= 3 (0%)
+|                       |       +--yes: [0,0,0] : 0
+|                       |       +--no:  [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 20 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: sepallength <= 7.2 (0%)
+|                       |       +--yes: [0,0,0] : 0
+|                       |       +--no:  [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 21 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 22 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 23 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 24 value: -5.0 parent: 1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 25 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petalwidth <= 0.5 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 26 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petallength <= 1.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 27 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 28 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 29 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petalwidth <= 1.3 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 30 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petallength <= 4.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 31 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepalwidth <= 3.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 32 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepallength <= 6.6 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 33 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  petalwidth <= 1.7 (0%)
+|                               +--yes: [0,0,0] : 0
+|                               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 34 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  petallength <= 5 (0%)
+|                               +--yes: [0,0,0] : 0
+|                               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 35 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  sepalwidth <= 3.4 (0%)
+|                               +--yes: [0,0,0] : 0
+|                               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 36 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  sepallength <= 7 (0%)
+|                               +--yes: [0,0,0] : 0
+|                               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 37 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: petalwidth <= 1.6 (0%)
+|                       |       +--yes: [0,0,0] : 0
+|                       |       +--no:  [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 38 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: petallength <= 5.8 (0%)
+|                       |       +--yes: [0,0,0] : 0
+|                       |       +--no:  [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 39 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: sepalwidth <= 3 (0%)
+|                       |       +--yes: [0,0,0] : 0
+|                       |       +--no:  [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 40 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: sepallength <= 7.2 (0%)
+|                       |       +--yes: [0,0,0] : 0
+|                       |       +--no:  [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 41 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 42 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 43 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 44 value: -5.0 parent: 0
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 45 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 46 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 47 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 48 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepallength <= 7.2 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 49 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  sepalwidth <= 3.4 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 50 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petalwidth <= 1.7 (0%)
+|               +--yes: [0,0,0] : 0
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 51 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: sepallength <= 5.4 (95.8%)
+|       +--yes: petalwidth <= 1.7 (66.7%)
+|       |       +--yes: [0,1,45] : 46
+|       |       +--no:  petallength <= 5 (17.4%)
+|       |               +--yes: [0,1,3] : 4
+|       |               +--no:  [0,18,1] : 19
+|       +--no:  [0,2,1] : 3
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 52 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  petalwidth <= 1.7 (64.8%)
+|               +--yes: [0,1,45] : 46
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 53 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: sepallength <= 7.9 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  petalwidth <= 1.7 (64.8%)
+|               +--yes: [0,1,45] : 46
+|               +--no:  petallength <= 5 (16%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 54 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: sepalwidth <= 3.8 (0%)
+|       +--yes: [0,0,0] : 0
+|       +--no:  petalwidth <= 1.7 (63.9%)
+|               +--yes: [0,1,45] : 46
+|               +--no:  petallength <= 5 (15.4%)
+|                       +--yes: [0,1,3] : 4
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 55 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petallength <= 1.7 (38.5%)
+        +--yes: petalwidth <= 0.2 (96.7%)
+        |       +--yes: [1,28,0] : 29
+        |       +--no:  [1,0,0] : 1
+        +--no:  [48,0,0] : 48
+
+Model: 56 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: petalwidth <= 0.2 (96.8%)
+        |       +--yes: [1,29,0] : 30
+        |       +--no:  [1,0,0] : 1
+        +--no:  [48,0,0] : 48
+
+Model: 57 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petallength <= 1.7 (39.2%)
+        +--yes: sepalwidth <= 3 (9.7%)
+        |       +--yes: [2,1,0] : 3
+        |       +--no:  [0,28,0] : 28
+        +--no:  [48,0,0] : 48
+
+Model: 58 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petalwidth <= 0.5 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 59 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  petallength <= 1.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 60 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 61 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 62 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petalwidth <= 1.3 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 63 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: petallength <= 4.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 64 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepalwidth <= 3.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 65 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: sepallength <= 6.6 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 66 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petalwidth <= 1.7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 67 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petallength <= 5 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 68 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepalwidth <= 3.4 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 69 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepallength <= 7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 70 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: petalwidth <= 1.6 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 71 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: petallength <= 5.8 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 72 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: sepalwidth <= 3 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 73 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: sepallength <= 7.2 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 74 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 75 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 76 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 77 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+
+Model: 78 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  petalwidth <= 0.5 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 79 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  petallength <= 1.9 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 80 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  sepalwidth <= 4.4 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 81 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  sepallength <= 5.8 (0%)
+                +--yes: [0,0,0] : 0
+                +--no:  [49,0,0] : 49
+
+Model: 82 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: petalwidth <= 1.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 83 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: petallength <= 4.4 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 84 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: sepalwidth <= 3.5 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 85 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: sepallength <= 6.7 (0%)
+        |       +--yes: [0,0,0] : 0
+        |       +--no:  [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 86 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petalwidth <= 1.7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 87 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  petallength <= 5 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 88 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepalwidth <= 3.4 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 89 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  sepallength <= 7 (0%)
+|                       +--yes: [0,0,0] : 0
+|                       +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 90 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: petalwidth <= 1.6 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 91 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: petallength <= 5.8 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 92 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: sepalwidth <= 3 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 93 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: sepallength <= 7.2 (0%)
+|               |       +--yes: [0,0,0] : 0
+|               |       +--no:  [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 94 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: petalwidth <= 2.5 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 95 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: petallength <= 6.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 96 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: sepalwidth <= 3.8 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 97 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: sepallength <= 7.9 (0%)
+|       |       +--yes: [0,0,0] : 0
+|       |       +--no:  [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 98 value: -5.0 parent: -1
+petallength <= 4.4 (47.3%)
++--yes: petalwidth <= 1.7 (64.8%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (16%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,19,2] : 21
++--no:  petalwidth <= 0.5 (38%)
+        +--yes: [1,29,0] : 30
+        +--no:  [49,0,0] : 49
+
+Model: 99 value: -5.0 parent: -1
+petalwidth <= 1.3 (48%)
++--yes: petalwidth <= 1.7 (63.9%)
+|       +--yes: [0,1,45] : 46
+|       +--no:  petallength <= 5 (15.4%)
+|               +--yes: [0,1,3] : 4
+|               +--no:  [0,20,2] : 22
++--no:  petalwidth <= 0.5 (37.2%)
+        +--yes: [1,28,0] : 29
+        +--no:  [49,0,0] : 49
+

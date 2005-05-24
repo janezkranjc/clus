@@ -1,0 +1,11 @@
+#!/usr/local/gnu/bin/perl
+open(FILE,".cvsignore") || die "Can't open ignore file";
+while ($line = <FILE>) {
+	chop($line);
+	$find = "find . -name \"$line\" -exec rm {} \\;";
+	print "$find\n";
+	system($find);
+}
+$find = "find . -name \".*.keycode*\" -exec rm {} \\;";
+system($find);
+close(FILE);

@@ -1,0 +1,162 @@
+Clus run iris
+*************
+
+Date: 4/25/05 5:22 PM
+File: iris.out
+Attributes: 5 (input: 4, output: 1)
+Rows: 150
+
+[Data]
+Target = 5
+Disable = NULL
+Key = NULL
+Testset = 0
+XVal = 10
+Sets = 25
+File = iris.arff
+TestFile = NULL
+PruneFile = NULL
+Heuristic = NULL
+
+[Numeric]
+FTest = 1.0
+Normalize = FALSE
+MultiScore = NULL
+
+[Nominal]
+GainRatio = FALSE
+
+[Tree]
+MinimalWeight = 2.0
+BinarySplit = TRUE
+VSBPrune = 0.0
+SizeConstraintPrune = -1
+MaxDepth = -1
+
+[Settings]
+PresetRandom = 0
+
+[Hierarchical]
+WParam = 0.75
+HSeparator = .
+HierLoad = FALSE
+HierSave = FALSE
+HierFlat = FALSE
+ContinueProto = TRUE
+UseAbundances = FALSE
+NodeAbundances = FALSE
+SSWAHND = FALSE
+
+[Output]
+FoldTrees = TRUE
+FoldErrors = FALSE
+TrainErros = FALSE
+UnknownFrequency = FALSE
+BranchFrequency = TRUE
+XValForest = TRUE
+
+[kNN]
+k = 3
+VectorDistance = Euclidian
+DistanceWeighted = FALSE
+Normalizing = TRUE
+AttributeWeighted = FALSE
+
+[kNNTree]
+k = 3
+VectorDistance = Euclidian
+DistanceWeighted = FALSE
+Normalizing = TRUE
+AttributeWeighted = FALSE
+
+[Beam]
+SizePenalty = 0.01
+BeamWidth = 500
+BeamBestN = 10
+MaxSize = 100
+FastSearch = TRUE
+PostPrune = FALSE
+
+Run: 01
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 1.0
+FoldsInfo
+Nodes:  [1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+f(i-1): [1.0, 1.0, 1.0, 1.0, 0.0, 0.0]
+Time:   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+Time: 0 sec
+Number of tests
+     Default: 1
+     Original: 9
+     Pruned: 9
+
+Training error
+--------------
+
+Number of examples: 150
+Classification Error
+   Default        :    Attribute: class
+
+           REAL\PRED | Iris-setosa | Iris-versicolor | Iris-virginica |
+     ----------------------------------------------------------------------
+         Iris-setosa |          50 |               0 |              0 |  50
+     Iris-versicolor |          50 |               0 |              0 |  50
+      Iris-virginica |          50 |               0 |              0 |  50
+     ----------------------------------------------------------------------
+                     |         150 |               0 |              0 | 150
+
+     Accuracy: 0.333333
+     Cramer's coefficient: 0
+
+   Original       :    Attribute: class
+
+           REAL\PRED | Iris-setosa | Iris-versicolor | Iris-virginica |
+     ----------------------------------------------------------------------
+         Iris-setosa |          50 |               0 |              0 |  50
+     Iris-versicolor |           1 |              46 |              3 |  50
+      Iris-virginica |           0 |               1 |             49 |  50
+     ----------------------------------------------------------------------
+                     |          51 |              47 |             52 | 150
+
+     Accuracy: 0.966667
+     Cramer's coefficient: 0.950936
+
+   Pruned         :    Attribute: class
+
+           REAL\PRED | Iris-setosa | Iris-versicolor | Iris-virginica |
+     ----------------------------------------------------------------------
+         Iris-setosa |          50 |               0 |              0 |  50
+     Iris-versicolor |           1 |              46 |              3 |  50
+      Iris-virginica |           0 |               1 |             49 |  50
+     ----------------------------------------------------------------------
+                     |          51 |              47 |             52 | 150
+
+     Accuracy: 0.966667
+     Cramer's coefficient: 0.950936
+
+
+
+Default Model
+*************
+
+[Iris-setosa] : [50,50,50] : 150
+
+
+Pruned Model
+************
+
+petalwidth <= 0.5 (32.7%)
++--yes: [Iris-setosa] : [49,0,0] : 49
++--no:  petalwidth <= 1.7 (54.5%)
+        +--yes: sepalwidth <= 3.3 (96.4%)
+        |       +--yes: petallength <= 4.9 (88.7%)
+        |       |       +--yes: [Iris-versicolor] : [0,46,1] : 47
+        |       |       +--no:  [Iris-virginica] : [0,2,4] : 6
+        |       +--no:  [Iris-setosa] : [1,1,0] : 2
+        +--no:  [Iris-virginica] : [0,1,45] : 46
+

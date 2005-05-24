@@ -1,0 +1,138 @@
+Clus run "Test"
+***************
+
+Date: 5/18/05 1:07 PM
+File: numtest.out
+Attributes: 4 (input: 2, output: 1)
+Rows: 16
+
+[Data]
+Target = 4
+Disable = NULL
+Key = 1
+Testset = 0
+XVal = 3
+Sets = 25
+File = numtest.arff
+TestFile = NULL
+PruneFile = NULL
+Heuristic = Default
+Constraints = NULL
+Mode = TDWEuclid
+
+[Numeric]
+FTest = 1.0
+Normalize = FALSE
+MultiScore = NULL
+
+[Nominal]
+GainRatio = FALSE
+MEstimate = 1.0
+
+[Settings]
+PresetRandom = 0
+
+[Model]
+TuneFolds = 10
+
+[Tree]
+MinimalWeight = 2.0
+BinarySplit = TRUE
+VSBPrune = 0.0
+SizeConstraintPrune = -1
+MaxDepth = -1
+
+[Output]
+FoldTrees = TRUE
+FoldErrors = FALSE
+TrainErrors = TRUE
+UnknownFrequency = FALSE
+BranchFrequency = FALSE
+XValForest = FALSE
+Rules = FALSE
+
+[Beam]
+SizePenalty = 0.1
+BeamWidth = 10
+BeamBestN = 5
+MaxSize = -1
+AttributeHeuristic = Default
+FastSearch = TRUE
+PostPrune = FALSE
+RemoveEqualHeur = FALSE
+
+[Hierarchical]
+WParam = 0.75
+HSeparator = .
+HierLoad = FALSE
+HierSave = FALSE
+HierFlat = FALSE
+ContinueProto = TRUE
+UseAbundances = FALSE
+NodeAbundances = FALSE
+
+[kNN]
+k = 3
+VectorDistance = Euclidian
+DistanceWeighted = FALSE
+Normalizing = TRUE
+AttributeWeighted = FALSE
+
+[kNNTree]
+k = 3
+VectorDistance = Euclidian
+DistanceWeighted = FALSE
+Normalizing = TRUE
+AttributeWeighted = FALSE
+
+Run: 01
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 1.0
+FoldsInfo
+Nodes:  [1.0, 1.0, 0.0, 0.0]
+f(i-1): [1.0, 1.0, 0.0, 0.0]
+Time:   [0.0, 0.0, 0.0, 0.0]
+
+Time: 0.02 sec
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 5 (Leaves: 3)
+     Pruned: Nodes = 5 (Leaves: 3)
+
+Training error
+--------------
+
+Number of examples: 16
+Mean absolute error (MAE)
+   Default        : [0.6562]
+   Original       : [0]
+   Pruned         : [0]
+Root mean squared error (RMSE)
+   Default        : [0.7806]
+   Original       : [0]
+   Pruned         : [0]
+Pearson correlation coefficient
+   Default        : [?]
+   Original       : [1]
+   Pruned         : [1]
+
+
+Default Model
+*************
+
+[2.125]
+
+
+Pruned Model
+************
+
+b = 1
++--yes: [3]
++--no:  a > 2.5
+        +--yes: [2]
+        +--no:  [1]
+
