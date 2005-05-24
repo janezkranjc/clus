@@ -148,5 +148,9 @@ public abstract class ClusStatistic implements Serializable {
 	
 	public static void reset(ClusStatistic[] stat) {
 		for (int i = 0; i < stat.length; i++) stat[i].reset();
-	}				
+	}
+	
+	public String toString() {
+		return getString();
+	}
 }

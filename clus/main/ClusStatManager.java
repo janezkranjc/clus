@@ -193,12 +193,12 @@ public class ClusStatManager implements Serializable {
 		if (isRuleInduce()) {
 			if (m_Mode == MODE_CLASSIFY) {
 				if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
-					m_Heuristic = new ClusRuleHeuristicError();									
+					m_Heuristic = new ClusRuleHeuristicError(createTargetWeightProducer());									
 				} else {
 					m_Heuristic = new ClusRuleHeuristicMEstimate(getSettings().getMEstimate());
 				}				
 			} else {
-				m_Heuristic = new ClusRuleHeuristicError();
+				m_Heuristic = new ClusRuleHeuristicError(createTargetWeightProducer());
 			}
 			return;
 		}

@@ -25,6 +25,10 @@ public class ClusRule implements ClusModel, Serializable {
 		return m_Default;
 	}
 	
+	public void computePrediction() {
+		m_Default.calcMean();
+	}
+	
 	public ClusRule cloneRule() {
 		ClusRule new_rule = new ClusRule();
 		for (int i = 0; i < getModelSize(); i++) {

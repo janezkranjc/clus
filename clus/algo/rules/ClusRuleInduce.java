@@ -136,6 +136,7 @@ public class ClusRuleInduce {
 			if (rule.isEmpty()) {
 				break;
 			} else {
+				rule.computePrediction();
 				rule.printModel();
 				System.out.println();
 				rset.add(rule);
@@ -143,6 +144,7 @@ public class ClusRuleInduce {
 			}
 		}
 		ClusStatistic left_over = m_Induce.createTotalStat(data);
+		left_over.calcMean();
 		System.out.println("Left Over: "+left_over);
 		rset.setDefaultStat(left_over);
 	}
