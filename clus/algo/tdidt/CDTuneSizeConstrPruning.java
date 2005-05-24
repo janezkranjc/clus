@@ -201,7 +201,9 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 	public void refineGraph(ArrayList graph, ClusRun[] runs, SizeConstraintPruning[] pruners, int model, ClusSummary summ) throws ClusException {
 		int prevsize = -1;
 		while (true) {
-			for (int i = 0; i < graph.size()-2; i++) {
+			boolean not_found = true;
+			double max_diff = getRange(graph);
+			for (int i = 0; i < graph.size()-2 && not_found; i++) {
 				SingleStatList e1 = (SingleStatList)graph.get(i);
 				SingleStatList e2 = (SingleStatList)graph.get(i+1);
 				if (Math.abs(e1.getY()-e2.getY()) > m_RelErrAcc) {
@@ -213,6 +215,8 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 						addPoint(graph, smean, runs, pruners, model, summ);
 						System.out.print("#");
 						System.out.flush();
+						/* we found a place to insert */
+						not_found = false;
 					}
 				}
 			}
@@ -348,7 +352,6 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 			int size = (int)(Math.pow(2, n)+1.0); 			
 			if (size > maxsize) break;
 			if (m_OrigSize != -1 && size > m_OrigSize) break;
-			double range = getRange(graph);
 			SingleStatList new_pt = addPoint(graph, size, runs, pruners, model, summ);
 			if (new_pt == null) {
 				break;
