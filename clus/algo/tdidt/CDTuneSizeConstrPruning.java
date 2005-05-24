@@ -267,9 +267,9 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		int pos = best_index - 1;
 		while (pos >= 0) {
 			SingleStatList prev_elem = (SingleStatList)graph.get(pos);
-			if (prev_elem.getX() >= 20 && Math.abs(prev_elem.getY()-best_elem.getY()) < m_RelErrAcc) {
+			if (prev_elem.getX() >= 3 && Math.abs(prev_elem.getY()-best_elem.getY()) < m_RelErrAcc) {
 				result = prev_elem;
-				System.out.print("<");
+				System.out.print(" < "+prev_elem.getX());
 			}				
 			pos--;			
 		}
@@ -353,8 +353,14 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 			if (new_pt == null) {
 				break;
 			} else {
-				if (graph.size() > 5 && new_pt.getY() > 1.1) {
-					break;
+				if (shouldBeLow) {
+					if (graph.size() > 5 && new_pt.getY() > 1.1) {
+						break;
+					}
+				} else {
+					if (graph.size() > 5 && new_pt.getY() < 0.9) {
+						break;
+					}					
 				}
 				System.out.print("*");
 				System.out.flush();				

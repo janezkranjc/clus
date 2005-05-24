@@ -31,6 +31,10 @@ public class HierLevelAccuracy extends ClusError {
 		m_PredLevelErr = new boolean[m_Dim];
 	}
 	
+	public boolean shouldBeLow() {
+		return false;
+	}	
+	
 	public void update(ClassTerm node, int depth, double[] predarr) {
 		boolean has_pred = predarr[node.getIndex()] >= 0.5;
 		boolean has_actual = m_ActualArr[node.getIndex()];
@@ -72,7 +76,7 @@ public class HierLevelAccuracy extends ClusError {
 	
 	public double getModelError() {
 		int nb = getNbExamples();
-		return nb == 0 ? 0.0 : 1.0 - m_Correct / nb;
+		return nb == 0 ? 0.0 : m_Correct / nb;
 	}
 
 	public double getErrorComp(int i) {
@@ -90,8 +94,7 @@ public class HierLevelAccuracy extends ClusError {
 	}
 	
 	public double getOverallAccuracy() {
-		int nb = getNbExamples();
-		return nb == 0 ? 0.0 : m_Correct / nb;
+		return getModelError();
 	}	
 	
 	public String getName() {
