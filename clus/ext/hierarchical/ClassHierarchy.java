@@ -198,6 +198,14 @@ public class ClassHierarchy implements Serializable {
 		ClassesTuple tuple = new ClassesTuple(countOnes(classes));
 		addAllClasses(getRoot(), tuple, classes);
 		return tuple;
+	}
+	
+	public ClassesTuple getBestTupleMajParents(double[] mean) {
+		boolean[] classes = new boolean[getTotal()];
+		fillBooleanMatrixMaj(getRoot(), mean, classes);
+		ClassesTuple tuple = new ClassesTuple(countOnes(classes));
+		addAllClasses(getRoot(), tuple, classes);
+		return tuple;
 	}		
 	
 	public ClassTerm getBestLeaf(double[] weights) {

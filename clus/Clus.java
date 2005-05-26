@@ -125,6 +125,7 @@ public class Clus implements CMDLineArgsProvider {
 			String svalue = cargs.getOptionValue("sample");
 			sample(svalue);
 		}
+		System.out.println("Has missing values: "+m_Schema.hasMissing());
 		if (Debug.debug == 1) ClusStat.m_LoadedMemory = ResourceInfo.getMemorySize();
 	}
 	
@@ -460,13 +461,13 @@ public class Clus implements CMDLineArgsProvider {
 			int nbtot = train.getNbRows();
 			RandomSelection prunesel = new RandomSelection(nbtot, vsb);
 			cr.setPruneSet(train.select(prunesel), prunesel);
-			System.out.println("Selecting package clus.pruning set: "+vsb);
+			System.out.println("Selecting pruning set: "+vsb);
 		}
 		String prset = Settings.PRUNE_FILE.getValue();
 		if (!StringUtils.unCaseCompare(prset, Settings.NULL)) {
 			ClusData prune = loadDataFile(prset);
 			cr.setPruneSet(prune, null);
-			System.out.println("Selecting package clus.pruning set: "+prset);
+			System.out.println("Selecting pruning set: "+prset);
 		}
 		cr.setIndex(idx);
 		cr.createTrainIter();
