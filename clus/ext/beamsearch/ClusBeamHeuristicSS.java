@@ -10,8 +10,11 @@ import clus.statistic.*;
 
 public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 	
-	public ClusBeamHeuristicSS(ClusStatistic stat) {
+	private TargetWeightProducer m_TargetWeights;
+	
+	public ClusBeamHeuristicSS(ClusStatistic stat, TargetWeightProducer prod) {
 		super(stat);
+		m_TargetWeights = prod;
 	}
 
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
@@ -23,8 +26,8 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 			return Double.NEGATIVE_INFINITY;
 		}
 		if (missing.m_SumWeight <= MathUtil.C1E_9) {
-			double pos_error = c_pstat.getSS(null);
-			double neg_error = c_tstat.getSSDiff(null, c_pstat);
+			double pos_error = c_pstat.getSS(m_TargetWeights);
+			double neg_error = c_tstat.getSSDiff(m_TargetWeights, c_pstat);
 			return m_TreeOffset - (pos_error + neg_error)/m_NbTrain - 2*Settings.SIZE_PENALTY;
 		} else {
 			double pos_freq = n_pos / n_tot;
@@ -33,8 +36,8 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 			m_Neg.subtractFromThis(c_pstat);
 			m_Pos.addScaled(pos_freq, missing);			
 			m_Neg.addScaled(1.0-pos_freq, missing);
-			double pos_error = m_Pos.getSS(null);
-			double neg_error = m_Neg.getSS(null);
+			double pos_error = m_Pos.getSS(m_TargetWeights);
+			double neg_error = m_Neg.getSS(m_TargetWeights);
 			return m_TreeOffset - (pos_error + neg_error)/m_NbTrain - 2*Settings.SIZE_PENALTY;			
 		}		
 	}
@@ -42,7 +45,7 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 	public double estimateBeamMeasure(ClusNode tree) {
 		if (tree.atBottomLevel()) {
 			ClusStatistic total = tree.getTotalStat();
-			return -total.getSS(null)/m_NbTrain - Settings.SIZE_PENALTY;
+			return -total.getSS(m_TargetWeights)/m_NbTrain - Settings.SIZE_PENALTY;
 		} else {
 			double result = 0.0;
 			for (int i = 0; i < tree.getNbChildren(); i++) {
@@ -54,10 +57,15 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 	}
 	
 	public double computeLeafAdd(ClusNode leaf) {
-		return -leaf.getTotalStat().getSS(null)/m_NbTrain;		
+		return -leaf.getTotalStat().getSS(m_TargetWeights)/m_NbTrain;		
 	}
 	
 	public String getName() {
-		return "Beam Heuristic (Reduced Variance)"+getAttrHeuristicString();
+		return "Beam Heuristic (Reduced Variance)"+getAttrHeuristicString()+" with "+m_TargetWeights.getName();
 	}
+	
+	public void setRootStatistic(ClusStatistic stat) {
+		super.setRootStatistic(stat);
+		m_TargetWeights.setTotalStat(stat);
+	}	
 }

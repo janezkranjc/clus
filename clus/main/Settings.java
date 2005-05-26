@@ -11,7 +11,9 @@ import clus.heuristic.*;
 import clus.data.type.*;
 import clus.ext.hierarchical.*;
 
-public class Settings {
+public class Settings implements Serializable {
+	
+	public final static long serialVersionUID = 0;
 	
 	public final static String[] HEURISTICS = 
 	{"Default", "ReducedError", "Gain", "SSPD", "MEstimate"};
@@ -81,7 +83,7 @@ public class Settings {
 	protected INIFileString m_Target;
 	protected INIFileString m_Disabled;
 	protected INIFileString m_Key;
-	protected static INIFileBool m_Normalize;
+	protected INIFileBool m_Normalize;
 	protected INIFileString m_PresetRnd;
 	protected INIFileBool m_GainRatio;
 	protected static INIFileDouble m_FTest;

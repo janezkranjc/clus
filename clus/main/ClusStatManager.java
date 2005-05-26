@@ -38,7 +38,7 @@ public class ClusStatManager implements Serializable {
 	protected ClusSchema m_Schema;
 	protected boolean m_BeamSearch;
 	protected boolean m_RuleInduce;
-	protected transient Settings m_Settings;
+	protected Settings m_Settings;
 	protected TargetWeightProducer m_GlobalWeights;
 	protected ClusStatistic m_GlobalStat;
 	
@@ -208,7 +208,7 @@ public class ClusStatManager implements Serializable {
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_MESTIMATE) {
 				m_Heuristic = new ClusBeamHeuristicMEstimate(createStatistic(), getSettings().getMEstimate());
 			} else {
-				m_Heuristic = new ClusBeamHeuristicSS(createStatistic());    			
+				m_Heuristic = new ClusBeamHeuristicSS(createStatistic(), createTargetWeightProducer());    			
 			}
 			return;
 		}

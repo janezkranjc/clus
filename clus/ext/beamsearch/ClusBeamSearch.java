@@ -106,6 +106,7 @@ public class ClusBeamSearch extends ClusExtension {
 		/* Create single leaf node */
 		RowData train = (RowData)run.getTrainingSet();
 		ClusStatistic stat = m_Induce.createTotalStat(train);
+		stat.calcMean();
 		m_Induce.initSelectorAndSplit(stat);
 		initSelector(m_Induce.getSelector());		
 		System.out.println("Root statistic: "+stat);		
@@ -159,7 +160,7 @@ public class ClusBeamSearch extends ClusExtension {
 				ClusNode ref_leaf = (ClusNode)leaf.cloneNode();
 				sel.testToNode(ref_leaf);
 				// output best test
-				// if (Settings.VERBOSE) System.out.println("Test: "+ref_leaf.getTestString()+" -> "+sel.m_BestHeur+" ("+ref_leaf.getTest().getPosFreq()+")");	
+				if (Settings.VERBOSE > 0) System.out.println("Test: "+ref_leaf.getTestString()+" -> "+sel.m_BestHeur+" ("+ref_leaf.getTest().getPosFreq()+")");	
 				// create child nodes
 				ClusStatManager mgr = m_Induce.getStatManager();
 				int arity = ref_leaf.updateArity();

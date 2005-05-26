@@ -44,7 +44,7 @@ public class TreeFrame extends JFrame {
 	JList m_DSList;
 	DefaultListModel m_DSListModel;
 	JTextArea m_TextArea = new JTextArea();
-	JMenuItem m_Find, m_Open;
+	JMenuItem m_Find, m_Open, m_ShowSett;
 	JFileChooser m_FileChoose = new JFileChooser();
 	TreeMap m_Files = new TreeMap();
 	
@@ -79,6 +79,8 @@ public class TreeFrame extends JFrame {
 		sett.add(m_Horz = new JCheckBoxMenuItem("Horizontal"));
 		m_Horz.addActionListener(new MyHorzListener());
 		m_Horz.setSelected(true);
+		sett.add(m_ShowSett = new JMenuItem("Show settings"));
+		m_ShowSett.addActionListener(new MyShowSettingsListener());
 		menu.add(file);
 		menu.add(sett);
 		return menu;
@@ -245,6 +247,28 @@ public class TreeFrame extends JFrame {
 		return fn;
 	}
 	
+	public DefaultMutableTreeNode addFile(String full, String ds) {
+		String fn = FileUtil.removePath(full);
+		fn = correctUnderscores(fn, ds);
+		fn = correctUnderscores(fn, "beam-10");
+		fn = correctUnderscores(fn, "beam-100");
+		fn = correctUnderscores(fn, "beam_pp-100");			
+		fn = correctUnderscores(fn, "beam_c-75");			
+		String[] name = FileUtil.getName(fn).split("\\-");
+		name = doPermute(name);
+		String chname = name[name.length-1];
+		DefaultMutableTreeNode parent = getParentFNode(name);
+		ClusFileTreeElem elem = new ClusFileTreeElem(chname, full);
+		DefaultMutableTreeNode child = new DefaultMutableTreeNode(elem);
+		int ipos = 0;
+		while (ipos < parent.getChildCount() && 
+				cmpName(parent.getChildAt(ipos).toString(), chname)) {
+			ipos++;
+		}
+		m_TreeModel.insertNodeInto(child, parent, ipos);
+		return child;
+	}
+	
 	public void openDir(String dir, String ds) throws IOException {
 		for (int i = m_Root.getChildCount()-1; i >= 0; i--) {
 			DefaultMutableTreeNode ch = (DefaultMutableTreeNode)m_Root.getChildAt(i);
@@ -257,24 +281,7 @@ public class TreeFrame extends JFrame {
 		FileUtil.recursiveFindAll(dir_file, ".tree", files);
 		for (int i = 0; i < files.size(); i++) {
 			String full = (String)files.get(i);
-			String fn = FileUtil.removePath(full);
-			fn = correctUnderscores(fn, ds);
-			fn = correctUnderscores(fn, "beam-10");
-			fn = correctUnderscores(fn, "beam-100");
-			fn = correctUnderscores(fn, "beam_pp-100");			
-			fn = correctUnderscores(fn, "beam_c-75");			
-			String[] name = FileUtil.getName(fn).split("\\-");
-			name = doPermute(name);
-			String chname = name[name.length-1];
-			DefaultMutableTreeNode parent = getParentFNode(name);
-			ClusFileTreeElem elem = new ClusFileTreeElem(chname, full);
-			DefaultMutableTreeNode child = new DefaultMutableTreeNode(elem);
-			int ipos = 0;
-			while (ipos < parent.getChildCount() && 
-					cmpName(parent.getChildAt(ipos).toString(), chname)) {
-				ipos++;
-			}
-			m_TreeModel.insertNodeInto(child, parent, ipos);
+			addFile(full, ds);
 		}
 		for (int i = 0; i < m_Root.getChildCount(); i++) {
 			DefaultMutableTreeNode ch = (DefaultMutableTreeNode)m_Root.getChildAt(i);
@@ -290,16 +297,30 @@ public class TreeFrame extends JFrame {
 	
 	public void showInfo(ClusNode root) {
 		StringBuffer buf = new StringBuffer();
-		buf.append("Size: "+root.getModelSize()+"\n");
-		buf.append("Leaves: "+root.getNbLeaves()+"\n");
+		buf.append("Size: "+root.getModelSize()+" (Leaves: "+root.getNbLeaves()+")\n");
 		TargetWeightProducer scale = m_TreePanel.createTargetWeightProducer();
-		scale.setTotalStat(root.getTotalStat());
+		ClusNode tree_root = (ClusNode)root.getRoot();
+		scale.setTotalStat(tree_root.getTotalStat());
 		String relerr = ClusFormat.SIX_AFTER_DOT.format(root.estimateError(scale));
 		String abserr = ""+root.estimateErrorAbsolute(scale);
-		buf.append("Error: "+relerr+" ("+abserr+") ss = "+root.estimateSS(scale)+"\n");
+		buf.append("Examples: "+root.getTotalStat().m_SumWeight+"\n");		
+		buf.append("Error: "+relerr+" ("+abserr+") ss = "+root.estimateSS(scale)+" ("+scale.getName()+")\n");
 		buf.append("Statistic: "+root.getTotalStat());
 		m_TextArea.setText(buf.toString());
 	}			
+	
+	public void showSettings() {
+		try {
+			ClusStatManager mgr = m_TreePanel.getStatManager();
+			Settings sett = mgr.getSettings();
+			PrintWriter wrt = new PrintWriter(new OutputStreamWriter(System.out));
+			sett.show(wrt);
+			wrt.flush();
+		} catch (IOException ex) {
+			System.err.println("IOError: "+ex.getMessage());
+			ex.printStackTrace();
+		}
+	}
 	
 	public void addBeam(ArrayList beam, ClusFileTreeElem elem, DefaultMutableTreeNode node) {
 		int pos = 0;
@@ -331,7 +352,8 @@ public class TreeFrame extends JFrame {
 		}
 	}
 	
-	public void loadModel(ClusFileTreeElem elem, DefaultMutableTreeNode node) {
+	public void loadModel(DefaultMutableTreeNode node) {
+		ClusFileTreeElem elem = (ClusFileTreeElem)node.getUserObject();
 		try {
 			if (elem.getType() != -1) {
 				loadModelType(elem, node);
@@ -340,6 +362,7 @@ public class TreeFrame extends JFrame {
 			System.out.println("Name: "+elem.getFullName());			
 			ObjectLoadStream open = new ObjectLoadStream(new FileInputStream(elem.getFullName()));
 			ClusStatManager manager = (ClusStatManager)open.readObject();
+			m_TreePanel.setStatManager(manager);
 			Integer type = (Integer)open.readObject();
 			try {
 				switch (type.intValue()) {
@@ -405,9 +428,7 @@ public class TreeFrame extends JFrame {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode)m_Tree.getLastSelectedPathComponent();
 			if (node == null) return;
 			if (node.isLeaf()) {
-				System.out.println("Class = "+node.getUserObject().getClass().getName());
-				ClusFileTreeElem elem = (ClusFileTreeElem)node.getUserObject();
-				loadModel(elem, node);
+				loadModel(node);
 			} else if (node.getUserObject() instanceof ClusFileTreeElem) {
 				ClusFileTreeElem elem = (ClusFileTreeElem)node.getUserObject();
 				loadModelType2(elem);
@@ -439,6 +460,13 @@ public class TreeFrame extends JFrame {
 		
 		public void componentShown(ComponentEvent e) {}
 	}
+
+	private class MyShowSettingsListener implements ActionListener {
+		
+		public void actionPerformed(ActionEvent e) {
+			showSettings();
+		}
+	}	
 	
 	private class MyOpenListener implements ActionListener {
 		
@@ -498,12 +526,16 @@ public class TreeFrame extends JFrame {
 		String[] lines = new String[0];
 		TreePanel tpanel = new TreePanel(root, lines);
 		tpanel.setStatManager(manager);
-		ClusSchema schema = manager.getSchema();
-		if (hier != null) {
-			ShowHierarchy sh = new ShowHierarchy(root, hier);
-			frame = new TreeFrame(schema.getRelationName(), tpanel, sh);
+		if (manager == null) {
+			frame = new TreeFrame("Clus", tpanel, null);
 		} else {
-			frame = new TreeFrame(schema.getRelationName(), tpanel, null);		
+			ClusSchema schema = manager.getSchema();
+			if (hier != null) {
+				ShowHierarchy sh = new ShowHierarchy(root, hier);
+				frame = new TreeFrame(schema.getRelationName(), tpanel, sh);
+			} else {
+				frame = new TreeFrame(schema.getRelationName(), tpanel, null);		
+			}
 		}
 		tpanel.setFrame(frame);
 		frame.init();
@@ -522,6 +554,15 @@ public class TreeFrame extends JFrame {
 		return TreeFrame.createFrame(manager, root, null);
 	}		
 	
+	public static TreeFrame showTree(String fname) throws IOException, ClassNotFoundException {
+		TreeFrame frame = createFrame(null, null, null);
+		frame.addWindowListener(new WindowClosingListener(frame, WindowClosingListener.TYPE_EXIT));
+		DefaultMutableTreeNode node = frame.addFile(fname, null);
+		frame.loadModel(node);
+		frame.setVisible(true);
+		return frame;
+	}
+		
 	public static TreeFrame showTree(InputStream strm) throws IOException, ClassNotFoundException {
 		TreeFrame frame = loadTree(strm);
 		frame.addWindowListener(new WindowClosingListener(frame, WindowClosingListener.TYPE_EXIT));

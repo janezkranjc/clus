@@ -228,7 +228,7 @@ public class Clus implements CMDLineArgsProvider {
 	}
 	
 	public final void showTree(String fname) throws IOException, ClassNotFoundException{
-		TreeFrame.showTree(new FileInputStream(Settings.getFileAbsolute(fname)));
+		TreeFrame.showTree(Settings.getFileAbsolute(fname));
 	}
 	
 	public final void gui(String lok) throws ClusException, IOException, ClassNotFoundException{

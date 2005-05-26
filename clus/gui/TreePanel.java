@@ -55,6 +55,10 @@ public class TreePanel extends JPanel {
 	public void setStatManager(ClusStatManager mgr) {
 		m_Manager = mgr;
 	}
+	
+	public ClusStatManager getStatManager() {
+		return m_Manager;
+	}	
 
 	public TargetWeightProducer createTargetWeightProducer() {
 		return m_Manager.createTargetWeightProducer();

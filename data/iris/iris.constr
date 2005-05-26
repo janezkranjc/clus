@@ -1,4 +1,7 @@
 
 petallength > ?
-+--yes: ?
++--yes: petalwidth > ?
+|       +--yes: ?
+|       +--no: ?
 +--no: ?
+

@@ -32,7 +32,9 @@ public class SubsetSplit extends NominalSplit {
 				count++;
 			}
 		}
-		System.out.println("}: "+mheur+" "+tot+" "+pos);
+		tot.calcMean(); pos.calcMean();
+		// System.out.println("}: "+mheur+" "+tot+" "+pos);
+		System.out.println("}: "+mheur);
 	}
 
 	public void findSplit(TestSelector node, NominalAttrType type) {

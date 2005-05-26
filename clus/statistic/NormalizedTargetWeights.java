@@ -28,6 +28,6 @@ public class NormalizedTargetWeights extends TargetWeightProducer {
 	}
 	
 	public String getName() {
-		return "Normalized weights";
+		return getSettings().shouldNormalize() ? "Normalized weights" : "Uniform weights";
 	}	
 }
