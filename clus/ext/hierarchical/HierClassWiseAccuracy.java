@@ -98,7 +98,7 @@ public class HierClassWiseAccuracy extends ClusError {
 	
 	public void showModelError(PrintWriter out, int detail) {
 		NumberFormat fr = getFormat();
-		out.println(getAccuracy());
+		out.println(getAccuracy()+", "+getCoverage());
 		printNonZeroAccuracies(fr, out, m_Hier.getRoot());
 	}
 	
