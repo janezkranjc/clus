@@ -271,6 +271,7 @@ public class ClusStatManager implements Serializable {
 				parent.addError(new HierRMSError(parent, m_GlobalWeights, true, true, m_Hier));				
 				parent.addError(new HierRMSError(parent, m_GlobalWeights, true, false, m_Hier));							
 				parent.addError(new HierLevelAccuracy(parent, m_Hier));				
+				parent.addError(new HierClassWiseAccuracy(parent, m_Hier));				
 				break;
 			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
 				if (Debug.HIER_JANS_PAPER) {
@@ -375,34 +376,44 @@ public class ClusStatManager implements Serializable {
 		return parent;
 	}	
 	
+	public PruneTree getTreePrunerNoVSB() {
+		int maxsize = -1;
+		Settings sett = getSettings();
+		if (isBeamSearch() && sett.isBeamPostPrune()) {
+			maxsize = sett.getTreeMaxSize();
+		} else {
+			maxsize = sett.getSizeConstraintPruning();
+		}
+		if (maxsize != -1) {
+			return new SizeConstraintPruning(maxsize, createTargetWeightProducer());
+		} else {
+			if (m_Mode == MODE_CLASSIFY) {
+				/* C45Pruner not implemented yet! */
+				return new C45Pruner();
+			} else {
+				if (m_Mode == MODE_REGRESSION) {
+					return new M5Pruner(createTargetWeightProducer());
+				/*} if (m_Mode == MODE_HIERARCHICAL) {
+					return new M5Pruner(m_GlobalWeights);*/
+				} else {
+					return new DummyPruner();
+				}
+			}
+		}	
+	}
+	
 	public PruneTree getTreePruner(ClusData pruneset) {
 		Settings sett = getSettings();
 		if (pruneset != null) {
-			ClusErrorParent parent = createEvalError();
-			return new VSBPruning(parent, (RowData)pruneset);
+			if (sett.isHierPruneInSig() != 0.0) {
+				PruneTree pruner = getTreePrunerNoVSB(); 
+				return new HierRemoveInsigClasses(sett.isHierPruneInSig(), pruneset, pruner, m_Hier);
+			} else {
+				ClusErrorParent parent = createEvalError();
+				return new VSBPruning(parent, (RowData)pruneset);
+			}
 		} else {
-			int maxsize = -1;
-			if (isBeamSearch() && sett.isBeamPostPrune()) {
-				maxsize = sett.getTreeMaxSize();
-			} else {
-				maxsize = sett.getSizeConstraintPruning();
-			}
-			if (maxsize != -1) {
-				return new SizeConstraintPruning(maxsize, createTargetWeightProducer());
-			} else {
-				if (m_Mode == MODE_CLASSIFY) {
-					/* C45Pruner not implemented yet! */
-					return new C45Pruner();
-				} else {
-					if (m_Mode == MODE_REGRESSION) {
-						return new M5Pruner(createTargetWeightProducer());
-					/*} if (m_Mode == MODE_HIERARCHICAL) {
-						return new M5Pruner(m_GlobalWeights);*/
-					} else {
-						return new DummyPruner();
-					}
-				}
-			}
+			return getTreePrunerNoVSB();
 		}
 	}
 	

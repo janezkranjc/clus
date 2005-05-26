@@ -77,6 +77,7 @@ public class Settings implements Serializable {
 	public static INIFileBool HIER_CONT_PROTOTYPE;
 	public static INIFileBool HIER_USE_ABUNDANCES;
 	public static INIFileBool HIER_NODE_ABUNDANCES;
+	public INIFileDouble m_HierPruneInSig;
 	
 	protected INIFileInt m_Verbose;	
 	protected INIFile m_Ini = new INIFile();
@@ -200,6 +201,7 @@ public class Settings implements Serializable {
 		hier.addNode(HIER_SAVE);
 		HIER_FLAT = new INIFileBool("HierFlat", false);
 		hier.addNode(HIER_FLAT);
+		hier.addNode(m_HierPruneInSig = new INIFileDouble("PruneInSig", 0.0));
 		HIER_CONT_PROTOTYPE = new INIFileBool("ContinueProto", true);
 		hier.addNode(HIER_CONT_PROTOTYPE);
 		HIER_USE_ABUNDANCES = new INIFileBool("UseAbundances", false);
@@ -275,6 +277,10 @@ public class Settings implements Serializable {
 		// add kNN section
 		m_Ini.addNode(kNN);
 		m_Ini.addNode(kNNT);		
+	}
+	
+	public double isHierPruneInSig() {
+		return m_HierPruneInSig.getValue();
 	}
 	
 	public boolean isOrderedRules() {

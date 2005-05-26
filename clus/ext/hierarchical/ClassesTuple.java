@@ -42,6 +42,21 @@ public class ClassesTuple implements MySparseVector, Serializable {
 		return false;
 	}
 	
+	public boolean hasClass(int index) {
+		for (int i = 0; i < m_Tuple.length; i++) {
+			ClassesValue val = elementAt(i);
+			if (index == val.getIndex()) return true;
+		}
+		return false;
+	}
+	
+	public void updateDistribution(double[] distr, double weight) {
+		for (int i = 0; i < m_Tuple.length; i++) {
+			ClassesValue val = elementAt(i);
+			distr[val.getIndex()] += weight;
+		}		
+	}
+	
 	public void toBoolVector(boolean[] enable) {
 		Arrays.fill(enable, false);
 		for (int i = 0; i < m_Tuple.length; i++) {
