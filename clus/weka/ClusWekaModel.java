@@ -22,7 +22,7 @@ public class ClusWekaModel implements ClusModel {
 	ClusWekaClassifier m_Parent;
 	
 	public ClusStatistic predictWeighted(DataTuple tuple) {
-		Instance weka_tuple = m_Parent.convertInstance(tuple);		
+		Instance weka_tuple = m_Parent.m_Data.convertInstance(tuple);		
 	    Instance classMissing = (Instance)weka_tuple.copy();
 	    classMissing.setDataset(m_Parent.getDummyData());
 	    classMissing.setClassMissing();

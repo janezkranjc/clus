@@ -5,7 +5,7 @@ import clus.data.rows.*;
 import clus.error.*;
 import clus.statistic.*;
 
-public class VSBPruning implements PruneTree {
+public class VSBPruning extends PruneTree {
 
 	protected ClusError m_TreeErr;
 	protected ClusError m_NodeErr;

@@ -2,7 +2,7 @@ package clus.pruning;
 
 import clus.main.*;
 
-public class C45Pruner implements PruneTree {
+public class C45Pruner extends PruneTree {
 
 	public void prune(ClusNode node) {
 		if (!node.atBottomLevel()) {

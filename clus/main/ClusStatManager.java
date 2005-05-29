@@ -111,6 +111,7 @@ public class ClusStatManager implements Serializable {
 		int nb_class = m_Target.getNbType(ClassesAttrType.THIS_TYPE);
 		if (nb_class > 0) {
 			m_Mode = MODE_HIERARCHICAL;
+			getSettings().setSectionHierarchicalEnabled(true);
 			nb_types++;
 		}
 		if (nb_int > 0) {
@@ -374,7 +375,7 @@ public class ClusStatManager implements Serializable {
 			break;
 		}
 		return parent;
-	}	
+	}
 	
 	public PruneTree getTreePrunerNoVSB() {
 		int maxsize = -1;
@@ -385,21 +386,25 @@ public class ClusStatManager implements Serializable {
 			maxsize = sett.getSizeConstraintPruning();
 		}
 		if (maxsize != -1) {
+			sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
 			return new SizeConstraintPruning(maxsize, createTargetWeightProducer());
-		} else {
-			if (m_Mode == MODE_CLASSIFY) {
-				/* C45Pruner not implemented yet! */
-				return new C45Pruner();
-			} else {
-				if (m_Mode == MODE_REGRESSION) {
+		}
+		if (m_Mode == MODE_REGRESSION) {
+			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT ||
+				sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
+					sett.setPruningMethod(Settings.PRUNING_METHOD_M5);
 					return new M5Pruner(createTargetWeightProducer());
-				/*} if (m_Mode == MODE_HIERARCHICAL) {
-					return new M5Pruner(m_GlobalWeights);*/
-				} else {
-					return new DummyPruner();
-				}
+			}		
+		}
+		if (m_Mode == MODE_HIERARCHICAL) {
+			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT ||
+					sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
+				sett.setPruningMethod(Settings.PRUNING_METHOD_M5);
+				return new M5Pruner(m_GlobalWeights);
 			}
-		}	
+		}
+		sett.setPruningMethod(Settings.PRUNING_METHOD_NONE);
+		return new DummyPruner();
 	}
 	
 	public PruneTree getTreePruner(ClusData pruneset) {
@@ -408,8 +413,9 @@ public class ClusStatManager implements Serializable {
 			if (sett.isHierPruneInSig() != 0.0) {
 				PruneTree pruner = getTreePrunerNoVSB(); 
 				return new HierRemoveInsigClasses(sett.isHierPruneInSig(), pruneset, pruner, m_Hier);
-			} else {
+			} else {				
 				ClusErrorParent parent = createEvalError();
+				sett.setPruningMethod(Settings.PRUNING_METHOD_REDERR_VSB);
 				return new VSBPruning(parent, (RowData)pruneset);
 			}
 		} else {

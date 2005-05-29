@@ -3,8 +3,6 @@
  */
 package clus.weka;
 
-import java.util.*;
-
 import jeans.util.cmdline.*;
 
 import clus.*;
@@ -13,7 +11,6 @@ import clus.algo.tdidt.*;
 import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;
-import clus.data.type.*;
 import clus.statistic.*;
 
 import weka.classifiers.*;
@@ -23,12 +20,8 @@ public class ClusWekaClassifier extends ClusClassifier {
 
 	protected String m_Options;
 	protected Classifier m_Classifier;
-	protected ClusSchema m_Schema;
-	protected ArrayList m_NomAttrs = new ArrayList();
-	protected ArrayList m_NumAttrs = new ArrayList();
-	protected FastVector m_WekaTypes = new FastVector();
+	protected ClusToWekaData m_Data;
 	protected ClusStatManager m_Manager;
-	protected Instances m_Instances;
 	
 	public ClusWekaClassifier(Clus clus, String opts) throws ClusException {
 		super(clus);
@@ -49,29 +42,7 @@ public class ClusWekaClassifier extends ClusClassifier {
 	}
 	
 	public void initializeInduce(ClusInduce induce, CMDLineArgs cargs) {
-		m_Schema = induce.getSchema();
-		for (int i = 0; i < m_Schema.getNbAttributes(); i++) {
-			ClusAttrType type = m_Schema.getAttrType(i);			
-			if (type instanceof NumericAttrType) {
-				m_NumAttrs.add(type);
-			} else {
-				m_NomAttrs.add(type);
-			}			
-		}
-		for (int j = 0; j < m_NumAttrs.size(); j++) {
-			NumericAttrType type = (NumericAttrType)m_NumAttrs.get(j);
-			m_WekaTypes.addElement(new Attribute(type.getName()));
-		}		
-		for (int j = 0; j < m_NomAttrs.size(); j++) {
-			NominalAttrType type = (NominalAttrType)m_NomAttrs.get(j);
-			FastVector values = new FastVector();
-			for (int k = 0; k < type.getNbValues(); k++) {
-				values.addElement(type.getValue(k));
-			}			
-			m_WekaTypes.addElement(new Attribute(type.getName(), values));
-		}
-		m_Instances = new Instances(m_Schema.getRelationName(), m_WekaTypes, 0);
-		m_Instances.setClassIndex(m_WekaTypes.size()-1);
+		m_Data = new ClusToWekaData(induce.getSchema());
 		m_Manager = induce.getStatManager();
 	}
 	
@@ -80,41 +51,15 @@ public class ClusWekaClassifier extends ClusClassifier {
 	}
 	
 	public Instances getDummyData() {
-		return m_Instances;
+		return m_Data.getDummyData();
 	}
 
-	public Instance convertInstance(DataTuple tuple) {
-		double[] values = new double[m_WekaTypes.size()];
-		for (int j = 0; j < values.length; j++) {
-			values[j] = Instance.missingValue();
-		}
-		int pos = 0;
-		for (int j = 0; j < m_NumAttrs.size(); j++) {
-			NumericAttrType type = (NumericAttrType)m_NumAttrs.get(j);
-			values[pos++] = type.getNumeric(tuple);
-		}
-		for (int j = 0; j < m_NomAttrs.size(); j++) {
-			NominalAttrType type = (NominalAttrType)m_NomAttrs.get(j);
-			values[pos++] = (double)type.getNominal(tuple);
-		}		
-		return new Instance(tuple.getWeight(), values);
-	}
-	
-	public Instances convertData(RowData data) {
-		Instances weka_data = new Instances(m_Schema.getRelationName(), m_WekaTypes, data.getNbRows());
-		for (int i = 0; i < data.getNbRows(); i++) {
-			weka_data.add(convertInstance(data.getTuple(i)));
-		}
-		weka_data.setClassIndex(m_WekaTypes.size()-1);
-		return weka_data;
-	}
-	
 	public ClusModel induceSingle(ClusRun cr) throws ClusException {
 		ClusWekaModel result = new ClusWekaModel();
 		RowData data = (RowData)cr.getTrainingSet();
 		try {
 			Classifier copy = Classifier.makeCopy(m_Classifier);
-			copy.buildClassifier(convertData(data));
+			copy.buildClassifier(m_Data.convertData(data));
 			result.setClassifier(copy);
 			result.setParent(this);
 			return result;

@@ -8,7 +8,7 @@ import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
 import clus.main.*;
 
-public class HierRemoveInsigClasses implements PruneTree {
+public class HierRemoveInsigClasses extends PruneTree {
 
 	PruneTree m_Pruner;
 	ClusData m_PruneSet;
@@ -49,7 +49,7 @@ public class HierRemoveInsigClasses implements PruneTree {
 			RowData subset = data.applyWeighted(node.getTest(), i);
 			executeRecursive((ClusNode)node.getChild(i), global, subset);
 		}
-	}
+	}	
 }
 
 

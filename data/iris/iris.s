@@ -1,15 +1,11 @@
 
-[Data]
+[Attributes]
 Target = 5
-Constraints = iris.constr
 
-[Beam]
-BeamWidth = 20
+[Constraints]
+Syntactic = iris.constr
 
-[Tree]
-SizeConstraintPrune = -1
-
-[Beam]
-BeamWidth = 20
-BeamBestN = 20
-MaxSize = 3
+% [Beam]
+% BeamWidth = 20
+% BeamBestN = 20
+% MaxSize = 3

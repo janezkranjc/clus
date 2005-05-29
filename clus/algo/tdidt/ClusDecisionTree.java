@@ -27,7 +27,7 @@ public class ClusDecisionTree extends ClusClassifier {
 
 	public ClusModel induceSingle(ClusRun cr) {
 		ClusNode orig = getInduce().induce(cr, m_Clus.getScore());
-		return m_Clus.pruneTree(orig, cr.getPruneSet());
+		return m_Clus.pruneTree(orig, cr.getPruneSet(), cr.getTrainingSet());
 	}
 	
 	public ClusModel induceSingleUnpruned(ClusRun cr) {

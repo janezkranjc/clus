@@ -3,7 +3,7 @@ package clus.pruning;
 import clus.main.*;
 import clus.statistic.*;
 
-public class SizeConstraintPruning implements PruneTree {
+public class SizeConstraintPruning extends PruneTree {
 
 	public int m_MaxSize;
 	public TargetWeightProducer m_TargetWeights;

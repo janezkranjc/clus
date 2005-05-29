@@ -9,17 +9,19 @@ public class ClusModelInfo {
 	
 	public final static int TRAIN_ERR = 0;
 	public final static int TEST_ERR = 1;		
+	public final static int VALID_ERR = 2;
 	
 	protected String m_Name;
 	protected int m_ModelSize;
 	protected ClusModel m_Model;
-	protected ClusErrorParent m_TrainErr, m_TestErr;
+	protected ClusErrorParent m_TrainErr, m_TestErr, m_ValidErr;
 	protected ModelProcessorCollection m_TrainModelProc, m_TestModelProc;
 	
-	public ClusModelInfo(String name, ClusErrorParent train, ClusErrorParent test) {
+	public ClusModelInfo(String name, ClusErrorParent train, ClusErrorParent test, ClusErrorParent valid) {
 		m_Name = name;
 		if (train != null) m_TrainErr = train.getErrorClone();
-		if (test != null) m_TestErr = test.getErrorClone();		
+		if (test != null) m_TestErr = test.getErrorClone();
+		if (valid != null) m_ValidErr = valid.getErrorClone();
 	}
 	
 	public void check() {
@@ -53,7 +55,7 @@ public class ClusModelInfo {
 	}	
 				
 	public final ClusModelInfo cloneModelInfo() {
-		return new ClusModelInfo(m_Name, m_TrainErr, m_TestErr);
+		return new ClusModelInfo(m_Name, m_TrainErr, m_TestErr, m_ValidErr);
 	}
 	
 	public final String getName() {
@@ -76,16 +78,25 @@ public class ClusModelInfo {
 		return m_TestErr;
 	}
 	
+	public final ClusErrorParent getValidationError() {
+		return m_ValidErr;
+	}	
+	
 	public final void setTestError(ClusErrorParent err) {
 		m_TestErr = err;
 	}
 	
 	public final void setTrainError(ClusErrorParent err) {
 		m_TrainErr = err;
-	}	
+	}
+	
+	public final void setValidationError(ClusErrorParent err) {
+		m_ValidErr = err;
+	}		
 	
 	public final ClusErrorParent getError(int traintest) {
 		if (traintest == TRAIN_ERR) return m_TrainErr;
+		else if (traintest == VALID_ERR) return m_ValidErr; 
 		else return m_TestErr;
 	}
 	
@@ -100,7 +111,11 @@ public class ClusModelInfo {
 	
 	public final boolean hasTrainError() {
 		return m_TrainErr != null;
-	}	
+	}
+	
+	public final boolean hasValidError() {
+		return m_ValidErr != null;
+	}		
 	
 	public final String getModelInfo() {
 		if (m_Model == null) return "No model available";
@@ -117,10 +132,13 @@ public class ClusModelInfo {
 		if (other.hasTrainError()) {
 			m_TrainErr.add(other.getTrainingError());
 		}
+		if (other.hasValidError()) {
+			m_ValidErr.add(other.getValidationError());
+		}		
 		if (other.hasTestError()) {
 			ClusErrorParent mytesterr = getCreateTestError();
 			mytesterr.add(other.getTestError());		
-		}
+		}		
 	}
 		
 	public String toString() {

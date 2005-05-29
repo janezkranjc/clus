@@ -38,7 +38,11 @@ public class ClusRun extends CRParent {
 	
 	public ClusErrorParent getTestError() {
 		return m_Summary.getTestError();
-	}		
+	}
+	
+	public ClusErrorParent getValidationError() {
+		return m_Summary.getValidationError();
+	}			
 	
 /***************************************************************************
  * Index of clus run
@@ -118,7 +122,11 @@ public class ClusRun extends CRParent {
 	
 	public final ClusData getPruneSet() {
 		return m_Prune;
-	}	
+	}
+	
+	public final TupleIterator getPruneIter() {
+		return ((RowData)m_Prune).getIterator();
+	}		
 	
 	public final void setPruneSet(ClusData data, ClusSelection sel) {
 		m_Prune = data;

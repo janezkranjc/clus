@@ -113,7 +113,7 @@ public class ClusBeamSearch extends ClusExtension {
 		/* Has syntactic constraints? */
 		ClusNode root = null;
 		String constr_file = sett.getConstraintFile();
-		if (StringUtils.unCaseCompare(constr_file, Settings.NULL)) {
+		if (StringUtils.unCaseCompare(constr_file, Settings.NONE)) {
 			root = new ClusNode();
 			root.setTotalStat(stat);
 		} else {

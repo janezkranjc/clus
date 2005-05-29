@@ -146,6 +146,7 @@ public class Clus implements CMDLineArgsProvider {
 		m_Summary.setStatManager(mgr);
 		if (!Settings.HIER_FLAT.getValue()) m_Summary.setTrainError(error);
 		if (hasTestSet()) m_Summary.setTestError(error);
+		if (hasPruneSet()) m_Summary.setValidationError(error);
 		clss.initializeSummary(m_Summary);
 	}
 	
@@ -187,9 +188,10 @@ public class Clus implements CMDLineArgsProvider {
 		System.out.println();
 	}
 	
-	public final ClusNode pruneTree(ClusNode orig, ClusData pruneset) {
+	public final ClusNode pruneTree(ClusNode orig, ClusData pruneset, ClusData trainset) {
 		ClusNode pruned = (ClusNode)orig.cloneTree();
 		PruneTree pruner = m_Induce.getStatManager().getTreePruner(pruneset);
+		pruner.setTrainingData((RowData)trainset);
 		pruner.prune(pruned);
 		return pruned;
 	}
@@ -206,7 +208,7 @@ public class Clus implements CMDLineArgsProvider {
 		cr.getModelInfo(ClusModels.ORIGINAL).setModel(orig);
 		ClusNode defmod = pruneToRoot(orig);
 		cr.getModelInfo(ClusModels.DEFAULT).setModel(defmod);
-		ClusNode pruned = pruneTree(orig, cr.getPruneSet());
+		ClusNode pruned = pruneTree(orig, cr.getPruneSet(), cr.getTrainingSet());
 		pruned.numberTree();
 		cr.getModelInfo(ClusModels.PRUNED).setModel(pruned);		
 		if (getSettings().rulesFromTree()) {
@@ -362,6 +364,12 @@ public class Clus implements CMDLineArgsProvider {
 		return false;
 	}
 	
+	public final boolean hasPruneSet() {
+		if (!m_Sett.isNullPruneFile()) return true;
+		if (m_Sett.getPruneSetProportion() != 0.0) return true;
+		return false;
+	}	
+	
 	public final RowData loadDataFile(String fname) throws IOException, ClusException {
 		ClusReader reader = new ClusReader(fname);
 		System.out.println("Reading: "+fname);
@@ -455,7 +463,7 @@ public class Clus implements CMDLineArgsProvider {
 				cr.setTestSet(((RowData)val).getIterator());
 			}
 		}
-		double vsb = m_Sett.getVSBPruneProportion();
+		double vsb = m_Sett.getPruneSetProportion();
 		if (vsb != 0.0) {
 			ClusData train = cr.getTrainingSet();
 			int nbtot = train.getNbRows();
@@ -463,8 +471,8 @@ public class Clus implements CMDLineArgsProvider {
 			cr.setPruneSet(train.select(prunesel), prunesel);
 			System.out.println("Selecting pruning set: "+vsb);
 		}
-		String prset = Settings.PRUNE_FILE.getValue();
-		if (!StringUtils.unCaseCompare(prset, Settings.NULL)) {
+		String prset = Settings.m_PruneFile.getValue();
+		if (!StringUtils.unCaseCompare(prset, Settings.NONE)) {
 			ClusData prune = loadDataFile(prset);
 			cr.setPruneSet(prune, null);
 			System.out.println("Selecting pruning set: "+prset);
@@ -522,6 +530,7 @@ public class Clus implements CMDLineArgsProvider {
 		calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr);
 		TupleIterator tsiter = cr.getTestIter();
 		if (tsiter != null) calcError(tsiter, ClusModelInfo.TEST_ERR, cr);
+		if (cr.getPruneSet() != null) calcError(cr.getPruneIter(), ClusModelInfo.VALID_ERR, cr);
 		if (summary != null) summary.addSummary(cr);
 	}
 	
@@ -687,10 +696,13 @@ public class Clus implements CMDLineArgsProvider {
 				clus.setExtension(new DefaultExtension());
 				ClusClassifier clss = null;
 				if (cargs.hasOption("knn")) {
+					clus.getSettings().setSectionKNNEnabled(true);
 					clss = new KNNClassifier(clus);
 				} else if (cargs.hasOption("knnTree")) { //new
+					clus.getSettings().setSectionKNNTEnabled(true);
 					clss = new KNNTreeClassifier(clus);
 				} else if (cargs.hasOption("rules")) {
+					clus.getSettings().setSectionBeamEnabled(true);
 					clss = new ClusRuleClassifier(clus);
 				} else if (cargs.hasOption("weka")) {
 					clss = new ClusWekaClassifier(clus, cargs.getOptionValue("weka"));
@@ -703,7 +715,8 @@ public class Clus implements CMDLineArgsProvider {
 					clss = new CDTuneSizeConstrPruning(clss);
 				}				
 				if (cargs.hasOption("beam")) {
-					ClusBeamSearch search = Settings.isFastBS() ? new ClusFastBeamSearch(clus) : new ClusBeamSearch(clus);
+					clus.getSettings().setSectionBeamEnabled(true);					
+					ClusBeamSearch search = Settings.isFastBS() ? new ClusFastBeamSearch(clus) : new ClusBeamSearch(clus);					
 					clus.setExtension(search);
 				}
 				if (cargs.hasOption("corrmatrix")) {
@@ -751,7 +764,7 @@ public class Clus implements CMDLineArgsProvider {
 			}
 			if (Debug.debug == 1) ClusStat.show();
 		} catch (ClusException e) {
-			System.err.println("Error: "+e);
+			System.err.println("Error: "+e);			
 		} catch (IllegalArgumentException e) {
 			System.err.println("Error: "+e.getMessage());
 		} catch (FileNotFoundException e) {
@@ -761,42 +774,7 @@ public class Clus implements CMDLineArgsProvider {
 		} catch (ClassNotFoundException e) {
 			System.err.println("Class not found" + e);
 		}
-	}
-	//-----------------------------------------------------------------------
-	//new
-	/**
-	 * Perform a kNN Tree run
-	 * Basically this makes a decisiontree and then copies it to a special
-	 * kNN Tree that uses kNN in the leaves.(Nice :-) )
-	 */
-	/*
-	 
-	 --> What I though to do in this method is now done in the new KNNTreeClassifier class
-	 
-	 public final void kNNTreeRun(ClusClassifier clss) throws IOException, ClusException {
-	 ClusOutput output = new ClusOutput(Settings.getAppName()+".out", m_Schema, m_Sett);
-	 ClusRun cr = partitionData();
-	 induce(cr, clss);	// Induce model
-	 // cr now contains the decision tree
-	  
-	  ClusNode orig = (ClusNode) cr.getModelInfo(ClusModels.ORIGINAL).getModel();
-	  //Transform ClusNode into KNNTree
-	   KNNTree tree = KNNTree.makeTree(cr,orig);
-	   cr.getModelInfo(ClusModels.ORIGINAL).setModel(tree);
-	   
-	   //KNNTree pruned = tree.prune();
-	    //cr.getModelInfo(ClusModels.PRUNED).setModel(pruned);
-	     
-	     calcError(cr, null);	// Calc error
-	     
-	     output.writeHeader();
-	     output.writeOutput(cr, true);
-	     output.close();
-	     
-	     }
-	     */
-	//-----------------------------------------------------------------------
-	
+	}	
 }
 
 

@@ -140,7 +140,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 
 		//try to prune the tree
 		//(of course) first see if package clus.pruning is wanted
-		double vsb = m_Clus.getSettings().getVSBPruneProportion();
+		double vsb = m_Clus.getSettings().getPruneSetProportion();
 		if (vsb > 0.0){
 			// next make a clone of the tree.
 			KNNTree pruned = (KNNTree) tree.cloneTree();
@@ -168,7 +168,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 		ClusModels.ORIGINAL = summ.addModel("Decision Tree");
 		ClusModels.KNN_ORIGINAL = summ.addModel("KNNTree");
 		//see if package clus.pruning wanted
-		double vsb = m_Clus.getSettings().getVSBPruneProportion();
+		double vsb = m_Clus.getSettings().getPruneSetProportion();
 		if (vsb > 0.0){
 			ClusModels.KNN_PRUNED = summ.addModel("Pruned KNNTree");
 		}
