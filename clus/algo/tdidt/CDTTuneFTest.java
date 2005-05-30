@@ -38,7 +38,7 @@ public class CDTTuneFTest extends ClusClassifier {
 //      Next does not always use same partition!		
 //		Random random = ClusRandom.getRandom(ClusRandom.RANDOM_PARAM_TUNE);
 		Random random = new Random(0);
-		int nbfolds = 5; // getSettings().getTuneNbFolds();
+		int nbfolds = Integer.parseInt(getSettings().getTuneFolds());
 		XValMainSelection sel = new XValRandomSelection(trset.getNbRows(), nbfolds, random);
 		for (int i = 0; i < nbfolds; i++) {
 			showFold(i);			
@@ -53,11 +53,13 @@ public class CDTTuneFTest extends ClusClassifier {
 		return mi.getTestError().getFirstError().getModelError();
 	}
 	
+//	public final static double[] FTEST_SIG = {1.0, 0.1, 0.05, 0.01, 0.005, 0.001};	
+	
 	public void findBestFTest(ClusData trset) throws ClusException, IOException {
 		int best_value = 0;
 		boolean low = getStatManager().createTuneError().getFirstError().shouldBeLow();
 		double best_error = low ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
-		for (int i = 0; i < 6; i++) {
+		for (int i = 1; i < 6; i++) {
 			Settings.FTEST_LEVEL = i;
 			System.out.println("Try for: "+FTest.FTEST_SIG[i]);
 			double err = doParamXVal(trset);

@@ -65,8 +65,8 @@ public class GenerateData {
 			if (increase) {
 				for (int i = 0; i < terms.size(); i++) {
 					ClassTerm trm = (ClassTerm)terms.elementAt(i);
-					int depth = trm.getDepth();
-					if (trm.getDepth() < MAX_DEPTH) {
+					int depth = trm.getLevel();
+					if (trm.getLevel() < MAX_DEPTH) {
 						nb_possible++;
 						sel_from.addElement(trm);
 					}
@@ -99,7 +99,7 @@ public class GenerateData {
 			boolean depth_constraint = false;
 			for (int i = 0; i < terms.size(); i++) {
 				ClassTerm trm = (ClassTerm)terms.elementAt(i);
-				if (trm.getDepth() == MAX_DEPTH) depth_constraint = true;
+				if (trm.getLevel() == MAX_DEPTH) depth_constraint = true;
 			}						
 			stat.reset();
 			root.getMeanBranch(null, stat);			
@@ -143,7 +143,7 @@ public class GenerateData {
 	}
 
 	public static void calcMeanDepth(ClassTerm root, SingleStat stat) {
-		stat.addFloat((double)root.getDepth());
+		stat.addFloat((double)root.getLevel());
 		for (int i = 0; i < root.getNbChildren(); i++) {
 			calcMeanDepth((ClassTerm)root.getChild(i), stat);
 		}

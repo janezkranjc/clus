@@ -50,6 +50,10 @@ public class HierClassWiseAccuracy extends ClusError {
 		return 1.0 - getAccuracy();
 	}
 	
+	public boolean shouldBeLow() {
+		return true;
+	}	
+	
 	public double getAccuracy() {
 		double tot_pred = 0.0;
 		double tot_corr = 0.0;

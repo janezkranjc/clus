@@ -110,7 +110,7 @@ public class DepthFirstInduce extends ClusInduce {
 	
 	public boolean initSelectorAndStopCrit(ClusNode node, RowData data) {
 		int max = Settings.TREE_MAX_DEPTH.getValue();
-		if (max != -1 && node.getDepth() >= max) {
+		if (max != -1 && node.getLevel() >= max) {
 			return true;		
 		}
 		return initSelectorAndStopCrit(node.getTotalStat(), data);

@@ -72,7 +72,7 @@ public class ClusStatManager implements Serializable {
 	}
 	
 	public final ClassHierarchy getHier() {
-		System.out.println("ClusStatManager.getHier/0 called");
+//		System.out.println("ClusStatManager.getHier/0 called");
 		return m_Hier;
 	}
 	
@@ -229,10 +229,10 @@ public class ClusStatManager implements Serializable {
 			switch (hiermode) {
 			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
 				name = "Weighted Absolute Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createStatistic(), createTargetWeightProducer()); break;				
+			m_Heuristic = new SSDHeuristic(name, createStatistic(), createTargetWeightProducer(), getSettings().isHierNoRootPreds()); break;				
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
 				name = "Weighted Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createStatistic(), createTargetWeightProducer()); break;
+			m_Heuristic = new SSDHeuristic(name, createStatistic(), createTargetWeightProducer(), getSettings().isHierNoRootPreds()); break;
 			case Settings.HIERMODE_XTAX_SET_DIST:
 				m_Heuristic = new SPMDHeuristic(m_Hier); break;
 			case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
@@ -343,13 +343,8 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new Accuracy(parent));	    
 			break;
 		case MODE_HIERARCHICAL:
-			int hiermode = getSettings().getHierMode();
-			switch (hiermode) {
-			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				parent.addError(new HierLevelAccuracy(parent, m_Hier));
-				// parent.addError(new HierRMSError(parent, m_GlobalWeights, false, true, m_Hier));
-				break;
-			}
+			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
+			break;
 		}
 		return parent;
 	}
@@ -364,14 +359,7 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new Accuracy(parent));	    
 			break;
 		case MODE_HIERARCHICAL:
-			if (Debug.HIER_JANS_PAPER) {
-				HierNodeWeights ws = new HierNodeWeights();
-				double widec = Settings.HIER_W_PARAM.getValue();
-				ws.initExponentialDepthWeights(m_Hier, widec);
-				parent.addError(new WAHNDSqError(parent, m_Hier.getType(), true, ws));
-			} else {
-				parent.addError(new HierXtAXError(parent, m_Hier.getKMatrix(), "prune"));
-			}
+			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));			
 			break;
 		}
 		return parent;
@@ -397,11 +385,9 @@ public class ClusStatManager implements Serializable {
 			}		
 		}
 		if (m_Mode == MODE_HIERARCHICAL) {
-			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT ||
-					sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
-				sett.setPruningMethod(Settings.PRUNING_METHOD_M5);
+			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
 				return new M5Pruner(m_GlobalWeights);
-			}
+			}			
 		}
 		sett.setPruningMethod(Settings.PRUNING_METHOD_NONE);
 		return new DummyPruner();
@@ -409,15 +395,18 @@ public class ClusStatManager implements Serializable {
 	
 	public PruneTree getTreePruner(ClusData pruneset) {
 		Settings sett = getSettings();
+		if (m_Mode == MODE_HIERARCHICAL) {
+			PruneTree pruner = getTreePrunerNoVSB(); 
+			HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(pruneset, pruner, m_Hier);
+			hierpruner.setSignificance(sett.isHierPruneInSig());
+			hierpruner.setNoRootPreds(sett.isHierNoRootPreds());
+			hierpruner.setNoRootAfterInSigPreds(sett.isHierPruneInSigTree());
+			return hierpruner;
+		}
 		if (pruneset != null) {
-			if (sett.isHierPruneInSig() != 0.0) {
-				PruneTree pruner = getTreePrunerNoVSB(); 
-				return new HierRemoveInsigClasses(sett.isHierPruneInSig(), pruneset, pruner, m_Hier);
-			} else {				
-				ClusErrorParent parent = createEvalError();
-				sett.setPruningMethod(Settings.PRUNING_METHOD_REDERR_VSB);
-				return new VSBPruning(parent, (RowData)pruneset);
-			}
+			ClusErrorParent parent = createEvalError();
+			sett.setPruningMethod(Settings.PRUNING_METHOD_REDERR_VSB);
+			return new VSBPruning(parent, (RowData)pruneset);
 		} else {
 			return getTreePrunerNoVSB();
 		}

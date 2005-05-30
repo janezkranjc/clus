@@ -16,6 +16,7 @@ import clus.util.*;
 import clus.pruning.*;
 import clus.data.rows.*;
 import clus.error.*;
+import clus.ext.hierarchical.HierRemoveInsigClasses;
 
 /*
 import org.apache.commons.math.distribution.*;
@@ -142,6 +143,12 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 					pruners[i].pruneExecute(tree, size);
 				}
 			}
+			if (getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL) {
+				PruneTree pruner = new DummyPruner(); 
+				HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(runs[i].getPruneSet(), pruner, getStatManager().getHier());
+				hierpruner.setSignificance(getSettings().isHierPruneInSig());
+				hierpruner.prune(tree);
+			}			
 			ClusError err = mi.getTestError().getFirstError();
 			err.reset();
 			if (m_HasMissing) {
@@ -342,9 +349,10 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		setRelativeMeasure(false, 0.0);
 		SingleStatList point = computeTreeError(runs, pruners, model, summ, 1);
 		setRelativeMeasure(true, point.getY());
+		System.out.print(" ");
+		System.out.print("<"+point.getY()+">");		
 		SingleStatList def_pt = addPoint(graph, 1, runs, pruners, model, summ);
 		addPoint(graph, maxsize, runs, pruners, model, summ);
-		System.out.print(" ");
 		// Add trees with exponentially increasing size
 		int n = 1;
 		boolean shouldBeLow = error.shouldBeLow();

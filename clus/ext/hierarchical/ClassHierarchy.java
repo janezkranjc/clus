@@ -191,7 +191,7 @@ public class ClassHierarchy implements Serializable {
 		return count;
 	}
 	
-	public ClassesTuple getBestTupleMaj(double[] mean) {
+	public ClassesTuple getBestTupleMajNoParents(double[] mean) {
 		boolean[] classes = new boolean[getTotal()];
 		fillBooleanMatrixMaj(getRoot(), mean, classes);
 		removeParentNodes(getRoot(), classes);
@@ -200,7 +200,7 @@ public class ClassHierarchy implements Serializable {
 		return tuple;
 	}
 	
-	public ClassesTuple getBestTupleMajParents(double[] mean) {
+	public ClassesTuple getBestTupleMaj(double[] mean) {
 		boolean[] classes = new boolean[getTotal()];
 		fillBooleanMatrixMaj(getRoot(), mean, classes);
 		ClassesTuple tuple = new ClassesTuple(countOnes(classes));
@@ -380,7 +380,7 @@ public class ClassHierarchy implements Serializable {
 		CompleteTreeIterator it_i = getRootIter();
 		while (it_i.hasMoreNodes()) {
 			ClassTerm ni = (ClassTerm)it_i.getNextNode();
-			temp[ni.getIndex()] = dist.getWeight(ni.getDepth());
+			temp[ni.getIndex()] = dist.getWeight(ni.getLevel());
 		}	
 		m_ErrorWeights.put((new Double(widec)).toString(),temp);
 	}
@@ -468,6 +468,23 @@ public class ClassHierarchy implements Serializable {
 	
 	public final int getTotal() {
 		return m_Number;
+	}
+	
+	public final int getDepth() {
+		return m_Root.getMaxDepth();
+	}
+	
+	public final int[] getClassesByLevel() {
+		int[] res = new int[getDepth()];
+		countClassesRecursive(m_Root, 0, res);
+		return res;
+	}
+	
+	public final void countClassesRecursive(ClassTerm root, int depth, int[] cls) {
+		cls[depth]++;
+		for (int i = 0; i < root.getNbChildren(); i++) {
+				countClassesRecursive((ClassTerm)root.getChild(i), depth+1, cls);
+		}		
 	}
 	
 	public final void initialize() {

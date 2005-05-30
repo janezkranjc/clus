@@ -57,7 +57,7 @@ public class HierBinNodeAccuracy extends ClusError {
 		CompleteTreeIterator it_i = m_Attr.getHier().getRootIter();
 		while (it_i.hasMoreNodes()) {
 			ClassTerm ni = (ClassTerm)it_i.getNextNode();
-			int depth = ni.getDepth();
+			int depth = ni.getLevel();
 			int idx = ni.getIndex();
 			double Tplus = m_A[idx] + m_C[idx];
 			double Tmin  = m_B[idx] + m_D[idx];

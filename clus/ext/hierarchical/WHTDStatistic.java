@@ -13,6 +13,8 @@ import clus.main.*;
 import clus.statistic.*;
 import clus.util.*;
 
+import jeans.util.array.*;
+
 public class WHTDStatistic extends RegressionStat {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
@@ -84,13 +86,21 @@ public class WHTDStatistic extends RegressionStat {
 		}
 	}
 	
+	public boolean isValid() {
+		// There is a valid prediction the weight of a non-root class is non-zero
+		for (int i = 1; i < m_NbTarget; i++) {
+			if (getMean(i) >= 1) return true;
+		}
+		return false;
+	}
+	
 	public final ClassHierarchy getHier() {
 		return m_Hier;
 	}
 	
 	public void calcMean() {
 		super.calcMean();
-		m_MeanTuple = m_Hier.getBestTupleMajParents(m_Means);
+		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means);
 		m_DiscrMean = m_MeanTuple.getVectorWithParents(m_Hier);
 		if (m_Validation != null) {
 			for (int i = 0; i < m_DiscrMean.length; i++) {
@@ -111,7 +121,7 @@ public class WHTDStatistic extends RegressionStat {
 					}
 				}
 			}
-			m_MeanTuple = m_Hier.getBestTupleMajParents(m_DiscrMean);
+			m_MeanTuple = m_Hier.getBestTupleMaj(m_DiscrMean);
 		}
 	}
 	
@@ -138,6 +148,7 @@ public class WHTDStatistic extends RegressionStat {
 			double[] weights = m_Hier.getWeights();
 			PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream("hierarchy.txt")));
 			wrt.println("Hier #nodes: "+m_Hier.getTotal());
+			wrt.println("Hier classes by level: "+MIntArray.toString(m_Hier.getClassesByLevel()));
 			wrt.println("Root weighs: "+weights[m_Hier.getRoot().getIndex()]);
 			m_Hier.print(wrt, m_SumValues, null);
 			wrt.close();

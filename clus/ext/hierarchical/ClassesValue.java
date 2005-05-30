@@ -148,7 +148,7 @@ public class ClassesValue extends IndexedItem {
 	}
 	
 	private void copyPath(ClassTerm term) {
-		int depth = term.getDepth();	
+		int depth = term.getLevel();	
 		m_Path = new String[depth];
 		for (int i = depth-1; i >= 0; i--) {
 			m_Path[i] = term.getID();

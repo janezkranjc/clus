@@ -372,12 +372,12 @@ public class Clus implements CMDLineArgsProvider {
 	
 	public final RowData loadDataFile(String fname) throws IOException, ClusException {
 		ClusReader reader = new ClusReader(fname);
-		System.out.println("Reading: "+fname);
+		if (Settings.VERBOSE > 0) System.out.println("Reading: "+fname);
 		ARFFFile arff = new ARFFFile(reader);
 		// FIXME - test if schema equal
 		arff.read(); // Read schema, but ignore :-)
 		int nbrows = reader.countRows();
-		System.out.println("Found "+nbrows+" rows");
+		if (Settings.VERBOSE > 0) System.out.println("Found "+nbrows+" rows");
 		arff.skipTillData();
 		RowData data = (RowData)m_Induce.createData();
 		data.resize(nbrows);
@@ -469,13 +469,13 @@ public class Clus implements CMDLineArgsProvider {
 			int nbtot = train.getNbRows();
 			RandomSelection prunesel = new RandomSelection(nbtot, vsb);
 			cr.setPruneSet(train.select(prunesel), prunesel);
-			System.out.println("Selecting pruning set: "+vsb);
+			if (Settings.VERBOSE > 0) System.out.println("Selecting pruning set: "+vsb);
 		}
 		String prset = Settings.m_PruneFile.getValue();
 		if (!StringUtils.unCaseCompare(prset, Settings.NONE)) {
 			ClusData prune = loadDataFile(prset);
 			cr.setPruneSet(prune, null);
-			System.out.println("Selecting pruning set: "+prset);
+			if (Settings.VERBOSE > 0) System.out.println("Selecting pruning set: "+prset);
 		}
 		cr.setIndex(idx);
 		cr.createTrainIter();

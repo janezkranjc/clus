@@ -29,8 +29,8 @@ public class HierWeightSPath implements HierBasicDistance {
 
 	public double calcDistance(ClassTerm t1, ClassTerm t2) {
 		double distance = 0.0;
-		int d1 = t1.getDepth();
-		int d2 = t2.getDepth();
+		int d1 = t1.getLevel();
+		int d2 = t2.getLevel();
 		int com_d = Math.min(d1, d2);
 		while (d1 > com_d) {
 			distance += getWeight(d1);

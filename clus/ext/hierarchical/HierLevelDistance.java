@@ -8,8 +8,8 @@ public class HierLevelDistance implements HierBasicDistance {
 
 	// First argument = actual, second = predicted
 	public double calcDistance(ClassTerm t1, ClassTerm t2) {
-		int d1 = t1.getDepth();
-		int d2 = t2.getDepth();
+		int d1 = t1.getLevel();
+		int d2 = t2.getLevel();
 		int d_correct = d1;		
 		int com_d = Math.min(d1, d2);
 		double distance = (double)d2-d1;

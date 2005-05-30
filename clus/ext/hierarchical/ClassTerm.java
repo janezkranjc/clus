@@ -218,7 +218,7 @@ public class ClassTerm extends IndexedItem implements Node {
 		}
 	}	
 	
-	public int getDepth() {
+	public int getLevel() {
 		int depth = 0;
 		ClassTerm parent = getCTParent();
 		while (parent != null) {
