@@ -4,7 +4,7 @@ import clus.util.*;
 import clus.data.cols.*; 
 import clus.data.rows.*; 
 
-import java.io.Serializable;
+import java.io.*;
 
 public abstract class ClusStatistic implements Serializable {
 
@@ -156,5 +156,9 @@ public abstract class ClusStatistic implements Serializable {
 	
 	public String toString() {
 		return getString();
+	}
+	
+	public void printDistribution(PrintWriter wrt) throws IOException {
+		wrt.println(getClass().getName()+" does not implement printDistribution()");
 	}
 }

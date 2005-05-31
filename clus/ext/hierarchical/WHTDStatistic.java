@@ -77,6 +77,7 @@ public class WHTDStatistic extends RegressionStat {
 		for (int j = 0; j < tp.size(); j++) {
 			ClassesValue val = tp.elementAt(j);
 			int idx = val.getIndex();
+			// if (Settings.VERBOSE > 10) System.out.println("idx = "+idx+" weight = "+weight);
 			m_SumValues[idx] += weight;
 			m_SumSqValues[idx] += weight;
 		}
@@ -98,6 +99,16 @@ public class WHTDStatistic extends RegressionStat {
 		return m_Hier;
 	}
 	
+	public int getNbPredictedClasses() {
+		int count = 0;
+		for (int i = 1; i < m_DiscrMean.length; i++) {
+			if (m_DiscrMean[i] > 0.5) {
+				count++;
+			}
+		}
+		return count;			
+	}
+	
 	public void calcMean() {
 		super.calcMean();
 		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means);
@@ -110,9 +121,19 @@ public class WHTDStatistic extends RegressionStat {
 					int sampleSize = (int)m_Validation.getTotalWeight();
 					int populationSize = (int)m_Global.getTotalWeight();
 					int numberOfSuccesses = (int)(m_Global.getTotalWeight()*m_Global.m_Means[i]);
+					int upper = Math.min(sampleSize, numberOfSuccesses);
+					int nb_other = populationSize - numberOfSuccesses;
+					int min_this = sampleSize - nb_other;
+					int lower = Math.max(nb_correct, min_this);
+					if (nb_correct < min_this) {
+						System.err.println("BUG?");
+					}
+					if (lower > upper) {
+						System.err.println("BUG2?");
+					}
 					HypergeometricDistribution dist = m_Fac.createHypergeometricDistribution(populationSize, numberOfSuccesses, sampleSize);
 					try {
-						double stat = dist.cumulativeProbability(nb_correct, sampleSize);
+						double stat = dist.cumulativeProbability(lower, upper);
 						if (stat >= m_SigLevel) {
 							m_DiscrMean[i] = 0.0;
 						}
@@ -155,5 +176,19 @@ public class WHTDStatistic extends RegressionStat {
 		} catch (IOException e) {
 			System.out.println("IO Error: "+e.getMessage());
 		}
-	}	
+	}
+	
+	public void printDistributionRec(PrintWriter out, ClassTerm node) {
+		int idx = node.getIndex();
+		ClassesValue val = new ClassesValue(node);
+		out.println(val.toPathString()+", "+m_Means[idx]);
+		for (int i = 0; i < node.getNbChildren(); i++) {
+			printDistributionRec(out, (ClassTerm)node.getChild(i));
+		}
+	}
+	
+	public void printDistribution(PrintWriter wrt) throws IOException {
+		wrt.println("Total: "+m_SumWeight);
+		printDistributionRec(wrt, m_Hier.getRoot());
+	}
 }

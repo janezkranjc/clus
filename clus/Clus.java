@@ -624,7 +624,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 	
-	public void showInfo() {
+	public void showInfo() throws ClusException, IOException {
 		RowData data = (RowData)m_Data;
 		System.out.println("Name            #Rows      #Missing  #Nominal #Numeric #Target    #Classes");
 		System.out.print(StringUtils.printStr(m_Sett.getAppName(), 16));
@@ -642,20 +642,35 @@ public class Clus implements CMDLineArgsProvider {
 		 System.out.println("(num)");
 		 } */
 		System.out.println();
-		/*	if (Debug.HIER_JANS_PAPER) {
-		 ClassHierarchy hier = m_Induce.getStatManager().getHier();
-		 System.out.println("Mean hierarchy branching factor: "+hier.getMeanBranch(null));
-		 boolean[] enable = new boolean[hier.getTotal()];
-		 SingleStat stat = new SingleStat();
-		 for (int i = 0; i < data.getNbRows(); i++) {
-		 DataTuple tuple = data.getTuple(i);
-		 ClassesTuple ct = (ClassesTuple)tuple.getObjVal(0);
-		 ct.toBoolVector(enable);
-		 stat.addMean(hier.getMeanBranch(enable));
-		 }
-		 System.out.println("Mean example branching factor: "+stat);
-		 }*/
 		m_Schema.showDebug();
+		if (getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL) {
+			ClusStatistic stat = getStatManager().createStatistic();
+			m_Data.calcTotalStat(stat);
+			if (!m_Sett.isNullTestFile()) {
+				System.out.println("Loading: "+m_Sett.getTestFile());
+				updateStatistic(m_Sett.getTestFile(), stat);
+			}
+			if (!m_Sett.isNullPruneFile()) {
+				System.out.println("Loading: "+Settings.m_PruneFile.getValue());
+				updateStatistic(Settings.m_PruneFile.getValue(), stat);
+			}
+			stat.calcMean();
+			MyFile stats = new MyFile(getSettings().getAppName()+".distr");
+			stat.printDistribution(stats.getWriter());
+			stats.close();						
+		}
+	}
+	
+	public void updateStatistic(String fname, ClusStatistic stat) throws ClusException, IOException {
+		MyClusInitializer init = new MyClusInitializer();
+		TupleIterator iter = new DiskTupleIterator(fname, init, getPreprocs(true));
+		iter.init();
+		DataTuple tuple = iter.readTuple();
+		while (tuple != null) {
+			stat.updateWeighted(tuple, 1.0);
+			tuple = iter.readTuple();
+		}
+		iter.close();
 	}
 	
 	public void setFolds(int folds) {
