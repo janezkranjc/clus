@@ -29,7 +29,7 @@ public class CDTTuneFTest extends ClusClassifier {
 		System.out.flush();	
 	}
 	
-	public double doParamXVal(ClusData trset) throws ClusException, IOException {
+	public double doParamXVal(ClusData trset, ClusData pruneset) throws ClusException, IOException {
 		int prevVerb = Settings.enableVerbose(0);
 		ClusStatManager mgr = getStatManager();
 		ClusSummary summ = new ClusSummary();
@@ -43,7 +43,7 @@ public class CDTTuneFTest extends ClusClassifier {
 		for (int i = 0; i < nbfolds; i++) {
 			showFold(i);			
 			XValSelection msel = new XValSelection(sel, i);
-			ClusRun cr = m_Clus.partitionData2(trset, msel, summ, i+1);
+			ClusRun cr = m_Clus.partitionDataBasic(trset, msel, pruneset, summ, i+1);
 			ClusModel pruned = m_Class.induceSingle(cr);			
 			cr.getModelInfo(prmodel).setModel(pruned);
 			m_Clus.calcError(cr, summ);
@@ -55,14 +55,14 @@ public class CDTTuneFTest extends ClusClassifier {
 	
 //	public final static double[] FTEST_SIG = {1.0, 0.1, 0.05, 0.01, 0.005, 0.001};	
 	
-	public void findBestFTest(ClusData trset) throws ClusException, IOException {
+	public void findBestFTest(ClusData trset, ClusData pruneset) throws ClusException, IOException {
 		int best_value = 0;
 		boolean low = getStatManager().createTuneError().getFirstError().shouldBeLow();
 		double best_error = low ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
 		for (int i = 1; i < 6; i++) {
 			Settings.FTEST_LEVEL = i;
 			System.out.println("Try for: "+FTest.FTEST_SIG[i]);
-			double err = doParamXVal(trset);
+			double err = doParamXVal(trset, pruneset);
 			System.out.print(" -> "+err);
 			if (low) {
 				if (err <= best_error) {
@@ -90,7 +90,7 @@ public class CDTTuneFTest extends ClusClassifier {
 	public void induce(ClusRun cr) {
 		try {
 			// Find optimal F-test value
-			findBestFTest(cr.getTrainingSet());
+			findBestFTest(cr.getTrainingSet(), cr.getPruneSet());
 			System.out.println();
 			// Induce final model
 			m_Class.induce(cr);

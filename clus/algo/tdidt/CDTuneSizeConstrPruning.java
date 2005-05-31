@@ -317,7 +317,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		for (int i = 0; i < nbfolds; i++) {
 			showFold(i);			
 			XValSelection msel = new XValSelection(sel, i);
-			ClusRun cr = m_Clus.partitionData2(trset, msel, summ, i+1);
+			ClusRun cr = m_Clus.partitionDataBasic(trset, msel, summ, i+1);
 			ClusModel tree = m_Class.induceSingleUnpruned(cr);			
 			cr.getModelInfo(model).setModel(tree);
 			runs[i] = cr;

@@ -412,7 +412,7 @@ public class Clus implements CMDLineArgsProvider {
 	}
 	
 	public final ClusRun partitionData(ClusData data, ClusSelection sel, boolean testfile, ClusSummary summary, int idx) throws IOException, ClusException {
-		ClusRun cr = partitionData2(data, sel, summary, idx);
+		ClusRun cr = partitionDataBasic(data, sel, summary, idx);
 		boolean hasMissing = m_Schema.hasMissing();
 		if (testfile) {
 			String fname = m_Sett.getTestFile();
@@ -453,7 +453,11 @@ public class Clus implements CMDLineArgsProvider {
 		return cr;
 	}
 	
-	public final ClusRun partitionData2(ClusData data, ClusSelection sel, ClusSummary summary, int idx) throws IOException, ClusException {
+	public final ClusRun partitionDataBasic(ClusData data, ClusSelection sel, ClusSummary summary, int idx) throws IOException, ClusException {
+		return partitionDataBasic(data, sel, null, summary, idx);
+	}
+	
+	public final ClusRun partitionDataBasic(ClusData data, ClusSelection sel, ClusData prunefile, ClusSummary summary, int idx) throws IOException, ClusException {
 		ClusRun cr = new ClusRun(data.cloneData(), summary);
 		if (sel != null) {
 			if (sel.changesDistribution()) {
@@ -473,9 +477,13 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		String prset = Settings.m_PruneFile.getValue();
 		if (!StringUtils.unCaseCompare(prset, Settings.NONE)) {
-			ClusData prune = loadDataFile(prset);
-			cr.setPruneSet(prune, null);
-			if (Settings.VERBOSE > 0) System.out.println("Selecting pruning set: "+prset);
+			if (prunefile != null) {
+				cr.setPruneSet(prunefile, null);
+			} else {
+				ClusData prune = loadDataFile(prset);
+				cr.setPruneSet(prune, null);
+				if (Settings.VERBOSE > 0) System.out.println("Selecting pruning set: "+prset);
+			}
 		}
 		cr.setIndex(idx);
 		cr.createTrainIter();
