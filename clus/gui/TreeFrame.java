@@ -368,6 +368,11 @@ public class TreeFrame extends JFrame {
 				switch (type.intValue()) {
 				case ClusExtension.REGULAR_TREE:
 					ClusNode root = (ClusNode)open.readObject();
+				
+ClusNode clone = (ClusNode)root.cloneTree();
+clone.inverseTests();
+clone.printTree();
+				
 				setTree(root);
 				break;
 				case ClusExtension.BEAM:

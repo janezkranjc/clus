@@ -69,7 +69,24 @@ public class ClusNode extends MyNode implements ClusModel {
 			clone.setChild(node.cloneTreeWithVisitors(), i);
 		}		
 		return clone;
-	}	
+	}
+	
+	public void inverseTests() {		
+		if (getNbChildren() == 2) {
+			setTest(getTest().getBranchTest(ClusNode.NO));
+			ClusNode ch1 = (ClusNode)getChild(0);
+			ClusNode ch2 = (ClusNode)getChild(1);
+			ch1.inverseTests();
+			ch2.inverseTests();
+			setChild(ch2, 0);
+			setChild(ch1, 1);
+		} else {
+			for (int i = 0; i < getNbChildren(); i++) {
+				ClusNode node = (ClusNode)getChild(i);
+				node.inverseTests();
+			}
+		}		
+	}
 	
 	public ClusNode[] getChildren(){
 		ClusNode[] temp = new ClusNode[m_Children.size()];
