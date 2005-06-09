@@ -6,6 +6,8 @@ import clus.data.type.*;
 import clus.data.rows.*;
 
 public class SubsetTest extends NodeTest {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
 
 	protected int[] m_Values;
 	protected NominalAttrType m_Type;

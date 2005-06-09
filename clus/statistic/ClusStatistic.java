@@ -1,5 +1,6 @@
 package clus.statistic;
 
+import clus.main.Settings;
 import clus.util.*;
 import clus.data.cols.*; 
 import clus.data.rows.*; 
@@ -8,7 +9,7 @@ import java.io.*;
 
 public abstract class ClusStatistic implements Serializable {
 
-	public final static long serialVersionUID=-5224931046473825824L;
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public double m_SumWeight;
 	
@@ -18,6 +19,10 @@ public abstract class ClusStatistic implements Serializable {
 		// Statistic with only memory allocated for storing mean
 		// not variance, see e.g. RegressionStat.java
 		return cloneStat();
+	}
+	
+	public int getNbTarget() {
+		return 0;
 	}
 
 	public void printDebug() {

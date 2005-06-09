@@ -21,8 +21,13 @@ public class TargetWeightProducer implements Serializable {
 	}
 	
 	public void setTotalStat(ClusStatistic stat) {
-		// This version should create uniform weights later on
-		// stat.createUniformWeights(this);
+		// This version creates uniform weights of 1.0
+		int nbtarget = stat.getNbTarget();
+		double[] fac = new double[nbtarget];
+		for (int i = 0; i < nbtarget; i++) {
+			fac[i] = 1.0;
+		}
+		setNumWeights(fac);
 	}
 	
 	public double[] getNumWeights() {

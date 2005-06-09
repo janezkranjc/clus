@@ -13,12 +13,11 @@ import clus.ext.hierarchical.*;
 import java.io.*;
 import jeans.util.*;
 import jeans.graph.*;
-import jeans.io.*;
 
 import clus.main.*;
 import clus.util.*;
 import clus.statistic.*;
-import clus.ext.beamsearch.*;
+import clus.model.modelio.*;
 
 public class TreeFrame extends JFrame {
 	
@@ -290,12 +289,13 @@ public class TreeFrame extends JFrame {
 		}
 	}
 	
-	public void setTree(ClusNode root) {
+	public void setTree(ClusNode root, ClusStatManager mgr) throws ClusException {
 		m_TreePanel.setTree(root, true);
+		if (mgr != null) m_TreePanel.setStatManager(mgr);
 		showInfo(root);		
 	}
 	
-	public void showInfo(ClusNode root) {
+	public void showInfo(ClusNode root) throws ClusException {
 		StringBuffer buf = new StringBuffer();
 		buf.append("Size: "+root.getModelSize()+" (Leaves: "+root.getNbLeaves()+")\n");
 		TargetWeightProducer scale = m_TreePanel.createTargetWeightProducer();
@@ -322,70 +322,47 @@ public class TreeFrame extends JFrame {
 		}
 	}
 	
-	public void addBeam(ArrayList beam, ClusFileTreeElem elem, DefaultMutableTreeNode node) {
+	public void addModelList(ClusModelCollectionIO io, ClusFileTreeElem elem, DefaultMutableTreeNode node) {
 		int pos = 0;
-		elem.setObject1(beam);
-		for (int i = beam.size()-1; i >= 0; i--) {
-			ClusBeamModel m = (ClusBeamModel)beam.get(i);
-			ClusFileTreeElem celem = new ClusFileTreeElem(""+m.getValue(), "");
+		elem.setObject1(io);
+		for (int i = 0; i < io.getNbModels(); i++) {
+			ClusModelInfo m = (ClusModelInfo)io.getModelInfo(i);
+			ClusFileTreeElem celem = new ClusFileTreeElem(m.getName(), "");
 			celem.setObject1(m);
-			celem.setType(ClusExtension.BEAM);
+			celem.setType(ClusExtension.REGULAR_TREE);
 			DefaultMutableTreeNode ch = new DefaultMutableTreeNode(celem); 
 			m_TreeModel.insertNodeInto(ch, node, pos++);			
 		}	
 	}
 	
-	public void loadModelType(ClusFileTreeElem elem, DefaultMutableTreeNode node) {
-		ClusBeamModel m = (ClusBeamModel)elem.getObject1();
+	public void loadModelType(ClusFileTreeElem elem, DefaultMutableTreeNode node) throws ClusException {
+		ClusModelInfo m = (ClusModelInfo)elem.getObject1();
 		ClusNode root = (ClusNode)m.getModel();
 		root.updateTree();
-		setTree(root);
+		setTree(root, m.getStatManager());
 	}
 	
-	public void loadModelType2(ClusFileTreeElem elem) {
-		ArrayList beam = (ArrayList)elem.getObject1();
-		if (beam.size() > 0) {
-			ClusBeamModel m = (ClusBeamModel)beam.get(beam.size()-1);
+	public void loadModelType2(ClusFileTreeElem elem) throws ClusException {
+		ClusModelCollectionIO io = (ClusModelCollectionIO)elem.getObject1();
+		if (io.getNbModels() > 0) {
+			ClusModelInfo m = (ClusModelInfo)io.getModelInfo(0);
 			ClusNode root = (ClusNode)m.getModel();
 			root.updateTree();
-			setTree(root);
+			setTree(root, m.getStatManager());
 		}
 	}
 	
-	public void loadModel(DefaultMutableTreeNode node) {
+	public void loadModel(DefaultMutableTreeNode node) throws ClusException {
 		ClusFileTreeElem elem = (ClusFileTreeElem)node.getUserObject();
 		try {
 			if (elem.getType() != -1) {
 				loadModelType(elem, node);
 				return;
 			}
-			System.out.println("Name: "+elem.getFullName());			
-			ObjectLoadStream open = new ObjectLoadStream(new FileInputStream(elem.getFullName()));
-			ClusStatManager manager = (ClusStatManager)open.readObject();
-			m_TreePanel.setStatManager(manager);
-			Integer type = (Integer)open.readObject();
-			try {
-				switch (type.intValue()) {
-				case ClusExtension.REGULAR_TREE:
-					ClusNode root = (ClusNode)open.readObject();
-				
-ClusNode clone = (ClusNode)root.cloneTree();
-clone.inverseTests();
-clone.printTree();
-				
-				setTree(root);
-				break;
-				case ClusExtension.BEAM:
-					ArrayList beam = (ArrayList)open.readObject();
-				addBeam(beam, elem, node);
-				loadModelType2(elem);
-				break;
-				}
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(this, "Error loading model: "+elem.getFullName());
-				System.out.println("Error loading model: "+elem.getFullName()+" "+e.getMessage());
-			}
-			open.close();			
+			System.out.println("Name: "+elem.getFullName());
+			ClusModelCollectionIO io = ClusModelCollectionIO.load(elem.getFullName());
+			addModelList(io, elem, node);
+			loadModelType2(elem);
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(this, "Can't open model: "+elem.getFullName());
 			System.err.println("IOError: "+e.getMessage());
@@ -430,13 +407,17 @@ clone.printTree();
 	private class MyFileTreeListener implements TreeSelectionListener {
 		
 		public void valueChanged(TreeSelectionEvent e) {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode)m_Tree.getLastSelectedPathComponent();
-			if (node == null) return;
-			if (node.isLeaf()) {
-				loadModel(node);
-			} else if (node.getUserObject() instanceof ClusFileTreeElem) {
-				ClusFileTreeElem elem = (ClusFileTreeElem)node.getUserObject();
-				loadModelType2(elem);
+			try {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode)m_Tree.getLastSelectedPathComponent();
+				if (node == null) return;
+				if (node.isLeaf()) {
+					loadModel(node);
+				} else if (node.getUserObject() instanceof ClusFileTreeElem) {
+					ClusFileTreeElem elem = (ClusFileTreeElem)node.getUserObject();
+					loadModelType2(elem);
+				}
+			} catch (ClusException ex) {
+				System.err.println("Clus error: "+ex.getMessage());
 			}
 		}		
 	}
@@ -548,18 +529,8 @@ clone.printTree();
 		return frame;
 	}
 	
-	public static TreeFrame loadTree(InputStream strm) throws IOException, ClassNotFoundException {
-		ObjectLoadStream open = new ObjectLoadStream(strm);
-		ClusStatManager manager = (ClusStatManager)open.readObject();
-		Integer type = (Integer)open.readObject();
-		ClusNode root = (ClusNode)open.readObject();
-		open.close();	
-		//		HierStatistic tr_def = (HierStatistic)root.getTotalStat();
-		//		return TreeFrame.createFrame(schema.getRelationName(), root, tr_def.getHier());
-		return TreeFrame.createFrame(manager, root, null);
-	}		
-	
-	public static TreeFrame showTree(String fname) throws IOException, ClassNotFoundException {
+
+	public static TreeFrame showTree(String fname) throws ClusException, IOException, ClassNotFoundException {
 		TreeFrame frame = createFrame(null, null, null);
 		frame.addWindowListener(new WindowClosingListener(frame, WindowClosingListener.TYPE_EXIT));
 		DefaultMutableTreeNode node = frame.addFile(fname, null);
@@ -568,20 +539,7 @@ clone.printTree();
 		return frame;
 	}
 		
-	public static TreeFrame showTree(InputStream strm) throws IOException, ClassNotFoundException {
-		TreeFrame frame = loadTree(strm);
-		frame.addWindowListener(new WindowClosingListener(frame, WindowClosingListener.TYPE_EXIT));
-		frame.setVisible(true);
-		return frame;
-	}	
-	
-	public static TreeFrame showTree(ClusStatManager manager, ClusNode root, ClassHierarchy hier) {		
-		TreeFrame frame = createFrame(manager, root, hier);
-		frame.addWindowListener(new WindowClosingListener(frame, WindowClosingListener.TYPE_EXIT));		
-		frame.setVisible(true);
-		return frame;
-	}
-	
+
 	public static TreeFrame start(ClusStatManager manager, String opendir) throws IOException {
 		TreeFrame frame = createFrame(manager, null, null);
 		frame.addWindowListener(new WindowClosingListener(frame, WindowClosingListener.TYPE_EXIT));

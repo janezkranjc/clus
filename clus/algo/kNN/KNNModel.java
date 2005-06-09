@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-import jeans.io.ObjectSaveStream;
 import jeans.util.MyArray;
 
 public class KNNModel implements ClusModel {
@@ -81,10 +80,7 @@ public class KNNModel implements ClusModel {
 
 	public void printModel(PrintWriter wrt) {
 	}
-	
-	public void saveModel(ObjectSaveStream strm)  throws IOException {
-	}
-	
+		
 	public void attachModel(Hashtable table) {
 		System.err.println(getClass().getName()+"attachModel() not implemented");
 	}

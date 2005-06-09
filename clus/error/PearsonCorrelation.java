@@ -40,6 +40,10 @@ public class PearsonCorrelation extends ClusNumericError {
 		double above = m_SumPiAi[i] - m_SumPi[i]*m_SumAi[i]/nb;
 		return above/root;		
 	}
+	
+	public double getModelErrorComponent(int i) {
+		return getCorrelation(i);
+	}
 
 	public double getModelError() {
 		double mean = 0.0;

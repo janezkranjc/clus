@@ -12,7 +12,7 @@ import clus.util.*;
 
 public class InverseNumericTest extends NumericTest {
 
-	public final static long serialVersionUID = -9198074687950767841L;
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
 	public InverseNumericTest(ClusAttrType attr, double bound, double posfreq) {
 		super(attr, bound, posfreq);

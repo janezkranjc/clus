@@ -2,6 +2,7 @@
 package clus.algo.tdidt;
 
 import clus.main.*;
+import clus.util.*;
 import clus.data.rows.*;
 import clus.*;
 
@@ -25,16 +26,16 @@ public class ClusDecisionTree extends ClusClassifier {
 		return node;
 	}
 
-	public ClusModel induceSingle(ClusRun cr) {
+	public ClusModel induceSingle(ClusRun cr) throws ClusException {
 		ClusNode orig = getInduce().induce(cr, m_Clus.getScore());
 		return m_Clus.pruneTree(orig, cr.getPruneSet(), cr.getTrainingSet());
 	}
 	
-	public ClusModel induceSingleUnpruned(ClusRun cr) {
+	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException {
 		return getInduce().induce(cr, m_Clus.getScore());
 	}
 
-	public void induce(ClusRun cr) {
+	public void induce(ClusRun cr) throws ClusException {
 		long start_time = System.currentTimeMillis();
 		ClusNode orig = getInduce().induce(cr, m_Clus.getScore());
 		m_Clus.storeAndPruneModel(cr, orig);

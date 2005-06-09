@@ -27,8 +27,8 @@ public class RMSError extends MSError {
 		return Math.sqrt(super.getModelError());
 	}
 	
-	public double getErrorComp(int i) {
-		return Math.sqrt(super.getErrorComp(i));
+	public double getModelErrorComponent(int i) {
+		return Math.sqrt(super.getModelErrorComponent(i));
 	}
 	
 	public void showSummaryError(PrintWriter out, boolean detail) {

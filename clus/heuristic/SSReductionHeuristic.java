@@ -60,7 +60,7 @@ public class SSReductionHeuristic extends ClusHeuristic {
 	}
 	
 	public String getName() {
-		return "SS-Reduction (ftest: "+Settings.FTEST_VALUE+")";
+		return "SS-Reduction (ftest: "+Settings.FTEST_VALUE+", "+m_TargetWeights.getName()+")";
 	}
 	
 	public void setRootStatistic(ClusStatistic stat) {

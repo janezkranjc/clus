@@ -4,10 +4,9 @@ import clus.main.*;
 import clus.data.rows.*;
 import clus.util.*;
 import clus.error.multiscore.*;
+import clus.model.modelio.*;
 
 import java.io.*;
-
-import jeans.io.*;
 
 public abstract class ClusInduce {
 
@@ -51,11 +50,11 @@ public abstract class ClusInduce {
 		return false;
 	}
 	
-	public void writeModel(ObjectSaveStream strm) throws IOException {
+	public void writeModel(ClusModelCollectionIO strm) throws IOException {
 	}
 	
 	public abstract ClusData createData();
 
-	public abstract ClusNode induce(ClusRun cr, MultiScore score);
+	public abstract ClusNode induce(ClusRun cr, MultiScore score) throws ClusException;
 
 }

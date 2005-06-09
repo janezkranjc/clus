@@ -12,6 +12,7 @@ import clus.main.*;
 import clus.model.test.*;
 import clus.statistic.*;
 import clus.pruning.*;
+import clus.util.*;
 
 import clus.gui.statvis.*;
 
@@ -60,7 +61,7 @@ public class TreePanel extends JPanel {
 		return m_Manager;
 	}	
 
-	public TargetWeightProducer createTargetWeightProducer() {
+	public TargetWeightProducer createTargetWeightProducer() throws ClusException {
 		return m_Manager.createTargetWeightProducer();
 	}
 	
@@ -110,7 +111,7 @@ public class TreePanel extends JPanel {
 		m_Frame = frame;
 	}
 
-	public void showInfo(ClusNode node) {
+	public void showInfo(ClusNode node) throws ClusException {
 		if (m_Frame != null) m_Frame.showInfo(node);
 	}
 
@@ -134,7 +135,7 @@ public class TreePanel extends JPanel {
 		}
 	}
 	
-	public void pruneTree(ClusNode node, int size) {
+	public void pruneTree(ClusNode node, int size) throws ClusException {
 		SizeConstraintPruning pruner = new SizeConstraintPruning(size, m_Manager.createTargetWeightProducer());
 		pruner.prune(node);
 		recursiveUpdate(m_Root);

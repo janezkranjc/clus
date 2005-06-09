@@ -13,6 +13,8 @@ import clus.algo.kNN.NumericStatistic;
 
 public class NumericAttrType extends ClusAttrType {
 
+	public final static long serialVersionUID = 1L;	
+	
 	public final static int THIS_TYPE = 1;
 	public final static String THIS_TYPE_NAME = "Numeric";
 

@@ -2,12 +2,15 @@ package clus.statistic;
 
 import java.text.*;
 
+import clus.main.Settings;
 import clus.util.*;
 import clus.data.cols.*;
 import clus.data.rows.*;
 
 public class RegressionStat extends ClusStatistic {
 
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
+	
 	public int m_NbTarget;
 	public double[] m_SumValues;
 	public double[] m_SumWeights;
@@ -28,7 +31,7 @@ public class RegressionStat extends ClusStatistic {
 			m_SumSqValues = new double[m_NbTarget];			
 		}
 	}
-		
+	
 	public ClusStatistic cloneStat() {
 		return new RegressionStat(m_NbTarget, false);
 	}

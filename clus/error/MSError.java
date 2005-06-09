@@ -48,13 +48,13 @@ public class MSError extends ClusNumericError {
 		m_Weights = weights;
 	}
 	
-	public double getErrorComp(int i) {
+	public double getModelErrorComponen(int i) {
 		int nb = getNbExamples();
 		double err = nb != 0.0 ? m_SqError[i]/nb : 0.0;
 		if (m_Weights != null) err *= m_Weights.m_NumWeights[i];
 		return err;
 	}
-	
+		
 	public double getModelError() {
 		double ss_tree = 0.0;
 		int nb = getNbExamples();
@@ -88,7 +88,7 @@ public class MSError extends ClusNumericError {
 			int nb = getNbExamples();
 			for (int i = 0; i < m_Dim; i++) {
 				if (i != 0) buf.append(",");
-				buf.append(fr.format(getErrorComp(i)));
+				buf.append(fr.format(getModelErrorComponent(i)));
 			}
 			if (m_Dim > 1) buf.append("]: ");
 			else buf.append("]: ");

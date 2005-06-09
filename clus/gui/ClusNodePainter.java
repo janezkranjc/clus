@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import clus.util.*;
 import clus.main.*;
 import clus.model.test.*;
 import clus.statistic.*;
@@ -85,25 +86,29 @@ public class ClusNodePainter extends MyNodePainter implements ActionListener {
 	}
 
 	public boolean mousePressed(DrawableCanvas cnv, int x, int y, MouseEvent evt) {
-		if (evt.isPopupTrigger() || evt.getButton() == MouseEvent.BUTTON2 || evt.getButton() == MouseEvent.BUTTON3) {
-			JPopupMenu pop = new JPopupMenu();
-			pop.add(makeZoomMenu("Zoom node", false));
-			if (!m_Node.atBottomLevel()) {
-				pop.add(makeZoomMenu("Zoom subtree", true));
-				JMenuItem item = new JMenuItem("Expand subtree");
-				item.addActionListener(new MyExpandListener());				
+		try {
+			if (evt.isPopupTrigger() || evt.getButton() == MouseEvent.BUTTON2 || evt.getButton() == MouseEvent.BUTTON3) {
+				JPopupMenu pop = new JPopupMenu();
+				pop.add(makeZoomMenu("Zoom node", false));
+				if (!m_Node.atBottomLevel()) {
+					pop.add(makeZoomMenu("Zoom subtree", true));
+					JMenuItem item = new JMenuItem("Expand subtree");
+					item.addActionListener(new MyExpandListener());				
+					pop.add(item);
+					item = new JMenuItem("Prune subtree");
+					item.addActionListener(new MyPruneListener());
+					pop.add(item);
+				}
+				JMenuItem item = new JMenuItem("Properties");
 				pop.add(item);
-				item = new JMenuItem("Prune subtree");
-				item.addActionListener(new MyPruneListener());
-				pop.add(item);
+				pop.show(cnv, evt.getX(), evt.getY());
+			} else {
+				TreePanel panel = (TreePanel)m_Node.getPaintSettings().getDocument();
+				ClusNode cnode = (ClusNode)m_Node.getVisitor(0);
+				panel.showInfo(cnode);
 			}
-			JMenuItem item = new JMenuItem("Properties");
-			pop.add(item);
-			pop.show(cnv, evt.getX(), evt.getY());
-		} else {
-			TreePanel panel = (TreePanel)m_Node.getPaintSettings().getDocument();
-			ClusNode cnode = (ClusNode)m_Node.getVisitor(0);
-			panel.showInfo(cnode);
+		} catch (ClusException ex) {
+			System.err.println("Clus error: "+ex.getMessage());
 		}
 		return true;
 	}
@@ -279,6 +284,8 @@ public class ClusNodePainter extends MyNodePainter implements ActionListener {
 				panel.pruneTree(node, nodes);
 			} catch (NumberFormatException e) {
 				System.err.println("Number expected, got: "+str);
+			} catch (ClusException e) {
+				System.err.println("Clus error: "+e.getMessage());
 			}			
 		}
 	}

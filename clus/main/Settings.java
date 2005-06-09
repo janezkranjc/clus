@@ -13,7 +13,7 @@ import clus.ext.hierarchical.*;
 
 public class Settings implements Serializable {
 	
-	public final static long serialVersionUID = 0;
+	public final static long serialVersionUID = 1L;
 	
 	public final static String[] HEURISTICS = 
 	{"Default", "ReducedError", "Gain", "SSPD", "MEstimate"};
@@ -41,70 +41,89 @@ public class Settings implements Serializable {
 	public final static int HIERMODE_TREE_DIST_ABS_WEUCLID = 1;	
 	public final static int HIERMODE_XTAX_SET_DIST = 2;	
 	public final static int HIERMODE_XTAX_SET_DIST_DISCRETE = 3;
-		
+
+	public final static String[] NORMALIZATIONS = 
+	{"Normalize"};
+	
+	public final static int NORMALIZATION_DEFAULT = 0;
+
+	public final static String[] INFINITY = 
+	{"Infinity"};
+	
 	public final static long SERIAL_VERSION_ID = 1L;
 	
 	public final static String NONE = "None";
 	
-	public static Date m_Date;
-	
+	/* Filename and date information */
+	protected Date m_Date;
+	protected String m_AppName;
+	protected String m_DirName;	
+
+	/* Static constants should be removed later on */	
 	public static int FTEST_LEVEL;
 	public static double FTEST_VALUE;
 	public static boolean GAIN_RATIO;
 	public static double MINIMAL_WEIGHT;
-	public static boolean IS_MULTISCORE;
-	public static double TESTSET_PROPORTION;
-	public static int TESTSET_ID;
-	public static int XVAL_FOLDS;
-	public static String XVAL_FILE;
-	public static int XVAL_ID;
-	
+	public static boolean IS_MULTISCORE;	
 	public static int BEAM_WIDTH;
 	public static double SIZE_PENALTY;
-	
-	public static String m_AppName;
-	public static String m_DirName;
-	
 	public static boolean SHOW_UNKNOWN_FREQ;
-	public static boolean BINARY_SPLIT;
 	public static boolean SHOW_BRANCH_FREQ;
 	public static boolean SHOW_XVAL_FOREST;
-	public static boolean XVAL_OVERLAP = true;
-	
+	public static boolean XVAL_OVERLAP = true;	
 	public static boolean ONE_NOMINAL = true;
 	public static int VERBOSE = 1;
 	public static boolean EXACT_TIME = false;
 	
-	public static INIFileDouble HIER_W_PARAM;
-	public static INIFileBool HIER_SAVE;
-	public static INIFileBool HIER_LOAD;
-	public static INIFileBool HIER_FLAT;
-	public static INIFileInt TREE_MAX_DEPTH;	
-	public INIFileNominal m_HierMode;
-	
-	public static INIFileString m_PruneFile;
-	
-	INIFileSection m_SectionHierarchical;
-	public static INIFileBool HIER_CONT_PROTOTYPE;
-	public static INIFileBool HIER_USE_ABUNDANCES;
-	public static INIFileBool HIER_NODE_ABUNDANCES;
-	public INIFileDouble m_HierPruneInSig;
-	protected INIFileBool m_HierNoRootPreds;
-	protected INIFileBool m_HierPruneInSigTree;		
-	
-	protected INIFileInt m_Verbose;	
+	/* The INI file structure */
 	protected INIFile m_Ini = new INIFile();
+	
+	/* General */
+	protected INIFileInt m_Verbose;	
+	protected INIFileString m_RandomSeed;
+	protected INIFileStringOrInt m_XValFolds;
+	
+	/* Data */
+	protected INIFileString m_DataFile;
+	protected INIFileStringOrDouble m_TestSet;
+	protected INIFileStringOrDouble m_PruneSet;	
+
+	/* Attribute */
 	protected INIFileString m_Target;
 	protected INIFileString m_Disabled;
 	protected INIFileString m_Key;
+	protected INIFileNominalOrDoubleOrVector m_Weights;
+
+	/* Numeric */
+	protected INIFileDouble m_FTest;
+	protected INIFileString m_MultiScore;
 	protected INIFileBool m_Normalize;
-	protected INIFileString m_RandomSeed;
+
+	/* Nominal */
 	protected INIFileBool m_GainRatio;
-	protected static INIFileDouble m_FTest;
+	protected INIFileDouble m_MEstimate;
+
+	/* Model */
 	protected INIFileDouble m_MinW;
-	protected INIFileDouble m_PruneProp;
-	protected INIFileString m_TestPropOrAttr;
-	protected INIFileString m_XValFolds;
+	protected INIFileString m_TuneFolds;
+
+	/* Tree */
+	protected INIFileNominal m_Heuristic;
+	public static INIFileInt TREE_MAX_DEPTH;	
+	public static boolean BINARY_SPLIT;
+	protected INIFileBool m_BinarySplit;
+	protected INIFileNominal m_PruningMethod;
+	protected INIFileBool m_RulesFromTree;
+	
+	/* Rules */
+	protected INIFileBool m_OrderedRules;
+	
+	/* Constraints */
+	protected INIFileString m_SyntacticConstrFile;
+	protected INIFileInt m_MaxSizeConstr;
+	protected INIFileNominalOrDoubleOrVector m_MaxErrorConstr;	
+	
+	/* Output */
 	protected INIFileInt m_SetsData;
 	protected INIFileBool m_OutFoldErr;
 	protected INIFileBool m_OutFoldModels;
@@ -112,35 +131,33 @@ public class Settings implements Serializable {
 	protected INIFileBool m_ShowForest;
 	protected INIFileBool m_ShowBrFreq;
 	protected INIFileBool m_ShowUnknown;
-	protected INIFileBool m_RulesFromTree;
-	protected INIFileBool m_BinarySplit;
-	protected INIFileNominal m_PruningMethod;
-	protected INIFileString m_MultiScore;
-	protected INIFileString m_DataFile;
-	protected INIFileString m_TestFile;
-	protected INIFileString m_HierSep;
-	protected INIFileNominal m_Heuristic;
-	protected INIFileDouble m_MEstimate;
-	protected INIFileString m_TuneFolds;
-
-	protected INIFileString m_Weights;
 	
-	protected INIFileString m_SyntacticConstrFile;
-	protected static INIFileInt m_MaxSizeConstr;
-	protected INIFileInt m_MaxErrorConstr;	
-
+	/* Beam Search For Trees */
 	protected INIFileSection m_SectionBeam;
 	protected INIFileDouble m_SizePenalty;
 	protected INIFileInt m_BeamWidth;
 	protected INIFileInt m_BeamBestN;
 	protected INIFileInt m_TreeMaxSize;
 	protected INIFileNominal m_BeamAttrHeuristic;
-	protected static INIFileBool m_FastBS;
-	protected static INIFileBool m_BeamPostPrune;
+	protected INIFileBool m_FastBS;
+	protected INIFileBool m_BeamPostPrune;
 	protected INIFileBool m_BMRemoveEqualHeur;
 	
-	protected INIFileBool m_OrderedRules;
-	
+	/* Hierarchical Multi-Classification */
+	protected INIFileString m_HierSep;
+	public static INIFileDouble HIER_W_PARAM;
+	public static INIFileBool HIER_SAVE;
+	public static INIFileBool HIER_LOAD;
+	public static INIFileBool HIER_FLAT;
+	public INIFileNominal m_HierMode;	
+	INIFileSection m_SectionHierarchical;
+	public static INIFileBool HIER_CONT_PROTOTYPE;
+	public static INIFileBool HIER_USE_ABUNDANCES;
+	public static INIFileBool HIER_NODE_ABUNDANCES;
+	public INIFileDouble m_HierPruneInSig;
+	protected INIFileBool m_HierNoRootPreds;
+	protected INIFileBool m_HierPruneInSigTree;		
+		
 	INIFileSection m_SectionKNN;	
 	public static INIFileInt kNN_k;
 	public static INIFileString kNN_vectDist;
@@ -157,22 +174,22 @@ public class Settings implements Serializable {
 	
 	public void create() {		
 		INIFileSection settings = new INIFileSection("General");
-		settings.addNode(m_RandomSeed = new INIFileString("RandomSeed", "0"));
 		settings.addNode(m_Verbose = new INIFileInt("Verbose", 1));
-		settings.addNode(m_XValFolds = new INIFileString("XValNumberFolds", "10"));
+		settings.addNode(m_RandomSeed = new INIFileString("RandomSeed", "0"));
+		settings.addNode(m_XValFolds = new INIFileStringOrInt("XVal"));
+		m_XValFolds.setIntValue(10);
 		
 		INIFileSection data = new INIFileSection("Data");
 		data.addNode(m_DataFile = new INIFileString("File", NONE));
-		data.addNode(m_TestPropOrAttr = new INIFileString("TestProportion", "0"));
-		data.addNode(m_PruneProp = new INIFileDouble("PruneProportion"));		
-		data.addNode(m_TestFile = new INIFileString("TestFile", NONE));
-		data.addNode(m_PruneFile = new INIFileString("PruneFile", NONE));		
+		data.addNode(m_TestSet = new INIFileStringOrDouble("TestSet", NONE));
+		data.addNode(m_PruneSet = new INIFileStringOrDouble("PruneSet", NONE));		
 		
 		INIFileSection attrs = new INIFileSection("Attributes");
 		attrs.addNode(m_Target = new INIFileString("Target", NONE));
 		attrs.addNode(m_Disabled = new INIFileString("Disable", NONE));
 		attrs.addNode(m_Key = new INIFileString("Key", NONE));
-		attrs.addNode(m_Weights = new INIFileString("Weights", "Normalize"));
+		attrs.addNode(m_Weights = new INIFileNominalOrDoubleOrVector("Weights", NORMALIZATIONS));
+		m_Weights.setNominal(NORMALIZATION_DEFAULT);
 		
 		INIFileSection numeric = new INIFileSection("Numeric");
 		numeric.addNode(m_FTest = new INIFileDouble("FTest", 1.0));
@@ -200,7 +217,15 @@ public class Settings implements Serializable {
 		INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic", NONE));
 		constr.addNode(m_MaxSizeConstr = new INIFileInt("MaxSize", -1));
-		constr.addNode(m_MaxErrorConstr = new INIFileInt("MaxError", -1));		
+		constr.addNode(m_MaxErrorConstr = new INIFileNominalOrDoubleOrVector("MaxError", INFINITY));
+		m_MaxErrorConstr.setNominal(0);
+		
+		INIFileSection output = new INIFileSection("Output");
+		output.addNode(m_OutFoldModels = new INIFileBool("AllFoldModels", true));
+		output.addNode(m_OutFoldErr = new INIFileBool("AllFoldErrors", false));
+		output.addNode(m_OutTrainErr = new INIFileBool("TrainErrors", true));
+		output.addNode(m_ShowUnknown = new INIFileBool("UnknownFrequency", false));
+		output.addNode(m_ShowBrFreq = new INIFileBool("BranchFrequency", false));
 		
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
 		m_SectionHierarchical.addNode(HIER_W_PARAM = new INIFileDouble("WParam", 0.75));
@@ -216,14 +241,7 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(HIER_NODE_ABUNDANCES = new INIFileBool("NodeAbundances", false));
 		m_SectionHierarchical.addNode(m_HierMode = new INIFileNominal("Mode", HIERMODES, 0));
 		m_SectionHierarchical.setEnabled(false);
-		
-		INIFileSection output = new INIFileSection("Output");
-		output.addNode(m_OutFoldModels = new INIFileBool("AllFoldModels", true));
-		output.addNode(m_OutFoldErr = new INIFileBool("AllFoldErrors", false));
-		output.addNode(m_OutTrainErr = new INIFileBool("TrainErrors", true));
-		output.addNode(m_ShowUnknown = new INIFileBool("UnknownFrequency", false));
-		output.addNode(m_ShowBrFreq = new INIFileBool("BranchFrequency", false));
-		
+				
 		m_SectionKNN = new INIFileSection("kNN");
 		m_SectionKNN.addNode(kNN_k = new INIFileInt("k",3));
 		m_SectionKNN.addNode(kNN_vectDist = new INIFileString("VectorDistance","Euclidian"));
@@ -262,16 +280,22 @@ public class Settings implements Serializable {
 		m_Ini.addNode(model);		
 		m_Ini.addNode(tree);		
 		m_Ini.addNode(rules);
-		m_Ini.addNode(output);
 		m_Ini.addNode(numeric);
 		m_Ini.addNode(nominal);
-		m_Ini.addNode(constr);		
+		m_Ini.addNode(constr);
+		m_Ini.addNode(output);		
 		m_Ini.addNode(m_SectionBeam);		
 		m_Ini.addNode(m_SectionHierarchical);
 		// add kNN section
 		m_Ini.addNode(m_SectionKNN);
 		m_Ini.addNode(m_SectionKNNT);
 		m_Ini.addNode(exper);		
+	}
+	
+	public void initNamedValues() {
+		TREE_MAX_DEPTH.setNamedValue(-1, "Infinity");		
+		m_MaxSizeConstr.setNamedValue(-1, "Infinity");
+		m_TreeMaxSize.setNamedValue(-1, "Infinity");		
 	}
 
 	public void setSectionBeamEnabled(boolean enable) {
@@ -350,7 +374,7 @@ public class Settings implements Serializable {
 		return m_BeamPostPrune.getValue();
 	}
 	
-	public static boolean isFastBS() {
+	public boolean isFastBS() {
 		return m_FastBS.getValue();
 	}
 	
@@ -390,7 +414,7 @@ public class Settings implements Serializable {
 		return m_OutFoldErr.getValue();
 	}
 	
-	public boolean isOutFoldTree() {
+	public boolean isOutputFoldModels() {
 		return m_OutFoldModels.getValue();
 	}
 	
@@ -415,11 +439,11 @@ public class Settings implements Serializable {
 	}
 	
 	public boolean isNullTestFile() {
-		return StringUtils.unCaseCompare(m_TestFile.getValue(), NONE);
+		return m_TestSet.isDoubleOrNull(NONE);		
 	}
 	
 	public boolean isNullPruneFile() {
-		return StringUtils.unCaseCompare(m_PruneFile.getValue(), NONE);
+		return m_PruneSet.isDoubleOrNull(NONE);
 	}	
 	
 	public boolean checkHeuristic(String value) {
@@ -435,11 +459,45 @@ public class Settings implements Serializable {
 	}
 	
 	public String getTestFile() {
-		return m_TestFile.getValue();
+		return m_TestSet.getValue();
+	}
+	
+	public String getPruneFile() {
+		return m_PruneSet.getValue();	
+	}
+	
+	public double getTestProportion() {
+		if (!m_TestSet.isDouble()) return 0.0;
+		return m_TestSet.getDoubleValue();
+	}
+	
+	public double getPruneProportion() {
+		if (!m_PruneSet.isDouble()) return 0.0;
+		return m_PruneSet.getDoubleValue();
+	}
+	
+	public boolean isNullXValFile() {
+		return m_XValFolds.isIntOrNull(NONE);
+	}
+	
+	public String getXValFile() {
+		return m_XValFolds.getValue();
+	}
+	
+	public int getXValFolds() {
+		return m_XValFolds.getIntValue();
+	}
+	
+	public void setXValFolds(int folds) {
+		m_XValFolds.setIntValue(folds);
 	}
 	
 	public int getBaggingSets() {
 		return m_SetsData.getValue();
+	}
+	
+	public INIFileNominalOrDoubleOrVector getTargetWeights() {
+		return m_Weights;
 	}
 	
 	public void updateTarget(ClusSchema schema) {
@@ -459,6 +517,7 @@ public class Settings implements Serializable {
 	
 	public void initialize(CMDLineArgs cargs, boolean loads) throws IOException {		
 		create();
+		initNamedValues();
 		if (cargs != null) preprocess(cargs);
 		if (loads) {
 			try {
@@ -470,7 +529,6 @@ public class Settings implements Serializable {
 		}
 		if (cargs != null) process(cargs);
 		updateDataFile(getAppName()+".arff");
-		initTestSet();		
 		initHierarchical();
 	}
 	
@@ -523,39 +581,11 @@ public class Settings implements Serializable {
 		return Integer.parseInt(m_RandomSeed.getValue());
 	}
 	
-	public double getPruneSetProportion() {
-		return m_PruneProp.getValue();
-	}
-	
 	public boolean shouldNormalize() {
 		return m_Normalize.getValue();
 	}
 	
-	public void initTestSet() {
-		XVAL_ID = -1;
-		TESTSET_ID = -1;
-		XVAL_FOLDS = 10;
-		TESTSET_PROPORTION = 0.0;
-		try {
-			String testset = m_TestPropOrAttr.getValue();
-			if (testset.charAt(0) == 'A' && testset.length() > 1) {
-				TESTSET_ID = Integer.parseInt(testset.substring(1))-1;
-			} else {
-				TESTSET_PROPORTION = Double.parseDouble(testset);
-			}
-			String xvfolds = m_XValFolds.getValue();
-			if (xvfolds.length() > 2 && xvfolds.charAt(0) == 'A' && Character.isDigit(xvfolds.charAt(1))) {
-				XVAL_ID = Integer.parseInt(xvfolds.substring(1))-1;
-			} else if (xvfolds.length() > 1 && Character.isDigit(xvfolds.charAt(0))) {
-				XVAL_FOLDS = Integer.parseInt(xvfolds);
-			} else {
-				XVAL_FILE = xvfolds;
-				XVAL_FOLDS = 0;
-			}
-		} catch (NumberFormatException e) {}
-	}
-	
-	public static void setFTest(double ftest) {
+	public void setFTest(double ftest) {
 		FTEST_VALUE = ftest;
 		FTEST_LEVEL = FTest.getLevel(ftest);
 		m_FTest.setValue(ftest);
@@ -586,10 +616,6 @@ public class Settings implements Serializable {
 		return prev;
 	}
 	
-	public void setFolds(int folds) {
-		XVAL_FOLDS = folds;
-	}
-	
 	public String getTarget() {
 		return m_Target.getValue();
 	}
@@ -614,7 +640,7 @@ public class Settings implements Serializable {
 		m_Ini.save(where);
 	}
 	
-	public static void setAppName(String file) {
+	public void setAppName(String file) {
 		file = StringUtils.removeSuffix(file, ".gz");
 		file = StringUtils.removeSuffix(file, ".arff");
 		file = StringUtils.removeSuffix(file, ".s");		
@@ -623,20 +649,20 @@ public class Settings implements Serializable {
 		m_DirName = FileUtil.getPath(file);
 	}
 	
-	public static void setDate(Date date) {
+	public void setDate(Date date) {
 		m_Date = date;
 	}
 	
-	public static Date getDate() {
+	public Date getDate() {
 		return m_Date;
 	}
 	
-	public static String getFileAbsolute(String fname) {
+	public String getFileAbsolute(String fname) {
 		if (m_DirName == null) return fname;
 		return m_DirName + File.separator + fname;
 	}
 	
-	public static PrintWriter getFileAbsoluteWriter(String fname) throws FileNotFoundException {
+	public PrintWriter getFileAbsoluteWriter(String fname) throws FileNotFoundException {
 		String path = getFileAbsolute(fname);
 		return new PrintWriter(new OutputStreamWriter(new FileOutputStream(path)));
 	}

@@ -11,6 +11,8 @@ import clus.selection.*;
 
 public class ClusSchema implements Serializable {
 
+	public final static long serialVersionUID = 1L;
+	
 	public final static int ROWS = 0;
 	public final static int COLS = 1;
 
@@ -99,7 +101,7 @@ public class ClusSchema implements Serializable {
 	
 	public final XValMainSelection getXValSelection(ClusData data) throws ClusException {
 		if (m_TSAttr == null) {
-			return new XValRandomSelection(data.getNbRows(), Settings.XVAL_FOLDS);
+			return new XValRandomSelection(data.getNbRows(), getSettings().getXValFolds());
 		} else {
 			return new XValDataSelection(m_TSAttr);
 		}

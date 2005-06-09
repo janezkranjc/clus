@@ -8,6 +8,8 @@ import clus.data.rows.*;
 
 public class IndexAttrType extends ClusAttrType {
 
+	public final static long serialVersionUID = 1L;	
+	
 	public final static int THIS_TYPE = 2;
 	public final static String THIS_TYPE_NAME = "Index";
 

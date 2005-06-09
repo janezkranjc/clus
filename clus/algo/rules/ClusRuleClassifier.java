@@ -7,6 +7,7 @@ import jeans.util.cmdline.CMDLineArgs;
 import clus.*;
 import clus.algo.tdidt.ClusDecisionTree;
 import clus.main.*;
+import clus.util.ClusException;
 import clus.algo.induce.*;
 
 public class ClusRuleClassifier extends ClusClassifier {
@@ -24,13 +25,13 @@ public class ClusRuleClassifier extends ClusClassifier {
 		System.out.println("Heuristic: "+getStatManager().getHeuristicName());
 	}
 	
-	public ClusModel induceSingle(ClusRun cr) {
+	public ClusModel induceSingle(ClusRun cr) throws ClusException {
 		DepthFirstInduce tree_induce = (DepthFirstInduce)getInduce();
 		ClusRuleInduce rule_induce = new ClusRuleInduce(tree_induce);
 		return rule_induce.induce(cr);		
 	}
 
-	public void induce(ClusRun cr){
+	public void induce(ClusRun cr) throws ClusException {
 		ClusModel model = induceSingle(cr);
 		cr.getModelInfo(ClusModels.ORIGINAL).setModel(model);
 		cr.getModelInfo(ClusModels.PRUNED).setModel(model);

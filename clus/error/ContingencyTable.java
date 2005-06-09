@@ -8,6 +8,8 @@ import clus.util.*;
 
 public class ContingencyTable extends ClusNominalError {
 
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
+	
 	protected final static String REAL_PRED = "REAL\\PRED";
 
 	protected int[][][] m_ContTable;
@@ -65,6 +67,18 @@ public class ContingencyTable extends ClusNominalError {
 	
 	public double calcDefaultAccuracy(int i) {
 		return 0.0;
+	}	
+	
+	public double getModelErrorComponent(int i) {
+		return calcAccuracy(m_ContTable[i]);
+	}
+	
+	public double getModelComponent() {
+		double sum = 0.0;
+		for (int i = 0; i < m_Dim; i++) {
+			sum += calcAccuracy(m_ContTable[i]);
+		}
+		return sum/m_Dim;
 	}	
 	
 	public void showAccuracy(PrintWriter out, int i) {

@@ -4,10 +4,13 @@ import java.io.*;
 import java.text.*;
 
 import clus.data.rows.*;
+import clus.main.Settings;
 import clus.statistic.*;
 
-public abstract class ClusError {
+public abstract class ClusError implements Serializable {
 
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;		
+	
 	public final static int DETAIL_NEVER_VISIBLE = 0;
 	public final static int DETAIL_SMALL = 1;
 	public final static int DETAIL_ALWAYS_VISIBLE = 2;
@@ -66,7 +69,11 @@ public abstract class ClusError {
 	public double getModelError() {
 		return 0.0;
 	}
-		
+
+	public double getModelErrorComponent(int i) {
+		return getModelError();
+	}	
+	
 	public abstract ClusError getErrorClone(ClusErrorParent par);
 	
 	public ClusError getErrorClone() {

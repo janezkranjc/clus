@@ -19,7 +19,7 @@ public class ClusOutput {
 		m_Schema = schema;
 		m_Sett = sett;
 		m_Fname = fname;
-		m_Writer = Settings.getFileAbsoluteWriter(fname);
+		m_Writer = sett.getFileAbsoluteWriter(fname);
 	}
 
 	public void writeHeader() throws IOException {
@@ -27,7 +27,7 @@ public class ClusOutput {
 		m_Writer.println("Clus run "+relname);
 		m_Writer.println(StringUtils.makeString('*', 9+relname.length()));
 		m_Writer.println();
-		Date date = Settings.getDate();
+		Date date = m_Schema.getSettings().getDate();
 		m_Writer.println("Date: "+DateFormat.getInstance().format(date));
 		m_Writer.println("File: "+m_Fname);
 		int a_tot = m_Schema.getNbAttributes();

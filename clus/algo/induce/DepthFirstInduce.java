@@ -100,7 +100,7 @@ public class DepthFirstInduce extends ClusInduce {
 		}
 	}
 	
-	public void initSelectorAndSplit(ClusStatistic totstat) {
+	public void initSelectorAndSplit(ClusStatistic totstat) throws ClusException {
 		m_Selector.create(m_StatManager, m_MaxStats);
 		m_Selector.setRootStatistic(totstat);
 		if (Settings.BINARY_SPLIT) m_Split = new SubsetSplit();
@@ -175,7 +175,7 @@ public class DepthFirstInduce extends ClusInduce {
 		return stat;
 	}
 	
-	public ClusNode induce(ClusRun cr, MultiScore score) {
+	public ClusNode induce(ClusRun cr, MultiScore score) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
 		ClusNode root = null;
 		// Begin of induction process

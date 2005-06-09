@@ -12,10 +12,12 @@ public class ClusReader {
 	String m_Name;
 	int m_Row = 0, m_Attr = 0, m_LastChar = 0;
 	MStreamTokenizer m_Token;
-	StringBuffer m_Scratch = new StringBuffer();	
+	StringBuffer m_Scratch = new StringBuffer();
+	Settings m_Settings;
 	
-	public ClusReader(String fname) throws IOException {
+	public ClusReader(String fname, Settings sett) throws IOException {
 		m_Name = fname;
+		m_Settings = sett;
 		open();
 	}
 	
@@ -35,7 +37,7 @@ public class ClusReader {
 
 	public void open() throws IOException {
 		if (FileUtil.fileExists(m_Name)) {
-			m_Token = new MStreamTokenizer(Settings.getFileAbsolute(m_Name));				
+			m_Token = new MStreamTokenizer(m_Settings.getFileAbsolute(m_Name));				
 		} else {
 			ZipInputStream zip = new ZipInputStream(new FileInputStream(m_Name+".zip"));
 			zip.getNextEntry();

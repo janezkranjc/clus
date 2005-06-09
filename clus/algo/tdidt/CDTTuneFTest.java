@@ -83,7 +83,7 @@ public class CDTTuneFTest extends ClusClassifier {
 			}
 		}
 		double best_f = FTest.FTEST_SIG[best_value];
-		Settings.setFTest(best_f);
+		getSettings().setFTest(best_f);
 		System.out.println("Best was: "+best_f);
 	}
 

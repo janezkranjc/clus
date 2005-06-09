@@ -15,9 +15,11 @@ public class PredictionWriter extends ClusModelProcessor {
 	protected PrintWriter m_Writer;
 	protected MyArray m_Attrs;
 	protected boolean m_Global;
+	protected Settings m_Sett;
 	
-	public PredictionWriter(String fname) {
+	public PredictionWriter(String fname, Settings sett) {
 		m_Fname = fname;
+		m_Sett = sett;
 	}
 	
 	public void globalInitialize(ClusSchema schema) throws IOException {
@@ -62,6 +64,6 @@ public class PredictionWriter extends ClusModelProcessor {
 			ClusAttrType at = schema.getAttrType(i);
 			if (at.getStatus() == ClusAttrType.STATUS_TARGET) m_Attrs.addElement(at);
 		}
-		m_Writer = Settings.getFileAbsoluteWriter(m_Fname);
+		m_Writer = m_Sett.getFileAbsoluteWriter(m_Fname);
 	}
 }

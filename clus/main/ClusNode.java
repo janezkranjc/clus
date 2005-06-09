@@ -1,6 +1,5 @@
 package clus.main;
 
-import jeans.io.ObjectSaveStream;
 import jeans.tree.*;
 import jeans.util.*;
 import jeans.util.compound.*;
@@ -13,11 +12,10 @@ import clus.model.test.*;
 import clus.statistic.*;
 import clus.data.rows.*;
 import clus.error.multiscore.*;
-import clus.ext.ClusExtension;
 
 public class ClusNode extends MyNode implements ClusModel {
 	
-	public final static long serialVersionUID = 6914315965468246440L;
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
 	public final static int YES = 0;
 	public final static int NO = 1;
@@ -510,11 +508,6 @@ public class ClusNode extends MyNode implements ClusModel {
 	 ***************************************************************************/
 	
 	// FIXME - what for NominalTests with only two possible outcomes?
-	
-	public void saveModel(ObjectSaveStream strm) throws IOException { 
-		strm.writeObject(new Integer(ClusExtension.REGULAR_TREE));
-		strm.writeObject(this);
-	}
 	
 	public void printModel(PrintWriter wrt) {
 		printTree(wrt, "");

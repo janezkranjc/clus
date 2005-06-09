@@ -2,6 +2,7 @@ package clus.main;
 
 import clus.tools.debug.Debug;
 
+import jeans.io.ini.INIFileNominalOrDoubleOrVector;
 import jeans.math.matrix.*;
 
 import clus.util.*;
@@ -59,13 +60,17 @@ public class ClusStatManager implements Serializable {
 		}
 	}	
 	
-	public final int getMode() {
-		return m_Mode;
-	}
+	public Settings getSettings() {
+		return m_Settings;
+	}	
 	
 	public final ClusSchema getSchema() {
 		return m_Schema;
 	}
+	
+	public final int getMode() {
+		return m_Mode;
+	}	
 	
 	public final TargetSchema getTargetSchema() {
 		return m_Target;
@@ -124,7 +129,7 @@ public class ClusStatManager implements Serializable {
 		if (nb_types > 1) throw new ClusException("Can't mix different type target values");
 	}
 	
-	public TargetWeightProducer createTargetWeightProducer() {
+	public TargetWeightProducer createTargetWeightProducer() throws ClusException {
 		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
 			int hiermode = getSettings().getHierMode();
@@ -133,7 +138,26 @@ public class ClusStatManager implements Serializable {
 			} 
 			break;
 		case MODE_REGRESSION:
-			return new NormalizedTargetWeights(this);
+			int nb_num = m_Target.getNbNum();			
+			INIFileNominalOrDoubleOrVector winfo = getSettings().getTargetWeights();						
+			NormalizedTargetWeights wi = new NormalizedTargetWeights(this);
+			if (winfo.isVector()) {				
+				wi.setNbTarget(nb_num);
+				if (nb_num != winfo.getVectorLength()) {
+					throw new ClusException("Number of numeric targets is "+nb_num+" but weight vector has only "+winfo.getVectorLength()+" components");
+				}
+				for (int i = 0; i < nb_num; i++) {
+					if (winfo.isNominal(i)) wi.setNormalize(i, true);
+					else wi.setWeight(i, winfo.getDouble(i));
+				}				
+			} else {
+				if (winfo.isNominal() && winfo.getNominal() == Settings.NORMALIZATION_DEFAULT) {
+					wi.setAllNormalize(nb_num); 
+				} else {				
+					wi.setAllFixed(nb_num, winfo.getDouble());
+				}
+			}
+			return wi;
 		}
 		return new TargetWeightProducer(this);		
 	}
@@ -144,12 +168,12 @@ public class ClusStatManager implements Serializable {
 			createHierarchy();
 			break;
 		case MODE_SSPD:
-			m_SSPDMtrx = SSPDMatrix.read(getSettings().getAppName()+".dist");
+			m_SSPDMtrx = SSPDMatrix.read(getSettings().getAppName()+".dist", getSettings());
 			break;
 		}
 	}
 	
-	public void initWeights() {
+	public void initWeights() throws ClusException {
 		m_GlobalWeights = createTargetWeightProducer();
 	}
 	
@@ -189,7 +213,7 @@ public class ClusStatManager implements Serializable {
 		}
 	}
 	
-	public void initHeuristic() {
+	public void initHeuristic() throws ClusException {
 		String name;
 		if (isRuleInduce()) {
 			if (m_Mode == MODE_CLASSIFY) {
@@ -365,7 +389,7 @@ public class ClusStatManager implements Serializable {
 		return parent;
 	}
 	
-	public PruneTree getTreePrunerNoVSB() {
+	public PruneTree getTreePrunerNoVSB() throws ClusException {
 		int maxsize = -1;
 		Settings sett = getSettings();
 		if (isBeamSearch() && sett.isBeamPostPrune()) {
@@ -393,7 +417,7 @@ public class ClusStatManager implements Serializable {
 		return new DummyPruner();
 	}
 	
-	public PruneTree getTreePruner(ClusData pruneset) {
+	public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 		Settings sett = getSettings();
 		if (m_Mode == MODE_HIERARCHICAL) {
 			PruneTree pruner = getTreePrunerNoVSB(); 
@@ -411,11 +435,7 @@ public class ClusStatManager implements Serializable {
 			return getTreePrunerNoVSB();
 		}
 	}
-	
-	public Settings getSettings() {
-		return m_Settings;
-	}
-	
+		
 	public ClusStatistic createStatistic() {
 		return m_Statistic.cloneStat();
 	}

@@ -3,6 +3,7 @@ package clus.model.test;
 import jeans.math.*;
 
 import clus.main.*;
+import clus.util.*;
 import clus.statistic.*;
 import clus.heuristic.*;
 import clus.data.rows.*;
@@ -109,7 +110,7 @@ public class TestSelector {
  * Create statistics
  ***************************************************************************/
 
-	public final void create(ClusStatManager smanager, int nbstat) {
+	public final void create(ClusStatManager smanager, int nbstat) throws ClusException {
 		m_TotStat = null;	
 		m_Heuristic = smanager.getHeuristic();
 		m_TestStat = new ClusStatistic[nbstat];

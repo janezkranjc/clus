@@ -42,7 +42,7 @@ public class RowData extends ClusData implements MSortable {
 	public static RowData readData(String fname, ClusSchema schema) throws ClusException, IOException {
 		schema.addIndices(ClusSchema.ROWS);
 		RowData data = new RowData(schema);
-		ClusReader reader = new ClusReader(fname);		
+		ClusReader reader = new ClusReader(fname, schema.getSettings());		
 		int nbrows = reader.countRows(); 
 		data.resize(nbrows);
 		schema.setNbRows(nbrows);

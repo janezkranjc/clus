@@ -13,8 +13,10 @@ import clus.statistic.*;
 
 // FIXME : replace nbexamples by sumweight (not?) !
 
-public class ClusErrorParent {
+public class ClusErrorParent implements Serializable {
 
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
+	
 	protected int m_NbExamples;
 	protected TargetSchema m_Schema;
 	protected ClusStatManager m_StatManager;
@@ -88,6 +90,15 @@ public class ClusErrorParent {
 	public ClusError getError(int idx) {
 		return (ClusError)m_Error.elementAt(idx);
 	}	
+	
+	public ClusError getErrorByName(String name) {
+		int nb_e = m_Error.size();
+		for (int i = 0; i < nb_e; i++) {
+			ClusError err = (ClusError)m_Error.elementAt(i);
+			if (err.getName().equals(name)) return err;
+		}		
+		return null;
+	}	
 		
 	public void reset() {
 		int nb = m_Error.size();
@@ -125,6 +136,16 @@ public class ClusErrorParent {
 		}
 		m_NbExamples += par.getNbExamples();
 	}
+
+	public void showError(PrintWriter out) {
+		int nb = m_Error.size();
+		out.println("Number of examples: "+getNbExamples());
+		for (int i = 0; i < nb; i++) {
+			ClusError err1 = getError(i);
+			out.println(err1.getName());
+			err1.showModelError(out, ClusError.DETAIL_SMALL);
+		}			
+	}	
 	
 	public void showError(CRParent models, int type, PrintWriter out) {
 		int nb = m_Error.size();

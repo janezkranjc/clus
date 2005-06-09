@@ -118,7 +118,7 @@ if (Debug.debug == 1) {
 			tree.postProc(score);			
 			m_Clus.storeAndPruneModel(cr, tree);
 //			m_Clus.calcError(cr, summary);
-			if (sett.isOutFoldTree()) output.writeOutput(cr, false);	
+			if (sett.isOutputFoldModels()) output.writeOutput(cr, false);	
 		}		
 		output.writeSummary(summary);
 		output.close();	
@@ -181,7 +181,7 @@ if (Debug.debug == 1) {
 			tree.postProc(score);			
 			m_Clus.storeAndPruneModel(cr, tree);
 //			m_Clus.calcError(cr, summary);
-			if (sett.isOutFoldTree()) output.writeOutput(cr, false);	
+			if (sett.isOutputFoldModels()) output.writeOutput(cr, false);	
 		}		
 		output.writeSummary(summary);
 		output.close();	

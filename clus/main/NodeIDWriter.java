@@ -15,10 +15,12 @@ public class NodeIDWriter extends ClusModelProcessor {
 	protected ClusSchema m_Schema;
 	protected MyArray m_Attrs;
 	protected boolean m_First;
+	protected Settings m_Sett;
 	
-	public NodeIDWriter(String fname, boolean missing) {
+	public NodeIDWriter(String fname, boolean missing, Settings sett) {
 		m_Fname = fname;
 		m_Missing = missing;
+		m_Sett = sett;
 	}
 
 	public void initialize(ClusModel model, ClusSchema schema) throws IOException {
@@ -35,7 +37,7 @@ public class NodeIDWriter extends ClusModelProcessor {
 			}
 		}
 		m_First = true;
-		m_Writer = Settings.getFileAbsoluteWriter(m_Fname);
+		m_Writer = m_Sett.getFileAbsoluteWriter(m_Fname);
 	}
 	
 	public void terminate(ClusModel model) throws IOException {

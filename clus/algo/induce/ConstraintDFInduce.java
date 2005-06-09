@@ -84,7 +84,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		return root;		
 	}
 	
-	public ClusNode induce(ClusRun cr, MultiScore score) {
+	public ClusNode induce(ClusRun cr, MultiScore score) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
 		ClusStatistic stat = createTotalStat(data);
 		initSelectorAndSplit(stat);

@@ -3,11 +3,11 @@
  */
 package clus.algo.rules;
 
-import java.io.*;
 import java.util.*;
 
 import clus.algo.induce.*;
 import clus.main.*;
+import clus.util.*;
 import clus.model.test.*;
 import clus.heuristic.*;
 import clus.statistic.*;
@@ -151,18 +151,18 @@ public class ClusRuleInduce {
 
 	public double sanityCheck(double value, ClusRule rule) {
 		double expected = estimateBeamMeasure(rule);
-		if (Math.abs(value-expected) > 1e-6) {
+/*		if (Math.abs(value-expected) > 1e-6) {
 			System.out.println("Bug in heurisitc: "+value+" <> "+expected);
 			PrintWriter wrt = new PrintWriter(System.out);
 			rule.printModel(wrt);
 			wrt.close();
 			System.out.flush();
 			System.exit(1);
-		}
+		}*/
 		return expected;
 	}
 	
-	public ClusModel induce(ClusRun run) {
+	public ClusModel induce(ClusRun run) throws ClusException {
 		
 		boolean ordered = getSettings().isOrderedRules();
 		

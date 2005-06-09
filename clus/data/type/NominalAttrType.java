@@ -13,7 +13,7 @@ import clus.algo.kNN.NominalStatistic;
 
 public class NominalAttrType extends ClusAttrType {
 
-	public final static long serialVersionUID = -488473543871787651L;	
+	public final static long serialVersionUID = 1L;	
 	
 	public final static String[] BINARY_NAMES = {"1", "0"};
 	public final static int THIS_TYPE = 0;

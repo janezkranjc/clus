@@ -12,6 +12,7 @@ import jeans.math.*;
 import jeans.io.*;
 
 import clus.model.test.*;
+import clus.model.modelio.*;
 import clus.Clus;
 import clus.algo.induce.*;
 import clus.ext.*;
@@ -99,7 +100,7 @@ public class ClusBeamSearch extends ClusExtension {
 		return m_AttrHeuristic != null;
 	}
 	
-	public ClusBeam initializeBeam(ClusRun run) {
+	public ClusBeam initializeBeam(ClusRun run) throws ClusException {
 		ClusStatManager smanager = m_BeamInduce.getStatManager();
 		Settings sett = smanager.getSettings();		
 		ClusBeam beam = new ClusBeam(sett.getBeamWidth(), sett.getBeamRemoveEqualHeur());
@@ -309,7 +310,7 @@ public class ClusBeamSearch extends ClusExtension {
 		stats.close();
 	}
 	
-	public void writeModel(ObjectSaveStream strm) throws IOException {
+	public void writeModel(ClusModelCollectionIO strm) throws IOException {
 			saveBeamStats();
 	    	ArrayList beam = getBeam().toArray();
 	    	for (int i = 0; i < beam.size(); i++) {
@@ -318,8 +319,15 @@ public class ClusBeamSearch extends ClusExtension {
 	    		node.updateTree();
 	    		node.clearVisitors();
 	    	}
-	    	strm.writeObject(new Integer(ClusExtension.BEAM));
-	    	strm.writeObject(beam);
+	    	int pos = 1;
+	    	for (int i = beam.size()-1; i >= 0; i--) {
+	    		ClusBeamModel m = (ClusBeamModel)beam.get(i);
+	    		ClusModelInfo info = new ClusModelInfo("B"+pos+": "+m.getValue());
+	    		info.setScore(m.getValue());
+	    		info.setModel(m.getModel());
+				strm.addModel(info);
+				pos++;
+	    	}
 	}	
 	
 	public void setVerbose(boolean verb) {

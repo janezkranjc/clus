@@ -38,6 +38,8 @@ opgeborgen.  Ga maar voor snelle publicatie van hierarchical multi-class
 trees!
 */
 
+import clus.main.*;
+
 public class SSPDMatrix extends MSymMatrix implements Serializable {
 
 	public SSPDMatrix(int size) {
@@ -45,8 +47,8 @@ public class SSPDMatrix extends MSymMatrix implements Serializable {
 	}
 
 	// Matrix stores squared distances [sum of (i,j)^2 and (j,i)^2]
-	public static SSPDMatrix read(String filename) throws IOException {
-		ClusReader reader = new ClusReader(filename);
+	public static SSPDMatrix read(String filename, Settings sett) throws IOException {
+		ClusReader reader = new ClusReader(filename, sett);
 		int nb = 0;
 		while (!reader.isEol()) {
 			reader.readFloat();

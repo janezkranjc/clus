@@ -46,9 +46,9 @@ public class HierRMSError extends MSError {
 		else return super.getModelError();
 	}
 	
-	public double getErrorComp(int i) {
-		if (m_Root) return Math.sqrt(super.getErrorComp(i));
-		else return super.getErrorComp(i);
+	public double getModelErrorComponent(int i) {
+		if (m_Root) return Math.sqrt(super.getModelErrorComponent(i));
+		else return super.getModelErrorComponent(i);
 	}
 	
 	public String getName() {

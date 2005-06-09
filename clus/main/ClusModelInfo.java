@@ -5,7 +5,9 @@ import clus.model.processor.*;
 
 import java.io.*;
 
-public class ClusModelInfo {
+public class ClusModelInfo implements Serializable {
+	
+	public final static long serialVersionUID = 1L;
 	
 	public final static int TRAIN_ERR = 0;
 	public final static int TEST_ERR = 1;		
@@ -13,15 +15,65 @@ public class ClusModelInfo {
 	
 	protected String m_Name;
 	protected int m_ModelSize;
+	protected double m_Score;
 	protected ClusModel m_Model;
 	protected ClusErrorParent m_TrainErr, m_TestErr, m_ValidErr;
-	protected ModelProcessorCollection m_TrainModelProc, m_TestModelProc;
+	protected ClusStatManager m_Manager;
+	protected transient ModelProcessorCollection m_TrainModelProc, m_TestModelProc;
+
+	public ClusModelInfo(String name) {
+		this(name, null, null, null);
+	}	
 	
 	public ClusModelInfo(String name, ClusErrorParent train, ClusErrorParent test, ClusErrorParent valid) {
 		m_Name = name;
 		if (train != null) m_TrainErr = train.getErrorClone();
 		if (test != null) m_TestErr = test.getErrorClone();
 		if (valid != null) m_ValidErr = valid.getErrorClone();
+	}
+	
+	public final String getName() {
+		return m_Name;
+	}
+	
+	public final ClusModel getModel() {
+		return m_Model;
+	}	
+	
+	public final double getScore() {
+		return m_Score;
+	}
+	
+	public ClusStatManager getStatManager() {
+		return m_Manager;
+	}
+
+	public ClusSchema getSchema() {
+		return m_Manager.getSchema();
+	}
+
+	public Settings getSettings() {
+		return m_Manager.getSettings();
+	}
+	
+	public final ClusErrorParent getTrainingError() {
+		return m_TrainErr;
+	}
+	
+	public final ClusErrorParent getTestError() {
+		return m_TestErr;
+	}
+	
+	public final ClusErrorParent getValidationError() {
+		return m_ValidErr;
+	}	
+		
+	public void setStatManager(ClusStatManager mgr) {
+		m_Manager = mgr;
+	}
+	
+	public final void setScore(double score) {
+		m_Score = score;
 	}
 	
 	public void check() {
@@ -57,30 +109,10 @@ public class ClusModelInfo {
 	public final ClusModelInfo cloneModelInfo() {
 		return new ClusModelInfo(m_Name, m_TrainErr, m_TestErr, m_ValidErr);
 	}
-	
-	public final String getName() {
-		return m_Name;
-	}
-	
-	public final ClusModel getModel() {
-		return m_Model;
-	}
-	
+		
 	public final void setModel(ClusModel model) {
 		m_Model = model;
 	}
-	
-	public final ClusErrorParent getTrainingError() {
-		return m_TrainErr;
-	}
-	
-	public final ClusErrorParent getTestError() {
-		return m_TestErr;
-	}
-	
-	public final ClusErrorParent getValidationError() {
-		return m_ValidErr;
-	}	
 	
 	public final void setTestError(ClusErrorParent err) {
 		m_TestErr = err;
@@ -93,6 +125,10 @@ public class ClusModelInfo {
 	public final void setValidationError(ClusErrorParent err) {
 		m_ValidErr = err;
 	}		
+
+	public final void setName(String name) {
+		m_Name = name;
+	}
 	
 	public final ClusErrorParent getError(int traintest) {
 		if (traintest == TRAIN_ERR) return m_TrainErr;

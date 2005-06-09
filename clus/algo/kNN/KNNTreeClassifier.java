@@ -47,7 +47,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 	 * Normally should induce the given data, but
 	 * there is nothing to induce in a nearest neightbour classifier.
 	 */
-	public ClusModel induceSingle(ClusRun cr){
+	public ClusModel induceSingle(ClusRun cr) throws ClusException {
 		// First make normal decision tree
 		ClusNode orig = getInduce().induce(cr, m_Clus.getScore());
 
@@ -90,7 +90,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 	 * Normally should induce the given data, but
 	 * there is nothing to induce in a nearest neightbour classifier.
 	 */
-	public void induce(ClusRun cr){
+	public void induce(ClusRun cr) throws ClusException {
 
 		// First make normal decision tree
 		ClusNode orig = getInduce().induce(cr, m_Clus.getScore());
@@ -140,7 +140,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 
 		//try to prune the tree
 		//(of course) first see if package clus.pruning is wanted
-		double vsb = m_Clus.getSettings().getPruneSetProportion();
+		double vsb = m_Clus.getSettings().getPruneProportion();
 		if (vsb > 0.0){
 			// next make a clone of the tree.
 			KNNTree pruned = (KNNTree) tree.cloneTree();
@@ -168,7 +168,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 		ClusModels.ORIGINAL = summ.addModel("Decision Tree");
 		ClusModels.KNN_ORIGINAL = summ.addModel("KNNTree");
 		//see if package clus.pruning wanted
-		double vsb = m_Clus.getSettings().getPruneSetProportion();
+		double vsb = m_Clus.getSettings().getPruneProportion();
 		if (vsb > 0.0){
 			ClusModels.KNN_PRUNED = summ.addModel("Pruned KNNTree");
 		}

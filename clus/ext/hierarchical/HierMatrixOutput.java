@@ -5,7 +5,6 @@ import java.util.*;
 import java.io.*;
 
 import clus.data.rows.*;
-import clus.main.*;
 
 import jeans.util.array.*;
 
@@ -14,7 +13,7 @@ public class HierMatrixOutput {
 
 	public static void writeExamples(RowData data, ClassHierarchy hier) {
 		try {
-			PrintWriter wrt = Settings.getFileAbsoluteWriter("examples.matrix");
+			PrintWriter wrt = data.getSchema().getSettings().getFileAbsoluteWriter("examples.matrix");
 			writeHeader(hier, wrt);
 			ClassesAttrType type = hier.getType();		
 			int sidx = type.getSpecialIndex();	

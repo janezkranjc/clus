@@ -1,7 +1,6 @@
 package clus.main;
 
 import jeans.util.*;
-import jeans.io.*;
 
 import clus.statistic.*;
 import clus.data.rows.*;
@@ -21,8 +20,6 @@ public interface ClusModel {
 	public String getModelInfo();
 	
 	public void printModel(PrintWriter wrt);
-	
-	public void saveModel(ObjectSaveStream strm) throws IOException;
 	
 	public void attachModel(Hashtable table) throws ClusException;
 }

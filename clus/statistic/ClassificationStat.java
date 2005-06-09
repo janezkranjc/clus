@@ -10,7 +10,7 @@ import clus.data.rows.*;
 
 public class ClassificationStat extends ClusStatistic {
 	
-	public final static long serialVersionUID = 1306405622538093403L;
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
 	public int m_NbTarget;
 	public TargetSchema m_Target;
@@ -30,6 +30,10 @@ public class ClassificationStat extends ClusStatistic {
 		m_NbTarget = nb_target;
 		m_ClassCounts = new double[m_NbTarget][2];
 	}	
+	
+	public int getNbTarget() {
+		return m_NbTarget;
+	}
 	
 	public ClusStatistic cloneStat() {
 		return new ClassificationStat(m_Target);

@@ -12,11 +12,13 @@ public class NodeExampleCollector extends BasicExampleCollector {
 
 	protected String m_FName;
 	protected MyArray m_Attrs;
-	protected boolean m_Missing;	
+	protected boolean m_Missing;
+	protected Settings m_Sett;
 
-	public NodeExampleCollector(String fname, boolean missing) {
+	public NodeExampleCollector(String fname, boolean missing, Settings sett) {
 		m_FName = fname;
 		m_Missing = missing;
+		m_Sett = sett;
 	}
 
 	public void initialize(ClusModel model, ClusSchema schema) {
@@ -42,7 +44,7 @@ public class NodeExampleCollector extends BasicExampleCollector {
 	}
 	
 	public final void writeFile(ClusNode root) throws IOException {
-		PrintWriter wrt = Settings.getFileAbsoluteWriter(m_FName);
+		PrintWriter wrt = m_Sett.getFileAbsoluteWriter(m_FName);
 		LeafTreeIterator iter = new LeafTreeIterator(root);	
 		while (iter.hasMoreNodes()) {
 			ClusNode node = (ClusNode)iter.getNextNode();

@@ -6,10 +6,8 @@ package clus.algo.rules;
 import java.io.*;
 import java.util.*;
 
-import jeans.io.*;
 import jeans.util.*;
 import clus.data.rows.*;
-import clus.ext.*;
 import clus.main.*;
 import clus.statistic.*;
 import clus.model.test.*;
@@ -111,11 +109,6 @@ public class ClusRule implements ClusModel, Serializable {
 	}	
 	
 	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException {
-	}
-	
-	public void saveModel(ObjectSaveStream strm) throws IOException {
-		strm.writeObject(new Integer(ClusExtension.RULE));
-		strm.writeObject(this);		
 	}
 	
 	public void attachModel(Hashtable table) throws ClusException {

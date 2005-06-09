@@ -12,7 +12,7 @@ public class NumericTest extends NodeTest {
 	protected double m_Bound;
 	protected NumericAttrType m_Type;
 	
-	public final static long serialVersionUID = -9198074687950767841L;
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
 	public NumericTest(ClusAttrType attr, double bound, double posfreq) {
 		m_Type = (NumericAttrType)attr;
