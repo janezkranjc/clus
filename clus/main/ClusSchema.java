@@ -24,8 +24,9 @@ public class ClusSchema implements Serializable {
 	protected int m_NbInts, m_NbDoubles, m_NbObjects;
 	protected MyArray m_Attr = new MyArray();	
 	protected ClusAttrType[] m_NormalAttr;
+	protected ClusAttrType[][] m_AttrByArrayIdx;
 	protected TargetSchema m_TargetSchema;
-	protected transient Settings m_Settings;
+	protected Settings m_Settings;
 	protected transient IndexAttrType m_TSAttr;
 	protected transient IntervalCollection m_Target = IntervalCollection.EMPTY;
 	protected transient IntervalCollection m_Disabled = IntervalCollection.EMPTY;	
@@ -299,6 +300,14 @@ public class ClusSchema implements Serializable {
 	
 	public final ClusAttrType[] getNormalAttrs() {
 		return m_NormalAttr;
+	}
+	
+	public final ClusAttrType[] getNominalAttrs() {
+		return m_AttrByArrayIdx[NominalAttrType.THIS_TYPE];
+	}
+	
+	public final ClusAttrType[] getNumericAttrs() {
+		return m_AttrByArrayIdx[NumericAttrType.THIS_TYPE];
 	}	
 	
 	// Used for enabling multi-score
@@ -395,6 +404,13 @@ public class ClusSchema implements Serializable {
 		}
 		m_NbInts = nbvt[ClusAttrType.VALUE_TYPE_INT];
 		m_NbDoubles = nbvt[ClusAttrType.VALUE_TYPE_DOUBLE];
-		m_NbObjects = nbvt[ClusAttrType.VALUE_TYPE_OBJECT];				
+		m_NbObjects = nbvt[ClusAttrType.VALUE_TYPE_OBJECT];
+		m_AttrByArrayIdx = new ClusAttrType[ClusAttrType.NB_TYPES][];
+		m_AttrByArrayIdx[NominalAttrType.THIS_TYPE] = new ClusAttrType[m_NbInts];  
+		m_AttrByArrayIdx[NumericAttrType.THIS_TYPE] = new ClusAttrType[m_NbDoubles];
+		for (int j = 0; j < m_NbAttrs; j++) {
+			ClusAttrType at = (ClusAttrType)m_Attr.elementAt(j);
+			m_AttrByArrayIdx[at.getTypeIndex()][at.getSpecialIndex()] = at;
+		}
 	}
 }
