@@ -410,7 +410,9 @@ public class ClusSchema implements Serializable {
 		m_AttrByArrayIdx[NumericAttrType.THIS_TYPE] = new ClusAttrType[m_NbDoubles];
 		for (int j = 0; j < m_NbAttrs; j++) {
 			ClusAttrType at = (ClusAttrType)m_Attr.elementAt(j);
-			m_AttrByArrayIdx[at.getTypeIndex()][at.getSpecialIndex()] = at;
+			if (at.getStatus() == ClusAttrType.STATUS_NORMAL || at.getStatus() == ClusAttrType.STATUS_TARGET) {
+				m_AttrByArrayIdx[at.getTypeIndex()][at.getSpecialIndex()] = at;
+			}
 		}
 	}
 }
