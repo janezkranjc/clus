@@ -3,6 +3,7 @@
  */
 package clus.algo.rules;
 
+import java.io.*;
 import jeans.util.cmdline.CMDLineArgs;
 import clus.*;
 import clus.algo.tdidt.ClusDecisionTree;
@@ -25,13 +26,13 @@ public class ClusRuleClassifier extends ClusClassifier {
 		System.out.println("Heuristic: "+getStatManager().getHeuristicName());
 	}
 	
-	public ClusModel induceSingle(ClusRun cr) throws ClusException {
+	public ClusModel induceSingle(ClusRun cr) throws ClusException, IOException {
 		DepthFirstInduce tree_induce = (DepthFirstInduce)getInduce();
 		ClusRuleInduce rule_induce = new ClusRuleInduce(tree_induce);
 		return rule_induce.induce(cr);		
 	}
 
-	public void induce(ClusRun cr) throws ClusException {
+	public void induce(ClusRun cr) throws ClusException, IOException {
 		ClusModel model = induceSingle(cr);
 		cr.getModelInfo(ClusModels.ORIGINAL).setModel(model);
 		cr.getModelInfo(ClusModels.PRUNED).setModel(model);

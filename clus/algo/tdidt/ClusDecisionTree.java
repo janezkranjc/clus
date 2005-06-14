@@ -1,6 +1,8 @@
 
 package clus.algo.tdidt;
 
+import java.io.IOException;
+
 import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;
@@ -35,7 +37,7 @@ public class ClusDecisionTree extends ClusClassifier {
 		return getInduce().induce(cr, m_Clus.getScore());
 	}
 
-	public void induce(ClusRun cr) throws ClusException {
+	public void induce(ClusRun cr) throws ClusException, IOException {
 		long start_time = System.currentTimeMillis();
 		ClusNode orig = getInduce().induce(cr, m_Clus.getScore());
 		m_Clus.storeAndPruneModel(cr, orig);

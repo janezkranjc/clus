@@ -16,6 +16,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	protected ClusStatistic m_Default;
 	protected ArrayList m_Rules = new ArrayList();
+  /* Array of tuples covered by the default rule. */
+  protected ArrayList m_DefaultData = new ArrayList();
 	
 	public void add(ClusRule rule) {
 		m_Rules.add(rule);
@@ -94,4 +96,57 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	public String getModelInfo() {
 		return "Rules = "+getModelSize()+" (Tests: "+getNbLiterals()+")";
 	}		
+
+  /** 
+   * Computes the compactness of data tuples covered by each rule.
+   * @param mode 0 for train set, 1 for test set
+   */
+  public void computeCompactness(int mode) {
+    for (int i = 0; i < m_Rules.size(); i++) {
+      ClusRule rule = (ClusRule)m_Rules.get(i);
+      rule.computeCompactness(mode);
+    }
+  }
+
+  /** 
+   * Adds the tuple to the rule which covers it.
+   * @param tuple the data tuple
+   * @return true if tuple is covered by any rule in this RuleSet,
+   *         false otherwise
+   */
+  public boolean addDataToRules(DataTuple tuple) {
+    boolean covered = false;
+    for (int i = 0; i < m_Rules.size(); i++) {
+      ClusRule rule = (ClusRule)m_Rules.get(i);
+      if (rule.covers(tuple)) {
+        rule.addDataTuple(tuple);
+        covered = true;
+      }
+    }
+    return covered;
+  }
+
+  /**
+   * Adds the data tuples to rules which cover them. Noncovered
+   * tuples are added to the m_DefaultData array. 
+   * @param data the data 
+   */
+  public void addDataToRules(RowData data) {
+    for (int i = 0; i < data.getNbRows(); i++) {
+       DataTuple tuple = data.getTuple(i);
+       if (!addDataToRules(tuple)) {
+         m_DefaultData.add(tuple);
+       }
+    }
+  }
+  
+  /**
+   * Removes the data tuples from rules and from m_DefaultData array. 
+   */
+  public void removeDataFromRules() {
+    for (int i = 0; i < m_Rules.size(); i++) {
+      ((ClusRule)m_Rules.get(i)).removeDataTuples();
+    }
+    m_DefaultData.clear();
+  }
 }

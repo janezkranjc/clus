@@ -8,6 +8,7 @@ import java.util.*;
 
 import jeans.util.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.main.*;
 import clus.statistic.*;
 import clus.model.test.*;
@@ -18,7 +19,16 @@ public class ClusRule implements ClusModel, Serializable {
 	protected Object m_Visitor;
 	protected ClusStatistic m_Default;	
 	protected ArrayList m_Tests = new ArrayList();
+  /* Array of tuples covered by this rule */
+  protected ArrayList m_Data = new ArrayList();
+  protected ClusStatManager m_StatManager;
+  /* Combined statistics for training and testing data */
+  protected CombStat[] m_CombStat = new CombStat[2];
 	
+  public ClusRule(ClusStatManager statManager) {
+    m_StatManager = statManager;
+  }
+  
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 		return m_Default;
 	}
@@ -28,7 +38,7 @@ public class ClusRule implements ClusModel, Serializable {
 	}
 	
 	public ClusRule cloneRule() {
-		ClusRule new_rule = new ClusRule();
+		ClusRule new_rule = new ClusRule(m_StatManager);
 		for (int i = 0; i < getModelSize(); i++) {
 			new_rule.addTest(getTest(i));
 		}		
@@ -140,8 +150,17 @@ public class ClusRule implements ClusModel, Serializable {
 		}
 		wrt.println();
 		wrt.println("THEN "+m_Default.getString());
+    if (getSettings().computeCompactness() &&
+        m_CombStat[ClusModel.TRAIN] != null) {
+      wrt.println("\n   Compactness: " +
+                  m_CombStat[ClusModel.TRAIN].getString() + "\n");
+    }
 	}
-	
+
+  public Settings getSettings() {
+    return m_StatManager.getSettings();
+  }
+  
 	public boolean isEmpty() {
 		return getModelSize() == 0;
 	}
@@ -176,5 +195,39 @@ public class ClusRule implements ClusModel, Serializable {
 	
 	public String getModelInfo() {
 		return "Tests = "+getModelSize();
-	}		
+	}	
+  
+  /**
+   * Computes the compactness of data tuples covered by this rule.
+   * @param mode 0 for train set, 1 for test set
+   */
+  public void computeCompactness(int mode) {
+    int nbNumAtts = m_StatManager.getSchema().getNbNumeric();
+    int nbNomAtts = m_StatManager.getSchema().getNbNom();
+    NominalAttrType[] nomAtts = new NominalAttrType[nbNomAtts];
+    for (int i = 0; i < nbNomAtts; i++) {
+      nomAtts[i] = (NominalAttrType)m_StatManager.getSchema().getNominalAttrs()[i];
+    }
+    CombStat combStat = new CombStat(nbNumAtts, nomAtts);
+    for (int i = 0; i < m_Data.size(); i++) {
+      combStat.updateWeighted((DataTuple)m_Data.get(i));
+    }
+    combStat.calcMeans();
+    m_CombStat[mode] = combStat;
+  }
+
+  /**
+   * Adds the tuple to the m_Data array
+   * @param tuple
+   */
+  public void addDataTuple(DataTuple tuple) {
+    m_Data.add(tuple);
+  }
+
+  /**
+   * Removes the data tuples from the m_Data array
+   */
+  public void removeDataTuples() {
+    m_Data.clear();
+  }
 }

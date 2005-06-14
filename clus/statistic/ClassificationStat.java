@@ -7,6 +7,7 @@ import clus.main.*;
 import clus.util.*;
 import clus.data.cols.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 
 public class ClassificationStat extends ClusStatistic {
 	
@@ -30,7 +31,21 @@ public class ClassificationStat extends ClusStatistic {
 		m_NbTarget = nb_target;
 		m_ClassCounts = new double[m_NbTarget][2];
 	}	
-	
+
+  /**
+   * Constructor for this class.
+   * @param nomAtts array of nominal attributes
+   */
+  public ClassificationStat(NominalAttrType[] nomAtts) {
+    m_NbTarget = nomAtts.length;
+    m_ClassCounts = new double[m_NbTarget][];
+    for (int i = 0; i < m_NbTarget; i++) {
+      m_ClassCounts[i] = new double[nomAtts[i].getNbValues()];
+    }
+    // TODO: Check if this OK!
+    m_Target = new TargetSchema(m_NbTarget,0);
+  } 
+
 	public int getNbTarget() {
 		return m_NbTarget;
 	}

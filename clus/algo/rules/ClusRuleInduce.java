@@ -1,19 +1,19 @@
-/*
- * Created on May 1, 2005
+/* Created on May 1, 2005
  */
 package clus.algo.rules;
 
+import java.io.*;
 import java.util.*;
 
 import clus.algo.induce.*;
 import clus.main.*;
-import clus.util.*;
 import clus.model.test.*;
 import clus.heuristic.*;
 import clus.statistic.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.ext.beamsearch.*;
+import clus.util.*;
 
 public class ClusRuleInduce {
 
@@ -49,7 +49,7 @@ public class ClusRuleInduce {
 		Settings sett = getSettings();
 		ClusBeam beam = new ClusBeam(sett.getBeamWidth(), sett.getBeamRemoveEqualHeur());
 		ClusStatistic stat = m_Induce.createTotalStat(data);
-		ClusRule rule = new ClusRule();
+		ClusRule rule = new ClusRule(m_Induce.getStatManager());
 		rule.setDefaultStat(stat);
 		rule.setVisitor(data);
 		double value = estimateBeamMeasure(rule);
@@ -151,18 +151,18 @@ public class ClusRuleInduce {
 
 	public double sanityCheck(double value, ClusRule rule) {
 		double expected = estimateBeamMeasure(rule);
-/*		if (Math.abs(value-expected) > 1e-6) {
+		if (Math.abs(value-expected) > 1e-6) {
 			System.out.println("Bug in heurisitc: "+value+" <> "+expected);
 			PrintWriter wrt = new PrintWriter(System.out);
 			rule.printModel(wrt);
 			wrt.close();
 			System.out.flush();
 			System.exit(1);
-		}*/
+		}
 		return expected;
 	}
 	
-	public ClusModel induce(ClusRun run) throws ClusException {
+	public ClusModel induce(ClusRun run) throws ClusException, IOException {
 		
 		boolean ordered = getSettings().isOrderedRules();
 		
@@ -173,6 +173,18 @@ public class ClusRuleInduce {
 		ClusRuleSet rset = new ClusRuleSet();
 		separateAndConquor(rset, data);
 		rset.postProc();
-		return rset;
+    if (getSettings().computeCompactness()) {
+      rset.addDataToRules(data);
+      rset.computeCompactness(ClusModel.TRAIN);
+      rset.removeDataFromRules();
+      if (run.getTestIter() != null) {
+        RowData testdata = (RowData)run.getTestSet();
+        rset.addDataToRules(testdata);
+        rset.computeCompactness(ClusModel.TEST);
+        rset.removeDataFromRules();
+      }
+
+    }
+    return rset;
 	}
 }

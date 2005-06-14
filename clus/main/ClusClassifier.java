@@ -1,6 +1,8 @@
 
 package clus.main;
 
+import java.io.IOException;
+
 import jeans.util.cmdline.*;
 import clus.*;
 import clus.util.*;
@@ -35,12 +37,12 @@ public abstract class ClusClassifier {
 
 	public abstract void printInfo();
 	
-	public ClusModel induceSingle(ClusRun cr) throws ClusException {
+	public ClusModel induceSingle(ClusRun cr) throws ClusException, IOException {
 		System.out.println(">>> Error: induceSingle/1 not implemented");
 		return null;
 	}
 	
-	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException {
+	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 		System.out.println(">>> Error: induceSingleUnpruned/1 not implemented");		
 		return null;
 	}
@@ -48,7 +50,7 @@ public abstract class ClusClassifier {
 	public void saveInformation(String fname) {		
 	}
 
-	public abstract void induce(ClusRun cr) throws ClusException;
+	public abstract void induce(ClusRun cr) throws ClusException, IOException;
 
 	public abstract void initializeSummary(ClusSummary summ);
 

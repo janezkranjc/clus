@@ -107,10 +107,10 @@ public class RegressionStat extends ClusStatistic {
 		}
 	}	
 	
-	public void updateWeighted(DataTuple tuple, int idx) {
-		updateWeighted(tuple, tuple.getWeight());
-	}
-	
+  public void updateWeighted(DataTuple tuple, int idx) {
+    updateWeighted(tuple, tuple.getWeight());
+  }
+  
 	public void updateWeighted(DataTuple tuple, double weight) {
 		m_SumWeight += weight;
 		for (int i = 0; i < m_NbTarget; i++) {

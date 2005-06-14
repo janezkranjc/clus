@@ -1,7 +1,7 @@
 
 [Data]
-Target = 6
-Disable = 5
+Target = 5
+Disable = 6
 
 [Nominal]
 GainRatio = FALSE

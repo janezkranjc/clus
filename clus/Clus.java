@@ -203,7 +203,7 @@ public class Clus implements CMDLineArgsProvider {
 		return pruned;
 	}
 	
-	public final void storeAndPruneModel(ClusRun cr, ClusNode orig) throws ClusException {
+	public final void storeAndPruneModel(ClusRun cr, ClusNode orig) throws ClusException, IOException {
 		orig.numberTree();
 		// Postprocess tree on training set
 		ClusModelInfo orig_info = cr.getModelInfo(ClusModels.ORIGINAL);
@@ -226,7 +226,12 @@ public class Clus implements CMDLineArgsProvider {
 		ClusNode pruned = (ClusNode)cr.getModel(ClusModels.PRUNED);
 		if (getSettings().rulesFromTree()) {
 			ClusRulesFromTree rft = new ClusRulesFromTree();
-			ClusRuleSet rules = rft.constructRules(pruned, getStatManager());
+      ClusRuleSet rules;
+      if (getSettings().computeCompactness()) {
+        rules = rft.constructRules(cr, pruned, getStatManager());
+      } else {
+			  rules = rft.constructRules(pruned, getStatManager());
+      }
 			ClusModelInfo rules_info = cr.getModelInfo(ClusModels.RULES);
 			rules_info.setModel(rules);
 			rules_info.setStatManager(getStatManager());

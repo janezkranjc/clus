@@ -286,7 +286,11 @@ public class ClusSchema implements Serializable {
 	public final int getNbTarNum() {
 		return getNbTarType(NumericAttrType.THIS_TYPE);
 	}	
-	
+
+  public final int getNbNumeric() {
+    return getNbTarNum() + getNbNum();
+  } 
+
 	public final int getNbNormalMissing() {
 		int miss = 0;
 		for (int j = 0; j < m_NbNormalAttr; j++) 

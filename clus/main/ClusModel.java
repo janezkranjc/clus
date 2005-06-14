@@ -10,6 +10,9 @@ import java.io.*;
 import java.util.*;
 
 public interface ClusModel {
+  
+  public static int TRAIN = 0;
+  public static int TEST = 1;
 
 	public ClusStatistic predictWeighted(DataTuple tuple);
 	

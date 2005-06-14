@@ -118,6 +118,7 @@ public class Settings implements Serializable {
 	
 	/* Rules */
 	protected INIFileBool m_OrderedRules;
+  protected INIFileBool m_ComputeCompactness;
 	
 	/* Constraints */
 	protected INIFileString m_SyntacticConstrFile;
@@ -212,7 +213,8 @@ public class Settings implements Serializable {
 		tree.addNode(m_RulesFromTree = new INIFileBool("ConvertToRules", false));
 				
 		INIFileSection rules = new INIFileSection("Rules");
-		rules.addNode(m_OrderedRules = new INIFileBool("Ordered", true));		
+		rules.addNode(m_OrderedRules = new INIFileBool("Ordered", true));
+    rules.addNode(m_ComputeCompactness = new INIFileBool("ComputeCompactness", false));
 				
 		INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic", NONE));
@@ -333,9 +335,13 @@ public class Settings implements Serializable {
 		return m_HierPruneInSig.getValue();
 	}
 	
-	public boolean isOrderedRules() {
-		return m_OrderedRules.getValue();
-	}
+  public boolean isOrderedRules() {
+    return m_OrderedRules.getValue();
+  }
+
+  public boolean computeCompactness() {
+    return m_ComputeCompactness.getValue();
+  }
 	
 	public int getHierMode() {
 		return m_HierMode.getValue();
