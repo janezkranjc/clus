@@ -220,6 +220,7 @@ public class Settings implements Serializable {
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic", NONE));
 		constr.addNode(m_MaxSizeConstr = new INIFileNominalOrIntOrVector("MaxSize", INFINITY));
 		constr.addNode(m_MaxErrorConstr = new INIFileNominalOrDoubleOrVector("MaxError", INFINITY));
+		m_MaxSizeConstr.setNominal(0);
 		m_MaxErrorConstr.setNominal(0);
 		
 		INIFileSection output = new INIFileSection("Output");
