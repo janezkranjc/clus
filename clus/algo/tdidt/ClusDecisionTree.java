@@ -48,7 +48,15 @@ public class ClusDecisionTree extends ClusClassifier {
 		ClusModels.DEFAULT = summ.addModel("Default");
 		ClusModels.ORIGINAL = summ.addModel("Original");
 		// ClusModels.CLASS_PRUNED = m_Summary.addModel("Class pruned");
-		ClusModels.PRUNED = summ.addModel("Pruned");
+		int nb_size = getSettings().getSizeConstraintPruningNumber();
+		if (nb_size > 0) {
+			ClusModels.PRUNED = summ.addModel("S("+getSettings().getSizeConstraintPruning(0)+")");
+			for (int i = 1; i < nb_size; i++) {
+				summ.addModel("S("+getSettings().getSizeConstraintPruning(i)+")");				
+			}
+		} else {
+			ClusModels.PRUNED = summ.addModel("Pruned");			
+		}		
 		if (getSettings().rulesFromTree()) {
 			ClusModels.RULES = summ.addModel("Rules");
 		}

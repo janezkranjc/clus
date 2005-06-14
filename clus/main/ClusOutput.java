@@ -53,8 +53,12 @@ public class ClusOutput {
 		}
 		m_Writer.println();
 	}
-
+	
 	public void writeOutput(ClusRun cr, boolean detail) throws IOException {
+		writeOutput(cr, detail, false);
+	}
+
+	public void writeOutput(ClusRun cr, boolean detail, boolean outputtrain) throws IOException {
 		String ridx = cr.getIndexString();
 		m_Writer.println("Run: "+ridx);
 		m_Writer.println(StringUtils.makeString('*', 5+ridx.length()));
@@ -82,7 +86,7 @@ public class ClusOutput {
 		m_Writer.println();
 		if (m_Sett.isOutFoldError() || detail) {
 			ClusErrorParent te_err = cr.getTestError();
-			if (m_Sett.isOutTrainError() || te_err == null) {
+			if (outputtrain) {
 				ClusErrorParent tr_err = cr.getTrainError();
 				if (tr_err != null) {
 					m_Writer.println("Training error");

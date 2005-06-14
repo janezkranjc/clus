@@ -212,12 +212,18 @@ public class Clus implements CMDLineArgsProvider {
 		ClusNode defmod = pruneToRoot(orig);
 		ClusModelInfo def_info = cr.getModelInfo(ClusModels.DEFAULT);
 		def_info.setStatManager(getStatManager());
-		def_info.setModel(defmod);
-		ClusNode pruned = pruneTree(orig, cr.getPruneSet(), cr.getTrainingSet());
-		pruned.numberTree();
-		ClusModelInfo pruned_info = cr.getModelInfo(ClusModels.PRUNED);
-		pruned_info.setModel(pruned);
-		pruned_info.setStatManager(getStatManager());
+		def_info.setModel(defmod);		
+		PruneTree pruner = m_Induce.getStatManager().getTreePruner(cr.getPruneSet());
+		pruner.setTrainingData((RowData)cr.getTrainingSet());
+		for (int i = 0; i < pruner.getNbResults(); i++) {
+			ClusNode pruned = (ClusNode)orig.cloneTree();
+			pruner.prune(i, pruned);		
+			pruned.numberTree();
+			ClusModelInfo pruned_info = cr.getModelInfo(ClusModels.PRUNED+i);		
+			pruned_info.setModel(pruned);
+			pruned_info.setStatManager(getStatManager());
+		}
+		ClusNode pruned = (ClusNode)cr.getModel(ClusModels.PRUNED);
 		if (getSettings().rulesFromTree()) {
 			ClusRulesFromTree rft = new ClusRulesFromTree();
 			ClusRuleSet rules = rft.constructRules(pruned, getStatManager());
@@ -574,7 +580,7 @@ public class Clus implements CMDLineArgsProvider {
 			}			
 		}		
 		output.writeHeader();
-		output.writeOutput(cr, true);
+		output.writeOutput(cr, true, true);
 		output.close();
 		clss.saveInformation(m_Sett.getAppName());
 		return cr;

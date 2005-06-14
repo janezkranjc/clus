@@ -278,7 +278,7 @@ public class ClusStatManager implements Serializable {
 		case MODE_REGRESSION:
 			parent.addError(new AbsoluteError(parent));
 			parent.addError(new RMSError(parent));
-			if (getSettings().shouldNormalize()) {
+			if (getSettings().hasNonTrivialWeights()) {
 				parent.addError(new RMSError(parent, m_GlobalWeights));
 			}
 			parent.addError(new PearsonCorrelation(parent));			
@@ -390,16 +390,19 @@ public class ClusStatManager implements Serializable {
 	}
 	
 	public PruneTree getTreePrunerNoVSB() throws ClusException {
-		int maxsize = -1;
 		Settings sett = getSettings();
 		if (isBeamSearch() && sett.isBeamPostPrune()) {
-			maxsize = sett.getTreeMaxSize();
-		} else {
-			maxsize = sett.getSizeConstraintPruning();
-		}
-		if (maxsize != -1) {
 			sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
-			return new SizeConstraintPruning(maxsize, createTargetWeightProducer());
+			return new SizeConstraintPruning(sett.getTreeMaxSize(), createTargetWeightProducer());			
+		}
+		int size_nb = sett.getSizeConstraintPruningNumber();
+		if (size_nb > 0) {
+			int[] sizes = new int[size_nb];
+			for (int i = 0; i < size_nb; i++) {
+				sizes[i] = sett.getSizeConstraintPruning(i);
+			}			
+			sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
+			return new SizeConstraintPruning(sizes, createTargetWeightProducer());
 		}
 		if (m_Mode == MODE_REGRESSION) {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT ||

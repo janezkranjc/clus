@@ -1,5 +1,7 @@
 package clus.data.rows;
 
+import java.io.IOException;
+
 import clus.main.*;
 import clus.util.ClusException;
 
@@ -17,10 +19,14 @@ public class MemoryTupleIterator extends TupleIterator {
 		m_Data = data;
 	}
 	
-	public void reset() {
-		m_Index = 0;
-	}
+	public ClusData getData() {
+		return m_Data;
+	}	
 	
+	public void init() throws IOException, ClusException {
+		m_Index = 0;
+	}		
+			
 	public int getNbExamples() {
 		return m_Data.getNbRows();
 	}

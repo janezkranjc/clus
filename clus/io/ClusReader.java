@@ -14,10 +14,12 @@ public class ClusReader {
 	MStreamTokenizer m_Token;
 	StringBuffer m_Scratch = new StringBuffer();
 	Settings m_Settings;
+	boolean m_IsClosed;
 	
 	public ClusReader(String fname, Settings sett) throws IOException {
 		m_Name = fname;
 		m_Settings = sett;
+		m_IsClosed = true;
 		open();
 	}
 	
@@ -43,16 +45,26 @@ public class ClusReader {
 			zip.getNextEntry();
 			m_Token = new MStreamTokenizer(zip);				
 		}
-		m_Token.setCommentChar('%');		
+		m_Token.setCommentChar('%');
+		m_IsClosed = false;
 	}
 
+	public boolean isClosed() {
+		return m_IsClosed;
+	}
+	
+	public void tryReOpen() throws IOException {
+		if (isClosed()) reOpen();
+	}	
+	
 	public void reOpen() throws IOException {
-		m_Token.close();	
+		close();	
 		open();
 	}
 
 	public void close() throws IOException {
 		m_Token.close();
+		m_IsClosed = true;
 	}	
 	
 	public MStreamTokenizer getTokens() {

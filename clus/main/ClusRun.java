@@ -1,8 +1,11 @@
 package clus.main;
 
+import java.io.*;
+
 import clus.selection.*;
 import clus.error.*;
 import clus.data.rows.*;
+import clus.util.*;
 
 public class ClusRun extends CRParent {
 
@@ -114,7 +117,19 @@ public class ClusRun extends CRParent {
 		
 	public final TupleIterator getTestIter() {
 		return m_Test;
-	}			
+	}
+	
+	// If the test set is specified as a separate file, this method first reads the entire
+	// file into memory, while the above method provides an interator that reads tuples 
+	// one by one
+	public final RowData getTestSet() throws IOException, ClusException {
+		RowData data = (RowData)m_Test.getData();
+		if (data == null) {
+			data = (RowData)m_Test.createInMemoryData();
+			m_Test = data.getIterator();
+		}
+		return data;		
+	}
 		
 /***************************************************************************
  * Pruning set

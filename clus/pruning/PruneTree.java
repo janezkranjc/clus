@@ -9,4 +9,12 @@ public abstract class PruneTree {
 	
 	public void setTrainingData(RowData data) {
 	}
+	
+	public int getNbResults() {
+		return 1;
+	}
+	
+	public void prune(int result, ClusNode node) {
+		prune(node);
+	}
 }

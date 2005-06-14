@@ -92,7 +92,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 			ClusNode tree = (ClusNode)runs[i].getModelInfo(model).getModel();
 			initializeTestErrors(tree, error);
 			MemoryTupleIterator test = (MemoryTupleIterator)runs[i].getTestIter();
-			test.reset();
+			test.init();
 			DataTuple tuple = test.readTuple();
 			while (tuple != null) {
 				tree.applyModelProcessor(tuple, comp);
@@ -113,11 +113,11 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		}
 	}
 	
-	public void computeErrorStandard(ClusNode tree, int model, ClusRun run) throws ClusException {
+	public void computeErrorStandard(ClusNode tree, int model, ClusRun run) throws ClusException, IOException {
 		ClusModelInfo mi = run.getModelInfo(model);
 		ClusError err = mi.getTestError().getFirstError();
 		MemoryTupleIterator test = (MemoryTupleIterator)run.getTestIter();
-		test.reset();
+		test.init();
 		DataTuple tuple = test.readTuple();
 		while (tuple != null) {
 			ClusStatistic pred = tree.predictWeighted(tuple);			
@@ -126,7 +126,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		}
 	}
 	
-	public SingleStatList computeTreeError(ClusRun[] runs, SizeConstraintPruning[] pruners, int model, ClusSummary summ, int size) throws ClusException {
+	public SingleStatList computeTreeError(ClusRun[] runs, SizeConstraintPruning[] pruners, int model, ClusSummary summ, int size) throws ClusException, IOException {
 		ClusModelInfo summ_mi = summ.getModelInfo(model);
 		ClusError summ_err = summ_mi.getTestError().getFirstError();
 		summ_err.reset();
@@ -180,7 +180,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		return res;
 	}
 	
-	public SingleStatList addPoint(ArrayList points, int size, ClusRun[] runs, SizeConstraintPruning[] pruners, int model, ClusSummary summ) throws ClusException {
+	public SingleStatList addPoint(ArrayList points, int size, ClusRun[] runs, SizeConstraintPruning[] pruners, int model, ClusSummary summ) throws ClusException, IOException {
 		int pos = 0;
 		while (pos < points.size() && ((SingleStatList)points.get(pos)).getX() < size) {
 			pos++;
@@ -205,7 +205,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		return Math.abs(max-min);		
 	}
 	
-	public void refineGraph(ArrayList graph, ClusRun[] runs, SizeConstraintPruning[] pruners, int model, ClusSummary summ) throws ClusException {
+	public void refineGraph(ArrayList graph, ClusRun[] runs, SizeConstraintPruning[] pruners, int model, ClusSummary summ) throws ClusException, IOException {
 		int prevsize = -1;
 		while (true) {
 			boolean not_found = true;
@@ -415,10 +415,13 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		return stat;
 	}
 
-	public void induce(ClusRun cr) {
+	public void induce(ClusRun cr) throws ClusException {
 		try {			
 			long start_time = System.currentTimeMillis();
-			m_OrigSize = getSettings().getSizeConstraintPruning();
+			m_OrigSize = getSettings().getSizeConstraintPruning(0);
+			if (getSettings().getSizeConstraintPruningNumber() > 1) {
+				throw new ClusException("Only one value is allowed for MaxSize if -tunesize is given");
+			}
 			RowData train = (RowData)cr.getTrainingSet();
 			m_Schema = train.getSchema();
 			m_HasMissing = m_Schema.hasMissing();

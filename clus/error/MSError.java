@@ -91,7 +91,7 @@ public class MSError extends ClusNumericError {
 				buf.append(fr.format(getModelErrorComponent(i)));
 			}
 			if (m_Dim > 1) buf.append("]: ");
-			else buf.append("]: ");
+			else buf.append("]");
 		}
 		if (m_Dim > 1 || !m_PrintAllComps) {
 			buf.append(fr.format(getModelError()));		

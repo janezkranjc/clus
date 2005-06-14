@@ -50,6 +50,8 @@ public class Settings implements Serializable {
 	public final static String[] INFINITY = 
 	{"Infinity"};
 	
+	public final static int INFINITY_VALUE = 0;
+	
 	public final static long SERIAL_VERSION_ID = 1L;
 	
 	public final static String NONE = "None";
@@ -97,7 +99,6 @@ public class Settings implements Serializable {
 	/* Numeric */
 	protected INIFileDouble m_FTest;
 	protected INIFileString m_MultiScore;
-	protected INIFileBool m_Normalize;
 
 	/* Nominal */
 	protected INIFileBool m_GainRatio;
@@ -120,7 +121,7 @@ public class Settings implements Serializable {
 	
 	/* Constraints */
 	protected INIFileString m_SyntacticConstrFile;
-	protected INIFileInt m_MaxSizeConstr;
+	protected INIFileNominalOrIntOrVector m_MaxSizeConstr;
 	protected INIFileNominalOrDoubleOrVector m_MaxErrorConstr;	
 	
 	/* Output */
@@ -193,7 +194,6 @@ public class Settings implements Serializable {
 		
 		INIFileSection numeric = new INIFileSection("Numeric");
 		numeric.addNode(m_FTest = new INIFileDouble("FTest", 1.0));
-		numeric.addNode(m_Normalize = new INIFileBool("Normalize", true));
 		numeric.addNode(m_MultiScore = new INIFileString("MultiScore", NONE));
 		
 		INIFileSection nominal = new INIFileSection("Nominal");
@@ -216,7 +216,7 @@ public class Settings implements Serializable {
 				
 		INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic", NONE));
-		constr.addNode(m_MaxSizeConstr = new INIFileInt("MaxSize", -1));
+		constr.addNode(m_MaxSizeConstr = new INIFileNominalOrIntOrVector("MaxSize", INFINITY));
 		constr.addNode(m_MaxErrorConstr = new INIFileNominalOrDoubleOrVector("MaxError", INFINITY));
 		m_MaxErrorConstr.setNominal(0);
 		
@@ -294,7 +294,6 @@ public class Settings implements Serializable {
 	
 	public void initNamedValues() {
 		TREE_MAX_DEPTH.setNamedValue(-1, "Infinity");		
-		m_MaxSizeConstr.setNamedValue(-1, "Infinity");
 		m_TreeMaxSize.setNamedValue(-1, "Infinity");		
 	}
 
@@ -377,13 +376,23 @@ public class Settings implements Serializable {
 	public boolean isFastBS() {
 		return m_FastBS.getValue();
 	}
+
+	public int getSizeConstraintPruning(int idx) {
+		if (m_MaxSizeConstr.isNominal(idx)) {
+			return -1;
+		} else {
+			return (int)m_MaxSizeConstr.getInt(idx);
+		}
+	}	
 	
-	public int getSizeConstraintPruning() {
-		return m_MaxSizeConstr.getValue();
+	public int getSizeConstraintPruningNumber() {
+		int len = m_MaxSizeConstr.getVectorLength();
+		if (len == 1 && m_MaxSizeConstr.getNominal() == INFINITY_VALUE) return 0;
+		else return len;
 	}
-	
+		
 	public void setSizeConstraintPruning(int size) {
-		m_MaxSizeConstr.setValue(size);
+		m_MaxSizeConstr.setInt(size);
 	}	
 	
 	public double getSizePenalty() {
@@ -500,6 +509,14 @@ public class Settings implements Serializable {
 		return m_Weights;
 	}
 	
+	public boolean hasNonTrivialWeights() {
+		for (int i = 0; i < m_Weights.getVectorLength(); i++) {
+			if (m_Weights.isNominal(i)) return true;
+			else if (m_Weights.getDouble(i) != 1.0) return true;
+		}
+		return false;
+	}
+	
 	public void updateTarget(ClusSchema schema) {
 		int nb = schema.getNbAttributes();
 		if (isNullTarget()) {
@@ -579,10 +596,6 @@ public class Settings implements Serializable {
 	
 	public int getPresetRandom() {
 		return Integer.parseInt(m_RandomSeed.getValue());
-	}
-	
-	public boolean shouldNormalize() {
-		return m_Normalize.getValue();
 	}
 	
 	public void setFTest(double ftest) {

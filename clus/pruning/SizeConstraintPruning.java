@@ -5,13 +5,19 @@ import clus.statistic.*;
 
 public class SizeConstraintPruning extends PruneTree {
 
-	public int m_MaxSize;
+	public int[] m_MaxSize;
 	public TargetWeightProducer m_TargetWeights;
 
 	public SizeConstraintPruning(int maxsize, TargetWeightProducer prod) {
-		m_MaxSize = maxsize;
+		m_MaxSize = new int[1];
+		m_MaxSize[0] = maxsize;
 		m_TargetWeights = prod;
 	}
+	
+	public SizeConstraintPruning(int[] maxsize, TargetWeightProducer prod) {
+		m_MaxSize = maxsize;
+		m_TargetWeights = prod;
+	}	
 	
 	public TargetWeightProducer getTargetWeights() {
 		return m_TargetWeights;
@@ -28,9 +34,18 @@ public class SizeConstraintPruning extends PruneTree {
 	}
 	
 	public void prune(ClusNode node) {
-		pruneInitialize(node, m_MaxSize);
-		pruneExecute(node, m_MaxSize);
+		pruneInitialize(node, m_MaxSize[0]);
+		pruneExecute(node, m_MaxSize[0]);
 	}
+	
+	public int getNbResults() {
+		return m_MaxSize.length;
+	}
+	
+	public void prune(int result, ClusNode node) {
+		pruneInitialize(node, m_MaxSize[result]);
+		pruneExecute(node, m_MaxSize[result]);
+	}	
 	
 	private static void recursiveInitialize(ClusNode node, int size) {
 		/* Create array for each node */

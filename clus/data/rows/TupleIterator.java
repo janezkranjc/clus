@@ -1,6 +1,7 @@
 package clus.data.rows;
 
 import java.io.*;
+import java.util.*;
 
 import clus.main.*;
 import clus.util.*;
@@ -21,7 +22,7 @@ public abstract class TupleIterator {
 	public abstract DataTuple readTuple() throws IOException, ClusException;
 	
 	public abstract ClusSchema getSchema();
-	
+		
 	public void init() throws IOException, ClusException {
 	}	
 
@@ -42,5 +43,20 @@ public abstract class TupleIterator {
 	
 	public final void setShouldAttach(boolean attach) {
 		m_ShouldAttach = attach;
+	}
+	
+	public ClusData getData() {
+		return null;
+	}
+
+	public ClusData createInMemoryData() throws IOException, ClusException {
+		init();
+		ArrayList list = new ArrayList();
+		DataTuple tuple = readTuple();		
+		while (tuple != null) {
+			list.add(tuple);
+			tuple = readTuple();
+		}
+		return new RowData(list, getSchema());
 	}
 }
