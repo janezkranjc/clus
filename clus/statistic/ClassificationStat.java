@@ -15,7 +15,8 @@ public class ClassificationStat extends ClusStatistic {
 	
 	public int m_NbTarget;
 	public TargetSchema m_Target;
-	public double[][] m_ClassCounts;
+	public NominalAttrType[] m_Attrs;
+  public double[][] m_ClassCounts;
 	public int[] m_MajorityClasses;
 	
 	public ClassificationStat(TargetSchema target) {
@@ -42,17 +43,19 @@ public class ClassificationStat extends ClusStatistic {
     for (int i = 0; i < m_NbTarget; i++) {
       m_ClassCounts[i] = new double[nomAtts[i].getNbValues()];
     }
+    m_Attrs = nomAtts;
     // TODO: Check if this OK!
-    m_Target = new TargetSchema(m_NbTarget,0);
+    // m_Target = new TargetSchema(m_NbTarget,0);
   } 
 
-	public int getNbTarget() {
-		return m_NbTarget;
-	}
-	
+  public int getNbNominalAttributes() {
+    return m_NbTarget;
+  }
+
 	public ClusStatistic cloneStat() {
-		return new ClassificationStat(m_Target);
-	}
+    if (m_Target != null) return new ClassificationStat(m_Target);
+    else return new ClassificationStat(m_Attrs);
+  }
 	
 	public void initSingleTargetFrom(double[] distro) {
 		m_ClassCounts[0] = distro;
@@ -271,7 +274,8 @@ public class ClassificationStat extends ClusStatistic {
 			buf.append("[");
 			for (int i = 0; i < m_NbTarget; i++) {
 				if (i != 0) buf.append(",");
-				buf.append(m_Target.getIntVal(i, m_MajorityClasses[i]));
+        if (m_Target != null)	buf.append(m_Target.getIntVal(i, m_MajorityClasses[i]));
+        else buf.append(m_Attrs[i].getValue(m_MajorityClasses[i]));
 			}
 			buf.append("] :");
 		} else {

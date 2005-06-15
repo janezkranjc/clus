@@ -31,18 +31,20 @@ public class ClusStatManager implements Serializable {
 	public final static int MODE_REGRESSION = 1;
 	public final static int MODE_HIERARCHICAL = 2;
 	public final static int MODE_SSPD = 3;
-	
+  
 	protected int m_Mode = MODE_NONE;
 	protected transient ClusHeuristic m_Heuristic;
-	protected transient ClusStatistic m_Statistic;
+	protected transient ClusStatistic m_TargetStatistic, m_AllStatistic;
 	protected TargetSchema m_Target;
 	protected ClusSchema m_Schema;
 	protected boolean m_BeamSearch;
 	protected boolean m_RuleInduce;
 	protected Settings m_Settings;
-	protected TargetWeightProducer m_GlobalWeights;
-	protected ClusStatistic m_GlobalStat;
-	
+	protected TargetWeightProducer m_GlobalTargetWeights;
+  protected TargetWeightProducer m_GlobalWeights;
+  protected ClusStatistic m_GlobalTargetStat;
+  protected ClusStatistic m_GlobalStat;
+  
 	protected ClassHierarchy m_HierN, m_HierF, m_Hier;
 	protected SSPDMatrix m_SSPDMtrx;
 	
@@ -91,13 +93,34 @@ public class ClusStatManager implements Serializable {
 		initHeuristic();
 	}
 	
-	public void setGlobalStat(ClusStatistic stat) {
-		m_GlobalWeights.setTotalStat(stat);
-		m_GlobalStat = stat;
-	}
+  public void setGlobalTargetStat(ClusStatistic stat) {
+    m_GlobalTargetWeights.setTotalStat(stat);
+    m_GlobalTargetStat = stat;
+  }
+
+  public void setGlobalStat(ClusStatistic stat) {
+    m_GlobalWeights.setTotalStat(stat);
+    m_GlobalStat = stat;
+  }
+
+  /**
+   * Returns the global weights of target attributes.
+   * @return the weights
+   */
+  public TargetWeightProducer getGlobalTargetWeights() {
+    return m_GlobalTargetWeights;
+  }
 	
+  /**
+   * Returns the global weights of all attributes.
+   * @return the weights
+   */
+  public TargetWeightProducer getGlobalWeights() {
+    return m_GlobalWeights;
+  }  
+  
 	public ClusStatistic getGlobalStat() {
-		return m_GlobalStat;
+		return m_GlobalTargetStat;
 	}
 	
 	public void check() throws ClusException {
@@ -174,32 +197,39 @@ public class ClusStatManager implements Serializable {
 	}
 	
 	public void initWeights() throws ClusException {
-		m_GlobalWeights = createTargetWeightProducer();
-	}
+		m_GlobalTargetWeights = createTargetWeightProducer();
+    NormalizedTargetWeights weights = new NormalizedTargetWeights(this);
+    weights.setAllNormalize(m_Schema.m_NbDoubles);
+    m_GlobalWeights = weights;
+  }
 	
 	public void initStatistic() throws ClusException {
+
+    // TODO: This is a temporary solution!    
+    m_AllStatistic = new CombStat(this);
+      
 		switch (m_Mode) {
 		case MODE_CLASSIFY:
-			m_Statistic = new ClassificationStat(m_Target);
+			m_TargetStatistic = new ClassificationStat(m_Target);
 			break;
 		case MODE_REGRESSION:
-			m_Statistic = new RegressionStat(m_Target.getNbNum());
+			m_TargetStatistic = new RegressionStat(m_Target.getNbNum());
 			break;
 		case MODE_HIERARCHICAL:
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
 			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
-				m_Statistic = new WAHNDStatistic(m_Hier); break;
+				m_TargetStatistic = new WAHNDStatistic(m_Hier); break;
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				m_Statistic = new WHTDStatistic(m_Hier); break;
+				m_TargetStatistic = new WHTDStatistic(m_Hier); break;
 			case Settings.HIERMODE_XTAX_SET_DIST:
-				m_Statistic = new SPMDStatistic(m_Hier); break;
+				m_TargetStatistic = new SPMDStatistic(m_Hier); break;
 			case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
-				m_Statistic = new DHierStatistic(m_Hier); break;
+				m_TargetStatistic = new DHierStatistic(m_Hier); break;
 			}
 			break;
 		case MODE_SSPD:
-			m_Statistic = new SSPDStatistic(m_SSPDMtrx);
+			m_TargetStatistic = new SSPDStatistic(m_SSPDMtrx);
 			break;
 		}
 	}
@@ -279,7 +309,7 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new AbsoluteError(parent));
 			parent.addError(new RMSError(parent));
 			if (getSettings().hasNonTrivialWeights()) {
-				parent.addError(new RMSError(parent, m_GlobalWeights));
+				parent.addError(new RMSError(parent, m_GlobalTargetWeights));
 			}
 			parent.addError(new PearsonCorrelation(parent));			
 			if (Settings.IS_MULTISCORE) {
@@ -293,8 +323,8 @@ public class ClusStatManager implements Serializable {
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				parent.addError(new HierRMSError(parent, m_GlobalWeights, true, true, m_Hier));				
-				parent.addError(new HierRMSError(parent, m_GlobalWeights, true, false, m_Hier));							
+				parent.addError(new HierRMSError(parent, m_GlobalTargetWeights, true, true, m_Hier));				
+				parent.addError(new HierRMSError(parent, m_GlobalTargetWeights, true, false, m_Hier));							
 				parent.addError(new HierLevelAccuracy(parent, m_Hier));				
 				parent.addError(new HierClassWiseAccuracy(parent, m_Hier));				
 				break;
@@ -413,7 +443,7 @@ public class ClusStatManager implements Serializable {
 		}
 		if (m_Mode == MODE_HIERARCHICAL) {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
-				return new M5Pruner(m_GlobalWeights);
+				return new M5Pruner(m_GlobalTargetWeights);
 			}			
 		}
 		sett.setPruningMethod(Settings.PRUNING_METHOD_NONE);
@@ -440,11 +470,30 @@ public class ClusStatManager implements Serializable {
 	}
 		
 	public ClusStatistic createStatistic() {
-		return m_Statistic.cloneStat();
+		return m_TargetStatistic.cloneStat();
 	}
-	
+
+  /**
+   * @param attType 0 - descriptive, 1 - clustering,2 - target, -1 - all attributes 
+   * @return the statistic
+   */
+  public ClusStatistic createStatistic(int attType) {
+    switch (attType) {
+    case ClusAttrType.ATTR_USE_ALL:
+      return m_AllStatistic.cloneStat();
+    /* case ClusAttrType.ATTR_USE_CLUSTERING:
+      return m_TargetStatistic.cloneStat();
+    case ClusAttrType.ATTR_USE_DESCRIPTIVE:
+      return m_TargetStatistic.cloneStat(); */
+    case ClusAttrType.ATTR_USE_TARGET:
+      return m_TargetStatistic.cloneStat();
+    default:
+      return m_AllStatistic.cloneStat();
+    }
+  }
+  
 	public ClusStatistic getStatistic() {
-		return m_Statistic;
+		return m_TargetStatistic;
 	}
 	
 	public ClusHeuristic getHeuristic() {

@@ -20,6 +20,12 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 	public final static int STATUS_DISABLED = 4;
 	public final static int NB_STATUS = 5;
 
+  // TODO: Check if this makes sense, perhaps move to some other class
+  public final static int ATTR_USE_ALL = -1;
+  public final static int ATTR_USE_DESCRIPTIVE = 0;
+  public final static int ATTR_USE_CLUSTERING = 1;
+  public final static int ATTR_USE_TARGET = 2;
+  
 	public final static int VALUE_TYPE_NONE = -1;
 	public final static int VALUE_TYPE_INT = 0;
 	public final static int VALUE_TYPE_DOUBLE = 1;

@@ -8,13 +8,14 @@ import java.util.*;
 
 import jeans.util.*;
 import clus.data.rows.*;
-import clus.data.type.*;
 import clus.main.*;
 import clus.statistic.*;
 import clus.model.test.*;
 import clus.util.*;
 
 public class ClusRule implements ClusModel, Serializable {
+  
+  public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected Object m_Visitor;
 	protected ClusStatistic m_Default;	
@@ -150,10 +151,11 @@ public class ClusRule implements ClusModel, Serializable {
 		}
 		wrt.println();
 		wrt.println("THEN "+m_Default.getString());
-    if (getSettings().computeCompactness() &&
-        m_CombStat[ClusModel.TRAIN] != null) {
-      wrt.println("\n   Compactness: " +
-                  m_CombStat[ClusModel.TRAIN].getString() + "\n");
+    if (getSettings().computeCompactness() && (m_CombStat[ClusModel.TRAIN] != null)) {
+      wrt.println("\n   Compactness (train): " + m_CombStat[ClusModel.TRAIN].getString());
+      if (m_CombStat[ClusModel.TEST] != null) {
+        wrt.println("   Compactness (test):  " + m_CombStat[ClusModel.TEST].getString() + "\n");
+      }
     }
 	}
 
@@ -202,17 +204,11 @@ public class ClusRule implements ClusModel, Serializable {
    * @param mode 0 for train set, 1 for test set
    */
   public void computeCompactness(int mode) {
-    int nbNumAtts = m_StatManager.getSchema().getNbNumeric();
-    int nbNomAtts = m_StatManager.getSchema().getNbNom();
-    NominalAttrType[] nomAtts = new NominalAttrType[nbNomAtts];
-    for (int i = 0; i < nbNomAtts; i++) {
-      nomAtts[i] = (NominalAttrType)m_StatManager.getSchema().getNominalAttrs()[i];
-    }
-    CombStat combStat = new CombStat(nbNumAtts, nomAtts);
+    CombStat combStat = new CombStat(m_StatManager);
     for (int i = 0; i < m_Data.size(); i++) {
-      combStat.updateWeighted((DataTuple)m_Data.get(i));
+      combStat.updateWeighted((DataTuple)m_Data.get(i), 0); // second parameter does nothing!
     }
-    combStat.calcMeans();
+    combStat.calcMean();
     m_CombStat[mode] = combStat;
   }
 

@@ -44,8 +44,10 @@ public class NormalizedTargetWeights extends TargetWeightProducer {
 	}	
 	
 	public void setTotalStat(ClusStatistic stat) {
-		RegressionStat rs = (RegressionStat)stat;
-		int nbtarget = rs.getNbTarget();
+		RegressionStat rs;
+    if (stat instanceof RegressionStat) rs = (RegressionStat)stat;
+    else rs = ((CombStat)stat).getRegressionStat();
+		int nbtarget = rs.getNbAttributes();
 		double[] fac = new double[nbtarget];
 		for (int i = 0; i < nbtarget; i++) {
 			if (m_Normalize[i]) {

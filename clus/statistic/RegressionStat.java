@@ -158,9 +158,9 @@ public class RegressionStat extends ClusStatistic {
 		return m_Means;
 	}
 	
-	public int getNbTarget() {
-		return m_NbTarget;
-	}
+  public int getNbNumericAttributes() {
+    return m_NbTarget;
+  }
 	
 	public double getError(TargetWeightProducer scale) {
 		return getSS(scale);
@@ -226,7 +226,7 @@ public class RegressionStat extends ClusStatistic {
 	}
 	
 	public void printDebug() {
-		for (int i = 0; i < getNbTarget(); i++) {
+		for (int i = 0; i < getNbAttributes(); i++) {
 			double n_tot = m_SumWeight; 
 			double k_tot = m_SumWeights[i];
 			double sv_tot = m_SumValues[i];

@@ -10,7 +10,7 @@ import java.io.*;
 public abstract class ClusStatistic implements Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-
+  
 	public double m_SumWeight;
 	
 	public abstract ClusStatistic cloneStat();
@@ -21,10 +21,18 @@ public abstract class ClusStatistic implements Serializable {
 		return cloneStat();
 	}
 	
-	public int getNbTarget() {
-		return 0;
+	public int getNbAttributes() {
+		return getNbNominalAttributes()+getNbNumericAttributes();
 	}
 
+  public int getNbNominalAttributes() {
+    return 0;
+  }
+
+  public int getNbNumericAttributes() {
+    return 0;
+  }
+  
 	public void printDebug() {
 	}
 	

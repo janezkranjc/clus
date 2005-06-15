@@ -13,6 +13,8 @@ import clus.statistic.*;
 import clus.util.*;
 
 public class ClusRuleSet implements ClusModel, Serializable {
+  
+  public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected ClusStatistic m_Default;
 	protected ArrayList m_Rules = new ArrayList();

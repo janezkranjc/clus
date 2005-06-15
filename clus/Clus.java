@@ -331,9 +331,13 @@ public class Clus implements CMDLineArgsProvider {
 	public final void computeTotalStatistic(ClusData data) {
 		ClusStatManager mgr = getInduce().getStatManager();
 		ClusStatistic stat = mgr.createStatistic();
+    ClusStatistic allStat = mgr.createStatistic(ClusAttrType.ATTR_USE_ALL);
 		((RowData)data).calcTotalStatBitVector(stat);
+    ((RowData)data).calcTotalStatBitVector(allStat);
 		stat.calcMean();
-		mgr.setGlobalStat(stat);
+    allStat.calcMean();
+    mgr.setGlobalTargetStat(stat);
+		mgr.setGlobalStat(allStat);
 	}
 	
 	public final void preprocess(ClusData data) throws ClusException {
