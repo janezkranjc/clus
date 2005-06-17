@@ -16,8 +16,8 @@ import jeans.graph.*;
 
 import clus.main.*;
 import clus.util.*;
-import clus.statistic.*;
 import clus.model.modelio.*;
+import clus.data.attweights.*;
 
 public class TreeFrame extends JFrame {
 	
@@ -298,9 +298,8 @@ public class TreeFrame extends JFrame {
 	public void showInfo(ClusNode root) throws ClusException {
 		StringBuffer buf = new StringBuffer();
 		buf.append("Size: "+root.getModelSize()+" (Leaves: "+root.getNbLeaves()+")\n");
-		TargetWeightProducer scale = m_TreePanel.createTargetWeightProducer();
+		ClusAttributeWeights scale = m_TreePanel.createClusAttributeWeights();
 		ClusNode tree_root = (ClusNode)root.getRoot();
-		scale.setTotalStat(tree_root.getTotalStat());
 		String relerr = ClusFormat.SIX_AFTER_DOT.format(root.estimateError(scale));
 		String abserr = ""+root.estimateErrorAbsolute(scale);
 		buf.append("Examples: "+root.getTotalStat().m_SumWeight+"\n");		

@@ -49,7 +49,7 @@ public class SPMDStatistic extends HierStatistic {
 		double weight = tuple.getWeight();
 		MSymMatrix KM = m_Hier.getKMatrix();
 		ClassesAttrType type = m_Hier.getType();
-		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(type.getSpecialIndex());
+		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(type.getArrayIndex());
 		m_SumWeight += weight;
 		m_SumEiKEi += weight * KM.xtAx(tp);
 		int nb = tp.size();
@@ -67,7 +67,7 @@ public class SPMDStatistic extends HierStatistic {
 	public void updateSpecial(DataTuple tuple) {
 		double weight = tuple.getWeight();
 		ClassesAttrType type = m_Hier.getType();
-		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(type.getSpecialIndex());
+		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(type.getArrayIndex());
 		int nb = tp.size();
 		m_SumWeight += weight;
 		double[] madd = new double[m_Counts.length];
@@ -82,7 +82,7 @@ public class SPMDStatistic extends HierStatistic {
 	public void showUpdateSpecial(DataTuple tuple) {
 		double weight = tuple.getWeight();
 		ClassesAttrType type = m_Hier.getType();
-		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(type.getSpecialIndex());
+		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(type.getArrayIndex());
 		int nb = tp.size();
 		m_SumWeight += weight;
 		double[] madd = new double[m_Counts.length];

@@ -11,7 +11,7 @@ public class NArySplit extends NominalSplit {
 	ClusStatistic m_MStat;
 
 	public void initialize(ClusStatManager manager) {
-		m_MStat = manager.createStatistic();	
+		m_MStat = manager.createTargetStatistic();	
 	}
 	
 	public void setSDataSize(int size) {

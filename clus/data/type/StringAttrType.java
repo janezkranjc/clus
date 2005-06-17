@@ -34,12 +34,12 @@ public class StringAttrType extends ClusAttrType {
 	}	
 			
 	public String getString(DataTuple tuple) {
-		return (String)tuple.m_Objects[m_SpecialIdx];
+		return (String)tuple.m_Objects[m_ArrayIndex];
 	}
 	
 	public int compareValue(DataTuple t1, DataTuple t2) {
-		String s1 = (String)t1.m_Objects[m_SpecialIdx];
-		String s2 = (String)t2.m_Objects[m_SpecialIdx];		
+		String s1 = (String)t1.m_Objects[m_ArrayIndex];
+		String s2 = (String)t2.m_Objects[m_ArrayIndex];		
 		return s1.equals(s2) ? 0 : 1;
 	}
 		
@@ -55,7 +55,7 @@ public class StringAttrType extends ClusAttrType {
 
 		public void read(ClusReader data, DataTuple tuple) throws IOException {
 			String value = data.readString();
-			tuple.setObjectVal(value, getSpecialIndex());
+			tuple.setObjectVal(value, getArrayIndex());
 		}
 	}
 }

@@ -105,7 +105,7 @@ public class HierBinNodeAccuracy extends ClusError {
 			m_Predict[i] = counts[i]/totwi >= 0.5;
 			m_Actual[i] = false;
 		}
-		ClassesTuple actual = (ClassesTuple)tuple.getObjVal(m_Attr.getSpecialIndex());
+		ClassesTuple actual = (ClassesTuple)tuple.getObjVal(m_Attr.getArrayIndex());
 		for (int j = 0; j < actual.size(); j++) {
 			int idx = actual.elementAt(j).getIndex();
 			m_Actual[idx] = true;

@@ -3,16 +3,17 @@ package clus.heuristic;
 import clus.main.*;
 import clus.statistic.*;
 import clus.data.rows.*;
+import clus.data.attweights.*;
 
 public class SSDHeuristic extends ClusHeuristic {
 
 	protected RowData m_Data;
 	protected String m_BasicDist;
 	protected ClusStatistic m_NegStat;
-	protected TargetWeightProducer m_TargetWeights;
+	protected ClusAttributeWeights m_TargetWeights;
 	protected boolean m_CheckValid;
 
-	public SSDHeuristic(String basicdist, ClusStatistic negstat, TargetWeightProducer targetweights, boolean checkvalid) {
+	public SSDHeuristic(String basicdist, ClusStatistic negstat, ClusAttributeWeights targetweights, boolean checkvalid) {
 		m_BasicDist = basicdist;
 		m_NegStat = negstat;
 		m_TargetWeights = targetweights;
@@ -51,10 +52,6 @@ public class SSDHeuristic extends ClusHeuristic {
 		}
 		if (value < 1e-6) return Double.NEGATIVE_INFINITY;
 		return value;
-	}
-	
-	public void setRootStatistic(ClusStatistic stat) {
-		m_TargetWeights.setTotalStat(stat);
 	}
 	
 	public String getName() {

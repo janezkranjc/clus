@@ -1,30 +1,29 @@
 package clus.pruning;
 
 import clus.main.*;
-import clus.statistic.*;
+import clus.data.attweights.*;
 
 public class SizeConstraintPruning extends PruneTree {
 
 	public int[] m_MaxSize;
-	public TargetWeightProducer m_TargetWeights;
+	public ClusAttributeWeights m_TargetWeights;
 
-	public SizeConstraintPruning(int maxsize, TargetWeightProducer prod) {
+	public SizeConstraintPruning(int maxsize, ClusAttributeWeights prod) {
 		m_MaxSize = new int[1];
 		m_MaxSize[0] = maxsize;
 		m_TargetWeights = prod;
 	}
 	
-	public SizeConstraintPruning(int[] maxsize, TargetWeightProducer prod) {
+	public SizeConstraintPruning(int[] maxsize, ClusAttributeWeights prod) {
 		m_MaxSize = maxsize;
 		m_TargetWeights = prod;
 	}	
 	
-	public TargetWeightProducer getTargetWeights() {
+	public ClusAttributeWeights getTargetWeights() {
 		return m_TargetWeights;
 	}
 
 	public void pruneInitialize(ClusNode node, int size) {
-		m_TargetWeights.setTotalStat(node.getTotalStat());
 		recursiveInitialize(node, size);		
 	}
 	

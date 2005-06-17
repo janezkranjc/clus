@@ -66,7 +66,7 @@ public class NumericAttrType extends ClusAttrType {
 	}
 
 	public String getString(DataTuple tuple) {
-		double val = tuple.m_Doubles[m_SpecialIdx];
+		double val = tuple.m_Doubles[m_ArrayIndex];
 // FIXME - SOON - STATUS_KEY attribute :-)
 		if (getStatus() == STATUS_KEY) {
 			return String.valueOf((int)val);
@@ -76,22 +76,22 @@ public class NumericAttrType extends ClusAttrType {
 	}
 	
 	public boolean isMissing(DataTuple tuple) {
-		return tuple.m_Doubles[m_SpecialIdx] == MISSING;
+		return tuple.m_Doubles[m_ArrayIndex] == MISSING;
 	}
 
 	public double getNumeric(DataTuple tuple) {
-		return tuple.getDoubleVal(m_SpecialIdx);
+		return tuple.getDoubleVal(m_ArrayIndex);
 	}
 
 	public int compareValue(DataTuple t1, DataTuple t2) {
-		double v1 = t1.m_Doubles[m_SpecialIdx];
-		double v2 = t2.m_Doubles[m_SpecialIdx];
+		double v1 = t1.m_Doubles[m_ArrayIndex];
+		double v2 = t2.m_Doubles[m_ArrayIndex];
 		if (v1 == v2) return 0;
 		return v1 > v2 ? 1 : -1;
 	}
 
 	public ClusAttribute createTargetAttr(ColTarget target) {
-		return new NumericTarget(target, this, getSpecialIndex());
+		return new NumericTarget(target, this, getArrayIndex());
 	}
 
 	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
@@ -108,7 +108,7 @@ public class NumericAttrType extends ClusAttrType {
 
 		public void read(ClusReader data, DataTuple tuple) throws IOException {
 			double val = data.readFloat();
-			tuple.setDoubleVal(val, getSpecialIndex());
+			tuple.setDoubleVal(val, getArrayIndex());
 			if (val == MISSING) {
 				incNbMissing();
 				m_NbZero++;

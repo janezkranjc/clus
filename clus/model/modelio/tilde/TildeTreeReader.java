@@ -47,7 +47,7 @@ public class TildeTreeReader {
 			tokens.readChar('[');
 		}
 		ClusStatManager mgr = m_Parent.getStatMgr();		
-		ClassificationStat stat = (ClassificationStat)mgr.createStatistic();		
+		ClassificationStat stat = (ClassificationStat)mgr.createTargetStatistic();		
 		if (mode == TildeOutReader.REGRESSION) {
 			int nbdim = m_Parent.getDim();
 			double[] propvec = new double[nbdim];

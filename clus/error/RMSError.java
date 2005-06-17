@@ -3,7 +3,7 @@ package clus.error;
 import java.io.*;
 import java.text.*;
 
-import clus.statistic.*;
+import clus.data.attweights.*;
 
 public class RMSError extends MSError {
 
@@ -11,15 +11,15 @@ public class RMSError extends MSError {
 		super(par);
 	}
 	
-	public RMSError(ClusErrorParent par, TargetWeightProducer weights) {
+	public RMSError(ClusErrorParent par, ClusAttributeWeights weights) {
 		super(par, weights);
 	}
 	
-	public RMSError(ClusErrorParent par, TargetWeightProducer weights, boolean printall) {
+	public RMSError(ClusErrorParent par, ClusAttributeWeights weights, boolean printall) {
 		super(par, weights, printall);
 	}
 	
-	public RMSError(ClusErrorParent par, TargetWeightProducer weights, boolean printall, int dim) {
+	public RMSError(ClusErrorParent par, ClusAttributeWeights weights, boolean printall, int dim) {
 		super(par, weights, printall, dim);
 	}			
 

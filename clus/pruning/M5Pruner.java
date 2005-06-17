@@ -6,6 +6,7 @@ package clus.pruning;
 import clus.main.*;
 import clus.statistic.*;
 import clus.data.rows.*;
+import clus.data.attweights.*;
 
 // import clus.weka.*;
 
@@ -13,10 +14,10 @@ public class M5Pruner extends PruneTree {
 	
 	double m_PruningMult = 2;
 	double m_GlobalDeviation;
-	TargetWeightProducer m_TargetWeights;
+	ClusAttributeWeights m_TargetWeights;
 	RowData m_TrainingData;
 	
-	public M5Pruner(TargetWeightProducer prod) {
+	public M5Pruner(ClusAttributeWeights prod) {
 		m_TargetWeights = prod;
 	}
 	
@@ -24,7 +25,6 @@ public class M5Pruner extends PruneTree {
 		// ClusNode orig = null;
 		// orig = (ClusNode)node.cloneTree();
 		RegressionStat stat = (RegressionStat)node.getTotalStat();
-		m_TargetWeights.setTotalStat(stat);
 		m_GlobalDeviation = Math.sqrt(stat.getSS(m_TargetWeights)/stat.getTotalWeight());
 		pruneRecursive(node);
 		// System.out.println("Performing test of M5 pruning");

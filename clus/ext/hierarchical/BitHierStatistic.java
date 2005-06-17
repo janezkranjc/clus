@@ -36,7 +36,7 @@ public class BitHierStatistic extends HierStatistic {
 		double weight = tuple.getWeight();
 		m_SumWeight += weight;		
 		ClassesAttrType type = m_Hier.getType();
-		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(type.getSpecialIndex());
+		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(type.getArrayIndex());
 		int nb = tp.size();
 		for (int i = 0; i < nb; i++) {
 			int index = tp.getPosition(i);

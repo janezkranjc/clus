@@ -6,7 +6,7 @@ package clus.statistic;
 import java.text.NumberFormat;
 
 import clus.data.rows.DataTuple;
-import clus.data.type.NominalAttrType;
+import clus.data.type.*;
 import clus.main.ClusStatManager;
 import clus.main.Settings;
 import clus.util.ClusFormat;
@@ -21,6 +21,7 @@ public class CombStat extends ClusStatistic {
   private double m_WeightNum = 1.0;
   private double m_WeightNom = 1.0;
   private NominalAttrType[] m_NomAtts;
+  private NumericAttrType[] m_NumAtts;
   private RegressionStat m_RegStat;
   private ClassificationStat m_ClassStat;
   private ClusStatManager m_StatManager;
@@ -30,34 +31,21 @@ public class CombStat extends ClusStatistic {
    * @param statManager ClusStatManager (to get access to attribute weights
    *        for normalization, nominal and numeric attributes, ...)
    */
-  public CombStat(ClusStatManager statManager) {
-    
+  public CombStat(ClusStatManager statManager, NumericAttrType[] num, NominalAttrType[] nom) {    
     m_StatManager = statManager;
-    m_NbNumAtts = statManager.getSchema().getNbNumeric(); // Without targets!
-    m_RegStat = new RegressionStat(m_NbNumAtts);
-    m_NbNomAtts = m_StatManager.getSchema().getNbNom(); // Without targets!
-    m_NomAtts = new NominalAttrType[m_NbNomAtts];
-    for (int i = 0; i < m_NbNomAtts; i++) {
-      m_NomAtts[i] = (NominalAttrType)m_StatManager.getSchema().getNominalAttrs()[i];
-    }
-    // m_NomAtts = (NominalAttrType[])m_StatManager.getSchema().getNominalAttrs();
-    m_ClassStat = new ClassificationStat(m_NomAtts);
-    }
+    m_NbNumAtts = num.length;
+    m_NumAtts = num;
+    m_NbNomAtts = nom.length;
+    m_NomAtts = nom;
+    m_RegStat = new RegressionStat(num);
+    m_ClassStat = new ClassificationStat(nom);
+  }
 
   protected CombStat() {
   }
   
   public ClusStatistic cloneStat() {
-    CombStat result = new CombStat();
-    result.m_StatManager = m_StatManager;
-    result.m_NbNumAtts = m_NbNumAtts;
-    result.m_RegStat = (RegressionStat)m_RegStat.cloneStat();
-    result.m_NbNomAtts = m_NbNomAtts;
-    result.m_NomAtts = m_NomAtts;
-    result.m_ClassStat = (ClassificationStat)m_ClassStat.cloneStat();
-    
-    
-    return result;
+  	return new CombStat(m_StatManager, m_NumAtts, m_NomAtts);
   }
   
   public RegressionStat getRegressionStat() {
@@ -137,7 +125,7 @@ public class CombStat extends ClusStatistic {
    */
   public double variance(int attr) {
     return m_RegStat.getVariance(attr) *
-           m_StatManager.getGlobalWeights().m_NumWeights[attr];
+           m_StatManager.getGlobalWeights().getWeight(m_RegStat.getAttribute(attr));
   }
   
   /**

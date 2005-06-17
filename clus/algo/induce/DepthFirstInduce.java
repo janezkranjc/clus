@@ -50,7 +50,7 @@ public class DepthFirstInduce extends ClusInduce {
 	
 	public void findNumeric(NumericAttrType at, RowData data) {	
 		DataTuple tuple;
-		int idx = at.getSpecialIndex();
+		int idx = at.getArrayIndex();
 		if (at.isSparse()) {
 			data.sortSparse(idx);
 		} else {
@@ -132,7 +132,7 @@ public class DepthFirstInduce extends ClusInduce {
 		}
 		// Find best test
 		ClusSchema schema = data.getSchema();
-		ClusAttrType[] attrs = schema.getNormalAttrs();
+		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
 		int nb_normal = attrs.length;
 		for (int i = 0; i < nb_normal; i++) {
 			ClusAttrType at = attrs[i];
@@ -168,7 +168,7 @@ public class DepthFirstInduce extends ClusInduce {
 	}
 	
 	public ClusStatistic createTotalStat(RowData data) {
-		ClusStatistic stat = m_StatManager.createStatistic();
+		ClusStatistic stat = m_StatManager.createTargetStatistic();
 		stat.setSDataSize(data.getNbRows());
 		data.calcTotalStat(stat);
 		stat.optimizePreCalc(data);

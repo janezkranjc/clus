@@ -6,13 +6,13 @@ package clus.algo.rules;
 import clus.heuristic.*;
 import clus.main.Settings;
 import clus.statistic.ClusStatistic;
-import clus.statistic.TargetWeightProducer;
+import clus.data.attweights.*;
 
 public class ClusRuleHeuristicError extends ClusHeuristic {
 
-	private TargetWeightProducer m_TargetWeights;
+	private ClusAttributeWeights m_TargetWeights;
 	
-	public ClusRuleHeuristicError(TargetWeightProducer prod) {
+	public ClusRuleHeuristicError(ClusAttributeWeights prod) {
 		m_TargetWeights = prod;
 	}
 	
@@ -29,8 +29,4 @@ public class ClusRuleHeuristicError extends ClusHeuristic {
 	public String getName() {
 		return "Rule Heuristic (Reduced Error)";
 	}
-	
-	public void setRootStatistic(ClusStatistic stat) {
-		m_TargetWeights.setTotalStat(stat);
-	}	
 }

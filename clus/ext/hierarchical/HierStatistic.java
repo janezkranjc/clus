@@ -69,7 +69,7 @@ public abstract class HierStatistic extends ClusStatistic {
 		double[] meanDif = new double[m_Counts.length];
 		
 		ClassesAttrType type = m_Hier.getType();		
-		int sidx = type.getSpecialIndex();
+		int sidx = type.getArrayIndex();
 		System.arraycopy(m_Counts, 0, meanDif, 0, meanDif.length);
 		MDoubleArray.dotscalar(meanDif, 1.0/m_SumWeight);				 
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);

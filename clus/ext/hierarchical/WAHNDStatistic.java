@@ -26,7 +26,7 @@ public class WAHNDStatistic extends BitHierStatistic {
 		double result = 0.0;		
 		double[] mean = new double[m_Counts.length];
 		ClassesAttrType type = m_Hier.getType();		
-		int sidx = type.getSpecialIndex();
+		int sidx = type.getArrayIndex();
 		for (int i = 0; i < nb; i++) {
 			if (m_Bits.getBit(i)) {
 				System.arraycopy(m_Counts, 0, mean, 0, mean.length);

@@ -37,7 +37,7 @@ import weka.filters.Filter;
 
 import clus.main.*;
 import clus.data.rows.*;
-import clus.statistic.*;
+import clus.data.attweights.*;
 import clus.model.test.*;
 
 public class TestM5PruningRuleNode extends Classifier {
@@ -199,7 +199,7 @@ public class TestM5PruningRuleNode extends Classifier {
 		return result;
 	}
 	
-	public static void performTest(ClusNode original, ClusNode pruned, double globaldev, TargetWeightProducer tweights, RowData data) {
+	public static void performTest(ClusNode original, ClusNode pruned, double globaldev, ClusAttributeWeights tweights, RowData data) {
 		ClusToWekaData cnv = new ClusToWekaData(data.getSchema());
 		cnv.setTargetWeights(tweights);
 		TestM5PruningRuleNode tree = createM5RuleNode(original , data, cnv);		

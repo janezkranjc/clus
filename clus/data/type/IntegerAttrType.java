@@ -34,12 +34,12 @@ public class IntegerAttrType extends ClusAttrType {
 	}	
 			
 	public String getString(DataTuple tuple) {
-		return String.valueOf(tuple.m_Ints[m_SpecialIdx]);
+		return String.valueOf(tuple.m_Ints[m_ArrayIndex]);
 	}
 	
 	public int compareValue(DataTuple t1, DataTuple t2) {
-		int s1 = t1.m_Ints[m_SpecialIdx];
-		int s2 = t2.m_Ints[m_SpecialIdx];		
+		int s1 = t1.m_Ints[m_ArrayIndex];
+		int s2 = t2.m_Ints[m_ArrayIndex];		
 		return s1 == s2 ? 0 : 1;
 	}
 		
@@ -63,7 +63,7 @@ public class IntegerAttrType extends ClusAttrType {
 		}
 
 		public void read(ClusReader data, DataTuple tuple) throws IOException {
-			tuple.setIntVal(m_Index++, getSpecialIndex());
+			tuple.setIntVal(m_Index++, getArrayIndex());
 		}
 	}
 }

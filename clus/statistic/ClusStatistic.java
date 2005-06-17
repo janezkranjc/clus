@@ -4,6 +4,7 @@ import clus.main.Settings;
 import clus.util.*;
 import clus.data.cols.*; 
 import clus.data.rows.*; 
+import clus.data.attweights.*;
 
 import java.io.*;
 
@@ -25,13 +26,13 @@ public abstract class ClusStatistic implements Serializable {
 		return getNbNominalAttributes()+getNbNumericAttributes();
 	}
 
-  public int getNbNominalAttributes() {
-    return 0;
-  }
+	public int getNbNominalAttributes() {
+		return 0;
+	}
 
-  public int getNbNumericAttributes() {
-    return 0;
-  }
+	public int getNbNumericAttributes() {
+		return 0;
+	}
   
 	public void printDebug() {
 	}
@@ -130,12 +131,12 @@ public abstract class ClusStatistic implements Serializable {
 		return getErrorDiff(null, other);
 	}
 	
-	public double getError(TargetWeightProducer scale) {
+	public double getError(ClusAttributeWeights scale) {
 		System.err.println(getClass().getName()+": getError(): Not yet implemented");
 		return Double.POSITIVE_INFINITY;
 	}
 
-	public double getErrorDiff(TargetWeightProducer scale, ClusStatistic other) {
+	public double getErrorDiff(ClusAttributeWeights scale, ClusStatistic other) {
 		System.err.println(getClass().getName()+": getErrorDiff(): Not yet implemented");		
 		return Double.POSITIVE_INFINITY;
 	}
@@ -145,21 +146,21 @@ public abstract class ClusStatistic implements Serializable {
  * also version available that needs access to the data 
  **/	
 	
-	public double getSS(TargetWeightProducer scale) {
+	public double getSS(ClusAttributeWeights scale) {
 		System.err.println(getClass().getName()+": getSS(): Not yet implemented");		
 		return Double.POSITIVE_INFINITY;
 	}
 
-	public double getSSDiff(TargetWeightProducer scale, ClusStatistic other) {
+	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other) {
 		System.err.println(getClass().getName()+": getSSDiff(): Not yet implemented");
 		return Double.POSITIVE_INFINITY;
 	}
 	
-	public double getSS(TargetWeightProducer scale, RowData data) {
+	public double getSS(ClusAttributeWeights scale, RowData data) {
 		return getSS(scale);
 	}
 
-	public double getSSDiff(TargetWeightProducer scale, ClusStatistic other, RowData data) {
+	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other, RowData data) {
 		return getSSDiff(scale, other);
 	}
 	

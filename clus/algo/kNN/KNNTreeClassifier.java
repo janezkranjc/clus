@@ -68,7 +68,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 
 
 		//Find out which distance to use
-		ClusAttrType[] attrs = trainData.getSchema().getNormalAttrs();
+		ClusAttrType[] attrs = trainData.getSchema().getDescriptiveAttributes();
 		VectorDistance vd;
 		String d = Settings.kNN_vectDist.getValue();
 		if (d.equals("Manhattan")){
@@ -117,7 +117,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 
 
 		//Find out which distance to use
-		ClusAttrType[] attrs = trainData.getSchema().getNormalAttrs();
+		ClusAttrType[] attrs = trainData.getSchema().getDescriptiveAttributes();
 		VectorDistance vd;
 		String d = Settings.kNN_vectDist.getValue();
 		if (d.equals("Manhattan")){
@@ -174,7 +174,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 		}
 
 		ClusSchema schema = m_Clus.getSchema();
-		ClusAttrType[] attrs = schema.getNormalAttrs();
+		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
 		for (int i = 0; i< attrs.length;i++){
 			if (attrs[i].getTypeIndex() == NominalAttrType.THIS_TYPE) {
 				attrs[i].setBasicDistance(nomDist);
@@ -209,7 +209,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 
 	//used for calculating the attribute weights used in distance calculations
 	private double[] calcWeights(KNNStatistics stats,RowData data){
-		ClusAttrType[] attrs = data.getSchema().getNormalAttrs();
+		ClusAttrType[] attrs = data.getSchema().getDescriptiveAttributes();
 		double[] weights = new double[attrs.length];
 		int nbr = data.getNbRows();
 		DataTuple curTup,curProto;
@@ -243,7 +243,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 	}
 	// Just creates a weight vector with all weights 1.0
 	private double[] noWeights(RowData data){
-		ClusAttrType[] attrs = data.getSchema().getNormalAttrs();
+		ClusAttrType[] attrs = data.getSchema().getDescriptiveAttributes();
 		double[] weights = new double[attrs.length];
 		for (int j = 0; j < weights.length; j++){
 			weights[j]=1.0;

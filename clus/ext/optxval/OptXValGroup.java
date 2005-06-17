@@ -127,13 +127,13 @@ public class OptXValGroup extends MyList {
 	public final void create(ClusStatManager m_StatManager, int folds) {
 		m_TotStat = new ClusStatistic[folds+1];
 		for (int i = 0; i <= folds; i++) 
-			m_TotStat[i] = m_StatManager.createStatistic();
+			m_TotStat[i] = m_StatManager.createTargetStatistic();
 	}
 	
 	public final void create2(ClusStatManager m_StatManager, int folds) {
 		m_TotStat = new ClusStatistic[folds];
 		for (int i = 0; i < folds; i++) 
-			m_TotStat[i] = m_StatManager.createStatistic();
+			m_TotStat[i] = m_StatManager.createTargetStatistic();
 	}	
 	
 	public final void makeNodes() {

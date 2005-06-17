@@ -47,7 +47,7 @@ public class ClusWekaClassifier extends ClusClassifier {
 	}
 	
 	public ClusStatistic createStatistic() {
-		return m_Manager.createStatistic();
+		return m_Manager.createTargetStatistic();
 	}
 	
 	public Instances getDummyData() {

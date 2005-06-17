@@ -217,7 +217,7 @@ public class ClusBeamSearch extends ClusExtension {
 			tree.applyModelProcessor(tuple, m_Coll);
 		}
 		/* Data is inside tree, try to refine each leaf */
-		ClusAttrType[] attrs = train.getSchema().getNormalAttrs();
+		ClusAttrType[] attrs = train.getSchema().getDescriptiveAttributes();
 		refineEachLeaf(tree, model, beam, attrs);
 		/* Remove data from tree */
 		tree.clearVisitors();

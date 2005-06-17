@@ -13,18 +13,19 @@ import clus.algo.kNN.BasicDistance;
 
 public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 
-	public final static int STATUS_TARGET = 0;
-	public final static int STATUS_NORMAL = 1;
-	public final static int STATUS_SPECIAL = 2;
-	public final static int STATUS_KEY = 3;
-	public final static int STATUS_DISABLED = 4;
+	// Attributes are sorted in arrays in same order as this: TARGET, OTHER CLUSTER, NORMAL, KEY
+	public final static int STATUS_DISABLED = 0;
+	public final static int STATUS_TARGET = 1;
+	public final static int STATUS_CLUSTER_NO_TARGET = 2;		
+	public final static int STATUS_NORMAL = 3;
+	public final static int STATUS_KEY = 4;
 	public final static int NB_STATUS = 5;
 
-  // TODO: Check if this makes sense, perhaps move to some other class
-  public final static int ATTR_USE_ALL = -1;
-  public final static int ATTR_USE_DESCRIPTIVE = 0;
-  public final static int ATTR_USE_CLUSTERING = 1;
-  public final static int ATTR_USE_TARGET = 2;
+	public final static int ATTR_USE_ALL = 0;
+	public final static int ATTR_USE_DESCRIPTIVE = 1;
+	public final static int ATTR_USE_CLUSTERING = 2;
+	public final static int ATTR_USE_TARGET = 3;
+	public final static int NB_ATTR_USE = 4;
   
 	public final static int VALUE_TYPE_NONE = -1;
 	public final static int VALUE_TYPE_INT = 0;
@@ -33,19 +34,19 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 	public final static int NB_VALUE_TYPES = 3;
 
 	public final static int NB_TYPES = 5;
-	public final static int THIS_TYPE = 0;
+	public final static int THIS_TYPE = -1;
 
 	protected String m_Name;
-	protected int m_Index, m_SpecialIdx;
+	protected int m_Index, m_ArrayIndex;
 	protected int m_NbMissing;
 	protected ClusSchema m_Schema;
-
 	protected int m_Status = STATUS_NORMAL;
+	protected boolean m_IsDescriptive;
 
 	public ClusAttrType(String name) {
 		m_Name = name;
 		m_Index = -1;
-		m_SpecialIdx = -1;
+		m_ArrayIndex = -1;
 	}
 
 	public void setSchema(ClusSchema schema) {
@@ -68,7 +69,7 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 
 	public void copyIndices(ClusAttrType type) {
 		m_Index = type.m_Index;
-		m_SpecialIdx = type.m_SpecialIdx;
+		m_ArrayIndex = type.m_ArrayIndex;
 		m_Status = type.m_Status;
 	}
 
@@ -110,12 +111,12 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 		m_Index = idx;
 	}
 
-	public int getSpecialIndex() {
-		return m_SpecialIdx;
+	public int getArrayIndex() {
+		return m_ArrayIndex;
 	}
 
-	public void setSpecialIndex(int idx) {
-		m_SpecialIdx = idx;
+	public void setArrayIndex(int idx) {
+		m_ArrayIndex = idx;
 	}
 
 	public int getStatus() {
@@ -125,15 +126,31 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 	public void setStatus(int status) {
 		m_Status = status;
 	}
-
+	
 	public boolean isTarget() {
 		return m_Status == ClusAttrType.STATUS_TARGET;
 	}
 
-	public boolean isNormal() {
-		return m_Status == ClusAttrType.STATUS_NORMAL;
+	public boolean isDisabled() {
+		return m_Status == ClusAttrType.STATUS_DISABLED;
 	}
+	
+	public boolean isClustering() {
+		return m_Status == ClusAttrType.STATUS_TARGET || m_Status == ClusAttrType.STATUS_CLUSTER_NO_TARGET;
+	}
+	
+	public boolean isKey() {
+		return m_Status == ClusAttrType.STATUS_KEY;
+	}
+	
+	public void setDescriptive(boolean descr) {
+		m_IsDescriptive = descr;
+	}	
 
+	public boolean isDescriptive() {
+		return m_IsDescriptive;
+	}	
+	
 	public int getMaxNbStats() {
 		return 0;
 	}

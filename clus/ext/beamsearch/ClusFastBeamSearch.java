@@ -155,7 +155,7 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 			}
 		}
 		RowData train = (RowData)run.getTrainingSet();		
-		ClusAttrType[] attrs = train.getSchema().getNormalAttrs();		
+		ClusAttrType[] attrs = train.getSchema().getDescriptiveAttributes();		
 		refineEachLeaf((ClusNode)new_model.getModel(), new_model, beam, attrs);
 	}
 	

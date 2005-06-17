@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import weka.core.*;
 import clus.data.rows.*;
 import clus.data.type.*;
+import clus.data.attweights.*;
 import clus.main.*;
-import clus.statistic.*;
 
 public class ClusToWekaData {
 
@@ -17,7 +17,7 @@ public class ClusToWekaData {
 	protected ArrayList m_NomAttrs = new ArrayList();
 	protected ArrayList m_NumAttrs = new ArrayList();
 	protected FastVector m_WekaTypes = new FastVector();
-	protected TargetWeightProducer m_Weights;
+	protected ClusAttributeWeights m_Weights;
 	protected Instances m_Instances;
 	protected int m_Target;
 	
@@ -63,7 +63,7 @@ public class ClusToWekaData {
 		return -1;
 	}
 	
-	public void setTargetWeights(TargetWeightProducer weights) {
+	public void setTargetWeights(ClusAttributeWeights weights) {
 		m_Weights = weights;
 	}
 	
@@ -84,7 +84,7 @@ public class ClusToWekaData {
 		for (int j = 0; j < m_NumAttrs.size(); j++) {
 			NumericAttrType type = (NumericAttrType)m_NumAttrs.get(j);
 			if (type.getStatus() == ClusAttrType.STATUS_TARGET) {
-				double weight = m_Weights == null ? 1.0 : m_Weights.m_NumWeights[0];
+				double weight = m_Weights == null ? 1.0 : m_Weights.getWeight(type);
 				values[pos++] = type.getNumeric(tuple)*Math.sqrt(weight);
 			} else {
 				values[pos++] = type.getNumeric(tuple);

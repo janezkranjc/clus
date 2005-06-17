@@ -31,8 +31,8 @@ public class ClusOutput {
 		m_Writer.println("Date: "+DateFormat.getInstance().format(date));
 		m_Writer.println("File: "+m_Fname);
 		int a_tot = m_Schema.getNbAttributes();
-		int a_in = m_Schema.getNbInput();
-		int a_out = m_Schema.getNbOutput();
+		int a_in = m_Schema.getNbDescriptiveAttributes();
+		int a_out = m_Schema.getNbTargetAttributes();
 		m_Writer.println("Attributes: "+a_tot+" (input: "+a_in+", output: "+a_out+")");
 		m_Writer.println("Rows: "+m_Schema.getNbRows());
 		m_Writer.println();

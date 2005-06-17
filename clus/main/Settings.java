@@ -50,11 +50,14 @@ public class Settings implements Serializable {
 	public final static String[] INFINITY = 
 	{"Infinity"};
 	
+	public final static String[] EMPTY = {};
+	
 	public final static int INFINITY_VALUE = 0;
 	
 	public final static long SERIAL_VERSION_ID = 1L;
 	
 	public final static String NONE = "None";
+	public final static String DEFAULT = "Default";	
 	
 	/* Filename and date information */
 	protected Date m_Date;
@@ -93,9 +96,12 @@ public class Settings implements Serializable {
 	/* Attribute */
 	protected INIFileString m_Target;
 	protected INIFileString m_Disabled;
+	protected INIFileString m_Descriptive;	
+	protected INIFileString m_Clustering;	
 	protected INIFileString m_Key;
 	protected INIFileNominalOrDoubleOrVector m_Weights;
-
+	protected INIFileNominalOrDoubleOrVector m_ClusteringWeights;
+	
 	/* Numeric */
 	protected INIFileDouble m_FTest;
 	protected INIFileString m_MultiScore;
@@ -118,7 +124,8 @@ public class Settings implements Serializable {
 	
 	/* Rules */
 	protected INIFileBool m_OrderedRules;
-  protected INIFileBool m_ComputeCompactness;
+	protected INIFileBool m_ComputeCompactness;
+	protected INIFileNominalOrDoubleOrVector m_CompactnessWeights;	
 	
 	/* Constraints */
 	protected INIFileString m_SyntacticConstrFile;
@@ -187,11 +194,15 @@ public class Settings implements Serializable {
 		data.addNode(m_PruneSet = new INIFileStringOrDouble("PruneSet", NONE));		
 		
 		INIFileSection attrs = new INIFileSection("Attributes");
-		attrs.addNode(m_Target = new INIFileString("Target", NONE));
+		attrs.addNode(m_Target = new INIFileString("Target", DEFAULT));
 		attrs.addNode(m_Disabled = new INIFileString("Disable", NONE));
+		attrs.addNode(m_Clustering = new INIFileString("Clustering", DEFAULT));		
+		attrs.addNode(m_Descriptive = new INIFileString("Descriptive", DEFAULT));		
 		attrs.addNode(m_Key = new INIFileString("Key", NONE));
 		attrs.addNode(m_Weights = new INIFileNominalOrDoubleOrVector("Weights", NORMALIZATIONS));
 		m_Weights.setNominal(NORMALIZATION_DEFAULT);
+		attrs.addNode(m_ClusteringWeights = new INIFileNominalOrDoubleOrVector("ClusteringWeights", EMPTY));
+		m_ClusteringWeights.setDouble(1.0);		
 		
 		INIFileSection numeric = new INIFileSection("Numeric");
 		numeric.addNode(m_FTest = new INIFileDouble("FTest", 1.0));
@@ -214,8 +225,10 @@ public class Settings implements Serializable {
 				
 		INIFileSection rules = new INIFileSection("Rules");
 		rules.addNode(m_OrderedRules = new INIFileBool("Ordered", true));
-    rules.addNode(m_ComputeCompactness = new INIFileBool("ComputeCompactness", false));
-				
+		rules.addNode(m_ComputeCompactness = new INIFileBool("ComputeCompactness", false));
+		attrs.addNode(m_CompactnessWeights = new INIFileNominalOrDoubleOrVector("CompactnessWeights", EMPTY));
+		m_CompactnessWeights.setDouble(1.0);		
+		
 		INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic", NONE));
 		constr.addNode(m_MaxSizeConstr = new INIFileNominalOrIntOrVector("MaxSize", INFINITY));
@@ -512,9 +525,17 @@ public class Settings implements Serializable {
 		return m_SetsData.getValue();
 	}
 	
-	public INIFileNominalOrDoubleOrVector getTargetWeights() {
+	public INIFileNominalOrDoubleOrVector getNormalizationWeights() {
 		return m_Weights;
 	}
+	
+	public INIFileNominalOrDoubleOrVector getClusteringWeights() {
+		return m_ClusteringWeights;
+	}
+	
+	public INIFileNominalOrDoubleOrVector getCompactnessWeights() {
+		return m_CompactnessWeights;
+	}	
 	
 	public boolean hasNonTrivialWeights() {
 		for (int i = 0; i < m_Weights.getVectorLength(); i++) {
@@ -531,7 +552,7 @@ public class Settings implements Serializable {
 				schema.addAttrType(new IntegerAttrType("SSPD"));
 				nb++;
 			}
-			m_Target.setValue(String.valueOf(nb));
+			// m_Target.setValue(String.valueOf(nb));
 		}
 	}
 	
@@ -620,7 +641,7 @@ public class Settings implements Serializable {
 		SHOW_XVAL_FOREST = isShowXValForest();
 		BINARY_SPLIT = isBinarySplit();
 		SHOW_BRANCH_FREQ = isShowBranchFreq();
-		ONE_NOMINAL = (schema.getNbTarNom() == 1 && schema.getNbTarNum() == 0);
+		ONE_NOMINAL = (schema.getNbNominalTargetAttributes() == 1 && schema.getNbNumericTargetAttributes() == 0);
 		SIZE_PENALTY = getSizePenalty();
 		BEAM_WIDTH = m_BeamWidth.getValue();
 		VERBOSE = m_Verbose.getValue();
@@ -644,9 +665,33 @@ public class Settings implements Serializable {
 		return m_Disabled.getValue();
 	}
 	
+	public String getClustering() {
+		return m_Clustering.getValue();
+	}
+
+	public String getDescriptive() {
+		return m_Descriptive.getValue();
+	}	
+	
 	public String getKey() {
 		return m_Key.getValue();
 	}
+
+	public void setTarget(String str) {
+		m_Target.setValue(str);
+	}
+	
+	public void setDisabled(String str) {
+		m_Disabled.setValue(str);
+	}		
+	
+	public void setClustering(String str) {
+		m_Clustering.setValue(str);
+	}
+	
+	public void setDescriptive(String str) {
+		m_Descriptive.setValue(str);
+	}	
 	
 	public double getFTest() {
 		return m_FTest.getValue();

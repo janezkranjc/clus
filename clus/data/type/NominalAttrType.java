@@ -112,26 +112,26 @@ public class NominalAttrType extends ClusAttrType {
 	}
 
 	public String getString(DataTuple tuple) {
-		int idx = tuple.m_Ints[m_SpecialIdx];
+		int idx = tuple.m_Ints[m_ArrayIndex];
 		return idx >= m_NbValues ? "?" : m_Values[idx];
 	}
 	
 	public boolean isMissing(DataTuple tuple) {
-		return tuple.m_Ints[m_SpecialIdx] >= m_NbValues;
+		return tuple.m_Ints[m_ArrayIndex] >= m_NbValues;
 	}	
 
 	public int getNominal(DataTuple tuple) {
-		return tuple.getIntVal(m_SpecialIdx);
+		return tuple.getIntVal(m_ArrayIndex);
 	}
 
 	public int compareValue(DataTuple t1, DataTuple t2) {
-		int i1 = t1.m_Ints[m_SpecialIdx];
-		int i2 = t2.m_Ints[m_SpecialIdx];
+		int i1 = t1.m_Ints[m_ArrayIndex];
+		int i2 = t2.m_Ints[m_ArrayIndex];
 		return i1 == i2 ? 0 : 1;
 	}
 
 	public ClusAttribute createTargetAttr(ColTarget target) {
-		return new NominalTarget(target, this, getSpecialIndex());
+		return new NominalTarget(target, this, getArrayIndex());
 	}
 
 	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
@@ -148,12 +148,12 @@ public class NominalAttrType extends ClusAttrType {
 			String value = data.readString();
 			if (value.equals("?")) {
 				incNbMissing();
-				tuple.setIntVal(getNbValues(), getSpecialIndex());
+				tuple.setIntVal(getNbValues(), getArrayIndex());
 				return;
 			}
 			Integer i = (Integer)getValueIndex(value);
 			if (i != null) {
-				tuple.setIntVal(i.intValue(), getSpecialIndex());
+				tuple.setIntVal(i.intValue(), getArrayIndex());
 			} else {
 				throw new IOException("Illegal value '"+value+"' for attribute "+getName()+" at row "+(data.getRow()+1));
 			}

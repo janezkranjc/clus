@@ -58,7 +58,7 @@ public class ClassesAttrType extends ClusAttrType {
 	}
 	
 	public String getString(DataTuple tuple) {
-		ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_SpecialIdx];
+		ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_ArrayIndex];
 		return ct.toString();
 	}
 	
@@ -96,7 +96,7 @@ public class ClassesAttrType extends ClusAttrType {
 			ClassesTuple ct;
 			try {
 				ct = new ClassesTuple(val, m_Table);
-				tuple.setObjectVal(ct, getSpecialIndex());
+				tuple.setObjectVal(ct, getArrayIndex());
 			}
 			catch (ClusException e) {
 				throw new IOException("Error parsing attribute "+getName()+" '"+val+"' at row: "+(data.getRow()+1));

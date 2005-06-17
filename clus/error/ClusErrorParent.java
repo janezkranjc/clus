@@ -8,6 +8,7 @@ import java.io.*;
 
 import clus.main.*;
 import clus.data.rows.*;
+import clus.data.attweights.*;
 import clus.util.*;
 import clus.statistic.*;
 
@@ -31,7 +32,7 @@ public class ClusErrorParent implements Serializable {
 		m_NbExamples = nb;
 	}
 	
-	public void setWeights(TargetWeightProducer weights) {
+	public void setWeights(ClusAttributeWeights weights) {
 		for (int i = 0; i < m_Error.size(); i++) {
 			ClusError err = (ClusError)m_Error.elementAt(i);
 			err.setWeights(weights);

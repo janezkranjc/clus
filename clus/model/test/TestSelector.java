@@ -7,6 +7,7 @@ import clus.util.*;
 import clus.statistic.*;
 import clus.heuristic.*;
 import clus.data.rows.*;
+import clus.data.attweights.*;
 
 public class TestSelector {
 	
@@ -23,7 +24,7 @@ public class TestSelector {
 	
 	// Heuristic
 	public ClusHeuristic m_Heuristic;
-	public TargetWeightProducer m_TargetWeights;
+	public ClusAttributeWeights m_TargetWeights;
 
 	// Best test information
 	public NodeTest m_BestTest;	
@@ -115,10 +116,10 @@ public class TestSelector {
 		m_Heuristic = smanager.getHeuristic();
 		m_TestStat = new ClusStatistic[nbstat];
 		for (int i = 0; i < nbstat; i++) {
-			m_TestStat[i] = smanager.createStatistic();
+			m_TestStat[i] = smanager.createTargetStatistic();
 		}
-		m_TargetWeights = smanager.createTargetWeightProducer();		
-		m_TotCorrStat = smanager.createStatistic();		
+		m_TargetWeights = smanager.createClusAttributeWeights();		
+		m_TotCorrStat = smanager.createTargetStatistic();		
 		m_PosStat = m_TestStat[0];		
 	}	
 	
@@ -249,7 +250,6 @@ public class TestSelector {
 
 	public final void setRootStatistic(ClusStatistic stat) {
 		m_Heuristic.setRootStatistic(stat);
-		m_TargetWeights.setTotalStat(stat);
 	}
 	
 	public final void statOnData(RowData data) {

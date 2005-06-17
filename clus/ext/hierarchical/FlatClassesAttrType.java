@@ -26,8 +26,8 @@ public class FlatClassesAttrType extends ClassesAttrType {
 		}
 
 		public void read(ClusReader data, DataTuple tuple) throws IOException {
-			ClassesTuple other = (ClassesTuple)tuple.getObjVal(m_Mimic.getSpecialIndex());
-			tuple.setObjectVal(other.toFlat(m_Table), getSpecialIndex());
+			ClassesTuple other = (ClassesTuple)tuple.getObjVal(m_Mimic.getArrayIndex());
+			tuple.setObjectVal(other.toFlat(m_Table), getArrayIndex());
 		}
 	}
 }

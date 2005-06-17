@@ -63,7 +63,7 @@ public class WAHNDSqError extends ClusError {
 	
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		double weight = tuple.getWeight();
-		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(m_Attr.getSpecialIndex());
+		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(m_Attr.getArrayIndex());
 		m_TreeErr += weight*calcDistance(tp, (HierStatistic)pred);
 		m_SumWeight += weight;
 	}

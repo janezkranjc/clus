@@ -1,4 +1,4 @@
 
 [Attributes]
-Target = 5
+Clustering = 4
 Disable = 6

@@ -67,7 +67,7 @@ public class KNNTree extends ClusNode {
 		if (tuple == null) System.err.println("tuple == null");
 		if (dec_data == null) System.err.println("dec_data == null");
 
-		ClusStatistic stat = m_SMgr.createStatistic();
+		ClusStatistic stat = m_SMgr.createTargetStatistic();
 		//find out how much neighbours necessary (via settings)
 		int amountNBS = Settings.kNNT_k.getValue();
 		//find out if Distance-Weighted kNN used

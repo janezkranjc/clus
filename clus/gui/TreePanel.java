@@ -13,6 +13,7 @@ import clus.model.test.*;
 import clus.statistic.*;
 import clus.pruning.*;
 import clus.util.*;
+import clus.data.attweights.*;
 
 import clus.gui.statvis.*;
 
@@ -61,8 +62,8 @@ public class TreePanel extends JPanel {
 		return m_Manager;
 	}	
 
-	public TargetWeightProducer createTargetWeightProducer() throws ClusException {
-		return m_Manager.createTargetWeightProducer();
+	public ClusAttributeWeights createClusAttributeWeights() throws ClusException {
+		return m_Manager.createClusAttributeWeights();
 	}
 	
 	public void setHorzVert(boolean toggle) {
@@ -136,7 +137,7 @@ public class TreePanel extends JPanel {
 	}
 	
 	public void pruneTree(ClusNode node, int size) throws ClusException {
-		SizeConstraintPruning pruner = new SizeConstraintPruning(size, m_Manager.createTargetWeightProducer());
+		SizeConstraintPruning pruner = new SizeConstraintPruning(size, m_Manager.createClusAttributeWeights());
 		pruner.prune(node);
 		recursiveUpdate(m_Root);
 		doRender();

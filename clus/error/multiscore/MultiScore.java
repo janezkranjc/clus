@@ -15,7 +15,7 @@ public class MultiScore {
 	public MultiScore(ClusSchema schema, Settings sett) throws ClusException {
 		String val = sett.getMultiScore();
 		int len = val.length();
-		int nb_wanted = schema.getNbTarNum();
+		int nb_wanted = 0; // schema.getNbTarNum();
 		try {
 			if (len > 2 && val.charAt(0) == '{' && val.charAt(len-1) == '}') {
 				StringTokenizer tokens = new StringTokenizer(val.substring(1,len-1), ", ");

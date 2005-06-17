@@ -5,33 +5,32 @@ package clus.error;
 
 import java.io.PrintWriter;
 import java.text.NumberFormat;
+import clus.data.attweights.*;
 
 // import jeans.util.array.*;
-
-import clus.statistic.*;
 
 public class MSError extends ClusNumericError {
 	
 	protected double[] m_SqError;
-	protected TargetWeightProducer m_Weights;
+	protected ClusAttributeWeights m_Weights;
 	protected boolean m_PrintAllComps;
 	
 	public MSError(ClusErrorParent par) {
 		this(par, null, true);
 	}
 	
-	public MSError(ClusErrorParent par, TargetWeightProducer weights) {
+	public MSError(ClusErrorParent par, ClusAttributeWeights weights) {
 		this(par, weights, true);
 	}
 	
-	public MSError(ClusErrorParent par, TargetWeightProducer weights, boolean printall) {
+	public MSError(ClusErrorParent par, ClusAttributeWeights weights, boolean printall) {
 		super(par);
 		m_SqError = new double[m_Dim];
 		m_Weights = weights;
 		m_PrintAllComps = printall;
 	}
 	
-	public MSError(ClusErrorParent par, TargetWeightProducer weights, boolean printall, int dim) {
+	public MSError(ClusErrorParent par, ClusAttributeWeights weights, boolean printall, int dim) {
 		super(par, dim);
 		m_SqError = new double[m_Dim];
 		m_Weights = weights;
@@ -44,14 +43,14 @@ public class MSError extends ClusNumericError {
 		}				
 	}
 	
-	public void setWeights(TargetWeightProducer weights) {
+	public void setWeights(ClusAttributeWeights weights) {
 		m_Weights = weights;
 	}
 	
 	public double getModelErrorComponen(int i) {
 		int nb = getNbExamples();
 		double err = nb != 0.0 ? m_SqError[i]/nb : 0.0;
-		if (m_Weights != null) err *= m_Weights.m_NumWeights[i];
+//		if (m_Weights != null) err *= m_Weights.m_NumWeights[i];
 		return err;
 	}
 		
@@ -59,8 +58,9 @@ public class MSError extends ClusNumericError {
 		double ss_tree = 0.0;
 		int nb = getNbExamples();
 		for (int i = 0; i < m_Dim; i++) {
-			if (m_Weights != null) ss_tree += m_SqError[i]*m_Weights.m_NumWeights[i];			
-			else ss_tree += m_SqError[i];
+//			if (m_Weights != null) ss_tree += m_SqError[i]*m_Weights.m_NumWeights[i];			
+//			else 
+			ss_tree += m_SqError[i];
 		}
 		return nb != 0.0 ? ss_tree/nb/m_Dim : 0.0;
 	}	

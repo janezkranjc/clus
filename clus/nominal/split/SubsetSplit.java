@@ -11,7 +11,7 @@ public class SubsetSplit extends NominalSplit {
 	ClusStatistic m_PStat, m_CStat, m_MStat;
 
 	public void initialize(ClusStatManager manager) {
-		m_PStat = manager.createStatistic();
+		m_PStat = manager.createTargetStatistic();
 		m_CStat = m_PStat.cloneStat();
 		m_MStat = m_PStat.cloneStat();
 	}

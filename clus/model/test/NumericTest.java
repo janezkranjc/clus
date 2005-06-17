@@ -30,7 +30,7 @@ public class NumericTest extends NodeTest {
 	}
 	
 	public final int getAttrIndex() {
-		return m_Type.getSpecialIndex();
+		return m_Type.getArrayIndex();
 	}
 
 	public final NumericAttrType getNumType() {
@@ -98,7 +98,7 @@ public class NumericTest extends NodeTest {
 	}	
 	
 	public int predictWeighted(DataTuple tuple) {
-		double val = tuple.m_Doubles[m_Type.getSpecialIndex()];
+		double val = tuple.m_Doubles[m_Type.getArrayIndex()];
 		return numericPredictWeighted(val);
 	}
 	

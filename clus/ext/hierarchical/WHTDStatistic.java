@@ -70,7 +70,7 @@ public class WHTDStatistic extends RegressionStat {
 	}
 	
 	public void updateWeighted(DataTuple tuple, double weight) {
-		int sidx = m_Hier.getType().getSpecialIndex();
+		int sidx = m_Hier.getType().getArrayIndex();
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
 		m_SumWeight += weight;
 		// Add one to the elements in the tuple, zero to the others
@@ -89,7 +89,7 @@ public class WHTDStatistic extends RegressionStat {
 	
 	public boolean isValid() {
 		// There is a valid prediction the weight of a non-root class is non-zero
-		for (int i = 1; i < m_NbTarget; i++) {
+		for (int i = 1; i < m_NbAttrs; i++) {
 			if (getMean(i) >= 1) return true;
 		}
 		return false;

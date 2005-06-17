@@ -3,22 +3,18 @@
  */
 package clus.ext.hierarchical;
 
-import clus.statistic.*;
 import clus.main.*;
+import clus.data.attweights.*;
 
-public class HierarchicalTargetWeightProducer extends TargetWeightProducer {
+public class HierarchicalTargetWeightProducer extends ClusAttributeWeights {
 
 	protected ClassHierarchy m_Hier;
 	
 	public HierarchicalTargetWeightProducer(ClusStatManager mgr, ClassHierarchy hier) {
-		super(mgr);
+		super(hier.getTotal());
 		m_Hier = hier;
 	}
-	
-	public void setTotalStat(ClusStatistic stat) {
-		setNumWeights(m_Hier.getWeights());
-	}
-	
+		
 	public String getName() {
 		return "Hierarchical weights";
 	}	

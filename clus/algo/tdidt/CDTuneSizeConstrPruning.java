@@ -15,6 +15,7 @@ import clus.statistic.*;
 import clus.util.*;
 import clus.pruning.*;
 import clus.data.rows.*;
+import clus.data.attweights.*;
 import clus.error.*;
 import clus.ext.hierarchical.HierRemoveInsigClasses;
 
@@ -35,7 +36,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 	protected double m_RelErrAcc = 0.01;
 	protected ArrayList m_Graph;
 	protected int m_Optimal, m_MaxSize;
-	protected TargetWeightProducer m_TargetWeights;
+	protected ClusAttributeWeights m_TargetWeights;
 	protected boolean m_Relative;
 	protected double m_RelativeScale;
 	
@@ -330,7 +331,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 			int size = tree.getModelSize();
 			if (m_OrigSize != -1 && size > m_OrigSize) size = m_OrigSize;
 			if (size > maxsize) maxsize = size;
-			SizeConstraintPruning pruner = new SizeConstraintPruning(size, mgr.createTargetWeightProducer());
+			SizeConstraintPruning pruner = new SizeConstraintPruning(size, mgr.createClusAttributeWeights());
 			pruner.pruneInitialize(tree, size);
 			pruners[i] = pruner;
 		}
@@ -410,7 +411,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 	}
 
 	public ClusStatistic createTotalStat(RowData data) {
-		ClusStatistic stat = m_Class.getStatManager().createStatistic();
+		ClusStatistic stat = m_Class.getStatManager().createTargetStatistic();
 		data.calcTotalStatBitVector(stat);
 		return stat;
 	}
@@ -429,8 +430,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 			m_NbExamples = train.getNbRows();
 //			m_Distribution = DistributionFactory.newInstance().createTDistribution(getSettings().getTuneNbFolds()-1);
 			System.out.println("Has missing values: "+m_HasMissing);
-			m_TargetWeights = m_Class.getStatManager().createTargetWeightProducer();
-			m_TargetWeights.setTotalStat(m_TotalStat);
+			m_TargetWeights = m_Class.getStatManager().createClusAttributeWeights();
 			// Find optimal F-test value
 			findBestSize(train);
 			System.out.println();

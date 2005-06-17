@@ -26,7 +26,7 @@ public class KNNStatistics {
 	public void calcMeasures(RowData data){
 
 		ClusSchema schema = data.getSchema();
-		ClusAttrType[] attrs = schema.getNormalAttrs();
+		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
 		TargetSchema target = schema.getTargetSchema();
 
 		$prototypes = new DataTuple[target.getNbNomValues(0)];
@@ -102,7 +102,7 @@ public class KNNStatistics {
 		System.out.println("Prototype values for attribute "+attr.getName()+":");
 
 		//fill in prototype values
-		int idx = attr.getSpecialIndex();
+		int idx = attr.getArrayIndex();
 
 		for (int i=0;i<aTargetValues;i++){
 			System.out.print(index_maxs[i]+",");
@@ -187,7 +187,7 @@ public class KNNStatistics {
 		System.out.println("Prototype values for attribute "+attr.getName()+":");
 
 		//fill in prototype values
-		int idx = attr.getSpecialIndex();
+		int idx = attr.getArrayIndex();
 
 		for (int i=0;i<aTargetValues;i++){
 			System.out.print(means[i]+",");
@@ -214,7 +214,7 @@ public class KNNStatistics {
 	public void printPrototype(int idx,RowData data){
 		DataTuple t = $prototypes[idx];
 		ClusSchema schema = data.getSchema();
-		ClusAttrType[] attrs = schema.getNormalAttrs();
+		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
 		TargetSchema target = schema.getTargetSchema();
 
 		System.out.print("Prototype values for targetvalue "+target.getNomName(0)+"="+idx+" : (");

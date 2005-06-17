@@ -7,12 +7,13 @@ import jeans.math.MathUtil;
 import clus.main.ClusNode;
 import clus.main.Settings;
 import clus.statistic.*;
+import clus.data.attweights.*;
 
 public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 	
-	private TargetWeightProducer m_TargetWeights;
+	private ClusAttributeWeights m_TargetWeights;
 	
-	public ClusBeamHeuristicSS(ClusStatistic stat, TargetWeightProducer prod) {
+	public ClusBeamHeuristicSS(ClusStatistic stat, ClusAttributeWeights prod) {
 		super(stat);
 		m_TargetWeights = prod;
 	}
@@ -66,6 +67,5 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 	
 	public void setRootStatistic(ClusStatistic stat) {
 		super.setRootStatistic(stat);
-		m_TargetWeights.setTotalStat(stat);
 	}	
 }

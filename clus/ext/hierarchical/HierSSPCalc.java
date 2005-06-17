@@ -13,7 +13,7 @@ public class HierSSPCalc {
 	protected int m_Index;
 	
 	public HierSSPCalc(MSymMatrix km, ClassesAttrType type) {
-		this(km, type.getSpecialIndex());
+		this(km, type.getArrayIndex());
 	}
 	
 	public HierSSPCalc(MSymMatrix km, int index) {

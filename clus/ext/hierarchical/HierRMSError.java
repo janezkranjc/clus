@@ -6,6 +6,7 @@ package clus.ext.hierarchical;
 import java.util.*;
 
 import clus.data.rows.*;
+import clus.data.attweights.*;
 import clus.error.*;
 import clus.statistic.*;
 
@@ -15,11 +16,11 @@ public class HierRMSError extends MSError {
 	protected double[] m_Scratch;
 	protected boolean m_Root, m_ContPred;
 	
-	public HierRMSError(ClusErrorParent par, TargetWeightProducer weights, boolean root, boolean proto, ClassHierarchy hier) {
+	public HierRMSError(ClusErrorParent par, ClusAttributeWeights weights, boolean root, boolean proto, ClassHierarchy hier) {
 		this(par, weights, false, root, proto, hier);
 	}
 	
-	public HierRMSError(ClusErrorParent par, TargetWeightProducer weights, boolean printall, boolean root, boolean proto, ClassHierarchy hier) {
+	public HierRMSError(ClusErrorParent par, ClusAttributeWeights weights, boolean printall, boolean root, boolean proto, ClassHierarchy hier) {
 		super(par, weights, printall, hier.getTotal());
 		m_Hier = hier;
 		m_Root = root;

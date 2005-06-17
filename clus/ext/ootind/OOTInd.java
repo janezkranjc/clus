@@ -31,7 +31,7 @@ public class OOTInd extends ClusExtension {
 
 	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		schema.addIndices(ClusSchema.ROWS);
-		int nb_num = schema.getNbNum();
+		int nb_num = schema.getNbNumericDescriptiveAttributes();
 		if (Settings.XVAL_OVERLAP && nb_num > 0) return new OOTIndOV(schema, sett);
 		else return new OOTIndNO(schema, sett);		
 	}

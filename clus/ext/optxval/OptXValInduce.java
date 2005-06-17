@@ -88,7 +88,7 @@ if (Debug.debug == 1) {
 		// Sort data
 		DataTuple tuple;
 		RowData data = grp.getData();
-		int idx = at.getSpecialIndex();
+		int idx = at.getArrayIndex();
 if (Debug.debug == 1) {
 		ClusStat.deltaSplit();
 }
@@ -308,7 +308,7 @@ if (Debug.debug == 1) {
 		// For each attribute
 		RowData data = mgrp.getData();				
 		ClusSchema schema = data.getSchema();
-		ClusAttrType[] attrs = schema.getNormalAttrs();
+		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
 		int nb_normal = attrs.length;
 		for (int i = 0; i < nb_normal; i++) {
 			ClusAttrType at = attrs[i];
@@ -333,7 +333,7 @@ if (Debug.debug == 1) {
 		m_Selector = new TestSelector[mfolds];
 		for (int i = 0; i < mfolds; i++) {
 			for (int j = 0; j < m_MaxStats; j++) {
-				m_TestStat[i][j] = m_StatManager.createStatistic();
+				m_TestStat[i][j] = m_StatManager.createTargetStatistic();
 			}	
 			m_PosStat[i] = m_TestStat[i][0];
 			// Create test selectors for each fold :-)			
@@ -373,7 +373,7 @@ if (Debug.debug == 1) {
 		// Set number of folds
 		setNbFolds(folds);
 		// Update max stats
-		if (m_Schema.getNbNum() > 0) m_MaxStats = Math.max(m_MaxStats, 3);
+		if (m_Schema.getNbNumericDescriptiveAttributes() > 0) m_MaxStats = Math.max(m_MaxStats, 3);
 	}
 
 	public final OptXValNode optXVal(RowData data) {
@@ -384,7 +384,7 @@ if (Debug.debug == 1) {
 
 		createStats();
 		m_Split.initialize(m_StatManager);
-		m_Scratch = m_StatManager.createStatistic();
+		m_Scratch = m_StatManager.createTargetStatistic();
 		// Create first group
 		OptXValGroup grp = new OptXValGroup(data, m_NbFolds+1);
 		grp.initializeFolds();

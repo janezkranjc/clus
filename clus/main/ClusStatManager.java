@@ -6,6 +6,7 @@ import jeans.io.ini.INIFileNominalOrDoubleOrVector;
 import jeans.math.matrix.*;
 
 import clus.util.*;
+import clus.data.attweights.*;
 import clus.data.type.*;
 import clus.data.rows.*;
 import clus.error.*;
@@ -21,8 +22,11 @@ import clus.ext.beamsearch.*;
 import clus.algo.rules.*;
 
 import java.io.*;
+import java.util.*;
 
 public class ClusStatManager implements Serializable {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
 	
 	public final static int SUBM_DEFAULT = 0;
 	
@@ -40,11 +44,14 @@ public class ClusStatManager implements Serializable {
 	protected boolean m_BeamSearch;
 	protected boolean m_RuleInduce;
 	protected Settings m_Settings;
-	protected TargetWeightProducer m_GlobalTargetWeights;
-  protected TargetWeightProducer m_GlobalWeights;
-  protected ClusStatistic m_GlobalTargetStat;
-  protected ClusStatistic m_GlobalStat;
-  
+	protected ClusAttributeWeights m_GlobalTargetWeights;
+	protected ClusAttributeWeights m_GlobalWeights;
+	protected ClusStatistic m_GlobalTargetStat;
+	protected ClusStatistic m_GlobalStat;    
+  	protected ClusStatistic[] m_StatisticAttrUse;
+  	protected ClusAttributeWeights m_NormalizationWeights;  
+  	protected ClusNormalizedAttributeWeights m_ClusteringWeights;
+  	protected ClusNormalizedAttributeWeights m_CompactnessWeights;  	
 	protected ClassHierarchy m_HierN, m_HierF, m_Hier;
 	protected SSPDMatrix m_SSPDMtrx;
 	
@@ -88,26 +95,81 @@ public class ClusStatManager implements Serializable {
 	}
 	
 	public void initSH() throws ClusException {
-		initWeights();
 		initStatistic();
 		initHeuristic();
 	}
 	
-  public void setGlobalTargetStat(ClusStatistic stat) {
-    m_GlobalTargetWeights.setTotalStat(stat);
-    m_GlobalTargetStat = stat;
-  }
+	public ClusNormalizedAttributeWeights getClusteringWeights() {
+		return m_ClusteringWeights;
+	}
+	
+	public ClusNormalizedAttributeWeights getCompactnessWeights() {
+		return m_CompactnessWeights;
+	}
 
-  public void setGlobalStat(ClusStatistic stat) {
-    m_GlobalWeights.setTotalStat(stat);
-    m_GlobalStat = stat;
-  }
+	public ClusAttributeWeights getNormalizationWeights() {
+		return m_NormalizationWeights;
+	}	
+	
+	public void setGlobalTargetStat(ClusStatistic stat) {
+		m_GlobalTargetStat = stat;
+	}
+
+	public static boolean hasBitEqualToOne(boolean[] array) {
+		for (int i = 0; i < array.length; i++) {
+			if (array[i]) return true;
+		}
+		return false;
+	}
+	
+	public void initWeights(ClusNormalizedAttributeWeights result, INIFileNominalOrDoubleOrVector winfo) {
+		result.setAllWeights(1.0);
+	}
+	
+	public void initCompactnessWeights() throws ClusException {
+		m_CompactnessWeights = new ClusNormalizedAttributeWeights(m_NormalizationWeights);
+		initWeights(m_CompactnessWeights, getSettings().getCompactnessWeights());
+	}
+
+	public void initClusteringWeights() throws ClusException {
+		m_ClusteringWeights = new ClusNormalizedAttributeWeights(m_NormalizationWeights);
+		initWeights(m_ClusteringWeights, getSettings().getClusteringWeights());
+	}
+	
+	public void initNormalizationWeights(ClusStatistic stat) throws ClusException {
+		m_GlobalStat = stat;		
+		int nbattr = m_Schema.getNbAttributes();
+		m_NormalizationWeights = new ClusAttributeWeights(nbattr);
+		m_NormalizationWeights.setAllWeights(1.0);		
+		boolean[] shouldNormalize = new boolean[nbattr];		
+		INIFileNominalOrDoubleOrVector winfo = getSettings().getNormalizationWeights();						
+		if (winfo.isVector()) {				
+			if (nbattr != winfo.getVectorLength()) {
+				throw new ClusException("Number of attributes is "+nbattr+" but weight vector has only "+winfo.getVectorLength()+" components");
+			}
+			for (int i = 0; i < nbattr; i++) {
+				if (winfo.isNominal(i)) shouldNormalize[i] = true;
+				else m_NormalizationWeights.setWeight(i, winfo.getDouble(i));
+			}				
+		} else {
+			if (winfo.isNominal() && winfo.getNominal() == Settings.NORMALIZATION_DEFAULT) {
+				Arrays.fill(shouldNormalize, true);
+			} else {				
+				m_NormalizationWeights.setAllWeights(winfo.getDouble());
+			}
+		}
+		if (hasBitEqualToOne(shouldNormalize)) {
+			CombStat cmb = (CombStat)stat;
+			RegressionStat rstat = cmb.getRegressionStat();			
+			rstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
+		}
+	}
 
   /**
    * Returns the global weights of target attributes.
    * @return the weights
    */
-  public TargetWeightProducer getGlobalTargetWeights() {
+  public ClusAttributeWeights getGlobalTargetWeights() {
     return m_GlobalTargetWeights;
   }
 	
@@ -115,7 +177,7 @@ public class ClusStatManager implements Serializable {
    * Returns the global weights of all attributes.
    * @return the weights
    */
-  public TargetWeightProducer getGlobalWeights() {
+  public ClusAttributeWeights getGlobalWeights() {
     return m_GlobalWeights;
   }  
   
@@ -152,17 +214,17 @@ public class ClusStatManager implements Serializable {
 		if (nb_types > 1) throw new ClusException("Can't mix different type target values");
 	}
 	
-	public TargetWeightProducer createTargetWeightProducer() throws ClusException {
-		switch (m_Mode) {
+	public ClusAttributeWeights createClusAttributeWeights() throws ClusException {
+/*		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
 			int hiermode = getSettings().getHierMode();
 			if (hiermode == Settings.HIERMODE_TREE_DIST_WEUCLID) {
-				return new HierarchicalTargetWeightProducer(this, m_Hier);
+				return new HierarchicalClusAttributeWeights(this, m_Hier);
 			} 
 			break;
 		case MODE_REGRESSION:
 			int nb_num = m_Target.getNbNum();			
-			INIFileNominalOrDoubleOrVector winfo = getSettings().getTargetWeights();						
+			INIFileNominalOrDoubleOrVector winfo = getSettings().getNormalizationWeights();						
 			NormalizedTargetWeights wi = new NormalizedTargetWeights(this);
 			if (winfo.isVector()) {				
 				wi.setNbTarget(nb_num);
@@ -182,7 +244,8 @@ public class ClusStatManager implements Serializable {
 			}
 			return wi;
 		}
-		return new TargetWeightProducer(this);		
+		return new ClusAttributeWeights(this);		*/
+		return getClusteringWeights();
 	}
 	
 	public void initStructure() throws IOException {
@@ -195,41 +258,39 @@ public class ClusStatManager implements Serializable {
 			break;
 		}
 	}
-	
-	public void initWeights() throws ClusException {
-		m_GlobalTargetWeights = createTargetWeightProducer();
-    NormalizedTargetWeights weights = new NormalizedTargetWeights(this);
-    weights.setAllNormalize(m_Schema.m_NbDoubles);
-    m_GlobalWeights = weights;
-  }
-	
+		
 	public void initStatistic() throws ClusException {
-
-    // TODO: This is a temporary solution!    
-    m_AllStatistic = new CombStat(this);
-      
+		m_StatisticAttrUse = new ClusStatistic[ClusAttrType.NB_ATTR_USE];
+		
+		if (m_Mode == MODE_CLASSIFY || m_Mode == MODE_REGRESSION) {
+			// TODO: This is a temporary solution!    
+			NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+			NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);			
+			m_StatisticAttrUse[ClusAttrType.ATTR_USE_ALL] = new CombStat(this, num, nom);
+		}      
+    
 		switch (m_Mode) {
 		case MODE_CLASSIFY:
-			m_TargetStatistic = new ClassificationStat(m_Target);
+			setTargetStatistic(new ClassificationStat(m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET)));
 			break;
 		case MODE_REGRESSION:
-			m_TargetStatistic = new RegressionStat(m_Target.getNbNum());
+			setTargetStatistic(new RegressionStat(m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET)));
 			break;
 		case MODE_HIERARCHICAL:
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
 			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
-				m_TargetStatistic = new WAHNDStatistic(m_Hier); break;
+				setTargetStatistic(new WAHNDStatistic(m_Hier)); break;
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				m_TargetStatistic = new WHTDStatistic(m_Hier); break;
+				setTargetStatistic(new WHTDStatistic(m_Hier)); break;
 			case Settings.HIERMODE_XTAX_SET_DIST:
-				m_TargetStatistic = new SPMDStatistic(m_Hier); break;
-			case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
-				m_TargetStatistic = new DHierStatistic(m_Hier); break;
+				setTargetStatistic(new SPMDStatistic(m_Hier)); break;
+/*			case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
+				setTargetStatistic(DHierStatistic(m_Hier)); break; */
 			}
 			break;
 		case MODE_SSPD:
-			m_TargetStatistic = new SSPDStatistic(m_SSPDMtrx);
+			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx));
 			break;
 		}
 	}
@@ -248,45 +309,45 @@ public class ClusStatManager implements Serializable {
 		if (isRuleInduce()) {
 			if (m_Mode == MODE_CLASSIFY) {
 				if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
-					m_Heuristic = new ClusRuleHeuristicError(createTargetWeightProducer());									
+					m_Heuristic = new ClusRuleHeuristicError(createClusAttributeWeights());									
 				} else {
 					m_Heuristic = new ClusRuleHeuristicMEstimate(getSettings().getMEstimate());
 				}				
 			} else {
-				m_Heuristic = new ClusRuleHeuristicError(createTargetWeightProducer());
+				m_Heuristic = new ClusRuleHeuristicError(createClusAttributeWeights());
 			}
 			return;
 		}
 		if (isBeamSearch()) {
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
-				m_Heuristic = new ClusBeamHeuristicError(createStatistic());
+				m_Heuristic = new ClusBeamHeuristicError(createTargetStatistic());
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_MESTIMATE) {
-				m_Heuristic = new ClusBeamHeuristicMEstimate(createStatistic(), getSettings().getMEstimate());
+				m_Heuristic = new ClusBeamHeuristicMEstimate(createTargetStatistic(), getSettings().getMEstimate());
 			} else {
-				m_Heuristic = new ClusBeamHeuristicSS(createStatistic(), createTargetWeightProducer());    			
+				m_Heuristic = new ClusBeamHeuristicSS(createTargetStatistic(), createClusAttributeWeights());    			
 			}
 			return;
 		}
 		switch (m_Mode) {
 		case MODE_CLASSIFY:
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
-				m_Heuristic = new ReducedErrorHeuristic(createStatistic());
+				m_Heuristic = new ReducedErrorHeuristic(createTargetStatistic());
 			} else {
 				m_Heuristic = new GainHeuristic();
 			}
 			break;
 		case MODE_REGRESSION:
-			m_Heuristic = new SSReductionHeuristic(createTargetWeightProducer());
+			m_Heuristic = new SSReductionHeuristic(createClusAttributeWeights());
 			break;
 		case MODE_HIERARCHICAL:
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
 			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
 				name = "Weighted Absolute Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createStatistic(), createTargetWeightProducer(), getSettings().isHierNoRootPreds()); break;				
+			m_Heuristic = new SSDHeuristic(name, createTargetStatistic(), createClusAttributeWeights(), getSettings().isHierNoRootPreds()); break;				
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
 				name = "Weighted Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createStatistic(), createTargetWeightProducer(), getSettings().isHierNoRootPreds()); break;
+			m_Heuristic = new SSDHeuristic(name, createTargetStatistic(), createClusAttributeWeights(), getSettings().isHierNoRootPreds()); break;
 			case Settings.HIERMODE_XTAX_SET_DIST:
 				m_Heuristic = new SPMDHeuristic(m_Hier); break;
 			case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
@@ -423,7 +484,7 @@ public class ClusStatManager implements Serializable {
 		Settings sett = getSettings();
 		if (isBeamSearch() && sett.isBeamPostPrune()) {
 			sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
-			return new SizeConstraintPruning(sett.getTreeMaxSize(), createTargetWeightProducer());			
+			return new SizeConstraintPruning(sett.getTreeMaxSize(), createClusAttributeWeights());			
 		}
 		int size_nb = sett.getSizeConstraintPruningNumber();
 		if (size_nb > 0) {
@@ -432,13 +493,13 @@ public class ClusStatManager implements Serializable {
 				sizes[i] = sett.getSizeConstraintPruning(i);
 			}			
 			sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
-			return new SizeConstraintPruning(sizes, createTargetWeightProducer());
+			return new SizeConstraintPruning(sizes, createClusAttributeWeights());
 		}
 		if (m_Mode == MODE_REGRESSION) {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT ||
 				sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
 					sett.setPruningMethod(Settings.PRUNING_METHOD_M5);
-					return new M5Pruner(createTargetWeightProducer());
+					return new M5Pruner(createClusAttributeWeights());
 			}		
 		}
 		if (m_Mode == MODE_HIERARCHICAL) {
@@ -469,28 +530,21 @@ public class ClusStatManager implements Serializable {
 		}
 	}
 		
-	public ClusStatistic createStatistic() {
-		return m_TargetStatistic.cloneStat();
+	public void setTargetStatistic(ClusStatistic stat) {
+		m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = stat;
+	}
+	
+	public ClusStatistic createTargetStatistic() {
+		return m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET].cloneStat();
 	}
 
   /**
    * @param attType 0 - descriptive, 1 - clustering,2 - target, -1 - all attributes 
    * @return the statistic
    */
-  public ClusStatistic createStatistic(int attType) {
-    switch (attType) {
-    case ClusAttrType.ATTR_USE_ALL:
-      return m_AllStatistic.cloneStat();
-    /* case ClusAttrType.ATTR_USE_CLUSTERING:
-      return m_TargetStatistic.cloneStat();
-    case ClusAttrType.ATTR_USE_DESCRIPTIVE:
-      return m_TargetStatistic.cloneStat(); */
-    case ClusAttrType.ATTR_USE_TARGET:
-      return m_TargetStatistic.cloneStat();
-    default:
-      return m_AllStatistic.cloneStat();
-    }
-  }
+	public ClusStatistic createStatistic(int attType) {
+		return m_StatisticAttrUse[attType].cloneStat();
+	}
   
 	public ClusStatistic getStatistic() {
 		return m_TargetStatistic;

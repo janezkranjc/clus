@@ -100,7 +100,7 @@ if (Debug.debug == 1) {
 		// Sort data
 		DataTuple tuple;
 		RowData data = grp.getData();
-		int idx = at.getSpecialIndex();		
+		int idx = at.getArrayIndex();		
 if (Debug.debug == 1) {
 		ClusStat.deltaSplit();
 }
@@ -429,7 +429,7 @@ if (Debug.debug == 1) {
 		// For each attribute
 		RowData data = mgrp.getData();				
 		ClusSchema schema = data.getSchema();
-		ClusAttrType[] attrs = schema.getNormalAttrs();
+		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
 		int nb_normal = attrs.length;
 		for (int i = 0; i < nb_normal; i++) {
 			ClusAttrType at = attrs[i];
@@ -565,7 +565,7 @@ if (Debug.debug == 1) {
 		m_TestExtraStat = new ClusStatistic[m_MaxStats][m_NbFolds+1];
 		for (int j = 0; j < m_MaxStats; j++) {
 			for (int i = 0; i <= m_NbFolds; i++) {		
-				m_TestExtraStat[j][i] = m_StatManager.createStatistic();
+				m_TestExtraStat[j][i] = m_StatManager.createTargetStatistic();
 			}
 		}
 	}

@@ -34,7 +34,7 @@ public class MultiScoreError extends ClusError {
 	public void preprocess(ClusData data) {
 		int dim = m_Score.getNbTarget();
 		int nb = data.getNbRows();
-		ClassificationStat stat = new ClassificationStat(dim);
+		ClassificationStat stat = null; // new ClassificationStat(dim);
 		for (int i = 0; i < nb; i++) {
 			m_Score.multiScore(data.getNumeric(i), m_CValues);
 			stat.update(i, m_CValues);

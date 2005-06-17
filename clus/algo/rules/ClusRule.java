@@ -12,6 +12,7 @@ import clus.main.*;
 import clus.statistic.*;
 import clus.model.test.*;
 import clus.util.*;
+import clus.data.type.*;
 
 public class ClusRule implements ClusModel, Serializable {
   
@@ -204,7 +205,7 @@ public class ClusRule implements ClusModel, Serializable {
    * @param mode 0 for train set, 1 for test set
    */
   public void computeCompactness(int mode) {
-    CombStat combStat = new CombStat(m_StatManager);
+    CombStat combStat = (CombStat)m_StatManager.createStatistic(ClusAttrType.ATTR_USE_ALL);
     for (int i = 0; i < m_Data.size(); i++) {
       combStat.updateWeighted((DataTuple)m_Data.get(i), 0); // second parameter does nothing!
     }

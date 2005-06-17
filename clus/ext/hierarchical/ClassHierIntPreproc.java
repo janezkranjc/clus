@@ -19,14 +19,14 @@ public class ClassHierIntPreproc extends ClassHierarchyPreproc {
 	public void preproc(int pass, DataTuple tuple) throws ClusException {
 		super.preproc(pass, tuple);
 		if (pass == 1) {
-			ClassesTuple ct = (ClassesTuple)tuple.getObjVal(m_Type.getSpecialIndex());
+			ClassesTuple ct = (ClassesTuple)tuple.getObjVal(m_Type.getArrayIndex());
 			addIntermediateElems(ct);       	        
 		}
 	}
 	
 	public void preprocSingle(DataTuple tuple) throws ClusException {
 		super.preprocSingle(tuple);
-		ClassesTuple ct = (ClassesTuple)tuple.getObjVal(m_Type.getSpecialIndex());
+		ClassesTuple ct = (ClassesTuple)tuple.getObjVal(m_Type.getArrayIndex());
 		addIntermediateElems(ct);
 	}		
 	

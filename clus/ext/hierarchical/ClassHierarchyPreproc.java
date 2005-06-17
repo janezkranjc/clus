@@ -20,13 +20,13 @@ public class ClassHierarchyPreproc implements TuplePreproc {
 	}
 	
 	public void preproc(int pass, DataTuple tuple) throws ClusException {
-		ClassesTuple ct = (ClassesTuple)tuple.getObjVal(m_Type.getSpecialIndex());
+		ClassesTuple ct = (ClassesTuple)tuple.getObjVal(m_Type.getArrayIndex());
 		if (pass == 0) ct.addToHierarchy(getHier());
 		else ct.addHierarchyIndices(getHier());
 	}
 	
 	public void preprocSingle(DataTuple tuple) throws ClusException {
-		ClassesTuple ct = (ClassesTuple)tuple.getObjVal(m_Type.getSpecialIndex());
+		ClassesTuple ct = (ClassesTuple)tuple.getObjVal(m_Type.getArrayIndex());
 		ct.addHierarchyIndices(getHier());
 	}
 	

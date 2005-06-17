@@ -85,10 +85,16 @@ public class Clus implements CMDLineArgsProvider {
 		if (arff != null) arff.skipTillData();
 		// Updata schema based on settings
 		m_Sett.updateTarget(m_Schema);
-		m_Schema.setDisabled(new IntervalCollection(m_Sett.getDisabled()));		
 		m_Schema.setTarget(new IntervalCollection(m_Sett.getTarget()));
+		m_Schema.setDisabled(new IntervalCollection(m_Sett.getDisabled()));		
+		m_Schema.setClustering(new IntervalCollection(m_Sett.getClustering()));
+		m_Schema.setDescriptive(new IntervalCollection(m_Sett.getDescriptive()));		
 		m_Schema.setKey(new IntervalCollection(m_Sett.getKey()));
-		
+		m_Schema.updateAttributeUse();
+		m_Sett.setTarget(m_Schema.getTarget().toString());
+		m_Sett.setDisabled(m_Schema.getDisabled().toString());		
+		m_Sett.setClustering(m_Schema.getClustering().toString());
+		m_Sett.setDescriptive(m_Schema.getDescriptive().toString());
 		// FIXME - move somewhere else - MyInitializer?
 		if (Settings.HIER_FLAT.getValue()) {
 			ClusAttrType attr = m_Schema.getAttrType(m_Schema.getNbAttributes()-1);
@@ -116,7 +122,7 @@ public class Clus implements CMDLineArgsProvider {
 		// -> e.g., for hierarchical multi-classification
 		preprocess();		
 		m_Induce.initialize();
-		computeTotalStatistic(m_Data);
+		initializeAttributeWeights(m_Data);
 		loadConstraintFile();		
 		initializeSummary(clss);	
 		System.out.println();
@@ -328,16 +334,21 @@ public class Clus implements CMDLineArgsProvider {
 		return pps;
 	}
 	
-	public final void computeTotalStatistic(ClusData data) {
+	public final void initializeAttributeWeights(ClusData data) throws IOException, ClusException {
 		ClusStatManager mgr = getInduce().getStatManager();
-		ClusStatistic stat = mgr.createStatistic();
-    ClusStatistic allStat = mgr.createStatistic(ClusAttrType.ATTR_USE_ALL);
-		((RowData)data).calcTotalStatBitVector(stat);
-    ((RowData)data).calcTotalStatBitVector(allStat);
-		stat.calcMean();
-    allStat.calcMean();
-    mgr.setGlobalTargetStat(stat);
-		mgr.setGlobalStat(allStat);
+		ClusStatistic allStat = mgr.createStatistic(ClusAttrType.ATTR_USE_ALL);
+		data.calcTotalStat(allStat);		
+		if (!m_Sett.isNullTestFile()) {
+			System.out.println("Loading: "+m_Sett.getTestFile());
+			updateStatistic(m_Sett.getTestFile(), allStat);
+		}
+		if (!m_Sett.isNullPruneFile()) {
+			System.out.println("Loading: "+m_Sett.getPruneFile());
+			updateStatistic(m_Sett.getPruneFile(), allStat);
+		}
+		mgr.initNormalizationWeights(allStat);
+		mgr.initClusteringWeights();
+		mgr.initCompactnessWeights();
 	}
 	
 	public final void preprocess(ClusData data) throws ClusException {
@@ -671,6 +682,8 @@ public class Clus implements CMDLineArgsProvider {
 			}
 			schema.setDisabled(new IntervalCollection(m_Sett.getDisabled()));			
 			schema.setTarget(new IntervalCollection(m_Sett.getTarget()));
+			schema.setClustering(new IntervalCollection(m_Sett.getClustering()));
+			schema.setDescriptive(new IntervalCollection(m_Sett.getDescriptive()));					
 			schema.setKey(new IntervalCollection(m_Sett.getKey()));
 		}
 	}
@@ -680,11 +693,11 @@ public class Clus implements CMDLineArgsProvider {
 		System.out.println("Name            #Rows      #Missing  #Nominal #Numeric #Target    #Classes");
 		System.out.print(StringUtils.printStr(m_Sett.getAppName(), 16));
 		System.out.print(StringUtils.printInt(data.getNbRows(), 11));
-		double perc = (double)m_Schema.getTotalInputNbMissing()/data.getNbRows()/m_Schema.getNbNormalAttr()*100.0;
+		double perc = -1; // (double)m_Schema.getTotalInputNbMissing()/data.getNbRows()/m_Schema.getNbNormalAttr()*100.0;
 		System.out.print(StringUtils.printStr(ClusFormat.TWO_AFTER_DOT.format(perc)+"%", 10));
-		System.out.print(StringUtils.printInt(m_Schema.getNbNom(), 9));
-		System.out.print(StringUtils.printInt(m_Schema.getNbNum(), 9));
-		System.out.print(StringUtils.printInt(m_Schema.getNbStatus(ClusAttrType.STATUS_TARGET), 5));
+		System.out.print(StringUtils.printInt(m_Schema.getNbNominalDescriptiveAttributes(), 9));
+		System.out.print(StringUtils.printInt(m_Schema.getNbNumericDescriptiveAttributes(), 9));
+		System.out.print(StringUtils.printInt(m_Schema.getNbAllAttrUse(ClusAttrType.ATTR_USE_TARGET), 5));
 		/*		if (schema.getNbTarNom() > 0) {
 		 System.out.print("(nom)  ");
 		 NominalAttrType ctype = schema.getTarNom(0);
@@ -695,7 +708,7 @@ public class Clus implements CMDLineArgsProvider {
 		System.out.println();
 		m_Schema.showDebug();
 		if (getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-			ClusStatistic stat = getStatManager().createStatistic();
+			ClusStatistic stat = getStatManager().createTargetStatistic();
 			m_Data.calcTotalStat(stat);
 			if (!m_Sett.isNullTestFile()) {
 				System.out.println("Loading: "+m_Sett.getTestFile());

@@ -11,6 +11,7 @@ import clus.util.*;
 import clus.model.test.*;
 import clus.statistic.*;
 import clus.data.rows.*;
+import clus.data.attweights.*;
 import clus.error.multiscore.*;
 
 public class ClusNode extends MyNode implements ClusModel {
@@ -408,7 +409,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	 ***************************************************************************/
 	
 	public final void initTotalStat(ClusStatManager smgr, RowData subset) {
-		m_TotStat = smgr.createStatistic();
+		m_TotStat = smgr.createTargetStatistic();
 		m_TotStat.setSDataSize(subset.getNbRows());
 		subset.calcTotalStat(m_TotStat);
 		m_TotStat.optimizePreCalc(subset);
@@ -459,23 +460,23 @@ public class ClusNode extends MyNode implements ClusModel {
 		}
 	}
 	
-	public double estimateErrorAbsolute(TargetWeightProducer scale) {
+	public double estimateErrorAbsolute(ClusAttributeWeights scale) {
 		return estimateErrorRecursive(this, scale);
 	}
 
-	public double estimateError(TargetWeightProducer scale) {
+	public double estimateError(ClusAttributeWeights scale) {
 		return estimateErrorRecursive(this, scale) / getTotalStat().getTotalWeight();
 	}
 	
-	public double estimateSS(TargetWeightProducer scale) {
+	public double estimateSS(ClusAttributeWeights scale) {
 		return estimateSSRecursive(this, scale);
 	}
 	
-	public double estimateVariance(TargetWeightProducer scale) {
+	public double estimateVariance(ClusAttributeWeights scale) {
 		return estimateSSRecursive(this, scale) / getTotalStat().getTotalWeight();
 	}	
 	
-	public static double estimateSSRecursive(ClusNode tree, TargetWeightProducer scale) {
+	public static double estimateSSRecursive(ClusNode tree, ClusAttributeWeights scale) {
 		if (tree.atBottomLevel()) {
 			ClusStatistic total = tree.getTotalStat();
 			return total.getSS(scale);
@@ -489,7 +490,7 @@ public class ClusNode extends MyNode implements ClusModel {
 		}
 	}
 	
-	public static double estimateErrorRecursive(ClusNode tree, TargetWeightProducer scale) {
+	public static double estimateErrorRecursive(ClusNode tree, ClusAttributeWeights scale) {
 		if (tree.atBottomLevel()) {
 			ClusStatistic total = tree.getTotalStat();
 			return total.getError(scale);

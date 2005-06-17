@@ -13,8 +13,8 @@ public class ColTarget {
 	public ClusNode[] m_Node;
 
 	public ColTarget(ClusSchema schema) {
-		m_NbNumeric = schema.getNbTarNum();
-		m_NbNominal = schema.getNbTarNom();
+		// m_NbNumeric = schema.getNbTarNum();
+		// m_NbNominal = schema.getNbTarNom();
 		m_Schema = schema.getTargetSchema();
 	}
 	
