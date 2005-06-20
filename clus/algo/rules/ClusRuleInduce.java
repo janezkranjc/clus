@@ -140,7 +140,7 @@ public class ClusRuleInduce {
 				rule.printModel();
 				System.out.println();
 				rset.add(rule);
-				data = rule.removeCovered(data);
+				data = rule.removeCovered(data); // TODO: Change to use weights
 			}
 		}
 		ClusStatistic left_over = m_Induce.createTotalStat(data);
@@ -173,6 +173,7 @@ public class ClusRuleInduce {
 		ClusRuleSet rset = new ClusRuleSet();
 		separateAndConquor(rset, data);
 		rset.postProc();
+    // Computing compactness
     if (getSettings().computeCompactness()) {
       rset.addDataToRules(data);
       rset.computeCompactness(ClusModel.TRAIN);
@@ -183,7 +184,6 @@ public class ClusRuleInduce {
         rset.computeCompactness(ClusModel.TEST);
         rset.removeDataFromRules();
       }
-
     }
     return rset;
 	}

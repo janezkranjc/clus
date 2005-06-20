@@ -680,11 +680,12 @@ public class Clus implements CMDLineArgsProvider {
 				adda.setStatus(ClusAttrType.STATUS_TARGET);
 				schema.addAttrType(adda);
 			}
-			schema.setDisabled(new IntervalCollection(m_Sett.getDisabled()));			
-			schema.setTarget(new IntervalCollection(m_Sett.getTarget()));
-			schema.setClustering(new IntervalCollection(m_Sett.getClustering()));
-			schema.setDescriptive(new IntervalCollection(m_Sett.getDescriptive()));					
-			schema.setKey(new IntervalCollection(m_Sett.getKey()));
+      schema.setTarget(new IntervalCollection(m_Sett.getTarget()));
+      schema.setDisabled(new IntervalCollection(m_Sett.getDisabled()));   
+      schema.setClustering(new IntervalCollection(m_Sett.getClustering()));
+      schema.setDescriptive(new IntervalCollection(m_Sett.getDescriptive()));   
+      schema.setKey(new IntervalCollection(m_Sett.getKey()));
+      schema.updateAttributeUse();
 		}
 	}
 	

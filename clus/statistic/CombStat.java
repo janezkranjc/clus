@@ -18,8 +18,8 @@ public class CombStat extends ClusStatistic {
   private int m_NbNumAtts;
   private int m_NbNomAtts;
   /* Weights for combining compactness of numeric and nominal attrs */
-  private double m_WeightNum = 1.0;
-  private double m_WeightNom = 1.0;
+  private double m_WeightNum;
+  private double m_WeightNom;
   private NominalAttrType[] m_NomAtts;
   private NumericAttrType[] m_NumAtts;
   private RegressionStat m_RegStat;
@@ -39,6 +39,8 @@ public class CombStat extends ClusStatistic {
     m_NomAtts = nom;
     m_RegStat = new RegressionStat(num);
     m_ClassStat = new ClassificationStat(nom);
+    m_WeightNum = (double)m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
+    m_WeightNom = (double)m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
   }
 
   protected CombStat() {
@@ -125,7 +127,7 @@ public class CombStat extends ClusStatistic {
    */
   public double variance(int attr) {
     return m_RegStat.getVariance(attr) *
-           m_StatManager.getGlobalWeights().getWeight(m_RegStat.getAttribute(attr));
+           m_StatManager.getCompactnessWeights().getWeight(m_RegStat.getAttribute(attr));
   }
   
   /**

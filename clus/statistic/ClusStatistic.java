@@ -37,9 +37,9 @@ public abstract class ClusStatistic implements Serializable {
 	public void printDebug() {
 	}
 	
-    public void setSumWeight(double weight){
-        m_SumWeight = weight;
-    }
+  public void setSumWeight(double weight){
+    m_SumWeight = weight;
+  }
 
 	public void setSDataSize(int nbex) {
 	}
