@@ -52,6 +52,16 @@ public class Settings implements Serializable {
 	
 	public final static String[] EMPTY = {};
 	
+	public final static String[] NUM_NOM_TAR_NTAR_WEIGHTS = 
+	{"TargetWeight", "NonTargetWeight", "NumericWeight", "NominalWeight"};
+	
+	public final static int TARGET_WEIGHT = 0;
+	public final static int NON_TARGET_WEIGHT = 1;
+	public final static int NUMERIC_WEIGHT = 2;
+	public final static int NOMINAL_WEIGHT = 3;
+	
+	public final static double[] FOUR_ONES = {1.0,1.0,1.0,1.0};
+	
 	public final static int INFINITY_VALUE = 0;
 	
 	public final static long SERIAL_VERSION_ID = 1L;
@@ -226,8 +236,10 @@ public class Settings implements Serializable {
 		INIFileSection rules = new INIFileSection("Rules");
 		rules.addNode(m_OrderedRules = new INIFileBool("Ordered", true));
 		rules.addNode(m_ComputeCompactness = new INIFileBool("ComputeCompactness", false));
-		attrs.addNode(m_CompactnessWeights = new INIFileNominalOrDoubleOrVector("CompactnessWeights", EMPTY));
-		m_CompactnessWeights.setDouble(1.0);		
+		rules.addNode(m_CompactnessWeights = new INIFileNominalOrDoubleOrVector("CompactnessWeights", EMPTY));
+		m_CompactnessWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);
+		m_CompactnessWeights.setDoubleArray(FOUR_ONES);
+		m_CompactnessWeights.setArrayIndexNames(true);
 		
 		INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic", NONE));
