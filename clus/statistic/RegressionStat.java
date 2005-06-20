@@ -210,7 +210,11 @@ public class RegressionStat extends ClusStatistic {
 	public void initNormalizationWeights(ClusAttributeWeights weights, boolean[] shouldNormalize) {
 		for (int i = 0; i < m_NbAttrs; i++) {
 			int idx = m_Attrs[i].getIndex();
-			if (shouldNormalize[idx]) weights.setWeight(m_Attrs[i], 1/getVariance(i));
+			if (shouldNormalize[idx]) {
+				double norm = 1/getVariance(i);
+				System.out.println("  Normalization for: "+m_Attrs[i].getName()+" = "+norm);
+				weights.setWeight(m_Attrs[i], norm);
+			}
 		}
 	}	
 	

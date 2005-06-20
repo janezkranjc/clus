@@ -1,6 +1,6 @@
 
 [Attributes]
-Weights = [1.0]
+Weights = Normalize
 
 [Constraints]
 Syntactic = None

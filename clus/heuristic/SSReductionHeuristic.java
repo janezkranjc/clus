@@ -3,13 +3,16 @@ package clus.heuristic;
 import clus.main.*;
 import clus.statistic.*;
 import clus.data.attweights.*;
+import clus.data.type.*;
 
 public class SSReductionHeuristic extends ClusHeuristic {
 	
 	private ClusAttributeWeights m_TargetWeights;
+	private NumericAttrType[] m_Attrs;
 	
-	public SSReductionHeuristic(ClusAttributeWeights prod) {
+	public SSReductionHeuristic(ClusAttributeWeights prod, NumericAttrType[] attrs) {
 		m_TargetWeights = prod;
+		m_Attrs = attrs;
 	}
 
 // handling missing values is done as follows:
@@ -62,6 +65,6 @@ public class SSReductionHeuristic extends ClusHeuristic {
 	}
 	
 	public String getName() {
-		return "SS-Reduction (ftest: "+Settings.FTEST_VALUE+", "+m_TargetWeights.getName()+")";
+		return "SS-Reduction (ftest: "+Settings.FTEST_VALUE+", "+m_TargetWeights.getName(m_Attrs)+")";
 	}
 }

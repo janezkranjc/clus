@@ -9,6 +9,7 @@ import java.io.*;
 
 import clus.data.type.*;
 import clus.main.Settings;
+import clus.util.*;
 
 public class ClusAttributeWeights implements Serializable {
 
@@ -23,6 +24,10 @@ public class ClusAttributeWeights implements Serializable {
 	public double getWeight(ClusAttrType atttype) {
 		return m_Weights[atttype.getIndex()];
 	}
+
+	public double getWeight(int i) {
+		return m_Weights[i];
+	}	
 	
 	public void setWeight(ClusAttrType atttype, double weight) {
 		m_Weights[atttype.getIndex()] = weight;
@@ -49,6 +54,32 @@ public class ClusAttributeWeights implements Serializable {
 	}
 	
 	public String getName() {
-		return "Weights";
+		if (getNbAttributes() > 10) {
+			return "Weights ("+getNbAttributes()+")";
+		} else {
+			StringBuffer buf = new StringBuffer();
+			buf.append("Weights [");
+			for (int i = 0; i < getNbAttributes(); i++) {
+				if (i != 0) buf.append(",");
+				buf.append(ClusFormat.THREE_AFTER_DOT.format(getWeight(i)));
+			}
+			buf.append("]");
+			return buf.toString();
+		}		
 	}
+	
+	public String getName(ClusAttrType[] type) {
+		if (type.length > 10) {
+			return "Weights ("+type.length+")";
+		} else {
+			StringBuffer buf = new StringBuffer();
+			buf.append("Weights [");
+			for (int i = 0; i < type.length; i++) {
+				if (i != 0) buf.append(",");
+				buf.append(ClusFormat.THREE_AFTER_DOT.format(getWeight(type[i])));
+			}
+			buf.append("]");
+			return buf.toString();
+		}		
+	}	
 }

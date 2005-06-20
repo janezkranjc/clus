@@ -5,6 +5,7 @@
 package clus.data.attweights;
 
 import clus.data.type.*;
+import clus.util.ClusFormat;
 
 public class ClusNormalizedAttributeWeights extends ClusAttributeWeights {
 
@@ -12,14 +13,17 @@ public class ClusNormalizedAttributeWeights extends ClusAttributeWeights {
 	
 	public ClusNormalizedAttributeWeights(ClusAttributeWeights norm) {
 		super(norm.getNbAttributes());
-		m_NormalizationWeights = new double[norm.getNbAttributes()];
-		copyNormalizedFrom(norm);
+		m_NormalizationWeights = norm.getWeights();
 	}	
 	
 	public double getWeight(ClusAttrType atttype) {
 		int idx = atttype.getIndex();
 		return m_Weights[idx] * m_NormalizationWeights[idx];
 	}
+	
+	public double getWeight(int idx) {
+		return m_Weights[idx] * m_NormalizationWeights[idx];
+	}	
 	
 	public double getComposeWeight(ClusAttrType atttype) {
 		return m_Weights[atttype.getIndex()];
@@ -33,7 +37,23 @@ public class ClusNormalizedAttributeWeights extends ClusAttributeWeights {
 		return m_NormalizationWeights;
 	}
 	
-	public void copyNormalizedFrom(ClusAttributeWeights other) {
-		System.arraycopy(other.getWeights(), 0, this.getNormalizationWeights(), 0, getNbAttributes());
-	}	
+	public String getName(ClusAttrType[] type) {
+		if (type.length > 10) {
+			return "Weights ("+type.length+")";
+		} else {
+			StringBuffer buf = new StringBuffer();
+			buf.append("Weights C=[");
+			for (int i = 0; i < type.length; i++) {
+				if (i != 0) buf.append(",");
+				buf.append(ClusFormat.THREE_AFTER_DOT.format(getComposeWeight(type[i])));
+			}
+			buf.append("], N=[");
+			for (int i = 0; i < type.length; i++) {
+				if (i != 0) buf.append(",");
+				buf.append(ClusFormat.THREE_AFTER_DOT.format(getNormalizationWeight(type[i])));
+			}
+			buf.append("]");						
+			return buf.toString();
+		}		
+	}
 }
