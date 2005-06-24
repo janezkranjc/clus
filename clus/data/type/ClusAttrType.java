@@ -12,6 +12,8 @@ import clus.data.cols.attribute.*;
 import clus.algo.kNN.BasicDistance;
 
 public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	// Attributes are sorted in arrays in same order as this: TARGET, OTHER CLUSTER, NORMAL, KEY
 	public final static int STATUS_DISABLED = 0;
@@ -25,7 +27,8 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 	public final static int ATTR_USE_DESCRIPTIVE = 1;
 	public final static int ATTR_USE_CLUSTERING = 2;
 	public final static int ATTR_USE_TARGET = 3;
-	public final static int NB_ATTR_USE = 4;
+	public final static int ATTR_USE_KEY = 4;	
+	public final static int NB_ATTR_USE = 5;
   
 	public final static int VALUE_TYPE_NONE = -1;
 	public final static int VALUE_TYPE_INT = 0;
@@ -206,6 +209,11 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 	public String toString() {
 		return getName();
 	}
+	
+	public void initializeFrom(ClusAttrType other_type) {
+		// Currently does nothing, but could copy status etc.
+	}	
+	
 //--------------------------------New-------------------------------------
 
 	private BasicDistance $dist;
@@ -223,6 +231,5 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 	public void setBasicDistance(BasicDistance dist){
 		$dist = dist;
 	}
-
 }
 

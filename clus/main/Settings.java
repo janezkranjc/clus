@@ -186,7 +186,7 @@ public class Settings implements Serializable {
 	public static INIFileBool HIER_NODE_ABUNDANCES;
 	public INIFileDouble m_HierPruneInSig;
 	protected INIFileBool m_HierNoRootPreds;
-	protected INIFileBool m_HierPruneInSigTree;		
+	protected INIFileBool m_HierUseBonferroni;
 		
 	INIFileSection m_SectionKNN;	
 	public static INIFileInt kNN_k;
@@ -276,8 +276,8 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(HIER_SAVE = new INIFileBool("HierSave", false));
 		m_SectionHierarchical.addNode(HIER_FLAT = new INIFileBool("HierFlat", false));
 		m_SectionHierarchical.addNode(m_HierNoRootPreds = new INIFileBool("NoRootPredictions", false));
-		m_SectionHierarchical.addNode(m_HierPruneInSigTree = new INIFileBool("PruneInSigTree", false));		
 		m_SectionHierarchical.addNode(m_HierPruneInSig = new INIFileDouble("PruneInSig", 0.0));
+		m_SectionHierarchical.addNode(m_HierUseBonferroni = new INIFileBool("Bonferroni", false));		
 		m_SectionHierarchical.addNode(HIER_CONT_PROTOTYPE = new INIFileBool("ContinueProto", true));
 		m_SectionHierarchical.addNode(HIER_USE_ABUNDANCES = new INIFileBool("UseAbundances", false));
 		m_SectionHierarchical.addNode(HIER_NODE_ABUNDANCES = new INIFileBool("NodeAbundances", false));
@@ -359,8 +359,8 @@ public class Settings implements Serializable {
 		return m_HierNoRootPreds.getValue();
 	}
 
-	public boolean isHierPruneInSigTree() {
-		return m_HierPruneInSigTree.getValue();		
+	public boolean isUseBonferroni() {
+		return m_HierUseBonferroni.getValue();		
 	}
 	
 	public int getPruningMethod() {

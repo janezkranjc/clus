@@ -49,8 +49,11 @@ public class ClusRulesFromTree {
 	
 	public void constructRecursive(ClusNode node, ClusRule rule, ClusRuleSet set) {
 		if (node.atBottomLevel()) {
-			rule.setDefaultStat(node.getTotalStat());
-			set.add(rule);
+			if (node.getTotalStat().isValidPrediction()) {
+				rule.setDefaultStat(node.getTotalStat());
+				rule.setID(node.getID());
+				set.add(rule);
+			}
 		} else {
 			NodeTest test = node.getTest();
 			for (int i = 0; i < node.getNbChildren(); i++) {

@@ -5,16 +5,14 @@ package clus.algo.induce;
 
 import java.io.*;
 
-import clus.data.rows.RowData;
-import clus.data.type.NominalAttrType;
-import clus.data.type.NumericAttrType;
+import clus.data.rows.*;
+import clus.data.type.*;
 import clus.error.multiscore.MultiScore;
 import clus.main.*;
 import clus.util.*;
 import clus.statistic.*;
 import clus.ext.constraint.*;
 import clus.model.test.*;
-import clus.data.type.*;
 
 public class ConstraintDFInduce extends DepthFirstInduce {
 	
@@ -53,6 +51,26 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 				node.makeLeaf();
 				return;
 			}
+		} else {
+			double tot_weight = 0.0;
+			double unk_weight = 0.0;
+			double tot_no_unk = 0.0;
+			double[] branch_weight = new double[test.getNbChildren()]; 
+			for (int i = 0; i < data.getNbRows(); i++) {
+				DataTuple tuple = data.getTuple(i);
+				int pred = test.predictWeighted(tuple);
+				if (pred == NodeTest.UNKNOWN) {
+					unk_weight += tuple.getWeight();
+				} else {
+					branch_weight[pred] += tuple.getWeight();
+					tot_no_unk += tuple.getWeight();
+				}
+				tot_weight += tuple.getWeight();
+			}
+			for (int i = 0; i < test.getNbChildren(); i++) {
+				test.setProportion(i, branch_weight[i]/tot_no_unk);
+			}
+			test.setUnknownFreq(unk_weight/tot_weight);			
 		}
 		NodeTest best_test = node.getTest();		
 		for (int j = 0; j < node.getNbChildren(); j++) {
@@ -83,6 +101,23 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		fillInStatsAndTests(root, data);
 		return root;		
 	}
+
+	public ClusNode fillInInTree(RowData data, ClusNode tree, ClusStatistic stat) {
+		ClusNode root = tree.cloneTreeWithVisitors();
+		root.setTotalStat(stat);
+		fillInStatsAndTests(root, data);
+		return root;		
+	}	
+	
+	public ClusNode fillInInduce(ClusRun cr, ClusNode node, MultiScore score) throws ClusException {
+		RowData data = (RowData)cr.getTrainingSet();
+		ClusStatistic stat = createTotalStat(data);
+		initSelectorAndSplit(stat);
+		ClusNode root = fillInInTree(data, node, stat);
+		root.postProc(score);
+		cleanSplit();
+		return root;		
+	}		
 	
 	public ClusNode induce(ClusRun cr, MultiScore score) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
@@ -96,5 +131,5 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		root.postProc(score);
 		cleanSplit();
 		return root;
-	}		
+	}
 }

@@ -145,8 +145,9 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 				}
 			}
 			if (getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-				PruneTree pruner = new DummyPruner(); 
-				HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(runs[i].getPruneSet(), pruner, getStatManager().getHier());
+				PruneTree pruner = new DummyPruner();
+				boolean bonf = getSettings().isUseBonferroni();
+				HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(runs[i].getPruneSet(), pruner, bonf, getStatManager().getHier());
 				hierpruner.setSignificance(getSettings().isHierPruneInSig());
 				hierpruner.prune(tree);
 			}			

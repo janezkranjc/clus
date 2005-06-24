@@ -14,24 +14,21 @@ public class HierRemoveInsigClasses extends PruneTree {
 	ClusData m_PruneSet;
 	ClassHierarchy m_Hier;
 	boolean m_NoRoot;
-	boolean m_NoRootAfterInSig;
+	boolean m_UseBonferroni;
 	double m_SigLevel;	
 	int m_Bonferroni;
 	
-	public HierRemoveInsigClasses(ClusData pruneset, PruneTree other, ClassHierarchy hier) {
+	public HierRemoveInsigClasses(ClusData pruneset, PruneTree other, boolean bonf, ClassHierarchy hier) {
 		m_Pruner = other;
 		m_PruneSet = pruneset;
 		m_Hier = hier;
+		m_UseBonferroni = bonf;
 	}
 	
 	public void setNoRootPreds(boolean noroot) {
 		m_NoRoot = noroot;
 	}
-	
-	public void setNoRootAfterInSigPreds(boolean noroot) {
-		m_NoRootAfterInSig = noroot;
-	}	
-	
+		
 	public void setSignificance(double siglevel) {
 		m_SigLevel = siglevel;
 	}
@@ -71,7 +68,7 @@ public class HierRemoveInsigClasses extends PruneTree {
 			node.makeLeaf();
 		}
 		if (node.atBottomLevel()) {
-			return node.getTotalStat().isValid();
+			return ((WHTDStatistic)node.getTotalStat()).isValid();
 		}
 		return true;
 	}
@@ -84,11 +81,6 @@ public class HierRemoveInsigClasses extends PruneTree {
 			boolean isok = executeRecursive((ClusNode)node.getChild(i), global, subset);
 			if (isok) nbok++;
 		}
-/*		
-		if (m_NoRootAfterInSig && nbok == 0) {
-			node.makeLeaf();
-		}
-*/		
 		if (node.atBottomLevel()) {
 			WHTDStatistic orig = (WHTDStatistic)node.getTotalStat();
 			WHTDStatistic valid = (WHTDStatistic)orig.cloneStat();			
@@ -101,7 +93,11 @@ public class HierRemoveInsigClasses extends PruneTree {
 			pred.copy(orig);
 			pred.setValidationStat(valid);
 			pred.setGlobalStat(global);
-			pred.setSigLevel(m_SigLevel/m_Bonferroni);
+			if (m_UseBonferroni) {
+				pred.setSigLevel(m_SigLevel/m_Bonferroni);
+			} else {
+				pred.setSigLevel(m_SigLevel);				
+			}
 			pred.calcMean();
 			node.setTotalStat(pred);
 			return !pred.m_MeanTuple.isRoot();

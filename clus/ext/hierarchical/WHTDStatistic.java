@@ -32,7 +32,7 @@ public class WHTDStatistic extends RegressionStat {
 	}
 
 	public WHTDStatistic(ClassHierarchy hier, boolean onlymean) {
-		super(hier.getTotal(), onlymean);
+		super(hier.getDummyAttrs(), onlymean);
 		m_Hier = hier;		
 	}
 	
@@ -161,7 +161,11 @@ public class WHTDStatistic extends RegressionStat {
 	
 	public String getString() {
 //		return m_MeanTuple.toStringHuman()+" "+super.getString();
-		return m_MeanTuple.toStringHuman()+" "+getTotalWeight();
+		return m_MeanTuple.toStringHuman()+" ["+ClusFormat.TWO_AFTER_DOT.format(getTotalWeight())+"]";
+	}
+	
+	public boolean isValidPrediction() {
+		return m_MeanTuple.isValidPrediction();
 	}
 	
 	public void showRootInfo() {

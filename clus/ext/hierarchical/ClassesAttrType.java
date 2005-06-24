@@ -13,6 +13,8 @@ import clus.data.rows.*;
 
 public class ClassesAttrType extends ClusAttrType {
 	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
+	
 	public final static int THIS_TYPE = 2;
 	public final static String THIS_TYPE_NAME = "Classes";	
 	
@@ -59,7 +61,7 @@ public class ClassesAttrType extends ClusAttrType {
 	
 	public String getString(DataTuple tuple) {
 		ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_ArrayIndex];
-		return ct.toString();
+		return ct.toStringHumanNoIntermediate(m_Hier);
 	}
 	
 	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
@@ -85,6 +87,11 @@ public class ClassesAttrType extends ClusAttrType {
 		}		
 	}
 	
+	public void initializeFrom(ClusAttrType other_type) {
+		ClassesAttrType other = (ClassesAttrType)other_type;
+		m_Hier = other.getHier();
+	}		
+	
 	public class MySerializable extends RowSerializable {
 		
 		public MySerializable(RowData data) {
@@ -96,6 +103,7 @@ public class ClassesAttrType extends ClusAttrType {
 			ClassesTuple ct;
 			try {
 				ct = new ClassesTuple(val, m_Table);
+				ct.setAllIntermediate(false);
 				tuple.setObjectVal(ct, getArrayIndex());
 			}
 			catch (ClusException e) {

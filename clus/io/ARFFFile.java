@@ -86,6 +86,10 @@ public class ARFFFile {
 			schema.addAttrType(new ClassesAttrType(aname, atype));			
 		} else if (uptype.equals("STRING")) {
 			schema.addAttrType(new StringAttrType(aname));
+		} else if (uptype.equals("KEY")) {
+			StringAttrType key = new StringAttrType(aname);
+			schema.addAttrType(key);
+			key.setStatus(ClusAttrType.STATUS_KEY);
 		} else {
 			if (uptype.equals("BINARY")) atype = "{1,0}";
 			int tlen = atype.length();

@@ -39,7 +39,7 @@ public class ClassHierarchyPreproc implements TuplePreproc {
 	public void done(int pass) {
 		if (pass > 0) return;
 		getHier().initialize();
-		showHier();
-		//		m_Hier.showEigenValues();
+		// showHier();
+		// m_Hier.showEigenValues();
 	}
 }

@@ -42,8 +42,12 @@ public class Clus implements CMDLineArgsProvider {
 	
 	public final static boolean m_UseHier = true;
 	
-	public final static String[] OPTION_ARGS = {"xval", "oxval", "target", "disable", "silent", "lwise", "c45", "info", "sample", "debug", "tuneftest", "load", "soxval", "bag", "obag","show","knn","knnTree", "beam", "gui", "fillin", "rules", "weka", "corrmatrix", "tunesize"};
-	public final static int[] OPTION_ARITIES = {0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+	public final static String[] OPTION_ARGS = 
+	{"xval", "oxval", "target", "disable", "silent", "lwise", "c45", "info", "sample", "debug", "tuneftest",
+	 "load", "soxval", "bag", "obag","show","knn","knnTree", "beam", "gui", "fillin", "rules", "weka", 
+	 "corrmatrix", "tunesize", "out2model", "test"};
+	public final static int[] OPTION_ARITIES = 
+	{0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1};
 	
 	protected Settings m_Sett = new Settings();
 	protected ClusSummary m_Summary = new ClusSummary();
@@ -337,7 +341,7 @@ public class Clus implements CMDLineArgsProvider {
 	public final void initializeAttributeWeights(ClusData data) throws IOException, ClusException {
 		ClusStatManager mgr = getInduce().getStatManager();
 		ClusStatistic allStat = mgr.createStatistic(ClusAttrType.ATTR_USE_ALL);
-		data.calcTotalStat(allStat);		
+		data.calcTotalStat(allStat);
 		if (!m_Sett.isNullTestFile()) {
 			System.out.println("Loading: "+m_Sett.getTestFile());
 			updateStatistic(m_Sett.getTestFile(), allStat);
@@ -349,6 +353,7 @@ public class Clus implements CMDLineArgsProvider {
 		mgr.initNormalizationWeights(allStat);
 		mgr.initClusteringWeights();
 		mgr.initCompactnessWeights();
+		mgr.initHeuristic();
 	}
 	
 	public final void preprocess(ClusData data) throws ClusException {
@@ -566,6 +571,58 @@ public class Clus implements CMDLineArgsProvider {
 		if (summary != null) summary.addSummary(cr);
 	}
 	
+	public final void out2model(String fname) throws IOException, ClusException {
+		String model_name = FileUtil.getName(fname)+".model";		
+		ClusTreeReader rdr = new ClusTreeReader();
+		ClusNode node = rdr.loadOutTree(fname, m_Schema);
+		ClusRun cr = partitionData();		
+		ConstraintDFInduce induce = new ConstraintDFInduce(m_Induce);
+		ClusNode res = induce.fillInInduce(cr, node, getScore());
+		res.numberTree();		
+		PruneTree pruner = induce.getStatManager().getTreePruner(cr.getPruneSet());
+		pruner.setTrainingData((RowData)cr.getTrainingSet());
+		ClusNode pruned = (ClusNode)res.cloneTree();
+		pruner.prune(pruned);		
+		pruned.numberTree();
+		System.out.println();
+		System.out.println("Tree read from .out:");
+		res.printTree();
+		System.out.println();
+		System.out.println("After pruning:");
+		pruned.printTree();
+		if (rdr.getLineAfterTree() != null) {
+			System.out.println("First line after tree: '"+rdr.getLineAfterTree()+"'");
+			System.out.println();			
+		}		
+		ClusModelCollectionIO io = new ClusModelCollectionIO();
+		ClusModelInfo info = new ClusModelInfo("Pruned Tree");
+		info.setModel(pruned);
+		io.addModel(info);
+		io.save(model_name);		
+	}
+	
+	public final void testModel(String fname) throws IOException, ClusException, ClassNotFoundException {
+		ClusModelCollectionIO io = ClusModelCollectionIO.load(fname);
+		ClusNode res = (ClusNode)io.getModel(0);
+		String test_name = FileUtil.getName(fname)+".test";
+		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(test_name)));
+		ClusRun cr = partitionData();		
+		out.println("Tree read from .model:");
+		out.println(); res.printModel(out); out.println(); 
+		out.println("Converted into rules:");
+		ClusRulesFromTree rft = new ClusRulesFromTree();
+		ClusRuleSet rules = rft.constructRules(res, getStatManager());
+		if (cr.getTestIter() != null) {
+			RowData testdata = (RowData)cr.getTestSet();
+			rules.addDataToRules(testdata);
+			out.println(); rules.printModelAndExamples(out, testdata.getSchema()); out.println();	    
+			rules.removeDataFromRules();						
+		} else {
+			out.println(); rules.printModel(out); out.println();			
+		}
+		out.close();		
+	}
+	
 	public final void saveModels(ClusRun models, ClusModelCollectionIO io) throws IOException {
 		if (getInduce().isModelWriter()) {
 			getInduce().writeModel(io);
@@ -670,7 +727,7 @@ public class Clus implements CMDLineArgsProvider {
 	
 	private class MyClusInitializer implements ClusSchemaInitializer {
 		
-		public void initSchema(ClusSchema schema) {
+		public void initSchema(ClusSchema schema) throws ClusException {
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_SSPD) {
 				schema.addAttrType(new IntegerAttrType("SSPD"));
 			}
@@ -680,12 +737,13 @@ public class Clus implements CMDLineArgsProvider {
 				adda.setStatus(ClusAttrType.STATUS_TARGET);
 				schema.addAttrType(adda);
 			}
-      schema.setTarget(new IntervalCollection(m_Sett.getTarget()));
-      schema.setDisabled(new IntervalCollection(m_Sett.getDisabled()));   
-      schema.setClustering(new IntervalCollection(m_Sett.getClustering()));
-      schema.setDescriptive(new IntervalCollection(m_Sett.getDescriptive()));   
-      schema.setKey(new IntervalCollection(m_Sett.getKey()));
-      schema.updateAttributeUse();
+			schema.setTarget(new IntervalCollection(m_Sett.getTarget()));
+			schema.setDisabled(new IntervalCollection(m_Sett.getDisabled()));   
+			schema.setClustering(new IntervalCollection(m_Sett.getClustering()));
+			schema.setDescriptive(new IntervalCollection(m_Sett.getDescriptive()));   
+			schema.setKey(new IntervalCollection(m_Sett.getKey()));
+			schema.updateAttributeUse();
+			schema.initializeFrom(m_Schema);
 		}
 	}
 	
@@ -816,6 +874,12 @@ public class Clus implements CMDLineArgsProvider {
 				} else if (cargs.hasOption("info")) {
 					clus.initialize(cargs, clss);
 					clus.showInfo();
+				} else if (cargs.hasOption("out2model")) { 
+					clus.initialize(cargs, clss);
+					clus.out2model(cargs.getOptionValue("out2model"));					
+				} else if (cargs.hasOption("test")) { 
+					clus.initialize(cargs, clss);
+					clus.testModel(cargs.getOptionValue("test"));					
 				} else if (cargs.hasOption("debug")) {
 					clus.initialize(cargs, clss);
 					clus.showDebug();

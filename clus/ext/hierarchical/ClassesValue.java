@@ -8,10 +8,11 @@ import clus.util.*;
 import clus.main.*;
 
 public class ClassesValue extends IndexedItem {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
 
 	public static String HIERARCY_SEPARATOR = "/";
 	public static String ABUNDANCE_SEPARATOR = ":";
-	public static int PATH_ORDER = 1;
 	
 	public final static int NO_ABUNDANCE = 0;
 	public final static int PATH_ABUNDANCE = 1;
@@ -37,19 +38,29 @@ public class ClassesValue extends IndexedItem {
 		m_Path = new String[plen];
 		if (plen == 0)
 			throw new ClusException("Path length should be >= 1");
-		int nb = 0;
-		int idx = PATH_ORDER == 1 ? 0 : plen-1;
+		int idx = 0;
 		while (tokens.hasMoreTokens()) {
-			m_Path[idx] = table.get(tokens.nextToken());
+			String st = table.get(tokens.nextToken());
+			if (st.equals("0")) {
+				String[] old_path = m_Path;
+				m_Path = new String[idx];
+				System.arraycopy(old_path, 0, m_Path, 0, m_Path.length);
+				while (tokens.hasMoreTokens()) {
+					st = table.get(tokens.nextToken());
+					if (!st.equals("0")) throw new ClusException("Hierarchical class must not contain internal zeros");
+				}
+				return;
+			} else {
+				m_Path[idx] = st;
+			}
 			if (mode != NO_ABUNDANCE) {
-				if (nb == plen-1) {
+				if (idx == plen-1) {
 					m_Abundance = Double.parseDouble(tokens.nextToken());
 				} else if (mode == NODE_ABUNDANCE) {
 					tokens.nextToken();
 				}
 			}
-			nb++; 
-			idx += PATH_ORDER;
+			idx++;
 		}
 	}
 	
@@ -96,8 +107,12 @@ public class ClassesValue extends IndexedItem {
 		m_Abundance = abundance;
 	}	
 		
-	public void setIntermediate(boolean intm) {
-		m_Intermediate = true;
+	public void setIntermediate(boolean inter) {
+		m_Intermediate = inter;
+	}
+	
+	public boolean isIntermediate() {
+		return m_Intermediate;
 	}
 
 	public static void setHSeparator(String hsep) {

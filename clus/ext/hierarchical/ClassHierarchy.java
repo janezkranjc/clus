@@ -8,11 +8,12 @@ import jeans.util.array.*;
 import jeans.math.matrix.*;
 
 import java.io.*;
-import java.util.Hashtable;
+import java.util.*;
 import Jama.*;
 
 import clus.main.*;
 import clus.util.*;
+import clus.data.type.*;
 
 // FIXME -- This file really needs some cleaning up :-) :-)
 
@@ -25,6 +26,7 @@ public class ClassHierarchy implements Serializable {
 	
 	protected int m_Number;
 	protected ClassTerm m_Root;
+	protected NumericAttrType[] m_DummyTypes;
 	protected transient double[] m_Weights;
 	protected transient Hashtable m_ErrorWeights = new Hashtable();
 	protected transient MSymMatrix m_KMatrix;
@@ -36,8 +38,8 @@ public class ClassHierarchy implements Serializable {
 	}
 	
 	public ClassHierarchy(ClassesAttrType type) {
-		m_Type = type;
 		m_Root = new ClassTerm();
+		setType(type);
 	}
 	
 	public ClassHierarchy(ClassTerm root) {
@@ -498,6 +500,19 @@ public class ClassHierarchy implements Serializable {
 		}
 		double widec = Settings.HIER_W_PARAM.getValue();
 		setNodeSelDist(new HierWeightSPath(getMaxDepth(), widec));
+		ClusSchema schema = m_Type.getSchema();
+		int maxIndex = schema.getNbAttributes();
+		m_DummyTypes = new NumericAttrType[getTotal()];
+		for (int i = 0; i < getTotal(); i++) {
+			NumericAttrType type = new NumericAttrType("H"+i);
+			type.setIndex(maxIndex++);
+			type.setSchema(schema);
+			m_DummyTypes[i] = type;
+		}
+	}
+	
+	public final NumericAttrType[] getDummyAttrs() {
+		return m_DummyTypes;
 	}
 	
 	public final void showSummary() {

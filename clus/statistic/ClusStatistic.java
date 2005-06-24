@@ -49,10 +49,10 @@ public abstract class ClusStatistic implements Serializable {
 	
 	public void showRootInfo() {
 	}
-	
-	public boolean isValid() {
+		
+	public boolean isValidPrediction() {
 		return true;
-	}
+	}	
 	
 	public void update(ColTarget target, int idx) {
 		System.err.println(getClass().getName()+": update(ColTarget target, int idx): Not yet implemented");

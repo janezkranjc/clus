@@ -18,6 +18,7 @@ public class ClusRule implements ClusModel, Serializable {
   
   public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
+    protected int m_ID;
 	protected Object m_Visitor;
 	protected ClusStatistic m_Default;	
 	protected ArrayList m_Tests = new ArrayList();
@@ -30,6 +31,14 @@ public class ClusRule implements ClusModel, Serializable {
   public ClusRule(ClusStatManager statManager) {
     m_StatManager = statManager;
   }
+  
+  	public int getID() {
+  		return m_ID;
+  	}
+  	
+  	public void setID(int id) {
+  		m_ID = id;
+  	}
   
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 		return m_Default;
@@ -191,7 +200,9 @@ public class ClusRule implements ClusModel, Serializable {
 			}
 		}
 		wrt.println();
-		wrt.println("THEN "+m_Default.getString());
+		wrt.print("THEN "+m_Default.getString());
+		if (getID() != 0) wrt.println(" ("+getID()+")");
+		else wrt.println();		
     if (getSettings().computeCompactness() && (m_CombStat[ClusModel.TRAIN] != null)) {
       wrt.println("\n   Compactness (train): " + m_CombStat[ClusModel.TRAIN].getCompactnessString());
       if (m_CombStat[ClusModel.TEST] != null) {
@@ -266,5 +277,9 @@ public class ClusRule implements ClusModel, Serializable {
    */
   public void removeDataTuples() {
     m_Data.clear();
+  }
+  
+  public ArrayList getData() {
+  	return m_Data;
   }
 }

@@ -150,6 +150,7 @@ public class ClusReader {
 		}
 		String result = m_Scratch.toString().trim();
 		if (result.length() > 0) {
+			m_Attr++;			
 			return result;
 		} else {
 			throw new IOException("Error reading attirbute "+m_Attr+" at row "+(m_Row+1));

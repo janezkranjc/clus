@@ -51,7 +51,7 @@ public class ClusStatManager implements Serializable {
 	protected ClusStatistic m_GlobalStat;    
   	protected ClusStatistic[] m_StatisticAttrUse;
   	protected ClusAttributeWeights m_NormalizationWeights;  
-  	protected ClusNormalizedAttributeWeights m_ClusteringWeights;
+  	protected ClusAttributeWeights m_ClusteringWeights;
   	protected ClusNormalizedAttributeWeights m_CompactnessWeights;  	
 	protected ClassHierarchy m_HierN, m_HierF, m_Hier;
 	protected SSPDMatrix m_SSPDMtrx;
@@ -98,10 +98,9 @@ public class ClusStatManager implements Serializable {
 	public void initSH() throws ClusException {
 		initWeights();
 		initStatistic();
-		initHeuristic();
 	}
 	
-	public ClusNormalizedAttributeWeights getClusteringWeights() {
+	public ClusAttributeWeights getClusteringWeights() {
 		return m_ClusteringWeights;
 	}
 	
@@ -169,9 +168,19 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public void initClusteringWeights() throws ClusException {
+		if (getMode() == MODE_HIERARCHICAL) {
+			int nb_attrs = m_Schema.getNbAttributes();
+			m_ClusteringWeights = new ClusAttributeWeights(nb_attrs+m_Hier.getTotal());
+			double[] weights = m_Hier.getWeights();
+			NumericAttrType[] dummy = m_Hier.getDummyAttrs();
+			for (int i = 0; i < weights.length; i++) {
+				m_ClusteringWeights.setWeight(dummy[i], weights[i]);
+			}
+			return;
+		}
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);		
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		initWeights(m_ClusteringWeights, num, nom, getSettings().getClusteringWeights());		
+		initWeights((ClusNormalizedAttributeWeights)m_ClusteringWeights, num, nom, getSettings().getClusteringWeights());		
 		System.out.println("Clustering: "+m_ClusteringWeights.getName(m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING)));
 	}
 	
@@ -243,9 +252,8 @@ public class ClusStatManager implements Serializable {
 		if (nb_num > 0) {
 			m_Mode = MODE_REGRESSION;
 			nb_types++;
-		}
-		int nb_class = m_Target.getNbType(ClassesAttrType.THIS_TYPE);
-		if (nb_class > 0) {
+		}		
+		if (m_Schema.hasAttributeType(ClusAttrType.ATTR_USE_TARGET, ClassesAttrType.THIS_TYPE)) {
 			m_Mode = MODE_HIERARCHICAL;
 			getSettings().setSectionHierarchicalEnabled(true);
 			nb_types++;
@@ -261,36 +269,6 @@ public class ClusStatManager implements Serializable {
 	}
 	
 	public ClusAttributeWeights createClusAttributeWeights() throws ClusException {
-/*		switch (m_Mode) {
-		case MODE_HIERARCHICAL:
-			int hiermode = getSettings().getHierMode();
-			if (hiermode == Settings.HIERMODE_TREE_DIST_WEUCLID) {
-				return new HierarchicalClusAttributeWeights(this, m_Hier);
-			} 
-			break;
-		case MODE_REGRESSION:
-			int nb_num = m_Target.getNbNum();			
-			INIFileNominalOrDoubleOrVector winfo = getSettings().getNormalizationWeights();						
-			NormalizedTargetWeights wi = new NormalizedTargetWeights(this);
-			if (winfo.isVector()) {				
-				wi.setNbTarget(nb_num);
-				if (nb_num != winfo.getVectorLength()) {
-					throw new ClusException("Number of numeric targets is "+nb_num+" but weight vector has only "+winfo.getVectorLength()+" components");
-				}
-				for (int i = 0; i < nb_num; i++) {
-					if (winfo.isNominal(i)) wi.setNormalize(i, true);
-					else wi.setWeight(i, winfo.getDouble(i));
-				}				
-			} else {
-				if (winfo.isNominal() && winfo.getNominal() == Settings.NORMALIZATION_DEFAULT) {
-					wi.setAllNormalize(nb_num); 
-				} else {				
-					wi.setAllFixed(nb_num, winfo.getDouble());
-				}
-			}
-			return wi;
-		}
-		return new ClusAttributeWeights(this);		*/
 		return getClusteringWeights();
 	}
 	
@@ -307,18 +285,15 @@ public class ClusStatManager implements Serializable {
 		
 	public void initStatistic() throws ClusException {
 		m_StatisticAttrUse = new ClusStatistic[ClusAttrType.NB_ATTR_USE];
-		
-		if (m_Mode == MODE_CLASSIFY || m_Mode == MODE_REGRESSION) {
-			// TODO: This is a temporary solution!    
-			NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
-			NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);			
-			m_StatisticAttrUse[ClusAttrType.ATTR_USE_ALL] = new CombStat(this, num, nom);
-		}
+		// Statistic over all attributes
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);			
+		m_StatisticAttrUse[ClusAttrType.ATTR_USE_ALL] = new CombStat(this, num, nom);
     //  TODO: Another temporary solution!
     if (isRuleInduce() && (getSettings().getHeuristic() == Settings.HEURISTIC_COMPACTNESS)) {
-      NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-      NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);      
-      setTargetStatistic(new CombStat(this, num, nom));
+      NumericAttrType[] num1 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+      NominalAttrType[] nom1 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);      
+      setTargetStatistic(new CombStat(this, num1, nom1));
       return;
     }
 		switch (m_Mode) {
@@ -328,17 +303,17 @@ public class ClusStatManager implements Serializable {
 		case MODE_REGRESSION:
 			setTargetStatistic(new RegressionStat(m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET)));
 			break;
-		case MODE_HIERARCHICAL:
+		case MODE_HIERARCHICAL:			
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
-			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
-				setTargetStatistic(new WAHNDStatistic(m_Hier)); break;
-			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				setTargetStatistic(new WHTDStatistic(m_Hier)); break;
-			case Settings.HIERMODE_XTAX_SET_DIST:
-				setTargetStatistic(new SPMDStatistic(m_Hier)); break;
-/*			case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
-				setTargetStatistic(DHierStatistic(m_Hier)); break; */
+				case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
+					setTargetStatistic(new WAHNDStatistic(m_Hier)); break;
+				case Settings.HIERMODE_TREE_DIST_WEUCLID:
+					setTargetStatistic(new WHTDStatistic(m_Hier)); break;
+				case Settings.HIERMODE_XTAX_SET_DIST:
+					setTargetStatistic(new SPMDStatistic(m_Hier)); break;
+/*				case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
+ 					setTargetStatistic(DHierStatistic(m_Hier)); break; */
 			}
 			break;
 		case MODE_SSPD:
@@ -415,10 +390,10 @@ public class ClusStatManager implements Serializable {
 			switch (hiermode) {
 			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
 				name = "Weighted Absolute Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createTargetStatistic(), createClusAttributeWeights(), getSettings().isHierNoRootPreds()); break;				
+			m_Heuristic = new SSDHeuristic(name, createTargetStatistic(), getClusteringWeights(), getSettings().isHierNoRootPreds()); break;				
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
 				name = "Weighted Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createTargetStatistic(), createClusAttributeWeights(), getSettings().isHierNoRootPreds()); break;
+			m_Heuristic = new SSDHeuristic(name, createTargetStatistic(), getClusteringWeights(), getSettings().isHierNoRootPreds()); break;
 			case Settings.HIERMODE_XTAX_SET_DIST:
 				m_Heuristic = new SPMDHeuristic(m_Hier); break;
 			case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
@@ -586,10 +561,10 @@ public class ClusStatManager implements Serializable {
 		Settings sett = getSettings();
 		if (m_Mode == MODE_HIERARCHICAL) {
 			PruneTree pruner = getTreePrunerNoVSB(); 
-			HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(pruneset, pruner, m_Hier);
+			boolean bonf = sett.isUseBonferroni();
+			HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(pruneset, pruner, bonf, m_Hier);
 			hierpruner.setSignificance(sett.isHierPruneInSig());
 			hierpruner.setNoRootPreds(sett.isHierNoRootPreds());
-			hierpruner.setNoRootAfterInSigPreds(sett.isHierPruneInSigTree());
 			return hierpruner;
 		}
 		if (pruneset != null) {
@@ -602,6 +577,7 @@ public class ClusStatManager implements Serializable {
 	}
 		
 	public void setTargetStatistic(ClusStatistic stat) {
+		System.out.println("Setting target statistic: "+stat.getClass().getName());
 		m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = stat;
 	}
 	

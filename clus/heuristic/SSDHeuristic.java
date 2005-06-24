@@ -37,11 +37,6 @@ public class SSDHeuristic extends ClusHeuristic {
 		double ss_pos = pstat.getSS(m_TargetWeights, m_Data);		
 		m_NegStat.copy(tstat);
 		m_NegStat.subtractFromThis(pstat);
-/*		if (m_CheckValid) {
-			if (!pstat.isValid()) return Double.NEGATIVE_INFINITY;
-			if (!m_NegStat.isValid()) return Double.NEGATIVE_INFINITY;
-		}
-*/
 		double ss_neg = m_NegStat.getSS(m_TargetWeights, m_Data);
 		double value = FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos, ss_neg);
 		if (Settings.VERBOSE >= 10) {

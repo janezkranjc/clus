@@ -425,7 +425,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 	
 	public final void numberTree() {
-		numberTree(new IntObject(0,null));
+		numberTree(new IntObject(1,null));
 	}
 	
 	public final void numberTree(IntObject count) {
@@ -552,10 +552,12 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 		} else {
 			if (m_TotStat == null) {
-				writer.println("?");
+				writer.print("?");
 			} else {
-				writer.println(m_TotStat.getString());
+				writer.print(m_TotStat.getString());
 			}
+			if (getID() != 0) writer.println(" ("+getID()+")");
+			else writer.println();
 		}
 	}
 	

@@ -36,10 +36,6 @@ public class RegressionStat extends ClusStatistic {
 		}
 	}
 	
-	// FIXME: delete this constructor after issue with hierarchical classification is solved
-	public RegressionStat(int nb, boolean onlymean) {		
-	}
-	
 	public ClusStatistic cloneStat() {
 		return new RegressionStat(m_Attrs, false);
 	}
@@ -212,7 +208,7 @@ public class RegressionStat extends ClusStatistic {
 			int idx = m_Attrs[i].getIndex();
 			if (shouldNormalize[idx]) {
 				double norm = 1/getVariance(i);
-				System.out.println("  Normalization for: "+m_Attrs[i].getName()+" = "+norm);
+				if (m_NbAttrs < 15) System.out.println("  Normalization for: "+m_Attrs[i].getName()+" = "+norm);
 				weights.setWeight(m_Attrs[i], norm);
 			}
 		}

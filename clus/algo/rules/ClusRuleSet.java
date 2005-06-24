@@ -8,6 +8,7 @@ import java.util.*;
 
 import jeans.util.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.main.*;
 import clus.statistic.*;
 import clus.util.*;
@@ -112,6 +113,36 @@ public class ClusRuleSet implements ClusModel, Serializable {
     }
 		wrt.println("Default = "+m_Default.getString());
 	}
+	
+	public void printModelAndExamples(PrintWriter wrt, ClusSchema schema) {
+		for (int i = 0; i < m_Rules.size(); i++) {
+			ClusRule rule = (ClusRule)m_Rules.get(i);
+			rule.printModel(wrt);
+			wrt.println();
+			wrt.println("Covered examples:");
+			ArrayList data = rule.getData();
+			ClusAttrType[] attrs = schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
+			ClusAttrType[] key = schema.getAllAttrUse(ClusAttrType.ATTR_USE_KEY);
+			for (int k = 0; k < data.size(); k++) {
+				DataTuple tuple = (DataTuple)data.get(k);
+				wrt.print(String.valueOf(k)+": ");
+				boolean hasval = false;
+				for (int j = 0; j < key.length; j++) {
+					if (hasval) wrt.print(",");
+					wrt.print(key[j].getString(tuple));
+					hasval = true;
+				}
+				for (int j = 0; j < attrs.length; j++) {
+					if (hasval) wrt.print(",");
+					wrt.print(attrs[j].getString(tuple));
+					hasval = true;
+				}
+				wrt.println();
+			}
+			wrt.println();			
+		}
+		wrt.println("Default = "+m_Default.getString());
+	}	
 	
 	public int getModelSize() {
 		return m_Rules.size();

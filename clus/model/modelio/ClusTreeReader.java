@@ -21,8 +21,9 @@ public class ClusTreeReader {
 	LineNumberReader m_Reader;
 	MStringTokenizer m_Tokens = createTokenizer();
 	int m_StartLine, m_CrLine, m_PushBack;
-	boolean m_IsReading;
-	ArrayList m_Lines, m_StartPos;	
+	boolean m_IsReading, m_NoPartialTree;
+	ArrayList m_Lines, m_StartPos;
+	String m_LineAfterTree;
 	
 	public ClusNode loadTree(String fname, ClusSchema schema) throws IOException {
 		m_FName = fname;
@@ -39,9 +40,41 @@ public class ClusTreeReader {
 		if (line != null) {
 			root = readTree(line, rdr);
 		}
+		line = getFirstNonEmptyLine(rdr);
+		if (line != null) {
+			createError("Extra data after tree '"+line+"'");
+		}
 		rdr.close();
 		return root;
 	}
+	
+	public ClusNode loadOutTree(String fname, ClusSchema schema) throws IOException {
+		m_FName = fname;
+		m_Schema = schema;
+		m_NoPartialTree = true;
+		System.out.println("Loading .out file: "+fname);
+		LineNumberReader rdr = new LineNumberReader(new InputStreamReader(new FileInputStream(fname)));
+		String line = rdr.readLine();
+		while (line != null && !line.trim().equals("Pruned Model")) {
+			line = rdr.readLine();
+		}
+		/* Skip line with stars */
+		line = rdr.readLine();
+		line = rdr.readLine();
+		/* Skip empty lines */
+		while (line != null && isSkipLine(line)) {
+			line = rdr.readLine();
+		}
+		/* Read tree */
+		ClusNode root = null;
+		if (line != null) {
+			root = readTree(line, rdr);
+		}
+		line = getFirstNonEmptyLine(rdr);
+		m_LineAfterTree = line;
+		rdr.close();
+		return root;
+	}		
 	
 	public ClusNode readTree(String line, LineNumberReader rdr) throws IOException {
 		m_Reader = rdr;
@@ -52,20 +85,25 @@ public class ClusTreeReader {
 	
 	public ClusNode readTree(String line) throws IOException {
 		String trim = line.trim();
+		// System.out.println("Reading: '"+line+"'");
 		ClusNode result = new ClusNode();		
 		if (!trim.equals("?")) {
 			int arity = 2;
 			String[] branchnames = YESNO;
 			MStringTokenizer tokens = getTokens();
 			tokens.setString(trim);
-			if (tokens.hasMoreTokens()) {
+			if (tokens.hasMoreTokens()) 			{
 				String attrname = tokens.getToken();
-				ClusAttrType attr = findAttrType(attrname);
-				readTest(attr, result, tokens);
-				if (result.getTest() instanceof NominalTest) {
-					NominalAttrType ntype = (NominalAttrType)attr;
-					arity = ntype.getNbValues();
-					branchnames = ntype.getValues();
+				ClusAttrType attr = findAttrType(attrname, allowPartialTree());
+				if (attr != null) {
+					readTest(attr, result, tokens);
+					if (result.getTest() instanceof NominalTest) {
+						NominalAttrType ntype = (NominalAttrType)attr;
+						arity = ntype.getNbValues();
+						branchnames = ntype.getValues();
+					}
+				} else {
+					return result;
 				}
 			} else {
 				createError("No attribute name found");
@@ -85,20 +123,36 @@ public class ClusTreeReader {
 					stopPlayBack();
 				}
 			}			
+		} else {
+			checkPartialTreeAllowed("while reading child node");			
 		}
 		return result;
 	}
+	
+	public String getLineAfterTree() {
+		return m_LineAfterTree;
+	}
+	
+	public boolean allowPartialTree() {
+		return !m_NoPartialTree;
+	}
+	
+	public void checkPartialTreeAllowed(String str) throws IOException {
+		if (!allowPartialTree()) {
+			createError("No question marks allowed in tree ("+str+")");
+		}
+	}
 
-	public boolean isSkipLine(String line) {
+	public static boolean isSkipLine(String line) {
 		String trim = line.trim();
 		if (trim.equals("")) return true;
 		if (trim.length() > 1 && trim.charAt(0) == '%') return true;
 		return false;
 	}
 	
-	public ClusAttrType findAttrType(String name) throws IOException {
+	public ClusAttrType findAttrType(String name, boolean shouldfind) throws IOException {
 		ClusAttrType type = m_Schema.getAttrType(name);
-		if (type == null) {
+		if (type == null && shouldfind) {
 			createError("Unknown attribute name: '"+name+"'");
 		}
 		return type;
@@ -126,7 +180,9 @@ public class ClusTreeReader {
 			readCharTokens(">", tokens);
 			if (tokens.hasMoreTokens()) {
 				String value = tokens.getToken();
-				if (!value.equals("?")) {
+				if (value.equals("?")) {
+					checkPartialTreeAllowed("in numeric test");
+				} else {
 					try {
 						double bound = Double.parseDouble(value);
 						test.setBound(bound);
@@ -144,7 +200,9 @@ public class ClusTreeReader {
 	public int readSingleValue(boolean[] isin, NominalAttrType attr, MStringTokenizer tokens) throws IOException {
 		if (tokens.hasMoreTokens()) {
 			String token = tokens.getToken();
-			if (!token.equals("?")) {
+			if (token.equals("?")) {
+				checkPartialTreeAllowed("in subset test");
+			} else {
 				Integer res = attr.getValueIndex(token);
 				if (res == null) {
 					createError("Value '"+token+"=' not in domain of '"+attr.getName()+"'");					
@@ -162,7 +220,9 @@ public class ClusTreeReader {
 		int nb = 0;
 		if (tokens.hasMoreTokens()) {
 			String token = tokens.getToken();
-			if (!token.equals("?")) {
+			if (token.equals("?")) {
+				checkPartialTreeAllowed("in subset test");
+			} else {
 				if (!token.equals("{")) {
 					createError("Expected set after 'in' while reading test on '"+attr.getName()+"'");	
 				}
@@ -249,7 +309,8 @@ public class ClusTreeReader {
 			name = name.substring(idxmm+2).trim();
 		}
 		/* Is this a wildcard branch? */
-		if (name.equals("?")) {
+		if (name.equals("?")) {			
+			checkPartialTreeAllowed("as child node '"+str+"'");
 			startRecording(str);
 			return true;
 		}
@@ -392,11 +453,29 @@ public class ClusTreeReader {
 		return m_Tokens;
 	}
 	
+	public static boolean checkAtEnd(LineNumberReader rdr) throws IOException {
+		String line = rdr.readLine();
+		/* Skip empty lines */
+		while (line != null && isSkipLine(line)) {
+			line = rdr.readLine();
+		}
+		return line == null;		
+	}
+	
+	public static String getFirstNonEmptyLine(LineNumberReader rdr) throws IOException {
+		String line = rdr.readLine();
+		/* Skip empty lines */
+		while (line != null && isSkipLine(line)) {
+			line = rdr.readLine();
+		}
+		return line;		
+	}	
+	
 	public static MStringTokenizer createTokenizer() {
 		MStringTokenizer tokens = new MStringTokenizer();
 		tokens.setCharTokens("=<>{},");
 		tokens.setBlockChars("", "");
 		tokens.setSpaceChars(" \t");
 		return tokens;
-	}	
+	}
 }

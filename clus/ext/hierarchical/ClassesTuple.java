@@ -8,9 +8,12 @@ import jeans.util.array.*;
 import jeans.util.compound.*;
 import jeans.math.matrix.*;
 
+import clus.main.Settings;
 import clus.util.*;
 
 public class ClassesTuple implements MySparseVector, Serializable {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
 	
 	protected IndexedItem[] m_Tuple;
 	protected int m_Count;
@@ -230,6 +233,43 @@ public class ClassesTuple implements MySparseVector, Serializable {
 		} else {
 			return "none";
 		}
+	}
+	
+	public String toStringHumanNoIntermediate() {
+		if (m_Tuple.length > 0) {
+			boolean hasvalue = false;
+			StringBuffer buf = new StringBuffer();
+			for (int i = 0; i < m_Tuple.length; i++) {				
+				if (!((ClassesValue)m_Tuple[i]).isIntermediate()) {
+					if (hasvalue) buf.append(",");
+					buf.append(m_Tuple[i].toString());
+					hasvalue = true;
+				}
+			}
+			return buf.toString();
+		} else {
+			return "none";
+		}
+	}
+	
+	public String toStringHumanNoIntermediate(ClassHierarchy hier) {
+		if (m_Tuple.length > 0) {
+			double[] vec = getVectorWithParents(hier);
+			ClassesTuple tuple = hier.getBestTupleMajNoParents(vec);
+			return tuple.toStringHuman();
+		} else {
+			return "none";
+		}
+	}	
+	
+	public void setAllIntermediate(boolean inter) {
+		for (int i = 0; i < m_Tuple.length; i++) {
+			((ClassesValue)m_Tuple[i]).setIntermediate(inter);
+		}		
+	}
+	
+	public boolean isValidPrediction() {
+		return m_Tuple.length > 0;
 	}
 	
 	public final static void quickSort(ClassesTuple tuple, int low, int high) {
