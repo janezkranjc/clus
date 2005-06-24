@@ -16,13 +16,14 @@ public class Settings implements Serializable {
 	public final static long serialVersionUID = 1L;
 	
 	public final static String[] HEURISTICS = 
-	{"Default", "ReducedError", "Gain", "SSPD", "MEstimate"};
+	{"Default", "ReducedError", "Gain", "SSPD", "MEstimate", "Compactness"};
 	
 	public final static int HEURISTIC_DEFAULT = 0;
 	public final static int HEURISTIC_REDUCED_ERROR = 1;
 	public final static int HEURISTIC_GAIN = 2;  
 	public final static int HEURISTIC_SSPD = 3;    
 	public final static int HEURISTIC_MESTIMATE = 4;
+  public final static int HEURISTIC_COMPACTNESS = 5;
 	
 	public final static String[] PRUNING_METHODS = 
 	{"Default", "None", "C4.5", "M5", "ReducedErrorVSB", "Garofalakis"};
@@ -33,7 +34,14 @@ public class Settings implements Serializable {
 	public final static int PRUNING_METHOD_M5 = 3;
 	public final static int PRUNING_METHOD_REDERR_VSB = 4;
 	public final static int PRUNING_METHOD_GAROFALAKIS = 5;
-	
+
+  public final static String[] COVERING_METHODS = 
+  {"Standard", "WeightedMultiplicative", "WeightedAdditive"};
+  
+  public final static int COVERING_METHOD_STANDARD = 0;
+  public final static int COVERING_METHOD_WEIGHTED_MULTIPLICATIVE = 1;
+  public final static int COVERING_METHOD_WEIGHTED_ADDITIVE = 2;
+
 	public final static String[] HIERMODES = 
 	{"TDWEuclid", "TDAbsWEuclid", "XtAXSetDist", "XtAXSetDistDiscrete"};
 	
@@ -134,8 +142,11 @@ public class Settings implements Serializable {
 	
 	/* Rules */
 	protected INIFileBool m_OrderedRules;
+  protected INIFileNominal m_CoveringMethod;
+  protected INIFileDouble m_CoveringWeight;
 	protected INIFileBool m_ComputeCompactness;
-	protected INIFileNominalOrDoubleOrVector m_CompactnessWeights;	
+	protected INIFileNominalOrDoubleOrVector m_CompactnessWeights;
+  protected INIFileBool m_RandomRules;
 	
 	/* Constraints */
 	protected INIFileString m_SyntacticConstrFile;
@@ -234,12 +245,15 @@ public class Settings implements Serializable {
 		tree.addNode(m_RulesFromTree = new INIFileBool("ConvertToRules", false));
 				
 		INIFileSection rules = new INIFileSection("Rules");
-		rules.addNode(m_OrderedRules = new INIFileBool("Ordered", true));
+		rules.addNode(m_OrderedRules = new INIFileBool("OrderedRules", true));
+    rules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));
+    rules.addNode(m_CoveringWeight = new INIFileDouble("CoveringWeight", 0.9));
 		rules.addNode(m_ComputeCompactness = new INIFileBool("ComputeCompactness", false));
 		rules.addNode(m_CompactnessWeights = new INIFileNominalOrDoubleOrVector("CompactnessWeights", EMPTY));
 		m_CompactnessWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);
 		m_CompactnessWeights.setDoubleArray(FOUR_ONES);
 		m_CompactnessWeights.setArrayIndexNames(true);
+    rules.addNode(m_RandomRules = new INIFileBool("RandomRules", false));
 		
 		INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic", NONE));
@@ -365,6 +379,26 @@ public class Settings implements Serializable {
     return m_OrderedRules.getValue();
   }
 
+  public boolean isRandomRules() {
+    return m_RandomRules.getValue();
+  }
+
+  public int getCoveringMethod() {
+    return m_CoveringMethod.getValue();
+  }
+  
+  public void setCoveringMethod(int method) {
+    m_CoveringMethod.setSingleValue(method);
+  }
+
+  public double getCoveringWeight() {
+    return m_CoveringWeight.getValue();
+  }
+ 
+  public void setCoveringWeight(double weight) {
+    m_CoveringWeight.setValue(weight);
+  }
+ 
   public boolean computeCompactness() {
     return m_ComputeCompactness.getValue();
   }

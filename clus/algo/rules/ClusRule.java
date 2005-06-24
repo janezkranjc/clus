@@ -93,21 +93,61 @@ public class ClusRule implements ClusModel, Serializable {
 		}
 	}
 		
-	public RowData removeCovered(RowData data) {
-		int covered = 0;
-		for (int i = 0; i < data.getNbRows(); i++) {
-			DataTuple tuple = data.getTuple(i);
-			if (covers(tuple)) covered++;
-		}
-		int idx = 0;
-		RowData res = new RowData(data.getSchema(), data.getNbRows()-covered);
-		for (int i = 0; i < data.getNbRows(); i++) {
-			DataTuple tuple = data.getTuple(i);
-			if (!covers(tuple)) res.setTuple(tuple, idx++);
-		}
-		return res;
-	}
-	
+  public RowData removeCovered(RowData data) {
+    int covered = 0;
+    for (int i = 0; i < data.getNbRows(); i++) {
+      DataTuple tuple = data.getTuple(i);
+      if (covers(tuple)) covered++;
+    }
+    int idx = 0;
+    RowData res = new RowData(data.getSchema(), data.getNbRows()-covered);
+    for (int i = 0; i < data.getNbRows(); i++) {
+      DataTuple tuple = data.getTuple(i);
+      if (!covers(tuple)) res.setTuple(tuple, idx++);
+    }
+    return res;
+  }
+  
+  /**
+   * Reweighs all the examples covered by this rule. Reweighting
+   * method can be additive (w=1/(1+i)) or multiplicative (w=gamma^i).
+   * See Lavrac et al. 2004: Subgroup discovery with CN2-SD.
+   * 
+   * TODO: reweigh only positive examples, what to do for regression???
+   * 
+   * @param data all examples
+   * @return data with reweighted examples
+   * @throws ClusException 
+   */
+  public RowData reweighCovered(RowData data) throws ClusException {
+    int method = getSettings().getCoveringMethod();
+    double gamma = getSettings().getCoveringWeight();
+    double newweight;
+    RowData result = new RowData(data.getSchema(), data.getNbRows());
+    for (int i = 0; i < data.getNbRows(); i++) {
+      DataTuple tuple = data.getTuple(i);
+      double oldweight = tuple.getWeight();
+      if (oldweight > 0) {
+        if (method == Settings.COVERING_METHOD_WEIGHTED_ADDITIVE) {
+          double olditer = (oldweight != 1) ? ((1-oldweight)/oldweight) : 0;
+          newweight = 1/(olditer+1+1);
+        } else if (method == Settings.COVERING_METHOD_WEIGHTED_MULTIPLICATIVE) {
+          newweight = oldweight*gamma;
+        } else {
+          throw new ClusException("Unsupported covering method!");
+        }
+        if (covers(tuple)) {
+          result.setTuple(tuple.changeWeight(newweight), i);
+        } else {
+          result.setTuple(tuple, i);          
+        }
+      } else if (oldweight < 0){
+        throw new ClusException("Negative example weights not supported!");
+      }
+    }
+    return result;
+  }
+  
 	public ClusStatistic getTotalStat() {
 		return m_Default;
 	}
@@ -153,9 +193,9 @@ public class ClusRule implements ClusModel, Serializable {
 		wrt.println();
 		wrt.println("THEN "+m_Default.getString());
     if (getSettings().computeCompactness() && (m_CombStat[ClusModel.TRAIN] != null)) {
-      wrt.println("\n   Compactness (train): " + m_CombStat[ClusModel.TRAIN].getString());
+      wrt.println("\n   Compactness (train): " + m_CombStat[ClusModel.TRAIN].getCompactnessString());
       if (m_CombStat[ClusModel.TEST] != null) {
-        wrt.println("   Compactness (test):  " + m_CombStat[ClusModel.TEST].getString() + "\n");
+        wrt.println("   Compactness (test):  " + m_CombStat[ClusModel.TEST].getCompactnessString() + "\n");
       }
     }
 	}

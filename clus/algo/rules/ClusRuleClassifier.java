@@ -22,14 +22,23 @@ public class ClusRuleClassifier extends ClusClassifier {
 	}	
 	
 	public void printInfo() {
-		System.out.println("RuleSystem based on CN2");
-		System.out.println("Heuristic: "+getStatManager().getHeuristicName());
+    if (!getSettings().isRandomRules()) {
+      System.out.println("RuleSystem based on CN2");
+      System.out.println("Heuristic: "+getStatManager().getHeuristicName());
+    } else {
+      System.out.println("RuleSystem generating random rules");
+    }
 	}
 	
 	public ClusModel induceSingle(ClusRun cr) throws ClusException, IOException {
-		DepthFirstInduce tree_induce = (DepthFirstInduce)getInduce();
-		ClusRuleInduce rule_induce = new ClusRuleInduce(tree_induce);
-		return rule_induce.induce(cr);		
+    if (!getSettings().isRandomRules()) {
+      DepthFirstInduce tree_induce = (DepthFirstInduce)getInduce();
+	  	ClusRuleInduce rule_induce = new ClusRuleInduce(tree_induce);
+		  return rule_induce.induce(cr);
+    } else {
+      ClusRulesRandom rules = new ClusRulesRandom(cr);
+      return rules.constructRules(cr);
+    }
 	}
 
 	public void induce(ClusRun cr) throws ClusException, IOException {

@@ -20,17 +20,50 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	protected ArrayList m_Rules = new ArrayList();
   /* Array of tuples covered by the default rule. */
   protected ArrayList m_DefaultData = new ArrayList();
+  protected ClusStatManager m_StatManager;
+  
+  /**
+   * Constructor for this class.
+   * @param statmanager
+   */
+  public ClusRuleSet(ClusStatManager statmanager) {
+    m_StatManager = statmanager;
+  }
 	
 	public void add(ClusRule rule) {
 		m_Rules.add(rule);
 	}
 	
-	public ClusStatistic predictWeighted(DataTuple tuple) {
-		for (int i = 0; i < getModelSize(); i++) {
-			ClusRule rule = getRule(i);
-			if (rule.covers(tuple)) return rule.getTotalStat();
-		}
-		return m_Default;
+  /** 
+   * Returns the statistic for (prediction of) a given tuple.
+   */
+  public ClusStatistic predictWeighted(DataTuple tuple) {
+    if (getSettings().getCoveringMethod() == Settings.COVERING_METHOD_STANDARD) {
+      for (int i = 0; i < getModelSize(); i++) {
+        ClusRule rule = getRule(i);
+        if (rule.covers(tuple)) return rule.getTotalStat();
+      }
+      return m_Default;
+    } else {
+      boolean covered = false;
+      ClusStatistic stat = m_Default.cloneSimple();
+      for (int i = 0; i < getModelSize(); i++) {
+        ClusRule rule = getRule(i);
+        if (rule.covers(tuple)) {
+          ClusStatistic rulestat = rule.predictWeighted(tuple);
+          stat.addPrediction(rulestat, 1);
+          // TODO: Use weights different from 1 above! Probably different for
+          // classification and for regression (and for mixed case)
+          covered = true;         
+        }
+      }
+      stat.calcMean();
+      if (covered) {
+        return stat;  
+      } else {
+        return m_Default;
+      }
+    }
 	}
 	
 	public void removeEmptyRules() {
@@ -58,11 +91,25 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	}
 	
 	public void printModel(PrintWriter wrt) {
+    boolean headers = getSettings().computeCompactness();
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
+      if (headers) {
+        String head = new String("Rule " + (i + 1) + ":");
+        char[] underline = new char[head.length()];
+        for (int j = 0; j < head.length(); j++) {
+          underline[j] = '=';
+        }
+        wrt.println(head);
+        wrt.println(new String(underline));
+      }
 			rule.printModel(wrt);
 			wrt.println();
 		}
+    if (headers) {
+      wrt.println("Default rule:");
+      wrt.println("=============");
+    }
 		wrt.println("Default = "+m_Default.getString());
 	}
 	
@@ -70,6 +117,10 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		return m_Rules.size();
 	}
 	
+  public Settings getSettings() {
+    return m_StatManager.getSettings();
+  }
+
 	public ClusRule getRule(int i) {
 		return (ClusRule)m_Rules.get(i);
 	}

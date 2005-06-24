@@ -5,6 +5,7 @@ package clus.statistic;
 
 import java.text.NumberFormat;
 
+import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.DataTuple;
 import clus.data.type.*;
 import clus.main.ClusStatManager;
@@ -61,6 +62,7 @@ public class CombStat extends ClusStatistic {
   public void updateWeighted(DataTuple tuple, int idx) {
     m_RegStat.updateWeighted(tuple, tuple.getWeight());
     m_ClassStat.updateWeighted(tuple, tuple.getWeight());
+    m_SumWeight += tuple.getWeight();
   }
 
   /**
@@ -105,7 +107,7 @@ public class CombStat extends ClusStatistic {
     for (int i = 0; i < m_NbNumAtts; i++) {
       svar += variance(i);
     }
-    return svar / m_NbNumAtts;
+    return m_NbNumAtts == 0 ? 0.0 : svar / m_NbNumAtts;
   }
 
   /**
@@ -212,7 +214,7 @@ public class CombStat extends ClusStatistic {
    * 
    * @return String representation of the combined statistics
    */
-  public String getString() {
+  public String getCompactnessString() {
     StringBuffer buf = new StringBuffer();    
     NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
     buf.append("[");
@@ -225,34 +227,64 @@ public class CombStat extends ClusStatistic {
     return buf.toString();
   }
 
+  public String getString() {
+    StringBuffer buf = new StringBuffer();    
+    buf.append("[");
+    buf.append(m_ClassStat.getString());
+    buf.append(m_RegStat.getString());
+    buf.append("]");    
+    return buf.toString();
+  }
+
   public void reset() {
-    // TODO Auto-generated method stub
-    
+    m_RegStat.reset();
+    m_ClassStat.reset();
+    m_SumWeight = 0.0;
   }
 
   public void copy(ClusStatistic other) {
-    // TODO Auto-generated method stub
-    
+    CombStat or = (CombStat)other;
+    m_SumWeight = or.m_SumWeight;
+    m_StatManager = or.m_StatManager;
+    m_NbNumAtts = or.m_NbNumAtts;
+    m_NumAtts = or.m_NumAtts;
+    m_NbNomAtts = or.m_NbNomAtts;
+    m_NomAtts = or.m_NomAtts;
+    m_RegStat.copy(or.m_RegStat);     // TODO: Is this ok???
+    m_ClassStat.copy(or.m_ClassStat); // TODO: Is this ok???
+    m_WeightNum = or.m_WeightNum;
+    m_WeightNom = or.m_WeightNom;
   }
 
+  // TODO: Is this ok???
   public void addPrediction(ClusStatistic other, double weight) {
-    // TODO Auto-generated method stub
-    
+    CombStat or = (CombStat)other;
+    m_RegStat.addPrediction(or.m_RegStat, weight);
+    m_ClassStat.addPrediction(or.m_ClassStat, weight);
   }
 
+  // TODO: Is this ok???
   public void add(ClusStatistic other) {
-    // TODO Auto-generated method stub
-    
+    CombStat or = (CombStat)other;
+    m_RegStat.add(or.m_RegStat);
+    m_ClassStat.add(or.m_ClassStat);
+    m_SumWeight += or.m_SumWeight;
   }
 
+  // TODO: Is this ok???
   public void subtractFromThis(ClusStatistic other) {
-    // TODO Auto-generated method stub
-    
+    CombStat or = (CombStat)other;
+    m_RegStat.subtractFromThis(or.m_RegStat);
+    m_ClassStat.subtractFromThis(or.m_ClassStat);
+    m_SumWeight -= or.m_SumWeight;
   }
 
+  // TODO: Is this ok???
   public void subtractFromOther(ClusStatistic other) {
-    // TODO Auto-generated method stub
-    
+    CombStat or = (CombStat)other;
+    m_RegStat.subtractFromOther(or.m_RegStat);
+    m_ClassStat.subtractFromOther(or.m_ClassStat);
+    m_SumWeight = or.m_SumWeight - m_SumWeight;
   }
 
   public int getNbNominalAttributes() {
@@ -262,4 +294,35 @@ public class CombStat extends ClusStatistic {
   public int getNbNumericAttributes() {
     return m_RegStat.getNbNumericAttributes();
   }
+
+  public double[] getNumericPred() {
+    return m_RegStat.getNumericPred();
+  }
+  
+  public int[] getNominalPred() {
+    return m_ClassStat.getNominalPred();
+  } 
+
+  public Settings getSettings() {
+    return m_StatManager.getSettings();
+  }
+
+  public double getError() {
+    return getError(null);
+  }
+  
+  // TODO: This error asessement should be changed, I guess.
+  public double getError(ClusAttributeWeights scale) {
+    switch (m_StatManager.getMode()) {
+    case ClusStatManager.MODE_CLASSIFY:
+      return m_ClassStat.getError(scale);
+    case ClusStatManager.MODE_REGRESSION:
+      return m_RegStat.getError(scale);
+    case ClusStatManager.MODE_CLASIFFYANDREGRESSION:
+      return m_RegStat.getError(scale) + m_ClassStat.getError(scale);
+    }
+    System.err.println(getClass().getName()+": getError(): Invalid mode!");
+    return Double.POSITIVE_INFINITY;
+  }
+
 }

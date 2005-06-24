@@ -35,6 +35,7 @@ public class ClusStatManager implements Serializable {
 	public final static int MODE_REGRESSION = 1;
 	public final static int MODE_HIERARCHICAL = 2;
 	public final static int MODE_SSPD = 3;
+  public final static int MODE_CLASIFFYANDREGRESSION = 4;
   
 	protected int m_Mode = MODE_NONE;
 	protected transient ClusHeuristic m_Heuristic;
@@ -312,8 +313,14 @@ public class ClusStatManager implements Serializable {
 			NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
 			NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);			
 			m_StatisticAttrUse[ClusAttrType.ATTR_USE_ALL] = new CombStat(this, num, nom);
-		}      
-    
+		}
+    //  TODO: Another temporary solution!
+    if (isRuleInduce() && (getSettings().getHeuristic() == Settings.HEURISTIC_COMPACTNESS)) {
+      NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+      NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);      
+      setTargetStatistic(new CombStat(this, num, nom));
+      return;
+    }
 		switch (m_Mode) {
 		case MODE_CLASSIFY:
 			setTargetStatistic(new ClassificationStat(m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET)));
@@ -353,14 +360,33 @@ public class ClusStatManager implements Serializable {
 		String name;
 		if (isRuleInduce()) {
 			if (m_Mode == MODE_CLASSIFY) {
-				if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
-					m_Heuristic = new ClusRuleHeuristicError(createClusAttributeWeights());									
-				} else {
-					m_Heuristic = new ClusRuleHeuristicMEstimate(getSettings().getMEstimate());
-				}				
+        switch (getSettings().getHeuristic()) {
+        case Settings.HEURISTIC_REDUCED_ERROR:
+					m_Heuristic = new ClusRuleHeuristicError(createClusAttributeWeights());
+          break;
+        case Settings.HEURISTIC_MESTIMATE:
+				  m_Heuristic = new ClusRuleHeuristicMEstimate(getSettings().getMEstimate());
+          break;
+        case Settings.HEURISTIC_COMPACTNESS:
+          m_Heuristic = new ClusRuleHeuristicCompactness(createClusAttributeWeights());
+          break;
+        case Settings.HEURISTIC_DEFAULT:
+          m_Heuristic = new ClusRuleHeuristicError(createClusAttributeWeights());
+          break;
+        }
 			} else {
-				m_Heuristic = new ClusRuleHeuristicError(createClusAttributeWeights());
-			}
+        switch (getSettings().getHeuristic()) {
+        case Settings.HEURISTIC_REDUCED_ERROR:
+          m_Heuristic = new ClusRuleHeuristicError(createClusAttributeWeights());
+          break;
+        case Settings.HEURISTIC_COMPACTNESS:
+          m_Heuristic = new ClusRuleHeuristicCompactness(createClusAttributeWeights());
+          break;
+        case Settings.HEURISTIC_DEFAULT:
+          m_Heuristic = new ClusRuleHeuristicError(createClusAttributeWeights());
+          break;
+        }
+      }
 			return;
 		}
 		if (isBeamSearch()) {

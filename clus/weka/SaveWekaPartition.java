@@ -1,4 +1,6 @@
 
+package clus.weka;
+
 import java.util.*;
 import java.io.*;
 import weka.core.*;

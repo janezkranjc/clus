@@ -76,7 +76,7 @@ public class ClusRuleInduce {
 			else m_Induce.findNumeric((NumericAttrType)at, data);
 			if (sel.hasBestTest()) {
 				NodeTest test = sel.updateTest();
-				// if (Settings.VERBOSE) System.out.println("Test: "+test.getString()+" -> "+sel.m_BestHeur);
+				if (Settings.VERBOSE > 0) System.out.println("Test: "+test.getString()+" -> "+sel.m_BestHeur);
 				RowData subset = data.applyWeighted(test, ClusNode.YES);				
 				ClusRule ref_rule = rule.cloneRule();
 				ref_rule.addTest(test);
@@ -130,24 +130,52 @@ public class ClusRuleInduce {
 		return result;
 	}
 	
-	public void separateAndConquor(ClusRuleSet rset, RowData data) {
-		while (data.getNbRows() > 0) {
-			ClusRule rule = learnOneRule(data);
-			if (rule.isEmpty()) {
-				break;
-			} else {
-				rule.computePrediction();
-				rule.printModel();
-				System.out.println();
-				rset.add(rule);
-				data = rule.removeCovered(data); // TODO: Change to use weights
-			}
-		}
-		ClusStatistic left_over = m_Induce.createTotalStat(data);
-		left_over.calcMean();
-		System.out.println("Left Over: "+left_over);
-		rset.setDefaultStat(left_over);
-	}
+  public void separateAndConquor(ClusRuleSet rset, RowData data) {
+    while (data.getNbRows() > 0) {
+      ClusRule rule = learnOneRule(data);
+      if (rule.isEmpty()) {
+        break;
+      } else {
+        rule.computePrediction();
+        rule.printModel();
+        System.out.println();
+        rset.add(rule);
+        data = rule.removeCovered(data);
+      }
+    }
+    ClusStatistic left_over = m_Induce.createTotalStat(data);
+    left_over.calcMean();
+    System.out.println("Left Over: "+left_over);
+    rset.setDefaultStat(left_over);
+  }
+
+  /**
+   * separateAndConquor method which uses reweighting
+   * @param rset
+   * @param data
+   * @throws ClusException 
+   */
+  public void separateAndConquorWeighted(ClusRuleSet rset, RowData data) throws ClusException {
+    int MAXLOOPS = 20;
+    int i = 0;
+    while ((data.getNbRows() > 0) && (i < MAXLOOPS)) {
+      ClusRule rule = learnOneRule(data);
+      if (rule.isEmpty()) {
+        break;
+      } else {
+        rule.computePrediction();
+        rule.printModel();
+        System.out.println();
+        rset.add(rule);
+        data = rule.reweighCovered(data);
+        i++;
+      }
+    }
+    ClusStatistic left_over = m_Induce.createTotalStat(data);
+    left_over.calcMean();
+    System.out.println("Left Over: "+left_over);
+    rset.setDefaultStat(left_over);
+  }
 
 	public double sanityCheck(double value, ClusRule rule) {
 		double expected = estimateBeamMeasure(rule);
@@ -163,15 +191,17 @@ public class ClusRuleInduce {
 	}
 	
 	public ClusModel induce(ClusRun run) throws ClusException, IOException {
-		
-		boolean ordered = getSettings().isOrderedRules();
-		
+		int method = getSettings().getCoveringMethod();
 		RowData data = (RowData)run.getTrainingSet();
 		ClusStatistic stat = m_Induce.createTotalStat(data);
 		m_Induce.initSelectorAndSplit(stat);
 		setHeuristic(m_Induce.getSelector().getHeuristic());
-		ClusRuleSet rset = new ClusRuleSet();
-		separateAndConquor(rset, data);
+		ClusRuleSet rset = new ClusRuleSet(m_Induce.getStatManager());
+    if (method == Settings.COVERING_METHOD_STANDARD) {
+      separateAndConquor(rset, data);
+    } else {
+      separateAndConquorWeighted(rset, data);
+    }
 		rset.postProc();
     // Computing compactness
     if (getSettings().computeCompactness()) {

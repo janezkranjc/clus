@@ -221,7 +221,9 @@ public class ClassificationStat extends ClusStatistic {
 	
 	public void calcMean() {
 		m_MajorityClasses = new int[m_NbTarget];
-		for (int i = 0; i < m_NbTarget; i++) m_MajorityClasses[i] = getMajorityClass(i);
+		for (int i = 0; i < m_NbTarget; i++) {
+      m_MajorityClasses[i] = getMajorityClass(i); 
+    }
 	}
 	
 	public double[] getNumericPred() {

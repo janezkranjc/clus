@@ -1,28 +1,34 @@
 /*
- * Created on May 3, 2005
+ * Created on June 22, 2005
  */
 package clus.algo.rules;
 
 import java.io.*;
+
 import clus.data.rows.RowData;
 import clus.main.*;
-import clus.model.test.*;
 import clus.util.*;
 
-public class ClusRulesFromTree {
+public class ClusRulesRandom {
 
- /**
-  * Same as constructRules(ClusNode node, ClusStatManager mgr) but
-  * with additional parameter - ClusRun to get access to the data set.
+  public ClusRulesRandom(ClusRun cr) {
+   }
+
+/**
+  * Constructs the random rules.
   * 
   * @param cr ClusRun
-  * @param node ClusNode
-  * @param mgr ClusStatmanager
   * @return rule set
+  * @throws ClusException 
+  * @throws IOException 
   */
-  public ClusRuleSet constructRules(ClusRun cr, ClusNode node, ClusStatManager mgr)
-                                    throws ClusException, IOException {
-    ClusRuleSet res = constructRules(node, mgr);
+  public ClusRuleSet constructRules(ClusRun cr) throws IOException, ClusException {
+    ClusRuleSet res = new ClusRuleSet(cr.getStatManager());
+    ClusRule init = new ClusRule(cr.getStatManager());
+    constructRandomly(init, res);
+    res.removeEmptyRules();
+    res.simplifyRules();
+    // res.setDefaultStat(node.getTotalStat());
     RowData data = (RowData)cr.getTrainingSet();
     RowData testdata;
     res.addDataToRules(data);
@@ -36,19 +42,8 @@ public class ClusRulesFromTree {
     }
     return res;
   }
-  
-	public ClusRuleSet constructRules(ClusNode node, ClusStatManager mgr) {
-		ClusRuleSet res = new ClusRuleSet(mgr);
-		ClusRule init = new ClusRule(mgr);
-		constructRecursive(node, init, res);
-		res.removeEmptyRules();
-		res.simplifyRules();
-		res.setDefaultStat(node.getTotalStat());
-		return res;
-	}
-	
-	public void constructRecursive(ClusNode node, ClusRule rule, ClusRuleSet set) {
-		if (node.atBottomLevel()) {
+	public void constructRandomly(ClusRule rule, ClusRuleSet set) {
+/*		if (node.atBottomLevel()) {
 			rule.setDefaultStat(node.getTotalStat());
 			set.add(rule);
 		} else {
@@ -60,7 +55,7 @@ public class ClusRulesFromTree {
 				child_rule.addTest(branchTest);
 				constructRecursive(child, child_rule, set);
 			}
-		}	
+		}	*/
 	}	
 }
 
