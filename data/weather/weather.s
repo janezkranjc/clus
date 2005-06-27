@@ -1,6 +1,6 @@
 
 [Attributes]
-Clustering = 4
+% Clustering = 4
 Disable = 6
 
 [Data]
@@ -14,4 +14,4 @@ CompactnessWeights =
   NominalWeight = 0.5
 
 [Tree]
-ConvertToRules = Yes
+% ConvertToRules = Yes

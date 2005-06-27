@@ -127,6 +127,7 @@ public class Clus implements CMDLineArgsProvider {
 		preprocess();		
 		m_Induce.initialize();
 		initializeAttributeWeights(m_Data);
+		m_Induce.initializeHeuristic();
 		loadConstraintFile();		
 		initializeSummary(clss);	
 		System.out.println();
@@ -355,7 +356,7 @@ public class Clus implements CMDLineArgsProvider {
 		mgr.initNormalizationWeights(allStat);
 		mgr.initClusteringWeights();
 		mgr.initCompactnessWeights();
-		mgr.initHeuristic();
+		mgr.initHeuristic();		
 	}
 	
 	public final void preprocess(ClusData data) throws ClusException {

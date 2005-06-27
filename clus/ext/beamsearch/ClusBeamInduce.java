@@ -20,9 +20,8 @@ public class ClusBeamInduce extends ClusInduce {
 		m_Search = search;
 	}
 	
-	public void initialize() throws ClusException {
-		super.initialize();
-		m_Search.initialize();
+	public void initializeHeuristic() {
+		m_Search.initializeHeuristic();
 	}
 	
 	/*

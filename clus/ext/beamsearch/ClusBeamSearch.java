@@ -65,7 +65,7 @@ public class ClusBeamSearch extends ClusExtension {
 		return m_BeamInduce;
 	}
 	
-	public void initialize() {
+	public void initializeHeuristic() {
 		ClusStatManager smanager = m_BeamInduce.getStatManager();
 		Settings sett = smanager.getSettings();
 		m_MaxTreeSize = sett.getTreeMaxSize();

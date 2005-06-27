@@ -57,4 +57,6 @@ public abstract class ClusInduce {
 
 	public abstract ClusNode induce(ClusRun cr, MultiScore score) throws ClusException;
 
+	public void initializeHeuristic() {
+	}
 }
