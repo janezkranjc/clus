@@ -235,7 +235,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		ClusNode pruned = (ClusNode)cr.getModel(ClusModels.PRUNED);
 		if (getSettings().rulesFromTree()) {
-			ClusRulesFromTree rft = new ClusRulesFromTree();
+			ClusRulesFromTree rft = new ClusRulesFromTree(false);
       ClusRuleSet rules;
       if (getSettings().computeCompactness()) {
         rules = rft.constructRules(cr, pruned, getStatManager());
@@ -341,6 +341,7 @@ public class Clus implements CMDLineArgsProvider {
 	public final void initializeAttributeWeights(ClusData data) throws IOException, ClusException {
 		ClusStatManager mgr = getInduce().getStatManager();
 		ClusStatistic allStat = mgr.createStatistic(ClusAttrType.ATTR_USE_ALL);
+		/*
 		data.calcTotalStat(allStat);
 		if (!m_Sett.isNullTestFile()) {
 			System.out.println("Loading: "+m_Sett.getTestFile());
@@ -350,6 +351,7 @@ public class Clus implements CMDLineArgsProvider {
 			System.out.println("Loading: "+m_Sett.getPruneFile());
 			updateStatistic(m_Sett.getPruneFile(), allStat);
 		}
+		*/
 		mgr.initNormalizationWeights(allStat);
 		mgr.initClusteringWeights();
 		mgr.initCompactnessWeights();
@@ -454,12 +456,12 @@ public class Clus implements CMDLineArgsProvider {
 				ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 				mi.addModelProcessor(ClusModelInfo.TEST_ERR, new NodeIDWriter(tname+".id", hasMissing, m_Sett));
 			}
-			if (Debug.MAKE_PRED_FILES) {
+			if (m_Sett.isWriteTestSetPredictions()) {
 				String tname = FileUtil.getName(fname);
 				ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 				mi.addModelProcessor(ClusModelInfo.TEST_ERR, new PredictionWriter(tname+".pred", m_Sett));
-				String appname = m_Sett.getAppName();
-				mi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new PredictionWriter(appname+"."+idx+".pred", m_Sett));
+				/*String appname = m_Sett.getAppName();
+				mi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new PredictionWriter(appname+"."+idx+".pred", m_Sett));*/
 			}
 		}
 		if (Debug.MAKE_ID_FILES) {
@@ -546,11 +548,11 @@ public class Clus implements CMDLineArgsProvider {
 					if (err != null) err.addExample(tuple, pred);
 					ModelProcessorCollection coll = mi.getModelProcessors(type);
 					if (coll != null) {
-						coll.exampleUpdate(tuple, pred);
 						if (coll.needsModelUpdate()) {
 							model.applyModelProcessors(tuple, coll);
 							coll.modelDone();
 						}
+						coll.exampleUpdate(tuple, pred);						
 					}
 				}
 			}
@@ -562,7 +564,21 @@ public class Clus implements CMDLineArgsProvider {
 			mi.termModelProcessors(type);
 		}
 	}
-	
+
+	public void addModelErrorMeasures(ClusRun cr) {
+		for (int i = 0; i < cr.getNbModels(); i++) {
+			ClusModelInfo info = cr.getModelInfo(i);
+			// Compute rule-wise error measures
+			if (info.getModel() instanceof ClusRuleSet && m_Sett.isRuleWiseErrors()) {
+					ClusRuleSet ruleset = (ClusRuleSet)info.getModel();
+					ruleset.setError(info.getTrainingError(), ClusModel.TRAIN);
+					ruleset.setError(info.getTestError(), ClusModel.TEST);
+					info.addModelProcessor(ClusModelInfo.TRAIN_ERR, new ClusCalcRuleErrorProc(ClusModel.TRAIN));
+					info.addModelProcessor(ClusModelInfo.TEST_ERR, new ClusCalcRuleErrorProc(ClusModel.TEST));
+			}
+		}		
+	}
+
 	public final void calcError(ClusRun cr, ClusSummary summary) throws IOException, ClusException {
 		calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr);
 		TupleIterator tsiter = cr.getTestIter();
@@ -603,14 +619,14 @@ public class Clus implements CMDLineArgsProvider {
 	
 	public final void testModel(String fname) throws IOException, ClusException, ClassNotFoundException {
 		ClusModelCollectionIO io = ClusModelCollectionIO.load(fname);
-		ClusNode res = (ClusNode)io.getModel(0);
+		ClusNode res = (ClusNode)io.getModel("Pruned");
 		String test_name = FileUtil.getName(fname)+".test";
 		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(test_name)));
 		ClusRun cr = partitionData();		
 		out.println("Tree read from .model:");
 		out.println(); res.printModel(out); out.println(); 
 		out.println("Converted into rules:");
-		ClusRulesFromTree rft = new ClusRulesFromTree();
+		ClusRulesFromTree rft = new ClusRulesFromTree(false);
 		ClusRuleSet rules = rft.constructRules(res, getStatManager());
 		if (cr.getTestIter() != null) {
 			RowData testdata = (RowData)cr.getTestSet();
@@ -620,6 +636,13 @@ public class Clus implements CMDLineArgsProvider {
 		} else {
 			out.println(); rules.printModel(out); out.println();			
 		}
+		cr.getModelInfo(ClusModels.DEFAULT).setModel(pruneToRoot(res));		
+		cr.getModelInfo(ClusModels.PRUNED).setModel(res);
+		cr.getModelInfo(ClusModels.RULES).setModel(rules);
+		calcError(cr.getTestIter(), ClusModelInfo.TEST_ERR, cr);
+		out.println("Testing error");
+		out.println("-------------");
+		cr.getTestError().showError(cr, ClusModelInfo.TEST_ERR, out);		
 		out.close();		
 	}
 	
@@ -638,6 +661,7 @@ public class Clus implements CMDLineArgsProvider {
 
 	public final void singleRun(ClusClassifier clss) throws IOException, ClusException {
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
+		m_Summary.setTotalRuns(1);
 		ClusRun run = singleRunMain(clss, null);
 		saveModels(run, io);
 		io.save(getSettings().getFileAbsolute(m_Sett.getAppName()+".model"));
@@ -647,6 +671,10 @@ public class Clus implements CMDLineArgsProvider {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName()+".out", m_Schema, m_Sett);
 		ClusRun cr = partitionData();
 		induce(cr, clss);		// Induce model
+		if (summ == null) {
+			// E.g., rule-wise error measures
+			addModelErrorMeasures(cr);
+		}
 		calcError(cr, null);	// Calc error
 		if (summ != null) {
 			for (int i = 0; i < cr.getNbModels(); i++) {
@@ -677,7 +705,8 @@ public class Clus implements CMDLineArgsProvider {
 		PredictionWriter wrt = new PredictionWriter(m_Sett.getAppName()+".test.pred", m_Sett);
 		wrt.globalInitialize(m_Schema);
 		XValMainSelection sel = getXValSelection();
-		ClusModelCollectionIO io = new ClusModelCollectionIO();		
+		ClusModelCollectionIO io = new ClusModelCollectionIO();
+		m_Summary.setTotalRuns(sel.getNbFolds());
 		for (int i = 0; i < sel.getNbFolds(); i++) {
 			wrt.getWrt().println("! Fold = "+i);
 			XValSelection msel = new XValSelection(sel, i);
@@ -766,31 +795,36 @@ public class Clus implements CMDLineArgsProvider {
 		 } */
 		System.out.println();
 		m_Schema.showDebug();
-		if (getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-			ClusStatistic stat = getStatManager().createTargetStatistic();
-			m_Data.calcTotalStat(stat);
-			if (!m_Sett.isNullTestFile()) {
-				System.out.println("Loading: "+m_Sett.getTestFile());
-				updateStatistic(m_Sett.getTestFile(), stat);
-			}
-			if (!m_Sett.isNullPruneFile()) {
-				System.out.println("Loading: "+m_Sett.getPruneFile());
-				updateStatistic(m_Sett.getPruneFile(), stat);
-			}
-			stat.calcMean();
-			MyFile stats = new MyFile(getSettings().getAppName()+".distr");
-			stat.printDistribution(stats.getWriter());
-			stats.close();						
+		ClusStatistic[] stats = new ClusStatistic[2];
+		stats[0] = getStatManager().createTargetStatistic();
+		stats[1] = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
+		m_Data.calcTotalStats(stats);
+		if (!m_Sett.isNullTestFile()) {
+			System.out.println("Loading: "+m_Sett.getTestFile());
+			updateStatistic(m_Sett.getTestFile(), stats);
 		}
+		if (!m_Sett.isNullPruneFile()) {
+			System.out.println("Loading: "+m_Sett.getPruneFile());
+			updateStatistic(m_Sett.getPruneFile(), stats);
+		}
+		ClusStatistic.calcMeans(stats);			
+		MyFile statf = new MyFile(getSettings().getAppName()+".distr");
+		statf.log("** Target:");			
+		stats[0].printDistribution(statf.getWriter());
+		statf.log("** All:");
+		stats[1].printDistribution(statf.getWriter());
+		statf.close();						
 	}
 	
-	public void updateStatistic(String fname, ClusStatistic stat) throws ClusException, IOException {
+	public void updateStatistic(String fname, ClusStatistic[] stats) throws ClusException, IOException {
 		MyClusInitializer init = new MyClusInitializer();
 		TupleIterator iter = new DiskTupleIterator(fname, init, getPreprocs(true), m_Sett);
 		iter.init();
 		DataTuple tuple = iter.readTuple();
 		while (tuple != null) {
-			stat.updateWeighted(tuple, 1.0);
+			for (int i = 0; i < stats.length; i++) {
+				stats[i].updateWeighted(tuple, 1.0);
+			}
 			tuple = iter.readTuple();
 		}
 		iter.close();

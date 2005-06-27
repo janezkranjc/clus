@@ -66,4 +66,8 @@ public class ClusWekaModel implements ClusModel {
 	public void attachModel(Hashtable table) {
 		System.err.println(getClass().getName()+"attachModel() not implemented");
 	}
+	
+  public int getID() {
+  	return 0;
+  }	
 }

@@ -215,7 +215,17 @@ public class ClusReader {
 			}
 			ch = reader.read();
 		}
-		if (nbrows == 0) throw new IOException("Empty @data section in ARFF file");
+		// Sometimes it is useful to have empty files :-)
+		// if (nbrows == 0) throw new IOException("Empty @data section in ARFF file");
 		return nbrows;
+	}
+
+	public boolean ensureAtEnd() throws IOException {
+		Reader reader = m_Token.getReader();
+		int ch = reader.read();
+		while (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') {
+			ch = reader.read();
+		}
+		return ch == -1;
 	}
 }

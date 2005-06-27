@@ -43,4 +43,10 @@ public abstract class ClusData {
 	public abstract int[] getNominal(int idx);
 	
 	public abstract void preprocess(int pass, DataPreprocs pps) throws ClusException;
+	
+	public void calcTotalStats(ClusStatistic[] stats) {
+		for (int i = 0; i < stats.length; i++) {
+			calcTotalStat(stats[i]);
+		}
+	}
 }

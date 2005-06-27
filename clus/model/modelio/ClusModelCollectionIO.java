@@ -39,7 +39,15 @@ public class ClusModelCollectionIO implements Serializable {
 	public ClusModel getModel(int index) {
 		ClusModelInfo info = (ClusModelInfo)m_ModelInfos.get(index);
 		return info.getModel();
-	}	
+	}
+	
+	public ClusModel getModel(String name) {
+		for (int i = 0; i < getNbModels(); i++) {
+			ClusModelInfo info = (ClusModelInfo)m_ModelInfos.get(i);
+			if (info.getName().equals(name)) return info.getModel();
+		}
+		return null;
+	}
 	
 	public void save(String filename) throws IOException {
 		ObjectSaveStream strm = new ObjectSaveStream(new FileOutputStream(filename));

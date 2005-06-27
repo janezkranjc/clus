@@ -30,7 +30,7 @@ public class ClassHierIntPreproc extends ClassHierarchyPreproc {
 		addIntermediateElems(ct);
 	}		
 	
-	public void done(int pass) {
+	public void done(int pass) throws ClusException {
 		super.done(pass);
 		if (pass == 0) createScratch();
 	}

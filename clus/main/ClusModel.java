@@ -25,4 +25,6 @@ public interface ClusModel {
 	public void printModel(PrintWriter wrt);
 	
 	public void attachModel(Hashtable table) throws ClusException;
+	
+	public int getID();
 }

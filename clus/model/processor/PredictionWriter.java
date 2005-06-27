@@ -16,10 +16,12 @@ public class PredictionWriter extends ClusModelProcessor {
 	protected MyArray m_Attrs;
 	protected boolean m_Global;
 	protected Settings m_Sett;
+	protected StringBuffer m_ModelParts;
 	
 	public PredictionWriter(String fname, Settings sett) {
 		m_Fname = fname;
 		m_Sett = sett;
+		m_ModelParts = new StringBuffer();		
 	}
 	
 	public void globalInitialize(ClusSchema schema) throws IOException {
@@ -43,6 +45,15 @@ public class PredictionWriter extends ClusModelProcessor {
 		if (!m_Global) close();
 	}
 
+	public boolean needsModelUpdate() {
+		return true;
+	}	
+	
+	public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
+				if (m_ModelParts.length() != 0) m_ModelParts.append("+");
+				m_ModelParts.append(String.valueOf(model.getID()));
+	}	
+	
 	public void exampleUpdate(DataTuple tuple, ClusStatistic distr) {
 		for (int j = 0; j < m_Attrs.size(); j++) {
 			if (j != 0) m_Writer.print(",");
@@ -50,7 +61,10 @@ public class PredictionWriter extends ClusModelProcessor {
 			m_Writer.print(at.getString(tuple));					
 		}
 		m_Writer.print(",");
-		m_Writer.println(distr.getString());
+		m_Writer.print(distr.getPredictString());
+		m_Writer.print(",'"+m_ModelParts+"'");
+		m_Writer.println();
+		m_ModelParts.setLength(0);
 	}
 	
 	private void doInitialize(ClusSchema schema) throws IOException {

@@ -79,7 +79,7 @@ public class NominalAttrType extends ClusAttrType {
 		return VALUE_TYPE_INT;
 	}
 
-	public int getNbValues() {
+	public final int getNbValues() {
 		return m_NbValues;
 	}
 

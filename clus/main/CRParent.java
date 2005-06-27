@@ -19,6 +19,10 @@ public class CRParent {
 		return (ClusModelInfo)m_Models.elementAt(i);
 	}
 	
+	public void setModelInfo(int i, ClusModelInfo info) {
+		m_Models.setElementAt(info, i);
+	}	
+	
 	public ClusModel getModel(int i) {
 		return getModelInfo(i).getModel();
 	}

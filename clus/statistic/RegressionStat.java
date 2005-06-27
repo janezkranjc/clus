@@ -1,6 +1,10 @@
 package clus.statistic;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.*;
+
+import jeans.util.StringUtils;
 
 import clus.main.Settings;
 import clus.util.*;
@@ -260,4 +264,16 @@ public class RegressionStat extends ClusStatistic {
 		}
 		System.out.println("err: "+getError());		
 	}
+	
+	public void printDistribution(PrintWriter wrt) throws IOException {
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+		for (int i = 0; i < m_Attrs.length; i++) {
+			wrt.print(StringUtils.printStr(m_Attrs[i].getName(), 35));
+			wrt.print(" [");
+			wrt.print(fr.format(getMean(i)));
+			wrt.print(",");
+			wrt.print(fr.format(getVariance(i)));
+			wrt.println("]");	
+		}
+	}		
 }

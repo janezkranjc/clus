@@ -66,6 +66,10 @@ public abstract class ClusStatistic implements Serializable {
 	public abstract void calcMean();
 	
 	public abstract String getString();
+	
+	public String getPredictString() {
+		return getString();
+	}
 
 	public abstract void reset();
 
@@ -172,7 +176,17 @@ public abstract class ClusStatistic implements Serializable {
 		return getString();
 	}
 	
+	public String getExtraInfo() {
+		return null;
+	}
+	
 	public void printDistribution(PrintWriter wrt) throws IOException {
 		wrt.println(getClass().getName()+" does not implement printDistribution()");
 	}
+
+	public static void calcMeans(ClusStatistic[] stats) {
+		for (int i = 0; i < stats.length; i++) {
+			stats[i].calcMean();
+		}
+	}	
 }

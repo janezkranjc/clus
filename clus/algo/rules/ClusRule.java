@@ -13,6 +13,7 @@ import clus.statistic.*;
 import clus.model.test.*;
 import clus.util.*;
 import clus.data.type.*;
+import clus.error.*;
 
 public class ClusRule implements ClusModel, Serializable {
   
@@ -27,6 +28,7 @@ public class ClusRule implements ClusModel, Serializable {
   protected ClusStatManager m_StatManager;
   /* Combined statistics for training and testing data */
   protected CombStat[] m_CombStat = new CombStat[2];
+  protected ClusErrorParent[] m_Errors;
 	
   public ClusRule(ClusStatManager statManager) {
     m_StatManager = statManager;
@@ -203,11 +205,32 @@ public class ClusRule implements ClusModel, Serializable {
 		wrt.print("THEN "+m_Default.getString());
 		if (getID() != 0) wrt.println(" ("+getID()+")");
 		else wrt.println();		
+		String extra = m_Default.getExtraInfo();
+		if (extra != null) {
+			// Used, e.g., in hierarchical multi-classification
+			wrt.println();
+			wrt.print(extra);
+		}
     if (getSettings().computeCompactness() && (m_CombStat[ClusModel.TRAIN] != null)) {
       wrt.println("\n   Compactness (train): " + m_CombStat[ClusModel.TRAIN].getCompactnessString());
       if (m_CombStat[ClusModel.TEST] != null) {
         wrt.println("   Compactness (test):  " + m_CombStat[ClusModel.TEST].getCompactnessString() + "\n");
       }
+    }
+    if (hasErrors()) {
+    	  // Enable with setting PrintRuleWiseErrors = Yes
+    		ClusErrorParent train_err = getError(ClusModel.TRAIN);
+    		if (train_err != null) {
+    			wrt.println();
+    			wrt.println("Training error");
+    			train_err.showError(wrt);    			
+    		}
+    		ClusErrorParent test_err = getError(ClusModel.TEST);
+    		if (test_err != null) {
+    			wrt.println();
+    			wrt.println("Testing error");
+    			test_err.showError(wrt);    			
+    		}    		
     }
 	}
 
@@ -281,5 +304,22 @@ public class ClusRule implements ClusModel, Serializable {
   
   public ArrayList getData() {
   	return m_Data;
+  }
+
+  /**
+   * For computation of rule-wise error measures
+   */
+  public void setError(ClusErrorParent error, int subset) {
+  	if (m_Errors == null) m_Errors = new ClusErrorParent[2];
+  	m_Errors[subset] = error;
+  }
+  
+  public ClusErrorParent getError(int subset) {
+  	if (m_Errors == null) return null;
+  	return m_Errors[subset];
+  }
+  
+  public boolean hasErrors() {
+  	return m_Errors != null;
   }
 }

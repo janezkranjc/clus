@@ -35,13 +35,14 @@ public class HierRemoveInsigClasses extends PruneTree {
 	
 	public void prune(ClusNode node) {
 		m_Pruner.prune(node);
-/*		if (m_NoRoot) {
-			executeNoRootPrune(node);
-		}
-*/		
 		if (m_SigLevel != 0.0 && m_PruneSet.getNbRows() != 0) {
+			// Make sure global statistic is also computed on prune set!
 			m_Bonferroni = computeNRecursive(node);
-			executeRecursive(node, (WHTDStatistic)node.getTotalStat(), (RowData)m_PruneSet);
+			WHTDStatistic global = (WHTDStatistic)node.getTotalStat().cloneStat();
+			m_PruneSet.calcTotalStat(global);
+			global.calcMean();
+			executeRecursive(node, global, (RowData)m_PruneSet);
+			// executeRecursive(node, (WHTDStatistic)node.getTotalStat(), (RowData)m_PruneSet);
 		}
 	}
 	
@@ -55,22 +56,6 @@ public class HierRemoveInsigClasses extends PruneTree {
 			result += computeNRecursive((ClusNode)node.getChild(i));
 		}
 		return result;
-	}
-	
-	public boolean executeNoRootPrune(ClusNode node) {
-		int nbok = 0;
-		int arity = node.getNbChildren();
-		for (int i = 0; i < arity; i++) {
-			boolean isok = executeNoRootPrune((ClusNode)node.getChild(i));
-			if (isok) nbok++;
-		}
-		if (nbok == 0) {
-			node.makeLeaf();
-		}
-		if (node.atBottomLevel()) {
-			return ((WHTDStatistic)node.getTotalStat()).isValid();
-		}
-		return true;
 	}
 	
 	public boolean executeRecursive(ClusNode node, WHTDStatistic global, RowData data) {

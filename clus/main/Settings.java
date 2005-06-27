@@ -144,9 +144,10 @@ public class Settings implements Serializable {
 	protected INIFileBool m_OrderedRules;
   protected INIFileNominal m_CoveringMethod;
   protected INIFileDouble m_CoveringWeight;
-	protected INIFileBool m_ComputeCompactness;
+	protected INIFileBool m_ComputeCompactness;	
 	protected INIFileNominalOrDoubleOrVector m_CompactnessWeights;
   protected INIFileBool m_RandomRules;
+  protected INIFileBool m_RuleWiseErrors;
 	
 	/* Constraints */
 	protected INIFileString m_SyntacticConstrFile;
@@ -161,6 +162,7 @@ public class Settings implements Serializable {
 	protected INIFileBool m_ShowForest;
 	protected INIFileBool m_ShowBrFreq;
 	protected INIFileBool m_ShowUnknown;
+	protected INIFileBool m_WriteTestPredictions;
 	
 	/* Beam Search For Trees */
 	protected INIFileSection m_SectionBeam;
@@ -254,6 +256,7 @@ public class Settings implements Serializable {
 		m_CompactnessWeights.setDoubleArray(FOUR_ONES);
 		m_CompactnessWeights.setArrayIndexNames(true);
     rules.addNode(m_RandomRules = new INIFileBool("RandomRules", false));
+    rules.addNode(m_RuleWiseErrors = new INIFileBool("PrintRuleWiseErrors", true));
 		
 		INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic", NONE));
@@ -268,6 +271,7 @@ public class Settings implements Serializable {
 		output.addNode(m_OutTrainErr = new INIFileBool("TrainErrors", true));
 		output.addNode(m_ShowUnknown = new INIFileBool("UnknownFrequency", false));
 		output.addNode(m_ShowBrFreq = new INIFileBool("BranchFrequency", false));
+		output.addNode(m_WriteTestPredictions = new INIFileBool("WriteTestSetPredictions", false));
 		
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
 		m_SectionHierarchical.addNode(HIER_W_PARAM = new INIFileDouble("WParam", 0.75));
@@ -382,6 +386,10 @@ public class Settings implements Serializable {
   public boolean isRandomRules() {
     return m_RandomRules.getValue();
   }
+  
+  public boolean isRuleWiseErrors() {
+  	return m_RuleWiseErrors.getValue();
+  }
 
   public int getCoveringMethod() {
     return m_CoveringMethod.getValue();
@@ -479,6 +487,10 @@ public class Settings implements Serializable {
 	
 	public boolean isShowBranchFreq() {
 		return m_ShowBrFreq.getValue();
+	}
+	
+	public boolean isWriteTestSetPredictions() {
+		return m_WriteTestPredictions.getValue();
 	}
 	
 	public boolean isBinarySplit() {

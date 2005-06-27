@@ -11,6 +11,12 @@ import clus.util.*;
 
 public class ClusRulesFromTree {
 
+	protected boolean m_Validated;
+	
+	public ClusRulesFromTree(boolean onlyValidated) {
+		m_Validated = onlyValidated;
+	}
+	
  /**
   * Same as constructRules(ClusNode node, ClusStatManager mgr) but
   * with additional parameter - ClusRun to get access to the data set.
@@ -49,7 +55,7 @@ public class ClusRulesFromTree {
 	
 	public void constructRecursive(ClusNode node, ClusRule rule, ClusRuleSet set) {
 		if (node.atBottomLevel()) {
-			if (node.getTotalStat().isValidPrediction()) {
+			if (!m_Validated || node.getTotalStat().isValidPrediction()) {
 				rule.setDefaultStat(node.getTotalStat());
 				rule.setID(node.getID());
 				set.add(rule);

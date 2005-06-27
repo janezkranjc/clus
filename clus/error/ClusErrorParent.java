@@ -143,7 +143,7 @@ public class ClusErrorParent implements Serializable {
 		out.println("Number of examples: "+getNbExamples());
 		for (int i = 0; i < nb; i++) {
 			ClusError err1 = getError(i);
-			out.println(err1.getName());
+			out.print(err1.getName()+": ");
 			err1.showModelError(out, ClusError.DETAIL_SMALL);
 		}			
 	}	
@@ -161,8 +161,10 @@ public class ClusErrorParent implements Serializable {
 				ClusModelInfo inf = models.getModelInfo(j);
 				ClusErrorParent parent = inf.getError(type);		
 				ClusError err2 = parent.getError(i);
-				out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
-				err2.showModelError(out, ClusError.DETAIL_SMALL);
+				if (inf.getModel() != null) {
+					out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
+					err2.showModelError(out, ClusError.DETAIL_SMALL);
+				}
 			}
 		}			
 	}

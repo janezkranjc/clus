@@ -1,6 +1,10 @@
 package clus.statistic;
 
 import jeans.math.*;
+import jeans.util.StringUtils;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.*;
 
 import clus.main.*;
@@ -145,9 +149,12 @@ public class ClassificationStat extends ClusStatistic {
 	
 	public void updateWeighted(DataTuple tuple, double weight) {
 		m_SumWeight += weight;		
-		int[] values = tuple.m_Ints;
+		int[] values = tuple.m_Ints;		
 		for (int i = 0; i < m_NbTarget; i++) {
-			m_ClassCounts[i][values[m_Attrs[i].getArrayIndex()]] += weight;
+			int val = values[m_Attrs[i].getArrayIndex()];
+			if (val != m_Attrs[i].getNbValues()) {				
+				m_ClassCounts[i][val] += weight;
+			}
 		}	
 	}
 	
@@ -349,4 +356,20 @@ public class ClassificationStat extends ClusStatistic {
 	public String toString() {
 		return getString();
 	}
+	
+	public void printDistribution(PrintWriter wrt) throws IOException {
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+		for (int i = 0; i < m_Attrs.length; i++) {
+			wrt.print(StringUtils.printStr(m_Attrs[i].getName(), 35));
+			wrt.print(" [");
+			double sum = 0.0;
+			for (int j = 0; j < m_ClassCounts[i].length; j++) {
+				if (j != 0) wrt.print(",");
+				wrt.print(m_Attrs[i].getValue(j)+":");
+				wrt.print(fr.format(m_ClassCounts[i][j]));
+				sum += m_ClassCounts[i][j];
+			}
+			wrt.println("]: "+fr.format(sum));	
+		}
+	}	
 }

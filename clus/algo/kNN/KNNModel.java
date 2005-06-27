@@ -101,4 +101,8 @@ public class KNNModel implements ClusModel {
 	public final void initTotalStat(ClusStatManager smgr) {
 		m_TotStat = smgr.createStatistic();
 	}*/
+	
+  public int getID() {
+  	return 0;
+  }	
 }

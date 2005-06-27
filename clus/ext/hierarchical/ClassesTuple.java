@@ -23,7 +23,7 @@ public class ClassesTuple implements MySparseVector, Serializable {
 	
 	public ClassesTuple(String constr, StringTable table) throws ClusException {
 		int idx = 0;
-		StringTokenizer tokens = new StringTokenizer(constr, "@@");
+		StringTokenizer tokens = new StringTokenizer(constr, "@");
 		int tlen = tokens.countTokens();
 		m_Tuple = new IndexedItem[tlen];
 		while (tokens.hasMoreTokens()) {

@@ -37,7 +37,7 @@ public class DataPreprocs {
 		}
 	}	
 	
-	public void done(int pass) {
+	public void done(int pass) throws ClusException {
 		int nb = m_Preprocs.size();
 		for (int i = 0; i < nb; i++) {
 			TuplePreproc pp = (TuplePreproc)m_Preprocs.elementAt(i);

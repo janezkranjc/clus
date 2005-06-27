@@ -10,6 +10,6 @@ public interface TuplePreproc {
 	
 	public void preprocSingle(DataTuple tuple) throws ClusException;
 	
-	public void done(int pass);	
+	public void done(int pass) throws ClusException;	
 
 }

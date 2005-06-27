@@ -44,9 +44,18 @@ public class ClusView {
 		if (!reader.hasMoreTokens()) return null;
 		DataTuple tuple = data.createTuple();	
 		int nb = m_Attr.size();
-		for (int j = 0; j < nb; j++) {
-			ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(j);
-			attr.read(reader, tuple);
+		if (nb > 0) {
+			try {
+				ClusSerializable attr_0 = (ClusSerializable)m_Attr.elementAt(0);
+				attr_0.read(reader, tuple);
+			} catch (IOException e) {
+				if (reader.ensureAtEnd()) return null;
+				else throw e;
+			}
+			for (int j = 1; j < nb; j++) {
+				ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(j);
+				attr.read(reader, tuple);
+			}
 		}
 		reader.readEol();
 		return tuple;

@@ -5,6 +5,7 @@ import clus.error.*;
 public class ClusSummary extends CRParent {
 
 	protected int m_Runs;
+	protected int m_TotalRuns = 1;
 	protected ClusErrorParent m_TrainErr;
 	protected ClusErrorParent m_TestErr;
 	protected ClusErrorParent m_ValidErr;
@@ -48,6 +49,14 @@ public class ClusSummary extends CRParent {
 				
 	public int getNbRuns() {
 		return m_Runs;
+	}
+	
+	public int getTotalRuns() {
+		return m_TotalRuns;
+	}
+	
+	public void setTotalRuns(int tot) {
+		m_TotalRuns = tot;
 	}
 		
 	public ClusSummary getSummaryClone() {

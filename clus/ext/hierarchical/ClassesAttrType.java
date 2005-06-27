@@ -61,7 +61,7 @@ public class ClassesAttrType extends ClusAttrType {
 	
 	public String getString(DataTuple tuple) {
 		ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_ArrayIndex];
-		return ct.toStringHumanNoIntermediate(m_Hier);
+		return "["+ct.toStringHumanNoIntermediate(m_Hier)+"]";
 	}
 	
 	public ClusSerializable createRowSerializable(RowData data) throws ClusException {

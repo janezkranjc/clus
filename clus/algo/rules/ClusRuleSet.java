@@ -9,6 +9,7 @@ import java.util.*;
 import jeans.util.*;
 import clus.data.rows.*;
 import clus.data.type.*;
+import clus.error.ClusErrorParent;
 import clus.main.*;
 import clus.statistic.*;
 import clus.util.*;
@@ -22,6 +23,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
   /* Array of tuples covered by the default rule. */
   protected ArrayList m_DefaultData = new ArrayList();
   protected ClusStatManager m_StatManager;
+  protected boolean m_HasRuleErrors;
   
   /**
    * Constructor for this class.
@@ -81,9 +83,6 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 	}
 	
-	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException {
-	}
-
 	public void attachModel(Hashtable table) throws ClusException {
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
@@ -92,7 +91,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	}
 	
 	public void printModel(PrintWriter wrt) {
-    boolean headers = getSettings().computeCompactness();
+    boolean headers = getSettings().computeCompactness() || hasRuleErrors();
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
       if (headers) {
@@ -232,5 +231,41 @@ public class ClusRuleSet implements ClusModel, Serializable {
       ((ClusRule)m_Rules.get(i)).removeDataTuples();
     }
     m_DefaultData.clear();
+  }
+
+	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException {
+    for (int i = 0; i < getModelSize(); i++) {
+      ClusRule rule = getRule(i);
+      if (rule.covers(tuple)) {
+      	for (int j = 0; j < mproc.size(); j++) {
+      		ClusModelProcessor proc = (ClusModelProcessor)mproc.elementAt(j);
+      		proc.modelUpdate(tuple, rule);
+      	}      	
+      }
+    }
+	}
+    
+	public final void applyModelProcessor(DataTuple tuple, ClusModelProcessor proc) throws IOException {
+      for (int i = 0; i < getModelSize(); i++) {
+        ClusRule rule = getRule(i);
+        if (rule.covers(tuple)) proc.modelUpdate(tuple, rule);
+      }
+	}
+  
+  public void setError(ClusErrorParent error, int subset) {
+  	m_HasRuleErrors = true;  	
+  	for (int i = 0; i < m_Rules.size(); i++) {  		
+  		ClusRule rule = getRule(i);
+  		if (error != null) rule.setError(error.getErrorClone(), subset);
+  		else rule.setError(null, subset);
+  	}  	
+  }
+  
+  public boolean hasRuleErrors() {
+  	return m_HasRuleErrors;
+  }
+  
+  public int getID() {
+  	return 0;
   }
 }

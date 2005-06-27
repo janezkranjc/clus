@@ -4,6 +4,7 @@
 package clus.statistic;
 
 import java.text.NumberFormat;
+import java.io.*;
 
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.DataTuple;
@@ -54,7 +55,13 @@ public class CombStat extends ClusStatistic {
   public RegressionStat getRegressionStat() {
     return m_RegStat;
   }
-
+  
+  public void updateWeighted(DataTuple tuple, double weight) {
+    m_RegStat.updateWeighted(tuple, weight);
+    m_ClassStat.updateWeighted(tuple, weight);
+    m_SumWeight += weight;  	
+  }
+  
   /**
    * Adds the tuple to the statistics
    * @param tuple
@@ -325,4 +332,8 @@ public class CombStat extends ClusStatistic {
     return Double.POSITIVE_INFINITY;
   }
 
+  public void printDistribution(PrintWriter wrt) throws IOException {
+  	m_ClassStat.printDistribution(wrt);
+  	m_RegStat.printDistribution(wrt);
+  }
 }

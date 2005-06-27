@@ -117,21 +117,21 @@ public class WHTDStatistic extends RegressionStat {
 			for (int i = 0; i < m_DiscrMean.length; i++) {
 				if (m_DiscrMean[i] > 0.5) {
 					/* Predicted class i, check sig? */
-					int nb_correct = (int)(m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
-					int sampleSize = (int)m_Validation.getTotalWeight();
-					int populationSize = (int)m_Global.getTotalWeight();
-					int numberOfSuccesses = (int)(m_Global.getTotalWeight()*m_Global.m_Means[i]);
-					int upper = Math.min(sampleSize, numberOfSuccesses);
-					int nb_other = populationSize - numberOfSuccesses;
-					int min_this = sampleSize - nb_other;
-					int lower = Math.max(nb_correct, min_this);
-					if (nb_correct < min_this) {
+					int pop_tot = (int)m_Global.getTotalWeight();
+					int pop_cls = (int)(m_Global.getTotalWeight()*m_Global.m_Means[i]);
+					int rule_tot = (int)m_Validation.getTotalWeight();
+					int rule_cls = (int)(m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
+					int upper = Math.min(rule_tot, pop_cls);
+					int nb_other = pop_tot - pop_cls;
+					int min_this = rule_tot - nb_other;
+					int lower = Math.max(rule_cls, min_this);
+					if (rule_cls < min_this) {
 						System.err.println("BUG?");
 					}
 					if (lower > upper) {
 						System.err.println("BUG2?");
 					}
-					HypergeometricDistribution dist = m_Fac.createHypergeometricDistribution(populationSize, numberOfSuccesses, sampleSize);
+					HypergeometricDistribution dist = m_Fac.createHypergeometricDistribution(pop_tot, pop_cls, rule_tot);
 					try {
 						double stat = dist.cumulativeProbability(lower, upper);
 						if (stat >= m_SigLevel) {
@@ -160,8 +160,11 @@ public class WHTDStatistic extends RegressionStat {
 	}
 	
 	public String getString() {
-//		return m_MeanTuple.toStringHuman()+" "+super.getString();
 		return m_MeanTuple.toStringHuman()+" ["+ClusFormat.TWO_AFTER_DOT.format(getTotalWeight())+"]";
+	}
+	
+	public String getPredictString() {
+		return "["+m_MeanTuple.toStringHuman()+"]";
 	}
 	
 	public boolean isValidPrediction() {
@@ -194,5 +197,47 @@ public class WHTDStatistic extends RegressionStat {
 	public void printDistribution(PrintWriter wrt) throws IOException {
 		wrt.println("Total: "+m_SumWeight);
 		printDistributionRec(wrt, m_Hier.getRoot());
+	}
+
+	public void getExtraInfoRec(ClassTerm node, double[] discrmean, StringBuffer out) {
+		if (m_Validation != null) {
+			int i = node.getIndex();
+			if (discrmean[i] > 0.5) {
+				/* Predicted class i, check sig? */
+				int pop_tot = (int)m_Global.getTotalWeight();
+				int pop_cls = (int)(m_Global.getTotalWeight()*m_Global.m_Means[i]);
+				int rule_tot = (int)m_Validation.getTotalWeight();
+				int rule_cls = (int)(m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
+				int upper = Math.min(rule_tot, pop_cls);
+				int nb_other = pop_tot - pop_cls;
+				int min_this = rule_tot - nb_other;
+				int lower = Math.max(rule_cls, min_this);				
+				HypergeometricDistribution dist = m_Fac.createHypergeometricDistribution(pop_tot, pop_cls, rule_tot);
+				try {
+					double stat = dist.cumulativeProbability(lower, upper);
+					out.append(node.toString()+":");
+					out.append(" pop_tot = "+String.valueOf(pop_tot));
+					out.append(" pop_cls = "+String.valueOf(pop_cls));
+					out.append(" rule_tot = "+String.valueOf(rule_tot));
+					out.append(" rule_cls = "+String.valueOf(rule_cls));
+					out.append(" upper = "+String.valueOf(upper));					
+					out.append(" prob = "+ClusFormat.FOUR_AFTER_DOT.format(stat));
+					out.append("\n");
+				} catch (MathException me) {
+					System.err.println("Math error: "+me.getMessage());
+				}
+			}
+		}
+		for (int i = 0; i < node.getNbChildren(); i++) {
+			getExtraInfoRec((ClassTerm)node.getChild(i), discrmean, out);
+		}
+	}
+
+	public String getExtraInfo() {
+		StringBuffer res = new StringBuffer();		
+		ClassesTuple meantuple = m_Hier.getBestTupleMaj(m_Means);
+		double[] discrmean = meantuple.getVectorWithParents(m_Hier);
+		getExtraInfoRec(m_Hier.getRoot(), discrmean, res);
+		return res.toString();
 	}
 }
