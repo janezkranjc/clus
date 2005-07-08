@@ -405,11 +405,9 @@ public class ClusSchema implements Serializable {
 	
 	public final int getMaxNbStats() {
 		int max = 0;
-		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType attr = (ClusAttrType)m_Attr.elementAt(j);
-			if (attr.getStatus() == ClusAttrType.STATUS_NORMAL) {
-				max = Math.max(attr.getMaxNbStats(), max);
-			}				
+		ClusAttrType[] descr = getAllAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE);
+		for (int i = 0; i < descr.length; i++) {
+				max = Math.max(descr[i].getMaxNbStats(), max);
 		}	
 		return max;
 	}
