@@ -322,4 +322,13 @@ public class ClusRule implements ClusModel, Serializable {
   public boolean hasErrors() {
   	return m_Errors != null;
   }
+
+  public void computeCoverStat(RowData data, ClusStatistic stat) {
+  	int nb = data.getNbRows();
+		stat.setSDataSize(nb);
+		for (int i = 0; i < nb; i++) {
+			stat.updateWeighted(data.getTuple(i), i);
+		}
+		stat.optimizePreCalc(data);
+  }
 }

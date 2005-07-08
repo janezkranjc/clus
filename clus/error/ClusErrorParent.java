@@ -19,6 +19,7 @@ public class ClusErrorParent implements Serializable {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
 	
 	protected int m_NbExamples;
+	protected int m_NbCover;
 	protected TargetSchema m_Schema;
 	protected ClusStatManager m_StatManager;
 	protected Vector m_Error = new Vector();	
@@ -121,12 +122,15 @@ public class ClusErrorParent implements Serializable {
 	}*/
 	
 	public void addExample(DataTuple tuple, ClusStatistic stat) {
-		int nb = m_Error.size();
-		for (int i = 0; i < nb; i++) {
-			ClusError err = (ClusError)m_Error.elementAt(i);
-			err.addExample(tuple, stat);
-		}
 		m_NbExamples++;
+		if (stat != null) {
+			m_NbCover++;
+			int nb = m_Error.size();
+			for (int i = 0; i < nb; i++) {
+				ClusError err = (ClusError)m_Error.elementAt(i);
+				err.addExample(tuple, stat);
+			}
+		}
 	}	
 	
 	public void add(ClusErrorParent par) {
@@ -136,11 +140,12 @@ public class ClusErrorParent implements Serializable {
 			err.add(par.getError(i));
 		}
 		m_NbExamples += par.getNbExamples();
+		m_NbCover += par.getNbCover();
 	}
 
 	public void showError(PrintWriter out) {
 		int nb = m_Error.size();
-		out.println("Number of examples: "+getNbExamples());
+		out.println("Number of examples: "+getNbExamples()+" (covered: "+getNbCover()+")");
 		for (int i = 0; i < nb; i++) {
 			ClusError err1 = getError(i);
 			out.print(err1.getName()+": ");
@@ -152,7 +157,7 @@ public class ClusErrorParent implements Serializable {
 		int nb = m_Error.size();
 		ClusModelInfo definf = models.getModelInfo(ClusModels.DEFAULT);
 		ClusErrorParent defpar = definf.getError(type);
-		out.println("Number of examples: "+defpar.getNbExamples());
+		out.println("Number of examples: "+defpar.getNbExamples()+" (covered: "+getNbCover()+")");
 		for (int i = 0; i < nb; i++) {
 			ClusError err1 = getError(i);
 			out.println(err1.getName());
@@ -193,6 +198,10 @@ public class ClusErrorParent implements Serializable {
 	
 	public int getNbExamples() {
 		return m_NbExamples;
+	}
+	
+	public int getNbCover() {
+		return m_NbCover;
 	}
 	
 	public NumberFormat getFormat() {

@@ -110,7 +110,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
       wrt.println("Default rule:");
       wrt.println("=============");
     }
-		wrt.println("Default = "+m_Default.getString());
+		wrt.println("Default = "+(m_Default == null ? "N/A" : m_Default.getString()));
 	}
 	
 	public void printModelAndExamples(PrintWriter wrt, ClusSchema schema) {
