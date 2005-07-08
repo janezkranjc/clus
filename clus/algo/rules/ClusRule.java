@@ -327,7 +327,10 @@ public class ClusRule implements ClusModel, Serializable {
   	int nb = data.getNbRows();
 		stat.setSDataSize(nb);
 		for (int i = 0; i < nb; i++) {
-			stat.updateWeighted(data.getTuple(i), i);
+			DataTuple tuple = data.getTuple(i);
+			if (covers(tuple)) {
+				stat.updateWeighted(tuple, i);
+			}
 		}
 		stat.optimizePreCalc(data);
   }
