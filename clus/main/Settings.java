@@ -225,8 +225,9 @@ public class Settings implements Serializable {
 		attrs.addNode(m_Weights = new INIFileNominalOrDoubleOrVector("Weights", NORMALIZATIONS));
 		m_Weights.setNominal(NORMALIZATION_DEFAULT);
 		attrs.addNode(m_ClusteringWeights = new INIFileNominalOrDoubleOrVector("ClusteringWeights", EMPTY));
-		m_ClusteringWeights.setDouble(1.0);		
-		
+		m_ClusteringWeights.setDouble(1.0);
+		m_ClusteringWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);
+				
 		INIFileSection numeric = new INIFileSection("Numeric");
 		numeric.addNode(m_FTest = new INIFileDouble("FTest", 1.0));
 		numeric.addNode(m_MultiScore = new INIFileString("MultiScore", NONE));
@@ -256,7 +257,7 @@ public class Settings implements Serializable {
 		m_CompactnessWeights.setDoubleArray(FOUR_ONES);
 		m_CompactnessWeights.setArrayIndexNames(true);
     rules.addNode(m_RandomRules = new INIFileBool("RandomRules", false));
-    rules.addNode(m_RuleWiseErrors = new INIFileBool("PrintRuleWiseErrors", true));
+    rules.addNode(m_RuleWiseErrors = new INIFileBool("PrintRuleWiseErrors", false));
 		
 		INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic", NONE));

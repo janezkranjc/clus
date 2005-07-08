@@ -342,17 +342,17 @@ public class Clus implements CMDLineArgsProvider {
 	public final void initializeAttributeWeights(ClusData data) throws IOException, ClusException {
 		ClusStatManager mgr = getInduce().getStatManager();
 		ClusStatistic allStat = mgr.createStatistic(ClusAttrType.ATTR_USE_ALL);
-		/*
 		data.calcTotalStat(allStat);
+		ClusStatistic[] stats = new ClusStatistic[1];
+		stats[0] = allStat;
 		if (!m_Sett.isNullTestFile()) {
 			System.out.println("Loading: "+m_Sett.getTestFile());
-			updateStatistic(m_Sett.getTestFile(), allStat);
+			updateStatistic(m_Sett.getTestFile(), stats);
 		}
 		if (!m_Sett.isNullPruneFile()) {
 			System.out.println("Loading: "+m_Sett.getPruneFile());
-			updateStatistic(m_Sett.getPruneFile(), allStat);
+			updateStatistic(m_Sett.getPruneFile(), stats);
 		}
-		*/
 		mgr.initNormalizationWeights(allStat);
 		mgr.initClusteringWeights();
 		mgr.initCompactnessWeights();
