@@ -49,10 +49,10 @@ public class ClusStatManager implements Serializable {
 	protected ClusAttributeWeights m_GlobalWeights;
 	protected ClusStatistic m_GlobalTargetStat;
 	protected ClusStatistic m_GlobalStat;    
-  	protected ClusStatistic[] m_StatisticAttrUse;
-  	protected ClusAttributeWeights m_NormalizationWeights;  
-  	protected ClusAttributeWeights m_ClusteringWeights;
-  	protected ClusNormalizedAttributeWeights m_CompactnessWeights;  	
+  protected ClusStatistic[] m_StatisticAttrUse;
+  protected ClusAttributeWeights m_NormalizationWeights;  
+  protected ClusAttributeWeights m_ClusteringWeights;
+  protected ClusNormalizedAttributeWeights m_CompactnessWeights;  	
 	protected ClassHierarchy m_HierN, m_HierF, m_Hier;
 	protected SSPDMatrix m_SSPDMtrx;
 	
@@ -282,7 +282,7 @@ public class ClusStatManager implements Serializable {
 			break;
 		}
 	}
-		
+
 	public void initStatistic() throws ClusException {
 		m_StatisticAttrUse = new ClusStatistic[ClusAttrType.NB_ATTR_USE];
 		// Statistic over all attributes
@@ -293,7 +293,20 @@ public class ClusStatManager implements Serializable {
     if (isRuleInduce() && (getSettings().getHeuristic() == Settings.HEURISTIC_COMPACTNESS)) {
       NumericAttrType[] num1 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
       NominalAttrType[] nom1 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);      
-      setTargetStatistic(new CombStat(this, num1, nom1));
+      m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = new CombStat(this, num1, nom1);
+      // setTargetStatistic(new CombStat(this, num1, nom1));
+      /*
+      m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = new CombStat(this, num1, nom1);
+      if  (m_Mode == MODE_CLASSIFY) {
+        setTargetStatistic(new ClassificationStat(m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET)));
+      } else if (m_Mode == MODE_REGRESSION) {
+        setTargetStatistic(new RegressionStat(m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET)));
+      }
+      */
+      NumericAttrType[] num2 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+      NominalAttrType[] nom2 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+      // m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = new CombStat(this, num2, nom2);
+      setTargetStatistic(new CombStat(this, num2, nom2));
       return;
     }
 		switch (m_Mode) {

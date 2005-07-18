@@ -19,7 +19,7 @@ public class ClusRule implements ClusModel, Serializable {
   
   public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-    protected int m_ID;
+  protected int m_ID;
 	protected Object m_Visitor;
 	protected ClusStatistic m_Default;	
 	protected ArrayList m_Tests = new ArrayList();
@@ -28,6 +28,8 @@ public class ClusRule implements ClusModel, Serializable {
   protected ClusStatManager m_StatManager;
   /* Combined statistics for training and testing data */
   protected CombStat[] m_CombStat = new CombStat[2];
+  /* Number of examples covered by this rule */
+  protected double[] m_Coverage = new double[2];
   protected ClusErrorParent[] m_Errors;
 	
   public ClusRule(ClusStatManager statManager) {
@@ -118,6 +120,29 @@ public class ClusRule implements ClusModel, Serializable {
     }
     return res;
   }
+
+  /**
+   * Removes the examples that have been covered by enough rules, i.e.,
+   * have low enough weights.
+   * @param data
+   * @return data
+   */
+  public RowData removeCoveredEnough(RowData data) {
+    int MAX_TIMES_COVERED = 3;
+    int threshold = 1/(MAX_TIMES_COVERED+1+1);
+    int covered = 0;
+    for (int i = 0; i < data.getNbRows(); i++) {
+      DataTuple tuple = data.getTuple(i);
+      if (covers(tuple) && (tuple.m_Weight < threshold)) covered++;
+    }
+    int idx = 0;
+    RowData res = new RowData(data.getSchema(), data.getNbRows()-covered);
+    for (int i = 0; i < data.getNbRows(); i++) {
+      DataTuple tuple = data.getTuple(i);
+      if (!(covers(tuple) && (tuple.m_Weight < threshold))) res.setTuple(tuple, idx++);
+    }
+    return res;
+  }
   
   /**
    * Reweighs all the examples covered by this rule. Reweighting
@@ -156,7 +181,7 @@ public class ClusRule implements ClusModel, Serializable {
         throw new ClusException("Negative example weights not supported!");
       }
     }
-    return result;
+    return removeCoveredEnough(result);
   }
   
 	public ClusStatistic getTotalStat() {
@@ -213,8 +238,12 @@ public class ClusRule implements ClusModel, Serializable {
 		}
     if (getSettings().computeCompactness() && (m_CombStat[ClusModel.TRAIN] != null)) {
       wrt.println("\n   Compactness (train): " + m_CombStat[ClusModel.TRAIN].getCompactnessString());
+      wrt.println("   Coverage    (train): " + m_Coverage[ClusModel.TRAIN]);
+      wrt.println("   Cover*Comp  (train): " + (m_CombStat[ClusModel.TRAIN].compactnessCalc()*m_Coverage[ClusModel.TRAIN]));
       if (m_CombStat[ClusModel.TEST] != null) {
-        wrt.println("   Compactness (test):  " + m_CombStat[ClusModel.TEST].getCompactnessString() + "\n");
+        wrt.println("   Compactness (test):  " + m_CombStat[ClusModel.TEST].getCompactnessString());
+        wrt.println("   Coverage    (test):  " + m_Coverage[ClusModel.TEST]);
+        wrt.println("   Cover*Comp  (test):  " + (m_CombStat[ClusModel.TEST].compactnessCalc()*m_Coverage[ClusModel.TEST]));
       }
     }
     if (hasErrors()) {
@@ -285,6 +314,8 @@ public class ClusRule implements ClusModel, Serializable {
     }
     combStat.calcMean();
     m_CombStat[mode] = combStat;
+    // save the coverage
+    m_Coverage[mode] = m_Data.size();
   }
 
   /**

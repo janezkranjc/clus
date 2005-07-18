@@ -76,7 +76,7 @@ public class ClusRuleInduce {
 			else m_Induce.findNumeric((NumericAttrType)at, data);
 			if (sel.hasBestTest()) {
 				NodeTest test = sel.updateTest();
-				if (Settings.VERBOSE > 0) System.out.println("Test: "+test.getString()+" -> "+sel.m_BestHeur);
+				if (Settings.VERBOSE > 0) System.out.println("  Test: "+test.getString()+" -> "+sel.m_BestHeur);
 				RowData subset = data.applyWeighted(test, ClusNode.YES);				
 				ClusRule ref_rule = rule.cloneRule();
 				ref_rule.addTest(test);
@@ -112,8 +112,14 @@ public class ClusRuleInduce {
 		int i = 0;
 		System.out.print("Step: ");
 		while (true) {
-			if (i != 0) System.out.print(",");
-			System.out.print(i);
+      if (Settings.VERBOSE > 0) {
+        System.out.println("Step: " + i);
+      } else {
+        if (i != 0) {
+          System.out.print(",");
+        }
+        System.out.print(i);
+      }
 			System.out.flush();
 			refineBeam(beam);
 			if (!isBeamChanged()) {
@@ -156,7 +162,7 @@ public class ClusRuleInduce {
    * @throws ClusException 
    */
   public void separateAndConquorWeighted(ClusRuleSet rset, RowData data) throws ClusException {
-    int MAXLOOPS = 20;
+    int MAXLOOPS = 50;
     int i = 0;
     while ((data.getNbRows() > 0) && (i < MAXLOOPS)) {
       ClusRule rule = learnOneRule(data);

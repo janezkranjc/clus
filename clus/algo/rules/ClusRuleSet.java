@@ -92,6 +92,10 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	
 	public void printModel(PrintWriter wrt) {
     boolean headers = getSettings().computeCompactness() || hasRuleErrors();
+    // [train/test][comb/num/nom]
+    double[][] avg_compactness = new double[2][3];
+    double[] avg_coverage = new double[2];
+    double[][] avg_prod = new double[2][3];
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
       if (headers) {
@@ -102,6 +106,22 @@ public class ClusRuleSet implements ClusModel, Serializable {
         }
         wrt.println(head);
         wrt.println(new String(underline));
+        avg_compactness[0][0] += rule.m_CombStat[0].compactnessCalc();
+        avg_compactness[0][1] += rule.m_CombStat[0].compactnessNumCalc();
+        avg_compactness[0][2] += rule.m_CombStat[0].compactnessNomCalc();
+        avg_coverage[0] += rule.m_Coverage[0];
+        avg_prod[0][0] += rule.m_CombStat[0].compactnessCalc()*rule.m_Coverage[0];
+        avg_prod[0][1] += rule.m_CombStat[0].compactnessNumCalc()*rule.m_Coverage[0];
+        avg_prod[0][2] += rule.m_CombStat[0].compactnessNomCalc()*rule.m_Coverage[0];
+        if (rule.m_CombStat[1] != null) {
+          avg_compactness[1][0] += rule.m_CombStat[1].compactnessCalc();
+          avg_compactness[1][1] += rule.m_CombStat[1].compactnessNumCalc();
+          avg_compactness[1][2] += rule.m_CombStat[1].compactnessNomCalc();
+          avg_coverage[1] += rule.m_Coverage[1];
+          avg_prod[1][0] += rule.m_CombStat[1].compactnessCalc()*rule.m_Coverage[1];
+          avg_prod[1][1] += rule.m_CombStat[1].compactnessNumCalc()*rule.m_Coverage[1];
+          avg_prod[1][2] += rule.m_CombStat[1].compactnessNomCalc()*rule.m_Coverage[1];
+        }
       }
 			rule.printModel(wrt);
 			wrt.println();
@@ -110,8 +130,16 @@ public class ClusRuleSet implements ClusModel, Serializable {
       wrt.println("Default rule:");
       wrt.println("=============");
     }
-		wrt.println("Default = "+(m_Default == null ? "N/A" : m_Default.getString()));
-	}
+    wrt.println("Default = "+(m_Default == null ? "N/A" : m_Default.getString()));
+    if (headers) {
+      wrt.println("\n   Avg_Compactness (train): " + (avg_compactness[0][0]/m_Rules.size()) + " = " + (avg_compactness[0][1]/m_Rules.size()) + " + " + (avg_compactness[0][2]/m_Rules.size()) );
+      wrt.println("   Avg_Coverage    (train): " + (avg_coverage[0]/m_Rules.size()));
+      wrt.println("   Avg_Cover*Comp  (train): " + (avg_prod[0][0]/m_Rules.size()) + " = " + (avg_prod[0][1]/m_Rules.size()) + " + " + (avg_prod[0][2]/m_Rules.size()));
+      wrt.println("   Avg_Compactness (test):  " + (avg_compactness[1][0]/m_Rules.size()) + " = " + (avg_compactness[1][1]/m_Rules.size()) + " + " + (avg_compactness[1][2]/m_Rules.size()));
+      wrt.println("   Avg_Coverage    (test):  " + (avg_coverage[1]/m_Rules.size()));
+      wrt.println("   Avg_Cover*Comp  (test):  " + (avg_prod[1][0]/m_Rules.size()) + " = " + (avg_prod[1][1]/m_Rules.size()) + " + " + (avg_prod[1][2]/m_Rules.size()));
+    }
+  }
 	
 	public void printModelAndExamples(PrintWriter wrt, ClusSchema schema) {
 		for (int i = 0; i < m_Rules.size(); i++) {

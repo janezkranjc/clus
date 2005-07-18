@@ -17,11 +17,11 @@ public class CombStat extends ClusStatistic {
 
   public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
   
+  private static int IN_HEURISTIC = 0;
+  private static int IN_OUTPUT = 1;
+  
   private int m_NbNumAtts;
   private int m_NbNomAtts;
-  /* Weights for combining compactness of numeric and nominal attrs */
-  private double m_WeightNum;
-  private double m_WeightNom;
   private NominalAttrType[] m_NomAtts;
   private NumericAttrType[] m_NumAtts;
   private RegressionStat m_RegStat;
@@ -41,8 +41,6 @@ public class CombStat extends ClusStatistic {
     m_NomAtts = nom;
     m_RegStat = new RegressionStat(num);
     m_ClassStat = new ClassificationStat(nom);
-    m_WeightNum = (double)m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
-    m_WeightNom = (double)m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
   }
 
   protected CombStat() {
@@ -80,73 +78,135 @@ public class CombStat extends ClusStatistic {
     m_ClassStat.calcMean();
   }
   
-  /** Returns the compactness of all attributes.
+  /** Returns the compactness of all attributes. Used when outputing the compactness.
    * 
    * @return combined compactness
    */
-  public double compactness() {
-    return m_WeightNom * compactnessNom() + m_WeightNum * compactnessNum();
+  public double compactnessCalc() {
+    double num_weight;
+    double nom_weight;
+    if (getSettings().getCompactnessWeights().hasArrayIndexNames()) {
+      // Weights given for target, non-target, numeric and nominal
+      num_weight = getSettings().getCompactnessWeights().getDouble(Settings.NUMERIC_WEIGHT);
+      nom_weight = getSettings().getCompactnessWeights().getDouble(Settings.NOMINAL_WEIGHT);
+    } else {
+      num_weight = 1.0; // Or something like that?
+      nom_weight = 1.0;
+    }
+    double sum = num_weight + nom_weight;
+    num_weight = num_weight / sum; 
+    nom_weight = nom_weight / sum;
+    double proportion_num = num_weight * m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
+    double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
+    return proportion_nom * compactnessNom(IN_OUTPUT) + proportion_num * compactnessNum(IN_OUTPUT);
+  }
+
+  /** Returns the compactness of all attributes. Used when outputing the compactness.
+   * 
+   * @return combined compactness
+   * TODO: Change!
+   */
+  public double compactnessNumCalc() {
+    double num_weight;
+    double nom_weight;
+    if (getSettings().getCompactnessWeights().hasArrayIndexNames()) {
+      // Weights given for target, non-target, numeric and nominal
+      num_weight = getSettings().getCompactnessWeights().getDouble(Settings.NUMERIC_WEIGHT);
+      nom_weight = getSettings().getCompactnessWeights().getDouble(Settings.NOMINAL_WEIGHT);
+    } else {
+      num_weight = 1.0; // Or something like that?
+      nom_weight = 1.0;
+    }
+    double sum = num_weight + nom_weight;
+    num_weight = num_weight / sum; 
+    nom_weight = nom_weight / sum;
+    double proportion_num = num_weight * m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
+    double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
+    return proportion_num * compactnessNum(IN_OUTPUT);
+  }
+
+  /** Returns the compactness of all attributes. Used when outputing the compactness.
+   * 
+   * @return combined compactness
+   * TODO: Change!
+   */
+  public double compactnessNomCalc() {
+    double num_weight;
+    double nom_weight;
+    if (getSettings().getCompactnessWeights().hasArrayIndexNames()) {
+      // Weights given for target, non-target, numeric and nominal
+      num_weight = getSettings().getCompactnessWeights().getDouble(Settings.NUMERIC_WEIGHT);
+      nom_weight = getSettings().getCompactnessWeights().getDouble(Settings.NOMINAL_WEIGHT);
+    } else {
+      num_weight = 1.0; // Or something like that?
+      nom_weight = 1.0;
+    }
+    double sum = num_weight + nom_weight;
+    num_weight = num_weight / sum; 
+    nom_weight = nom_weight / sum;
+    double proportion_num = num_weight * m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
+    double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
+    return proportion_nom * compactnessNom(IN_OUTPUT);
+  }
+  
+  /** Returns the compactness of all attributes. Used in compactness based heuristics.
+   * 
+   * @return combined compactness
+   */
+  public double compactnessHeur() {
+    double num_weight;
+    double nom_weight;
+    if (getSettings().getClusteringWeights().hasArrayIndexNames()) {
+      // Weights given for target, non-target, numeric and nominal
+      num_weight = getSettings().getClusteringWeights().getDouble(Settings.NUMERIC_WEIGHT);
+      nom_weight = getSettings().getClusteringWeights().getDouble(Settings.NOMINAL_WEIGHT);
+    } else {
+      num_weight = 1.0; // Or something like that?
+      nom_weight = 1.0;
+    }
+    double sum = num_weight + nom_weight;
+    num_weight = num_weight / sum; 
+    nom_weight = nom_weight / sum;
+    double proportion_num = num_weight * m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
+    double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
+    return proportion_nom * compactnessNom(IN_HEURISTIC) + proportion_num * compactnessNum(IN_HEURISTIC);
   }
   
   /** Returns the compactness of numeric attributes.
    * 
    * @return compactness of numeric attributes
    */
-  public double compactnessNum() {
-    return meanVariance();
+  public double compactnessNum(int use) {
+    return meanVariance(use);
   }
   
   /** Returns the compactness of nominal attributes.
    * 
    * @return compactness of nominal attributes
    */
-  public double compactnessNom() {
+  public double compactnessNom(int use) {
     // return meanEntropy();
-    return meanDistNom();
+    return meanDistNom(use);
   }
   
   /**
    * Returns the mean variance of all numeric attributes.
    * @return the mean variance
    */
-  public double meanVariance() {
+  public double meanVariance(int use) {
     double svar = 0;
+    double weight = 0;
+    double sumweight = 0;
     for (int i = 0; i < m_NbNumAtts; i++) {
-      svar += variance(i);
+      if (use == IN_HEURISTIC) {
+        weight = m_StatManager.getClusteringWeights().getWeight(m_RegStat.getAttribute(i));
+      } else { // use == IN_OUTPUT
+        weight = m_StatManager.getCompactnessWeights().getWeight(m_RegStat.getAttribute(i));
+      }
+      sumweight += weight;
+      svar += m_RegStat.getVariance(i) * weight;
     }
-    return m_NbNumAtts == 0 ? 0.0 : svar / m_NbNumAtts;
-  }
-
-  /**
-   * Returns the mean entropy of all nominal attributes.
-   * @return the mean nominal
-   */
-  public double meanEntropy() {
-    double sent = 0;
-    for (int i = 0; i < m_NbNomAtts; i++) {
-      sent += entropy(i, m_NomAtts[i].getNbValues());
-    }
-    return sent / m_NbNomAtts;
-  }
-
-  /**
-   * Returns the normalized variance of a numeric attribute in array
-   * @param attr intex of the attribute
-   * @return the variance
-   */
-  public double variance(int attr) {
-    return m_RegStat.getVariance(attr) *
-           m_StatManager.getCompactnessWeights().getWeight(m_RegStat.getAttribute(attr));
-  }
-  
-  /**
-   * Returns the entropy of attribute attr.
-   * @param attr the attribute
-   * @param total the number of possible values of this attribute
-   * @return the entropy
-   */
-  public double entropy(int attr, double total) {
-    return m_ClassStat.entropy(attr, total);
+    return sumweight == 0 ? 0.0 : svar / sumweight;
   }
 
   /**
@@ -154,12 +214,20 @@ public class CombStat extends ClusStatistic {
    * from the prototypes.
    * @return the mean distance
    */
-  public double meanDistNom() {
-    double dist = 0;
+  public double meanDistNom(int use) {
+    double sumdist = 0;
+    double weight = 0;
+    double sumweight = 0;
     for (int i = 0; i < m_NbNomAtts; i++) {
-      dist += meanDistNom(i);
+      if (use == IN_HEURISTIC) {
+        weight = m_StatManager.getClusteringWeights().getWeight(m_ClassStat.getAttribute(i));
+      } else { // use == IN_OUTPUT
+        weight = m_StatManager.getCompactnessWeights().getWeight(m_ClassStat.getAttribute(i));
+      }
+      sumweight += weight;
+      sumdist += meanDistNomOne(i) * weight;
     }
-    return dist / m_NbNomAtts;
+    return sumweight == 0 ? 0.0 : sumdist / sumweight;
   }
 
   /**
@@ -168,7 +236,7 @@ public class CombStat extends ClusStatistic {
    * @param attr the attribute
    * @return the mean distance
    */
-  public double meanDistNom(int attr) {
+  public double meanDistNomOne(int attr) {
     // m_ClassStat.m_ClassCounts[nomAttIdx][valueIdx]
     double[] counts = m_ClassStat.m_ClassCounts[attr];
     double[] prototype = new double[counts.length];
@@ -190,31 +258,25 @@ public class CombStat extends ClusStatistic {
   }
 
   /**
-   * @return Returns the m_WeightNom.
+   * Returns the mean entropy of all nominal attributes.
+   * @return the mean nominal
    */
-  public double getWeightNom() {
-    return m_WeightNom;
+  public double meanEntropy() {
+    double sent = 0;
+    for (int i = 0; i < m_NbNomAtts; i++) {
+      sent += entropy(i, m_NomAtts[i].getNbValues());
+    }
+    return sent / m_NbNomAtts;
   }
 
   /**
-   * @param weightNom The m_WeightNom to set.
+   * Returns the entropy of attribute attr.
+   * @param attr the attribute
+   * @param total the number of possible values of this attribute
+   * @return the entropy
    */
-  public void setWeightNom(double weightNom) {
-    m_WeightNom = weightNom;
-  }
-
-  /**
-   * @return Returns the m_WeightNum.
-   */
-  public double getWeightNum() {
-    return m_WeightNum;
-  }
-
-  /**
-   * @param weightNum The m_WeightNum to set.
-   */
-  public void setWeightNum(double weightNum) {
-    m_WeightNum = weightNum;
+  public double entropy(int attr, double total) {
+    return m_ClassStat.entropy(attr, total);
   }
 
   /**
@@ -225,11 +287,11 @@ public class CombStat extends ClusStatistic {
     StringBuffer buf = new StringBuffer();    
     NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
     buf.append("[");
-    buf.append(fr.format(compactness()));
+    buf.append(fr.format(compactnessCalc()));
     buf.append(" : ");
-    buf.append(fr.format(compactnessNum()));
+    buf.append(fr.format(compactnessNum(IN_OUTPUT)));
     buf.append(" , ");
-    buf.append(fr.format(compactnessNom()));
+    buf.append(fr.format(compactnessNom(IN_OUTPUT)));
     buf.append("]");    
     return buf.toString();
   }
@@ -238,6 +300,7 @@ public class CombStat extends ClusStatistic {
     StringBuffer buf = new StringBuffer();    
     buf.append("[");
     buf.append(m_ClassStat.getString());
+    buf.append(" | ");
     buf.append(m_RegStat.getString());
     buf.append("]");    
     return buf.toString();
@@ -257,10 +320,8 @@ public class CombStat extends ClusStatistic {
     m_NumAtts = or.m_NumAtts;
     m_NbNomAtts = or.m_NbNomAtts;
     m_NomAtts = or.m_NomAtts;
-    m_RegStat.copy(or.m_RegStat);     // TODO: Is this ok???
-    m_ClassStat.copy(or.m_ClassStat); // TODO: Is this ok???
-    m_WeightNum = or.m_WeightNum;
-    m_WeightNom = or.m_WeightNom;
+    m_RegStat.copy(or.m_RegStat);
+    m_ClassStat.copy(or.m_ClassStat);
   }
 
   // TODO: Is this ok???

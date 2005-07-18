@@ -51,7 +51,16 @@ public class ClassificationStat extends ClusStatistic {
 			m_SumWeight += distro[i];
 		}
 	}
-	
+
+  /** Added because RegressionStat has this method.
+   * 
+   * @param idx
+   * @return
+   */
+  public NominalAttrType getAttribute(int idx) {
+    return m_Attrs[idx];
+  }
+
 	public void reset() {
 		m_SumWeight = 0.0;
 		for (int i = 0; i < m_NbTarget; i++) {

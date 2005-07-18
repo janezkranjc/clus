@@ -23,8 +23,8 @@ public class ClusRuleHeuristicCompactness extends ClusHeuristic {
 		if (n_pos < Settings.MINIMAL_WEIGHT) {
 			return Double.NEGATIVE_INFINITY;
 		}
-		double pos_comp = ((CombStat)c_pstat).compactness(); //  getError(m_ClusteringWeights);
-    System.err.println("Compactness value: " + pos_comp);
+		double pos_comp = ((CombStat)c_pstat).compactnessHeur(); //  getError(m_ClusteringWeights);
+    // System.out.println("  |> Compactness value: " + pos_comp);
 		return -pos_comp;
 	}
 		
