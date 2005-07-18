@@ -35,7 +35,7 @@ public class ClusStatManager implements Serializable {
 	public final static int MODE_REGRESSION = 1;
 	public final static int MODE_HIERARCHICAL = 2;
 	public final static int MODE_SSPD = 3;
-  public final static int MODE_CLASIFFYANDREGRESSION = 4;
+  public final static int MODE_CLASIFFY_AND_REGRESSION = 4;
   
 	protected int m_Mode = MODE_NONE;
 	protected transient ClusHeuristic m_Heuristic;
@@ -242,17 +242,19 @@ public class ClusStatManager implements Serializable {
 	
 	public void check() throws ClusException {
 		int nb_types = 0;
-		int nb_nom = m_Target.getNbNom();
-		int nb_num = m_Target.getNbNum();
+		int nb_nom = m_Schema.getNbNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		int nb_num = m_Schema.getNbNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		int nb_int = m_Target.getNbType(IntegerAttrType.THIS_TYPE);
-		if (nb_nom > 0) {
+		if (nb_nom > 0 && nb_num > 0) {
+			m_Mode = MODE_CLASIFFY_AND_REGRESSION;
+			nb_types++;
+		} else if (nb_nom > 0) {
 			m_Mode = MODE_CLASSIFY;
 			nb_types++;
-		}
-		if (nb_num > 0) {
+		} else if (nb_num > 0) {
 			m_Mode = MODE_REGRESSION;
 			nb_types++;
-		}		
+		}
 		if (m_Schema.hasAttributeType(ClusAttrType.ATTR_USE_TARGET, ClassesAttrType.THIS_TYPE)) {
 			m_Mode = MODE_HIERARCHICAL;
 			getSettings().setSectionHierarchicalEnabled(true);
@@ -265,7 +267,7 @@ public class ClusStatManager implements Serializable {
 		if (nb_types == 0) {
 			System.err.println("No target value defined");
 		}
-		if (nb_types > 1) throw new ClusException("Can't mix different type target values");
+		if (nb_types > 1) throw new ClusException("Incompatible combination of clustering attribute types");
 	}
 	
 	public ClusAttributeWeights createClusAttributeWeights() throws ClusException {
@@ -282,40 +284,46 @@ public class ClusStatManager implements Serializable {
 			break;
 		}
 	}
+	
+	public ClusStatistic createSuitableStat(NumericAttrType[] num, NominalAttrType[] nom) {
+		if (num.length == 0) {
+			return new ClassificationStat(nom);
+		} else if (nom.length == 0) {
+			return new RegressionStat(num);
+		} else {
+			return new CombStat(this, num, nom);
+		}
+	}
 
+	public boolean heuristicNeedsCombStat() {
+		if (isRuleInduce()) {
+			return getSettings().getHeuristic() == Settings.HEURISTIC_COMPACTNESS;
+		} else {
+			return false;
+		}
+	}
+	
 	public void initStatistic() throws ClusException {
 		m_StatisticAttrUse = new ClusStatistic[ClusAttrType.NB_ATTR_USE];
 		// Statistic over all attributes
-		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
-		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);			
-		m_StatisticAttrUse[ClusAttrType.ATTR_USE_ALL] = new CombStat(this, num, nom);
-    //  TODO: Another temporary solution!
-    if (isRuleInduce() && (getSettings().getHeuristic() == Settings.HEURISTIC_COMPACTNESS)) {
-      NumericAttrType[] num1 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-      NominalAttrType[] nom1 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);      
-      m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = new CombStat(this, num1, nom1);
-      // setTargetStatistic(new CombStat(this, num1, nom1));
-      /*
-      m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = new CombStat(this, num1, nom1);
-      if  (m_Mode == MODE_CLASSIFY) {
-        setTargetStatistic(new ClassificationStat(m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET)));
-      } else if (m_Mode == MODE_REGRESSION) {
-        setTargetStatistic(new RegressionStat(m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET)));
-      }
-      */
-      NumericAttrType[] num2 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-      NominalAttrType[] nom2 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-      // m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = new CombStat(this, num2, nom2);
-      setTargetStatistic(new CombStat(this, num2, nom2));
-      return;
-    }
+		NumericAttrType[] num1 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+		NominalAttrType[] nom1 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);			
+		m_StatisticAttrUse[ClusAttrType.ATTR_USE_ALL] = new CombStat(this, num1, nom1);
+		// Statistic over all target attributes		
+		NumericAttrType[] num2 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+    NominalAttrType[] nom2 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+    m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = createSuitableStat(num2, nom2);		
+    // Statistic over clustering attributes
+    NumericAttrType[] num3 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+    NominalAttrType[] nom3 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);      
+    if (num3.length != 0 || nom3.length != 0) {
+    	if (heuristicNeedsCombStat()) {
+    		m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = new CombStat(this, num3, nom3);
+    	} else {
+    		m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = createSuitableStat(num3, nom3);
+    	}    	
+    }    
 		switch (m_Mode) {
-		case MODE_CLASSIFY:
-			setTargetStatistic(new ClassificationStat(m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET)));
-			break;
-		case MODE_REGRESSION:
-			setTargetStatistic(new RegressionStat(m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET)));
-			break;
 		case MODE_HIERARCHICAL:			
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
@@ -346,6 +354,8 @@ public class ClusStatManager implements Serializable {
 	
 	public void initHeuristic() throws ClusException {
 		String name;
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+    NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		if (isRuleInduce()) {
 			if (m_Mode == MODE_CLASSIFY) {
         switch (getSettings().getHeuristic()) {
@@ -377,36 +387,40 @@ public class ClusStatManager implements Serializable {
       }
 			return;
 		}
+		/* Set heuristic for trees, using beam search */
 		if (isBeamSearch()) {
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
-				m_Heuristic = new ClusBeamHeuristicError(createTargetStatistic());
+				m_Heuristic = new ClusBeamHeuristicError(createClusteringStat());
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_MESTIMATE) {
-				m_Heuristic = new ClusBeamHeuristicMEstimate(createTargetStatistic(), getSettings().getMEstimate());
+				m_Heuristic = new ClusBeamHeuristicMEstimate(createClusteringStat(), getSettings().getMEstimate());
 			} else {
-				m_Heuristic = new ClusBeamHeuristicSS(createTargetStatistic(), createClusAttributeWeights());    			
+				m_Heuristic = new ClusBeamHeuristicSS(createClusteringStat(), createClusAttributeWeights());    			
 			}
 			return;
 		}
-		switch (m_Mode) {
-		case MODE_CLASSIFY:
+		/* Set heuristic for trees */
+		if (num.length > 0 && nom.length > 0) {
+			System.err.println("Combined heuristic not yet implemented for trees!");
+			System.exit(0);
+		} else if (num.length > 0) {
+			m_Heuristic = new SSReductionHeuristic(createClusAttributeWeights(), m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET));		
+		} else if (nom.length > 0) {
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
-				m_Heuristic = new ReducedErrorHeuristic(createTargetStatistic());
+				m_Heuristic = new ReducedErrorHeuristic(createClusteringStat());
 			} else {
 				m_Heuristic = new GainHeuristic();
 			}
-			break;
-		case MODE_REGRESSION:
-			m_Heuristic = new SSReductionHeuristic(createClusAttributeWeights(), m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET));
-			break;
+		}
+		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
 			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
 				name = "Weighted Absolute Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createTargetStatistic(), getClusteringWeights(), getSettings().isHierNoRootPreds()); break;				
+			m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights(), getSettings().isHierNoRootPreds()); break;				
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
 				name = "Weighted Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createTargetStatistic(), getClusteringWeights(), getSettings().isHierNoRootPreds()); break;
+			m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights(), getSettings().isHierNoRootPreds()); break;
 			case Settings.HIERMODE_XTAX_SET_DIST:
 				m_Heuristic = new SPMDHeuristic(m_Hier); break;
 			case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
@@ -420,25 +434,26 @@ public class ClusStatManager implements Serializable {
 	}
 	
 	public ClusErrorParent createErrorMeasure(MultiScore score) {
-		ClusErrorParent parent = new ClusErrorParent(m_Target, this);
-		switch (m_Mode) {
-		case MODE_CLASSIFY:
-			parent.addError(new ContingencyTable(parent, m_Target));
-			break;
-		case MODE_REGRESSION:
-			parent.addError(new AbsoluteError(parent));
-			parent.addError(new RMSError(parent));
+		ClusErrorParent parent = new ClusErrorParent(this);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+    NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+    if (nom.length != 0) {
+    	parent.addError(new ContingencyTable(parent, nom));
+    }
+    if (num.length != 0) {
+			parent.addError(new AbsoluteError(parent, num));
+			parent.addError(new RMSError(parent, num));
 			if (getSettings().hasNonTrivialWeights()) {
-				parent.addError(new RMSError(parent, m_GlobalTargetWeights));
+				parent.addError(new RMSError(parent, num, m_GlobalTargetWeights));
 			}
-			parent.addError(new PearsonCorrelation(parent));			
-			if (Settings.IS_MULTISCORE) {
+			parent.addError(new PearsonCorrelation(parent, num));			
+/*	  if (Settings.IS_MULTISCORE) {
 				TargetSchema nts = MultiScoreWrapper.createTarSchema(m_Target);
 				ContingencyTable ct = new ContingencyTable(parent, nts);
 				parent.addError(new MultiScoreWrapper(ct));
-				// parent.addError(new MultiScoreError(parent, score));
-			}
-			break;
+			} */
+    }
+    switch (m_Mode) {
 		case MODE_HIERARCHICAL:
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
@@ -483,15 +498,16 @@ public class ClusStatManager implements Serializable {
 	}
 	
 	public ClusErrorParent createEvalError() {
-		ClusErrorParent parent = new ClusErrorParent(m_Target, this);
+		ClusErrorParent parent = new ClusErrorParent(this);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+    NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+    if (nom.length != 0) {
+    	parent.addError(new Accuracy(parent, nom));
+    }
+    if (num.length != 0) {
+    	parent.addError(new RMSError(parent, num));
+    }		
 		switch (m_Mode) {
-		case MODE_REGRESSION:
-			parent.addError(new RMSError(parent));
-			// parent.addError(new PearsonCorrelation(parent));
-			break;
-		case MODE_CLASSIFY:
-			parent.addError(new Accuracy(parent));	    
-			break;
 		case MODE_HIERARCHICAL:
 			if (Debug.HIER_JANS_PAPER) {
 				HierNodeWeights ws = new HierNodeWeights();
@@ -507,15 +523,16 @@ public class ClusStatManager implements Serializable {
 	}
 	
 	public ClusErrorParent createAdditiveError() {
-		ClusErrorParent parent = new ClusErrorParent(m_Target, this);
+		ClusErrorParent parent = new ClusErrorParent(this);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+    NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+    if (nom.length != 0) {
+    	parent.addError(new Accuracy(parent, nom));
+    }
+    if (num.length != 0) {
+    	parent.addError(new MSError(parent, num));
+    }		
 		switch (m_Mode) {
-		case MODE_REGRESSION:
-			parent.addError(new MSError(parent));
-			// parent.addError(new PearsonCorrelation(parent));
-			break;
-		case MODE_CLASSIFY:
-			parent.addError(new Accuracy(parent));	    
-			break;
 		case MODE_HIERARCHICAL:
 			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
 			break;
@@ -524,14 +541,16 @@ public class ClusStatManager implements Serializable {
 	}
 	
 	public ClusErrorParent createTuneError() {
-		ClusErrorParent parent = new ClusErrorParent(m_Target, this);
+		ClusErrorParent parent = new ClusErrorParent(this);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+    NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+    if (nom.length != 0) {
+    	parent.addError(new Accuracy(parent, nom));
+    }
+    if (num.length != 0) {
+    	parent.addError(new PearsonCorrelation(parent, num));
+    }		
 		switch (m_Mode) {
-		case MODE_REGRESSION:
-			parent.addError(new PearsonCorrelation(parent));
-			break;
-		case MODE_CLASSIFY:
-			parent.addError(new Accuracy(parent));	    
-			break;
 		case MODE_HIERARCHICAL:
 			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));			
 			break;
@@ -594,9 +613,18 @@ public class ClusStatManager implements Serializable {
 		m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = stat;
 	}
 	
-	public ClusStatistic createTargetStatistic() {
-		return m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET].cloneStat();
+	public void setClusteringStatistic(ClusStatistic stat) {
+		System.out.println("Setting clustering statistic: "+stat.getClass().getName());
+		m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = stat;
+	}	
+	
+	public ClusStatistic createClusteringStat() {
+		return m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING].cloneStat();
 	}
+	
+	public ClusStatistic createTargetStat() {
+		return m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET].cloneStat();
+	}	
 
   /**
    * @param attType 0 - descriptive, 1 - clustering,2 - target, -1 - all attributes 

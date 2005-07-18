@@ -1,15 +1,20 @@
 package clus.error;
 
-import clus.main.*;
-import clus.data.rows.*;
+import clus.data.type.*;
 import clus.statistic.*;
 
 public abstract class ClusNominalError extends ClusError {
 
 	protected int[] m_Default;
+	protected NominalAttrType[] m_Attrs;
 
-	public ClusNominalError(ClusErrorParent par) {
-		super(par, par.getNbNominal());
+	public ClusNominalError(ClusErrorParent par, NominalAttrType[] nom) {
+		super(par, nom.length);
+		m_Attrs = nom;
+	}
+	
+	public NominalAttrType getAttr(int i) {
+		return m_Attrs[i];
 	}
 	
 	public ClusNominalError(ClusErrorParent par, int nb_nominal) {
@@ -23,14 +28,4 @@ public abstract class ClusNominalError extends ClusError {
 	public void setDefault(ClusStatistic pred) {
 		m_Default = ((ClassificationStat)pred).m_MajorityClasses;
 	}	
-	
-	public void addExample(DataTuple tuple, ClusStatistic pred) {
-		addExample(tuple.m_Ints, pred.getNominalPred());
-	}	
-	
-	public void addExample(ClusData data, int idx, ClusStatistic pred) {
-		addExample(data.getNominal(idx), pred.getNominalPred());
-	}
-	
-	public abstract void addExample(int[] real, int[] predicted);
 }

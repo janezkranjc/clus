@@ -106,7 +106,7 @@ public class ClusBeamSearch extends ClusExtension {
 		ClusBeam beam = new ClusBeam(sett.getBeamWidth(), sett.getBeamRemoveEqualHeur());
 		/* Create single leaf node */
 		RowData train = (RowData)run.getTrainingSet();
-		ClusStatistic stat = m_Induce.createTotalStat(train);
+		ClusStatistic stat = m_Induce.createTotalClusteringStat(train);
 		stat.calcMean();
 		m_Induce.initSelectorAndSplit(stat);
 		initSelector(m_Induce.getSelector());		
@@ -116,15 +116,15 @@ public class ClusBeamSearch extends ClusExtension {
 		String constr_file = sett.getConstraintFile();
 		if (StringUtils.unCaseCompare(constr_file, Settings.NONE)) {
 			root = new ClusNode();
-			root.setTotalStat(stat);
+			root.setClusteringStat(stat);
 		} else {
 			ClusConstraintFile file = ClusConstraintFile.getInstance();
 			root = file.getClone(constr_file);
-			root.setTotalStat(stat);
+			root.setClusteringStat(stat);
 			m_Induce.fillInStatsAndTests(root, train);
 		}
 		/* Compute total weight */
-		double weight = root.getTotalStat().getTotalWeight();
+		double weight = root.getClusteringStat().getTotalWeight();
 		setTotalWeight(weight);
 		/* Evaluate the quality estimate */
 		double value = estimateBeamMeasure(root);
@@ -170,7 +170,7 @@ public class ClusBeamSearch extends ClusExtension {
 					ClusNode child = new ClusNode();
 					ref_leaf.setChild(child, j);				
 					RowData subset = data.applyWeighted(test, j);				
-					child.initTotalStat(mgr, subset);								
+					child.initTargetStat(mgr, subset);								
 				}
 				// create new model
 				ClusNode root_model = (ClusNode)root.getModel();

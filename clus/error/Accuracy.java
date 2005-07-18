@@ -2,12 +2,16 @@ package clus.error;
 
 import java.io.*;
 
+import clus.data.rows.DataTuple;
+import clus.data.type.NominalAttrType;
+import clus.statistic.ClusStatistic;
+
 public class Accuracy extends ClusNominalError {
 
-	protected int[] m_NbCorrect;
+	protected int[] m_NbCorrect;	
 
-	public Accuracy(ClusErrorParent par) {
-		super(par);
+	public Accuracy(ClusErrorParent par, NominalAttrType[] nom) {
+		super(par, nom);
 		m_NbCorrect = new int[m_Dim];
 	}
 	
@@ -57,12 +61,14 @@ public class Accuracy extends ClusNominalError {
 	}
 	
 	public ClusError getErrorClone(ClusErrorParent par) {
-		return new Accuracy(par);
+		return new Accuracy(par, m_Attrs);
 	}
 
-	public void addExample(int[] real, int[] predicted) {
+	public void addExample(DataTuple tuple, ClusStatistic pred) {
+		int[] predicted = pred.getNominalPred();
 		for (int i = 0; i < m_Dim; i++) {
-			if (real[i] == predicted[i]) m_NbCorrect[i]++;
-		}
-	}
+			if (getAttr(i).getNominal(tuple) == predicted[i]) m_NbCorrect[i]++; 
+		}		
+	}	
+	
 }

@@ -195,7 +195,7 @@ public class Tilde2PMMLv2 {
 	private static void depthFirstPrint(ClusNode $currentNode, PrintWriter $outStream, int tabs) throws IOException {
 		try{				
 			printTabs($outStream, tabs);
-			ClassificationStat stat = (ClassificationStat)$currentNode.getTotalStat();
+			ClassificationStat stat = (ClassificationStat)$currentNode.getClusteringStat();
 			$outStream.println("<Node recordCount=\""+(int)stat.getTotalWeight()+"\" score=\""+stat.getPredictedClassName(selectClass)+"\">");
 
 			for(int idx = 0; idx < stat.getNbClasses(selectClass); idx++ ) {

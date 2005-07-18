@@ -49,14 +49,14 @@ public class ClusRulesFromTree {
 		constructRecursive(node, init, res);
 		res.removeEmptyRules();
 		res.simplifyRules();
-		res.setDefaultStat(node.getTotalStat());
+		res.setTargetStat(node.getTargetStat());
 		return res;
 	}
 	
 	public void constructRecursive(ClusNode node, ClusRule rule, ClusRuleSet set) {
 		if (node.atBottomLevel()) {
-			if (!m_Validated || node.getTotalStat().isValidPrediction()) {
-				rule.setDefaultStat(node.getTotalStat());
+			if (!m_Validated || node.getTargetStat().isValidPrediction()) {
+				rule.setTargetStat(node.getTargetStat());
 				rule.setID(node.getID());
 				set.add(rule);
 			}

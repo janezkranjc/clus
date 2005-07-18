@@ -176,7 +176,7 @@ public class Tilde2PMMLv1 {
 			counter1--;
 			}
 			
-			ClassificationStat stat = (ClassificationStat)$currentNode.getTotalStat();
+			ClassificationStat stat = (ClassificationStat)$currentNode.getClusteringStat();
 			System.out.println(stat);
 			$outStream.write("<Node recordCount=\""+(int)stat.getTotalWeight()+"\" score=\""+stat.getPredictedClassName(0)+"\">\n");
 			

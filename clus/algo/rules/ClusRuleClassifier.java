@@ -31,6 +31,8 @@ public class ClusRuleClassifier extends ClusClassifier {
 	}
 	
 	public ClusModel induceSingle(ClusRun cr) throws ClusException, IOException {
+		// ClusRulesForAttrs rfa = new ClusRulesForAttrs();
+		// return rfa.constructRules(cr);
     if (!getSettings().isRandomRules()) {
       DepthFirstInduce tree_induce = (DepthFirstInduce)getInduce();
 	  	ClusRuleInduce rule_induce = new ClusRuleInduce(tree_induce);

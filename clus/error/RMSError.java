@@ -4,25 +4,22 @@ import java.io.*;
 import java.text.*;
 
 import clus.data.attweights.*;
+import clus.data.type.NumericAttrType;
 
 public class RMSError extends MSError {
 
-	public RMSError(ClusErrorParent par) {
-		super(par);
+	public RMSError(ClusErrorParent par, NumericAttrType[] num) {
+		super(par, num);
 	}
 	
-	public RMSError(ClusErrorParent par, ClusAttributeWeights weights) {
-		super(par, weights);
+	public RMSError(ClusErrorParent par, NumericAttrType[] num, ClusAttributeWeights weights) {
+		super(par, num, weights);
 	}
 	
-	public RMSError(ClusErrorParent par, ClusAttributeWeights weights, boolean printall) {
-		super(par, weights, printall);
+	public RMSError(ClusErrorParent par, NumericAttrType[] num, ClusAttributeWeights weights, boolean printall) {
+		super(par, num, weights, printall);
 	}
 	
-	public RMSError(ClusErrorParent par, ClusAttributeWeights weights, boolean printall, int dim) {
-		super(par, weights, printall, dim);
-	}			
-
 	public double getModelError() {
 		return Math.sqrt(super.getModelError());
 	}
@@ -42,6 +39,6 @@ public class RMSError extends MSError {
 	}
 	
 	public ClusError getErrorClone(ClusErrorParent par) {
-		return new RMSError(par, m_Weights, m_PrintAllComps, m_Dim);
+		return new RMSError(par, m_Attrs, m_Weights, m_PrintAllComps);
 	}
 }

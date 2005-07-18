@@ -33,7 +33,7 @@ public class KNNTree extends ClusNode {
 		super();
 		m_SMgr = toClone.m_SMgr;
 		m_Test = toClone.m_Test;
-		m_TotStat = toClone.m_TotStat;
+		m_ClusteringStat = toClone.m_ClusteringStat;
 		$vectDist = toClone.getVectorDistance();
 		$decisionData = new Vector(1,10);
 	}
@@ -51,7 +51,7 @@ public class KNNTree extends ClusNode {
 				return info.predictWeighted(tuple);
 			} else {
 				int nb_c = getNbChildren();
-				ClusStatistic stat = m_TotStat.cloneSimple();
+				ClusStatistic stat = m_ClusteringStat.cloneSimple();
 				for (int i = 0; i < nb_c; i++) {
 					ClusNode node = (ClusNode)getChild(i);
 					ClusStatistic nodes = node.predictWeighted(tuple);
@@ -67,7 +67,7 @@ public class KNNTree extends ClusNode {
 		if (tuple == null) System.err.println("tuple == null");
 		if (dec_data == null) System.err.println("dec_data == null");
 
-		ClusStatistic stat = m_SMgr.createTargetStatistic();
+		ClusStatistic stat = m_SMgr.createClusteringStat();
 		//find out how much neighbours necessary (via settings)
 		int amountNBS = Settings.kNNT_k.getValue();
 		//find out if Distance-Weighted kNN used
@@ -114,7 +114,7 @@ public class KNNTree extends ClusNode {
 	public static KNNTree makeTree(ClusRun cr ,ClusNode source,VectorDistance vd){
 		KNNTree node = new KNNTree(cr,vd);
 		node.m_Test = source.m_Test;
-		node.m_TotStat = source.m_TotStat;
+		node.m_ClusteringStat = source.m_ClusteringStat;
 
 		int arity = source.getNbChildren();
 		node.setNbChildren(arity);

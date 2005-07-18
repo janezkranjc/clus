@@ -20,7 +20,7 @@ public class ClusCalcRuleErrorProc extends ClusModelProcessor {
 	public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
 		ClusRule rule = (ClusRule)model;
 		ClusErrorParent error = rule.getError(m_Subset);
-		error.addExample(tuple, rule.getTotalStat());
+		error.addExample(tuple, rule.getTargetStat());
 	}
 	
 	public void modelDone() throws IOException {

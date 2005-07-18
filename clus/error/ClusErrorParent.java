@@ -20,12 +20,10 @@ public class ClusErrorParent implements Serializable {
 	
 	protected int m_NbExamples;
 	protected int m_NbCover;
-	protected TargetSchema m_Schema;
 	protected ClusStatManager m_StatManager;
 	protected Vector m_Error = new Vector();	
 		
-	public ClusErrorParent(TargetSchema schema, ClusStatManager smanager) {
-		m_Schema = schema;
+	public ClusErrorParent(ClusStatManager smanager) {
 		m_StatManager = smanager;
 	}
 	
@@ -48,18 +46,6 @@ public class ClusErrorParent implements Serializable {
 		}		
 	}
 	
-	public int getNbNumeric() {
-		return m_Schema.getNbNum();
-	}
-	
-	public int getNbNominal() {
-		return m_Schema.getNbNom();
-	}	
-	
-	public TargetSchema getSchema() {
-		return m_Schema;
-	}
-	
 	public void calcError(TupleIterator iter, ClusModel model) throws ClusException, IOException {
 		iter.init();
 		DataTuple tuple = iter.readTuple();
@@ -72,7 +58,7 @@ public class ClusErrorParent implements Serializable {
 	}
 	
 	public ClusErrorParent getErrorClone() {	
-		ClusErrorParent res = new ClusErrorParent(m_Schema, m_StatManager);
+		ClusErrorParent res = new ClusErrorParent(m_StatManager);
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
 			ClusError err = (ClusError)m_Error.elementAt(i);
@@ -167,7 +153,11 @@ public class ClusErrorParent implements Serializable {
 				ClusErrorParent parent = inf.getError(type);		
 				ClusError err2 = parent.getError(i);
 				if (inf.getModel() != null) {
-					out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
+					if (err2.isMultiLine()) {
+						out.print("   "+inf.getName()+": ");
+					} else {
+						out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
+					}
 					err2.showModelError(out, ClusError.DETAIL_SMALL);
 				}
 			}

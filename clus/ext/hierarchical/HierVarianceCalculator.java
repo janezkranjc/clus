@@ -27,7 +27,7 @@ public class HierVarianceCalculator extends ClusModelProcessor{
 		CompleteTreeIterator iter = new CompleteTreeIterator(root);	
 		while (iter.hasMoreNodes()) {
 			ClusNode node = (ClusNode)iter.getNextNode();
-			((HierStatistic)node.getTotalStat()).divideVariance();
+			((HierStatistic)node.getClusteringStat()).divideVariance();
 		}   
 	}
 	
@@ -37,13 +37,13 @@ public class HierVarianceCalculator extends ClusModelProcessor{
 		CompleteTreeIterator iter = new CompleteTreeIterator(root);	
 		while (iter.hasMoreNodes()) {
 			ClusNode node = (ClusNode)iter.getNextNode();
-			((HierStatistic)node.getTotalStat()).initVariance();
+			((HierStatistic)node.getClusteringStat()).initVariance();
 		}		
 	}	
 	
 	public void modelUpdate(DataTuple tuple, ClusModel model) {
 		ClusNode node = (ClusNode)model;
-		((HierStatistic)node.getTotalStat()).addToVariance(tuple);
+		((HierStatistic)node.getClusteringStat()).addToVariance(tuple);
 		
 	}
 	

@@ -75,7 +75,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
 			ClusNode tree = (ClusNode)model;
 			SizeConstraintVisitor visitor = (SizeConstraintVisitor)tree.getVisitor();
-			visitor.testerr.addExample(tuple, tree.getTotalStat());					
+			visitor.testerr.addExample(tuple, tree.getClusteringStat());					
 		}
 		
 		public boolean needsModelUpdate() {
@@ -412,7 +412,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 	}
 
 	public ClusStatistic createTotalStat(RowData data) {
-		ClusStatistic stat = m_Class.getStatManager().createTargetStatistic();
+		ClusStatistic stat = m_Class.getStatManager().createClusteringStat();
 		data.calcTotalStatBitVector(stat);
 		return stat;
 	}

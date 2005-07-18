@@ -455,7 +455,7 @@ if (Debug.debug == 1) {
 		if (mgrp.getNbFolds() == 1) {
 		        int fold = mgrp.getFold();
 			ClusNode onode = new ClusNode();
-			onode.m_TotStat = mgrp.getTotStat(fold);
+			onode.m_ClusteringStat = mgrp.getTotStat(fold);
 			node.setNode(fold, onode);
 if (Debug.debug == 1) {
 			ClusStat.deltaSplit();
@@ -565,7 +565,7 @@ if (Debug.debug == 1) {
 		m_TestExtraStat = new ClusStatistic[m_MaxStats][m_NbFolds+1];
 		for (int j = 0; j < m_MaxStats; j++) {
 			for (int i = 0; i <= m_NbFolds; i++) {		
-				m_TestExtraStat[j][i] = m_StatManager.createTargetStatistic();
+				m_TestExtraStat[j][i] = m_StatManager.createClusteringStat();
 			}
 		}
 	}

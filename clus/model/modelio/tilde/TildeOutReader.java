@@ -43,7 +43,7 @@ public class TildeOutReader {
 			m_Root = treer.readTree();
 			m_Root.addChildStats();
 			m_Schema.showDebug();
-			System.out.println("Total Root Node: "+m_Root.getTotalStat());
+			System.out.println("Total Root Node: "+m_Root.getClusteringStat());
 		} catch (ClusException e) {
 			throw new IOException(e.getMessage());
 		}

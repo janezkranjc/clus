@@ -22,8 +22,8 @@ public class ClusDecisionTree extends ClusClassifier {
 	public static ClusModel induceDefault(ClusRun cr) {
 		ClusNode node = new ClusNode();
 		RowData data = (RowData)cr.getTrainingSet();
-		node.initTotalStat(cr.getStatManager(), data);
-		node.getTotalStat().calcMean();
+		node.initTargetStat(cr.getStatManager(), data);
+		node.computePrediction();
 		node.makeLeaf();		
 		return node;
 	}

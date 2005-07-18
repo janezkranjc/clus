@@ -1,15 +1,20 @@
 package clus.error;
 
-import clus.main.*;
-import clus.data.rows.*;
+import clus.data.type.*;
 import clus.statistic.*;
 
 public abstract class ClusNumericError extends ClusError {
 
 	protected double[] m_Default;
+	protected NumericAttrType[] m_Attrs;
 
-	public ClusNumericError(ClusErrorParent par) {
-		super(par, par.getNbNumeric());
+	public ClusNumericError(ClusErrorParent par, NumericAttrType[] num) {
+		super(par, num.length);
+		m_Attrs = num;
+	}
+	
+	public NumericAttrType getAttr(int i) {
+		return m_Attrs[i];
 	}
 	
 	public ClusNumericError(ClusErrorParent par, int nbnum) {
@@ -24,13 +29,5 @@ public abstract class ClusNumericError extends ClusError {
 		m_Default = ((RegressionStat)pred).m_SumValues;
 	}	
 	
-	public void addExample(DataTuple tuple, ClusStatistic pred) {
-		addExample(tuple.m_Doubles, pred.getNumericPred());
-	}
-	
-	public void addExample(ClusData data, int idx, ClusStatistic pred) {
-		addExample(data.getNumeric(idx), pred.getNumericPred());
-	}	
-
 	public abstract void addExample(double[] real, double[] predicted);
 }

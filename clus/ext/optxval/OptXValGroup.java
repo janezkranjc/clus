@@ -127,13 +127,13 @@ public class OptXValGroup extends MyList {
 	public final void create(ClusStatManager m_StatManager, int folds) {
 		m_TotStat = new ClusStatistic[folds+1];
 		for (int i = 0; i <= folds; i++) 
-			m_TotStat[i] = m_StatManager.createTargetStatistic();
+			m_TotStat[i] = m_StatManager.createClusteringStat();
 	}
 	
 	public final void create2(ClusStatManager m_StatManager, int folds) {
 		m_TotStat = new ClusStatistic[folds];
 		for (int i = 0; i < folds; i++) 
-			m_TotStat[i] = m_StatManager.createTargetStatistic();
+			m_TotStat[i] = m_StatManager.createClusteringStat();
 	}	
 	
 	public final void makeNodes() {
@@ -142,7 +142,7 @@ public class OptXValGroup extends MyList {
 		for (int i = 0; i < nb; i++) {
 			m_Nodes[i] = new ClusNode();
 			int foldnr = m_Folds[i];
-			m_Nodes[i].m_TotStat = m_TotStat[foldnr];			
+			m_Nodes[i].m_ClusteringStat = m_TotStat[foldnr];			
 		}
 	}
 	
@@ -195,7 +195,7 @@ public class OptXValGroup extends MyList {
 
 	public final ClusNode makeLeaf(int idx) {
 		ClusNode leaf = new ClusNode();
-		leaf.m_TotStat = m_TotStat[idx];
+		leaf.m_ClusteringStat = m_TotStat[idx];
 		leaf.makeLeaf();
 		return leaf;
 	}

@@ -34,7 +34,7 @@ public class KNNModel implements ClusModel {
 	 * some statistic.
 	 */
 	public ClusStatistic predictWeighted(DataTuple tuple){
-		ClusStatistic stat = m_SMgr.createTargetStatistic();
+		ClusStatistic stat = m_SMgr.createClusteringStat();
 		//find out how much neighbours necessary (via settings)
 		int amountNBS = Settings.kNN_k.getValue();
 		//find out if Distance-Weighted kNN used

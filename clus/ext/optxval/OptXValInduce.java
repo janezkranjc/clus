@@ -333,7 +333,7 @@ if (Debug.debug == 1) {
 		m_Selector = new TestSelector[mfolds];
 		for (int i = 0; i < mfolds; i++) {
 			for (int j = 0; j < m_MaxStats; j++) {
-				m_TestStat[i][j] = m_StatManager.createTargetStatistic();
+				m_TestStat[i][j] = m_StatManager.createClusteringStat();
 			}	
 			m_PosStat[i] = m_TestStat[i][0];
 			// Create test selectors for each fold :-)			
@@ -384,7 +384,7 @@ if (Debug.debug == 1) {
 
 		createStats();
 		m_Split.initialize(m_StatManager);
-		m_Scratch = m_StatManager.createTargetStatistic();
+		m_Scratch = m_StatManager.createClusteringStat();
 		// Create first group
 		OptXValGroup grp = new OptXValGroup(data, m_NbFolds+1);
 		grp.initializeFolds();

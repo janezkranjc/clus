@@ -73,7 +73,7 @@ if (Debug.debug == 1) {
 		if (mgrp.getNbFolds() == 1) {
 		        int fold = mgrp.getFold();
 			ClusNode onode = new ClusNode();
-			onode.m_TotStat = mgrp.getTotStat(fold);
+			onode.m_ClusteringStat = mgrp.getTotStat(fold);
 			node.setNode(fold, onode);
 if (Debug.debug == 1) {
 			ClusStat.deltaSplit();						

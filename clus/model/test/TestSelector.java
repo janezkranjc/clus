@@ -116,10 +116,10 @@ public class TestSelector {
 		m_Heuristic = smanager.getHeuristic();
 		m_TestStat = new ClusStatistic[nbstat];
 		for (int i = 0; i < nbstat; i++) {
-			m_TestStat[i] = smanager.createTargetStatistic();
+			m_TestStat[i] = smanager.createClusteringStat();
 		}
 		m_TargetWeights = smanager.createClusAttributeWeights();		
-		m_TotCorrStat = smanager.createTargetStatistic();		
+		m_TotCorrStat = smanager.createClusteringStat();		
 		m_PosStat = m_TestStat[0];		
 	}	
 	

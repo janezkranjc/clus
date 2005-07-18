@@ -29,6 +29,7 @@ public class HierRMSError extends MSError {
 	}
 	
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
+		if (pred == null) return;
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
 		Arrays.fill(m_Scratch, 0.0);
 		for (int i = 0; i < tp.getLength(); i++) {

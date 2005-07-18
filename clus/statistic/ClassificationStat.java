@@ -158,7 +158,8 @@ public class ClassificationStat extends ClusStatistic {
 	
 	public void updateWeighted(DataTuple tuple, double weight) {
 		m_SumWeight += weight;		
-		int[] values = tuple.m_Ints;		
+		// int[] values = tuple.m_Ints;		
+		int[] values = tuple.m_Ints;
 		for (int i = 0; i < m_NbTarget; i++) {
 			int val = values[m_Attrs[i].getArrayIndex()];
 			if (val != m_Attrs[i].getNbValues()) {				
@@ -268,19 +269,21 @@ public class ClassificationStat extends ClusStatistic {
 				if (i != 0) buf.append(",");
 				buf.append(m_Attrs[i].getValue(m_MajorityClasses[i]));
 			}
-			buf.append("] :");
+			buf.append("]");
 		} else {
-			buf.append("? :");
+			buf.append("?");
 		}
 		for (int j = 0; j < m_NbTarget; j++) {		
-			buf.append(" [");
+			buf.append("[");
 			for (int i = 0; i < m_ClassCounts[j].length; i++) {
 				if (i != 0) buf.append(",");
+				buf.append(m_Attrs[j].getValue(i));
+				buf.append(":");
 				buf.append(fr.format(m_ClassCounts[j][i]));
 			}
 			buf.append("]");
 		}
-		buf.append(" : ");		
+		buf.append(":");		
 		buf.append(fr.format(m_SumWeight));
 		return buf.toString();
 	}

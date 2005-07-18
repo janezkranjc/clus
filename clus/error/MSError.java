@@ -6,6 +6,9 @@ package clus.error;
 import java.io.PrintWriter;
 import java.text.NumberFormat;
 import clus.data.attweights.*;
+import clus.data.rows.DataTuple;
+import clus.data.type.*;
+import clus.statistic.ClusStatistic;
 
 // import jeans.util.array.*;
 
@@ -15,16 +18,16 @@ public class MSError extends ClusNumericError {
 	protected ClusAttributeWeights m_Weights;
 	protected boolean m_PrintAllComps;
 	
-	public MSError(ClusErrorParent par) {
-		this(par, null, true);
+	public MSError(ClusErrorParent par, NumericAttrType[] num) {
+		this(par, num, null, true);
 	}
 	
-	public MSError(ClusErrorParent par, ClusAttributeWeights weights) {
-		this(par, weights, true);
+	public MSError(ClusErrorParent par, NumericAttrType[] num, ClusAttributeWeights weights) {
+		this(par, num, weights, true);
 	}
 	
-	public MSError(ClusErrorParent par, ClusAttributeWeights weights, boolean printall) {
-		super(par);
+	public MSError(ClusErrorParent par, NumericAttrType[] num, ClusAttributeWeights weights, boolean printall) {
+		super(par, num);
 		m_SqError = new double[m_Dim];
 		m_Weights = weights;
 		m_PrintAllComps = printall;
@@ -68,9 +71,16 @@ public class MSError extends ClusNumericError {
 	public void addExample(double[] real, double[] predicted) {
 		for (int i = 0; i < m_Dim; i++) {
 			double err = real[i] - predicted[i];			
-			// System.out.println("Err "+MDoubleArray.toString(real)+" - "+MDoubleArray.toString(predicted));
 			m_SqError[i] += err * err;
 		}
+	}
+	
+	public void addExample(DataTuple tuple, ClusStatistic pred) {
+		double[] predicted = pred.getNumericPred();
+		for (int i = 0; i < m_Dim; i++) {
+			double err = getAttr(i).getNumeric(tuple) - predicted[i];			
+			m_SqError[i] += err * err;
+		}		
 	}
 	
 	public void add(ClusError other) {
@@ -110,6 +120,6 @@ public class MSError extends ClusNumericError {
 	}
 	
 	public ClusError getErrorClone(ClusErrorParent par) {
-		return new MSError(par, m_Weights, m_PrintAllComps, m_Dim);
+		return new MSError(par, m_Attrs, m_Weights, m_PrintAllComps);
 	}
 }

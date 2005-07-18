@@ -18,7 +18,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
   
   public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-	protected ClusStatistic m_Default;
+	protected ClusStatistic m_TargetStat;
 	protected ArrayList m_Rules = new ArrayList();
   /* Array of tuples covered by the default rule. */
   protected ArrayList m_DefaultData = new ArrayList();
@@ -44,12 +44,12 @@ public class ClusRuleSet implements ClusModel, Serializable {
     if (getSettings().getCoveringMethod() == Settings.COVERING_METHOD_STANDARD) {
       for (int i = 0; i < getModelSize(); i++) {
         ClusRule rule = getRule(i);
-        if (rule.covers(tuple)) return rule.getTotalStat();
+        if (rule.covers(tuple)) return rule.getTargetStat();
       }
-      return m_Default;
+      return m_TargetStat;
     } else {
       boolean covered = false;
-      ClusStatistic stat = m_Default.cloneSimple();
+      ClusStatistic stat = m_TargetStat.cloneSimple();
       for (int i = 0; i < getModelSize(); i++) {
         ClusRule rule = getRule(i);
         if (rule.covers(tuple)) {
@@ -64,7 +64,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
       if (covered) {
         return stat;  
       } else {
-        return m_Default;
+        return m_TargetStat;
       }
     }
 	}
@@ -130,7 +130,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
       wrt.println("Default rule:");
       wrt.println("=============");
     }
-    wrt.println("Default = "+(m_Default == null ? "N/A" : m_Default.getString()));
+    wrt.println("Default = "+(m_TargetStat == null ? "N/A" : m_TargetStat.getString()));
     if (headers) {
       wrt.println("\n   Avg_Compactness (train): " + (avg_compactness[0][0]/m_Rules.size()) + " = " + (avg_compactness[0][1]/m_Rules.size()) + " + " + (avg_compactness[0][2]/m_Rules.size()) );
       wrt.println("   Avg_Coverage    (train): " + (avg_coverage[0]/m_Rules.size()));
@@ -168,7 +168,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 			wrt.println();			
 		}
-		wrt.println("Default = "+m_Default.getString());
+		wrt.println("Default = "+m_TargetStat.getString());
 	}	
 	
 	public int getModelSize() {
@@ -192,12 +192,12 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		return count;
 	}
 	
-	public void setDefaultStat(ClusStatistic def) {
-		m_Default = def;
+	public void setTargetStat(ClusStatistic def) {
+		m_TargetStat = def;
 	}
 	
 	public void postProc() {
-		m_Default.calcMean();
+		m_TargetStat.calcMean();
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
 			rule.postProc();

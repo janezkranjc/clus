@@ -21,7 +21,8 @@ public class ClusRule implements ClusModel, Serializable {
 
   protected int m_ID;
 	protected Object m_Visitor;
-	protected ClusStatistic m_Default;	
+	protected ClusStatistic m_TargetStat;
+	protected ClusStatistic m_ClusteringStat;	
 	protected ArrayList m_Tests = new ArrayList();
   /* Array of tuples covered by this rule */
   protected ArrayList m_Data = new ArrayList();
@@ -45,11 +46,12 @@ public class ClusRule implements ClusModel, Serializable {
   	}
   
 	public ClusStatistic predictWeighted(DataTuple tuple) {
-		return m_Default;
+		return m_TargetStat;
 	}
 	
 	public void computePrediction() {
-		m_Default.calcMean();
+		m_TargetStat.calcMean();
+		m_ClusteringStat.calcMean();
 	}
 	
 	public ClusRule cloneRule() {
@@ -183,11 +185,7 @@ public class ClusRule implements ClusModel, Serializable {
     }
     return removeCoveredEnough(result);
   }
-  
-	public ClusStatistic getTotalStat() {
-		return m_Default;
-	}
-	
+  	
 	public void setVisitor(Object visitor) {
 		m_Visitor = visitor;
 	}
@@ -227,10 +225,10 @@ public class ClusRule implements ClusModel, Serializable {
 			}
 		}
 		wrt.println();
-		wrt.print("THEN "+m_Default.getString());
+		wrt.print("THEN "+m_TargetStat.getString());
 		if (getID() != 0) wrt.println(" ("+getID()+")");
 		else wrt.println();		
-		String extra = m_Default.getExtraInfo();
+		String extra = m_TargetStat.getExtraInfo();
 		if (extra != null) {
 			// Used, e.g., in hierarchical multi-classification
 			wrt.println();
@@ -291,12 +289,24 @@ public class ClusRule implements ClusModel, Serializable {
 		m_Tests.remove(i);
 	}
 	
-	public void setDefaultStat(ClusStatistic def) {
-		m_Default = def;
+	public ClusStatistic getTargetStat() {
+		return m_TargetStat;
 	}
 	
+	public ClusStatistic getClusteringStat() {
+		return m_ClusteringStat;
+	}
+	
+	public void setTargetStat(ClusStatistic stat) {
+		m_TargetStat = stat;
+	}
+	
+	public void setClusteringStat(ClusStatistic stat) {
+		m_ClusteringStat = stat;
+	}	
+	
 	public void postProc() {
-		m_Default.calcMean();
+		m_TargetStat.calcMean();
 	}
 	
 	public String getModelInfo() {

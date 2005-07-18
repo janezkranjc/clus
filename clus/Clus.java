@@ -621,7 +621,7 @@ public class Clus implements CMDLineArgsProvider {
 	public final void testModel(String fname) throws IOException, ClusException, ClassNotFoundException {
 		ClusModelCollectionIO io = ClusModelCollectionIO.load(fname);
 		ClusNode res = (ClusNode)io.getModel("Pruned");
-		String test_name = FileUtil.getName(fname)+".test";
+		String test_name = m_Sett.getAppName()+".test";
 		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(test_name)));
 		ClusRun cr = partitionData();		
 		out.println("Tree read from .model:");
@@ -797,7 +797,7 @@ public class Clus implements CMDLineArgsProvider {
 		System.out.println();
 		m_Schema.showDebug();
 		ClusStatistic[] stats = new ClusStatistic[2];
-		stats[0] = getStatManager().createTargetStatistic();
+		stats[0] = getStatManager().createClusteringStat();
 		stats[1] = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
 		m_Data.calcTotalStats(stats);
 		if (!m_Sett.isNullTestFile()) {

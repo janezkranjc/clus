@@ -47,7 +47,7 @@ public class TildeTreeReader {
 			tokens.readChar('[');
 		}
 		ClusStatManager mgr = m_Parent.getStatMgr();		
-		ClassificationStat stat = (ClassificationStat)mgr.createTargetStatistic();		
+		ClassificationStat stat = (ClassificationStat)mgr.createClusteringStat();		
 		if (mode == TildeOutReader.REGRESSION) {
 			int nbdim = m_Parent.getDim();
 			double[] propvec = new double[nbdim];
@@ -77,7 +77,7 @@ public class TildeTreeReader {
 			stat.m_SumWeight = weight;
 		}
 		stat.calcMean();
-		node.setTotalStat(stat);
+		node.setClusteringStat(stat);
 	}
 	
 	public boolean cleanString(String str, ClusNode node) throws IOException {
@@ -128,7 +128,7 @@ public class TildeTreeReader {
 			if (result.length() > 0) test.addLine(result.toString());
 			node.setTest(test);
 		} else {
-			if (m_Parent.getDebug()) System.out.println("Leaf: "+node.getTotalStat());		
+			if (m_Parent.getDebug()) System.out.println("Leaf: "+node.getClusteringStat());		
 		
 		}
 		return isleaf;

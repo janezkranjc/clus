@@ -19,10 +19,11 @@ public class CorrelationMatrixComputer {
 		int nb_num = target.getNbNum();
 		m_Matrix = new PearsonCorrelation[nb_num][nb_num];
 		TargetSchema ts2 = new TargetSchema(0, 1);		
-		ClusErrorParent par = new ClusErrorParent(ts2, null);		
+		ClusErrorParent par = new ClusErrorParent(null);
+		NumericAttrType[] attrs = null;
 		for (int i = 0; i < nb_num; i++) {
 			for (int j = 0; j < nb_num; j++) {
-				m_Matrix[i][j] = new PearsonCorrelation(par);
+				m_Matrix[i][j] = new PearsonCorrelation(par, attrs);
 			}
 		}
 		double[] a1 = new double[1];

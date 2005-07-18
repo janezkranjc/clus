@@ -30,7 +30,7 @@ public class CalcStatisticProcessor extends ClusModelProcessor {
 		while (iter.hasMoreNodes()) {
 			ClusNode node = (ClusNode)iter.getNextNode();
 			ClusStatistic stat = m_Clone.cloneStat();
-			node.setTotalStat(stat);
+			node.setClusteringStat(stat);
 			stat.setSDataSize(1);
 		}		
 	}
@@ -39,12 +39,12 @@ public class CalcStatisticProcessor extends ClusModelProcessor {
 		CompleteTreeIterator iter = new CompleteTreeIterator((ClusNode)model);	
 		while (iter.hasMoreNodes()) {
 			ClusNode node = (ClusNode)iter.getNextNode();
-			node.getTotalStat().calcMean();
+			node.getClusteringStat().calcMean();
 		}
 	}
 
 	public void modelUpdate(DataTuple tuple, ClusModel model) {
 		ClusNode node = (ClusNode)model;
-		node.getTotalStat().updateWeighted(tuple, 0);
+		node.getClusteringStat().updateWeighted(tuple, 0);
 	}
 }

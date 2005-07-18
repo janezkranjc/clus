@@ -55,7 +55,7 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 		ClusBeamAttrSelector attrsel = (ClusBeamAttrSelector)leaf.getVisitor();
 		if (attrsel.isStopCrit()) {
 			/* stopping criterion already succeeded for this node */
-			if (m_Verbose) System.out.print("[S:"+leaf.getTotalStat()+"]");
+			if (m_Verbose) System.out.print("[S:"+leaf.getClusteringStat()+"]");
 			return;
 		}
 		RowData data = attrsel.getData();
@@ -170,7 +170,7 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 			ClusNode child = (ClusNode)leaf.getChild(j);
 			ClusBeamAttrSelector casel = new ClusBeamAttrSelector();					
 			RowData subset = data.applyWeighted(leaf.getTest(), j);				
-			child.initTotalStat(mgr, subset);					
+			child.initTargetStat(mgr, subset);					
 			casel.setData(subset);
 			child.setVisitor(casel);					
 		}

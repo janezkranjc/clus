@@ -24,7 +24,7 @@ public class M5Pruner extends PruneTree {
 	public void prune(ClusNode node) {
 		// ClusNode orig = null;
 		// orig = (ClusNode)node.cloneTree();
-		RegressionStat stat = (RegressionStat)node.getTotalStat();
+		RegressionStat stat = (RegressionStat)node.getClusteringStat();
 		m_GlobalDeviation = Math.sqrt(stat.getSS(m_TargetWeights)/stat.getTotalWeight());
 		pruneRecursive(node);
 		// System.out.println("Performing test of M5 pruning");
@@ -47,7 +47,7 @@ public class M5Pruner extends PruneTree {
 			ClusNode child = (ClusNode)node.getChild(i);
 			pruneRecursive(child);
 		}
-		ClusStatistic total = node.getTotalStat();
+		ClusStatistic total = node.getClusteringStat();
 		double rmsModel = Math.sqrt(total.getSS(m_TargetWeights)/total.getTotalWeight());
 		double adjustedErrorModel = rmsModel * pruningFactor(total.getTotalWeight(), 1);		
 	    double rmsSubTree = Math.sqrt(node.estimateSS(m_TargetWeights)/total.getTotalWeight());

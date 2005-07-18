@@ -37,6 +37,10 @@ public abstract class ClusError implements Serializable {
 		return true;
 	}
 	
+	public boolean isMultiLine() {
+		return false;
+	}
+	
 	public void setWeights(ClusAttributeWeights weights) {
 	}
 	

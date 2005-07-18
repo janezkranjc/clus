@@ -3,7 +3,10 @@ package clus.error;
 import java.io.*;
 import jeans.util.*;
 
+import clus.data.rows.DataTuple;
+import clus.data.type.*;
 import clus.main.*;
+import clus.statistic.ClusStatistic;
 import clus.util.*;
 
 public class ContingencyTable extends ClusNominalError {
@@ -13,18 +16,20 @@ public class ContingencyTable extends ClusNominalError {
 	protected final static String REAL_PRED = "REAL\\PRED";
 
 	protected int[][][] m_ContTable;
-	protected TargetSchema m_Schema;
 
-	public ContingencyTable(ClusErrorParent par, TargetSchema schema) {
-		super(par, schema.getNbNomAndNum());
-		m_Schema = schema;
+	public ContingencyTable(ClusErrorParent par, NominalAttrType[] nom) {
+		super(par, nom);
 		m_ContTable = new int[m_Dim][][];
 		for (int i = 0; i < m_Dim; i++) {
-			int size = schema.getNbNomValues(i);
+			int size = m_Attrs[i].getNbValues();
 			m_ContTable[i] = new int[size][size];
 		}
 	}
 	
+	public boolean isMultiLine() {
+		return true;
+	}
+		
 	public int calcNbCorrect(int[][] table) {
 		int sum = 0;
 		int size = table.length;
@@ -112,9 +117,9 @@ public class ContingencyTable extends ClusNominalError {
 			out.println("]");
 		} else {
 			for (int i = 0; i < m_Dim; i++) {
-				out.println(getPrefix()+"Attribute: "+m_Schema.getNomName(i));
 				out.println();
-				showContTable(out, i, m_Schema);
+				out.println(getPrefix()+"Attribute: "+m_Attrs[i].getName());
+				showContTable(out, i);
 			}
 		}
 	}	
@@ -135,19 +140,19 @@ public class ContingencyTable extends ClusNominalError {
 		return sum;
 	}	
 	
-	public void showContTable(PrintWriter out, int i, TargetSchema schema) {
+	public void showContTable(PrintWriter out, int i) {
 		int[][] table = m_ContTable[i];
-		int size = schema.getNbNomValues(i);
+		int size = m_Attrs[i].getNbValues();
 		// Calculate sizes
 		int[] wds = new int[size+2];
 		// First column
 		wds[0] = REAL_PRED.length();
 		for (int j = 0; j < size; j++) {
-			wds[j+1] = schema.getIntVal(i,j).length()+1;
+			wds[j+1] = m_Attrs[i].getValue(j).length()+1;
 		}
 		// Middle columns
 		for (int j = 0; j < size; j++) {
-			wds[0] = Math.max(wds[0], schema.getIntVal(i,j).length());
+			wds[0] = Math.max(wds[0], m_Attrs[i].getValue(j).length());
 			for (int k = 0; k < size; k++) {
 				String str = String.valueOf(table[j][k]);
 				wds[k+1] = Math.max(wds[k+1], str.length()+1);
@@ -171,7 +176,7 @@ public class ContingencyTable extends ClusNominalError {
 		printString(out, wds[0], REAL_PRED);
 		out.print(" |");
 		for (int j = 0; j < size; j++) {
-			printString(out, wds[j+1], schema.getIntVal(i,j));
+			printString(out, wds[j+1], m_Attrs[i].getValue(j));
 			out.print(" |");
 		}
 		out.println();
@@ -179,7 +184,7 @@ public class ContingencyTable extends ClusNominalError {
 		// Data rows
 		for (int j = 0; j < size; j++) {
 			out.print(getPrefix()+"  ");
-			printString(out, wds[0], schema.getIntVal(i,j));	
+			printString(out, wds[0], m_Attrs[i].getValue(j));	
 			out.print(" |");			
 			for (int k = 0; k < size; k++) {
 				printString(out, wds[k+1], String.valueOf(table[j][k]));
@@ -198,7 +203,6 @@ public class ContingencyTable extends ClusNominalError {
 		}
 		printString(out, wds[size+1], String.valueOf(getNbExamples()));
 		out.println();
-		out.println();		
 		out.print(getPrefix()+"  ");		
 		showAccuracy(out, i);
 		out.print(getPrefix()+"  ");		
@@ -210,7 +214,7 @@ public class ContingencyTable extends ClusNominalError {
 	public void showSummaryError(PrintWriter out, boolean detail) {		
 		if (!detail) {	
 			for (int i = 0; i < m_Dim; i++) {
-				out.print(getPrefix()+"Attribute: "+m_Schema.getNomName(i)+" - ");
+				out.print(getPrefix()+"Attribute: "+m_Attrs[i].getName()+" - ");
 				showAccuracy(out, i);
 			}			
 		}
@@ -226,12 +230,13 @@ public class ContingencyTable extends ClusNominalError {
 	}
 	
 	public ClusError getErrorClone(ClusErrorParent par) {
-		return new ContingencyTable(par, m_Schema);
+		return new ContingencyTable(par, m_Attrs);
 	}
-
-	public void addExample(int[] real, int[] predicted) {
+	
+	public void addExample(DataTuple tuple, ClusStatistic pred) {
+		int[] predicted = pred.getNominalPred();
 		for (int i = 0; i < m_Dim; i++) {
-			m_ContTable[i][real[i]][predicted[i]]++;
-		}
-	}
+			m_ContTable[i][getAttr(i).getNominal(tuple)][predicted[i]]++;
+		}		
+	}	
 }

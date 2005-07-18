@@ -24,7 +24,8 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	public int m_ID;
 	public NodeTest m_Test;
-	public ClusStatistic m_TotStat;
+	public ClusStatistic m_ClusteringStat;
+	public ClusStatistic m_TargetStat;
 	public transient Object m_Visitor;
 	
 	public long m_Time;
@@ -32,7 +33,8 @@ public class ClusNode extends MyNode implements ClusModel {
 	public MyNode cloneNode() {
 		ClusNode clone = new ClusNode();
 		clone.m_Test = m_Test;
-		clone.m_TotStat = m_TotStat;
+		clone.m_ClusteringStat = m_ClusteringStat;
+		clone.m_TargetStat = m_TargetStat;
 		return clone;
 	}
 	
@@ -96,15 +98,15 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	public double checkTotalWeight() {
 		if (atBottomLevel()) {
-			return getTotalStat().getTotalWeight();
+			return getClusteringStat().getTotalWeight();
 		} else {
 			double sum = 0.0;
 			for (int i = 0; i < getNbChildren(); i++) {
 				ClusNode child = (ClusNode)getChild(i);
 				sum += child.checkTotalWeight();
 			}
-			if (Math.abs(getTotalStat().getTotalWeight() - sum) > 1e-6) {
-				System.err.println("ClusNode::checkTotalWeight() error: "+getTotalStat().getTotalWeight()+" <> "+sum);
+			if (Math.abs(getClusteringStat().getTotalWeight() - sum) > 1e-6) {
+				System.err.println("ClusNode::checkTotalWeight() error: "+getClusteringStat().getTotalWeight()+" <> "+sum);
 			}
 			return sum;
 		}
@@ -195,12 +197,16 @@ public class ClusNode extends MyNode implements ClusModel {
 	 * Insprectors concenring statistics
 	 ***************************************************************************/
 	
-	public final ClusStatistic getTotalStat() {
-		return m_TotStat;
+	public final ClusStatistic getClusteringStat() {
+		return m_ClusteringStat;
 	}
 	
+	public final ClusStatistic getTargetStat() {
+		return m_TargetStat;
+	}	
+	
 	public final double getTotWeight() {
-		return m_TotStat.m_SumWeight;
+		return m_ClusteringStat.m_SumWeight;
 	}
 	
 	// Weight of unknown examples over total weight
@@ -212,8 +218,13 @@ public class ClusNode extends MyNode implements ClusModel {
 	 * Mutators
 	 ***************************************************************************/
 	
-	public final void setTotalStat(ClusStatistic stat) {
-		m_TotStat = stat;
+	public final void setClusteringStat(ClusStatistic stat) {
+		m_ClusteringStat = stat;
+	}
+	
+	public final void computePrediction() {
+		if (getClusteringStat() != null) getClusteringStat().calcMean();
+		if (getTargetStat() != null) getTargetStat().calcMean();
 	}
 	
 	public final int updateArity() {
@@ -230,7 +241,8 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 	
 	public final void cleanup() {
-		m_TotStat.setSDataSize(0);
+		if (m_ClusteringStat != null) m_ClusteringStat.setSDataSize(0);
+		if (m_TargetStat != null) m_TargetStat.setSDataSize(0);
 	}
 	
 	public void makeLeaf() {
@@ -241,7 +253,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	public final void updateTree() {
 		cleanup();
-		m_TotStat.calcMean();
+		computePrediction();
 		int nb_c = getNbChildren();
 		for (int i = 0; i < nb_c; i++) {
 			ClusNode info = (ClusNode)getChild(i);
@@ -255,7 +267,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	// Test if two nodes predict the same
 	public final boolean samePrediction(ClusNode other) {
-		return m_TotStat.samePrediction(other.m_TotStat);
+		return m_TargetStat.samePrediction(other.m_TargetStat);
 	}
 	
 	// Test if all children are leaves that predict the same
@@ -287,7 +299,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	 ***************************************************************************/
 	
 	public final void multiScore(MultiScore score) {
-		m_TotStat = new MultiScoreStat(m_TotStat, score);
+		m_ClusteringStat = new MultiScoreStat(m_ClusteringStat, score);
 		int nb_c = getNbChildren();
 		for (int i = 0; i < nb_c; i++) {
 			ClusNode info = (ClusNode)getChild(i);
@@ -345,7 +357,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	 */
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 		if (atBottomLevel()) {
-			return getTotalStat();
+			return getTargetStat();
 		} else {
 			int n_idx = m_Test.predictWeighted(tuple);
 			if (n_idx != -1) {
@@ -353,7 +365,7 @@ public class ClusNode extends MyNode implements ClusModel {
 				return info.predictWeighted(tuple);
 			} else {
 				int nb_c = getNbChildren();
-				ClusStatistic stat = m_TotStat.cloneSimple();
+				ClusStatistic stat = getTargetStat().cloneSimple();
 				for (int i = 0; i < nb_c; i++) {
 					ClusNode node = (ClusNode)getChild(i);
 					ClusStatistic nodes = node.predictWeighted(tuple);
@@ -408,15 +420,22 @@ public class ClusNode extends MyNode implements ClusModel {
 	 * Change the total statistic of the tree?
 	 ***************************************************************************/
 	
-	public final void initTotalStat(ClusStatManager smgr, RowData subset) {
-		m_TotStat = smgr.createTargetStatistic();
-		m_TotStat.setSDataSize(subset.getNbRows());
-		subset.calcTotalStat(m_TotStat);
-		m_TotStat.optimizePreCalc(subset);
+	public final void initTargetStat(ClusStatManager smgr, RowData subset) {
+		m_TargetStat = smgr.createTargetStat();
+		m_TargetStat.setSDataSize(subset.getNbRows());
+		subset.calcTotalStat(m_TargetStat);
+		m_TargetStat.optimizePreCalc(subset);
 	}
 	
+	public final void initClusteringStat(ClusStatManager smgr, RowData subset) {
+		m_ClusteringStat = smgr.createClusteringStat();
+		m_ClusteringStat.setSDataSize(subset.getNbRows());
+		subset.calcTotalStat(m_ClusteringStat);
+		m_ClusteringStat.optimizePreCalc(subset);
+	}
+		
 	public final void initTotStats(ClusStatistic stat) {
-		m_TotStat = stat.cloneStat();
+		m_ClusteringStat = stat.cloneStat();
 		int nb_c = getNbChildren();
 		for (int i = 0; i < nb_c; i++) {
 			ClusNode node = (ClusNode)getChild(i);
@@ -447,16 +466,16 @@ public class ClusNode extends MyNode implements ClusModel {
 		if (nb_c > 0) {
 			ClusNode ch0 = (ClusNode)getChild(0);
 			ch0.addChildStats();
-			ClusStatistic stat = ch0.getTotalStat();
+			ClusStatistic stat = ch0.getClusteringStat();
 			ClusStatistic root = stat.cloneSimple();
 			root.addPrediction(stat, 1.0);
 			for (int i = 1; i < nb_c; i++) {
 				ClusNode node = (ClusNode)getChild(i);
 				node.addChildStats();
-				root.addPrediction(node.getTotalStat(), 1.0);
+				root.addPrediction(node.getClusteringStat(), 1.0);
 			}
 			root.calcMean();
-			setTotalStat(root);
+			setClusteringStat(root);
 		}
 	}
 	
@@ -465,7 +484,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 
 	public double estimateError(ClusAttributeWeights scale) {
-		return estimateErrorRecursive(this, scale) / getTotalStat().getTotalWeight();
+		return estimateErrorRecursive(this, scale) / getClusteringStat().getTotalWeight();
 	}
 	
 	public double estimateSS(ClusAttributeWeights scale) {
@@ -473,12 +492,12 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 	
 	public double estimateVariance(ClusAttributeWeights scale) {
-		return estimateSSRecursive(this, scale) / getTotalStat().getTotalWeight();
+		return estimateSSRecursive(this, scale) / getClusteringStat().getTotalWeight();
 	}	
 	
 	public static double estimateSSRecursive(ClusNode tree, ClusAttributeWeights scale) {
 		if (tree.atBottomLevel()) {
-			ClusStatistic total = tree.getTotalStat();
+			ClusStatistic total = tree.getClusteringStat();
 			return total.getSS(scale);
 		} else {
 			double result = 0.0;
@@ -492,7 +511,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	public static double estimateErrorRecursive(ClusNode tree, ClusAttributeWeights scale) {
 		if (tree.atBottomLevel()) {
-			ClusStatistic total = tree.getTotalStat();
+			ClusStatistic total = tree.getClusteringStat();
 			return total.getError(scale);
 		} else {
 			double result = 0.0;
@@ -551,10 +570,10 @@ public class ClusNode extends MyNode implements ClusModel {
 				}
 			}
 		} else {
-			if (m_TotStat == null) {
+			if (m_TargetStat == null) {
 				writer.print("?");
 			} else {
-				writer.print(m_TotStat.getString());
+				writer.print(m_TargetStat.getString());
 			}
 			if (getID() != 0) writer.println(" ("+getID()+")");
 			else writer.println();
@@ -564,7 +583,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	public String toString() {
 		try{
 			if (hasBestTest()) return getTestString();
-			else return m_TotStat.getSimpleString();
+			else return m_TargetStat.getSimpleString();
 		}
 		catch(Exception e){return "null clusnode ";}
 	}
@@ -573,7 +592,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	 * Returns the majority class for this node.(not so good name)
 	 */
 	public ClusStatistic predictWeightedLeaf(DataTuple tuple) {
-		return getTotalStat();
+		return getTargetStat();
 	}
 	
 }

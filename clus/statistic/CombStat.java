@@ -386,7 +386,7 @@ public class CombStat extends ClusStatistic {
       return m_ClassStat.getError(scale);
     case ClusStatManager.MODE_REGRESSION:
       return m_RegStat.getError(scale);
-    case ClusStatManager.MODE_CLASIFFYANDREGRESSION:
+    case ClusStatManager.MODE_CLASIFFY_AND_REGRESSION:
       return m_RegStat.getError(scale) + m_ClassStat.getError(scale);
     }
     System.err.println(getClass().getName()+": getError(): Invalid mode!");

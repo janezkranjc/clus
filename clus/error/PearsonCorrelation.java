@@ -3,14 +3,18 @@ package clus.error;
 import java.io.*;
 import java.text.*;
 
+import clus.data.rows.DataTuple;
+import clus.data.type.NumericAttrType;
+import clus.statistic.ClusStatistic;
+
 public class PearsonCorrelation extends ClusNumericError {
 
 	protected double[] m_SumPi, m_SumSPi;
 	protected double[] m_SumAi, m_SumSAi;
 	protected double[] m_SumPiAi;
 
-	public PearsonCorrelation(ClusErrorParent par) {
-		super(par);
+	public PearsonCorrelation(ClusErrorParent par, NumericAttrType[] num) {
+		super(par, num);
 		m_SumPi = new double[m_Dim];
 		m_SumSPi = new double[m_Dim];
 		m_SumAi = new double[m_Dim];
@@ -65,6 +69,21 @@ public class PearsonCorrelation extends ClusNumericError {
 			m_SumPiAi[i] += predicted[i] * real[i];
 		}
 	}
+	
+	public void addExample(DataTuple tuple, ClusStatistic pred) {
+		double[] predicted = pred.getNumericPred();
+		for (int i = 0; i < m_Dim; i++) {
+				double real_i = getAttr(i).getNumeric(tuple);
+				// Predicted
+				m_SumPi[i] += predicted[i];
+				m_SumSPi[i] += predicted[i] * predicted[i];
+				// Real
+				m_SumAi[i] += real_i;
+				m_SumSAi[i] += real_i * real_i;
+				// Cross real, predicted
+				m_SumPiAi[i] += predicted[i] * real_i;	
+		}		
+	}		
 
 	public void add(ClusError other) {
 		PearsonCorrelation oe = (PearsonCorrelation)other;
@@ -116,7 +135,7 @@ public class PearsonCorrelation extends ClusNumericError {
 	}
 
 	public ClusError getErrorClone(ClusErrorParent par) {
-		return new PearsonCorrelation(par);
+		return new PearsonCorrelation(par, m_Attrs);
 	}
 }
 

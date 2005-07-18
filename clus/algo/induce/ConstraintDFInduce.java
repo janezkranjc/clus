@@ -76,7 +76,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		for (int j = 0; j < node.getNbChildren(); j++) {
 			ClusNode child = (ClusNode)node.getChild(j);
 			RowData subset = data.applyWeighted(best_test, j);				
-			child.initTotalStat(m_StatManager, subset);								
+			child.initTargetStat(m_StatManager, subset);								
 			fillInStatsAndTests(child, subset);
 		}
 	}
@@ -97,21 +97,21 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 	public ClusNode createRootNode(RowData data, ClusStatistic stat) {
 		ClusConstraintFile file = ClusConstraintFile.getInstance();
 		ClusNode root = file.getClone(m_ConstrFile);
-		root.setTotalStat(stat);
+		root.setClusteringStat(stat);
 		fillInStatsAndTests(root, data);
 		return root;		
 	}
 
 	public ClusNode fillInInTree(RowData data, ClusNode tree, ClusStatistic stat) {
 		ClusNode root = tree.cloneTreeWithVisitors();
-		root.setTotalStat(stat);
+		root.setClusteringStat(stat);
 		fillInStatsAndTests(root, data);
 		return root;		
 	}	
 	
 	public ClusNode fillInInduce(ClusRun cr, ClusNode node, MultiScore score) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
-		ClusStatistic stat = createTotalStat(data);
+		ClusStatistic stat = createTotalClusteringStat(data);
 		initSelectorAndSplit(stat);
 		ClusNode root = fillInInTree(data, node, stat);
 		root.postProc(score);
@@ -121,7 +121,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 	
 	public ClusNode induce(ClusRun cr, MultiScore score) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
-		ClusStatistic stat = createTotalStat(data);
+		ClusStatistic stat = createTotalClusteringStat(data);
 		initSelectorAndSplit(stat);
 		ClusNode root = createRootNode(data, stat);
 		if (!m_FillIn) {

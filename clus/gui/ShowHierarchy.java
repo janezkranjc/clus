@@ -184,19 +184,19 @@ public class ShowHierarchy extends JPanel {
 
     //public static double[] getCounts(ClusNode node, ClassHierarchy hier) {
     public static double[] getCounts(ClusNode node) {
-	HierStatistic stat = (HierStatistic)node.getTotalStat();
+	HierStatistic stat = (HierStatistic)node.getClusteringStat();
 	//double[] accu = hier.calcAccumulated(stat.getCounts(), stat.m_SumWeight);
 	//		hier.makeRelative(accu);
 	return MDoubleArray.clone(stat.getCounts()); 
     }
     
     public static double getWeight(ClusNode node) {
-	ClusStatistic stat = (ClusStatistic)node.getTotalStat();
+	ClusStatistic stat = (ClusStatistic)node.getClusteringStat();
 	return stat.m_SumWeight;
     }	
     
     public static double[] getVariances(ClusNode node) {
-	HierStatistic stat = (HierStatistic)node.getTotalStat();
+	HierStatistic stat = (HierStatistic)node.getClusteringStat();
 	double[] arr = stat.getVariances();
 	if (arr == null) return null;
 	else return MDoubleArray.clone(stat.getVariances());

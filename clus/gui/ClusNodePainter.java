@@ -47,13 +47,13 @@ public class ClusNodePainter extends MyNodePainter implements ActionListener {
 				lines[nb] = "H = "+ClusFormat.FOUR_AFTER_DOT.format(test.getHeuristicValue());
 			}*/
 			TreePanel panel = (TreePanel)m_Node.getPaintSettings().getDocument();
-			ClusStatistic stat = cnode.getTotalStat();
+			ClusStatistic stat = cnode.getClusteringStat();
 			m_StatVis = panel.createStatVisualiser(stat);
 
 			m_Button = new DrawableExpandButton(8, 8, m_Node.isFakeLeaf());
 			m_Button.setActionListener(this);
 		} else {
-			ClusStatistic stat = cnode.getTotalStat();
+			ClusStatistic stat = cnode.getClusteringStat();
 			lines = new String[1];
 
 			lines[0] = stat.getSimpleString();
@@ -165,7 +165,7 @@ public class ClusNodePainter extends MyNodePainter implements ActionListener {
 					wd = 50;
 					hi = 8;
 					ClusNode cnode = (ClusNode)m_Node.getVisitor(0);
-					ClusStatistic stat = cnode.getTotalStat();
+					ClusStatistic stat = cnode.getClusteringStat();
 					if (stat != null) {
 						String totstr = ""+((int)stat.getTotalWeight());
 						g.setFont(font3);
@@ -207,7 +207,7 @@ public class ClusNodePainter extends MyNodePainter implements ActionListener {
 			int ypos = yp-yofs;
 			int xpos = xp-xofs;
 			ClusNode cnode = (ClusNode)m_Node.getVisitor(0);
-			ClusStatistic stat = cnode.getTotalStat();
+			ClusStatistic stat = cnode.getClusteringStat();
 			Color node_color = m_Node.atBottomLevel() ? m_Node.getPaintSettings().LEAF_COLOR : m_Node.getPaintSettings().NODE_COLOR;
 			if (getZoom() == 4 || getZoom() == 5) {
 				try {

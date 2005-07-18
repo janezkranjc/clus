@@ -59,12 +59,12 @@ public class ClusBeamSizeConstraints {
 		} 
 		boolean is_leaf = node.atBottomLevel();
 		if (l < 3 || (is_leaf && ((ClusBeamAttrSelector)info.visitor).isStopCrit())) {
-			info.realcost[l] = info.lowcost[l] = node.getTotalStat().getError();
+			info.realcost[l] = info.lowcost[l] = node.getClusteringStat().getError();
 		} else if (is_leaf) {
-			info.realcost[l] = node.getTotalStat().getError();
-			info.lowcost[l] = computeLowerBound(node.getTotalStat(), l);
+			info.realcost[l] = node.getClusteringStat().getError();
+			info.lowcost[l] = computeLowerBound(node.getClusteringStat(), l);
 		} else {
-			info.realcost[l] = info.lowcost[l] = node.getTotalStat().getError();
+			info.realcost[l] = info.lowcost[l] = node.getClusteringStat().getError();
 			ClusNode ch1 = (ClusNode)node.getChild(0);
 			ClusNode ch2 = (ClusNode)node.getChild(1);				
 			ClusBeamSizeConstraintInfo i1 = (ClusBeamSizeConstraintInfo)ch1.getVisitor();
@@ -100,7 +100,7 @@ public class ClusBeamSizeConstraints {
 		for (int i = 1; i <= l; i++) {
 			if (b > info.bound[i]) info.bound[i] = b;
 		}
-		if (info.lowcost[l] > b || Math.abs(info.lowcost[l] - node.getTotalStat().getError()) < 1e-12) {
+		if (info.lowcost[l] > b || Math.abs(info.lowcost[l] - node.getClusteringStat().getError()) < 1e-12) {
 //			if (m_Debug) System.out.println("info.lowcost[l] > b || info.lowcost[l] == node.getTotalStat().getError()"+info.lowcost[l]+" > b = "+b+" err = "+node.getTotalStat().getError()); 			
 			return;
 		}

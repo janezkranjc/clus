@@ -44,7 +44,7 @@ public class ClusBeamHeuristicMEstimate extends ClusBeamHeuristic {
 	
 	public double estimateBeamMeasure(ClusNode tree) {
 		if (tree.atBottomLevel()) {
-			ClusStatistic total = tree.getTotalStat();
+			ClusStatistic total = tree.getClusteringStat();
 			return -total.getError()/m_NbTrain - Settings.SIZE_PENALTY;
 		} else {
 			double result = 0.0;
@@ -57,7 +57,7 @@ public class ClusBeamHeuristicMEstimate extends ClusBeamHeuristic {
 	}	
 	
 	public double computeLeafAdd(ClusNode leaf) {
-		return -leaf.getTotalStat().getError()/m_NbTrain;		
+		return -leaf.getClusteringStat().getError()/m_NbTrain;		
 	}	
 	
 	public void setRootStatistic(ClusStatistic stat) {		

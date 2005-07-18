@@ -153,7 +153,7 @@ public class ColData extends ClusData {
 	}
 	
 	public int[] getNominal(int idx) {
-		return m_Target.m_Nominal[idx];	
+		return null; // m_Target.m_Nominal[idx];	
 	}		
 	
 	public void preprocess(int pass, DataPreprocs pps) {

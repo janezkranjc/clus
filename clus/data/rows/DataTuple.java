@@ -7,6 +7,8 @@ import clus.main.*;
 public class DataTuple implements Serializable {
 
 	// Attributes can have several base types
+//	public int[] m_Ints;
+	
 	public int[] m_Ints;
 	public double[] m_Doubles;
 	public Object[] m_Objects;

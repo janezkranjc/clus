@@ -34,7 +34,7 @@ public class ClusRuleInduce {
 	}
 	
 	public double estimateBeamMeasure(ClusRule rule) {
-			return m_Heuristic.calcHeuristic(null, rule.getTotalStat(), null);
+			return m_Heuristic.calcHeuristic(null, rule.getClusteringStat(), null);
 	}
 	
 	public boolean isBeamChanged() {
@@ -48,9 +48,9 @@ public class ClusRuleInduce {
 	ClusBeam initializeBeam(RowData data) {
 		Settings sett = getSettings();
 		ClusBeam beam = new ClusBeam(sett.getBeamWidth(), sett.getBeamRemoveEqualHeur());
-		ClusStatistic stat = m_Induce.createTotalStat(data);
+		ClusStatistic stat = m_Induce.createTotalClusteringStat(data);
 		ClusRule rule = new ClusRule(m_Induce.getStatManager());
-		rule.setDefaultStat(stat);
+		rule.setClusteringStat(stat);
 		rule.setVisitor(data);
 		double value = estimateBeamMeasure(rule);
 		beam.addModel(new ClusBeamModel(value, rule));		
@@ -60,7 +60,7 @@ public class ClusRuleInduce {
 	public void refineModel(ClusBeamModel model, ClusBeam beam, int model_idx) {
 		ClusRule rule = (ClusRule)model.getModel();
 		RowData data = (RowData)rule.getVisitor();
-		if (m_Induce.initSelectorAndStopCrit(rule.getTotalStat(), data)) {
+		if (m_Induce.initSelectorAndStopCrit(rule.getClusteringStat(), data)) {
 			model.setFinished(true);
 			return;			
 		}
@@ -81,7 +81,7 @@ public class ClusRuleInduce {
 				ClusRule ref_rule = rule.cloneRule();
 				ref_rule.addTest(test);
 				ref_rule.setVisitor(subset);
-				ref_rule.setDefaultStat(m_Induce.createTotalStat(subset));
+				ref_rule.setClusteringStat(m_Induce.createTotalClusteringStat(subset));
 				double new_heur = sanityCheck(sel.m_BestHeur, ref_rule);
 				// Check for sure if _strictly_ better!
 				if (new_heur > beam_min_value) {
@@ -132,6 +132,9 @@ public class ClusRuleInduce {
 		double worst = beam.getWorstModel().getValue();		
 		System.out.println("Worst = "+worst+" Best = "+best);
 		ClusRule result = (ClusRule)beam.getBestAndSmallestModel().getModel();
+		// Create target statistic for rule
+		RowData rule_data = (RowData)result.getVisitor();
+		result.setTargetStat(m_Induce.createTotalTargetStat(rule_data));
 		result.setVisitor(null);
 		return result;
 	}
@@ -149,10 +152,10 @@ public class ClusRuleInduce {
         data = rule.removeCovered(data);
       }
     }
-    ClusStatistic left_over = m_Induce.createTotalStat(data);
+    ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
     left_over.calcMean();
     System.out.println("Left Over: "+left_over);
-    rset.setDefaultStat(left_over);
+    rset.setTargetStat(left_over);
   }
 
   /**
@@ -177,10 +180,10 @@ public class ClusRuleInduce {
         i++;
       }
     }
-    ClusStatistic left_over = m_Induce.createTotalStat(data);
+    ClusStatistic left_over = m_Induce.createTotalClusteringStat(data);
     left_over.calcMean();
     System.out.println("Left Over: "+left_over);
-    rset.setDefaultStat(left_over);
+    rset.setTargetStat(left_over);
   }
 
 	public double sanityCheck(double value, ClusRule rule) {
@@ -199,7 +202,7 @@ public class ClusRuleInduce {
 	public ClusModel induce(ClusRun run) throws ClusException, IOException {
 		int method = getSettings().getCoveringMethod();
 		RowData data = (RowData)run.getTrainingSet();
-		ClusStatistic stat = m_Induce.createTotalStat(data);
+		ClusStatistic stat = m_Induce.createTotalClusteringStat(data);
 		m_Induce.initSelectorAndSplit(stat);
 		setHeuristic(m_Induce.getSelector().getHeuristic());
 		ClusRuleSet rset = new ClusRuleSet(m_Induce.getStatManager());

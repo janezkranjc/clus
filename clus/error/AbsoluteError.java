@@ -3,13 +3,17 @@ package clus.error;
 import java.io.*;
 import java.text.*;
 
+import clus.data.rows.DataTuple;
+import clus.data.type.*;
+import clus.statistic.ClusStatistic;
+
 public class AbsoluteError extends ClusNumericError {
 
 	protected double[] m_AbsError; 
-	protected double[] m_AbsDefError; 	
+	protected double[] m_AbsDefError;
 
-	public AbsoluteError(ClusErrorParent par) {
-		super(par);
+	public AbsoluteError(ClusErrorParent par, NumericAttrType[] num) {
+		super(par, num);
 		m_AbsError = new double[m_Dim];
 		m_AbsDefError = new double[m_Dim];
 	}
@@ -26,6 +30,14 @@ public class AbsoluteError extends ClusNumericError {
 			m_AbsError[i] += Math.abs(err);
 		}
 	}
+	
+	public void addExample(DataTuple tuple, ClusStatistic pred) {
+		double[] predicted = pred.getNumericPred();
+		for (int i = 0; i < m_Dim; i++) {
+			double err = m_Attrs[i].getNumeric(tuple) - predicted[i];
+			m_AbsError[i] += Math.abs(err);		 
+		}
+	}	
 	
 	public void add(ClusError other) {
 		AbsoluteError oe = (AbsoluteError)other;
@@ -72,6 +84,6 @@ public class AbsoluteError extends ClusNumericError {
 	}
 	
 	public ClusError getErrorClone(ClusErrorParent par) {
-		return new AbsoluteError(par);
+		return new AbsoluteError(par, m_Attrs);
 	}
 }

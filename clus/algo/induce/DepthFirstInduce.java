@@ -113,7 +113,7 @@ public class DepthFirstInduce extends ClusInduce {
 		if (max != -1 && node.getLevel() >= max) {
 			return true;		
 		}
-		return initSelectorAndStopCrit(node.getTotalStat(), data);
+		return initSelectorAndStopCrit(node.getClusteringStat(), data);
 	}
 	
 	public boolean initSelectorAndStopCrit(ClusStatistic total, RowData data) {
@@ -151,7 +151,8 @@ public class DepthFirstInduce extends ClusInduce {
 				ClusNode child = new ClusNode();
 				node.setChild(child, j);				
 				RowData subset = data.applyWeighted(test, j);				
-				child.initTotalStat(m_StatManager, subset);								
+				child.initClusteringStat(m_StatManager, subset);								
+				child.initTargetStat(m_StatManager, subset);
 				induce(child, subset);
 			}
 		} else {
@@ -167,13 +168,21 @@ public class DepthFirstInduce extends ClusInduce {
 		return m_Selector;
 	}
 	
-	public ClusStatistic createTotalStat(RowData data) {
-		ClusStatistic stat = m_StatManager.createTargetStatistic();
+	public ClusStatistic createTotalClusteringStat(RowData data) {
+		ClusStatistic stat = m_StatManager.createClusteringStat();
 		stat.setSDataSize(data.getNbRows());
 		data.calcTotalStat(stat);
 		stat.optimizePreCalc(data);
 		return stat;
 	}
+	
+	public ClusStatistic createTotalTargetStat(RowData data) {
+		ClusStatistic stat = m_StatManager.createTargetStat();
+		stat.setSDataSize(data.getNbRows());
+		data.calcTotalStat(stat);
+		stat.optimizePreCalc(data);
+		return stat;
+	}	
 	
 	public ClusNode induce(ClusRun cr, MultiScore score) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
@@ -184,9 +193,10 @@ public class DepthFirstInduce extends ClusInduce {
 			nbr++;			
 			// Init root node
 			root = new ClusNode();
-			root.initTotalStat(m_StatManager, data);
-			root.getTotalStat().showRootInfo();
-			initSelectorAndSplit(root.getTotalStat());
+			root.initClusteringStat(m_StatManager, data);
+			root.initTargetStat(m_StatManager, data);			
+			root.getClusteringStat().showRootInfo();
+			initSelectorAndSplit(root.getClusteringStat());
 			// Induce the tree
 			induce(root, data);
 			// Refinement finished
