@@ -152,16 +152,14 @@ public class ClusErrorParent implements Serializable {
 				ClusModelInfo inf = models.getModelInfo(j);
 				ClusErrorParent parent = inf.getError(type);		
 				ClusError err2 = parent.getError(i);
-// If this is commented back in, then .xval summary does not work anymore!
-// -> so should find another way...
-//				if (inf.getModel() != null) {
+				if (inf.hasModel()) {
 					if (err2.isMultiLine()) {
 						out.print("   "+inf.getName()+": ");
 					} else {
 						out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
 					}
 					err2.showModelError(out, ClusError.DETAIL_SMALL);
-//				}
+				}
 			}
 		}			
 	}

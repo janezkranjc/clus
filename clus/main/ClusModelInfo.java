@@ -14,7 +14,7 @@ public class ClusModelInfo implements Serializable {
 	public final static int VALID_ERR = 2;
 	
 	protected String m_Name;
-	protected int m_ModelSize;
+	protected int m_ModelSize, m_NbModels;
 	protected double m_Score;
 	protected ClusModel m_Model;
 	protected ClusErrorParent m_TrainErr, m_TestErr, m_ValidErr;
@@ -163,8 +163,18 @@ public class ClusModelInfo implements Serializable {
 		else return m_Model.getModelSize();
 	}
 	
+	public final int getNbModels() {
+		if (m_Model == null) return m_NbModels;
+		else return 1;
+	}
+	
+	public final boolean hasModel() {
+		return getNbModels() > 0;
+	}
+	
 	public final void add(ClusModelInfo other) {
 		m_ModelSize += other.getModelSize();
+		m_NbModels += other.getNbModels();
 		if (other.hasTrainError()) {
 			m_TrainErr.add(other.getTrainingError());
 		}

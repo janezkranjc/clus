@@ -52,6 +52,11 @@ public class CRParent {
 			my.check();
 		}		
 	}
+
+	public boolean hasModel(int i) {
+		ClusModelInfo my = getModelInfo(i);
+		return my.getNbModels() > 0;
+	}
 	
 /***************************************************************************
  * Induction time
