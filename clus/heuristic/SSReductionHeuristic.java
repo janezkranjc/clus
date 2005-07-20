@@ -33,14 +33,10 @@ public class SSReductionHeuristic extends ClusHeuristic {
 		double n_tot = tstat.m_SumWeight; 
 		double n_pos = pstat.m_SumWeight; 
 		double n_neg = n_tot - n_pos;
-		
-//		System.out.println("SS Reduction tot: "+n_tot+" pos: "+n_pos+" neg: "+n_neg);
-		
 		// Acceptable?
 		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
 			return Double.NEGATIVE_INFINITY;
 		}
-		double[] fac = m_TargetWeights.getWeights();
 		// Sum for each numeric target attribute
 		for (int i = 0; i < nb; i++) {
 			// Total values
@@ -56,10 +52,10 @@ public class SSReductionHeuristic extends ClusHeuristic {
 			double sv_neg = sv_tot - sv_pos;			
 			double ss_neg = ss_tot - ss_pos;
 			// Add to sums
-			int aidx = tstat.getAttribute(i).getIndex();
-			s_ss_pos += ((k_pos > 1.0) ? ss_pos * (n_pos - 1) / (k_pos - 1) - n_pos * sv_pos/k_pos*sv_pos/k_pos : 0.0) * fac[aidx];
-			s_ss_neg += ((k_neg > 1.0) ? ss_neg * (n_neg - 1) / (k_neg - 1) - n_neg * sv_neg/k_neg*sv_neg/k_neg : 0.0) * fac[aidx];
-			s_ss_tot += ((k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0) * fac[aidx];
+			double fac = m_TargetWeights.getWeight(tstat.getAttribute(i));
+			s_ss_pos += ((k_pos > 1.0) ? ss_pos * (n_pos - 1) / (k_pos - 1) - n_pos * sv_pos/k_pos*sv_pos/k_pos : 0.0) * fac;
+			s_ss_neg += ((k_neg > 1.0) ? ss_neg * (n_neg - 1) / (k_neg - 1) - n_neg * sv_neg/k_neg*sv_neg/k_neg : 0.0) * fac;
+			s_ss_tot += ((k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0) * fac;
 		}		
 		return FTest.calcSSHeuristic(n_tot, s_ss_tot, s_ss_pos, s_ss_neg);
 	}

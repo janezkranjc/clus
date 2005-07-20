@@ -50,10 +50,10 @@ public class MSError extends ClusNumericError {
 		m_Weights = weights;
 	}
 	
-	public double getModelErrorComponen(int i) {
+	public double getModelErrorComponent(int i) {
 		int nb = getNbExamples();
 		double err = nb != 0.0 ? m_SqError[i]/nb : 0.0;
-//		if (m_Weights != null) err *= m_Weights.m_NumWeights[i];
+		if (m_Weights != null) err *= m_Weights.getWeight(getAttr(i));
 		return err;
 	}
 		
@@ -61,9 +61,8 @@ public class MSError extends ClusNumericError {
 		double ss_tree = 0.0;
 		int nb = getNbExamples();
 		for (int i = 0; i < m_Dim; i++) {
-//			if (m_Weights != null) ss_tree += m_SqError[i]*m_Weights.m_NumWeights[i];			
-//			else 
-			ss_tree += m_SqError[i];
+			if (m_Weights != null) ss_tree += m_SqError[i]*m_Weights.getWeight(getAttr(i));			
+			else ss_tree += m_SqError[i];
 		}
 		return nb != 0.0 ? ss_tree/nb/m_Dim : 0.0;
 	}	
@@ -116,7 +115,7 @@ public class MSError extends ClusNumericError {
 	
 	public String getName() {
 		if (m_Weights == null) return "Mean squared error (MSE)";
-		else return "Weighted mean squared error (MSE) ("+m_Weights.getName()+")";
+		else return "Weighted mean squared error (MSE) ("+m_Weights.getName(m_Attrs)+")";
 	}
 	
 	public ClusError getErrorClone(ClusErrorParent par) {

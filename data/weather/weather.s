@@ -5,4 +5,4 @@ Clustering = 1-4
 
 [Tree]
 Heuristic = Compactness
-ConvertToRules = On
+

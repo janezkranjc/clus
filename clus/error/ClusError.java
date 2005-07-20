@@ -76,7 +76,7 @@ public abstract class ClusError implements Serializable {
 	}
 
 	public double getModelErrorComponent(int i) {
-		return getModelError();
+		return 0.0;
 	}	
 	
 	public abstract ClusError getErrorClone(ClusErrorParent par);

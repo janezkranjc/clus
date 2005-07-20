@@ -45,9 +45,6 @@ public class ClusStatManager implements Serializable {
 	protected boolean m_BeamSearch;
 	protected boolean m_RuleInduce;
 	protected Settings m_Settings;
-	protected ClusAttributeWeights m_GlobalTargetWeights;
-	protected ClusAttributeWeights m_GlobalWeights;
-	protected ClusStatistic m_GlobalTargetStat;
 	protected ClusStatistic m_GlobalStat;    
   protected ClusStatistic[] m_StatisticAttrUse;
   protected ClusAttributeWeights m_NormalizationWeights;  
@@ -112,10 +109,6 @@ public class ClusStatManager implements Serializable {
 		return m_NormalizationWeights;
 	}	
 	
-	public void setGlobalTargetStat(ClusStatistic stat) {
-		m_GlobalTargetStat = stat;
-	}
-
 	public static boolean hasBitEqualToOne(boolean[] array) {
 		for (int i = 0; i < array.length; i++) {
 			if (array[i]) return true;
@@ -220,24 +213,8 @@ public class ClusStatManager implements Serializable {
 		m_CompactnessWeights = new ClusNormalizedAttributeWeights(m_NormalizationWeights);		
 	}
 	
-  /**
-   * Returns the global weights of target attributes.
-   * @return the weights
-   */
-  public ClusAttributeWeights getGlobalTargetWeights() {
-    return m_GlobalTargetWeights;
-  }
-	
-  /**
-   * Returns the global weights of all attributes.
-   * @return the weights
-   */
-  public ClusAttributeWeights getGlobalWeights() {
-    return m_GlobalWeights;
-  }  
-  
 	public ClusStatistic getGlobalStat() {
-		return m_GlobalTargetStat;
+		return m_GlobalStat;
 	}
 	
 	public void check() throws ClusException {
@@ -444,7 +421,7 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new AbsoluteError(parent, num));
 			parent.addError(new RMSError(parent, num));
 			if (getSettings().hasNonTrivialWeights()) {
-				parent.addError(new RMSError(parent, num, m_GlobalTargetWeights));
+				parent.addError(new RMSError(parent, num, m_NormalizationWeights));
 			}
 			parent.addError(new PearsonCorrelation(parent, num));			
 /*	  if (Settings.IS_MULTISCORE) {
@@ -458,8 +435,8 @@ public class ClusStatManager implements Serializable {
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				parent.addError(new HierRMSError(parent, m_GlobalTargetWeights, true, true, m_Hier));				
-				parent.addError(new HierRMSError(parent, m_GlobalTargetWeights, true, false, m_Hier));							
+				parent.addError(new HierRMSError(parent, m_NormalizationWeights, true, true, m_Hier));				
+				parent.addError(new HierRMSError(parent, m_NormalizationWeights, true, false, m_Hier));							
 				parent.addError(new HierLevelAccuracy(parent, m_Hier));				
 				parent.addError(new HierClassWiseAccuracy(parent, m_Hier));				
 				break;
@@ -582,7 +559,7 @@ public class ClusStatManager implements Serializable {
 		}
 		if (m_Mode == MODE_HIERARCHICAL) {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
-				return new M5Pruner(m_GlobalTargetWeights);
+				return new M5Pruner(m_NormalizationWeights);
 			}			
 		}
 		sett.setPruningMethod(Settings.PRUNING_METHOD_NONE);

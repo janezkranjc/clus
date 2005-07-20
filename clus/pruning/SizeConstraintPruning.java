@@ -61,9 +61,9 @@ public class SizeConstraintPruning extends PruneTree {
 		SizeConstraintVisitor visitor = (SizeConstraintVisitor)node.getVisitor();
 		if (visitor.computed[l]) return visitor.cost[l];
 		if (l < 3 || node.atBottomLevel()) {
-			visitor.cost[l] = node.getClusteringStat().getError(m_TargetWeights);
+			visitor.cost[l] = node.getTargetStat().getError(m_TargetWeights);
 		} else {
-			visitor.cost[l] = node.getClusteringStat().getError(m_TargetWeights);
+			visitor.cost[l] = node.getTargetStat().getError(m_TargetWeights);
 			ClusNode ch1 = (ClusNode)node.getChild(0);
 			ClusNode ch2 = (ClusNode)node.getChild(1);
 			for (int k1 = 1; k1 <= l-2; k1++) {

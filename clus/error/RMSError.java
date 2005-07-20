@@ -35,7 +35,7 @@ public class RMSError extends MSError {
 	
 	public String getName() {
 		if (m_Weights == null) return "Root mean squared error (RMSE)";
-		else return "Weighted root mean squared error (RMSE) ("+m_Weights.getName()+")";
+		else return "Weighted root mean squared error (RMSE) ("+m_Weights.getName(m_Attrs)+")";
 	}
 	
 	public ClusError getErrorClone(ClusErrorParent par) {
