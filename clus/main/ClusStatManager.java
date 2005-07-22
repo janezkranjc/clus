@@ -541,14 +541,17 @@ public class ClusStatManager implements Serializable {
 			sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
 			return new SizeConstraintPruning(sett.getTreeMaxSize(), createClusAttributeWeights());			
 		}
+		int err_nb = sett.getMaxErrorConstraintNumber();
 		int size_nb = sett.getSizeConstraintPruningNumber();
-		if (size_nb > 0) {
-			int[] sizes = new int[size_nb];
-			for (int i = 0; i < size_nb; i++) {
-				sizes[i] = sett.getSizeConstraintPruning(i);
-			}			
+		if (size_nb > 0 || err_nb > 0) {
+			int[] sizes = sett.getSizeConstraintPruningVector();
 			sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
-			return new SizeConstraintPruning(sizes, createClusAttributeWeights());
+			SizeConstraintPruning sc_prune = new SizeConstraintPruning(sizes, createClusAttributeWeights());
+			if (err_nb > 0) {
+				double[] max_err = sett.getMaxErrorConstraintVector();
+				sc_prune.setMaxError(max_err);
+				return sc_prune;
+			}
 		}
 		if (m_Mode == MODE_REGRESSION) {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT ||

@@ -4,8 +4,6 @@ PruneSet = None
 
 [Attributes]
 Target = 5
-Clustering = 1-5
-Descriptive = 1-4
 Weights = Normalize
 ClusteringWeights =
   TargetWeight = 0.5

@@ -5,6 +5,7 @@ import clus.data.attweights.*;
 
 public class SizeConstraintPruning extends PruneTree {
 
+	public double[] m_MaxError;
 	public int[] m_MaxSize;
 	public ClusAttributeWeights m_TargetWeights;
 
@@ -38,13 +39,31 @@ public class SizeConstraintPruning extends PruneTree {
 	}
 	
 	public int getNbResults() {
-		return m_MaxSize.length;
+		return Math.max(1, m_MaxSize.length);
 	}
 	
 	public void prune(int result, ClusNode node) {
-		pruneInitialize(node, m_MaxSize[result]);
-		pruneExecute(node, m_MaxSize[result]);
-	}	
+		if (m_MaxError == null) {
+			pruneInitialize(node, m_MaxSize[result]);
+			pruneExecute(node, m_MaxSize[result]);
+		} else {
+			if (m_MaxSize.length == 0) {
+				pruneMaxError(node, node.getNbNodes());
+			} else {
+				pruneMaxError(node, m_MaxSize[result]);
+			}
+		}
+	}
+	
+	public void pruneMaxError(ClusNode node, int maxsize) {
+		pruneInitialize(node, maxsize);
+		int constr_ok_size = maxsize;
+		for (int crsize = 1; crsize <= maxsize; crsize += 2) {
+			ClusNode copy = node.cloneTreeWithVisitors();
+			pruneExecute(copy, crsize);
+			
+		}
+	}
 	
 	private static void recursiveInitialize(ClusNode node, int size) {
 		/* Create array for each node */
@@ -93,5 +112,9 @@ public class SizeConstraintPruning extends PruneTree {
 			pruneToSizeK((ClusNode)node.getChild(0), k1);
 			pruneToSizeK((ClusNode)node.getChild(1), k2);
 		}
+	}
+
+	public void setMaxError(double[] max_err) {
+		m_MaxError = max_err;
 	}
 }
