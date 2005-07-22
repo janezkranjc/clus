@@ -31,27 +31,23 @@ public class Accuracy extends ClusNominalError {
 			m_NbCorrect[i] += acc.m_NbCorrect[i];
 		}
 	}	
-	
-	public void showModelError(PrintWriter out, int detail) {
-		for (int i = 0; i < m_Dim; i++) {
-			if (i != 0) out.print(", ");
-			out.print(getAccuracy(i));
-		}
-		out.println();
-	}	
-		
+			
 	public void showSummaryError(PrintWriter out, boolean detail) {		
 		showModelError(out, detail ? 1 : 0);
 	}	
 	
 	public double getAccuracy(int i) {
+		return getModelErrorComponent(i);
+	}
+	
+	public double getModelErrorComponent(int i) {
 		return ((double)m_NbCorrect[i]) / getNbExamples();
 	}
 		
 	public double getModelError() {
 		double avg = 0.0;
 		for (int i = 0; i < m_Dim; i++) {
-			avg += getAccuracy(i);
+			avg += getModelErrorComponent(i);
 		}
 		return avg / m_Dim;
 	}
@@ -69,6 +65,5 @@ public class Accuracy extends ClusNominalError {
 		for (int i = 0; i < m_Dim; i++) {
 			if (getAttr(i).getNominal(tuple) == predicted[i]) m_NbCorrect[i]++; 
 		}		
-	}	
-	
+	}
 }

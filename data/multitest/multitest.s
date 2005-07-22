@@ -5,6 +5,7 @@ Disable = 4,5
 Target = 4,5
 
 [Constraints]
-% MaxSize = 3
+MaxSize = Infinity
+MaxError = [0.5,0.4]
 
 

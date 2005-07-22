@@ -56,42 +56,16 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		System.out.flush();	
 	}
 	
-	public void initializeTestErrors(ClusNode node, ClusError error) {
-		SizeConstraintVisitor visitor = (SizeConstraintVisitor)node.getVisitor();
-		visitor.testerr = error.getErrorClone(error.getParent());
-		for (int i = 0; i < node.getNbChildren(); i++) {
-			ClusNode child = (ClusNode)node.getChild(i);
-			initializeTestErrors(child, error);
-		}
-	}
-	
 	public void setRelativeMeasure(boolean enable, double value) {
 		m_Relative = enable;
 		m_RelativeScale = value;
 	}
 	
-	public class MyTestStatComputer extends ClusModelProcessor {
-
-		public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
-			ClusNode tree = (ClusNode)model;
-			SizeConstraintVisitor visitor = (SizeConstraintVisitor)tree.getVisitor();
-			visitor.testerr.addExample(tuple, tree.getClusteringStat());					
-		}
-		
-		public boolean needsModelUpdate() {
-			return true;
-		}		
-		
-		public boolean needsInternalNodes() {
-			return true;
-		}	
-	}
-	
 	public void computeTestStatistics(ClusRun[] runs, int model, ClusError error) throws IOException, ClusException {
-		MyTestStatComputer comp = new MyTestStatComputer(); 
+		SizeConstraintErrorComputer comp = new SizeConstraintErrorComputer(); 
 		for (int i = 0; i < runs.length; i++) {
 			ClusNode tree = (ClusNode)runs[i].getModelInfo(model).getModel();
-			initializeTestErrors(tree, error);
+			SizeConstraintErrorComputer.initializeTestErrors(tree, error);
 			MemoryTupleIterator test = (MemoryTupleIterator)runs[i].getTestIter();
 			test.init();
 			DataTuple tuple = test.readTuple();
@@ -100,18 +74,6 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 				tuple = test.readTuple();
 			}
 		}		
-	}
-	
-	public void computeErrorSimple(ClusNode node, ClusError sum) {		
-		if (node.atBottomLevel()) {
-			SizeConstraintVisitor visitor = (SizeConstraintVisitor)node.getVisitor();
-			sum.add(visitor.testerr);
-		} else {
-			for (int i = 0; i < node.getNbChildren(); i++) {
-				ClusNode child = (ClusNode)node.getChild(i);
-				computeErrorSimple(child, sum);
-			}		
-		}
 	}
 	
 	public void computeErrorStandard(ClusNode tree, int model, ClusRun run) throws ClusException, IOException {
@@ -156,7 +118,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 			if (m_HasMissing) {
 				computeErrorStandard(tree, model, runs[i]);				
 			} else {
-				computeErrorSimple(tree, err);
+				SizeConstraintErrorComputer.computeErrorSimple(tree, err);
 			}
 			summ_err.add(err);
 			MemoryTupleIterator test = (MemoryTupleIterator)runs[i].getTestIter();

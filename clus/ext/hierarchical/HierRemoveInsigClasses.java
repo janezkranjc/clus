@@ -4,6 +4,7 @@
 package clus.ext.hierarchical;
 
 import clus.pruning.*;
+import clus.util.ClusException;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
 import clus.main.*;
@@ -33,7 +34,7 @@ public class HierRemoveInsigClasses extends PruneTree {
 		m_SigLevel = siglevel;
 	}
 	
-	public void prune(ClusNode node) {
+	public void prune(ClusNode node) throws ClusException {
 		m_Pruner.prune(node);
 		if (m_SigLevel != 0.0 && m_PruneSet.getNbRows() != 0) {
 			// Make sure global statistic is also computed on prune set!

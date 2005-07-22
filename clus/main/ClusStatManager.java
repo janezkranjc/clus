@@ -504,10 +504,10 @@ public class ClusStatManager implements Serializable {
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
     NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
     if (nom.length != 0) {
-    	parent.addError(new Accuracy(parent, nom));
+    	parent.addError(new MisclassificationError(parent, nom));
     }
     if (num.length != 0) {
-    	parent.addError(new MSError(parent, num));
+    	parent.addError(new RMSError(parent, num));
     }		
 		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
@@ -550,8 +550,9 @@ public class ClusStatManager implements Serializable {
 			if (err_nb > 0) {
 				double[] max_err = sett.getMaxErrorConstraintVector();
 				sc_prune.setMaxError(max_err);
-				return sc_prune;
+				sc_prune.setErrorMeasure(createAdditiveError());
 			}
+			return sc_prune;
 		}
 		if (m_Mode == MODE_REGRESSION) {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT ||

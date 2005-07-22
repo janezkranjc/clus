@@ -2,10 +2,15 @@ package clus.pruning;
 
 import clus.main.*;
 import clus.data.attweights.*;
+import clus.data.rows.*;
+import clus.error.*;
+import clus.util.*;
 
 public class SizeConstraintPruning extends PruneTree {
 
+	public RowData m_Data;
 	public double[] m_MaxError;
+	public ClusErrorParent m_ErrorMeasure;
 	public int[] m_MaxSize;
 	public ClusAttributeWeights m_TargetWeights;
 
@@ -20,6 +25,10 @@ public class SizeConstraintPruning extends PruneTree {
 		m_TargetWeights = prod;
 	}	
 	
+	public void setTrainingData(RowData data) {
+		m_Data = data;
+	}
+	
 	public ClusAttributeWeights getTargetWeights() {
 		return m_TargetWeights;
 	}
@@ -33,16 +42,15 @@ public class SizeConstraintPruning extends PruneTree {
 		pruneToSizeK(node, size);
 	}
 	
-	public void prune(ClusNode node) {
-		pruneInitialize(node, m_MaxSize[0]);
-		pruneExecute(node, m_MaxSize[0]);
+	public void prune(ClusNode node) throws ClusException {
+		prune(0, node);
 	}
 	
 	public int getNbResults() {
 		return Math.max(1, m_MaxSize.length);
 	}
 	
-	public void prune(int result, ClusNode node) {
+	public void prune(int result, ClusNode node) throws ClusException {
 		if (m_MaxError == null) {
 			pruneInitialize(node, m_MaxSize[result]);
 			pruneExecute(node, m_MaxSize[result]);
@@ -55,14 +63,40 @@ public class SizeConstraintPruning extends PruneTree {
 		}
 	}
 	
-	public void pruneMaxError(ClusNode node, int maxsize) {
+	public void pruneMaxError(ClusNode node, int maxsize) throws ClusException {
 		pruneInitialize(node, maxsize);
 		int constr_ok_size = maxsize;
 		for (int crsize = 1; crsize <= maxsize; crsize += 2) {
 			ClusNode copy = node.cloneTreeWithVisitors();
 			pruneExecute(copy, crsize);
-			
+			ClusErrorParent cr_err = m_ErrorMeasure.getErrorClone();
+			ClusError err = cr_err.getFirstError();
+			// Can be made more efficient :-)
+			SizeConstraintErrorComputer.computeErrorStandard(copy, m_Data, err);
+			cr_err.setNbExamples(m_Data.getNbRows());
+			if (m_MaxError.length == 1) {
+				double max_err = m_MaxError[0];
+				if (err.getModelError() <= max_err) {
+					constr_ok_size = crsize;
+					break;
+				}
+			} else {
+				boolean isOK = true;
+				for (int i = 0; i < m_MaxError.length; i++) {
+					double err_i = m_MaxError[i];
+					if (!Double.isNaN(err_i)) {
+						if (err.getModelErrorComponent(i) > err_i) {
+							isOK = false;
+						}
+					}
+				}
+				if (isOK) {
+					constr_ok_size = crsize;
+					break;				
+				}
+			}
 		}
+		pruneExecute(node, constr_ok_size);
 	}
 	
 	private static void recursiveInitialize(ClusNode node, int size) {
@@ -116,5 +150,9 @@ public class SizeConstraintPruning extends PruneTree {
 
 	public void setMaxError(double[] max_err) {
 		m_MaxError = max_err;
+	}
+
+	public void setErrorMeasure(ClusErrorParent parent) {
+		m_ErrorMeasure = parent;
 	}
 }

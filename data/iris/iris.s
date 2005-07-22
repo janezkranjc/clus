@@ -2,6 +2,11 @@
 TestSet = None
 PruneSet = None
 
+[Constraints]
+Syntactic = None
+MaxSize = 12
+MaxError = 0.01
+
 [Attributes]
 Target = 5
 Weights = Normalize

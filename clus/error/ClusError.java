@@ -93,7 +93,13 @@ public abstract class ClusError implements Serializable {
  * Display
  ***************************************************************************/		
 	
-	public abstract void showModelError(PrintWriter out, int detail);	
+	public void showModelError(PrintWriter out, int detail) {
+		for (int i = 0; i < m_Dim; i++) {
+			if (i != 0) out.print(", ");
+			out.print(getModelErrorComponent(i));
+		}
+		out.println();
+	}	
 	
 	public void showRelativeModelError(PrintWriter out, int detail) {
 		showModelError(out, detail);
