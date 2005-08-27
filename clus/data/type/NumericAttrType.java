@@ -82,6 +82,10 @@ public class NumericAttrType extends ClusAttrType {
 	public double getNumeric(DataTuple tuple) {
 		return tuple.getDoubleVal(m_ArrayIndex);
 	}
+	
+	public void setNumeric(DataTuple tuple, double value) {
+		tuple.setDoubleVal(value, m_ArrayIndex);
+	}	
 
 	public int compareValue(DataTuple t1, DataTuple t2) {
 		double v1 = t1.m_Doubles[m_ArrayIndex];

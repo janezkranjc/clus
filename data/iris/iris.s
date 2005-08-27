@@ -42,3 +42,7 @@ MultiScore = None
 [Nominal]
 GainRatio = No
 MEstimate = 1.0
+
+[Constraints]
+Syntactic = iris.constr
+MaxError = 0.34

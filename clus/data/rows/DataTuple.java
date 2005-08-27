@@ -1,6 +1,6 @@
 package clus.data.rows;
 
-import java.io.Serializable;
+import java.io.*;
 
 import clus.main.*;
 
@@ -45,6 +45,26 @@ public class DataTuple implements Serializable {
 		res.m_Folds = m_Folds;	
 		return res;
 	}
+	
+	public final DataTuple deepCloneTuple() {
+		DataTuple res = new DataTuple();
+		if (m_Ints != null) {
+			res.m_Ints = new int[m_Ints.length];
+			System.arraycopy(m_Ints, 0, res.m_Ints, 0, m_Ints.length);
+		}
+		if (m_Doubles != null) {
+			res.m_Doubles = new double[m_Doubles.length];
+			System.arraycopy(m_Doubles, 0, res.m_Doubles, 0, m_Doubles.length);
+		}
+		if (m_Objects != null) {
+			res.m_Objects = new Object[m_Objects.length];
+			System.arraycopy(m_Objects, 0, res.m_Objects, 0, m_Objects.length);
+		}
+		res.m_Weight = m_Weight;
+		res.m_Index = m_Index;
+		res.m_Folds = m_Folds;	
+		return res;
+	}	
 	
 	public final DataTuple changeWeight(double weight) {
 		DataTuple res = new DataTuple();

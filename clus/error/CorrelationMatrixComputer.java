@@ -15,27 +15,26 @@ public class CorrelationMatrixComputer {
 	
 	public void compute(RowData data) {
 		ClusSchema schema = data.getSchema();
-		TargetSchema target = schema.getTargetSchema();
-		int nb_num = target.getNbNum();
+		NumericAttrType[] attrs = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		int nb_num = attrs.length;
 		m_Matrix = new PearsonCorrelation[nb_num][nb_num];
-		TargetSchema ts2 = new TargetSchema(0, 1);		
+		NumericAttrType[] crtype = new NumericAttrType[1];
+		crtype[0] = new NumericAttrType("corr");
 		ClusErrorParent par = new ClusErrorParent(null);
-		NumericAttrType[] attrs = null;
 		for (int i = 0; i < nb_num; i++) {
-			for (int j = 0; j < nb_num; j++) {
-				m_Matrix[i][j] = new PearsonCorrelation(par, attrs);
+			for (int j = 0; j < nb_num; j++) {				
+				m_Matrix[i][j] = new PearsonCorrelation(par, crtype);
 			}
 		}
 		double[] a1 = new double[1];
 		double[] a2 = new double[1];		
 		par.setNbExamples(data.getNbRows());
-		ClusAttrType[] numtypes = target.getNumTypes();
 		for (int i = 0; i < data.getNbRows(); i++) {
 			DataTuple tuple = data.getTuple(i);			
 			for (int j = 0; j < nb_num; j++) {
 				for (int k = 0; k < nb_num; k++) {
-					a1[0] = ((NumericAttrType)numtypes[j]).getNumeric(tuple);
-					a2[0] = ((NumericAttrType)numtypes[k]).getNumeric(tuple);
+					a1[0] = attrs[j].getNumeric(tuple);
+					a2[0] = attrs[k].getNumeric(tuple);
 					m_Matrix[j][k].addExample(a1, a2);
 				}
 			}				
@@ -47,20 +46,27 @@ public class CorrelationMatrixComputer {
 		System.out.println("Number of numeric: "+nb_num);
 		System.out.println();
 		System.out.print("\\begin{tabular}{");
-		for (int i = 0; i < nb_num+1; i++) {
+		for (int i = 0; i < nb_num+2; i++) {
 			System.out.print("l");
 		}
 		System.out.println("}");
 		for (int i = 0; i < nb_num; i++) {
 			System.out.print(" & "+(i+1));
 		}
+		System.out.println("& Avg.");
 		System.out.println("\\\\");
 		for (int i = 0; i < nb_num; i++) {
 			System.out.print(i+1);
+			double avg = 0;
+			double cnt = 0;
 			for (int j = 0; j < nb_num; j++) {
 				double corr = m_Matrix[i][j].getCorrelation(0);
+				if (i != j) {
+					avg += corr; cnt ++;
+				}
 				System.out.print(" & "+ClusFormat.THREE_AFTER_DOT.format(corr));
 			}
+			System.out.print(" & "+ClusFormat.THREE_AFTER_DOT.format(avg/cnt));
 			System.out.println("\\\\");
 		}
 		System.out.println("\\end{tabular}");

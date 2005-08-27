@@ -39,7 +39,7 @@ public class HierRemoveInsigClasses extends PruneTree {
 		if (m_SigLevel != 0.0 && m_PruneSet.getNbRows() != 0) {
 			// Make sure global statistic is also computed on prune set!
 			m_Bonferroni = computeNRecursive(node);
-			WHTDStatistic global = (WHTDStatistic)node.getClusteringStat().cloneStat();
+			WHTDStatistic global = (WHTDStatistic)node.getTargetStat().cloneStat();
 			m_PruneSet.calcTotalStat(global);
 			global.calcMean();
 			executeRecursive(node, global, (RowData)m_PruneSet);
@@ -50,7 +50,7 @@ public class HierRemoveInsigClasses extends PruneTree {
 	public int computeNRecursive(ClusNode node) {
 		int result = 0;
 		if (node.atBottomLevel()) {
-			WHTDStatistic stat = (WHTDStatistic)node.getClusteringStat();
+			WHTDStatistic stat = (WHTDStatistic)node.getTargetStat();
 			result += stat.getNbPredictedClasses();
 		}		
 		for (int i = 0; i < node.getNbChildren(); i++) {
@@ -68,7 +68,7 @@ public class HierRemoveInsigClasses extends PruneTree {
 			if (isok) nbok++;
 		}
 		if (node.atBottomLevel()) {
-			WHTDStatistic orig = (WHTDStatistic)node.getClusteringStat();
+			WHTDStatistic orig = (WHTDStatistic)node.getTargetStat();
 			WHTDStatistic valid = (WHTDStatistic)orig.cloneStat();			
 			for (int i = 0; i < data.getNbRows(); i++) {
 				DataTuple tuple = data.getTuple(i);
@@ -85,7 +85,7 @@ public class HierRemoveInsigClasses extends PruneTree {
 				pred.setSigLevel(m_SigLevel);				
 			}
 			pred.calcMean();
-			node.setClusteringStat(pred);
+			node.setTargetStat(pred);
 			return !pred.m_MeanTuple.isRoot();
 		}
 		return true;

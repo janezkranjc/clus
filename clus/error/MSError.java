@@ -33,13 +33,6 @@ public class MSError extends ClusNumericError {
 		m_PrintAllComps = printall;
 	}
 	
-	public MSError(ClusErrorParent par, ClusAttributeWeights weights, boolean printall, int dim) {
-		super(par, dim);
-		m_SqError = new double[m_Dim];
-		m_Weights = weights;
-		m_PrintAllComps = printall;
-	}
-	
 	public void reset() {
 		for (int i = 0; i < m_Dim; i++) {
 			m_SqError[i] = 0.0;

@@ -4,6 +4,7 @@ import jeans.util.*;
 import java.io.*;
 
 import clus.main.*;
+import clus.data.rows.*;
 import clus.data.type.*;
 import clus.util.*;
 
@@ -99,5 +100,45 @@ public class ARFFFile {
 				throw new IOException("Attribute '"+aname+"' has unknown type '"+atype+"'");
 			}				
 		}
+	}
+
+	public static void writeArff(String fname, RowData data) throws IOException {
+		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
+		ClusSchema schema = data.getSchema();
+		wrt.println("@RELATION "+schema.getRelationName());
+		wrt.println();
+		for (int i = 0; i < schema.getNbAttributes(); i++) {
+			ClusAttrType type = schema.getAttrType(i);
+			if (!type.isDisabled()) {
+					wrt.print("@ATTRIBUTE ");
+					wrt.print(StringUtils.printStr(type.getName(), 40));
+					if (type.isKey()) {
+						wrt.print("key");
+					} else if (type.getTypeIndex() == NumericAttrType.THIS_TYPE) {
+						wrt.print("numeric");						
+					} else if (type.getTypeIndex() == NominalAttrType.THIS_TYPE) {
+						wrt.print(((NominalAttrType)type).getTypeString());						
+					} else {
+						throw new IOException("Unknown type while writing .arff file: "+type.getClass().getName());
+					}
+					wrt.println();
+			}
+		}
+		wrt.println();
+		wrt.println("@DATA");
+		for (int j = 0; j < data.getNbRows(); j++) {
+			DataTuple tuple = data.getTuple(j);
+			int aidx = 0;
+			for (int i = 0; i < schema.getNbAttributes(); i++) {
+				ClusAttrType type = schema.getAttrType(i);
+				if (!type.isDisabled()) {
+					if (aidx != 0) wrt.print(",");
+					wrt.print(type.getString(tuple));
+					aidx++;
+				}
+			}
+			wrt.println();
+		}		
+		wrt.close();
 	}
 }

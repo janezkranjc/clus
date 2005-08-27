@@ -110,6 +110,17 @@ public class NominalAttrType extends ClusAttrType {
 			m_Hash.put(m_Values[i], new Integer(i));
 		}
 	}
+	
+	public String getTypeString() {
+		StringBuffer res = new StringBuffer();
+		res.append("{");
+		for (int i = 0; i < m_NbValues; i++) {
+			if (i != 0) res.append(",");
+			res.append(m_Values[i]);
+		}
+		res.append("}");
+		return res.toString();
+	}
 
 	public String getString(DataTuple tuple) {
 		int idx = tuple.m_Ints[m_ArrayIndex];

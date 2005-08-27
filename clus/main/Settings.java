@@ -16,7 +16,7 @@ public class Settings implements Serializable {
 	public final static long serialVersionUID = 1L;
 
 	public final static String[] HEURISTICS = { "Default", "ReducedError",
-			"Gain", "SSPD", "MEstimate", "Compactness" };
+			"Gain", "SSPD", "MEstimate", "Compactness", "Morishita"};
 
 	public final static int HEURISTIC_DEFAULT = 0;
 
@@ -29,6 +29,8 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_MESTIMATE = 4;
 
 	public final static int HEURISTIC_COMPACTNESS = 5;
+	
+	public final static int HEURISTIC_MORISHITA = 6;	
 
 	public final static String[] PRUNING_METHODS = { "Default", "None", "C4.5",
 			"M5", "ReducedErrorVSB", "Garofalakis" };

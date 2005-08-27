@@ -170,7 +170,8 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 			ClusNode child = (ClusNode)leaf.getChild(j);
 			ClusBeamAttrSelector casel = new ClusBeamAttrSelector();					
 			RowData subset = data.applyWeighted(leaf.getTest(), j);				
-			child.initTargetStat(mgr, subset);					
+			child.initTargetStat(mgr, subset);
+			child.initClusteringStat(mgr, subset);
 			casel.setData(subset);
 			child.setVisitor(casel);					
 		}

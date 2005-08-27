@@ -77,6 +77,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 			ClusNode child = (ClusNode)node.getChild(j);
 			RowData subset = data.applyWeighted(best_test, j);				
 			child.initTargetStat(m_StatManager, subset);								
+			child.initClusteringStat(m_StatManager, subset);
 			fillInStatsAndTests(child, subset);
 		}
 	}
@@ -94,26 +95,29 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		}
 	}
 	
-	public ClusNode createRootNode(RowData data, ClusStatistic stat) {
+	public ClusNode createRootNode(RowData data, ClusStatistic cstat, ClusStatistic tstat) {
 		ClusConstraintFile file = ClusConstraintFile.getInstance();
 		ClusNode root = file.getClone(m_ConstrFile);
-		root.setClusteringStat(stat);
+		root.setClusteringStat(cstat);
+		root.setTargetStat(tstat);
 		fillInStatsAndTests(root, data);
 		return root;		
 	}
 
-	public ClusNode fillInInTree(RowData data, ClusNode tree, ClusStatistic stat) {
+	public ClusNode fillInInTree(RowData data, ClusNode tree, ClusStatistic cstat, ClusStatistic tstat) {
 		ClusNode root = tree.cloneTreeWithVisitors();
-		root.setClusteringStat(stat);
+		root.setClusteringStat(cstat);
+		root.setTargetStat(tstat);
 		fillInStatsAndTests(root, data);
 		return root;		
 	}	
 	
 	public ClusNode fillInInduce(ClusRun cr, ClusNode node, MultiScore score) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
-		ClusStatistic stat = createTotalClusteringStat(data);
-		initSelectorAndSplit(stat);
-		ClusNode root = fillInInTree(data, node, stat);
+		ClusStatistic cstat = createTotalClusteringStat(data);
+		ClusStatistic tstat = createTotalTargetStat(data);		
+		initSelectorAndSplit(cstat);
+		ClusNode root = fillInInTree(data, node, cstat, tstat);
 		root.postProc(score);
 		cleanSplit();
 		return root;		
@@ -121,9 +125,10 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 	
 	public ClusNode induce(ClusRun cr, MultiScore score) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
-		ClusStatistic stat = createTotalClusteringStat(data);
-		initSelectorAndSplit(stat);
-		ClusNode root = createRootNode(data, stat);
+		ClusStatistic cstat = createTotalClusteringStat(data);
+		ClusStatistic tstat = createTotalTargetStat(data);
+		initSelectorAndSplit(cstat);
+		ClusNode root = createRootNode(data, cstat, tstat);
 		if (!m_FillIn) {
 			// Call induce on each leaf
 			induceRecursive(root, data);

@@ -21,7 +21,7 @@ public class HierRMSError extends MSError {
 	}
 	
 	public HierRMSError(ClusErrorParent par, ClusAttributeWeights weights, boolean printall, boolean root, boolean proto, ClassHierarchy hier) {
-		super(par, weights, printall, hier.getTotal());
+		super(par, hier.getDummyAttrs(), weights, printall);
 		m_Hier = hier;
 		m_Root = root;
 		m_ContPred = proto;

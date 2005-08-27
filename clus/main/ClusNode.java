@@ -222,6 +222,10 @@ public class ClusNode extends MyNode implements ClusModel {
 		m_ClusteringStat = stat;
 	}
 	
+	public final void setTargetStat(ClusStatistic stat) {
+		m_TargetStat = stat;
+	}	
+	
 	public final void computePrediction() {
 		if (getClusteringStat() != null) getClusteringStat().calcMean();
 		if (getTargetStat() != null) getTargetStat().calcMean();

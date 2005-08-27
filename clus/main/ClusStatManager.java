@@ -299,17 +299,19 @@ public class ClusStatManager implements Serializable {
     	} else {
     		m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = createSuitableStat(num3, nom3);
     	}    	
-    }    
+    }        
 		switch (m_Mode) {
 		case MODE_HIERARCHICAL:			
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
 				case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
-					setTargetStatistic(new WAHNDStatistic(m_Hier)); break;
+					setClusteringStatistic(new WAHNDStatistic(m_Hier)); break;
 				case Settings.HIERMODE_TREE_DIST_WEUCLID:
-					setTargetStatistic(new WHTDStatistic(m_Hier)); break;
+					setClusteringStatistic(new WHTDStatistic(m_Hier));
+					setTargetStatistic(new WHTDStatistic(m_Hier));
+				  break;
 				case Settings.HIERMODE_XTAX_SET_DIST:
-					setTargetStatistic(new SPMDStatistic(m_Hier)); break;
+					setClusteringStatistic(new SPMDStatistic(m_Hier)); break;
 /*				case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
  					setTargetStatistic(DHierStatistic(m_Hier)); break; */
 			}
@@ -370,11 +372,34 @@ public class ClusStatManager implements Serializable {
 				m_Heuristic = new ClusBeamHeuristicError(createClusteringStat());
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_MESTIMATE) {
 				m_Heuristic = new ClusBeamHeuristicMEstimate(createClusteringStat(), getSettings().getMEstimate());
+			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_MORISHITA) {
+				m_Heuristic = new ClusBeamHeuristicMorishita(createClusteringStat());
 			} else {
 				m_Heuristic = new ClusBeamHeuristicSS(createClusteringStat(), createClusAttributeWeights());    			
 			}
 			return;
 		}
+		/* Special modes (hierarchical, ...) */
+		if (m_Mode == MODE_HIERARCHICAL) {
+			int hiermode = getSettings().getHierMode();
+			switch (hiermode) {
+				case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
+					name = "Weighted Absolute Hierarchical Tree Distance";
+					m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights(), getSettings().isHierNoRootPreds()); break;				
+				case Settings.HIERMODE_TREE_DIST_WEUCLID:
+					name = "Weighted Hierarchical Tree Distance";
+					m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights(), getSettings().isHierNoRootPreds()); break;
+				case Settings.HIERMODE_XTAX_SET_DIST:
+					m_Heuristic = new SPMDHeuristic(m_Hier); break;
+				case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
+					m_Heuristic = new DHierHeuristic(m_Hier); break;
+			}
+			return;
+		}
+		if (m_Mode == MODE_SSPD) {
+			m_Heuristic = new SSPDHeuristic(m_SSPDMtrx);
+			return;
+		}		
 		/* Set heuristic for trees */
 		if (num.length > 0 && nom.length > 0) {
 			System.err.println("Combined heuristic not yet implemented for trees!");
@@ -387,26 +412,6 @@ public class ClusStatManager implements Serializable {
 			} else {
 				m_Heuristic = new GainHeuristic();
 			}
-		}
-		switch (m_Mode) {
-		case MODE_HIERARCHICAL:
-			int hiermode = getSettings().getHierMode();
-			switch (hiermode) {
-			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
-				name = "Weighted Absolute Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights(), getSettings().isHierNoRootPreds()); break;				
-			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				name = "Weighted Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights(), getSettings().isHierNoRootPreds()); break;
-			case Settings.HIERMODE_XTAX_SET_DIST:
-				m_Heuristic = new SPMDHeuristic(m_Hier); break;
-			case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
-				m_Heuristic = new DHierHeuristic(m_Hier); break;
-			}
-			break;
-		case MODE_SSPD:
-			m_Heuristic = new SSPDHeuristic(m_SSPDMtrx);
-			break;
 		}
 	}
 	
@@ -435,8 +440,8 @@ public class ClusStatManager implements Serializable {
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				parent.addError(new HierRMSError(parent, m_NormalizationWeights, true, true, m_Hier));				
-				parent.addError(new HierRMSError(parent, m_NormalizationWeights, true, false, m_Hier));							
+				parent.addError(new HierRMSError(parent, getClusteringWeights(), true, true, m_Hier));				
+				parent.addError(new HierRMSError(parent, getClusteringWeights(), true, false, m_Hier));							
 				parent.addError(new HierLevelAccuracy(parent, m_Hier));				
 				parent.addError(new HierClassWiseAccuracy(parent, m_Hier));				
 				break;
@@ -598,6 +603,10 @@ public class ClusStatManager implements Serializable {
 		System.out.println("Setting clustering statistic: "+stat.getClass().getName());
 		m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = stat;
 	}	
+	
+	public boolean hasClusteringStat() {
+		return m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] != null;
+	}
 	
 	public ClusStatistic createClusteringStat() {
 		return m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING].cloneStat();
