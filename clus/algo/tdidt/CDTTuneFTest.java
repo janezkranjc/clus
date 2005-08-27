@@ -7,6 +7,7 @@ import java.util.*;
 import clus.main.*;
 import clus.util.*;
 import clus.selection.*;
+import clus.error.ClusError;
 import clus.heuristic.*;
 
 public class CDTTuneFTest extends ClusClassifier {
@@ -47,10 +48,19 @@ public class CDTTuneFTest extends ClusClassifier {
 			ClusModel pruned = m_Class.induceSingle(cr);			
 			cr.getModelInfo(prmodel).setModel(pruned);
 			m_Clus.calcError(cr, summ);
+/*			System.out.println();
+			System.out.println("Model:");
+			((ClusNode)pruned).printTree(); */
 		}
 		ClusModelInfo mi = summ.getModelInfo(prmodel);
 		Settings.enableVerbose(prevVerb);
-		return mi.getTestError().getFirstError().getModelError();
+		ClusError err = mi.getTestError().getFirstError();
+		System.out.println();
+		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(System.out));
+		wrt.print("Error:");			
+		err.showModelError(wrt, 1);
+		wrt.flush();
+		return err.getModelError();
 	}
 	
 //	public final static double[] FTEST_SIG = {1.0, 0.1, 0.05, 0.01, 0.005, 0.001};	

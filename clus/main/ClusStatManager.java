@@ -524,6 +524,10 @@ public class ClusStatManager implements Serializable {
 	
 	public ClusErrorParent createTuneError() {
 		ClusErrorParent parent = new ClusErrorParent(this);
+		if (m_Mode == MODE_HIERARCHICAL) { 
+			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));			
+			return parent;
+		}
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
     NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
     if (nom.length != 0) {
@@ -532,11 +536,6 @@ public class ClusStatManager implements Serializable {
     if (num.length != 0) {
     	parent.addError(new PearsonCorrelation(parent, num));
     }		
-		switch (m_Mode) {
-		case MODE_HIERARCHICAL:
-			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));			
-			break;
-		}
 		return parent;
 	}
 	
