@@ -56,6 +56,14 @@ public class WHTDStatistic extends RegressionStat {
 		return new WHTDStatistic(m_Hier, true);		
 	}
 	
+	public void copyAll(ClusStatistic other) {
+		super.copy(other);
+		WHTDStatistic my_other = (WHTDStatistic)other; 
+		m_Global = my_other.m_Global;
+		m_Validation = my_other.m_Validation;
+		m_SigLevel = my_other.m_SigLevel;
+	}	
+	
 	public void addPrediction(ClusStatistic other, double weight) {
 		WHTDStatistic or = (WHTDStatistic)other;
 		super.addPrediction(other, weight);
@@ -108,10 +116,14 @@ public class WHTDStatistic extends RegressionStat {
 		}
 		return count;			
 	}
-	
+
 	public void calcMean() {
+		calcMean(0.5);
+	}
+	
+	public void calcMean(double treshold) {
 		super.calcMean();
-		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means);
+		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means, treshold);
 		m_DiscrMean = m_MeanTuple.getVectorWithParents(m_Hier);
 		if (m_Validation != null) {
 			for (int i = 0; i < m_DiscrMean.length; i++) {
@@ -142,7 +154,8 @@ public class WHTDStatistic extends RegressionStat {
 					}
 				}
 			}
-			m_MeanTuple = m_Hier.getBestTupleMaj(m_DiscrMean);
+			// Treshold of 0.5 is ok because components of m_DiscrMean are 0 or 1.
+			m_MeanTuple = m_Hier.getBestTupleMaj(m_DiscrMean, 0.5);
 		}
 	}
 	
@@ -235,7 +248,7 @@ public class WHTDStatistic extends RegressionStat {
 
 	public String getExtraInfo() {
 		StringBuffer res = new StringBuffer();		
-		ClassesTuple meantuple = m_Hier.getBestTupleMaj(m_Means);
+		ClassesTuple meantuple = m_Hier.getBestTupleMaj(m_Means, 0.5);
 		double[] discrmean = meantuple.getVectorWithParents(m_Hier);
 		getExtraInfoRec(m_Hier.getRoot(), discrmean, res);
 		return res.toString();

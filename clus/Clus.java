@@ -767,6 +767,15 @@ public class Clus implements CMDLineArgsProvider {
 		cr.getTestError().showError(cr, ClusModelInfo.TEST_ERR, out);
 		out.close();
 	}
+	
+	public final void showModel(String fname) throws IOException,	ClusException, ClassNotFoundException {
+		ClusModelCollectionIO io = ClusModelCollectionIO.load(fname);
+		ClusNode res = (ClusNode) io.getModel("Pruned");
+		System.out.println("Tree read from .model:");
+		System.out.println();
+		res.inverseTests();
+		res.printTree();
+	}	
 
 	public final void saveModels(ClusRun models, ClusModelCollectionIO io)
 			throws IOException {
@@ -1097,6 +1106,7 @@ public class Clus implements CMDLineArgsProvider {
 					clus.initialize(cargs, clss);
 					//		    optx.baggingRun(clss);
 				} else if (cargs.hasOption("show")) {
+					// clus.showModel(clus.getAppName());
 					clus.showTree(clus.getAppName());
 				} else if (cargs.hasOption("gui")) {
 					clus.gui(cargs.getMainArg(0));

@@ -93,6 +93,8 @@ public class Settings implements Serializable {
 	public final static long SERIAL_VERSION_ID = 1L;
 
 	public final static String NONE = "None";
+	
+	public final static String[] NONELIST = { "None" };
 
 	public final static String DEFAULT = "Default";
 
@@ -276,6 +278,8 @@ public class Settings implements Serializable {
 	protected INIFileBool m_HierNoRootPreds;
 
 	protected INIFileBool m_HierUseBonferroni;
+	
+	protected INIFileNominalOrDoubleOrVector m_HierClassTreshold;
 
 	INIFileSection m_SectionKNN;
 
@@ -380,10 +384,12 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierNoRootPreds = new INIFileBool("NoRootPredictions", false));
 		m_SectionHierarchical.addNode(m_HierPruneInSig = new INIFileDouble("PruneInSig", 0.0));
 		m_SectionHierarchical.addNode(m_HierUseBonferroni = new INIFileBool("Bonferroni", false));
+		m_SectionHierarchical.addNode(m_HierClassTreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold",	NONELIST));
+		m_HierClassTreshold.setNominal(0);
 		m_SectionHierarchical.addNode(HIER_CONT_PROTOTYPE = new INIFileBool("ContinueProto", true));
 		m_SectionHierarchical.addNode(HIER_USE_ABUNDANCES = new INIFileBool("UseAbundances", false));
 		m_SectionHierarchical.addNode(HIER_NODE_ABUNDANCES = new INIFileBool("NodeAbundances", false));
-		m_SectionHierarchical.addNode(m_HierMode = new INIFileNominal("Mode", HIERMODES, 0));
+		m_SectionHierarchical.addNode(m_HierMode = new INIFileNominal("Mode", HIERMODES, 0));		
 		m_SectionHierarchical.setEnabled(false);
 
 		m_SectionKNN = new INIFileSection("kNN");
@@ -463,6 +469,10 @@ public class Settings implements Serializable {
 
 	public boolean isUseBonferroni() {
 		return m_HierUseBonferroni.getValue();
+	}
+	
+	public INIFileNominalOrDoubleOrVector getClassificationTresholds() {
+		return m_HierClassTreshold;
 	}
 
 	public int getPruningMethod() {

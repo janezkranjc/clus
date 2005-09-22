@@ -558,6 +558,10 @@ public class ClusStatManager implements Serializable {
 			}
 			return sc_prune;
 		}
+		INIFileNominalOrDoubleOrVector class_thr = sett.getClassificationTresholds();
+		if (class_thr.getVectorLength() > 0) {
+			return new HierClassTresholdPruner(class_thr.getDoubleVector()); 
+		}
 		if (m_Mode == MODE_REGRESSION) {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT ||
 				sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
@@ -576,7 +580,7 @@ public class ClusStatManager implements Serializable {
 	
 	public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 		Settings sett = getSettings();
-		if (m_Mode == MODE_HIERARCHICAL) {
+		if (m_Mode == MODE_HIERARCHICAL && pruneset != null) {
 			PruneTree pruner = getTreePrunerNoVSB(); 
 			boolean bonf = sett.isUseBonferroni();
 			HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(pruneset, pruner, bonf, m_Hier);

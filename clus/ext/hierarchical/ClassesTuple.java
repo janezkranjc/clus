@@ -255,7 +255,7 @@ public class ClassesTuple implements MySparseVector, Serializable {
 	public String toStringHumanNoIntermediate(ClassHierarchy hier) {
 		if (m_Tuple.length > 0) {
 			double[] vec = getVectorWithParents(hier);
-			ClassesTuple tuple = hier.getBestTupleMajNoParents(vec);
+			ClassesTuple tuple = hier.getBestTupleMajNoParents(vec, 0.5);
 			return tuple.toStringHuman();
 		} else {
 			return "none";

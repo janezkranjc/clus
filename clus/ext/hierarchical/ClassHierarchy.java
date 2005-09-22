@@ -165,10 +165,10 @@ public class ClassHierarchy implements Serializable {
 		}
 	}
 	
-	public static void fillBooleanMatrixMaj(ClassTerm node, double[] mean, boolean[] matrix) {
-		if (mean[node.getIndex()] >= 0.5) matrix[node.getIndex()] = true;
+	public static void fillBooleanMatrixMaj(ClassTerm node, double[] mean, boolean[] matrix, double treshold) {
+		if (mean[node.getIndex()] >= treshold/100.0) matrix[node.getIndex()] = true;
 		for (int i = 0; i < node.getNbChildren(); i++) {
-			fillBooleanMatrixMaj((ClassTerm)node.getChild(i), mean, matrix);
+			fillBooleanMatrixMaj((ClassTerm)node.getChild(i), mean, matrix, treshold);
 		}
 	}
 	
@@ -193,18 +193,18 @@ public class ClassHierarchy implements Serializable {
 		return count;
 	}
 	
-	public ClassesTuple getBestTupleMajNoParents(double[] mean) {
+	public ClassesTuple getBestTupleMajNoParents(double[] mean, double treshold) {
 		boolean[] classes = new boolean[getTotal()];
-		fillBooleanMatrixMaj(getRoot(), mean, classes);
+		fillBooleanMatrixMaj(getRoot(), mean, classes, treshold);
 		removeParentNodes(getRoot(), classes);
 		ClassesTuple tuple = new ClassesTuple(countOnes(classes));
 		addAllClasses(getRoot(), tuple, classes);
 		return tuple;
 	}
 	
-	public ClassesTuple getBestTupleMaj(double[] mean) {
+	public ClassesTuple getBestTupleMaj(double[] mean, double treshold) {
 		boolean[] classes = new boolean[getTotal()];
-		fillBooleanMatrixMaj(getRoot(), mean, classes);
+		fillBooleanMatrixMaj(getRoot(), mean, classes, treshold);
 		ClassesTuple tuple = new ClassesTuple(countOnes(classes));
 		addAllClasses(getRoot(), tuple, classes);
 		return tuple;

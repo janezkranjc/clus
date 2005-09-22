@@ -51,11 +51,17 @@ public class ClusDecisionTree extends ClusClassifier {
 		ClusModels.ORIGINAL = summ.addModel("Original");
 		// ClusModels.CLASS_PRUNED = m_Summary.addModel("Class pruned");
 		int nb_size = getSettings().getSizeConstraintPruningNumber();
+		double[] class_thr = getSettings().getClassificationTresholds().getDoubleVector();
 		if (nb_size > 0) {
 			ClusModels.PRUNED = summ.addModel("S("+getSettings().getSizeConstraintPruning(0)+")");
 			for (int i = 1; i < nb_size; i++) {
 				summ.addModel("S("+getSettings().getSizeConstraintPruning(i)+")");				
 			}
+		} else if (class_thr != null) {
+			ClusModels.PRUNED = summ.addModel("T("+class_thr[0]+")");
+			for (int i = 1; i < class_thr.length; i++) {
+				summ.addModel("T("+class_thr[i]+")");				
+			}			
 		} else {
 			ClusModels.PRUNED = summ.addModel("Pruned");			
 		}		
