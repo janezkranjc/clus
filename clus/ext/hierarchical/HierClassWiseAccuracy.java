@@ -17,6 +17,7 @@ public class HierClassWiseAccuracy extends ClusError {
 	protected ClassHierarchy m_Hier;
 	protected double[] m_Predicted;
 	protected double[] m_Correct;
+	protected double[] m_Perfect; //the classes that should have been predicted
 	protected double[] m_Default;
 	protected double m_Cover;
 	
@@ -25,6 +26,7 @@ public class HierClassWiseAccuracy extends ClusError {
 		m_Hier = hier;
 		m_Predicted = new double[m_Dim];
 		m_Correct = new double[m_Dim];
+		m_Perfect = new double[m_Dim];
 		m_Default = new double[m_Dim];
 	}
 
@@ -42,6 +44,10 @@ public class HierClassWiseAccuracy extends ClusError {
 				}
 			}
 			m_Cover += 1.0;
+			//new variable m_Perfect to calculate recall
+			for (int i = 1; i < m_Dim; i++){
+				if (tp.hasClass(i)) m_Perfect[i] += 1.0;
+			}
 		}
 		tp.updateDistribution(m_Default, 1.0);		
 	}
@@ -54,6 +60,7 @@ public class HierClassWiseAccuracy extends ClusError {
 		return true;
 	}	
 	
+	/* actually returns the precision */
 	public double getAccuracy() {
 		double tot_pred = 0.0;
 		double tot_corr = 0.0;
@@ -64,6 +71,17 @@ public class HierClassWiseAccuracy extends ClusError {
 		return tot_pred == 0.0 ? 0.0 : tot_corr/tot_pred;
 	}
 	
+	public double getRecall() {
+		double tot_corr = 0.0;
+		double tot_perf = 0.0;
+		//need variable with the number of classes that had to be predicted (m_Perfect)
+		for (int i = 0; i < m_Dim; i++){
+			tot_corr += m_Correct[i];
+			tot_perf += m_Perfect[i];
+		}
+		return tot_perf == 0 ? 0.0 : tot_corr / tot_perf; //FIXME klopt niet!
+	}
+		
 	public double getCoverage() {
 		int nb = getNbExamples();
 		return nb == 0 ? 0.0 : m_Cover / nb;		
@@ -100,9 +118,10 @@ public class HierClassWiseAccuracy extends ClusError {
 		}
 	}
 	
+	/*added getRecall()*/
 	public void showModelError(PrintWriter out, int detail) {
 		NumberFormat fr = getFormat();
-		out.println(getAccuracy()+", "+getCoverage());
+		out.println("precision: "+getAccuracy()+", myRecall: "+getRecall()+", coverage: "+getCoverage());
 		printNonZeroAccuracies(fr, out, m_Hier.getRoot());
 	}
 	

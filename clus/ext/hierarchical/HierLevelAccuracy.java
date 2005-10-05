@@ -86,6 +86,7 @@ public class HierLevelAccuracy extends ClusError {
 		return nb == 0.0 ? 0.0 : m_CorrectLevel[i] / nb;
 	}	
 	
+	/*should be named getPrecision()*/
 	public double getAccuracy() {
 		return m_Predicted == 0.0 ? 0.0 : m_Correct / m_Predicted;		
 	}
@@ -95,6 +96,7 @@ public class HierLevelAccuracy extends ClusError {
 		return nb == 0 ? 0.0 : m_Predicted / nb;		
 	}
 	
+	/* should be named getRecall()*/
 	public double getOverallAccuracy() {
 		int nb = getNbExamples();
 		return nb == 0 ? 0.0 : m_Correct / nb;
