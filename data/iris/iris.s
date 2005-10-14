@@ -1,5 +1,5 @@
 [Data]
-TestSet = None
+TestSet = iris.arff
 PruneSet = None
 
 [Constraints]
@@ -46,3 +46,6 @@ MEstimate = 1.0
 [Constraints]
 Syntactic = iris.constr
 MaxError = 0.34
+
+[Output]
+WriteTestSetPredictions = Yes

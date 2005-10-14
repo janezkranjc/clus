@@ -5,6 +5,10 @@ Weights = Normalize
 [Constraints]
 Syntactic = None
 MaxSize = 5
-MaxError = [1]
 
+[Data]
+TestSet = numtest.arff
+
+[Output]
+WriteTestSetPredictions = Yes
 

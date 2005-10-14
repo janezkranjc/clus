@@ -79,6 +79,7 @@ public class HierClassWiseAccuracy extends ClusError {
 			tot_corr += m_Correct[i];
 			tot_perf += m_Perfect[i];
 		}
+		System.out.println("corr: "+tot_corr+" perf: "+tot_perf);
 		return tot_perf == 0 ? 0.0 : tot_corr / tot_perf; //FIXME klopt niet!
 	}
 		

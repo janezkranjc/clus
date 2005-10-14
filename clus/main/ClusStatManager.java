@@ -559,7 +559,7 @@ public class ClusStatManager implements Serializable {
 			return sc_prune;
 		}
 		INIFileNominalOrDoubleOrVector class_thr = sett.getClassificationTresholds();
-		if (class_thr.getVectorLength() > 0) {
+		if (class_thr.hasVector()) {
 			return new HierClassTresholdPruner(class_thr.getDoubleVector()); 
 		}
 		if (m_Mode == MODE_REGRESSION) {
