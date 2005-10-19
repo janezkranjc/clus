@@ -75,7 +75,15 @@ public class WHTDStatistic extends RegressionStat {
 		m_Validation = my_other.m_Validation;
 		m_SigLevel = my_other.m_SigLevel;
 	}	
-		
+
+	public void addPrediction(ClusStatistic other, double weight) {
+		WHTDStatistic or = (WHTDStatistic)other;
+		super.addPrediction(other, weight);
+		if (m_Validation != null) {
+			m_Validation.addPrediction(or.m_Validation, weight);
+		}
+	}
+	
 	public void updateWeighted(DataTuple tuple, double weight) {
 		int sidx = m_Hier.getType().getArrayIndex();
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);

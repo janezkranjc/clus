@@ -563,15 +563,20 @@ public class ClusStatManager implements Serializable {
 			return new HierClassTresholdPruner(class_thr.getDoubleVector()); 
 		}
 		if (m_Mode == MODE_REGRESSION) {
+			double mult = sett.getM5PruningMult();
+			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_M5_MULTI) {
+					return new M5PrunerMulti(createClusAttributeWeights(), mult);
+			}
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT ||
-				sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
+				  sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
 					sett.setPruningMethod(Settings.PRUNING_METHOD_M5);
-					return new M5Pruner(createClusAttributeWeights());
+					return new M5Pruner(createClusAttributeWeights(), mult);
 			}		
 		}
 		if (m_Mode == MODE_HIERARCHICAL) {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
-				return new M5Pruner(m_NormalizationWeights);
+				double mult = sett.getM5PruningMult();
+				return new M5Pruner(m_NormalizationWeights, mult);
 			}			
 		}
 		sett.setPruningMethod(Settings.PRUNING_METHOD_NONE);

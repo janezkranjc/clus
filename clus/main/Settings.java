@@ -33,7 +33,7 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_MORISHITA = 6;	
 
 	public final static String[] PRUNING_METHODS = { "Default", "None", "C4.5",
-			"M5", "ReducedErrorVSB", "Garofalakis" };
+			"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis" };
 
 	public final static int PRUNING_METHOD_DEFAULT = 0;
 
@@ -42,10 +42,12 @@ public class Settings implements Serializable {
 	public final static int PRUNING_METHOD_C45 = 2;
 
 	public final static int PRUNING_METHOD_M5 = 3;
+	
+	public final static int PRUNING_METHOD_M5_MULTI = 4;	
 
-	public final static int PRUNING_METHOD_REDERR_VSB = 4;
+	public final static int PRUNING_METHOD_REDERR_VSB = 5;
 
-	public final static int PRUNING_METHOD_GAROFALAKIS = 5;
+	public final static int PRUNING_METHOD_GAROFALAKIS = 6;
 
 	public final static String[] COVERING_METHODS = { "Standard",
 			"WeightedMultiplicative", "WeightedAdditive" };
@@ -193,6 +195,8 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_PruningMethod;
 
 	protected INIFileBool m_RulesFromTree;
+	
+	protected INIFileDouble m_M5PruningMult;
 
 	/* Rules */
 	protected INIFileBool m_OrderedRules;
@@ -346,6 +350,7 @@ public class Settings implements Serializable {
 		tree.addNode(TREE_MAX_DEPTH = new INIFileInt("MaxDepth", -1));
 		tree.addNode(m_BinarySplit = new INIFileBool("BinarySplit", true));
 		tree.addNode(m_PruningMethod = new INIFileNominal("PruningMethod", PRUNING_METHODS, 0));
+		tree.addNode(m_M5PruningMult = new INIFileDouble("M5PruningMult", 2.0));
 		tree.addNode(m_RulesFromTree = new INIFileBool("ConvertToRules", false));
 
 		INIFileSection rules = new INIFileSection("Rules");
@@ -477,6 +482,10 @@ public class Settings implements Serializable {
 
 	public int getPruningMethod() {
 		return m_PruningMethod.getValue();
+	}
+	
+	public double getM5PruningMult() {
+		return m_M5PruningMult.getValue();
 	}
 
 	public void setPruningMethod(int method) {
@@ -911,8 +920,14 @@ public class Settings implements Serializable {
 	public double getMinimalWeight() {
 		return m_MinW.getValue();
 	}
+	
+	public void updateDisabledSettings() {
+		int pruning = getPruningMethod();
+		m_M5PruningMult.setEnabled(pruning == PRUNING_METHOD_M5 || pruning == PRUNING_METHOD_M5_MULTI);
+	}
 
 	public void show(PrintWriter where) throws IOException {
+		updateDisabledSettings();
 		m_Ini.save(where);
 	}
 

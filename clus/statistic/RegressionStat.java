@@ -148,13 +148,37 @@ public class RegressionStat extends ClusStatistic {
 		return m_SumWeights[i] != 0.0 ? m_SumValues[i] / m_SumWeights[i] : 0.0;		
 	}
 	
-	public double getVariance(int i) {
+	public double getSS(int i) {
 		double n_tot = m_SumWeight; 
 		double k_tot = m_SumWeights[i];
 		double sv_tot = m_SumValues[i];
 		double ss_tot = m_SumSqValues[i];
-		double var = (k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0;
-		return var / n_tot;
+		return (k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0;
+	}
+	
+	public double getScaledSS(int i, ClusAttributeWeights scale) {
+		return getSS(i)*scale.getWeight(getAttribute(i));
+	}
+	
+	public double getVariance(int i) {
+		return getSS(i) / m_SumWeight;
+	}
+	
+	public double getScaledVariance(int i, ClusAttributeWeights scale) {
+			return getVariance(i)*scale.getWeight(getAttribute(i));
+	}
+	
+	public double getRootScaledVariance(int i, ClusAttributeWeights scale) {
+		return Math.sqrt(getScaledVariance(i, scale));
+	}
+	
+	public double[] getRootScaledVariances(ClusAttributeWeights scale) {
+		int nb = getNbAttributes();		
+		double[] res = new double[nb];
+		for (int i = 0; i < res.length; i++) {
+			res[i] = getRootScaledVariance(i, scale);
+		}
+		return res;
 	}
 	
 	public double getStandardDeviation(int i) {
@@ -192,6 +216,10 @@ public class RegressionStat extends ClusStatistic {
 			result += ((k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0)*scale.getWeight(m_Attrs[i]);
 		}
 		return result / m_NbAttrs;
+	}
+	
+	public double getRMSE(ClusAttributeWeights scale) {
+		return Math.sqrt(getSS(scale)/getTotalWeight());
 	}
 	
 	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other) {
