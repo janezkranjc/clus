@@ -45,9 +45,9 @@ public class HierClassWiseAccuracy extends ClusError {
 			}
 			m_Cover += 1.0;
 			//new variable m_Perfect to calculate recall
-			for (int i = 1; i < m_Dim; i++){
-				if (tp.hasClass(i)) m_Perfect[i] += 1.0;
-			}
+			//for (int i = 1; i < m_Dim; i++){
+			//	if (tp.hasClass(i)) m_Perfect[i] += 1.0;
+			//}
 		}
 		tp.updateDistribution(m_Default, 1.0);		
 	}
@@ -71,7 +71,7 @@ public class HierClassWiseAccuracy extends ClusError {
 		return tot_pred == 0.0 ? 0.0 : tot_corr/tot_pred;
 	}
 	
-	public double getRecall() {
+	public double getRecallOld() { // there is a mistake in working with m_Perfect
 		double tot_corr = 0.0;
 		double tot_perf = 0.0;
 		//need variable with the number of classes that had to be predicted (m_Perfect)
@@ -79,8 +79,19 @@ public class HierClassWiseAccuracy extends ClusError {
 			tot_corr += m_Correct[i];
 			tot_perf += m_Perfect[i];
 		}
-		System.out.println("corr: "+tot_corr+" perf: "+tot_perf);
-		return tot_perf == 0 ? 0.0 : tot_corr / tot_perf; //FIXME klopt niet!
+		//System.out.println("corr: "+tot_corr+" perf: "+tot_perf);
+		return tot_perf == 0 ? 0.0 : tot_corr / tot_perf;
+	}
+	
+	//temporary method for debugging purposes
+	public double getRecall() {
+		double tot_corr = 0.0;
+		double tot_def = 0.0;
+		for (int i = 0; i < m_Dim; i++){
+			tot_corr += m_Correct[i];
+			tot_def += m_Default[i];
+		}
+		return tot_def == 0 ? 0.0 : tot_corr / tot_def;
 	}
 		
 	public double getCoverage() {
@@ -95,6 +106,8 @@ public class HierClassWiseAccuracy extends ClusError {
 		m_Cover = 0.0;
 	}
 	
+	
+	//TODO: add m_Perfect
 	public void add(ClusError other) {
 		HierClassWiseAccuracy acc = (HierClassWiseAccuracy)other;
 		m_Cover += acc.m_Cover;
@@ -119,10 +132,10 @@ public class HierClassWiseAccuracy extends ClusError {
 		}
 	}
 	
-	/*added getRecall()*/
+	/*added getRecall2()*/
 	public void showModelError(PrintWriter out, int detail) {
 		NumberFormat fr = getFormat();
-		out.println("precision: "+getAccuracy()+", myRecall: "+getRecall()+", coverage: "+getCoverage());
+		out.println("precision: "+getAccuracy()+", recall: "+getRecall()+", coverage: "+getCoverage());
 		printNonZeroAccuracies(fr, out, m_Hier.getRoot());
 	}
 	
