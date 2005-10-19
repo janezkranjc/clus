@@ -26,7 +26,7 @@ public class WHTDStatistic extends RegressionStat {
 	protected double[] m_DiscrMean;	
 	protected WHTDStatistic m_Global, m_Validation;
 	protected double m_SigLevel;
-	protected double m_Threshold = 0.5;
+	protected double m_Threshold = 50.0;
 		
 	public WHTDStatistic(ClassHierarchy hier) {
 		this(hier, false);
@@ -132,19 +132,18 @@ public class WHTDStatistic extends RegressionStat {
 			for (int i = 0; i < m_DiscrMean.length; i++) {
 				if (m_DiscrMean[i] > 0.5) {
 					/* Predicted class i, check sig? */
-					int pop_tot = (int)m_Global.getTotalWeight();
-					int pop_cls = (int)(m_Global.getTotalWeight()*m_Global.m_Means[i]);
-					int rule_tot = (int)m_Validation.getTotalWeight();
-					int rule_cls = (int)(m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
+					int pop_tot = (int)Math.round(m_Global.getTotalWeight());
+					int pop_cls = (int)Math.round(m_Global.getTotalWeight()*m_Global.m_Means[i]);
+					int rule_tot = (int)Math.round(m_Validation.getTotalWeight());
+					int rule_cls = (int)Math.round(m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
 					int upper = Math.min(rule_tot, pop_cls);
 					int nb_other = pop_tot - pop_cls;
 					int min_this = rule_tot - nb_other;
 					int lower = Math.max(rule_cls, min_this);
-					if (rule_cls < min_this) {
+					if (rule_cls < min_this || lower > upper) {
 						System.err.println("BUG?");
-					}
-					if (lower > upper) {
-						System.err.println("BUG2?");
+						System.out.println("rule = "+m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
+						System.out.println("pop_tot = "+pop_tot+" pop_cls = "+pop_cls+" rule_tot = "+rule_tot+" rule_cls = "+rule_cls);
 					}
 					HypergeometricDistribution dist = m_Fac.createHypergeometricDistribution(pop_tot, pop_cls, rule_tot);
 					try {
@@ -220,10 +219,10 @@ public class WHTDStatistic extends RegressionStat {
 			int i = node.getIndex();
 			if (discrmean[i] > 0.5) {
 				/* Predicted class i, check sig? */
-				int pop_tot = (int)m_Global.getTotalWeight();
-				int pop_cls = (int)(m_Global.getTotalWeight()*m_Global.m_Means[i]);
-				int rule_tot = (int)m_Validation.getTotalWeight();
-				int rule_cls = (int)(m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
+				int pop_tot = (int)Math.round(m_Global.getTotalWeight());
+				int pop_cls = (int)Math.round(m_Global.getTotalWeight()*m_Global.m_Means[i]);
+				int rule_tot = (int)Math.round(m_Validation.getTotalWeight());
+				int rule_cls = (int)Math.round(m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
 				int upper = Math.min(rule_tot, pop_cls);
 				int nb_other = pop_tot - pop_cls;
 				int min_this = rule_tot - nb_other;
@@ -251,7 +250,7 @@ public class WHTDStatistic extends RegressionStat {
 
 	public String getExtraInfo() {
 		StringBuffer res = new StringBuffer();		
-		ClassesTuple meantuple = m_Hier.getBestTupleMaj(m_Means, 0.5);
+		ClassesTuple meantuple = m_Hier.getBestTupleMaj(m_Means, 50.0);
 		double[] discrmean = meantuple.getVectorWithParents(m_Hier);
 		getExtraInfoRec(m_Hier.getRoot(), discrmean, res);
 		return res.toString();

@@ -66,7 +66,7 @@ public class HierRemoveInsigClasses extends PruneTree {
 			executeRecursive((ClusNode)node.getChild(i), global, subset);
 		}
 		WHTDStatistic orig = (WHTDStatistic)node.getTargetStat();
-		WHTDStatistic valid = (WHTDStatistic)orig.cloneStat();			
+		WHTDStatistic valid = (WHTDStatistic)orig.cloneStat();
 		for (int i = 0; i < data.getNbRows(); i++) {
 			DataTuple tuple = data.getTuple(i);
 			valid.updateWeighted(tuple, i);
