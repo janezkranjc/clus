@@ -26,6 +26,7 @@ public class WHTDStatistic extends RegressionStat {
 	protected double[] m_DiscrMean;	
 	protected WHTDStatistic m_Global, m_Validation;
 	protected double m_SigLevel;
+	protected double m_Threshold = 0.5;
 		
 	public WHTDStatistic(ClassHierarchy hier) {
 		this(hier, false);
@@ -48,12 +49,23 @@ public class WHTDStatistic extends RegressionStat {
 		m_SigLevel = sig;
 	}
 	
+	public void setThreshold(double threshold) {
+		m_Threshold = threshold;
+	}
+	
 	public ClusStatistic cloneStat() {
 		return new WHTDStatistic(m_Hier, false);
 	}
 	
 	public ClusStatistic cloneSimple() {
-		return new WHTDStatistic(m_Hier, true);		
+		WHTDStatistic res = new WHTDStatistic(m_Hier, true);
+		res.m_Threshold = m_Threshold;
+		if (m_Validation != null) {
+			res.m_Validation = (WHTDStatistic)m_Validation.cloneSimple();
+			res.m_Global = m_Global;
+			res.m_SigLevel = m_SigLevel;
+		}
+		return res;
 	}
 	
 	public void copyAll(ClusStatistic other) {
@@ -63,20 +75,7 @@ public class WHTDStatistic extends RegressionStat {
 		m_Validation = my_other.m_Validation;
 		m_SigLevel = my_other.m_SigLevel;
 	}	
-	
-	public void addPrediction(ClusStatistic other, double weight) {
-		WHTDStatistic or = (WHTDStatistic)other;
-		super.addPrediction(other, weight);
-		if (or.m_Validation != null) {
-			if (m_Validation == null) { 
-				m_Validation = (WHTDStatistic)or.m_Validation.cloneSimple();
-				m_Global = or.m_Global;
-				m_SigLevel = or.m_SigLevel;
-			}
-			m_Validation.addPrediction(or.m_Validation, weight);
-		}
-	}
-	
+		
 	public void updateWeighted(DataTuple tuple, double weight) {
 		int sidx = m_Hier.getType().getArrayIndex();
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
@@ -118,12 +117,8 @@ public class WHTDStatistic extends RegressionStat {
 	}
 
 	public void calcMean() {
-		calcMean(0.5);
-	}
-	
-	public void calcMean(double treshold) {
 		super.calcMean();
-		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means, treshold);
+		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means, m_Threshold);
 		m_DiscrMean = m_MeanTuple.getVectorWithParents(m_Hier);
 		if (m_Validation != null) {
 			for (int i = 0; i < m_DiscrMean.length; i++) {

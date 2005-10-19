@@ -249,8 +249,7 @@ public class Clus implements CMDLineArgsProvider {
 		ClusModelInfo def_info = cr.getModelInfo(ClusModels.DEFAULT);
 		def_info.setStatManager(getStatManager());
 		def_info.setModel(defmod);
-		PruneTree pruner = m_Induce.getStatManager().getTreePruner(
-				cr.getPruneSet());
+		PruneTree pruner = m_Induce.getStatManager().getTreePruner(cr.getPruneSet());
 		pruner.setTrainingData((RowData) cr.getTrainingSet());
 		for (int i = 0; i < pruner.getNbResults(); i++) {
 			ClusNode pruned = (ClusNode) orig.cloneTree();

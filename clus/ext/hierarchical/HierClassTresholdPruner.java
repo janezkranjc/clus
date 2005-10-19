@@ -28,17 +28,15 @@ public class HierClassTresholdPruner extends PruneTree {
 		pruneRecursive(node, m_Tresholds[result]);
 	}
 	
-	public void pruneRecursive(ClusNode node, double treshold) throws ClusException {
-		if (node.atBottomLevel()) {
-			WHTDStatistic stat = (WHTDStatistic)node.getTargetStat();
-			WHTDStatistic new_stat = (WHTDStatistic)stat.cloneStat();
-			new_stat.copyAll(stat);
-			new_stat.calcMean(treshold);
-			node.setTargetStat(new_stat);			
-		} else {
-			for (int i = 0; i < node.getNbChildren(); i++) {
-				pruneRecursive((ClusNode)node.getChild(i), treshold);
-			}
+	public void pruneRecursive(ClusNode node, double threshold) throws ClusException {
+		WHTDStatistic stat = (WHTDStatistic)node.getTargetStat();
+		WHTDStatistic new_stat = (WHTDStatistic)stat.cloneStat();
+		new_stat.copyAll(stat);
+		new_stat.setThreshold(threshold);
+		new_stat.calcMean();
+		node.setTargetStat(new_stat);
+		for (int i = 0; i < node.getNbChildren(); i++) {
+				pruneRecursive((ClusNode)node.getChild(i), threshold);
 		}
 	}	
 }

@@ -59,35 +59,29 @@ public class HierRemoveInsigClasses extends PruneTree {
 		return result;
 	}
 	
-	public boolean executeRecursive(ClusNode node, WHTDStatistic global, RowData data) {
-		int nbok = 0;
+	public void executeRecursive(ClusNode node, WHTDStatistic global, RowData data) {
 		int arity = node.getNbChildren();
 		for (int i = 0; i < arity; i++) {
 			RowData subset = data.applyWeighted(node.getTest(), i);
-			boolean isok = executeRecursive((ClusNode)node.getChild(i), global, subset);
-			if (isok) nbok++;
+			executeRecursive((ClusNode)node.getChild(i), global, subset);
 		}
-		if (node.atBottomLevel()) {
-			WHTDStatistic orig = (WHTDStatistic)node.getTargetStat();
-			WHTDStatistic valid = (WHTDStatistic)orig.cloneStat();			
-			for (int i = 0; i < data.getNbRows(); i++) {
-				DataTuple tuple = data.getTuple(i);
-				valid.updateWeighted(tuple, i);
-			}
-			valid.calcMean();
-			WHTDStatistic pred = (WHTDStatistic)orig.cloneStat();
-			pred.copy(orig);
-			pred.setValidationStat(valid);
-			pred.setGlobalStat(global);
-			if (m_UseBonferroni) {
-				pred.setSigLevel(m_SigLevel/m_Bonferroni);
-			} else {
-				pred.setSigLevel(m_SigLevel);				
-			}
-			pred.calcMean();
-			node.setTargetStat(pred);
-			return !pred.m_MeanTuple.isRoot();
+		WHTDStatistic orig = (WHTDStatistic)node.getTargetStat();
+		WHTDStatistic valid = (WHTDStatistic)orig.cloneStat();			
+		for (int i = 0; i < data.getNbRows(); i++) {
+			DataTuple tuple = data.getTuple(i);
+			valid.updateWeighted(tuple, i);
 		}
-		return true;
+		valid.calcMean();
+		WHTDStatistic pred = (WHTDStatistic)orig.cloneStat();
+		pred.copy(orig);
+		pred.setValidationStat(valid);
+		pred.setGlobalStat(global);
+		if (m_UseBonferroni) {
+			pred.setSigLevel(m_SigLevel/m_Bonferroni);
+		} else {
+			pred.setSigLevel(m_SigLevel);				
+		}
+		pred.calcMean();
+		node.setTargetStat(pred);
 	}	
 }
