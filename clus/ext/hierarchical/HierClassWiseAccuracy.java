@@ -119,15 +119,16 @@ public class HierClassWiseAccuracy extends ClusError {
 	}
 	
 	//prints the evaluation results for each single predicted class
-	//added a value for recall (next to def and acc) WHAT IS DEF
+	//added a value for recall (next to def and acc)
 	public void printNonZeroAccuracies(NumberFormat fr, PrintWriter out, ClassTerm node) {
 		int idx = node.getIndex();
 		if (m_Predicted[idx] != 0.0) {
 			int nb = getNbExamples();
 			double def = nb == 0 ? 0.0 : m_Default[idx]/nb;
-			double acc = m_Correct[idx]/m_Predicted[idx];
+			//added a test
+			double acc = m_Predicted[idx] == 0.0 ? 0.0 : m_Correct[idx]/m_Predicted[idx];
 			//this line is added
-			double rec = m_Correct[idx]/m_Default[idx];
+			double rec = m_Default[idx] == 0.0 ? 0.0 : m_Correct[idx]/m_Default[idx];
 			
 			ClassesValue val = new ClassesValue(node);
 			//adapted output somewhat for clarity
