@@ -1,6 +1,6 @@
 
 [Attributes]
-Disable = 6
+% Disable = 6
 % Target = 5-6
 % Clustering = 1-4
 

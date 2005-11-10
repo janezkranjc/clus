@@ -275,6 +275,12 @@ public class ClusSchema implements Serializable {
 			// Target and all other settings have precedence over disabled
 			m_Disabled.subtract(m_Target);
 		}
+		if (m_Clustering.isDefault()) {
+			// By default same as target attributes
+			m_Clustering.copyFrom(m_Target);
+		} else {
+			m_Disabled.subtract(m_Clustering);
+		}
 		if (m_Descriptive.isDefault()) {
 			// By default all attributes that are not target and not disabled
 			m_Descriptive.clear();
@@ -284,12 +290,6 @@ public class ClusSchema implements Serializable {
 			m_Descriptive.subtract(m_Key);			
 		} else {
 			m_Disabled.subtract(m_Descriptive);
-		}
-		if (m_Clustering.isDefault()) {
-			// By default same as target attributes
-			m_Clustering.copyFrom(m_Target);
-		} else {
-			m_Disabled.subtract(m_Clustering);
 		}
 		m_Disabled.subtract(m_Key);
 		setStatusAll(ClusAttrType.STATUS_NORMAL);
