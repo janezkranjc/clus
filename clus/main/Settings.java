@@ -3,6 +3,7 @@ package clus.main;
 import jeans.io.ini.*;
 import jeans.util.cmdline.*;
 import jeans.util.*;
+import jeans.resource.*;
 
 import java.io.*;
 import java.util.*;
@@ -17,7 +18,7 @@ public class Settings implements Serializable {
 
 	public final static String[] HEURISTICS = { "Default", "ReducedError",
 			"Gain", "SSPD", "MEstimate", "Compactness", "Morishita"};
-
+	
 	public final static int HEURISTIC_DEFAULT = 0;
 
 	public final static int HEURISTIC_REDUCED_ERROR = 1;
@@ -33,7 +34,7 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_MORISHITA = 6;	
 
 	public final static String[] PRUNING_METHODS = { "Default", "None", "C4.5",
-			"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis" };
+			"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB" };
 
 	public final static int PRUNING_METHOD_DEFAULT = 0;
 
@@ -48,6 +49,8 @@ public class Settings implements Serializable {
 	public final static int PRUNING_METHOD_REDERR_VSB = 5;
 
 	public final static int PRUNING_METHOD_GAROFALAKIS = 6;
+	
+	public final static int PRUNING_METHOD_GAROFALAKIS_VSB = 7;
 
 	public final static String[] COVERING_METHODS = { "Standard",
 			"WeightedMultiplicative", "WeightedAdditive" };
@@ -74,6 +77,8 @@ public class Settings implements Serializable {
 	public final static int NORMALIZATION_DEFAULT = 0;
 
 	public final static String[] INFINITY = { "Infinity" };
+	
+	public final static String INFINITY_STRING = "Infinity";	
 
 	public final static String[] EMPTY = {};
 
@@ -99,6 +104,14 @@ public class Settings implements Serializable {
 	public final static String[] NONELIST = { "None" };
 
 	public final static String DEFAULT = "Default";
+	
+	public final static String[] RESOURCE_INFO_LOAD = {"Yes", "No", "Test"};
+	
+	public final static int RESOURCE_INFO_LOAD_YES = 0;
+	
+	public final static int RESOURCE_INFO_LOAD_NO = 1;
+	
+	public final static int RESOURCE_INFO_LOAD_TEST = 2;	
 
 	/* Filename and date information */
 	protected Date m_Date;
@@ -145,6 +158,8 @@ public class Settings implements Serializable {
 	protected INIFileString m_RandomSeed;
 
 	protected INIFileStringOrInt m_XValFolds;
+	
+	protected INIFileNominal m_ResourceInfoLoaded;
 
 	/* Data */
 	protected INIFileString m_DataFile;
@@ -152,6 +167,8 @@ public class Settings implements Serializable {
 	protected INIFileStringOrDouble m_TestSet;
 
 	protected INIFileStringOrDouble m_PruneSet;
+	
+	protected INIFileStringOrInt m_PruneSetMax;
 
 	/* Attribute */
 	protected INIFileString m_Target;
@@ -193,6 +210,8 @@ public class Settings implements Serializable {
 	protected INIFileBool m_BinarySplit;
 
 	protected INIFileNominal m_PruningMethod;
+	
+	protected INIFileBool m_1SERule;
 
 	protected INIFileBool m_RulesFromTree;
 	
@@ -314,12 +333,15 @@ public class Settings implements Serializable {
 		settings.addNode(m_Verbose = new INIFileInt("Verbose", 1));
 		settings.addNode(m_RandomSeed = new INIFileString("RandomSeed", "0"));
 		settings.addNode(m_XValFolds = new INIFileStringOrInt("XVal"));
+		settings.addNode(m_ResourceInfoLoaded = new INIFileNominal("ResourceInfoLoaded", RESOURCE_INFO_LOAD, 1));
 		m_XValFolds.setIntValue(10);
 
 		INIFileSection data = new INIFileSection("Data");
 		data.addNode(m_DataFile = new INIFileString("File", NONE));
 		data.addNode(m_TestSet = new INIFileStringOrDouble("TestSet", NONE));
 		data.addNode(m_PruneSet = new INIFileStringOrDouble("PruneSet", NONE));
+		data.addNode(m_PruneSetMax = new INIFileStringOrInt("PruneSetMax", INFINITY_STRING));
+		m_PruneSetMax.setEnabled(false);
 
 		INIFileSection attrs = new INIFileSection("Attributes");
 		attrs.addNode(m_Target = new INIFileString("Target", DEFAULT));
@@ -350,6 +372,7 @@ public class Settings implements Serializable {
 		tree.addNode(TREE_MAX_DEPTH = new INIFileInt("MaxDepth", -1));
 		tree.addNode(m_BinarySplit = new INIFileBool("BinarySplit", true));
 		tree.addNode(m_PruningMethod = new INIFileNominal("PruningMethod", PRUNING_METHODS, 0));
+		tree.addNode(m_1SERule = new INIFileBool("1-SE-Rule", false));
 		tree.addNode(m_M5PruningMult = new INIFileDouble("M5PruningMult", 2.0));
 		tree.addNode(m_RulesFromTree = new INIFileBool("ConvertToRules", false));
 
@@ -482,6 +505,10 @@ public class Settings implements Serializable {
 
 	public int getPruningMethod() {
 		return m_PruningMethod.getValue();
+	}
+	
+	public boolean get1SERule() {
+		return m_1SERule.getValue();
 	}
 	
 	public double getM5PruningMult() {
@@ -718,6 +745,11 @@ public class Settings implements Serializable {
 			return 0.0;
 		return m_PruneSet.getDoubleValue();
 	}
+	
+	public int getPruneSetMax() {
+		if (m_PruneSetMax.isString(INFINITY_STRING)) return Integer.MAX_VALUE;
+		else return m_PruneSetMax.getIntValue();
+	}
 
 	public boolean isNullXValFile() {
 		return m_XValFolds.isIntOrNull(NONE);
@@ -921,9 +953,17 @@ public class Settings implements Serializable {
 		return m_MinW.getValue();
 	}
 	
+	public int getResourceInfoLoaded() {
+		return m_ResourceInfoLoaded.getValue();
+	}
+	
 	public void updateDisabledSettings() {
 		int pruning = getPruningMethod();
 		m_M5PruningMult.setEnabled(pruning == PRUNING_METHOD_M5 || pruning == PRUNING_METHOD_M5_MULTI);
+		m_PruneSetMax.setEnabled(!m_PruneSet.isString(NONE));
+		m_1SERule.setEnabled(pruning == PRUNING_METHOD_GAROFALAKIS_VSB);
+		if (ResourceInfo.isLibLoaded()) m_ResourceInfoLoaded.setSingleValue(RESOURCE_INFO_LOAD_YES);
+		else m_ResourceInfoLoaded.setSingleValue(RESOURCE_INFO_LOAD_NO);
 	}
 
 	public void show(PrintWriter where) throws IOException {

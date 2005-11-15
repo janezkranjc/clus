@@ -67,6 +67,7 @@ public class ClusSummary extends CRParent {
 			
 	public void addSummary(ClusRun cr) {	
 		m_IndTime += cr.getInductionTime();
+		m_PruneTime += cr.getPruneTime();
 		m_PrepTime += cr.getPrepareTime();				
 		m_Runs++;	
 		int nb_models = getNbModels();

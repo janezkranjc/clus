@@ -270,7 +270,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		int prevVerb = Settings.enableVerbose(0);
 		ClusStatManager mgr = getStatManager();
 		ClusSummary summ = new ClusSummary();
-		ClusErrorParent errorpar = mgr.createAdditiveError();
+		ClusErrorParent errorpar = mgr.createDefaultError();
 		errorpar.setWeights(m_TargetWeights);
 		summ.setTestError(errorpar);
 		int model = summ.addModel("Original");

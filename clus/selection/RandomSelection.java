@@ -9,7 +9,7 @@ public class RandomSelection extends ClusSelection {
 
 	public RandomSelection(int nbrows, double sel) {
 		super(nbrows);
-		makeSelection(nbrows, (int)Math.ceil((double)sel*nbrows));
+		makeSelection(nbrows, (int)Math.round((double)sel*nbrows));
 	}
 	
 	public RandomSelection(int nbrows, int nbsel) {

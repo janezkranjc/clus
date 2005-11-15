@@ -24,7 +24,7 @@ public class SaveWekaPartition extends Evaluation {
 			Instances test_cv = data.testCV(numFolds, i);			
        	       		for(int j = 0; j<test_cv.numInstances(); j++) {
 		       		Instance in = test_cv.instance(j);
-               	       		System.out.println(i + ":" + in.toString());
+               	       		// System.out.println(i + ":" + in.toString());
                	       		if (j != 0) wrt.print(",");
                	       		wrt.print(in.toString(0));
                	       		
@@ -74,7 +74,7 @@ public class SaveWekaPartition extends Evaluation {
 		Utils.checkForRemainingOptions(options);
 		SaveWekaPartition eval = new SaveWekaPartition(new Instances(template, 0), costMatrix);
 		Random rnd = new Random(seed);		
-      		eval.saveXVAL(train, folds, rnd, trainFileName);
+ 		eval.saveXVAL(train, folds, rnd, trainFileName+"."+seed);
 	}
 	
 	public static void main(String[] args) {

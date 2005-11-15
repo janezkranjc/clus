@@ -180,7 +180,7 @@ public class ClusErrorParent implements Serializable {
 				err2.showModelError(out, ClusError.DETAIL_VERY_SMALL);
 			}
 		}			
-	}	
+	}
 	
 	public String getPrefix() {
 		return "   ";

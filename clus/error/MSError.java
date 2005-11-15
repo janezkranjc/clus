@@ -14,7 +14,8 @@ import clus.statistic.ClusStatistic;
 
 public class MSError extends ClusNumericError {
 	
-	protected double[] m_SqError;
+	protected double[] m_SumErr;
+	protected double[] m_SumSqErr;
 	protected ClusAttributeWeights m_Weights;
 	protected boolean m_PrintAllComps;
 	
@@ -28,14 +29,16 @@ public class MSError extends ClusNumericError {
 	
 	public MSError(ClusErrorParent par, NumericAttrType[] num, ClusAttributeWeights weights, boolean printall) {
 		super(par, num);
-		m_SqError = new double[m_Dim];
+		m_SumErr = new double[m_Dim];
+		m_SumSqErr = new double[m_Dim];
 		m_Weights = weights;
 		m_PrintAllComps = printall;
 	}
 	
 	public void reset() {
 		for (int i = 0; i < m_Dim; i++) {
-			m_SqError[i] = 0.0;
+			m_SumErr[i] = 0.0;
+			m_SumSqErr[i] = 0.0;
 		}				
 	}
 	
@@ -45,7 +48,7 @@ public class MSError extends ClusNumericError {
 	
 	public double getModelErrorComponent(int i) {
 		int nb = getNbExamples();
-		double err = nb != 0.0 ? m_SqError[i]/nb : 0.0;
+		double err = nb != 0.0 ? m_SumErr[i]/nb : 0.0;
 		if (m_Weights != null) err *= m_Weights.getWeight(getAttr(i));
 		return err;
 	}
@@ -54,31 +57,59 @@ public class MSError extends ClusNumericError {
 		double ss_tree = 0.0;
 		int nb = getNbExamples();
 		for (int i = 0; i < m_Dim; i++) {
-			if (m_Weights != null) ss_tree += m_SqError[i]*m_Weights.getWeight(getAttr(i));			
-			else ss_tree += m_SqError[i];
+			if (m_Weights != null) ss_tree += m_SumErr[i]*m_Weights.getWeight(getAttr(i));			
+			else ss_tree += m_SumErr[i];
 		}
 		return nb != 0.0 ? ss_tree/nb/m_Dim : 0.0;
-	}	
+	}
+	
+	public double getModelErrorStandardError() {
+		double sum_err = 0.0;
+		double sum_sq_err = 0.0;
+		for (int i = 0; i < m_Dim; i++) {
+			if (m_Weights != null) {
+				sum_err += m_SumErr[i];
+				sum_sq_err += m_SumSqErr[i];
+			} else {
+				sum_err += m_SumErr[i]*m_Weights.getWeight(getAttr(i));
+				sum_sq_err += m_SumSqErr[i]*sqr(m_Weights.getWeight(getAttr(i)));
+			}
+		}
+		double n = getNbExamples() * m_Dim;
+		if (n <= 1) {
+			return Double.POSITIVE_INFINITY;
+		} else {
+			double ss_x = (n * sum_sq_err - sqr(sum_err)) / (n * (n-1));
+			return Math.sqrt(ss_x / n);
+		}
+	}
+	
+	public final static double sqr(double value) {
+		return value*value;
+	}
 	
 	public void addExample(double[] real, double[] predicted) {
 		for (int i = 0; i < m_Dim; i++) {
-			double err = real[i] - predicted[i];			
-			m_SqError[i] += err * err;
+			double err = sqr(real[i] - predicted[i]);			
+			m_SumErr[i] += err;
+			m_SumSqErr[i] += sqr(err);
 		}
 	}
 	
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		double[] predicted = pred.getNumericPred();
 		for (int i = 0; i < m_Dim; i++) {
-			double err = getAttr(i).getNumeric(tuple) - predicted[i];			
-			m_SqError[i] += err * err;
+			double err = sqr(getAttr(i).getNumeric(tuple) - predicted[i]);			
+			m_SumErr[i] += err;
+			m_SumSqErr[i] += sqr(err);
 		}		
 	}
 	
 	public void add(ClusError other) {
 		MSError oe = (MSError)other;
 		for (int i = 0; i < m_Dim; i++) {
-			m_SqError[i] += oe.m_SqError[i];
+			m_SumErr[i] += oe.m_SumErr[i];
+			m_SumSqErr[i] += oe.m_SumSqErr[i];
 		}		
 	}	
 	

@@ -73,6 +73,9 @@ public class Clus implements CMDLineArgsProvider {
 
 	public final void initialize(CMDLineArgs cargs, ClusClassifier clss)
 			throws IOException, ClusException {
+		// Load resource info lib
+		boolean test = m_Sett.getResourceInfoLoaded() == Settings.RESOURCE_INFO_LOAD_TEST;
+		ResourceInfo.loadLibrary(test);
 		// Load settings file
 		ARFFFile arff = null;
 		System.out.println("Loading '" + m_Sett.getAppName() + "'");
@@ -248,7 +251,8 @@ public class Clus implements CMDLineArgsProvider {
 		ClusNode defmod = pruneToRoot(orig);
 		ClusModelInfo def_info = cr.getModelInfo(ClusModels.DEFAULT);
 		def_info.setStatManager(getStatManager());
-		def_info.setModel(defmod);
+		def_info.setModel(defmod);		
+		long start_time = ResourceInfo.getTime();		
 		PruneTree pruner = m_Induce.getStatManager().getTreePruner(cr.getPruneSet());
 		pruner.setTrainingData((RowData) cr.getTrainingSet());
 		for (int i = 0; i < pruner.getNbResults(); i++) {
@@ -260,6 +264,7 @@ public class Clus implements CMDLineArgsProvider {
 			pruned_info.setStatManager(getStatManager());
 		}
 		ClusNode pruned = (ClusNode) cr.getModel(ClusModels.PRUNED);
+		cr.setPruneTime(ResourceInfo.getTime()-start_time);		
 		if (getSettings().rulesFromTree()) {
 			ClusRulesFromTree rft = new ClusRulesFromTree(false);
 			ClusRuleSet rules;
@@ -558,14 +563,16 @@ public class Clus implements CMDLineArgsProvider {
 				cr.setTestSet(((RowData) val).getIterator());
 			}
 		}
+		int pruning_max = m_Sett.getPruneSetMax();
 		double vsb = m_Sett.getPruneProportion();
 		if (vsb != 0.0) {
 			ClusData train = cr.getTrainingSet();
 			int nbtot = train.getNbRows();
-			RandomSelection prunesel = new RandomSelection(nbtot, vsb);
+			int nbsel = (int)Math.round((double)vsb*nbtot);
+			if (nbsel > pruning_max) nbsel = pruning_max;
+			RandomSelection prunesel = new RandomSelection(nbtot, nbsel);
 			cr.setPruneSet(train.select(prunesel), prunesel);
-			if (Settings.VERBOSE > 0)
-				System.out.println("Selecting pruning set: " + vsb);
+			if (Settings.VERBOSE > 0)	System.out.println("Selecting pruning set: " + nbsel);
 		}
 		if (!m_Sett.isNullPruneFile()) {
 			String prset = m_Sett.getPruneFile();

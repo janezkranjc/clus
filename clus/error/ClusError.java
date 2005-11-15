@@ -75,6 +75,10 @@ public abstract class ClusError implements Serializable {
 		return 0.0;
 	}
 
+	public double getModelErrorStandardError() {
+		return Double.POSITIVE_INFINITY;
+	}
+	
 	public double getModelErrorComponent(int i) {
 		return 0.0;
 	}	

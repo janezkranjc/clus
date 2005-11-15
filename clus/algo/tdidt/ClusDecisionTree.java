@@ -8,6 +8,8 @@ import clus.util.*;
 import clus.data.rows.*;
 import clus.*;
 
+import jeans.resource.*;
+
 public class ClusDecisionTree extends ClusClassifier {
 
 	public ClusDecisionTree(Clus clus) {
@@ -38,12 +40,15 @@ public class ClusDecisionTree extends ClusClassifier {
 	}
 
 	public void induce(ClusRun cr) throws ClusException, IOException {
-		long start_time = System.currentTimeMillis();
+		long start_time = ResourceInfo.getTime();
 		ClusNode orig = getInduce().induce(cr, m_Clus.getScore());
-		m_Clus.storeAndPruneModel(cr, orig);
-		long time = (System.currentTimeMillis()-start_time);
-		if (Settings.VERBOSE > 0) System.out.println("Time: "+(double)time/1000+" sec");
-		cr.setInductionTime(time);		
+		cr.setInductionTime(ResourceInfo.getTime()-start_time);
+		m_Clus.storeAndPruneModel(cr, orig);		
+		if (Settings.VERBOSE > 0) {
+			  String cpu = ResourceInfo.isLibLoaded() ? " (CPU)" : "";
+				System.out.println("Induction Time: "+(double)cr.getInductionTime()/1000+" sec"+cpu);
+				System.out.println("Pruning Time: "+(double)cr.getPruneTime()/1000+" sec"+cpu);
+		}		
 	}
 	
 	public void initializeSummary(ClusSummary summ) {	
@@ -52,7 +57,7 @@ public class ClusDecisionTree extends ClusClassifier {
 		// ClusModels.CLASS_PRUNED = m_Summary.addModel("Class pruned");
 		int nb_size = getSettings().getSizeConstraintPruningNumber();
 		double[] class_thr = getSettings().getClassificationTresholds().getDoubleVector();
-		if (nb_size > 0) {
+		if (nb_size > 0 && getSettings().getPruningMethod() != Settings.PRUNING_METHOD_GAROFALAKIS_VSB) {
 			ClusModels.PRUNED = summ.addModel("S("+getSettings().getSizeConstraintPruning(0)+")");
 			for (int i = 1; i < nb_size; i++) {
 				summ.addModel("S("+getSettings().getSizeConstraintPruning(i)+")");				

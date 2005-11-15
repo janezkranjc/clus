@@ -5,7 +5,7 @@ import jeans.util.*;
 public class CRParent {
 
 	protected MyArray m_Models = new MyArray();
-	protected long m_IndTime, m_PrepTime;
+	protected long m_IndTime, m_PrepTime, m_PruneTime;
 
 /***************************************************************************
  * Iterating over models
@@ -69,6 +69,14 @@ public class CRParent {
 	public final long getInductionTime() {
 		return m_IndTime;
 	}
+	
+	public final void setPruneTime(long time) {
+		m_PruneTime = time;
+	}
+	
+	public final long getPruneTime() {
+		return m_PruneTime;
+	}	
 		
 	public final void setPrepareTime(long time) {
 		m_PrepTime = time;

@@ -1,5 +1,5 @@
 
-// compile: gcc -shared -o libResourceInfo.so ResourceInfo.c -I/home/jan/cache/j2sdk1.4.0/include -I/home/jan/cache/j2sdk1.4.0/include/linux
+// g++ -shared -o libResourceInfo.so ResourceInfo.C -I/home/jan/NoCsBack/jdk1.5.0/include/ -I/home/jan/NoCsBack/jdk1.5.0/include/linux/
 
 #include <jni.h>
 #include <unistd.h>

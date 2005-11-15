@@ -3,6 +3,8 @@ package clus.main;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+
+import jeans.resource.ResourceInfo;
 import jeans.util.*;
 
 import clus.util.*;
@@ -34,6 +36,7 @@ public class ClusOutput {
 		int a_in = m_Schema.getNbDescriptiveAttributes();
 		int a_out = m_Schema.getNbTargetAttributes();
 		m_Writer.println("Attributes: "+a_tot+" (input: "+a_in+", output: "+a_out+")");
+		m_Writer.println("Missing values: "+(m_Schema.hasMissing() ? "Yes" : "No"));
 		m_Writer.println("Rows: "+m_Schema.getNbRows());
 		m_Writer.println();
 		m_Sett.show(m_Writer);
@@ -72,7 +75,10 @@ public class ClusOutput {
 			m_Writer.println();
 		}*/
 		double tsec = (double)cr.getInductionTime()/1000.0;
-		m_Writer.println("Time: "+ClusFormat.FOUR_AFTER_DOT.format(tsec)+" sec");
+		double tpru = (double)cr.getPruneTime()/1000.0;
+	  String cpu = ResourceInfo.isLibLoaded() ? " (CPU)" : "";
+		m_Writer.println("Induction Time: "+ClusFormat.FOUR_AFTER_DOT.format(tsec)+" sec"+cpu);
+		m_Writer.println("Pruning Time: "+ClusFormat.FOUR_AFTER_DOT.format(tpru)+" sec"+cpu);		
 		m_Writer.println("Model information");
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			ClusModelInfo mi = cr.getModelInfo(i);
