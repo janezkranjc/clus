@@ -11,11 +11,21 @@ import clus.error.ClusErrorParent;
 import clus.main.*;
 import clus.statistic.ClusStatistic;
 
-public class SizeConstraintErrorComputer  extends ClusModelProcessor {
+public class TreeErrorComputer extends ClusModelProcessor {
 
+	public static void recursiveInitialize(ClusNode node, ErrorVisitor visitor) {
+		/* Create array for each node */
+		node.setVisitor(visitor.createInstance());
+		/* Recursively visit children */
+		for (int i = 0; i < node.getNbChildren(); i++) {
+			ClusNode child = (ClusNode)node.getChild(i);
+			recursiveInitialize(child, visitor);
+		}
+	}
+	
 	public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
 		ClusNode tree = (ClusNode)model;
-		SizeConstraintVisitor visitor = (SizeConstraintVisitor)tree.getVisitor();
+		ErrorVisitor visitor = (ErrorVisitor)tree.getVisitor();
 		visitor.testerr.addExample(tuple, tree.getTargetStat());					
 	}
 	
@@ -31,7 +41,7 @@ public class SizeConstraintErrorComputer  extends ClusModelProcessor {
 		error.reset();
 		error.setNbExamples(test.getNbRows());
 		ClusError child_err = error.getFirstError().getErrorClone();
-		SizeConstraintErrorComputer.computeErrorOptimized(tree, test, child_err, miss);
+		TreeErrorComputer.computeErrorOptimized(tree, test, child_err, miss);
 		return child_err;
 	}	
 	
@@ -56,7 +66,7 @@ public class SizeConstraintErrorComputer  extends ClusModelProcessor {
 	}
 	
 	public static void initializeTestErrorsData(ClusNode tree, RowData test, ClusError error) throws IOException {
-		SizeConstraintErrorComputer comp = new SizeConstraintErrorComputer(); 
+		TreeErrorComputer comp = new TreeErrorComputer(); 
 		initializeTestErrors(tree, error);
 		for (int i = 0; i < test.getNbRows(); i++) {
 			DataTuple tuple = test.getTuple(i);
@@ -65,7 +75,7 @@ public class SizeConstraintErrorComputer  extends ClusModelProcessor {
 	}
 
 	public static void initializeTestErrors(ClusNode node, ClusError error) {
-		SizeConstraintVisitor visitor = (SizeConstraintVisitor)node.getVisitor();
+		ErrorVisitor visitor = (ErrorVisitor)node.getVisitor();
 		visitor.testerr = error.getErrorClone(error.getParent());
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			ClusNode child = (ClusNode)node.getChild(i);
@@ -75,7 +85,7 @@ public class SizeConstraintErrorComputer  extends ClusModelProcessor {
 
 	public static void computeErrorSimple(ClusNode node, ClusError sum) {		
 		if (node.atBottomLevel()) {
-			SizeConstraintVisitor visitor = (SizeConstraintVisitor)node.getVisitor();
+			ErrorVisitor visitor = (ErrorVisitor)node.getVisitor();
 			sum.add(visitor.testerr);
 		} else {
 			for (int i = 0; i < node.getNbChildren(); i++) {
