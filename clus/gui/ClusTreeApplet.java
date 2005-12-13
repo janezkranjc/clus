@@ -8,7 +8,11 @@ import java.net.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import clus.main.Settings;
+
 public class ClusTreeApplet extends JApplet {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected JFrame m_Frame;
 	protected JButton m_Launch;
@@ -52,7 +56,7 @@ public class ClusTreeApplet extends JApplet {
 		public void run() {
 			try {
 				URL url = new URL(getDocumentBase(), getParameter("Tree"));
-				String type = getParameter("Type");
+//				String type = getParameter("Type");
 //				if (type != null && type.equals("tilde")) {
 					m_Frame = SimpleTreeFrame.loadTildeTree(url.openStream());
 //				} else {

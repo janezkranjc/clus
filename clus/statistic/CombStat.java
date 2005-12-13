@@ -121,7 +121,7 @@ public class CombStat extends ClusStatistic {
     num_weight = num_weight / sum; 
     nom_weight = nom_weight / sum;
     double proportion_num = num_weight * m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
-    double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
+    // double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
     return proportion_num * compactnessNum(IN_OUTPUT);
   }
 
@@ -144,7 +144,7 @@ public class CombStat extends ClusStatistic {
     double sum = num_weight + nom_weight;
     num_weight = num_weight / sum; 
     nom_weight = nom_weight / sum;
-    double proportion_num = num_weight * m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
+    // double proportion_num = num_weight * m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
     double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
     return proportion_nom * compactnessNom(IN_OUTPUT);
   }

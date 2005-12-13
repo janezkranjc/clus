@@ -12,6 +12,8 @@ import java.io.*;
 
 public class WAHNDSqError extends ClusError {
 	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
 	protected HierNodeWeights m_Weights;
 	protected boolean m_Square;
 	
@@ -53,7 +55,6 @@ public class WAHNDSqError extends ClusError {
 			m_Mean[val.getIndex()] -= val.getAbundance();
 		}
 		double sum = 0.0;
-		ClassHierarchy hier = distr.getHier();
 		for(int k = 0; k < counts.length; k++) {
 			sum += m_Weights.getWeight(k)*Math.abs(m_Mean[k]);
 		}

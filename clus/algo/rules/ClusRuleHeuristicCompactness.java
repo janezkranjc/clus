@@ -10,10 +10,10 @@ import clus.data.attweights.*;
 
 public class ClusRuleHeuristicCompactness extends ClusHeuristic {
 
-	private ClusAttributeWeights m_ClusteringWeights;
+	// private ClusAttributeWeights m_ClusteringWeights;
 	
 	public ClusRuleHeuristicCompactness(ClusAttributeWeights prod) {
-		m_ClusteringWeights = prod;
+		// m_ClusteringWeights = prod;
 	}
 
   // We only need the second parameter for rules!

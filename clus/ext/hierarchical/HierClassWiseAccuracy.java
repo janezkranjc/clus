@@ -10,9 +10,12 @@ import java.util.Arrays;
 import clus.data.rows.DataTuple;
 import clus.error.ClusError;
 import clus.error.ClusErrorParent;
+import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
 public class HierClassWiseAccuracy extends ClusError {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
 	protected ClassHierarchy m_Hier;
 	protected double[] m_Predicted;

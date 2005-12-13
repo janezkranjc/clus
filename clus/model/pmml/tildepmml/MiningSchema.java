@@ -36,26 +36,19 @@ private Vector miningFields;
 	}
 	
 	public void print(PrintWriter outStream) {
+		boolean empty1 = true;
+		int counter=0;
 	
-	boolean empty=true;
-	int counter=0;
-	
-		if (nbOfFields>0) {
-		outStream.write("<MiningSchema>\n");
-		empty=false;
+		if (nbOfFields > 0) {
+			outStream.write("<MiningSchema>\n");
+			empty1 = false;
 		}
 		
 		while (nbOfFields>0) {
-		
-		((MiningField)miningFields.elementAt(counter)).print(outStream);
-		
-		nbOfFields--;
-		counter++;
-		}
-		
-		if (empty=false) outStream.write("</MiningSchema>\n");
-	
-		
+			((MiningField)miningFields.elementAt(counter)).print(outStream);		
+			nbOfFields--;
+			counter++;
+		}		
+		if (empty1 == false) outStream.write("</MiningSchema>\n");
 	}		
-
 }

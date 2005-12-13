@@ -4,8 +4,11 @@
 package clus.error;
 
 import clus.data.type.*;
+import clus.main.Settings;
 
 public class MisclassificationError extends Accuracy {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public MisclassificationError(ClusErrorParent par, NominalAttrType[] nom) {
 		super(par, nom);

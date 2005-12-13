@@ -2,10 +2,13 @@ package clus.ext.hierarchical;
 
 import jeans.util.array.*;
 
+import clus.main.Settings;
 import clus.statistic.*;
 import clus.data.rows.*;
 
 public class WAHNDStatistic extends BitHierStatistic {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
 	public WAHNDStatistic(ClassHierarchy hier) {
 		super(hier);

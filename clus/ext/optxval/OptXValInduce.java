@@ -116,7 +116,7 @@ if (Debug.debug == 1) {
 }
 
 		int[] folds = grp.getFolds();
-		ClusNode[] nodes = grp.getNodes();		
+//		ClusNode[] nodes = grp.getNodes();		
 		for (int i = 0; i < folds.length; i++) {
 			m_PrevCl[i] = -1;
 			m_PrevVl[i] = Double.NaN;

@@ -7,9 +7,12 @@ import jeans.util.compound.*;
 import clus.data.cols.*; 
 import clus.data.rows.*; 
 import clus.util.*; 
+import clus.main.Settings;
 import clus.statistic.*;
 
 public class HierSummStat extends ClusStatistic {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	HierStatistic m_Old, m_S1, m_S2, m_TrD, m_TsD;
 

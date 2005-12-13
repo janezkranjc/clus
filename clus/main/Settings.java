@@ -34,7 +34,7 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_MORISHITA = 6;	
 
 	public final static String[] PRUNING_METHODS = { "Default", "None", "C4.5",
-			"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB" };
+			"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB", "CartVSB" };
 
 	public final static int PRUNING_METHOD_DEFAULT = 0;
 
@@ -51,6 +51,8 @@ public class Settings implements Serializable {
 	public final static int PRUNING_METHOD_GAROFALAKIS = 6;
 	
 	public final static int PRUNING_METHOD_GAROFALAKIS_VSB = 7;
+	
+	public final static int PRUNING_METHOD_CART_VSB = 8;
 
 	public final static String[] COVERING_METHODS = { "Standard",
 			"WeightedMultiplicative", "WeightedAdditive" };
@@ -596,6 +598,10 @@ public class Settings implements Serializable {
 		return m_FastBS.getValue();
 	}
 
+	public int getMaxSize() {
+		return getSizeConstraintPruning(0);
+	}
+	
 	public int getSizeConstraintPruning(int idx) {
 		if (m_MaxSizeConstr.isNominal(idx)) {
 			return -1;
@@ -662,7 +668,7 @@ public class Settings implements Serializable {
 		return m_BeamWidth.getValue();
 	}
 
-	public int getTreeMaxSize() {
+	public int getBeamTreeMaxSize() {
 		return m_TreeMaxSize.getValue();
 	}
 

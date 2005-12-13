@@ -113,12 +113,11 @@ if (Debug.debug == 1) {
 }
 
 		int[] folds = grp.getFolds();
-		ClusNode[] nodes = grp.getNodes();		
 		for (int i = 0; i < folds.length; i++) {
 			m_PrevCl[i] = -1;
 			m_PrevVl[i] = Double.NaN;
 		}
-		ClusStatistic sum = m_PosStat[0];
+//		ClusStatistic sum = m_PosStat[0];
 		if (Settings.ONE_NOMINAL) {		
 			for (int i = first; i < nb_rows; i++) {
 				tuple = data.getTuple(i);

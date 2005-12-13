@@ -5,9 +5,12 @@ import java.text.*;
 
 import clus.data.rows.DataTuple;
 import clus.data.type.*;
+import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
 public class AbsoluteError extends ClusNumericError {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double[] m_AbsError; 
 	protected double[] m_AbsDefError;

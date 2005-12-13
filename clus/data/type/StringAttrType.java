@@ -3,10 +3,13 @@ package clus.data.type;
 import java.io.*;
 
 import clus.io.*;
+import clus.main.Settings;
 import clus.util.*;
 import clus.data.rows.*;
 
 public class StringAttrType extends ClusAttrType {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public final static int THIS_TYPE = 3;
 	public final static String THIS_TYPE_NAME = "String";	

@@ -2,6 +2,7 @@ package clus.ext.sspd;
 
 import jeans.list.*;
 
+import clus.main.Settings;
 import clus.statistic.*;
 import clus.data.rows.*;
 
@@ -9,6 +10,8 @@ import clus.data.rows.*;
 // Pairwise distances are taken from matrix
 
 public class SSPDStatistic extends BitVectorStat {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected SSPDMatrix m_Matrix;
 	protected double m_Value;

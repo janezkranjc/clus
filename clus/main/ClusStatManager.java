@@ -680,7 +680,7 @@ public class ClusStatManager implements Serializable {
 		Settings sett = getSettings();
 		if (isBeamSearch() && sett.isBeamPostPrune()) {
 			sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
-			return new SizeConstraintPruning(sett.getTreeMaxSize(), getClusteringWeights());
+			return new SizeConstraintPruning(sett.getBeamTreeMaxSize(), getClusteringWeights());
 		}
 		int err_nb = sett.getMaxErrorConstraintNumber();
 		int size_nb = sett.getSizeConstraintPruningNumber();
@@ -718,7 +718,7 @@ public class ClusStatManager implements Serializable {
 			}
 		}
 		sett.setPruningMethod(Settings.PRUNING_METHOD_NONE);
-		return new DummyPruner();
+		return new PruneTree();
 	}
 
 public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
@@ -732,17 +732,24 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 			return hierpruner;
 		}
 		if (pruneset != null) {
-			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_GAROFALAKIS_VSB) {
+			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_GAROFALAKIS_VSB ||
+					sett.getPruningMethod() == Settings.PRUNING_METHOD_CART_VSB) {
 				ClusErrorParent parent = createAdditiveError();
-				SizeConstraintPruningVSB pruner = new SizeConstraintPruningVSB((RowData)pruneset, parent, getClusteringWeights(), sett.getTreeMaxSize());
-				// pruner.setOutputFile(sett.getFileAbsolute("prune.dat"));
+				SequencePruningVSB pruner = new SequencePruningVSB((RowData)pruneset, parent, getClusteringWeights());
+				if (sett.getPruningMethod() == Settings.PRUNING_METHOD_GAROFALAKIS_VSB) {
+					int maxsize = sett.getMaxSize();
+					pruner.setSequencePruner(new SizeConstraintPruning(maxsize, getClusteringWeights()));
+				} else {
+					pruner.setSequencePruner(new CartPruning(getClusteringWeights()));			
+				}
+				pruner.setOutputFile(sett.getFileAbsolute("prune.dat"));
 				pruner.set1SERule(sett.get1SERule());
 				pruner.setHasMissing(m_Schema.hasMissing());
 				return pruner;
 			} else {
 				ClusErrorParent parent = createEvalError();
 				sett.setPruningMethod(Settings.PRUNING_METHOD_REDERR_VSB);
-				return new VSBPruning(parent, (RowData)pruneset);
+				return new BottomUpPruningVSB(parent, (RowData)pruneset);
 			}
 		} else {
 			return getTreePrunerNoVSB();

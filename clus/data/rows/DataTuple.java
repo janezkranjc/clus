@@ -5,6 +5,8 @@ import java.io.*;
 import clus.main.*;
 
 public class DataTuple implements Serializable {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	// Attributes can have several base types
 //	public int[] m_Ints;

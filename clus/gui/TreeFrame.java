@@ -21,6 +21,8 @@ import clus.data.attweights.*;
 
 public class TreeFrame extends JFrame {
 	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
 	public final static int INITIAL_WD = 800;
 	public final static int INITIAL_HI = 600;	
 	
@@ -299,7 +301,6 @@ public class TreeFrame extends JFrame {
 		StringBuffer buf = new StringBuffer();
 		buf.append("Size: "+root.getModelSize()+" (Leaves: "+root.getNbLeaves()+")\n");
 		ClusAttributeWeights scale = m_TreePanel.createClusAttributeWeights();
-		ClusNode tree_root = (ClusNode)root.getRoot();
 		String relerr = ClusFormat.SIX_AFTER_DOT.format(root.estimateError(scale));
 		String abserr = ""+root.estimateErrorAbsolute(scale);
 		buf.append("Examples: "+root.getClusteringStat().m_SumWeight+"\n");		
@@ -452,13 +453,6 @@ public class TreeFrame extends JFrame {
 			showSettings();
 		}
 	}	
-	
-	private class MyOpenListener implements ActionListener {
-		
-		public void actionPerformed(ActionEvent e) {
-			
-		}
-	}
 	
 	private class MyListListener implements ListSelectionListener {
 		

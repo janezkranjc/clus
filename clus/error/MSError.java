@@ -8,11 +8,14 @@ import java.text.NumberFormat;
 import clus.data.attweights.*;
 import clus.data.rows.DataTuple;
 import clus.data.type.*;
+import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
 // import jeans.util.array.*;
 
 public class MSError extends ClusNumericError {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
 	protected double[] m_SumErr;
 	protected double[] m_SumSqErr;
@@ -118,7 +121,6 @@ public class MSError extends ClusNumericError {
 		StringBuffer buf = new StringBuffer();
 		if (m_PrintAllComps) {
 			buf.append("[");
-			int nb = getNbExamples();
 			for (int i = 0; i < m_Dim; i++) {
 				if (i != 0) buf.append(",");
 				buf.append(fr.format(getModelErrorComponent(i)));

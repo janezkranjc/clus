@@ -15,6 +15,8 @@ import Jama.util.*;
 */
 
 public class QRDecomposition implements java.io.Serializable {
+	
+	public final static long serialVersionUID = 1;
 
 /* ------------------------
    Class variables

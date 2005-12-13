@@ -4,8 +4,11 @@ import jeans.list.*;
 
 import clus.data.cols.*;
 import clus.data.rows.*;
+import clus.main.Settings;
 
 public class BitVectorStat extends ClusStatistic {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected BitList m_Bits = new BitList();
 	protected boolean m_Modified = true;

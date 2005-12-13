@@ -9,9 +9,12 @@ import java.util.*;
 
 import clus.data.rows.*;
 import clus.error.*;
+import clus.main.Settings;
 import clus.statistic.*;
 
 public class HierLevelAccuracy extends ClusError {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected ClassHierarchy m_Hier;
 	protected double[] m_CorrectLevel;
@@ -131,7 +134,7 @@ public class HierLevelAccuracy extends ClusError {
 		NumberFormat fr = getFormat();
 		StringBuffer buf = new StringBuffer();
 		buf.append("[");
-		int nb = getNbExamples();
+		// int nb = getNbExamples();
 		for (int i = 0; i < m_Dim; i++) {
 			if (i != 0) buf.append(",");
 			buf.append(fr.format(getErrorComp(i)));

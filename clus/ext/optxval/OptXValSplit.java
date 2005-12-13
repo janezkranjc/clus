@@ -3,9 +3,12 @@ package clus.ext.optxval;
 import java.util.*;
 import jeans.tree.*;
 
+import clus.main.Settings;
 import clus.model.test.*;
 
 public class OptXValSplit extends MyNode {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int[] m_Folds;
 	protected NodeTest m_Test;

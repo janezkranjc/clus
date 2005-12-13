@@ -8,6 +8,8 @@ import clus.util.*;
 import clus.data.rows.*;
 
 public class NominalTest extends NodeTest {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected NominalAttrType m_Type;
 	protected double[] m_Sorted;

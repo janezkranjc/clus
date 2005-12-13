@@ -17,6 +17,8 @@ import jeans.util.array.*;
 
 public class HierBinNodeAccuracy extends ClusError {
 	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
 	protected ClassesAttrType m_Attr;
 	
 	protected double m_Accuracy, m_SumWeight;

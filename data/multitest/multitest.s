@@ -8,9 +8,11 @@ Weights = Normalize
 Disable = 4,5
 Target = 4,5
 
-% [Constraints]
-% MaxSize = 10
-% MaxError = [0.5,0.4]
+[Data]
+PruneSet = .33
+
+[Tree]
+PruningMethod = GarofalakisVSB
 
 [Output]
 WriteTestSetPredictions = Yes

@@ -4,10 +4,13 @@ import java.util.*;
 import jeans.math.matrix.*;
 import jeans.util.array.*;
 
+import clus.main.Settings;
 import clus.statistic.*;
 import clus.data.rows.*;
 
 public class SPMDStatistic extends HierStatistic {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected transient double[] m_SumKEi;
 	protected transient double m_SumEiKEi;

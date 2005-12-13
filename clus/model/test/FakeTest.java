@@ -5,8 +5,11 @@ import jeans.util.*;
 
 import clus.data.rows.*;
 import clus.data.type.*;
+import clus.main.Settings;
 
 public class FakeTest extends NodeTest {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected MyArray m_Lines = new MyArray();
 	protected String m_Line;

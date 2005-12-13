@@ -124,7 +124,7 @@ public class DepthFirstInduce extends ClusInduce {
 	}
 	
 	public void induce(ClusNode node, RowData data) {
-		long t0;
+		// long t0;
 		// Initialize selector and perform various stopping criteria
 		if (initSelectorAndStopCrit(node, data)) {
 			node.makeLeaf();

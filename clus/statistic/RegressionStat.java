@@ -258,6 +258,15 @@ public class RegressionStat extends ClusStatistic {
 		return buf.toString();
 	}
 	
+	public String getPredictString() {
+		StringBuffer buf = new StringBuffer();		
+		for (int i = 0; i < m_NbAttrs; i++) {
+			if (i != 0) buf.append(",");
+			buf.append(String.valueOf(m_Means[i]));
+		}
+		return buf.toString();
+	}
+	
 	public String getDebugString() {
 		NumberFormat fr = ClusFormat.THREE_AFTER_DOT;
 		StringBuffer buf = new StringBuffer();		

@@ -6,6 +6,8 @@ import jeans.util.*;
 import clus.main.*;
 
 public class OptXValBinTree extends MyNode {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int m_NbTests;
 	protected int m_NbFoldTests;

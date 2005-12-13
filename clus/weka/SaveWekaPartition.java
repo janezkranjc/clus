@@ -37,12 +37,9 @@ public class SaveWekaPartition extends Evaluation {
 	public static void savePartition(String[] options) throws Exception {
 		Instances train = null, template = null;
 		int seed = 1, folds = 10, classIndex = -1;
-		String trainFileName, classIndexString, seedString, foldsString, attributeRangeString;
-		StringBuffer text = new StringBuffer();
+		String trainFileName, classIndexString, seedString, foldsString;
 		BufferedReader trainReader = null;
 		CostMatrix costMatrix = null;
-		StringBuffer schemeOptionsText = null;
-		Range attributesToOutput = null;
 		// Get basic options (options the same for all schemes)
 		classIndexString = Utils.getOption('c', options);
 		if (classIndexString.length() != 0) {

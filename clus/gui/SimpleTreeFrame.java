@@ -13,6 +13,8 @@ import clus.main.*;
 import clus.model.modelio.tilde.*;
 
 public class SimpleTreeFrame extends JFrame {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public final static int INITIAL_WD = 800;
 	public final static int INITIAL_HI = 600;	

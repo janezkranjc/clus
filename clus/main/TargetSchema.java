@@ -7,6 +7,8 @@ import clus.data.type.*;
 import clus.data.rows.*;
 
 public class TargetSchema implements Serializable {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int[] m_NbTypes;
 	protected ClusAttrType[][] m_Types;

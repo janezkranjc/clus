@@ -65,7 +65,7 @@ public class ClusRuleInduce {
 			return;			
 		}
 		TestSelector sel = m_Induce.getSelector();
-		ClusStatManager mgr = m_Induce.getStatManager();		
+		// ClusStatManager mgr = m_Induce.getStatManager();		
 		ClusAttrType[] attrs = data.getSchema().getDescriptiveAttributes();
 		for (int i = 0; i < attrs.length; i++) {
 			sel.resetBestTest();

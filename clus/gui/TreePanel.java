@@ -18,6 +18,8 @@ import clus.data.attweights.*;
 import clus.gui.statvis.*;
 
 public class TreePanel extends JPanel {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	TreeFrame m_Frame;
 	MyDrawableNode m_Root;

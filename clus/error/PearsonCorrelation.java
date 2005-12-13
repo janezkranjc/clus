@@ -5,9 +5,12 @@ import java.text.*;
 
 import clus.data.rows.DataTuple;
 import clus.data.type.NumericAttrType;
+import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
 public class PearsonCorrelation extends ClusNumericError {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double[] m_SumPi, m_SumSPi;
 	protected double[] m_SumAi, m_SumSAi;

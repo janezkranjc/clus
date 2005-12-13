@@ -1,8 +1,6 @@
 package clus.ext.hierarchical;
 
 import jeans.math.*;
-import jeans.math.matrix.*;
-import jeans.util.array.*;
 
 import clus.main.*;
 import clus.statistic.*;
@@ -22,6 +20,7 @@ public class SPMDHeuristic extends ClusHeuristic {
 		m_Data = data;
 	}
 
+/*	
 	private double calcSPMD_sq_dist(SPMDStatistic mean, ClassesTuple tuple) {
 		double[] vec = tuple.getVector(m_Hier);
 		MDoubleArray.add(vec, mean.getCounts(), -1.0/mean.m_SumWeight);
@@ -30,6 +29,7 @@ public class SPMDHeuristic extends ClusHeuristic {
 		System.out.println("Tuple: "+tuple+" "+dist);		
 		return dist;
 	}		
+*/
 	
 	public static double transformHeur(double value, double n_tot, double n_pos, double n_neg) {
 		if (value < 1e-6) return Double.NEGATIVE_INFINITY;

@@ -347,8 +347,7 @@ public class RowData extends ClusData implements MSortable {
 			if (status == ClusAttrType.STATUS_DISABLED) {
 				view.addAttribute(new DummySerializable());
 			} else {				
-				ClusSerializable ser = null;
-				boolean target = (status == ClusAttrType.STATUS_TARGET);				
+//				boolean target = (status == ClusAttrType.STATUS_TARGET);				
 				view.addAttribute(at.createRowSerializable(this));
 			}
 		}

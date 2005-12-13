@@ -53,6 +53,8 @@ import Jama.util.*;
 */
 
 public class Matrix implements Cloneable, java.io.Serializable {
+	
+	public final static long serialVersionUID = 1;
 
 /* ------------------------
    Class variables

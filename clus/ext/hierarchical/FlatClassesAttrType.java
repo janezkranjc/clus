@@ -3,10 +3,13 @@ package clus.ext.hierarchical;
 import java.io.*;
 
 import clus.io.*;
+import clus.main.Settings;
 import clus.util.*;
 import clus.data.rows.*;
 
 public class FlatClassesAttrType extends ClassesAttrType {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected ClassesAttrType m_Mimic;
 

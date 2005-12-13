@@ -5,9 +5,12 @@ import java.text.*;
 
 import clus.data.attweights.*;
 import clus.data.type.NumericAttrType;
+import clus.main.Settings;
 
 public class RMSError extends MSError {
 
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
 	public RMSError(ClusErrorParent par, NumericAttrType[] num) {
 		super(par, num);
 	}

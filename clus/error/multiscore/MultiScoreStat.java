@@ -2,12 +2,15 @@ package clus.error.multiscore;
 
 import java.text.*;
 
+import clus.main.Settings;
 import clus.statistic.*;
 import clus.util.*;
 import clus.data.cols.*;
 import clus.data.rows.*;
 
 public class MultiScoreStat extends ClusStatistic {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int m_NbTarget;
 	protected int[] m_Score;

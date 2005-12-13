@@ -10,6 +10,8 @@ import java.io.*;
 
 public class ModelProcessorCollection extends MyArray {
 	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
 	public final void addModelProcessor(ClusModelProcessor proc) {
 		addElement(proc);
 	}

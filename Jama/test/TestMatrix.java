@@ -33,7 +33,7 @@ public class TestMatrix {
       // Locale.setDefault(Locale.GERMAN);
       int errorCount=0;
       int warningCount=0;
-      double tmp, s;
+      double tmp;
       double[] columnwise = {1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.};
       double[] rowwise = {1.,4.,7.,10.,2.,5.,8.,11.,3.,6.,9.,12.};
       double[][] avals = {{1.,4.,7.,10.},{2.,5.,8.,11.},{3.,6.,9.,12.}};
@@ -933,7 +933,7 @@ public class TestMatrix {
 
    /** Print a row vector. **/
 
-   private static void print(double[] x, int w, int d) {
+   public static void print(double[] x, int w, int d) {
       // Use format Fw.d for all elements.
       System.out.print("\n");
       new Matrix(x,1).print(w,d);

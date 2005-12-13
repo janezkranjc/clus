@@ -5,10 +5,13 @@
 package clus.data.attweights;
 
 import clus.data.type.*;
+import clus.main.Settings;
 import clus.util.ClusFormat;
 
 public class ClusNormalizedAttributeWeights extends ClusAttributeWeights {
 
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
 	protected double[] m_NormalizationWeights;
 	
 	public ClusNormalizedAttributeWeights(ClusAttributeWeights norm) {

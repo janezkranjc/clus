@@ -42,6 +42,8 @@ import clus.model.test.*;
 
 public class TestM5PruningRuleNode extends Classifier {
 	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
 	/**
 	 * instances reaching this node
 	 */
@@ -274,10 +276,6 @@ public class TestM5PruningRuleNode extends Classifier {
 	 * @exception Exception if an error occurs
 	 */
 	public double classifyInstance(Instance inst) throws Exception {
-		double   pred;
-		double   n = 0;
-		Instance tempInst;
-		
 		if (m_isLeaf) {
 			if (m_nodeModel == null) {
 				throw new Exception("Classifier has not been built correctly.");
@@ -469,7 +467,7 @@ public class TestM5PruningRuleNode extends Classifier {
 	 *
 	 * @return an array of attribute indexes
 	 */
-	private boolean[] attsTestedAbove() {
+	public boolean[] attsTestedAbove() {
 		boolean[] atts = new boolean[m_numAttributes];
 		boolean[] attsAbove = null;
 		
@@ -723,7 +721,6 @@ public class TestM5PruningRuleNode extends Classifier {
 			
 			do {
 				if (current.m_parent != null) {
-					PreConstructedLinearModel thisL = current.m_parent.getModel();
 					double n = current.m_numInstances;
 					// contribution of the model below
 					for (int i = 0; i < coefficients.length; i++) {

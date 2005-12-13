@@ -9,6 +9,8 @@ import clus.ext.hierarchical.*;
 
 public class WAHNDError extends ClusError {
 	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
 	//m_Dim from ClusError isn't instantiated. Bad?
 	// Probably not?
 	

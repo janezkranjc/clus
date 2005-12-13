@@ -7,8 +7,6 @@ import javax.swing.tree.*;
 
 import clus.ext.hierarchical.*;
 
-import java.io.*;
-import jeans.util.*;
 import jeans.util.array.*;
 
 import java.util.*;
@@ -17,6 +15,8 @@ import clus.main.*;
 import clus.statistic.*;
 
 public class ShowHierarchy extends JPanel {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
     protected ClusNode m_RootNode;
     protected ClassHierarchy m_Hier;
@@ -69,7 +69,6 @@ public class ShowHierarchy extends JPanel {
     }
 		
     public void updateScreen(JTHierTreeNode node) {
-	ClassTerm child;
 	m_JTree.getModel().valueForPathChanged(new TreePath(node.getPath()), node.getUserObject());
 	for (Enumeration e = node.children(); e.hasMoreElements(); ) {
 	    JTHierTreeNode subnode = (JTHierTreeNode)e.nextElement();
@@ -146,6 +145,7 @@ public class ShowHierarchy extends JPanel {
 	m_NWeight = getWeight(node);
     }		
 
+    /*
     private Hashtable loadToolTips(String fname) {
 	Hashtable tooltips = new Hashtable();
 	try {
@@ -174,6 +174,7 @@ public class ShowHierarchy extends JPanel {
 	}
 	return tooltips;
     }
+    */
 	
     /*	public void toScreen() {
 	pack();
@@ -253,6 +254,8 @@ public class ShowHierarchy extends JPanel {
     }
 
     private class MyRenderer extends DefaultTreeCellRenderer {
+    	
+    public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
 	protected final static int DX = 24;
 	protected String m_String;

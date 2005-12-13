@@ -8,6 +8,8 @@ import clus.main.*;
 import java.io.Serializable;
 
 public class ClusBeamModel implements Comparable, Serializable {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected transient int m_HashCode = -1;
 	protected int m_ParentIndex;

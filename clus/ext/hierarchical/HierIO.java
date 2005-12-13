@@ -63,7 +63,7 @@ public class HierIO {
 	}
 	
 	public static void writePrologTerm(ClassTerm term, boolean[] bits, PrintWriter writer) {
-		String prologID = StringUtils.removeChar(term.getID(), '\'');	
+		// String prologID = StringUtils.removeChar(term.getID(), '\'');	
 		writer.print("node([");
 		for (int i = 0; i < term.getNbChildren(); i++) {
 			if (i != 0) writer.print(",");

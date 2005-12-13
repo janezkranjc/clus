@@ -167,7 +167,7 @@ public class Tilde2PMMLv1 {
 		tokens.setCharTokens(",[]():");
 		
 		while (tokens.hasMoreTokens()) {
-			String name = tokens.readToken();
+			tokens.readToken(); // name
 
 			int counter1 = tabs;
 			
@@ -196,7 +196,7 @@ public class Tilde2PMMLv1 {
 			tokens.readChar('(');
 				
 			do {				
-			String arg = tokens.readToken();
+			tokens.readToken();
 			//$outStream.write("  Arg "+arg);
 			} while(tokens.isNextToken(','));
 			

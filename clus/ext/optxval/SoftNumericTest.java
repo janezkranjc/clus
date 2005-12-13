@@ -12,6 +12,8 @@ import clus.data.type.*;
 import clus.data.rows.*;
 
 public class SoftNumericTest extends SoftTest {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected NumericAttrType m_Type;
 	protected double[] m_Bounds;

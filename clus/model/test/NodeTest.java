@@ -114,7 +114,8 @@ public abstract class NodeTest implements Serializable {
 //		if (getUnknownFreq() > 0.0) addUnknownBranch();
 		return getNbChildren();
 	}
-	
+
+	/*
 	private void addUnknownBranch() {
 		m_UnknownBranch = true;
 		int arity = getNbChildren();
@@ -126,6 +127,7 @@ public abstract class NodeTest implements Serializable {
 		}
 		m_BranchFreq[arity] = unkfreq;
 	}
+	*/
 
 /***************************************************************************
  * Special things

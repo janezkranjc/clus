@@ -8,9 +8,12 @@ import java.util.*;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 import clus.error.*;
+import clus.main.Settings;
 import clus.statistic.*;
 
 public class HierRMSError extends MSError {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected ClassHierarchy m_Hier;
 	protected double[] m_Scratch;

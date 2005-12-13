@@ -10,6 +10,8 @@ import clus.main.*;
 import clus.util.*;
 
 public class OptXValNode extends MyNode {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int [] m_Folds;
 	protected ClusNode[] m_Nodes;

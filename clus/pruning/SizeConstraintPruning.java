@@ -13,6 +13,7 @@ public class SizeConstraintPruning extends PruneTree {
 	public ClusErrorParent m_ErrorMeasure;
 	public int[] m_MaxSize;
 	public ClusAttributeWeights m_TargetWeights;
+	public int m_CrIndex, m_MaxIndex;
 
 	public SizeConstraintPruning(int maxsize, ClusAttributeWeights prod) {
 		m_MaxSize = new int[1];
@@ -24,6 +25,10 @@ public class SizeConstraintPruning extends PruneTree {
 		m_MaxSize = maxsize;
 		m_TargetWeights = prod;
 	}	
+	
+	public int getMaxSize() {
+		return m_MaxSize[0];
+	}
 	
 	public void setTrainingData(RowData data) {
 		m_Data = data;
@@ -63,6 +68,36 @@ public class SizeConstraintPruning extends PruneTree {
 		}
 	}
 	
+	public void sequenceInitialize(ClusNode node) {
+		int max_size = node.getNbNodes();
+		int abs_max = getMaxSize();
+		if (abs_max != -1 && max_size > abs_max) max_size = abs_max;
+		if ((max_size % 2) == 0) max_size--;
+		m_MaxIndex = max_size;
+		m_CrIndex = m_MaxIndex;
+		recursiveInitialize(node, max_size);
+		setOriginalTree(node);
+	}
+
+	public void sequenceReset() {
+		m_CrIndex = m_MaxIndex;
+	}
+	
+	public ClusNode sequenceNext() {
+		if (m_CrIndex > 0) {
+			ClusNode cloned = getOriginalTree().cloneTreeWithVisitors();
+			pruneExecute(cloned, m_CrIndex);
+			m_CrIndex -= 2;
+			return cloned;
+		} else {
+			return null;
+		}
+	}
+	
+	public void sequenceToElemK(ClusNode node, int k) {
+		pruneExecute(node, m_MaxIndex-2*k);
+	}
+
 	public void pruneMaxError(ClusNode node, int maxsize) throws ClusException {
 		pruneInitialize(node, maxsize);
 		int constr_ok_size = maxsize;
@@ -72,7 +107,7 @@ public class SizeConstraintPruning extends PruneTree {
 			ClusErrorParent cr_err = m_ErrorMeasure.getErrorClone();
 			ClusError err = cr_err.getFirstError();
 			// Can be made more efficient :-)
-			SizeConstraintErrorComputer.computeErrorStandard(copy, m_Data, err);
+			TreeErrorComputer.computeErrorStandard(copy, m_Data, err);
 			cr_err.setNbExamples(m_Data.getNbRows());
 			if (m_MaxError.length == 1) {
 				double max_err = m_MaxError[0];

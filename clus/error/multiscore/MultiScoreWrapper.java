@@ -10,6 +10,8 @@ import clus.data.type.*;
 import java.io.*;
 
 public class MultiScoreWrapper extends ClusNumericError {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected ClusNominalError m_Child;
 	protected byte[] m_Real;
@@ -55,9 +57,9 @@ public class MultiScoreWrapper extends ClusNumericError {
 	}
 	
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
-		double[] predicted = pred.getNumericPred();
+		// double[] predicted = pred.getNumericPred();
 		for (int i = 0; i < m_Dim; i++) {
-			double err = m_Attrs[i].getNumeric(tuple) - predicted[i];
+			// double err = m_Attrs[i].getNumeric(tuple) - predicted[i];
 			// m_AbsError[i] += Math.abs(err);		 
 		}
 	}		

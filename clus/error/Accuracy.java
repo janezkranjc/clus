@@ -4,9 +4,12 @@ import java.io.*;
 
 import clus.data.rows.DataTuple;
 import clus.data.type.NominalAttrType;
+import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
 public class Accuracy extends ClusNominalError {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int[] m_NbCorrect;	
 

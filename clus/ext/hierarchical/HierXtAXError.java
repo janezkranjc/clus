@@ -12,6 +12,8 @@ import clus.statistic.*;
 
 public class HierXtAXError extends ClusError {
 	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
 	protected MSymMatrix m_KM;
 	protected String m_Name;
 	protected double m_TreeErr;

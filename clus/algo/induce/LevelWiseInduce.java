@@ -6,7 +6,6 @@ import jeans.util.*;
 
 import clus.main.*;
 import clus.util.*;
-import clus.data.type.*;
 import clus.error.multiscore.*;
 import clus.data.cols.*;
 import clus.data.cols.attribute.*;
@@ -26,7 +25,7 @@ public class LevelWiseInduce extends ClusInduce {
 		data.setTarget(createTarget());
 		int nb = m_Schema.getNbAttributes();
 		for (int j = 0; j < nb; j++) {
-			ClusAttrType at = m_Schema.getAttrType(j);
+			// ClusAttrType at = m_Schema.getAttrType(j);
 			// at.addToData(data);
 		}
 		return data;
@@ -54,8 +53,8 @@ public class LevelWiseInduce extends ClusInduce {
 			System.out.println("Level: "+level);
 			// Stopping criterion for each node
 			for (int i = nb-1; i >= 0; i--) {
-				ClusNode inf = (ClusNode)leaves.elementAt(i);
-/*				if (inf.stopCrit()) {
+/*				ClusNode inf = (ClusNode)leaves.elementAt(i);
+				if (inf.stopCrit()) {
 					inf.finish();
 					leaves.removeElementAt(i);
 					nb--;

@@ -8,7 +8,6 @@ import clus.main.*;
 import clus.data.cols.*;
 import clus.data.type.*;
 import clus.selection.*;
-import clus.nominal.split.*;
 
 public class NominalAttribute extends NominalAttrBase {
 
@@ -59,30 +58,30 @@ public class NominalAttribute extends NominalAttrBase {
 	public void findBestTest(MyArray leaves, ColTarget target, ClusStatManager smanager) {
 		// Reset positive statistic
 		int nb = leaves.size();
-		int nbvalues = m_Type.getNbValues();
-		int statsize = nbvalues + m_Type.intHasMissing();
+//		int nbvalues = m_Type.getNbValues();
+//		int statsize = nbvalues + m_Type.intHasMissing();
 		for (int i = 0; i < nb; i++) {
-			ClusNode inf = (ClusNode)leaves.elementAt(i);
+//			ClusNode inf = (ClusNode)leaves.elementAt(i);
 //			inf.reset(statsize);
 		}
 		// For each attribute value
-		ClusNode[] infos = target.getNodes();
+/*		ClusNode[] infos = target.getNodes();
 		for (int i = 0; i < m_NbRows; i++) {
 			ClusNode inf = infos[i];
-/*			if (!inf.m_Finished) {
+			if (!inf.m_Finished) {
 				inf.m_TestStat[m_Data[i]].update(target, i);
-			}*/
-		}
+			}
+		} */
 		// Find best split
 		findSplit(leaves, smanager);
 	}
 	
 	public void findSplit(MyArray leaves, ClusStatManager smanager) {
-		NominalSplit split;	
+/*		NominalSplit split;	
 		int nb = leaves.size();		
 		if (Settings.BINARY_SPLIT) split = new SubsetSplit();
 		else split = new NArySplit();
-/*		split.initialize(smanager.getStatistic());
+		split.initialize(smanager.getStatistic());
 		for (int i = 0; i < nb; i++) {
 			ClusNode node = (ClusNode)leaves.elementAt(i);
 			split.findSplit(node, m_Type, this);
@@ -91,10 +90,10 @@ public class NominalAttribute extends NominalAttrBase {
 
 	public void split(ColTarget target) {
 		// For each attribute value
-		ClusNode[] infos = target.m_Node;
+		// ClusNode[] infos = target.m_Node;
 		// Move each example
-		for (int i = 0; i < m_NbRows; i++) {
-/*			ClusNode inf = infos[i];
+/*		for (int i = 0; i < m_NbRows; i++) {
+			ClusNode inf = infos[i];
 			if (inf.m_SplitAttr == this) {
 				// Predict child
 				int n_idx = inf.m_BestTest.nominalPredict(m_Data[i]);
@@ -102,8 +101,8 @@ public class NominalAttribute extends NominalAttrBase {
 				// Move example to child
 				infos[i] = node;
 				node.m_TotStat.update(target, i);
-			}*/
-		}
+			}
+		}*/
 	}
 
 	public void read(ClusReader data, int row) throws IOException {

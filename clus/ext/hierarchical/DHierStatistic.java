@@ -5,11 +5,14 @@ import jeans.util.array.*;
 
 import jeans.list.*;
 
+import clus.main.Settings;
 import clus.statistic.*;
 import clus.data.rows.*;
 import clus.util.*;
 
 public class DHierStatistic extends HierStatistic {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected transient BitList m_Bits = new BitList();
 	protected transient boolean m_Modified = true;

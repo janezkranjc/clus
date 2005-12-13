@@ -82,35 +82,35 @@ public class NumericAttribute extends NumericAttrBase {
 		// Reset positive statistic
 		int nb = leaves.size();
 		for (int i = 0; i < nb; i++) {
-			ClusNode inf = (ClusNode)leaves.elementAt(i);
+//			ClusNode inf = (ClusNode)leaves.elementAt(i);
 //			inf.reset(2);
 //			inf.m_PrevDouble = Double.NaN;
 		}
 		// For each attribute value
-		ClusNode[] infos = target.getNodes();
+//		ClusNode[] infos = target.getNodes();
 		// First parse missing values
 		int first = 0;
 		if (m_Type.hasMissing()) {
 			while (first < m_NbRows && m_Data[first] == Double.POSITIVE_INFINITY) {
-				int idx = m_Index[first];
-				ClusNode inf = infos[idx];
+//				int idx = m_Index[first];
+//				ClusNode inf = infos[idx];
 //				if (!inf.m_Finished) inf.m_TestStat[1].update(target, idx);	
 				first++;			
 			}
 			for (int i = 0; i < nb; i++) {
-				ClusNode inf = (ClusNode)leaves.elementAt(i);
+//				ClusNode inf = (ClusNode)leaves.elementAt(i);
 //				inf.subtractMissing();
 			}
 		} else {
 			for (int i = 0; i < nb; i++) {
-				ClusNode inf = (ClusNode)leaves.elementAt(i);
+//				ClusNode inf = (ClusNode)leaves.elementAt(i);
 //				inf.copyTotal();
 			}
 		}		
 		// Only if different from previous
 		for (int i = first; i < m_NbRows; i++) {
-			ClusNode inf = infos[m_Index[i]];
-/*			if (!inf.m_Finished) {
+/*			ClusNode inf = infos[m_Index[i]];
+			if (!inf.m_Finished) {
 				double prev = inf.m_PrevDouble;
 				if (m_Data[i] != prev) {			
 					if (prev != Double.NaN) inf.updateNumeric(m_Data[i], this);
@@ -124,12 +124,12 @@ public class NumericAttribute extends NumericAttrBase {
 
 	public void split(ColTarget target) {
 		// For each attribute value
-		ClusNode[] infos = target.m_Node;
+		// ClusNode[] infos = target.m_Node;
 		// Move each example
 		for (int i = 0; i < m_NbRows; i++) {
-			int idx = m_Index[i];
+/*			int idx = m_Index[i];
 			ClusNode inf = infos[idx];
-/*			if (inf.m_SplitAttr == this) {
+			if (inf.m_SplitAttr == this) {
 				// Predict child
 				int n_idx = inf.m_BestTest.numericPredict(m_Data[i]);
 				ClusNode node = inf.getChild(n_idx);

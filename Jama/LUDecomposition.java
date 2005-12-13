@@ -14,6 +14,8 @@ package Jama;
    */
 
 public class LUDecomposition implements java.io.Serializable {
+	
+	public final static long serialVersionUID = 1;
 
 /* ------------------------
    Class variables

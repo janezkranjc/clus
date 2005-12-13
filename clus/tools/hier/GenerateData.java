@@ -65,7 +65,6 @@ public class GenerateData {
 			if (increase) {
 				for (int i = 0; i < terms.size(); i++) {
 					ClassTerm trm = (ClassTerm)terms.elementAt(i);
-					int depth = trm.getLevel();
 					if (trm.getLevel() < MAX_DEPTH) {
 						nb_possible++;
 						sel_from.addElement(trm);

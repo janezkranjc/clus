@@ -34,10 +34,10 @@ public class HierModelPostProc extends ClusModelProcessor {
 	public void terminate(ClusModel model) throws IOException {
 		LeafTreeIterator iter = new LeafTreeIterator((Node)model);
 		while (iter.hasMoreNodes()) {
-			ClusNode node = (ClusNode)iter.getNextNode();
-			MyArray examples = (MyArray)node.getVisitor();
-			ClassesTuple prediction = findBestPrediction(examples);
-			DuoObject visitor = new DuoObject(prediction, examples);
+			// ClusNode node = (ClusNode)iter.getNextNode();
+			// MyArray examples = (MyArray)node.getVisitor();
+			// ClassesTuple prediction = findBestPrediction(examples);
+			// DuoObject visitor = new DuoObject(prediction, examples);
 		}
 	}
 

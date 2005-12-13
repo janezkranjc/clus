@@ -41,6 +41,8 @@ trees!
 import clus.main.*;
 
 public class SSPDMatrix extends MSymMatrix implements Serializable {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public SSPDMatrix(int size) {
 		super(size, true);	

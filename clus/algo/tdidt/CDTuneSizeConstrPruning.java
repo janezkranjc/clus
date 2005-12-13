@@ -62,10 +62,10 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 	}
 	
 	public void computeTestStatistics(ClusRun[] runs, int model, ClusError error) throws IOException, ClusException {
-		SizeConstraintErrorComputer comp = new SizeConstraintErrorComputer(); 
+		TreeErrorComputer comp = new TreeErrorComputer(); 
 		for (int i = 0; i < runs.length; i++) {
 			ClusNode tree = (ClusNode)runs[i].getModelInfo(model).getModel();
-			SizeConstraintErrorComputer.initializeTestErrors(tree, error);
+			TreeErrorComputer.initializeTestErrors(tree, error);
 			MemoryTupleIterator test = (MemoryTupleIterator)runs[i].getTestIter();
 			test.init();
 			DataTuple tuple = test.readTuple();
@@ -107,7 +107,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 				}
 			}
 			if (getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-				PruneTree pruner = new DummyPruner();
+				PruneTree pruner = new PruneTree();
 				boolean bonf = getSettings().isUseBonferroni();
 				HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(runs[i].getPruneSet(), pruner, bonf, getStatManager().getHier());
 				hierpruner.setSignificance(getSettings().isHierPruneInSig());
@@ -118,7 +118,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 			if (m_HasMissing) {
 				computeErrorStandard(tree, model, runs[i]);				
 			} else {
-				SizeConstraintErrorComputer.computeErrorSimple(tree, err);
+				TreeErrorComputer.computeErrorSimple(tree, err);
 			}
 			summ_err.add(err);
 			MemoryTupleIterator test = (MemoryTupleIterator)runs[i].getTestIter();
@@ -173,7 +173,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		int prevsize = -1;
 		while (true) {
 			boolean not_found = true;
-			double max_diff = getRange(graph);
+			// double max_diff = getRange(graph);
 			for (int i = 0; i < graph.size()-2 && not_found; i++) {
 				SingleStatList e1 = (SingleStatList)graph.get(i);
 				SingleStatList e2 = (SingleStatList)graph.get(i+1);
@@ -235,7 +235,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		if (best_index == -1) {
 			return 1;
 		}		
-		double max_diff = getRange(graph);
+		// double max_diff = getRange(graph);
 		SingleStatList best_elem = (SingleStatList)graph.get(best_index);
 		System.out.print("["+best_elem.getX()+","+best_elem.getY()+"]");
 		SingleStatList result = best_elem;
@@ -315,7 +315,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		setRelativeMeasure(true, point.getY());
 		System.out.print(" ");
 		System.out.print("<"+point.getY()+">");		
-		SingleStatList def_pt = addPoint(graph, 1, runs, pruners, model, summ);
+		addPoint(graph, 1, runs, pruners, model, summ);
 		addPoint(graph, maxsize, runs, pruners, model, summ);
 		// Add trees with exponentially increasing size
 		int n = 1;

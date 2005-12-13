@@ -11,7 +11,7 @@ import clus.data.rows.*;
 import jeans.util.MyArray;
 import clus.util.ClusException;
 import clus.error.ClusErrorParent;
-import clus.pruning.VSBPruning;
+import clus.pruning.BottomUpPruningVSB;
 
 
 /*import clus.algo.induce.*;
@@ -147,7 +147,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 			//Prepare a pruner for the tree
 			ClusErrorParent error_parent = cr.getStatManager().createEvalError();
 			RowData pruneset = (RowData) cr.getPruneSet();
-			VSBPruning pruner = new VSBPruning(error_parent,pruneset);
+			BottomUpPruningVSB pruner = new BottomUpPruningVSB(error_parent,pruneset);
 			//prune the cloned tree
 			pruner.prune(pruned);
 			//Store the pruned tree
