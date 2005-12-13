@@ -842,13 +842,10 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
-	public final void xvalRun(ClusClassifier clss) throws IOException,
-			ClusException {
-		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".xval",
-				m_Schema, m_Sett);
+	public final void xvalRun(ClusClassifier clss) throws IOException, ClusException {
+		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".xval", m_Schema, m_Sett);
 		output.writeHeader();
-		PredictionWriter wrt = new PredictionWriter(m_Sett.getAppName()
-				+ ".test.pred", m_Sett);
+		PredictionWriter wrt = new PredictionWriter(m_Sett.getAppName()	+ ".test.pred", m_Sett);
 		wrt.globalInitialize(m_Schema);
 		XValMainSelection sel = getXValSelection();
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
@@ -874,15 +871,14 @@ public class Clus implements CMDLineArgsProvider {
 		output.writeSummary(m_Summary);
 		output.close();
 		/* Cross-validation now includes a single run */
+		ClusRandom.initialize(m_Sett);
 		ClusRun run = singleRunMain(clss, m_Summary);
 		saveModels(run, io);
 		io.save(getSettings().getFileAbsolute(m_Sett.getAppName() + ".model"));
 	}
 
-	public final void baggingRun(ClusClassifier clss) throws IOException,
-			ClusException {
-		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".bag",
-				m_Schema, m_Sett);
+	public final void baggingRun(ClusClassifier clss) throws IOException, ClusException {
+		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".bag", m_Schema, m_Sett);
 		output.writeHeader();
 		PredictionWriter wrt = new PredictionWriter(m_Sett.getAppName()
 				+ ".test.pred", m_Sett);
