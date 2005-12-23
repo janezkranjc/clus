@@ -34,7 +34,7 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_MORISHITA = 6;	
 
 	public final static String[] PRUNING_METHODS = { "Default", "None", "C4.5",
-			"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB", "CartVSB" };
+			"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB", "CartVSB", "CartMaxSize" };
 
 	public final static int PRUNING_METHOD_DEFAULT = 0;
 
@@ -53,6 +53,8 @@ public class Settings implements Serializable {
 	public final static int PRUNING_METHOD_GAROFALAKIS_VSB = 7;
 	
 	public final static int PRUNING_METHOD_CART_VSB = 8;
+	
+	public final static int PRUNING_METHOD_CART_MAXSIZE = 9;	
 
 	public final static String[] COVERING_METHODS = { "Standard",
 			"WeightedMultiplicative", "WeightedAdditive" };
@@ -508,6 +510,10 @@ public class Settings implements Serializable {
 	public int getPruningMethod() {
 		return m_PruningMethod.getValue();
 	}
+
+	public String getPruningMethodName() {
+		return m_PruningMethod.getStringValue();
+	}	
 	
 	public boolean get1SERule() {
 		return m_1SERule.getValue();

@@ -123,11 +123,15 @@ public class WHTDStatistic extends RegressionStat {
 		}
 		return count;			
 	}
-
+	
 	public void calcMean() {
 		super.calcMean();
 		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means, m_Threshold);
 		m_DiscrMean = m_MeanTuple.getVectorWithParents(m_Hier);
+		performSignificanceTest();
+	}
+	
+	public void performSignificanceTest() {
 		if (m_Validation != null) {
 			for (int i = 0; i < m_DiscrMean.length; i++) {
 				if (m_DiscrMean[i] > 0.5) {
@@ -158,10 +162,18 @@ public class WHTDStatistic extends RegressionStat {
 			}
 			// Treshold of 0.5 is ok because components of m_DiscrMean are 0 or 1.
 			m_MeanTuple = m_Hier.getBestTupleMaj(m_DiscrMean, 0.5);
+		}	
+	}
+	
+	public void setMeanTuple(ClassesTuple tuple) {
+		m_MeanTuple = tuple;
+		m_DiscrMean = m_MeanTuple.getVector(m_Hier);
+		for (int i = 0; i < m_DiscrMean.length; i++) {
+			if (m_DiscrMean[i] > 0.5) m_Means[i] = 1.0;
 		}
 	}
 	
-	protected ClassesTuple getMeanTuple() {
+	public ClassesTuple getMeanTuple() {
 		return m_MeanTuple;
 	}
 	

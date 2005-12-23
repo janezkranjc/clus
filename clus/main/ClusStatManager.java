@@ -686,14 +686,18 @@ public class ClusStatManager implements Serializable {
 		int size_nb = sett.getSizeConstraintPruningNumber();
 		if (size_nb > 0 || err_nb > 0) {
 			int[] sizes = sett.getSizeConstraintPruningVector();
-			sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
-			SizeConstraintPruning sc_prune = new SizeConstraintPruning(sizes, createClusAttributeWeights());
-			if (err_nb > 0) {
-				double[] max_err = sett.getMaxErrorConstraintVector();
-				sc_prune.setMaxError(max_err);
-				sc_prune.setErrorMeasure(createDefaultError());
+			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_CART_MAXSIZE) {
+				return new CartPruning(sizes, getClusteringWeights());
+			} else {
+				sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
+				SizeConstraintPruning sc_prune = new SizeConstraintPruning(sizes, createClusAttributeWeights());
+				if (err_nb > 0) {
+					double[] max_err = sett.getMaxErrorConstraintVector();
+					sc_prune.setMaxError(max_err);
+					sc_prune.setErrorMeasure(createDefaultError());
+				}
+				return sc_prune;
 			}
-			return sc_prune;
 		}
 		INIFileNominalOrDoubleOrVector class_thr = sett
 				.getClassificationTresholds();
@@ -723,6 +727,7 @@ public class ClusStatManager implements Serializable {
 
 public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 		Settings sett = getSettings();
+		int pm = sett.getPruningMethod();
 		if (m_Mode == MODE_HIERARCHICAL && pruneset != null) {
 			PruneTree pruner = getTreePrunerNoVSB(); 
 			boolean bonf = sett.isUseBonferroni();
@@ -732,11 +737,11 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 			return hierpruner;
 		}
 		if (pruneset != null) {
-			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_GAROFALAKIS_VSB ||
-					sett.getPruningMethod() == Settings.PRUNING_METHOD_CART_VSB) {
+			if (pm == Settings.PRUNING_METHOD_GAROFALAKIS_VSB ||
+				pm == Settings.PRUNING_METHOD_CART_VSB) {
 				ClusErrorParent parent = createAdditiveError();
 				SequencePruningVSB pruner = new SequencePruningVSB((RowData)pruneset, parent, getClusteringWeights());
-				if (sett.getPruningMethod() == Settings.PRUNING_METHOD_GAROFALAKIS_VSB) {
+				if (pm == Settings.PRUNING_METHOD_GAROFALAKIS_VSB) {
 					int maxsize = sett.getMaxSize();
 					pruner.setSequencePruner(new SizeConstraintPruning(maxsize, getClusteringWeights()));
 				} else {
@@ -746,15 +751,19 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 				pruner.set1SERule(sett.get1SERule());
 				pruner.setHasMissing(m_Schema.hasMissing());
 				return pruner;
-			} else {
+			} else if (pm == Settings.PRUNING_METHOD_REDERR_VSB || pm == Settings.PRUNING_METHOD_DEFAULT) {
 				ClusErrorParent parent = createEvalError();
 				sett.setPruningMethod(Settings.PRUNING_METHOD_REDERR_VSB);
 				return new BottomUpPruningVSB(parent, (RowData)pruneset);
+			} else {
+				return getTreePrunerNoVSB();
 			}
 		} else {
 			return getTreePrunerNoVSB();
 		}
-	}	public void setTargetStatistic(ClusStatistic stat) {
+	}
+
+	public void setTargetStatistic(ClusStatistic stat) {
 		System.out.println("Setting target statistic: "
 				+ stat.getClass().getName());
 		m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = stat;

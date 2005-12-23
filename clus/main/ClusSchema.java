@@ -256,7 +256,7 @@ public class ClusSchema implements Serializable {
 		m_Key = coll;		
 	}
 	
-	public final void updateAttributeUse() {
+	public final void updateAttributeUse() throws ClusException {
 		boolean[] keys = new boolean[getNbAttributes()+1];
 		for (int i = 0; i < getNbAttributes(); i++) {
 			ClusAttrType type = getAttrType(i);
@@ -292,6 +292,11 @@ public class ClusSchema implements Serializable {
 			m_Disabled.subtract(m_Descriptive);
 		}
 		m_Disabled.subtract(m_Key);
+		checkRange(m_Key, "key");
+		checkRange(m_Disabled, "disabled");
+		checkRange(m_Target, "target");
+		checkRange(m_Clustering, "clustering");
+		checkRange(m_Descriptive, "descriptive");
 		setStatusAll(ClusAttrType.STATUS_NORMAL);
 		setStatus(m_Disabled, ClusAttrType.STATUS_DISABLED, true);
 		setStatus(m_Target, ClusAttrType.STATUS_TARGET, true);
@@ -299,6 +304,11 @@ public class ClusSchema implements Serializable {
 		setStatus(m_Key, ClusAttrType.STATUS_KEY, true);
 		setDescriptiveAll(false);
 		setDescriptive(m_Descriptive, true);
+	}
+	
+	public final void checkRange(IntervalCollection coll, String type) throws ClusException {
+		if (coll.getMinIndex() < 0) throw new ClusException("Range for "+type+" attributes goes below zero: '"+coll+"'");
+		if (coll.getMaxIndex() > getNbAttributes()) throw new ClusException("Range for "+type+" attributes: '"+coll+"' out of range (there are only "+getNbAttributes()+" attributes)");		
 	}
 	
 	public final void setStatus(IntervalCollection coll, int status, boolean force) {

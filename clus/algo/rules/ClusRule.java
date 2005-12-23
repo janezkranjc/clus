@@ -123,6 +123,21 @@ public class ClusRule implements ClusModel, Serializable {
     return res;
   }
 
+  public RowData computeCovered(RowData data) {
+    int covered = 0;
+    for (int i = 0; i < data.getNbRows(); i++) {
+      DataTuple tuple = data.getTuple(i);
+      if (covers(tuple)) covered++;
+    }
+    int idx = 0;
+    RowData res = new RowData(data.getSchema(), covered);
+    for (int i = 0; i < data.getNbRows(); i++) {
+      DataTuple tuple = data.getTuple(i);
+      if (covers(tuple)) res.setTuple(tuple, idx++);
+    }
+    return res;
+  }
+  
   /**
    * Removes the examples that have been covered by enough rules, i.e.,
    * have low enough weights.

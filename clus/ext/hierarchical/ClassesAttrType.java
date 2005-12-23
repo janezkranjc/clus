@@ -34,6 +34,10 @@ public class ClassesAttrType extends ClusAttrType {
 		initializeHierarchy(atype);
 	}	
 	
+	public StringTable getTable() {
+		return m_Table;
+	}
+	
 	public ClassHierarchy getHier() {
 		return m_Hier;
 	}
