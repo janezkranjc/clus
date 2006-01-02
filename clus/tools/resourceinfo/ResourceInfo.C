@@ -1,6 +1,8 @@
 
 // g++ -shared -o libResourceInfo.so ResourceInfo.C -I/home/jan/NoCsBack/jdk1.5.0/include/ -I/home/jan/NoCsBack/jdk1.5.0/include/linux/
 
+// g++ -shared -o libResourceInfo.so ResourceInfo.C -I/s/pkg/linux/j2se/jdk1.5.0_05/include/ -I/s/pkg/linux/j2se/jdk1.5.0_05/include/linux/
+
 #include <jni.h>
 #include <unistd.h>
 #include <stdio.h>

@@ -45,6 +45,9 @@ public class WAHNDSqError extends ClusError {
 		System.out.println("WAHNDSqError: addExample/3 not implemented");
 	}
 	
+	public void addInvalid(DataTuple tuple) {
+	}
+	
 	public double calcDistance(ClassesTuple actual, HierStatistic distr) {
 		double[] counts = distr.getCounts();
 		if (m_Mean == null) m_Mean = new double[counts.length];

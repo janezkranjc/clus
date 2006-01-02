@@ -57,8 +57,14 @@ public class ClusWekaModel implements ClusModel {
 		return "Weka Model";
 	}
 	
+	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
+	}
+	
 	public void printModel(PrintWriter wrt) {
 	}
+	
+	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
+	}	
 	
 	public void saveModel(ObjectSaveStream strm) throws IOException {
 	}

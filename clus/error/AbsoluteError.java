@@ -34,6 +34,9 @@ public class AbsoluteError extends ClusNumericError {
 		}
 	}
 	
+	public void addInvalid(DataTuple tuple) {
+	}
+	
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		double[] predicted = pred.getNumericPred();
 		for (int i = 0; i < m_Dim; i++) {

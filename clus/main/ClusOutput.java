@@ -7,8 +7,10 @@ import java.util.*;
 import jeans.resource.ResourceInfo;
 import jeans.util.*;
 
+import clus.statistic.StatisticPrintInfo;
 import clus.util.*;
 import clus.error.*;
+import clus.data.rows.*;
 
 public class ClusOutput {
 
@@ -57,11 +59,11 @@ public class ClusOutput {
 		m_Writer.println();
 	}
 	
-	public void writeOutput(ClusRun cr, boolean detail) throws IOException {
+	public void writeOutput(ClusRun cr, boolean detail) throws IOException, ClusException {
 		writeOutput(cr, detail, false);
 	}
 
-	public void writeOutput(ClusRun cr, boolean detail, boolean outputtrain) throws IOException {
+	public void writeOutput(ClusRun cr, boolean detail, boolean outputtrain) throws IOException, ClusException {
 		String ridx = cr.getIndexString();
 		m_Writer.println("Run: "+ridx);
 		m_Writer.println(StringUtils.makeString('*', 5+ridx.length()));
@@ -90,8 +92,8 @@ public class ClusOutput {
 			}
 		}
 		m_Writer.println();
+		ClusErrorParent te_err = cr.getTestError();
 		if (m_Sett.isOutFoldError() || detail) {
-			ClusErrorParent te_err = cr.getTestError();
 			if (outputtrain) {
 				ClusErrorParent tr_err = cr.getTrainError();
 				if (tr_err != null) {
@@ -119,6 +121,7 @@ public class ClusOutput {
 			}
 		}
 		//for (int i = ClusModels.DEFAULT; i <= ClusModels.PRUNED; i++) {
+		StatisticPrintInfo info = m_Sett.getStatisticPrintInfo();
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			if (i != ClusModels.ORIGINAL) {
 				ClusModelInfo mi = cr.getModelInfo(i);
@@ -128,7 +131,13 @@ public class ClusOutput {
 					m_Writer.println(modelname);
 					m_Writer.println(StringUtils.makeString('*', modelname.length()));
 					m_Writer.println();
-					root.printModel(m_Writer);
+					if (m_Sett.isPrintModelAndExamples()) {
+						RowData pex = null; //(RowData)cr.getTrainingSet();
+						if (te_err != null) pex = (RowData)cr.getTestSet();
+						root.printModelAndExamples(m_Writer, info, pex);
+					} else {
+						root.printModel(m_Writer, info);
+					}
 					m_Writer.println();
 				}
 			}

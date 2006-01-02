@@ -56,6 +56,9 @@ public class MultiScoreWrapper extends ClusNumericError {
 		// m_Child.addExample(m_Real, m_Pred);
 	}
 	
+	public void addInvalid(DataTuple tuple) {
+	}
+	
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		// double[] predicted = pred.getNumericPred();
 		for (int i = 0; i < m_Dim; i++) {

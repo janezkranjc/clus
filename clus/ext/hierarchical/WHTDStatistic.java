@@ -102,14 +102,6 @@ public class WHTDStatistic extends RegressionStat {
 		}
 	}
 	
-	public boolean isValid() {
-		// There is a valid prediction the weight of a non-root class is non-zero
-		for (int i = 1; i < m_NbAttrs; i++) {
-			if (getMean(i) >= 1) return true;
-		}
-		return false;
-	}
-	
 	public final ClassHierarchy getHier() {
 		return m_Hier;
 	}
@@ -186,7 +178,7 @@ public class WHTDStatistic extends RegressionStat {
 		ClusFormat.OUT_WRITER.flush();
 	}
 	
-	public String getString() {
+	public String getString(StatisticPrintInfo info) {
 		return m_MeanTuple.toStringHuman()+" ["+ClusFormat.TWO_AFTER_DOT.format(getTotalWeight())+"]";
 	}
 	
@@ -195,7 +187,7 @@ public class WHTDStatistic extends RegressionStat {
 	}
 	
 	public boolean isValidPrediction() {
-		return m_MeanTuple.isValidPrediction();
+		return !m_MeanTuple.isRoot();
 	}
 	
 	public void showRootInfo() {

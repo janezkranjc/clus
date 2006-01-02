@@ -45,7 +45,7 @@ public class BitVectorStat extends ClusStatistic {
 	public void calcMean() {
 	}
 	
-	public String getString() {
+	public String getString(StatisticPrintInfo info) {
 		return String.valueOf(m_SumWeight);
 	}
 

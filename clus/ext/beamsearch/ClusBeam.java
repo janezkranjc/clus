@@ -109,7 +109,7 @@ public class ClusBeam {
 			ClusNode tree = (ClusNode)mdl.getModel();
 			double error = Double.NaN; // tree.estimateError(); 
 			wrt.println("Model: "+i+" value: "+mdl.getValue()+" error: "+error+" parent: "+mdl.getParentModelIndex());
-			tree.printTree(wrt, "");
+			tree.printModel(wrt);
 		}
 	}
 	

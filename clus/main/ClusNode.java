@@ -534,30 +534,38 @@ public class ClusNode extends MyNode implements ClusModel {
 	// FIXME - what for NominalTests with only two possible outcomes?
 	
 	public void printModel(PrintWriter wrt) {
-		printTree(wrt, "");
+		printTree(wrt, StatisticPrintInfo.getInstance(), "");
 	}
+
+	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
+		printTree(wrt, info, "");
+	}	
+	
+	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
+		printModel(wrt, info);
+	}		
 	
 	public final void printTree() {
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(System.out));
-		printTree(wrt, "");
+		printTree(wrt, StatisticPrintInfo.getInstance(), "");
 		wrt.flush();
 	}
 	
-	public final void printTree(PrintWriter writer, String prefix) {
+	public final void printTree(PrintWriter writer, StatisticPrintInfo info, String prefix) {
 		int arity = getNbChildren();
 		if (arity > 0) {
 			int delta = hasUnknownBranch() ? 1 : 0;
 			if (arity - delta == 2) {
 				writer.println(m_Test.getTestString());
 				writer.print(prefix + "+--yes: ");
-				((ClusNode)getChild(YES)).printTree(writer, prefix+"|       ");
+				((ClusNode)getChild(YES)).printTree(writer, info, prefix+"|       ");
 				writer.print(prefix + "+--no:  ");
 				if (hasUnknownBranch()) {
-					((ClusNode)getChild(NO)).printTree(writer, prefix+"|       ");
+					((ClusNode)getChild(NO)).printTree(writer, info, prefix+"|       ");
 					writer.print(prefix + "+--unk: ");
-					((ClusNode)getChild(UNK)).printTree(writer, prefix+"        ");
+					((ClusNode)getChild(UNK)).printTree(writer, info, prefix+"        ");
 				} else {
-					((ClusNode)getChild(NO)).printTree(writer, prefix+"        ");
+					((ClusNode)getChild(NO)).printTree(writer, info, prefix+"        ");
 				}
 			} else {
 				writer.println(m_Test.getTestString());				
@@ -567,9 +575,9 @@ public class ClusNode extends MyNode implements ClusModel {
 					writer.print(prefix + "+--" + branchlabel + ": ");
 					String suffix = StringUtils.makeString(' ', branchlabel.length()+4);
 					if (i != arity-1) {
-						child.printTree(writer, prefix+"|"+suffix);						
+						child.printTree(writer, info, prefix+"|"+suffix);						
 					} else {
-						child.printTree(writer, prefix+" "+suffix);
+						child.printTree(writer, info, prefix+" "+suffix);
 					}
 				}
 			}
@@ -577,9 +585,9 @@ public class ClusNode extends MyNode implements ClusModel {
 			if (m_TargetStat == null) {
 				writer.print("?");
 			} else {
-				writer.print(m_TargetStat.getString());
+				writer.print(m_TargetStat.getString(info));
 			}
-			if (getID() != 0) writer.println(" ("+getID()+")");
+			if (getID() != 0 && info.SHOW_INDEX) writer.println(" ("+getID()+")");
 			else writer.println();
 		}
 	}

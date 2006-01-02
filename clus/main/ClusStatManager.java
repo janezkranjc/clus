@@ -538,11 +538,9 @@ public class ClusStatManager implements Serializable {
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				parent.addError(new HierRMSError(parent,
-						getClusteringWeights(), true, true, m_Hier));
-				parent.addError(new HierRMSError(parent,
-						getClusteringWeights(), true, false, m_Hier));
-				parent.addError(new HierLevelAccuracy(parent, m_Hier));
+				parent.addError(new HierRMSError(parent, getClusteringWeights(), true, true, m_Hier));
+				// parent.addError(new HierRMSError(parent, getClusteringWeights(), true, false, m_Hier));
+				// parent.addError(new HierLevelAccuracy(parent, m_Hier));
 				parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
 				break;
 			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
@@ -728,6 +726,10 @@ public class ClusStatManager implements Serializable {
 public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 		Settings sett = getSettings();
 		int pm = sett.getPruningMethod();
+		if (pm == Settings.PRUNING_METHOD_NONE) {
+			// Don't prune if pruning method is set to none, even if validation set is given
+			return new PruneTree();
+		}
 		if (m_Mode == MODE_HIERARCHICAL && pruneset != null) {
 			PruneTree pruner = getTreePrunerNoVSB(); 
 			boolean bonf = sett.isUseBonferroni();

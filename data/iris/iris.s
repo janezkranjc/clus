@@ -21,7 +21,8 @@ MinimalWeight = 2.0
 
 [Tree]
 Heuristic = Default
-ConvertToRules = No
+ConvertToRules = Yes
+PruningMethod = None
 
 [Rules]
 OrderedRules = Yes
@@ -34,6 +35,7 @@ CompactnessWeights =
   NumericWeight = 0.5
   NominalWeight = 0.5
 RandomRules = No
+PrintRuleWiseErrors = Yes
 
 [Numeric]
 FTest = 1.0
@@ -49,3 +51,6 @@ MaxError = 0.34
 
 [Output]
 WriteTestSetPredictions = Yes
+PrintModelAndExamples = Yes
+% ShowInfo = {Count, Index}
+

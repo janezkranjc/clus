@@ -79,6 +79,9 @@ public class HierLevelAccuracy extends ClusError {
 		}		
 	}
 	
+	public void addInvalid(DataTuple tuple) {
+	}
+	
 	public double getModelError() {
 		int nb = getNbExamples();
 		return nb == 0 ? 0.0 : 1.0 - m_Correct / nb;

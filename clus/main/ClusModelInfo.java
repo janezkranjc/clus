@@ -85,7 +85,7 @@ public class ClusModelInfo implements Serializable {
 		if (type == TRAIN_ERR) {
 			if (m_TrainModelProc == null) m_TrainModelProc = new ModelProcessorCollection();
 			m_TrainModelProc.addElement(proc);
-		} else {
+		} else if (type == TEST_ERR) {
 			if (m_TestModelProc == null) m_TestModelProc = new ModelProcessorCollection();
 			m_TestModelProc.addElement(proc);
 		}
@@ -93,7 +93,8 @@ public class ClusModelInfo implements Serializable {
 	
 	public final ModelProcessorCollection getModelProcessors(int type) {
 		if (type == TRAIN_ERR) return m_TrainModelProc;
-		else return m_TestModelProc;
+		else if (type == TEST_ERR) return m_TestModelProc;
+		else return null;
 	}
 	
 	public final void initModelProcessors(int type, ClusSchema schema) throws IOException {
@@ -133,7 +134,8 @@ public class ClusModelInfo implements Serializable {
 	public final ClusErrorParent getError(int traintest) {
 		if (traintest == TRAIN_ERR) return m_TrainErr;
 		else if (traintest == VALID_ERR) return m_ValidErr; 
-		else return m_TestErr;
+		else if (traintest == TEST_ERR) return m_TestErr;
+		else return null;
 	}
 	
 	public final ClusErrorParent getCreateTestError() {

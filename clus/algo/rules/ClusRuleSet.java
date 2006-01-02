@@ -91,6 +91,10 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	}
 	
 	public void printModel(PrintWriter wrt) {
+		printModel(wrt, StatisticPrintInfo.getInstance());
+	}	
+	
+	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
     boolean headers = getSettings().computeCompactness() || hasRuleErrors();
     // [train/test][comb/num/nom]
     double[][] avg_compactness = new double[2][3];
@@ -98,6 +102,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
     double[][] avg_prod = new double[2][3];
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
+			// Do not print rules for which the prototype does not represent a valid prediction
+			if (!rule.hasPrediction()) continue;
       if (headers) {
         String head = new String("Rule " + (i + 1) + ":");
         char[] underline = new char[head.length()];
@@ -106,24 +112,27 @@ public class ClusRuleSet implements ClusModel, Serializable {
         }
         wrt.println(head);
         wrt.println(new String(underline));
-        avg_compactness[0][0] += rule.m_CombStat[0].compactnessCalc();
-        avg_compactness[0][1] += rule.m_CombStat[0].compactnessNumCalc();
-        avg_compactness[0][2] += rule.m_CombStat[0].compactnessNomCalc();
-        avg_coverage[0] += rule.m_Coverage[0];
-        avg_prod[0][0] += rule.m_CombStat[0].compactnessCalc()*rule.m_Coverage[0];
-        avg_prod[0][1] += rule.m_CombStat[0].compactnessNumCalc()*rule.m_Coverage[0];
-        avg_prod[0][2] += rule.m_CombStat[0].compactnessNomCalc()*rule.m_Coverage[0];
-        if (rule.m_CombStat[1] != null) {
-          avg_compactness[1][0] += rule.m_CombStat[1].compactnessCalc();
-          avg_compactness[1][1] += rule.m_CombStat[1].compactnessNumCalc();
-          avg_compactness[1][2] += rule.m_CombStat[1].compactnessNomCalc();
-          avg_coverage[1] += rule.m_Coverage[1];
-          avg_prod[1][0] += rule.m_CombStat[1].compactnessCalc()*rule.m_Coverage[1];
-          avg_prod[1][1] += rule.m_CombStat[1].compactnessNumCalc()*rule.m_Coverage[1];
-          avg_prod[1][2] += rule.m_CombStat[1].compactnessNomCalc()*rule.m_Coverage[1];
+        // Added this test so that PrintRuleWiseErrors also works in HMC setting (02/01/06)
+        if (getSettings().computeCompactness()) {
+	        avg_compactness[0][0] += rule.m_CombStat[0].compactnessCalc();
+	        avg_compactness[0][1] += rule.m_CombStat[0].compactnessNumCalc();
+	        avg_compactness[0][2] += rule.m_CombStat[0].compactnessNomCalc();
+	        avg_coverage[0] += rule.m_Coverage[0];
+	        avg_prod[0][0] += rule.m_CombStat[0].compactnessCalc()*rule.m_Coverage[0];
+	        avg_prod[0][1] += rule.m_CombStat[0].compactnessNumCalc()*rule.m_Coverage[0];
+	        avg_prod[0][2] += rule.m_CombStat[0].compactnessNomCalc()*rule.m_Coverage[0];
+	        if (rule.m_CombStat[1] != null) {
+	          avg_compactness[1][0] += rule.m_CombStat[1].compactnessCalc();
+	          avg_compactness[1][1] += rule.m_CombStat[1].compactnessNumCalc();
+	          avg_compactness[1][2] += rule.m_CombStat[1].compactnessNomCalc();
+	          avg_coverage[1] += rule.m_Coverage[1];
+	          avg_prod[1][0] += rule.m_CombStat[1].compactnessCalc()*rule.m_Coverage[1];
+	          avg_prod[1][1] += rule.m_CombStat[1].compactnessNumCalc()*rule.m_Coverage[1];
+	          avg_prod[1][2] += rule.m_CombStat[1].compactnessNomCalc()*rule.m_Coverage[1];
+	        }
         }
       }
-			rule.printModel(wrt);
+			rule.printModel(wrt, info);
 			wrt.println();
 		}
     if (headers) {
@@ -141,10 +150,10 @@ public class ClusRuleSet implements ClusModel, Serializable {
     }
   }
 	
-	public void printModelAndExamples(PrintWriter wrt, ClusSchema schema) {
+	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, ClusSchema schema) {
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
-			rule.printModel(wrt);
+			rule.printModel(wrt, info);
 			wrt.println();
 			wrt.println("Covered examples:");
 			ArrayList data = rule.getData();
@@ -152,7 +161,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			ClusAttrType[] key = schema.getAllAttrUse(ClusAttrType.ATTR_USE_KEY);
 			for (int k = 0; k < data.size(); k++) {
 				DataTuple tuple = (DataTuple)data.get(k);
-				wrt.print(String.valueOf(k)+": ");
+				wrt.print(String.valueOf(k+1)+": ");
 				boolean hasval = false;
 				for (int j = 0; j < key.length; j++) {
 					if (hasval) wrt.print(",");
@@ -169,6 +178,12 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			wrt.println();			
 		}
 		wrt.println("Default = "+m_TargetStat.getString());
+	}	
+	
+	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
+		addDataToRules(examples);
+		printModelAndExamples(wrt, info, examples.getSchema());
+		removeDataFromRules();		
 	}	
 	
 	public int getModelSize() {

@@ -69,4 +69,7 @@ public class Accuracy extends ClusNominalError {
 			if (getAttr(i).getNominal(tuple) == predicted[i]) m_NbCorrect[i]++; 
 		}		
 	}
+	
+	public void addInvalid(DataTuple tuple) {
+	}	
 }

@@ -120,8 +120,7 @@ public class ClusRun extends CRParent {
 	}
 	
 	// If the test set is specified as a separate file, this method first reads the entire
-	// file into memory, while the above method provides an interator that reads tuples 
-	// one by one
+	// file into memory, while the above method provides an interator that reads tuples one by one
 	public final RowData getTestSet() throws IOException, ClusException {
 		RowData data = (RowData)m_Test.getData();
 		if (data == null) {

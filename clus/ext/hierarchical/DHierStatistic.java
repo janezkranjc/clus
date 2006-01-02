@@ -100,7 +100,7 @@ public class DHierStatistic extends HierStatistic {
 		ClusFormat.OUT_WRITER.flush();		
 	}
 				
-	public String getString() {
+	public String getString(StatisticPrintInfo info) {
 		return m_MeanTuple.toString();
 	}
 	

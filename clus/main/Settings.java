@@ -8,6 +8,7 @@ import jeans.resource.*;
 import java.io.*;
 import java.util.*;
 
+import clus.statistic.*;
 import clus.heuristic.*;
 import clus.data.type.*;
 import clus.ext.hierarchical.*;
@@ -116,6 +117,10 @@ public class Settings implements Serializable {
 	public final static int RESOURCE_INFO_LOAD_NO = 1;
 	
 	public final static int RESOURCE_INFO_LOAD_TEST = 2;	
+	
+	public final static String[] SHOW_INFO = {"Count", "Distribution", "Index"};
+	
+	public final int[] SHOW_INFO_VALUES = {0};
 
 	/* Filename and date information */
 	protected Date m_Date;
@@ -257,7 +262,11 @@ public class Settings implements Serializable {
 	protected INIFileBool m_ShowBrFreq;
 
 	protected INIFileBool m_ShowUnknown;
+	
+	protected INIFileNominal m_ShowInfo;
 
+	protected INIFileBool m_PrintModelAndExamples;	
+	
 	protected INIFileBool m_WriteTestPredictions;
 
 	/* Beam Search For Trees */
@@ -405,8 +414,10 @@ public class Settings implements Serializable {
 		output.addNode(m_OutTrainErr = new INIFileBool("TrainErrors", true));
 		output.addNode(m_ShowUnknown = new INIFileBool("UnknownFrequency", false));
 		output.addNode(m_ShowBrFreq = new INIFileBool("BranchFrequency", false));
+		output.addNode(m_ShowInfo = new INIFileNominal("ShowInfo", SHOW_INFO, SHOW_INFO_VALUES));
+		output.addNode(m_PrintModelAndExamples = new INIFileBool("PrintModelAndExamples", false));
 		output.addNode(m_WriteTestPredictions = new INIFileBool("WriteTestSetPredictions", false));
-
+		
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
 		m_SectionHierarchical.addNode(HIER_W_PARAM = new INIFileDouble("WParam", 0.75));
 		m_SectionHierarchical.addNode(m_HierSep = new INIFileString("HSeparator", "."));
@@ -684,6 +695,10 @@ public class Settings implements Serializable {
 
 	public boolean isWriteTestSetPredictions() {
 		return m_WriteTestPredictions.getValue();
+	}
+	
+	public boolean isPrintModelAndExamples() {
+		return m_PrintModelAndExamples.getValue();
 	}
 
 	public boolean isBinarySplit() {
@@ -992,6 +1007,14 @@ public class Settings implements Serializable {
 		m_DirName = FileUtil.getPath(file);
 	}
 
+	public StatisticPrintInfo getStatisticPrintInfo() {
+		StatisticPrintInfo info = new StatisticPrintInfo();
+		info.SHOW_EXAMPLE_COUNT = m_ShowInfo.contains(0);  
+		info.SHOW_DISTRIBUTION = m_ShowInfo.contains(1);
+		info.SHOW_INDEX = m_ShowInfo.contains(2);
+		return info;
+	}
+	
 	public void setDate(Date date) {
 		m_Date = date;
 	}

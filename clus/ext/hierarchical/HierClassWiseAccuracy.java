@@ -21,7 +21,6 @@ public class HierClassWiseAccuracy extends ClusError {
 	protected double[] m_Predicted;
 	protected double[] m_Correct;
 	protected double[] m_Default;
-	protected double m_Cover;
 	
 	public HierClassWiseAccuracy(ClusErrorParent par, ClassHierarchy hier) {
 		super(par, hier.getTotal());
@@ -34,24 +33,22 @@ public class HierClassWiseAccuracy extends ClusError {
 
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);		
-		if (!((WHTDStatistic)pred).getMeanTuple().isRoot()) {			
-			double[] predarr = ((WHTDStatistic)pred).getDiscretePred();
-			for (int i = 1; i < m_Dim; i++) {
-				if (predarr[i] > 0.5) {
-					/* Predicted this class, was it correct? */
-					m_Predicted[i] += 1.0;
-					if (tp.hasClass(i)) {
-						m_Correct[i] += 1.0;
-					}
+		double[] predarr = ((WHTDStatistic)pred).getDiscretePred();
+		for (int i = 1; i < m_Dim; i++) {
+			if (predarr[i] > 0.5) {
+				/* Predicted this class, was it correct? */
+				m_Predicted[i] += 1.0;
+				if (tp.hasClass(i)) {
+					m_Correct[i] += 1.0;
 				}
 			}
-			m_Cover += 1.0;
-			//new variable m_Perfect to calculate recall
-			//for (int i = 1; i < m_Dim; i++){
-			//	if (tp.hasClass(i)) m_Perfect[i] += 1.0;
-			//}
 		}
 		tp.updateDistribution(m_Default, 1.0);		
+	}
+	
+	public void addInvalid(DataTuple tuple) {
+		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
+		tp.updateDistribution(m_Default, 1.0);
 	}
 	
 	public double getModelError() {		
@@ -83,11 +80,6 @@ public class HierClassWiseAccuracy extends ClusError {
 			tot_def += m_Default[i];
 		}
 		return tot_def == 0 ? 0.0 : tot_corr / tot_def;
-	}
-		
-	public double getCoverage() {
-		int nb = getNbExamples();
-		return nb == 0 ? 0.0 : m_Cover / nb;		
 	}
 	
 	public int getTP(){
@@ -134,13 +126,10 @@ public class HierClassWiseAccuracy extends ClusError {
 		Arrays.fill(m_Correct, 0.0);
 		Arrays.fill(m_Predicted, 0.0);
 		Arrays.fill(m_Default, 0.0);
-		m_Cover = 0.0;
 	}
-	
 	
 	public void add(ClusError other) {
 		HierClassWiseAccuracy acc = (HierClassWiseAccuracy)other;
-		m_Cover += acc.m_Cover;
 		for (int i = 0; i < m_Dim; i++) {
 			m_Correct[i] += acc.m_Correct[i];
 			m_Predicted[i] += acc.m_Predicted[i];
@@ -148,25 +137,40 @@ public class HierClassWiseAccuracy extends ClusError {
 		}		
 	}
 	
+	// For errors computed on a subset of the examples, it is sometimes useful
+	// to also have information about all the examples, this information is
+	// passed via this method in the global error measure "global"
+	public void updateFromGlobalMeasure(ClusError global) {
+		HierClassWiseAccuracy other = (HierClassWiseAccuracy)global;
+		System.arraycopy(other.m_Default, 0, m_Default, 0, m_Default.length);
+	}
+	
 	//prints the evaluation results for each single predicted class
 	//added a value for recall (next to def and acc)
 	public void printNonZeroAccuracies(NumberFormat fr, PrintWriter out, ClassTerm node) {
 		int idx = node.getIndex();
 		if (m_Predicted[idx] != 0.0) {
-			int nb = getNbExamples();
+			int nb = getNbTotal();
 			double def = nb == 0 ? 0.0 : m_Default[idx]/nb;
 			//added a test
 			double acc = m_Predicted[idx] == 0.0 ? 0.0 : m_Correct[idx]/m_Predicted[idx];
 			//this line is added
-			double rec = m_Default[idx] == 0.0 ? 0.0 : m_Correct[idx]/m_Default[idx];
+			double rec = m_Default[idx] == 0.0 ? 0.0 : m_Correct[idx]/m_Default[idx];			
 			//added some more lines for calculationg, TP, FP, nbPosExamples
 			int TP = (int)m_Correct[idx];
 			int FP = (int)(m_Predicted[idx] - m_Correct[idx]); //TODO: some kind of checking?
 			int nbPos = (int)m_Default[idx];
-			
 			ClassesValue val = new ClassesValue(node);
 			//adapted output somewhat for clarity
-			out.println("      "+val.toPathString()+", def: "+fr.format(def)+", acc: "+fr.format(acc)+", rec: "+fr.format(rec)+", TP: "+fr.format(TP)+", FP: "+fr.format(FP)+", nbPos: "+fr.format(nbPos));
+			out.print("      "+val.toPathString());
+			out.print(", def: "+fr.format(def));
+//			out.print(" ("+m_Default[idx]+"/"+nb+")");
+			out.print(", acc: "+fr.format(acc));
+//			out.print(" ("+m_Correct[idx]+"/"+m_Predicted[idx]+")");			
+			out.print(", rec: "+fr.format(rec));
+//			out.print(" ("+m_Correct[idx]+"/"+m_Default[idx]+")");			
+			out.print(", TP: "+fr.format(TP)+", FP: "+fr.format(FP)+", nbPos: "+fr.format(nbPos));
+			out.println();
 		}
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			printNonZeroAccuracies(fr, out, (ClassTerm)node.getChild(i));

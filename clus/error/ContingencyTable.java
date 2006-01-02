@@ -238,5 +238,8 @@ public class ContingencyTable extends ClusNominalError {
 		for (int i = 0; i < m_Dim; i++) {
 			m_ContTable[i][getAttr(i).getNominal(tuple)][predicted[i]]++;
 		}		
+	}
+	
+	public void addInvalid(DataTuple tuple) {
 	}	
 }

@@ -13,7 +13,7 @@ import clus.ext.hierarchical.*;
 
 public class ARFFFile {
 
-	protected final static String TAG_ERROR = " tag not found in ARFF file";
+	protected final static String TAG_ERROR = " tag not found in ARFF file, found instead: '";
 	protected final static String[] TAG_NAME = {"@RELATION", "@ATTRIBUTE", "@DATA"};
 
 	protected ClusReader m_Reader;
@@ -37,7 +37,7 @@ public class ARFFFile {
 				// System.out.println("Relation name: "+schema.getRelationName());
 				expected = 1;				
 			} else if (token.equals(TAG_NAME[1])) {
-				if (expected == 0) throw new IOException(TAG_NAME[expected]+TAG_ERROR);
+				if (expected == 0) throw new IOException(TAG_NAME[expected]+TAG_ERROR+token+"'");
 				String aname = tokens.getDelimToken('\"','\"');
 				String atype = tokens.readTillEol();
 				int idx = atype.indexOf('%');
@@ -46,11 +46,11 @@ public class ARFFFile {
 				addAttribute(schema, aname, atype);
 				expected = 2;
 			} else if (token.equals(TAG_NAME[2])) {
-				if (expected != 2) throw new IOException(TAG_NAME[expected]+TAG_ERROR);
+				if (expected != 2) throw new IOException(TAG_NAME[expected]+TAG_ERROR+token+"'");
 				m_DataLine = tokens.getLine();
 				expected = 3;
 			} else {
-				throw new IOException(TAG_NAME[expected]+TAG_ERROR);
+				throw new IOException(TAG_NAME[expected]+TAG_ERROR+token+"'");
 			}
 			if (expected < 3) token = tokens.getToken().toUpperCase();
 		}
@@ -101,10 +101,8 @@ public class ARFFFile {
 			}				
 		}
 	}
-
-	public static void writeArff(String fname, RowData data) throws IOException {
-		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
-		ClusSchema schema = data.getSchema();
+	
+	public static void writeArffHeader(PrintWriter wrt, ClusSchema schema) throws IOException {
 		wrt.println("@RELATION "+schema.getRelationName());
 		wrt.println();
 		for (int i = 0; i < schema.getNbAttributes(); i++) {
@@ -125,6 +123,12 @@ public class ARFFFile {
 			}
 		}
 		wrt.println();
+	}
+
+	public static void writeArff(String fname, RowData data) throws IOException {
+		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
+		ClusSchema schema = data.getSchema();
+		writeArffHeader(wrt, schema);
 		wrt.println("@DATA");
 		for (int j = 0; j < data.getNbRows(); j++) {
 			DataTuple tuple = data.getTuple(j);

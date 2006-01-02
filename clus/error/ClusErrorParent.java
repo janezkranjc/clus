@@ -18,6 +18,7 @@ public class ClusErrorParent implements Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
 	
+	protected int m_NbTotal;
 	protected int m_NbExamples;
 	protected int m_NbCover;
 	protected ClusStatManager m_StatManager;
@@ -25,11 +26,25 @@ public class ClusErrorParent implements Serializable {
 		
 	public ClusErrorParent(ClusStatManager smanager) {
 		m_StatManager = smanager;
+		m_NbTotal = -1;
+	}
+	
+	public void setNbTotal(int nb) {
+		m_NbTotal = nb;
+	}
+	
+	public int getNbTotal() {
+		return m_NbTotal == -1 ? m_NbExamples : m_NbTotal;
 	}
 	
 	public void setNbExamples(int nb) {
 		m_NbExamples = nb;
 	}
+	
+	public void setNbExamples(int nb, int cover) {
+		m_NbExamples = nb;
+		m_NbCover = cover;
+	}	
 	
 	public void setWeights(ClusAttributeWeights weights) {
 		for (int i = 0; i < m_Error.size(); i++) {
@@ -95,26 +110,22 @@ public class ClusErrorParent implements Serializable {
 			err.reset();
 		}	
 		m_NbExamples = 0;
+		m_NbCover = 0;
 	}
-	
-	
-/*	public void addExample(ClusData data, int idx, ClusStatistic stat) {
-		int nb = m_Error.size();
-		for (int i = 0; i < nb; i++) {
-			ClusError err = (ClusError)m_Error.elementAt(i);
-			err.addExample(data, idx, stat);
-		}
-		m_NbExamples++;
-	}*/
 	
 	public void addExample(DataTuple tuple, ClusStatistic stat) {
 		m_NbExamples++;
-		if (stat != null) {
+		int nb = m_Error.size();		
+		if (stat != null && stat.isValidPrediction()) {
 			m_NbCover++;
-			int nb = m_Error.size();
 			for (int i = 0; i < nb; i++) {
 				ClusError err = (ClusError)m_Error.elementAt(i);
 				err.addExample(tuple, stat);
+			}
+		} else {
+			for (int i = 0; i < nb; i++) {
+				ClusError err = (ClusError)m_Error.elementAt(i);
+				err.addInvalid(tuple);
 			}
 		}
 	}	
@@ -128,26 +139,52 @@ public class ClusErrorParent implements Serializable {
 		m_NbExamples += par.getNbExamples();
 		m_NbCover += par.getNbCover();
 	}
+	
+	public void updateFromGlobalMeasure(ClusErrorParent par) {
+		int nb = m_Error.size();
+		for (int i = 0; i < nb; i++) {
+			ClusError err = (ClusError)m_Error.elementAt(i);
+			err.updateFromGlobalMeasure(par.getError(i));
+		}
+		setNbTotal(par.getNbExamples());
+	}	
 
 	public void showError(PrintWriter out) {
 		int nb = m_Error.size();
-		out.println("Number of examples: "+getNbExamples()+" (covered: "+getNbCover()+")");
+		out.println("Number of examples: "+getNbTotal()+" (covered: "+getNbCover()+")");
 		for (int i = 0; i < nb; i++) {
 			ClusError err1 = getError(i);
 			out.print(err1.getName()+": ");
 			err1.showModelError(out, ClusError.DETAIL_SMALL);
 		}			
-	}	
+	}
+	
+	public static boolean checkCoverage(CRParent models, int type, int nb) {
+		int nb_models = models.getNbModels();
+		for (int j = 0; j < nb_models; j++) {
+			ClusErrorParent parent = models.getModelInfo(j).getError(type);
+			if (parent.getNbCover() != nb) return false;
+		}
+		return true;
+	}
 	
 	public void showError(CRParent models, int type, PrintWriter out) {
 		int nb = m_Error.size();
 		ClusModelInfo definf = models.getModelInfo(ClusModels.DEFAULT);
 		ClusErrorParent defpar = definf.getError(type);
-		out.println("Number of examples: "+defpar.getNbExamples()+" (covered: "+getNbCover()+")");
+		out.println("Number of examples: "+defpar.getNbExamples());
+		int nb_models = models.getNbModels();
+		if (!checkCoverage(models, type, defpar.getNbExamples())) {
+			out.println("Coverage:");
+			for (int j = 0; j < nb_models; j++) {
+				ClusModelInfo inf = models.getModelInfo(j);
+				ClusErrorParent parent = inf.getError(type);		
+				out.println("  "+inf.getName()+": "+parent.getNbCover());						
+			}
+		}
 		for (int i = 0; i < nb; i++) {
 			ClusError err1 = getError(i);
-			out.println(err1.getName());
-			int nb_models = models.getNbModels();
+			out.println(err1.getName());			
 			for (int j = 0; j < nb_models; j++) {
 				ClusModelInfo inf = models.getModelInfo(j);
 				ClusErrorParent parent = inf.getError(type);		

@@ -3,6 +3,8 @@ package clus.algo.kNN;
 import clus.main.*;
 import clus.data.rows.*;
 import clus.statistic.ClusStatistic;
+import clus.statistic.StatisticPrintInfo;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -79,6 +81,12 @@ public class KNNModel implements ClusModel {
 	public int getModelSize(){return 0;}
 
 	public void printModel(PrintWriter wrt) {
+	}
+
+	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
+	}
+	
+	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 	}
 		
 	public void attachModel(Hashtable table) {

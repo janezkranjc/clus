@@ -17,10 +17,13 @@ public class PredictionWriter extends ClusModelProcessor {
 	protected boolean m_Global;
 	protected Settings m_Sett;
 	protected StringBuffer m_ModelParts;
+	protected ClusSchema m_OutSchema;
+	protected ClusStatistic m_Target;
 	
-	public PredictionWriter(String fname, Settings sett) {
+	public PredictionWriter(String fname, Settings sett, ClusStatistic target) {
 		m_Fname = fname;
 		m_Sett = sett;
+		m_Target = target;
 		m_ModelParts = new StringBuffer();		
 	}
 	
@@ -50,8 +53,8 @@ public class PredictionWriter extends ClusModelProcessor {
 	}	
 	
 	public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
-				if (m_ModelParts.length() != 0) m_ModelParts.append("+");
-				m_ModelParts.append(String.valueOf(model.getID()));
+		if (m_ModelParts.length() != 0) m_ModelParts.append("+");
+		m_ModelParts.append(String.valueOf(model.getID()));
 	}	
 	
 	public void exampleUpdate(DataTuple tuple, ClusStatistic distr) {
@@ -70,14 +73,21 @@ public class PredictionWriter extends ClusModelProcessor {
 	private void doInitialize(ClusSchema schema) throws IOException {
 		m_Attrs = new MyArray();
 		int nb = schema.getNbAttributes();
+		m_OutSchema = new ClusSchema(schema.getRelationName()+"-predictions");
 		for (int i = 0; i < nb; i++) {
 			ClusAttrType at = schema.getAttrType(i);
-			if (at.getStatus() == ClusAttrType.STATUS_KEY) m_Attrs.addElement(at);
+			if (at.getStatus() == ClusAttrType.STATUS_KEY) {
+				m_Attrs.addElement(at);
+				m_OutSchema.addAttrType(at.cloneType());
+			}
 		}
 		for (int i = 0; i < nb; i++) {
 			ClusAttrType at = schema.getAttrType(i);
-			if (at.getStatus() == ClusAttrType.STATUS_TARGET) m_Attrs.addElement(at);
+			if (at.getStatus() == ClusAttrType.STATUS_TARGET) {
+				m_Attrs.addElement(at);
+				m_OutSchema.addAttrType(at.cloneType());
+			}
 		}
-		m_Writer = m_Sett.getFileAbsoluteWriter(m_Fname);
+		m_Writer = m_Sett.getFileAbsoluteWriter(m_Fname);		
 	}
 }

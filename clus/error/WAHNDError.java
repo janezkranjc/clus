@@ -95,6 +95,9 @@ public class WAHNDError extends ClusError {
 		m_SumWeight += weight;
 	}
 	
+	public void addInvalid(DataTuple tuple) {
+	}
+	
 	public double getModelError() {
 		return m_TreeErr/m_SumWeight;
 	}

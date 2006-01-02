@@ -64,8 +64,16 @@ public abstract class ClusError implements Serializable {
 	
 	public abstract void add(ClusError other);
 	
-	public abstract void addExample(DataTuple tuple, ClusStatistic pred);	
+	public abstract void addExample(DataTuple tuple, ClusStatistic pred);
+	
+	public abstract void addInvalid(DataTuple tuple);
 
+	// For errors computed on a subset of the examples, it is sometimes useful
+	// to also have information about all the examples, this information is
+	// passed via this method in the global error measure "global"
+	public void updateFromGlobalMeasure(ClusError global) {
+	}
+	
 /***************************************************************************
  * Inspectors
  ***************************************************************************/	
@@ -108,7 +116,6 @@ public abstract class ClusError implements Serializable {
 	public void showRelativeModelError(PrintWriter out, int detail) {
 		showModelError(out, detail);
 	}
-	
 
 /***************************************************************************
  * Old stuff - to be removed :-)
@@ -125,6 +132,19 @@ public abstract class ClusError implements Serializable {
 	public int getNbExamples() {
 		return m_Parent.getNbExamples();
 	}
+	
+	public int getNbTotal() {
+		return m_Parent.getNbTotal();
+	}
+	
+	public int getNbCover() {
+		return m_Parent.getNbCover();
+	}
+	
+	public double getCoverage() {
+		int nb = getNbTotal();
+		return nb == 0 ? 0.0 : (double)getNbCover() / nb;		
+	}	
 	
 	public NumberFormat getFormat() {
 		return m_Parent.getFormat();

@@ -296,12 +296,12 @@ public class CombStat extends ClusStatistic {
     return buf.toString();
   }
 
-  public String getString() {
+  public String getString(StatisticPrintInfo info) {
     StringBuffer buf = new StringBuffer();    
     buf.append("[");
-    buf.append(m_ClassStat.getString());
+    buf.append(m_ClassStat.getString(info));
     buf.append(" | ");
-    buf.append(m_RegStat.getString());
+    buf.append(m_RegStat.getString(info));
     buf.append("]");    
     return buf.toString();
   }

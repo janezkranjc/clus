@@ -54,7 +54,7 @@ public class BitHierStatistic extends HierStatistic {
 		ClusFormat.OUT_WRITER.flush();		
 	}
 				
-	public String getString() {
+	public String getString(StatisticPrintInfo info) {
 	    return String.valueOf(m_SumWeight);
 //	    return m_MeanTuple.toString();
 	}

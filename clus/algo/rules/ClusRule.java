@@ -37,13 +37,13 @@ public class ClusRule implements ClusModel, Serializable {
     m_StatManager = statManager;
   }
   
-  	public int getID() {
-  		return m_ID;
-  	}
+  public int getID() {
+  	return m_ID;
+  }
   	
-  	public void setID(int id) {
-  		m_ID = id;
-  	}
+  public void setID(int id) {
+  	m_ID = id;
+  }
   
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 		return m_TargetStat;
@@ -224,8 +224,12 @@ public class ClusRule implements ClusModel, Serializable {
 		printModel(wrt);
 		wrt.flush();
 	}
-	
+
 	public void printModel(PrintWriter wrt) {
+		printModel(wrt, StatisticPrintInfo.getInstance());
+	}
+	
+	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 		wrt.print("IF ");
 		if (m_Tests.size() == 0) {
 			wrt.print("true");
@@ -240,8 +244,8 @@ public class ClusRule implements ClusModel, Serializable {
 			}
 		}
 		wrt.println();
-		wrt.print("THEN "+m_TargetStat.getString());
-		if (getID() != 0) wrt.println(" ("+getID()+")");
+		wrt.print("THEN "+m_TargetStat.getString(info));
+		if (getID() != 0 && info.SHOW_INDEX) wrt.println(" ("+getID()+")");
 		else wrt.println();		
 		String extra = m_TargetStat.getExtraInfo();
 		if (extra != null) {
@@ -275,6 +279,9 @@ public class ClusRule implements ClusModel, Serializable {
     		}    		
     }
 	}
+	
+	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
+	}	
 
   public Settings getSettings() {
     return m_StatManager.getSettings();
@@ -377,6 +384,11 @@ public class ClusRule implements ClusModel, Serializable {
   
   public boolean hasErrors() {
   	return m_Errors != null;
+  }
+  
+  public boolean hasPrediction() {
+  	// Sometimes no valid prediction can be derived from a prototype (e.g., in HMC)
+  	return m_TargetStat.isValidPrediction();
   }
 
   public void computeCoverStat(RowData data, ClusStatistic stat) {

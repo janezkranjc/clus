@@ -45,7 +45,7 @@ public class HierSummStat extends ClusStatistic {
 		return stat.m_Counts[idx]/stat.m_SumWeight;
 	}	
 
-	public String getString() {
+	public String getString(StatisticPrintInfo info) {
 		StringBuffer buf = new StringBuffer();
 		buf.append("size: " );		
 		buf.append(ClusFormat.ONE_AFTER_DOT.format(m_Old.m_SumWeight));

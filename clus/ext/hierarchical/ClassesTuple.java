@@ -267,11 +267,7 @@ public class ClassesTuple implements MySparseVector, Serializable {
 			((ClassesValue)m_Tuple[i]).setIntermediate(inter);
 		}		
 	}
-	
-	public boolean isValidPrediction() {
-		return m_Tuple.length > 0;
-	}
-	
+		
 	public final static void quickSort(ClassesTuple tuple, int low, int high) {
 		if (low < high) {
 			int mid = partition(tuple,low,high);

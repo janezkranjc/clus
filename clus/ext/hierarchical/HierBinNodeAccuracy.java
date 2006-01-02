@@ -130,6 +130,9 @@ public class HierBinNodeAccuracy extends ClusError {
 		m_SumWeight = m_SumWeight + weight;
 	}
 	
+	public void addInvalid(DataTuple tuple) {
+	}
+	
 	public double getModelError() {
 		System.out.println("HierBinNodeAccuracy: getModelError/0 not implemented");
 		return 0.0;

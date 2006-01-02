@@ -108,6 +108,9 @@ public class MSError extends ClusNumericError {
 		}		
 	}
 	
+	public void addInvalid(DataTuple tuple) {
+	}
+	
 	public void add(ClusError other) {
 		MSError oe = (MSError)other;
 		for (int i = 0; i < m_Dim; i++) {

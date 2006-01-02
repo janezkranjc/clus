@@ -404,7 +404,7 @@ public class ClusBeamSearch extends ClusExtension {
 		if (Math.abs(value-expected) > 1e-6) {
 			System.out.println("Bug in heurisitc: "+value+" <> "+expected);
 			PrintWriter wrt = new PrintWriter(System.out);
-			tree.printTree(wrt, "");
+			tree.printModel(wrt);
 			wrt.close();
 			System.out.flush();
 			System.exit(1);

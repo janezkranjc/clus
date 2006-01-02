@@ -260,7 +260,7 @@ public class ClassificationStat extends ClusStatistic {
 		return buf.toString();
 	}	
 	
-	public String getString() {
+	public String getString(StatisticPrintInfo info) {
 		StringBuffer buf = new StringBuffer();		
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		if (m_MajorityClasses != null) {
@@ -273,18 +273,32 @@ public class ClassificationStat extends ClusStatistic {
 		} else {
 			buf.append("?");
 		}
-		for (int j = 0; j < m_NbTarget; j++) {		
-			buf.append("[");
-			for (int i = 0; i < m_ClassCounts[j].length; i++) {
-				if (i != 0) buf.append(",");
-				buf.append(m_Attrs[j].getValue(i));
-				buf.append(":");
-				buf.append(fr.format(m_ClassCounts[j][i]));
+		if (info.SHOW_DISTRIBUTION) {
+			for (int j = 0; j < m_NbTarget; j++) {		
+				buf.append(" [");
+				for (int i = 0; i < m_ClassCounts[j].length; i++) {
+					if (i != 0) buf.append(",");
+					buf.append(m_Attrs[j].getValue(i));
+					buf.append(":");
+					buf.append(fr.format(m_ClassCounts[j][i]));
+				}
+				buf.append("]");
 			}
-			buf.append("]");
+			if (info.SHOW_EXAMPLE_COUNT) {
+				buf.append(":");		
+				buf.append(fr.format(m_SumWeight));
+			}			
+		} else {
+			if (m_MajorityClasses != null) {
+				buf.append(" [");
+				for (int i = 0; i < m_NbTarget; i++) {
+					if (i != 0) buf.append(",");
+					buf.append(m_ClassCounts[i][m_MajorityClasses[i]]);
+				}
+				buf.append("]/");
+				buf.append(fr.format(m_SumWeight));
+			}			
 		}
-		buf.append(":");		
-		buf.append(fr.format(m_SumWeight));
 		return buf.toString();
 	}
 	

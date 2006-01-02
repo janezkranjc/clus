@@ -246,7 +246,7 @@ public class RegressionStat extends ClusStatistic {
 		}
 	}	
 	
-	public String getString() {
+	public String getString(StatisticPrintInfo info) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		StringBuffer buf = new StringBuffer();		
 		buf.append("[");
@@ -254,7 +254,11 @@ public class RegressionStat extends ClusStatistic {
 			if (i != 0) buf.append(",");
 			buf.append(fr.format(m_Means[i]));
 		}
-		buf.append("]");		
+		buf.append("]");
+		if (info.SHOW_EXAMPLE_COUNT) {
+			buf.append(": ");		
+			buf.append(fr.format(m_SumWeight));
+		}		
 		return buf.toString();
 	}
 	
