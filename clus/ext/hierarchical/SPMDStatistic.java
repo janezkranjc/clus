@@ -67,6 +67,12 @@ public class SPMDStatistic extends HierStatistic {
 	public String getString(StatisticPrintInfo info) {
 		return "";
 	}
+	
+	
+
+	public String getArrayOfStatistic() {
+		return null;
+	}
 
 	public void updateSpecial(DataTuple tuple) {
 		double weight = tuple.getWeight();

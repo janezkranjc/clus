@@ -306,6 +306,10 @@ public class CombStat extends ClusStatistic {
     return buf.toString();
   }
 
+	public String getArrayOfStatistic(){
+	    return null;
+	}
+
   public void reset() {
     m_RegStat.reset();
     m_ClassStat.reset();

@@ -259,7 +259,21 @@ public class ClassificationStat extends ClusStatistic {
 		buf.append(super.toString());
 		return buf.toString();
 	}	
-	
+
+	public String getArrayOfStatistic(){
+		StringBuffer buf = new StringBuffer();		
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+		if (m_MajorityClasses != null) {
+			buf.append("[");
+			for (int i = 0; i < m_NbTarget; i++) {
+				if (i != 0) buf.append(",");
+				buf.append(m_Attrs[i].getValue(m_MajorityClasses[i]));
+			}
+			buf.append("]");
+		}
+		return buf.toString();
+		
+	}	
 	public String getString(StatisticPrintInfo info) {
 		StringBuffer buf = new StringBuffer();		
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;

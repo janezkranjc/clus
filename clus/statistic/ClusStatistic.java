@@ -67,6 +67,8 @@ public abstract class ClusStatistic implements Serializable {
 	
 	public abstract String getString(StatisticPrintInfo info);
 	
+	public abstract String getArrayOfStatistic();
+	
 	public String getString() {
 		return getString(StatisticPrintInfo.getInstance());
 	}

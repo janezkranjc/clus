@@ -1,10 +1,13 @@
 package clus.statistic;
 
+import java.text.NumberFormat;
+
 import jeans.list.*;
 
 import clus.data.cols.*;
 import clus.data.rows.*;
 import clus.main.Settings;
+import clus.util.ClusFormat;
 
 public class BitVectorStat extends ClusStatistic {
 	
@@ -44,6 +47,10 @@ public class BitVectorStat extends ClusStatistic {
 
 	public void calcMean() {
 	}
+	
+	public String getArrayOfStatistic(){
+		return "["+String.valueOf(m_SumWeight)+"]";
+	}	
 	
 	public String getString(StatisticPrintInfo info) {
 		return String.valueOf(m_SumWeight);

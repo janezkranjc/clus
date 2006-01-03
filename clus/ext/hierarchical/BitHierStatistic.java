@@ -59,6 +59,12 @@ public class BitHierStatistic extends HierStatistic {
 //	    return m_MeanTuple.toString();
 	}
 	
+	
+	public String getArrayOfStatistic() {
+		return "["+String.valueOf(m_SumWeight)+"]";	
+	}
+	
+
 	public void reset() {
 		m_SumWeight = 0.0;
 		Arrays.fill(m_Counts, 0.0);

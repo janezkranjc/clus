@@ -22,6 +22,12 @@ public class MultiScoreStat extends ClusStatistic {
 		m_Score = score.multiScore(m_MeanValues);
 	}
 	
+	
+	public String getArrayOfStatistic() {
+		return null;
+	}
+
+
 	public String getString(StatisticPrintInfo info) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		StringBuffer buf = new StringBuffer();				
