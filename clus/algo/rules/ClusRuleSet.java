@@ -183,6 +183,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		printModelAndExamples(wrt, info, examples.getSchema());
 		removeDataFromRules();		
 	}	
+
+	public void printModelToPythonScript(PrintWriter wrt) {
+	}
 	
 	public int getModelSize() {
 		return m_Rules.size();

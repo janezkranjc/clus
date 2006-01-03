@@ -27,6 +27,8 @@ public interface ClusModel {
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info);	
 	
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples);
+
+	public void printModelToPythonScript(PrintWriter wrt);
 		
 	public void attachModel(Hashtable table) throws ClusException;
 	

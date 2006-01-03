@@ -9,6 +9,7 @@ import jeans.util.*;
 
 import clus.statistic.StatisticPrintInfo;
 import clus.util.*;
+import clus.data.type.ClusAttrType;
 import clus.error.*;
 import clus.data.rows.*;
 
@@ -139,7 +140,18 @@ public class ClusOutput {
 						root.printModel(m_Writer, info);
 					}
 					m_Writer.println();
+					
+					//use following lines for getting tree as Python function 
+					m_Writer.print("def clus_tree( ");
+					ClusAttrType[] cat = ClusSchema.vectorToAttrArray(m_Schema.collectAttributes(ClusAttrType.ATTR_USE_DESCRIPTIVE, ClusAttrType.THIS_TYPE));
+					for (int ii=0;ii<cat.length-1;ii++){
+						m_Writer.print(cat[ii].getName()+",");
+					}
+					m_Writer.println(cat[cat.length-1].getName()+" ):");
+					root.printModelToPythonScript(m_Writer);
+					m_Writer.println();
 				}
+				
 			}
 		}
 		m_Writer.flush();

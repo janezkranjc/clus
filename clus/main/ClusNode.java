@@ -545,6 +545,10 @@ public class ClusNode extends MyNode implements ClusModel {
 		printModel(wrt, info);
 	}		
 	
+	public void printModelToPythonScript(PrintWriter wrt){
+		printTreeToPythonScript(wrt, "\t");
+	}
+	
 	public final void printTree() {
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(System.out));
 		printTree(wrt, StatisticPrintInfo.getInstance(), "");
@@ -589,6 +593,29 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 			if (getID() != 0 && info.SHOW_INDEX) writer.println(" ("+getID()+")");
 			else writer.println();
+		}
+	}
+
+	public final void printTreeToPythonScript(PrintWriter writer, String prefix) {
+		int arity = getNbChildren();
+		if (arity > 0) {
+			int delta = hasUnknownBranch() ? 1 : 0;
+			if (arity - delta == 2) {
+				writer.println(prefix+"if " +m_Test.getTestString()+":");
+				((ClusNode)getChild(YES)).printTreeToPythonScript(writer, prefix+"\t");
+				writer.println(prefix + "else: ");
+				if (hasUnknownBranch()) {
+					//TODO anything to do???
+				} else {
+					((ClusNode)getChild(NO)).printTreeToPythonScript(writer, prefix+"\t");
+				}
+			} else {
+				//TODO what to do?
+			}
+		} else {
+			if (m_TargetStat != null) {
+				writer.println(prefix+"return "+m_TargetStat.getString());
+			}
 		}
 	}
 	

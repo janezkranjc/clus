@@ -66,6 +66,9 @@ public class ClusWekaModel implements ClusModel {
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
 	}	
 	
+	public void printModelToPythonScript(PrintWriter wrt) {
+	}
+	
 	public void saveModel(ObjectSaveStream strm) throws IOException {
 	}
 	
