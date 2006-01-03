@@ -175,7 +175,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 			wrt.println();			
 		}
-		wrt.println("Default = "+m_TargetStat.getString());
+		wrt.println("Default = "+(m_TargetStat == null ? "None" : m_TargetStat.getString()));
 	}	
 	
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {

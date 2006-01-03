@@ -57,6 +57,10 @@ public abstract class NodeTest implements Serializable {
 	public int numericPredictWeighted(double value) {
 		return -1;
 	}
+	
+	public boolean isUnknown(DataTuple tuple) {
+		return getType().isMissing(tuple);
+	}
 		
 /***************************************************************************
  * Proportion of examples in different branches

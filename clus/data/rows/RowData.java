@@ -118,6 +118,18 @@ public class RowData extends ClusData implements MSortable {
 		m_Data[j] = temp;
 	}
 	
+	public DataTuple findTupleByKey(String key_value) {
+		ClusAttrType[] key = getSchema().getAllAttrUse(ClusAttrType.ATTR_USE_KEY);
+		if (key.length > 0) {
+			ClusAttrType key_attr = key[0]; 
+			for (int i = 0; i < getNbRows(); i++) {
+				DataTuple tuple = getTuple(i);
+				if (key_attr.getString(tuple).equals(key_value)) return tuple;
+			}
+		}	
+		return null;
+	}	
+	
 	// Does not change original distribution
 	public ClusData selectFrom(ClusSelection sel) {
 		int nbsel = sel.getNbSelected();	
