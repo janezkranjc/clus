@@ -266,7 +266,7 @@ public class Clus implements CMDLineArgsProvider {
 		ClusNode pruned = (ClusNode) cr.getModel(ClusModels.PRUNED);
 		cr.setPruneTime(ResourceInfo.getTime()-start_time);		
 		if (getSettings().rulesFromTree()) {
-			ClusRulesFromTree rft = new ClusRulesFromTree(false);
+			ClusRulesFromTree rft = new ClusRulesFromTree(true);
 			ClusRuleSet rules;
 			if (getSettings().computeCompactness()) {
 				rules = rft.constructRules(cr, pruned, getStatManager());

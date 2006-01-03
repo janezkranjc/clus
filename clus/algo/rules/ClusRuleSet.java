@@ -102,8 +102,6 @@ public class ClusRuleSet implements ClusModel, Serializable {
     double[][] avg_prod = new double[2][3];
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
-			// Do not print rules for which the prototype does not represent a valid prediction
-			if (!rule.hasPrediction()) continue;
       if (headers) {
         String head = new String("Rule " + (i + 1) + ":");
         char[] underline = new char[head.length()];
