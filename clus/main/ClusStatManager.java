@@ -736,6 +736,7 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 			HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(pruneset, pruner, bonf, m_Hier);
 			hierpruner.setSignificance(sett.isHierPruneInSig());
 			hierpruner.setNoRootPreds(sett.isHierNoRootPreds());
+			sett.setPruningMethod(Settings.PRUNING_METHOD_DEFAULT);
 			return hierpruner;
 		}
 		if (pruneset != null) {
