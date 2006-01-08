@@ -41,12 +41,27 @@ public class ClusRuleSet implements ClusModel, Serializable {
    * Returns the statistic for (prediction of) a given tuple.
    */
   public ClusStatistic predictWeighted(DataTuple tuple) {
-    if (getSettings().getCoveringMethod() == Settings.COVERING_METHOD_STANDARD) {
+  	int cover_method = getSettings().getCoveringMethod();
+    if (cover_method == Settings.COVERING_METHOD_STANDARD) {
       for (int i = 0; i < getModelSize(); i++) {
         ClusRule rule = getRule(i);
         if (rule.covers(tuple)) return rule.getTargetStat();
       }
       return m_TargetStat;
+    } else if (cover_method == Settings.COVERING_METHOD_UNION) {
+    	// In multi-label classification: predicted set of classes is union of predictions by individual rules 
+      boolean covered = false;
+      ClusStatistic stat = m_TargetStat.cloneSimple();
+      stat.unionInit();
+      for (int i = 0; i < getModelSize(); i++) {
+        ClusRule rule = getRule(i);
+        if (rule.covers(tuple)) {
+          stat.union(rule.getTargetStat());
+          covered = true;         
+        }
+      }
+      stat.unionDone();
+      return covered ? stat : m_TargetStat;
     } else {
       boolean covered = false;
       ClusStatistic stat = m_TargetStat.cloneSimple();

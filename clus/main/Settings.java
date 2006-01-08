@@ -58,13 +58,16 @@ public class Settings implements Serializable {
 	public final static int PRUNING_METHOD_CART_MAXSIZE = 9;	
 
 	public final static String[] COVERING_METHODS = { "Standard",
-			"WeightedMultiplicative", "WeightedAdditive" };
+			"WeightedMultiplicative", "WeightedAdditive", "Union" };
 
 	public final static int COVERING_METHOD_STANDARD = 0;
 
 	public final static int COVERING_METHOD_WEIGHTED_MULTIPLICATIVE = 1;
 
 	public final static int COVERING_METHOD_WEIGHTED_ADDITIVE = 2;
+	
+	// In multi-label classification: predicted set of classes is union of predictions of individual rules 
+	public final static int COVERING_METHOD_UNION = 3;
 
 	public final static String[] HIERMODES = { "TDWEuclid", "TDAbsWEuclid",
 			"XtAXSetDist", "XtAXSetDistDiscrete" };
@@ -287,6 +290,8 @@ public class Settings implements Serializable {
 	protected INIFileBool m_BeamPostPrune;
 
 	protected INIFileBool m_BMRemoveEqualHeur;
+	
+	protected INIFileBool m_OutputPythonModel;	
 
 	/* Hierarchical Multi-Classification */
 	protected INIFileString m_HierSep;
@@ -417,6 +422,7 @@ public class Settings implements Serializable {
 		output.addNode(m_ShowInfo = new INIFileNominal("ShowInfo", SHOW_INFO, SHOW_INFO_VALUES));
 		output.addNode(m_PrintModelAndExamples = new INIFileBool("PrintModelAndExamples", false));
 		output.addNode(m_WriteTestPredictions = new INIFileBool("WriteTestSetPredictions", false));
+		output.addNode(m_OutputPythonModel = new INIFileBool("OutputPythonModel", false));
 		
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
 		m_SectionHierarchical.addNode(HIER_W_PARAM = new INIFileDouble("WParam", 0.75));
@@ -695,6 +701,10 @@ public class Settings implements Serializable {
 
 	public boolean isWriteTestSetPredictions() {
 		return m_WriteTestPredictions.getValue();
+	}
+	
+	public boolean isOutputPythonModel() {
+		return m_OutputPythonModel.getValue();
 	}
 	
 	public boolean isPrintModelAndExamples() {

@@ -7,11 +7,11 @@ import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.util.Arrays;
 
-import clus.data.rows.DataTuple;
-import clus.error.ClusError;
-import clus.error.ClusErrorParent;
-import clus.main.Settings;
-import clus.statistic.ClusStatistic;
+import clus.util.*;
+import clus.data.rows.*;
+import clus.error.*;
+import clus.main.*;
+import clus.statistic.*;
 
 public class HierClassWiseAccuracy extends ClusError {
 	
@@ -70,6 +70,17 @@ public class HierClassWiseAccuracy extends ClusError {
 		return tot_pred == 0.0 ? 0.0 : tot_corr/tot_pred;
 	}
 	
+	public double getAveragePrecision() {
+		int cnt = 0;
+		double avg = 0.0;
+		for (int i = 0; i < m_Dim; i++) {
+			if (m_Predicted[i] != 0) {
+				cnt++;
+				avg += m_Correct[i] / m_Predicted[i];
+			}
+		}
+		return cnt == 0 ? 0 : avg/cnt;		
+	}	
 	
 	//temporary method for debugging purposes
 	public double getRecall() {
@@ -165,7 +176,7 @@ public class HierClassWiseAccuracy extends ClusError {
 			out.print("      "+val.toPathString());
 			out.print(", def: "+fr.format(def));
 //			out.print(" ("+m_Default[idx]+"/"+nb+")");
-			out.print(", acc: "+fr.format(acc));
+			out.print(", prec: "+fr.format(acc));
 //			out.print(" ("+m_Correct[idx]+"/"+m_Predicted[idx]+")");			
 			out.print(", rec: "+fr.format(rec));
 //			out.print(" ("+m_Correct[idx]+"/"+m_Default[idx]+")");			
@@ -179,9 +190,13 @@ public class HierClassWiseAccuracy extends ClusError {
 	
 	// does it make sense to make averages of TP, FP and nbPos (look into this: methods implemented but not used)
 	public void showModelError(PrintWriter out, int detail) {
-		NumberFormat fr = getFormat();
-		out.println("precision: "+getAccuracy()+", recall: "+getRecall()+", coverage: "+getCoverage());
-		printNonZeroAccuracies(fr, out, m_Hier.getRoot());
+		NumberFormat fr1 = getFormat();
+		NumberFormat fr2 = ClusFormat.SIX_AFTER_DOT;
+		out.print("precision: "+fr2.format(getAccuracy()));
+		out.print(", recall: "+fr2.format(getRecall()));
+		out.print(", coverage: "+fr2.format(getCoverage()));
+		out.println();
+		printNonZeroAccuracies(fr1, out, m_Hier.getRoot());
 	}
 	
 	public String getName() {

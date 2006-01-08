@@ -1,13 +1,10 @@
 package clus.statistic;
 
-import java.text.NumberFormat;
-
 import jeans.list.*;
 
 import clus.data.cols.*;
 import clus.data.rows.*;
 import clus.main.Settings;
-import clus.util.ClusFormat;
 
 public class BitVectorStat extends ClusStatistic {
 	

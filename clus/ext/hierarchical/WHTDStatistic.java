@@ -259,4 +259,19 @@ public class WHTDStatistic extends RegressionStat {
 		getExtraInfoRec(m_Hier.getRoot(), discrmean, res);
 		return res.toString();
 	}
+	
+	public void unionInit() {
+		m_DiscrMean = new double[m_Means.length];
+	}
+	
+	public void union(ClusStatistic other) {
+		double[] discr_mean = ((WHTDStatistic)other).m_DiscrMean;
+		for (int i = 0; i < m_DiscrMean.length; i++) {
+				if (discr_mean[i] >= 0.5) m_DiscrMean[i] = 1.0;
+		}		
+	}
+	
+	public void unionDone() {
+		m_MeanTuple = m_Hier.getBestTupleMaj(m_DiscrMean, 0.5);		
+	}
 }

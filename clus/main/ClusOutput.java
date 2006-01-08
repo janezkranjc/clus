@@ -27,6 +27,10 @@ public class ClusOutput {
 		m_Writer = sett.getFileAbsoluteWriter(fname);
 	}
 
+	public Settings getSettings() {
+		return m_Sett;
+	}
+	
 	public void writeHeader() throws IOException {
 		String relname = m_Schema.getRelationName();
 		m_Writer.println("Clus run "+relname);
@@ -140,18 +144,18 @@ public class ClusOutput {
 						root.printModel(m_Writer, info);
 					}
 					m_Writer.println();
-					
-					//use following lines for getting tree as Python function 
-					m_Writer.print("def clus_tree( ");
-					ClusAttrType[] cat = ClusSchema.vectorToAttrArray(m_Schema.collectAttributes(ClusAttrType.ATTR_USE_DESCRIPTIVE, ClusAttrType.THIS_TYPE));
-					for (int ii=0;ii<cat.length-1;ii++){
-						m_Writer.print(cat[ii].getName()+",");
+					if (getSettings().isOutputPythonModel()) {
+						// use following lines for getting tree as Python function 
+						m_Writer.print("def clus_tree( ");
+						ClusAttrType[] cat = ClusSchema.vectorToAttrArray(m_Schema.collectAttributes(ClusAttrType.ATTR_USE_DESCRIPTIVE, ClusAttrType.THIS_TYPE));
+						for (int ii=0;ii<cat.length-1;ii++){
+							m_Writer.print(cat[ii].getName()+",");
+						}
+						m_Writer.println(cat[cat.length-1].getName()+" ):");
+						root.printModelToPythonScript(m_Writer);
+						m_Writer.println();
 					}
-					m_Writer.println(cat[cat.length-1].getName()+" ):");
-					root.printModelToPythonScript(m_Writer);
-					m_Writer.println();
-				}
-				
+				}				
 			}
 		}
 		m_Writer.flush();

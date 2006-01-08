@@ -194,5 +194,16 @@ public abstract class ClusStatistic implements Serializable {
 		for (int i = 0; i < stats.length; i++) {
 			stats[i].calcMean();
 		}
-	}	
+	}
+	
+	// In multi-label classification: predicted set of classes is union of 
+	//                                predictions of individual rules	
+	public void unionInit() {
+	}
+	
+	public void unionDone() {
+	}
+	
+	public void union(ClusStatistic other) {
+	}
 }
