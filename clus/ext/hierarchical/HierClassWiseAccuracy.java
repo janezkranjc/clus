@@ -82,7 +82,6 @@ public class HierClassWiseAccuracy extends ClusError {
 		return cnt == 0 ? 0 : avg/cnt;		
 	}	
 	
-	//temporary method for debugging purposes
 	public double getRecall() {
 		double tot_corr = 0.0;
 		double tot_def = 0.0;
