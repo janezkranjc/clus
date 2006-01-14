@@ -17,6 +17,12 @@ public class Settings implements Serializable {
 
 	public final static long serialVersionUID = 1L;
 
+	public final static String[] COMPATIBILITY = { "Latest", "CMB05" };
+
+	public final static int COMPATIBILITY_LATEST = 0;
+	
+	public final static int COMPATIBILITY_CMB05 = 1;	
+	
 	public final static String[] HEURISTICS = { "Default", "ReducedError",
 			"Gain", "SSPD", "MEstimate", "Compactness", "Morishita"};
 	
@@ -172,6 +178,8 @@ public class Settings implements Serializable {
 	protected INIFileStringOrInt m_XValFolds;
 	
 	protected INIFileNominal m_ResourceInfoLoaded;
+	
+	protected INIFileNominal m_Compatibility;
 
 	/* Data */
 	protected INIFileString m_DataFile;
@@ -352,6 +360,7 @@ public class Settings implements Serializable {
 		settings.addNode(m_RandomSeed = new INIFileString("RandomSeed", "0"));
 		settings.addNode(m_XValFolds = new INIFileStringOrInt("XVal"));
 		settings.addNode(m_ResourceInfoLoaded = new INIFileNominal("ResourceInfoLoaded", RESOURCE_INFO_LOAD, 1));
+		settings.addNode(m_Compatibility = new INIFileNominal("Compatibility", COMPATIBILITY, 0));
 		m_XValFolds.setIntValue(10);
 
 		INIFileSection data = new INIFileSection("Data");
@@ -992,6 +1001,10 @@ public class Settings implements Serializable {
 	
 	public int getResourceInfoLoaded() {
 		return m_ResourceInfoLoaded.getValue();
+	}
+	
+	public int getCompatibility() {
+		return m_Compatibility.getValue();
 	}
 	
 	public void updateDisabledSettings() {

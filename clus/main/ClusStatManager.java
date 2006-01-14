@@ -92,6 +92,10 @@ public class ClusStatManager implements Serializable {
 		return m_Settings;
 	}
 
+	public int getCompatibility() {
+		return getSettings().getCompatibility();
+	}
+	
 	public final ClusSchema getSchema() {
 		return m_Schema;
 	}
@@ -375,8 +379,8 @@ public class ClusStatManager implements Serializable {
 				setClusteringStatistic(new WAHNDStatistic(m_Hier));
 				break;
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				setClusteringStatistic(new WHTDStatistic(m_Hier));
-				setTargetStatistic(new WHTDStatistic(m_Hier));
+				setClusteringStatistic(new WHTDStatistic(m_Hier, getCompatibility()));
+				setTargetStatistic(new WHTDStatistic(m_Hier, getCompatibility()));
 				break;
 			case Settings.HIERMODE_XTAX_SET_DIST:
 				setClusteringStatistic(new SPMDStatistic(m_Hier));

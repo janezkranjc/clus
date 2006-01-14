@@ -27,14 +27,20 @@ public class WHTDStatistic extends RegressionStat {
 	protected WHTDStatistic m_Global, m_Validation;
 	protected double m_SigLevel;
 	protected double m_Threshold = 50.0;
+	protected int m_Compatibility;
 		
-	public WHTDStatistic(ClassHierarchy hier) {
-		this(hier, false);
+	public WHTDStatistic(ClassHierarchy hier, int comp) {
+		this(hier, false, comp);
 	}
 
-	public WHTDStatistic(ClassHierarchy hier, boolean onlymean) {
+	public WHTDStatistic(ClassHierarchy hier, boolean onlymean, int comp) {
 		super(hier.getDummyAttrs(), onlymean);
-		m_Hier = hier;		
+		m_Compatibility = comp;
+		m_Hier = hier;
+	}
+	
+	public int getCompatibility() {
+		return m_Compatibility;
 	}
 	
 	public void setValidationStat(WHTDStatistic valid) {
@@ -54,11 +60,11 @@ public class WHTDStatistic extends RegressionStat {
 	}
 	
 	public ClusStatistic cloneStat() {
-		return new WHTDStatistic(m_Hier, false);
+		return new WHTDStatistic(m_Hier, false, m_Compatibility);
 	}
 	
 	public ClusStatistic cloneSimple() {
-		WHTDStatistic res = new WHTDStatistic(m_Hier, true);
+		WHTDStatistic res = new WHTDStatistic(m_Hier, true, m_Compatibility);
 		res.m_Threshold = m_Threshold;
 		if (m_Validation != null) {
 			res.m_Validation = (WHTDStatistic)m_Validation.cloneSimple();
@@ -123,15 +129,23 @@ public class WHTDStatistic extends RegressionStat {
 		performSignificanceTest();
 	}
 	
+	public int round(double value) {
+		if (getCompatibility() == Settings.COMPATIBILITY_CMB05) {
+			return (int)value;
+		} else {
+			return (int)Math.round(value);
+		}		
+	}
+	
 	public void performSignificanceTest() {
 		if (m_Validation != null) {
 			for (int i = 0; i < m_DiscrMean.length; i++) {
 				if (m_DiscrMean[i] > 0.5) {
 					/* Predicted class i, check sig? */
-					int pop_tot = (int)Math.round(m_Global.getTotalWeight());
-					int pop_cls = (int)Math.round(m_Global.getTotalWeight()*m_Global.m_Means[i]);
-					int rule_tot = (int)Math.round(m_Validation.getTotalWeight());
-					int rule_cls = (int)Math.round(m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
+					int pop_tot = round(m_Global.getTotalWeight());
+					int pop_cls = round(m_Global.getTotalWeight()*m_Global.m_Means[i]);
+					int rule_tot = round(m_Validation.getTotalWeight());
+					int rule_cls = round(m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
 					int upper = Math.min(rule_tot, pop_cls);
 					int nb_other = pop_tot - pop_cls;
 					int min_this = rule_tot - nb_other;
@@ -223,10 +237,10 @@ public class WHTDStatistic extends RegressionStat {
 			int i = node.getIndex();
 			if (discrmean[i] > 0.5) {
 				/* Predicted class i, check sig? */
-				int pop_tot = (int)Math.round(m_Global.getTotalWeight());
-				int pop_cls = (int)Math.round(m_Global.getTotalWeight()*m_Global.m_Means[i]);
-				int rule_tot = (int)Math.round(m_Validation.getTotalWeight());
-				int rule_cls = (int)Math.round(m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
+				int pop_tot = round(m_Global.getTotalWeight());
+				int pop_cls = round(m_Global.getTotalWeight()*m_Global.m_Means[i]);
+				int rule_tot = round(m_Validation.getTotalWeight());
+				int rule_cls = round(m_Validation.getTotalWeight()*m_Validation.m_Means[i]);
 				int upper = Math.min(rule_tot, pop_cls);
 				int nb_other = pop_tot - pop_cls;
 				int min_this = rule_tot - nb_other;
