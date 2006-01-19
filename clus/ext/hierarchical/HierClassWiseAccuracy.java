@@ -163,7 +163,7 @@ public class HierClassWiseAccuracy extends ClusError {
 			int nb = getNbTotal();
 			double def = nb == 0 ? 0.0 : m_Default[idx]/nb;
 			//added a test
-			double acc = m_Predicted[idx] == 0.0 ? 0.0 : m_Correct[idx]/m_Predicted[idx];
+			double prec = m_Predicted[idx] == 0.0 ? 0.0 : m_Correct[idx]/m_Predicted[idx];
 			//this line is added
 			double rec = m_Default[idx] == 0.0 ? 0.0 : m_Correct[idx]/m_Default[idx];			
 			//added some more lines for calculationg, TP, FP, nbPosExamples
@@ -175,7 +175,7 @@ public class HierClassWiseAccuracy extends ClusError {
 			out.print("      "+val.toPathString());
 			out.print(", def: "+fr.format(def));
 //			out.print(" ("+m_Default[idx]+"/"+nb+")");
-			out.print(", prec: "+fr.format(acc));
+			out.print(", prec: "+fr.format(prec));
 //			out.print(" ("+m_Correct[idx]+"/"+m_Predicted[idx]+")");			
 			out.print(", rec: "+fr.format(rec));
 //			out.print(" ("+m_Correct[idx]+"/"+m_Default[idx]+")");			
