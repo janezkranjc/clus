@@ -6,6 +6,8 @@ package clus.statistic;
 import java.text.NumberFormat;
 import java.io.*;
 
+import org.apache.commons.math.MathException;
+
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.DataTuple;
 import clus.data.type.*;
@@ -24,8 +26,8 @@ public class CombStat extends ClusStatistic {
   private int m_NbNomAtts;
   private NominalAttrType[] m_NomAtts;
   private NumericAttrType[] m_NumAtts;
-  private RegressionStat m_RegStat;
-  private ClassificationStat m_ClassStat;
+  protected RegressionStat m_RegStat;
+  protected ClassificationStat m_ClassStat;
   private ClusStatManager m_StatManager;
   
   /**
@@ -90,15 +92,16 @@ public class CombStat extends ClusStatistic {
       num_weight = getSettings().getCompactnessWeights().getDouble(Settings.NUMERIC_WEIGHT);
       nom_weight = getSettings().getCompactnessWeights().getDouble(Settings.NOMINAL_WEIGHT);
     } else {
-      num_weight = 1.0; // Or something like that?
-      nom_weight = 1.0;
+      num_weight = 0.5; // Or something like that?
+      nom_weight = 0.5;
     }
     double sum = num_weight + nom_weight;
     num_weight = num_weight / sum; 
     nom_weight = nom_weight / sum;
-    double proportion_num = num_weight * m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
-    double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
-    return proportion_nom * compactnessNom(IN_OUTPUT) + proportion_num * compactnessNum(IN_OUTPUT);
+    double prop_num = num_weight*m_NbNumAtts / (num_weight*m_NbNumAtts + nom_weight*m_NbNomAtts);
+    double prop_nom = nom_weight*m_NbNomAtts / (num_weight*m_NbNumAtts + nom_weight*m_NbNomAtts);
+    double comp = prop_nom * compactnessNom(IN_OUTPUT) + prop_num * compactnessNum(IN_OUTPUT); 
+    return comp;
   }
 
   /** Returns the compactness of all attributes. Used when outputing the compactness.
@@ -106,6 +109,7 @@ public class CombStat extends ClusStatistic {
    * @return combined compactness
    * TODO: Change!
    */
+  /*
   public double compactnessNumCalc() {
     double num_weight;
     double nom_weight;
@@ -124,12 +128,14 @@ public class CombStat extends ClusStatistic {
     // double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
     return proportion_num * compactnessNum(IN_OUTPUT);
   }
+  */
 
   /** Returns the compactness of all attributes. Used when outputing the compactness.
    * 
    * @return combined compactness
    * TODO: Change!
    */
+  /*
   public double compactnessNomCalc() {
     double num_weight;
     double nom_weight;
@@ -148,7 +154,8 @@ public class CombStat extends ClusStatistic {
     double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
     return proportion_nom * compactnessNom(IN_OUTPUT);
   }
-  
+  */
+
   /** Returns the compactness of all attributes. Used in compactness based heuristics.
    * 
    * @return combined compactness
@@ -161,15 +168,32 @@ public class CombStat extends ClusStatistic {
       num_weight = getSettings().getClusteringWeights().getDouble(Settings.NUMERIC_WEIGHT);
       nom_weight = getSettings().getClusteringWeights().getDouble(Settings.NOMINAL_WEIGHT);
     } else {
-      num_weight = 1.0; // Or something like that?
-      nom_weight = 1.0;
+      num_weight = 0.5; // Or something like that?
+      nom_weight = 0.5;
     }
     double sum = num_weight + nom_weight;
     num_weight = num_weight / sum; 
     nom_weight = nom_weight / sum;
-    double proportion_num = num_weight * m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
-    double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
-    return proportion_nom * compactnessNom(IN_HEURISTIC) + proportion_num * compactnessNum(IN_HEURISTIC);
+    double prop_num = num_weight*m_NbNumAtts / (num_weight*m_NbNumAtts + nom_weight*m_NbNomAtts);
+    double prop_nom = nom_weight*m_NbNomAtts / (num_weight*m_NbNumAtts + nom_weight*m_NbNomAtts);
+    double comp = prop_nom * compactnessNom(IN_HEURISTIC) + prop_num * compactnessNum(IN_HEURISTIC);
+    double global_sum_w = m_StatManager.getGlobalStat().getTotalWeight();
+    double heur_par = getSettings().getCompHeurParameter();
+    comp = comp * (1 + heur_par*global_sum_w/m_SumWeight);
+    // Test if rule significant
+    int sign_diff;
+    int thresh = getSettings().getRuleNbSigAtt();
+    if (thresh > 0) {
+      sign_diff = signDifferent();
+      if (sign_diff < thresh) {
+        comp += 1000; // Some big number
+      }
+    } else if (thresh < 0) { // Testing just one target attribute - TODO: change!
+      if (!targetSignDifferent()) {
+        comp += 1000; // Some big number
+      }
+    }
+    return comp;
   }
   
   /** Returns the compactness of numeric attributes.
@@ -197,16 +221,26 @@ public class CombStat extends ClusStatistic {
     double svar = 0;
     double weight = 0;
     double sumweight = 0;
+    double nw, var;
+    // Normalization with the purpose of geting most of the single variances within the 
+    // [0,1] interval. This weight is in the stdev units,
+    // default value = 4 = (-2sigma,2sigma) should cover 95% of examples 
+    double range = getSettings().getNumCompNormWeight();
     for (int i = 0; i < m_NbNumAtts; i++) {
       if (use == IN_HEURISTIC) {
         weight = m_StatManager.getClusteringWeights().getWeight(m_RegStat.getAttribute(i));
       } else { // use == IN_OUTPUT
         weight = m_StatManager.getCompactnessWeights().getWeight(m_RegStat.getAttribute(i));
       }
+      nw = m_StatManager.getNormalizationWeights().getWeight(i);
+      weight = weight / nw; // Exclude the normalization weights
       sumweight += weight;
-      svar += m_RegStat.getVariance(i) * weight;
+      var = m_RegStat.getVariance(i);
+      svar += var * weight / (range * range);
+      // svar += var * weight * weight;
     }
-    return sumweight == 0 ? 0.0 : svar / sumweight;
+    double res = sumweight == 0 ? 0.0 : svar / sumweight;
+    return res;
   }
 
   /**
@@ -218,6 +252,7 @@ public class CombStat extends ClusStatistic {
     double sumdist = 0;
     double weight = 0;
     double sumweight = 0;
+    double result;
     for (int i = 0; i < m_NbNomAtts; i++) {
       if (use == IN_HEURISTIC) {
         weight = m_StatManager.getClusteringWeights().getWeight(m_ClassStat.getAttribute(i));
@@ -226,8 +261,13 @@ public class CombStat extends ClusStatistic {
       }
       sumweight += weight;
       sumdist += meanDistNomOne(i) * weight;
+      // System.out.println("Mean.dist.nom.w: " + weight);
+      // System.out.println("Mean.dist.nom.one: " + meanDistNomOne(i));
     }
-    return sumweight == 0 ? 0.0 : sumdist / sumweight;
+    // System.out.println(" Mean.dist.nom.w.sum: " + sumweight);
+    // System.out.println(" Mean.dist.nom.one.sum: " + sumdist);
+    result = ((sumweight > 0) && (sumweight > 0)) ? sumdist / sumweight : 0.0;
+    return result;
   }
 
   /**
@@ -248,13 +288,16 @@ public class CombStat extends ClusStatistic {
       sum += counts[i];
     }
     for (int i = 0; i < nbval; i++) {
-      prototype[i] = counts[i] / sum;
+      prototype[i] = sum != 0 ? counts[i] / sum : 0;
     }
-    // Calculate the distance
+    // Calculate the distance 
     for (int i = 0; i < nbval; i++) {
       dist += (1 - prototype[i]) * counts[i];
     }
-    return dist != 0.0 ? dist / sum : 0.0;
+    // Normalize to [0,1]
+    dist = dist * nbval / (nbval - 1);
+    dist = dist != 0.0 ? dist / sum : 0.0;
+    return dist;
   }
 
   /**
@@ -277,6 +320,133 @@ public class CombStat extends ClusStatistic {
    */
   public double entropy(int attr, double total) {
     return m_ClassStat.entropy(attr, total);
+  }
+
+  /**
+   * 
+   * @return number of attributes with significantly different
+   * distributions
+   */
+  public int signDifferent() {
+    int sign_diff = 0;
+    // Nominal attributes
+    for (int i = 0; i < m_ClassStat.getNbAttributes(); i++) {
+      if (SignDifferentNom(i)) {
+        sign_diff++;
+      }
+    }
+    // Numeric attributes
+     for (int i = 0; i < m_RegStat.getNbAttributes(); i++) {
+      try {
+        if (SignDifferentNum(i)) {
+          sign_diff++;
+        }
+      } catch (IllegalArgumentException e) {
+        e.printStackTrace();
+      } catch (MathException e) {
+        e.printStackTrace();
+      }
+    }
+    System.out.println("Nb.sig.atts: " + sign_diff);
+    return sign_diff;
+  }
+
+  /**
+   * Checks weather values of a target attribute are significantly different
+   * @return
+   */
+  public boolean targetSignDifferent() {
+    boolean res = false;
+    int att = -1;
+    String att_name;
+    String att_name2;
+    ClusStatistic targetStat = m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
+    if (targetStat instanceof ClassificationStat) {
+      for (int i = 0; i < targetStat.getNbNominalAttributes(); i++) {
+        att_name = ((ClassificationStat)targetStat).getAttribute(i).getName();
+        for (int j = 0; j < m_ClassStat.getNbNominalAttributes(); j++) {
+          att_name2 = m_ClassStat.getAttribute(j).getName();
+          if (att_name.equals(att_name2)) {
+            att = j;
+            break;
+          }
+        }
+        if (SignDifferentNom(att)) {
+          res = true;
+          break; // TODO: If one target att significant, the whole rule significant!?
+        }
+      }
+      // System.out.println("Target sign. testing: " + res);
+      return res;
+    } else if (targetStat instanceof RegressionStat) {
+      for (int i = 0; i < targetStat.getNbNumericAttributes(); i++) {
+        att_name = ((RegressionStat)targetStat).getAttribute(i).getName();
+        for (int j = 0; j < m_RegStat.getNbNumericAttributes(); j++) {
+          att_name2 = m_RegStat.getAttribute(j).getName();
+          if (att_name.equals(att_name2)) {
+            att = j;
+            break;
+          }
+        }
+        try {
+          if (SignDifferentNum(att)) {
+            res = true;
+            break; // TODO: If one target att significant, the whole rule significant!?
+          }
+        } catch (IllegalArgumentException e) {
+          e.printStackTrace();
+        } catch (MathException e) {
+          e.printStackTrace();
+        }
+      }
+      return res;
+    } else {
+      // TODO: Classification and regression
+      return true;
+    }
+  }
+
+  /**
+   * Significance testing for a nominal attribute
+   * @param att attribute index
+   * @return true if this distribution significantly different from global distribution
+   * @throws IllegalArgumentException
+   * @throws MathException
+   */
+  private boolean SignDifferentNom(int att) {
+    /* double global_n = ((CombStat)m_StatManager.getGlobalStat()).getTotalWeight();
+    double local_n = getTotalWeight();
+    double ratio = local_n / global_n;
+    double global_counts[] = new double[m_ClassStat.getClassCounts(att).length];  
+    long local_counts[] = new long[global_counts.length];
+    for (int i = 0; i < local_counts.length; i++) {
+      local_counts[i] = (long)(m_ClassStat.getClassCounts(att)[i]);
+      global_counts[i] = ((CombStat)m_StatManager.getGlobalStat()).m_ClassStat.getClassCounts(att)[i] * ratio;
+    }
+    ChiSquareTestImpl testStatistic = new ChiSquareTestImpl();
+    // alpha = siginficance level, confidence = 1-alpha
+    double alpha = getSettings().getRuleSignificanceLevel();
+    System.err.println("Attr.nom.: " + att + ", p-valueX: " + testStatistic.chiSquareTest(global_counts, local_counts));
+    System.err.println("Attr.nom.: " + att + ", p-valueG: " + m_ClassStat.getGTestPValue(att, m_StatManager));
+    System.err.println("Attr.nom.: " + att + ", Gvalue/thresh: " + m_ClassStat.getGTest(att, m_StatManager) + " / " + m_StatManager.getChiSquareInvProb(global_counts.length-1));
+    boolean result = testStatistic.chiSquareTest(global_counts, local_counts, alpha);
+    System.err.println("Attr.nom.: " + att + ", result: " + result);
+    return result; */   
+    return m_ClassStat.getGTest(att, m_StatManager);
+  }
+
+  /**
+   * Significance testing for a numeric attribute
+   * @param att attribute index
+   * @return true if this distribution significantly different from global distribution
+   * @throws IllegalArgumentException
+   * @throws MathException
+   */
+  private boolean SignDifferentNum(int att) throws IllegalArgumentException, MathException {
+    // alpha = siginficance level, confidence = 1-alpha
+    double alpha = getSettings().getRuleSignificanceLevel();
+    double p_value = m_RegStat.getTTestPValue(att, m_StatManager);
+    return (p_value < alpha);
   }
 
   /**
@@ -390,7 +560,7 @@ public class CombStat extends ClusStatistic {
       return m_ClassStat.getError(scale);
     case ClusStatManager.MODE_REGRESSION:
       return m_RegStat.getError(scale);
-    case ClusStatManager.MODE_CLASIFFY_AND_REGRESSION:
+    case ClusStatManager.MODE_CLASSIFY_AND_REGRESSION:
       return m_RegStat.getError(scale) + m_ClassStat.getError(scale);
     }
     System.err.println(getClass().getName()+": getError(): Invalid mode!");

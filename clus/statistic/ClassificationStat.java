@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.*;
 
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.distribution.*;
+
 import clus.main.*;
 import clus.util.*;
 import clus.data.cols.*;
@@ -242,7 +245,56 @@ public class ClassificationStat extends ClusStatistic {
       m_MajorityClasses[i] = getMajorityClass(i); 
     }
 	}
-	
+
+  /**
+   * Computes a G statistic and returns the p-value of a G test.
+   * G = 2*SUM(obs*ln(obs/exp))
+   * @param att attribute index
+   * @return p-value
+   * @throws MathException 
+   */
+  public double getGTestPValue(int att, ClusStatManager stat_manager) throws MathException {
+    double global_n = ((CombStat)stat_manager.getGlobalStat()).getTotalWeight();
+    double local_n = getTotalWeight();
+    double ratio = local_n / global_n;
+    double global_counts[] =((CombStat)stat_manager.getGlobalStat()).m_ClassStat.getClassCounts(att); 
+    double local_counts[] = getClassCounts(att);
+    double g = 0;
+    for (int i = 0; i < global_counts.length; i++) {
+      if ((local_counts[i] > 0) && (global_counts[i] > 0)) {
+        g += 2 * local_counts[i] * Math.log(local_counts[i]/(global_counts[i] * ratio));
+      }
+    }
+    double degreesOfFreedom = ((double)global_counts.length) - 1;
+    DistributionFactory distributionFactory = DistributionFactory.newInstance();
+    ChiSquaredDistribution chiSquaredDistribution = distributionFactory.createChiSquareDistribution(degreesOfFreedom);
+    return 1 - chiSquaredDistribution.cumulativeProbability(g);
+  }
+  
+  /**
+   * Computes a G statistic and returns the result of a G test.
+   * G = 2*SUM(obs*ln(obs/exp))
+   * @param att attribute index
+   * @return p-value
+   * @throws MathException 
+   */
+  public boolean getGTest(int att, ClusStatManager stat_manager) {
+    double global_n = ((CombStat)stat_manager.getGlobalStat()).getTotalWeight();
+    double local_n = getTotalWeight();
+    double ratio = local_n / global_n;
+    double global_counts[] =((CombStat)stat_manager.getGlobalStat()).m_ClassStat.getClassCounts(att); 
+    double local_counts[] = getClassCounts(att);
+    double g = 0;
+    for (int i = 0; i < global_counts.length; i++) {
+      if ((local_counts[i] > 0) && (global_counts[i] > 0)) {
+        g += 2 * local_counts[i] * Math.log(local_counts[i]/(global_counts[i] * ratio));
+      }
+    }
+    int df = global_counts.length - 1;
+    double chi2_crit = stat_manager.getChiSquareInvProb(df);
+    return (g > chi2_crit);
+  }
+  
 	public double[] getNumericPred() {
 		return null;
 	}

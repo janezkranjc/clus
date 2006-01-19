@@ -14,6 +14,8 @@ import java.io.*;
 import java.text.NumberFormat;
 import java.util.*;
 
+import org.apache.commons.math.MathException;
+
 import clus.io.*;
 import clus.main.*;
 import clus.util.*;
@@ -407,6 +409,7 @@ public class Clus implements CMDLineArgsProvider {
 		mgr.initClusteringWeights();
 		mgr.initCompactnessWeights();
 		mgr.initHeuristic();
+    mgr.initSignifcanceTestingTable();
 	}
 
 	public final void preprocess(ClusData data) throws ClusException {
@@ -845,9 +848,13 @@ public class Clus implements CMDLineArgsProvider {
 			ClusRun cr = partitionData(msel, i + 1);
 			ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 			mi.addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
-			induce(cr, clss); // Induce tree
-			calcError(cr, m_Summary); // Calc error
-			if (m_Sett.isOutputFoldModels()) {
+			induce(cr, clss);			// Induce tree
+      // TODO: Check if this is ok!
+      if (m_Sett.isRuleWiseErrors()) {
+        addModelErrorMeasures(cr);
+      }
+      calcError(cr, m_Summary);	// Calc error
+			if (m_Sett.isOutputFoldModels())	{
 				// Write output to file and also store in .model file
 				output.writeOutput(cr, false);
 				mi.setName("Fold: " + (i + 1));

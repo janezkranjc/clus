@@ -37,13 +37,13 @@ public class ClusRule implements ClusModel, Serializable {
     m_StatManager = statManager;
   }
   
-  public int getID() {
-  	return m_ID;
-  }
+  	public int getID() {
+  		return m_ID;
+  	}
   	
-  public void setID(int id) {
-  	m_ID = id;
-  }
+  	public void setID(int id) {
+  		m_ID = id;
+  	}
   
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 		return m_TargetStat;
@@ -107,19 +107,22 @@ public class ClusRule implements ClusModel, Serializable {
 			if (found) removeTest(i);
 		}
 	}
-		
+
   public RowData removeCovered(RowData data) {
     int covered = 0;
     for (int i = 0; i < data.getNbRows(); i++) {
       DataTuple tuple = data.getTuple(i);
       if (covers(tuple)) covered++;
     }
+    // System.err.print("\nOld size: " + data.getNbRows());
+    // System.err.print(" Covered: " + covered);
     int idx = 0;
     RowData res = new RowData(data.getSchema(), data.getNbRows()-covered);
     for (int i = 0; i < data.getNbRows(); i++) {
       DataTuple tuple = data.getTuple(i);
       if (!covers(tuple)) res.setTuple(tuple, idx++);
     }
+    // System.err.print(" New size: " + res.getNbRows());
     return res;
   }
 
@@ -140,23 +143,35 @@ public class ClusRule implements ClusModel, Serializable {
   
   /**
    * Removes the examples that have been covered by enough rules, i.e.,
-   * have low enough weights.
+   * have weights below the threshold.
    * @param data
    * @return data
    */
   public RowData removeCoveredEnough(RowData data) {
-    int MAX_TIMES_COVERED = 3;
-    int threshold = 1/(MAX_TIMES_COVERED+1+1);
-    int covered = 0;
+    double MAX_TIMES_COVERED = 5; // TODO: Should be a parameter
+    double threshold;
+    if (getSettings().getCoveringMethod() == Settings.COVERING_METHOD_WEIGHTED_ERROR) {
+      threshold = 0.01; // TODO: Should be a parameter
+    } else {
+      threshold = 1 / (MAX_TIMES_COVERED + 1 + 1);
+    }
+    double covered = 0;
     for (int i = 0; i < data.getNbRows(); i++) {
       DataTuple tuple = data.getTuple(i);
-      if (covers(tuple) && (tuple.m_Weight < threshold)) covered++;
+      // if (covers(tuple) && (tuple.m_Weight < threshold)) {
+      if (tuple.m_Weight < threshold) {
+        covered++;
+      }
     }
     int idx = 0;
-    RowData res = new RowData(data.getSchema(), data.getNbRows()-covered);
+    RowData res = new RowData(data.getSchema(), (int)(data.getNbRows() - covered));
+    // System.err.println("Examples: " + data.getNbRows() + " Fully Covered (deleted): " + covered);
     for (int i = 0; i < data.getNbRows(); i++) {
       DataTuple tuple = data.getTuple(i);
-      if (!(covers(tuple) && (tuple.m_Weight < threshold))) res.setTuple(tuple, idx++);
+      // if (!(covers(tuple) && (tuple.m_Weight < threshold))) {
+      if (!(tuple.m_Weight < threshold)) {
+        res.setTuple(tuple, idx++);
+      }
     }
     return res;
   }
@@ -186,6 +201,62 @@ public class ClusRule implements ClusModel, Serializable {
           newweight = 1/(olditer+1+1);
         } else if (method == Settings.COVERING_METHOD_WEIGHTED_MULTIPLICATIVE) {
           newweight = oldweight*gamma;
+        } else if (method == Settings.COVERING_METHOD_WEIGHTED_ERROR) {
+          if (m_TargetStat instanceof ClassificationStat) {  // Classification
+            int[] predictions = predictWeighted(tuple).getNominalPred();
+            if (predictions.length > 1) {
+              throw new ClusException("Error weighted covering on multiple classification targets not yet supported for classification!");
+            } else {
+              int prediction = predictions[0];
+              int true_value = tuple.getClassification(); 
+              if (prediction == true_value) {
+                newweight = oldweight*gamma;
+              } else {
+                newweight = oldweight;
+              }
+            }
+          } else if (m_TargetStat instanceof RegressionStat) {  // Regression
+            double[] predictions = predictWeighted(tuple).getNumericPred();
+            if (predictions.length > 1) {
+              double[] true_values = new double[predictions.length];
+              ClusStatistic stat = m_StatManager.getGlobalStat();
+              int[] target_idx = new int[predictions.length];
+              double[] variance = new double[predictions.length];
+              double[] coef = new double[predictions.length];
+              for (int j = 0; j < true_values.length; j++) {  
+                true_values[j] = tuple.getDoubleVal(j);
+                NumericAttrType[] num_targets = m_StatManager.getSchema().
+                                                getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+                target_idx[j] = num_targets[0].getArrayIndex();
+                variance[j] = ((CombStat)stat).getRegressionStat().getVariance(target_idx[j]);
+                coef[j] = Math.abs(predictions[j] - true_values[j]) / (gamma * Math.sqrt(variance[j]));
+              }
+              double mean_coef = 0;
+              for (int j = 0; j < true_values.length; j++) {
+                mean_coef += coef[j];
+              }
+              mean_coef /= coef.length;
+              if (mean_coef > 1) { // Limit max weight to 1
+                mean_coef = 1; 
+              }
+              newweight = oldweight * mean_coef;
+            } else {
+              double prediction = predictions[0];
+              double true_value = tuple.getDoubleVal(0);
+              NumericAttrType[] num_targets = m_StatManager.getSchema().
+                                              getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+              int target_idx = num_targets[0].getArrayIndex();
+              ClusStatistic stat = m_StatManager.getGlobalStat();
+              double variance = ((CombStat)stat).getRegressionStat().getVariance(target_idx);
+              double coef = Math.abs(prediction - true_value) / (gamma * Math.sqrt(variance));
+              if (coef > 1) { // Limit max weight to 1
+                coef = 1; 
+              }
+              newweight = oldweight * coef ;
+            }
+          } else {
+            throw new ClusException("Error weighted covering not yet supported for mixed classification/regression!");
+          }
         } else {
           throw new ClusException("Unsupported covering method!");
         }
@@ -201,7 +272,7 @@ public class ClusRule implements ClusModel, Serializable {
     return removeCoveredEnough(result);
   }
   	
-	public void setVisitor(Object visitor) {
+  public void setVisitor(Object visitor) {
 		m_Visitor = visitor;
 	}
 	
@@ -224,7 +295,7 @@ public class ClusRule implements ClusModel, Serializable {
 		printModel(wrt);
 		wrt.flush();
 	}
-
+	
 	public void printModel(PrintWriter wrt) {
 		printModel(wrt, StatisticPrintInfo.getInstance());
 	}
@@ -279,7 +350,7 @@ public class ClusRule implements ClusModel, Serializable {
     		}    		
     }
 	}
-	
+
 	public void printModelToPythonScript(PrintWriter wrt) {
 	}	
 	
@@ -388,7 +459,7 @@ public class ClusRule implements ClusModel, Serializable {
   public boolean hasErrors() {
   	return m_Errors != null;
   }
-  
+
   public boolean hasPrediction() {
   	// Sometimes no valid prediction can be derived from a prototype (e.g., in HMC)
   	return m_TargetStat.isValidPrediction();
@@ -405,8 +476,9 @@ public class ClusRule implements ClusModel, Serializable {
 		}
 		stat.optimizePreCalc(data);
   }
-  
+
   public ClusModel prune(int prunetype) {
 		return this;
   }
+
 }

@@ -24,6 +24,10 @@ import clus.algo.rules.*;
 import java.io.*;
 import java.util.*;
 
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.distribution.ChiSquaredDistribution;
+import org.apache.commons.math.distribution.DistributionFactory;
+
 public class ClusStatManager implements Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
@@ -40,7 +44,7 @@ public class ClusStatManager implements Serializable {
 
 	public final static int MODE_SSPD = 3;
 
-	public final static int MODE_CLASIFFY_AND_REGRESSION = 4;
+	public final static int MODE_CLASSIFY_AND_REGRESSION = 4;
 
 	protected int m_Mode = MODE_NONE;
 
@@ -71,6 +75,8 @@ public class ClusStatManager implements Serializable {
 	protected ClassHierarchy m_HierN, m_HierF, m_Hier;
 
 	protected SSPDMatrix m_SSPDMtrx;
+
+  protected double[] m_ChiSquareInvProb;
 
 	public ClusStatManager(ClusSchema schema, Settings sett)
 			throws ClusException, IOException {
@@ -269,7 +275,7 @@ public class ClusStatManager implements Serializable {
 				.getNbNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		int nb_int = m_Target.getNbType(IntegerAttrType.THIS_TYPE);
 		if (nb_nom > 0 && nb_num > 0) {
-			m_Mode = MODE_CLASIFFY_AND_REGRESSION;
+			m_Mode = MODE_CLASSIFY_AND_REGRESSION;
 			nb_types++;
 		} else if (nb_nom > 0) {
 			m_Mode = MODE_CLASSIFY;
@@ -503,6 +509,37 @@ public class ClusStatManager implements Serializable {
 		}
 	}
 
+  /**
+   * Initializes a table with Chi Squared inverse probabilities used
+   * in significance testing of rules. 
+   * @throws MathException 
+   *
+   */
+  public void initSignifcanceTestingTable() {
+    int max_nom_val = 0;
+    int num_nom_atts = m_Schema.getNbNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+    for (int i = 0; i < num_nom_atts; i++) {
+      if (m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL)[i].m_NbValues > max_nom_val) {
+        max_nom_val = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL)[i].m_NbValues;
+      }
+    }
+    if (max_nom_val == 0) { // If no nominal attributes in data set
+      max_nom_val = 1;
+    }
+    double[] table = new double[max_nom_val];
+    table[0] = 1.0 - getSettings().getRuleSignificanceLevel(); // Not really used except below
+    for (int i = 1; i < table.length; i++) {
+      DistributionFactory distributionFactory = DistributionFactory.newInstance();
+      ChiSquaredDistribution chiSquaredDistribution = distributionFactory.createChiSquareDistribution(i);
+      try {
+        table[i] = chiSquaredDistribution.inverseCumulativeProbability(table[0]);
+      } catch (MathException e) {
+        e.printStackTrace();
+      }
+    }
+    m_ChiSquareInvProb = table;
+  }
+	
 	public ClusErrorParent createErrorMeasure(MultiScore score) {
 		ClusErrorParent parent = new ClusErrorParent(this);
 		NumericAttrType[] num = m_Schema
@@ -784,16 +821,22 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 		return m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET].cloneStat();
 	}
 
-	/**
-	 * @param attType
-	 *            0 - descriptive, 1 - clustering,2 - target, -1 - all
-	 *            attributes
-	 * @return the statistic
-	 */
-	public ClusStatistic createStatistic(int attType) {
-		return m_StatisticAttrUse[attType].cloneStat();
-	}
-
+  /**
+   * @param attType attribute use type (eg., ClusAttrType.ATTR_USE_TARGET) 
+   * @return the statistic
+   */
+  public ClusStatistic createStatistic(int attType) {
+    return m_StatisticAttrUse[attType].cloneStat();
+  }
+  
+  /**
+   * @param attType attribute use type (eg., ClusAttrType.ATTR_USE_TARGET)
+   * @return the statistic
+   */
+  public ClusStatistic getStatistic(int attType) {
+    return m_StatisticAttrUse[attType];
+  }
+  
 	public ClusStatistic getStatistic() {
 		return m_TargetStatistic;
 	}
@@ -832,6 +875,14 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 		return m_BeamSearch;
 	}
 
+  /**
+   * @return Returns the ChiSquare inverse probability for specified
+   *         significance level and degrees of freedom. 
+   */
+  public double getChiSquareInvProb(int df) {
+    return m_ChiSquareInvProb[df];
+  }
+
 	private void createHierarchy() {
 		int idx = 0;
 		for (int i = 0; i < m_Schema.getNbAttributes(); i++) {
@@ -862,4 +913,5 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 			}
 		}
 	}
+
 }

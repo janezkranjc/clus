@@ -6,6 +6,11 @@ import java.text.*;
 
 import jeans.util.StringUtils;
 
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.distribution.*;
+import org.apache.commons.math.stat.inference.*;
+
+import clus.main.ClusStatManager;
 import clus.main.Settings;
 import clus.util.*;
 import clus.data.cols.*;
@@ -161,7 +166,7 @@ public class RegressionStat extends ClusStatistic {
 	}
 	
 	public double getVariance(int i) {
-		return getSS(i) / m_SumWeight;
+		return m_SumWeight != 0 ? getSS(i) / m_SumWeight : 0.0; // TODO: Is it always ok to return 0, if m_SumWeight=0?
 	}
 	
 	public double getScaledVariance(int i, ClusAttributeWeights scale) {
@@ -189,7 +194,46 @@ public class RegressionStat extends ClusStatistic {
 		double var = (k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0;
 		return Math.sqrt(var / (n_tot - 1));
 	}
-	
+
+  /**
+   * Computes a 2-sample t statistic, without the hypothesis of equal subpopulation variances,
+   * and returns the p-value of a t test.
+   * t = (m1 - m2) / sqrt(var1/n1 + var2/n2);
+   * @param att attribute index
+   * @return t p-value
+   * @throws MathException 
+   */
+  public double getTTestPValue(int att, ClusStatManager stat_manager) throws MathException {
+    double global_mean = ((CombStat)stat_manager.getGlobalStat()).m_RegStat.getMean(att);
+    double global_var = ((CombStat)stat_manager.getGlobalStat()).m_RegStat.getVariance(att);
+    double global_n = ((CombStat)stat_manager.getGlobalStat()).getTotalWeight();
+    double local_mean = getMean(att);
+    double local_var = getVariance(att);
+    double local_n = getTotalWeight();
+    double t = Math.abs(local_mean - global_mean) / Math.sqrt(local_var/local_n + global_var/global_n);
+    double degreesOfFreedom = 0;
+    degreesOfFreedom = df(local_var, global_var, local_n, global_n);
+    DistributionFactory distributionFactory = DistributionFactory.newInstance();
+    TDistribution tDistribution = distributionFactory.createTDistribution(degreesOfFreedom);
+    return 1.0 - tDistribution.cumulativeProbability(-t, t);
+  }
+
+  /**
+   * Computes approximate degrees of freedom for 2-sample t-test.
+   * source: math.commons.stat.inference.TTestImpl
+   * 
+   * @param v1 first sample variance
+   * @param v2 second sample variance
+   * @param n1 first sample n
+   * @param n2 second sample n
+   * @return approximate degrees of freedom
+   */
+  protected double df(double v1, double v2, double n1, double n2) {
+      return (((v1 / n1) + (v2 / n2)) * ((v1 / n1) + (v2 / n2))) /
+      ((v1 * v1) / (n1 * n1 * (n1 - 1d)) + (v2 * v2) /
+              (n2 * n2 * (n2 - 1d)));
+  }
+
 	public double[] getNumericPred() {
 		return m_Means;
 	}
@@ -239,7 +283,8 @@ public class RegressionStat extends ClusStatistic {
 		for (int i = 0; i < m_NbAttrs; i++) {
 			int idx = m_Attrs[i].getIndex();
 			if (shouldNormalize[idx]) {
-				double norm = 1/getVariance(i);
+        double var = getVariance(i);
+				double norm = var > 0 ? 1/var : 1; // No normalization if variance = 0;
 				if (m_NbAttrs < 15) System.out.println("  Normalization for: "+m_Attrs[i].getName()+" = "+norm);
 				weights.setWeight(m_Attrs[i], norm);
 			}

@@ -7,6 +7,7 @@ import java.io.*;
 
 import clus.data.rows.RowData;
 import clus.main.*;
+import clus.statistic.ClusStatistic;
 import clus.util.*;
 
 public class ClusRulesRandom {
@@ -22,28 +23,69 @@ public class ClusRulesRandom {
   * @throws ClusException 
   * @throws IOException 
   */
-  public ClusRuleSet constructRules(ClusRun cr) throws IOException, ClusException {
-    ClusRuleSet res = new ClusRuleSet(cr.getStatManager());
-    ClusRule init = new ClusRule(cr.getStatManager());
-    constructRandomly(init, res);
-    res.removeEmptyRules();
-    res.simplifyRules();
-    // res.setDefaultStat(node.getTotalStat());
+  public ClusRuleSet constructRules(ClusRun run) throws IOException, ClusException {
+ /*   RowData data = (RowData)run.getTrainingSet();
+    ClusStatistic stat = m_Induce.createTotalClusteringStat(data);
+    m_Induce.initSelectorAndSplit(stat);
+    setHeuristic(m_Induce.getSelector().getHeuristic());
+    ClusRuleSet rset = new ClusRuleSet(m_Induce.getStatManager());
+    if (method == Settings.COVERING_METHOD_STANDARD) {
+      separateAndConquor(rset, data);
+    } else {
+      separateAndConquorWeighted(rset, data);
+    }
+    rset.postProc();
+
+   */ 
+   /* 
+    
+    ClusRuleSet rset = new ClusRuleSet(cr.getStatManager());
+    // ClusRule init = new ClusRule(cr.getStatManager());
+    // constructRandomly(init, rset);
+    constructRandomly(rset);
+    rset.removeEmptyRules();
+    rset.simplifyRules();
+    // rset.setDefaultStat(node.getTotalStat());
     RowData data = (RowData)cr.getTrainingSet();
     RowData testdata;
-    res.addDataToRules(data);
-    res.computeCompactness(ClusModel.TRAIN);
-    res.removeDataFromRules();
+    rset.addDataToRules(data);
+    rset.computeCompactness(ClusModel.TRAIN);
+    rset.removeDataFromRules();
     if (cr.getTestIter() != null) {
       testdata = (RowData)cr.getTestSet();
-      res.addDataToRules(testdata);
-      res.computeCompactness(ClusModel.TEST);
-      res.removeDataFromRules();
+      rset.addDataToRules(testdata);
+      rset.computeCompactness(ClusModel.TEST);
+      rset.removeDataFromRules();
     }
-    return res;
+    return rset;*/
+    return new ClusRuleSet(run.getStatManager());
   }
-	public void constructRandomly(ClusRule rule, ClusRuleSet set) {
-/*		if (node.atBottomLevel()) {
+
+  
+  public void constructRandomly(ClusRuleSet rset, RowData data) {
+
+
+/*    public void separateAndConquor(ClusRuleSet rset, RowData data) {
+      while (data.getNbRows() > 0) {
+        ClusRule rule = learnOneRule(data);
+        if (rule.isEmpty()) {
+          break;
+        } else {
+          rule.computePrediction();
+          rule.printModel();
+          System.out.println();
+          rset.add(rule);
+          data = rule.removeCovered(data);
+        }
+      }
+      ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+      left_over.calcMean();
+      System.out.println("Left Over: "+left_over);
+      rset.setTargetStat(left_over);
+    }
+*/
+    
+    /*		if (node.atBottomLevel()) {
 			rule.setDefaultStat(node.getTotalStat());
 			set.add(rule);
 		} else {

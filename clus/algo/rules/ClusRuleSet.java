@@ -18,8 +18,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
   
   public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-	protected ClusStatistic m_TargetStat;
-	protected ArrayList m_Rules = new ArrayList();
+  protected ClusStatistic m_TargetStat;
+  protected ArrayList m_Rules = new ArrayList();
   /* Array of tuples covered by the default rule. */
   protected ArrayList m_DefaultData = new ArrayList();
   protected ClusStatManager m_StatManager;
@@ -32,11 +32,44 @@ public class ClusRuleSet implements ClusModel, Serializable {
   public ClusRuleSet(ClusStatManager statmanager) {
     m_StatManager = statmanager;
   }
-	
-	public void add(ClusRule rule) {
-		m_Rules.add(rule);
-	}
-	
+
+  public void add(ClusRule rule) {
+    if ((getSettings().getCoveringMethod() == Settings.COVERING_METHOD_WEIGHTED_ADDITIVE) ||
+    		(getSettings().getCoveringMethod() == Settings.COVERING_METHOD_WEIGHTED_MULTIPLICATIVE) ||
+    		(getSettings().getCoveringMethod() == Settings.COVERING_METHOD_WEIGHTED_ERROR)) {
+    	// Only add unique rules for weighted covering
+      if (unique(rule)) {
+        m_Rules.add(rule);
+      }
+    } else {
+      m_Rules.add(rule);
+    }
+  }
+
+  public boolean addIfUnique(ClusRule rule) {
+    if (unique(rule)) {
+      m_Rules.add(rule);
+      return true;
+    } else {
+      return false;
+    }
+  }
+    
+  /** 
+   * Tests if the rule is already in the rule set.
+   * @param rule to test
+   * @return
+   */
+  private boolean unique(ClusRule rule) {
+    boolean res = true;
+    for (int i = 0; i < m_Rules.size(); i++) {
+      if (((ClusRule)m_Rules.get(i)).equals(rule)) {
+        res = false;
+      }
+    }
+    return res;
+  }
+
   /** 
    * Returns the statistic for (prediction of) a given tuple.
    */
@@ -45,11 +78,14 @@ public class ClusRuleSet implements ClusModel, Serializable {
     if (cover_method == Settings.COVERING_METHOD_STANDARD) {
       for (int i = 0; i < getModelSize(); i++) {
         ClusRule rule = getRule(i);
-        if (rule.covers(tuple)) return rule.getTargetStat();
+        if (rule.covers(tuple)) {
+          return rule.getTargetStat();
+        }
       }
       return m_TargetStat;
     } else if (cover_method == Settings.COVERING_METHOD_UNION) {
-    	// In multi-label classification: predicted set of classes is union of predictions by individual rules 
+    	// In multi-label classification: predicted set of classes is
+    	// union of predictions by individual rules 
       boolean covered = false;
       ClusStatistic stat = m_TargetStat.cloneSimple();
       stat.unionInit();
@@ -62,20 +98,28 @@ public class ClusRuleSet implements ClusModel, Serializable {
       }
       stat.unionDone();
       return covered ? stat : m_TargetStat;
-    } else {
+    } else {  // Unordered rules, eg., weighted cocering methods
       boolean covered = false;
       ClusStatistic stat = m_TargetStat.cloneSimple();
+      double weight = 1;  // TODO: Currently classifications of all rules are equaly weighted
+                          // Should rules with bigger coverage have more weight?
+      double weight_sum = 0;
+      for (int i = 0; i < getModelSize(); i++) {
+        ClusRule rule = getRule(i);
+        if (rule.covers(tuple)) {
+          weight_sum += weight;
+        }
+      }
       for (int i = 0; i < getModelSize(); i++) {
         ClusRule rule = getRule(i);
         if (rule.covers(tuple)) {
           ClusStatistic rulestat = rule.predictWeighted(tuple);
+          // stat.addPrediction(rulestat, weight/weight_sum);
           stat.addPrediction(rulestat, 1);
-          // TODO: Use weights different from 1 above! Probably different for
-          // classification and for regression (and for mixed case)
           covered = true;         
         }
       }
-      stat.calcMean();
+      stat.calcMean(); // Probably never needed!
       if (covered) {
         return stat;  
       } else {
@@ -104,11 +148,11 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			rule.attachModel(table);
 		}
 	}
-	
+
 	public void printModel(PrintWriter wrt) {
-		printModel(wrt, StatisticPrintInfo.getInstance());
-	}	
-	
+	  printModel(wrt, StatisticPrintInfo.getInstance());
+  }	
+
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
     boolean headers = getSettings().computeCompactness() || hasRuleErrors();
     // [train/test][comb/num/nom]
@@ -127,22 +171,22 @@ public class ClusRuleSet implements ClusModel, Serializable {
         wrt.println(new String(underline));
         // Added this test so that PrintRuleWiseErrors also works in HMC setting (02/01/06)
         if (getSettings().computeCompactness()) {
-	        avg_compactness[0][0] += rule.m_CombStat[0].compactnessCalc();
-	        avg_compactness[0][1] += rule.m_CombStat[0].compactnessNumCalc();
-	        avg_compactness[0][2] += rule.m_CombStat[0].compactnessNomCalc();
-	        avg_coverage[0] += rule.m_Coverage[0];
-	        avg_prod[0][0] += rule.m_CombStat[0].compactnessCalc()*rule.m_Coverage[0];
-	        avg_prod[0][1] += rule.m_CombStat[0].compactnessNumCalc()*rule.m_Coverage[0];
-	        avg_prod[0][2] += rule.m_CombStat[0].compactnessNomCalc()*rule.m_Coverage[0];
-	        if (rule.m_CombStat[1] != null) {
-	          avg_compactness[1][0] += rule.m_CombStat[1].compactnessCalc();
-	          avg_compactness[1][1] += rule.m_CombStat[1].compactnessNumCalc();
-	          avg_compactness[1][2] += rule.m_CombStat[1].compactnessNomCalc();
-	          avg_coverage[1] += rule.m_Coverage[1];
-	          avg_prod[1][0] += rule.m_CombStat[1].compactnessCalc()*rule.m_Coverage[1];
-	          avg_prod[1][1] += rule.m_CombStat[1].compactnessNumCalc()*rule.m_Coverage[1];
-	          avg_prod[1][2] += rule.m_CombStat[1].compactnessNomCalc()*rule.m_Coverage[1];
-	        }
+          avg_compactness[0][0] += rule.m_CombStat[0].compactnessCalc();
+          avg_compactness[0][1] += rule.m_CombStat[0].compactnessNum(1);
+          avg_compactness[0][2] += rule.m_CombStat[0].compactnessNom(1);
+          avg_coverage[0] += rule.m_Coverage[0];
+          avg_prod[0][0] += rule.m_CombStat[0].compactnessCalc()*rule.m_Coverage[0];
+          avg_prod[0][1] += rule.m_CombStat[0].compactnessNum(1)*rule.m_Coverage[0];
+          avg_prod[0][2] += rule.m_CombStat[0].compactnessNom(1)*rule.m_Coverage[0];
+          if (rule.m_CombStat[1] != null) {
+            avg_compactness[1][0] += rule.m_CombStat[1].compactnessCalc();
+            avg_compactness[1][1] += rule.m_CombStat[1].compactnessNum(1);
+            avg_compactness[1][2] += rule.m_CombStat[1].compactnessNom(1);
+            avg_coverage[1] += rule.m_Coverage[1];
+            avg_prod[1][0] += rule.m_CombStat[1].compactnessCalc()*rule.m_Coverage[1];
+            avg_prod[1][1] += rule.m_CombStat[1].compactnessNum(1)*rule.m_Coverage[1];
+            avg_prod[1][2] += rule.m_CombStat[1].compactnessNom(1)*rule.m_Coverage[1];
+          }
         }
       }
 			rule.printModel(wrt, info);
@@ -153,15 +197,30 @@ public class ClusRuleSet implements ClusModel, Serializable {
         wrt.println("Default rule:");
         wrt.println("=============");
       }
-      wrt.println("Default = "+m_TargetStat.getString());
+      wrt.println("Default = "+(m_TargetStat == null ? "N/A" : m_TargetStat.getString()));
 		}
     if (headers && getSettings().computeCompactness()) {
-      wrt.println("\n   Avg_Compactness (train): " + (avg_compactness[0][0]/m_Rules.size()) + " = " + (avg_compactness[0][1]/m_Rules.size()) + " + " + (avg_compactness[0][2]/m_Rules.size()) );
-      wrt.println("   Avg_Coverage    (train): " + (avg_coverage[0]/m_Rules.size()));
-      wrt.println("   Avg_Cover*Comp  (train): " + (avg_prod[0][0]/m_Rules.size()) + " = " + (avg_prod[0][1]/m_Rules.size()) + " + " + (avg_prod[0][2]/m_Rules.size()));
-      wrt.println("   Avg_Compactness (test):  " + (avg_compactness[1][0]/m_Rules.size()) + " = " + (avg_compactness[1][1]/m_Rules.size()) + " + " + (avg_compactness[1][2]/m_Rules.size()));
-      wrt.println("   Avg_Coverage    (test):  " + (avg_coverage[1]/m_Rules.size()));
-      wrt.println("   Avg_Cover*Comp  (test):  " + (avg_prod[1][0]/m_Rules.size()) + " = " + (avg_prod[1][1]/m_Rules.size()) + " + " + (avg_prod[1][2]/m_Rules.size()));
+      avg_compactness[0][0] = avg_compactness[0][0] == 0 ? 0 : avg_compactness[0][0]/m_Rules.size();
+      avg_compactness[0][1] = avg_compactness[0][1] == 0 ? 0 : avg_compactness[0][1]/m_Rules.size();
+      avg_compactness[0][2] = avg_compactness[0][2] == 0 ? 0 : avg_compactness[0][2]/m_Rules.size();
+      avg_coverage[0] = avg_coverage[0] == 0 ? 0 : avg_coverage[0]/m_Rules.size();
+      avg_prod[0][0] = avg_prod[0][0] == 0 ? 0 : avg_prod[0][0]/m_Rules.size();
+      avg_prod[0][1] = avg_prod[0][1] == 0 ? 0 : avg_prod[0][1]/m_Rules.size();
+      avg_prod[0][2] = avg_prod[0][2] == 0 ? 0 : avg_prod[0][2]/m_Rules.size();
+      avg_compactness[1][0] = avg_compactness[1][0] == 0 ? 0 : avg_compactness[1][0]/m_Rules.size();
+      avg_compactness[1][1] = avg_compactness[1][1] == 0 ? 0 : avg_compactness[1][1]/m_Rules.size();
+      avg_compactness[1][2] = avg_compactness[1][2] == 0 ? 0 : avg_compactness[1][2]/m_Rules.size();
+      avg_coverage[1] = avg_coverage[1] == 0 ? 0 : avg_coverage[1]/m_Rules.size();
+      avg_prod[1][0] = avg_prod[1][0] == 0 ? 0 : avg_prod[1][0]/m_Rules.size();
+      avg_prod[1][1] = avg_prod[1][1] == 0 ? 0 : avg_prod[1][1]/m_Rules.size();
+      avg_prod[1][2] = avg_prod[1][2] == 0 ? 0 : avg_prod[1][2]/m_Rules.size();
+
+      wrt.println("\n   Avg_Compactness (train): " + avg_compactness[0][0] + " = " + avg_compactness[0][1] + " + " + avg_compactness[0][2]);
+      wrt.println("   Avg_Coverage    (train): " + avg_coverage[0]);
+      wrt.println("   Avg_Cover*Comp  (train): " + avg_prod[0][0] + " = " + avg_prod[0][1] + " + " + avg_prod[0][2]);
+      wrt.println("   Avg_Compactness (test):  " + avg_compactness[1][0] + " = " + avg_compactness[1][1] + " + " + avg_compactness[1][2]);
+      wrt.println("   Avg_Coverage    (test):  " + avg_coverage[1]);
+      wrt.println("   Avg_Cover*Comp  (test):  " + avg_prod[1][0] + " = " + avg_prod[1][1] + " + " + avg_prod[1][2]);
     }
   }
 	
@@ -333,4 +392,5 @@ public class ClusRuleSet implements ClusModel, Serializable {
   public ClusModel prune(int prunetype) {
 		return this;
   }
+
 }

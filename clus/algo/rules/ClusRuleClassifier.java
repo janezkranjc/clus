@@ -33,20 +33,22 @@ public class ClusRuleClassifier extends ClusClassifier {
 	public ClusModel induceSingle(ClusRun cr) throws ClusException, IOException {
 		// ClusRulesForAttrs rfa = new ClusRulesForAttrs();
 		// return rfa.constructRules(cr);
+    DepthFirstInduce tree_induce = (DepthFirstInduce)getInduce();
+    ClusRuleInduce rule_induce = new ClusRuleInduce(tree_induce);
     if (!getSettings().isRandomRules()) {
-      DepthFirstInduce tree_induce = (DepthFirstInduce)getInduce();
-	  	ClusRuleInduce rule_induce = new ClusRuleInduce(tree_induce);
 		  return rule_induce.induce(cr);
     } else {
-      ClusRulesRandom rules = new ClusRulesRandom(cr);
-      return rules.constructRules(cr);
+      return rule_induce.induceRandomly(cr);
     }
 	}
 
 	public void induce(ClusRun cr) throws ClusException, IOException {
 		ClusModel model = induceSingle(cr);
-		cr.getModelInfo(ClusModels.ORIGINAL).setModel(model);
-		cr.getModelInfo(ClusModels.PRUNED).setModel(model);
+		// FIXME: implement cloneModel();
+		// cr.getModelInfo(ClusModels.ORIGINAL).setModel(model);
+		// ClusModel pruned = model.cloneModel();
+		ClusModel pruned = model;
+		cr.getModelInfo(ClusModels.PRUNED).setModel(pruned);
 		ClusModel defmodel = ClusDecisionTree.induceDefault(cr);
 		cr.getModelInfo(ClusModels.DEFAULT).setModel(defmodel);		
 	}

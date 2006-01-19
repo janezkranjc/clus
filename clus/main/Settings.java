@@ -63,17 +63,19 @@ public class Settings implements Serializable {
 	
 	public final static int PRUNING_METHOD_CART_MAXSIZE = 9;	
 
-	public final static String[] COVERING_METHODS = { "Standard",
-			"WeightedMultiplicative", "WeightedAdditive", "Union" };
+  public final static String[] COVERING_METHODS =
+		{"Standard", "WeightedMultiplicative", "WeightedAdditive", "WeightedError", "Union"};
+  
+  public final static int COVERING_METHOD_STANDARD = 0;
 
-	public final static int COVERING_METHOD_STANDARD = 0;
-
-	public final static int COVERING_METHOD_WEIGHTED_MULTIPLICATIVE = 1;
-
-	public final static int COVERING_METHOD_WEIGHTED_ADDITIVE = 2;
+  public final static int COVERING_METHOD_WEIGHTED_MULTIPLICATIVE = 1;
+  
+  public final static int COVERING_METHOD_WEIGHTED_ADDITIVE = 2;
+  
+  public final static int COVERING_METHOD_WEIGHTED_ERROR = 3;
 	
 	// In multi-label classification: predicted set of classes is union of predictions of individual rules 
-	public final static int COVERING_METHOD_UNION = 3;
+	public final static int COVERING_METHOD_UNION = 4;
 
 	public final static String[] HIERMODES = { "TDWEuclid", "TDAbsWEuclid",
 			"XtAXSetDist", "XtAXSetDistDiscrete" };
@@ -258,21 +260,27 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_M5PruningMult;
 
 	/* Rules */
-	protected INIFileBool m_OrderedRules;
+  protected INIFileNominal m_CoveringMethod;
+  
+  protected INIFileDouble m_CoveringWeight;
 
-	protected INIFileNominal m_CoveringMethod;
+  protected INIFileDouble m_CompHeurParameter;
+  
+  protected INIFileDouble m_RuleSignificanceLevel;
+  
+  protected INIFileInt m_RuleNbSigAtts;
+	
+  protected INIFileBool m_ComputeCompactness;	
 
-	protected INIFileDouble m_CoveringWeight;
+  protected INIFileDouble m_NumCompNormWeight;
 
-	protected INIFileBool m_ComputeCompactness;
+  protected INIFileNominalOrDoubleOrVector m_CompactnessWeights;
 
-	protected INIFileNominalOrDoubleOrVector m_CompactnessWeights;
+  protected INIFileInt m_RandomRules;
+  
+  protected INIFileBool m_RuleWiseErrors;
 
-	protected INIFileBool m_RandomRules;
-
-	protected INIFileBool m_RuleWiseErrors;
-
-	/* Constraints */
+  /* Constraints */
 	protected INIFileString m_SyntacticConstrFile;
 
 	protected INIFileNominalOrIntOrVector m_MaxSizeConstr;
@@ -428,18 +436,21 @@ public class Settings implements Serializable {
 		tree.addNode(m_RulesFromTree = new INIFileNominal("ConvertToRules", CONVERT_RULES, 0));
 
 		INIFileSection rules = new INIFileSection("Rules");
-		rules.addNode(m_OrderedRules = new INIFileBool("OrderedRules", true));
-		rules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod",	COVERING_METHODS, 0));
-		rules.addNode(m_CoveringWeight = new INIFileDouble("CoveringWeight", 0.9));
+    rules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));
+    rules.addNode(m_CoveringWeight = new INIFileDouble("CoveringWeight", 0.9));
+    rules.addNode(m_CompHeurParameter = new INIFileDouble("CompHeurParameter", 0.0));
+    rules.addNode(m_RuleSignificanceLevel = new INIFileDouble("RuleSignificanceLevel", 0.05));
+    rules.addNode(m_RuleNbSigAtts = new INIFileInt("RuleNbSigAtts", 0));
 		rules.addNode(m_ComputeCompactness = new INIFileBool("ComputeCompactness", false));
-		rules.addNode(m_CompactnessWeights = new INIFileNominalOrDoubleOrVector("CompactnessWeights", EMPTY));
+    rules.addNode(m_NumCompNormWeight = new INIFileDouble("NumCompNormWeight", 4.0));
+    rules.addNode(m_CompactnessWeights = new INIFileNominalOrDoubleOrVector("CompactnessWeights", EMPTY));
 		m_CompactnessWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);
 		m_CompactnessWeights.setDoubleArray(FOUR_ONES);
 		m_CompactnessWeights.setArrayIndexNames(true);
-		rules.addNode(m_RandomRules = new INIFileBool("RandomRules", false));
-		rules.addNode(m_RuleWiseErrors = new INIFileBool("PrintRuleWiseErrors", false));
+    rules.addNode(m_RandomRules = new INIFileInt("RandomRules", 0));
+    rules.addNode(m_RuleWiseErrors = new INIFileBool("PrintRuleWiseErrors", false));
 
-		INIFileSection constr = new INIFileSection("Constraints");
+    INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic",	NONE));
 		constr.addNode(m_MaxSizeConstr = new INIFileNominalOrIntOrVector("MaxSize", INFINITY));
 		constr.addNode(m_MaxErrorConstr = new INIFileNominalOrDoubleOrVector("MaxError", INFINITY));
@@ -590,39 +601,55 @@ public class Settings implements Serializable {
 	public double isHierPruneInSig() {
 		return m_HierPruneInSig.getValue();
 	}
+	
+  public boolean isRandomRules() {
+    return (m_RandomRules.getValue() > 0);
+  }
+  
+  public int nbRandomRules() {
+    return m_RandomRules.getValue();
+  }
+  
+  public boolean isRuleWiseErrors() {
+  	return m_RuleWiseErrors.getValue();
+  }
 
-	public boolean isOrderedRules() {
-		return m_OrderedRules.getValue();
-	}
+  public int getCoveringMethod() {
+    return m_CoveringMethod.getValue();
+  }
+  
+  public void setCoveringMethod(int method) {
+    m_CoveringMethod.setSingleValue(method);
+  }
 
-	public boolean isRandomRules() {
-		return m_RandomRules.getValue();
-	}
+  public double getCoveringWeight() {
+    return m_CoveringWeight.getValue();
+  }
 
-	public boolean isRuleWiseErrors() {
-		return m_RuleWiseErrors.getValue();
-	}
+  public double getRuleSignificanceLevel() {
+    return m_RuleSignificanceLevel.getValue();
+  }
 
-	public int getCoveringMethod() {
-		return m_CoveringMethod.getValue();
-	}
+  public int getRuleNbSigAtt() {
+    return m_RuleNbSigAtts.getValue();
+  }
 
-	public void setCoveringMethod(int method) {
-		m_CoveringMethod.setSingleValue(method);
-	}
-
-	public double getCoveringWeight() {
-		return m_CoveringWeight.getValue();
-	}
-
-	public void setCoveringWeight(double weight) {
-		m_CoveringWeight.setValue(weight);
-	}
-
-	public boolean computeCompactness() {
-		return m_ComputeCompactness.getValue();
-	}
-
+  public double getCompHeurParameter() {
+    return m_CompHeurParameter.getValue();
+  }
+ 
+  public void setCoveringWeight(double weight) {
+    m_CoveringWeight.setValue(weight);
+  }
+ 
+  public boolean computeCompactness() {
+    return m_ComputeCompactness.getValue();
+  }
+	
+  public double getNumCompNormWeight() {
+    return m_NumCompNormWeight.getValue();
+  }
+  
 	public int getHierMode() {
 		return m_HierMode.getValue();
 	}

@@ -10,6 +10,7 @@ import clus.nominal.split.*;
 import clus.error.multiscore.*;
 
 import java.io.*;
+import java.util.*;
 
 public class DepthFirstInduce extends ClusInduce {
 	
@@ -33,73 +34,152 @@ public class DepthFirstInduce extends ClusInduce {
 		return new RowData(m_Schema);
 	}
 	
-	public void findNominal(NominalAttrType at, RowData data) {
-		// Reset positive statistic
-		int nbvalues = at.getNbValues();
-		m_Selector.reset(nbvalues + 1);
-		// For each attribute value		
-		int nb_rows = data.getNbRows();
-		for (int i = 0; i < nb_rows; i++) {
-			DataTuple tuple = data.getTuple(i);
-			int value = at.getNominal(tuple);			
-			m_Selector.m_TestStat[value].updateWeighted(tuple, i);			
-		}
-		// Find best split
-		m_Split.findSplit(m_Selector, at);
-	}
-	
-	public void findNumeric(NumericAttrType at, RowData data) {	
-		DataTuple tuple;
-		int idx = at.getArrayIndex();
-		if (at.isSparse()) {
-			data.sortSparse(idx);
-		} else {
-			data.sort(idx);
-		}
-		m_Selector.reset(2);		
-		// Missing values
-		int first = 0;				
-		int nb_rows = data.getNbRows();
-		// Copy total statistic into corrected total
-		m_Selector.copyTotal();
-		if (at.hasMissing()) {
-			// Because of sorting, all missing values are in the front :-)
-			while (first < nb_rows && (tuple = data.getTuple(first)).hasNumMissing(idx)) {
-				m_Selector.m_MissingStat.updateWeighted(tuple, first);
-				first++;
-			}
-			m_Selector.subtractMissing();
-		}		
-		double prev = Double.NaN;
-		if (Settings.ONE_NOMINAL) {
-			int prev_cl = -1;		
-			for (int i = first; i < nb_rows; i++) {
-				tuple = data.getTuple(i);
-				double value = tuple.getDoubleVal(idx);
-				int crcl = tuple.getClassification();				
-				if (prev_cl == -1 && value != prev && value != Double.NaN) {
-					m_Selector.updateNumeric(value, at);
-					prev_cl = crcl;
-				}
-				prev = value; 				
-				if (prev_cl != crcl) prev_cl = -1;
-				m_Selector.m_PosStat.updateWeighted(tuple, i);				
-			}		
-		} else {
-			for (int i = first; i < nb_rows; i++) {			
-				tuple = data.getTuple(i);
-				double value = tuple.getDoubleVal(idx);						
-				if (value != prev) {
-					if (value != Double.NaN) {
-						m_Selector.updateNumeric(value, at);
-					}
-					prev = value;
-				}				
-				m_Selector.m_PosStat.updateWeighted(tuple, i);
-			}
-		}
-	}
-	
+  public void findNominal(NominalAttrType at, RowData data) {
+    // Reset positive statistic
+    int nbvalues = at.getNbValues();
+    m_Selector.reset(nbvalues + 1);
+    // For each attribute value   
+    int nb_rows = data.getNbRows();
+    for (int i = 0; i < nb_rows; i++) {
+      DataTuple tuple = data.getTuple(i);
+      int value = at.getNominal(tuple);     
+      m_Selector.m_TestStat[value].updateWeighted(tuple, i);      
+    }
+    // Find best split
+    m_Split.findSplit(m_Selector, at);
+  }
+  
+  /**
+   * Randomly generates nominal split
+   * @param at
+   * @param data
+   * @param rn
+   */
+  public void findNominalRandom(NominalAttrType at, RowData data, Random rn) {
+    // Reset positive statistic
+    int nbvalues = at.getNbValues();
+    m_Selector.reset(nbvalues + 1);
+    // For each attribute value   
+    int nb_rows = data.getNbRows();
+    for (int i = 0; i < nb_rows; i++) {
+      DataTuple tuple = data.getTuple(i);
+      int value = at.getNominal(tuple);     
+      m_Selector.m_TestStat[value].updateWeighted(tuple, i);      
+    }
+    // Find the split
+    m_Split.findRandomSplit(m_Selector, at, rn);
+  }
+  
+  public void findNumeric(NumericAttrType at, RowData data) { 
+    DataTuple tuple;
+    int idx = at.getArrayIndex();
+    if (at.isSparse()) {
+      data.sortSparse(idx);
+    } else {
+      data.sort(idx);
+    }
+    m_Selector.reset(2);    
+    // Missing values
+    int first = 0;        
+    int nb_rows = data.getNbRows();
+    // Copy total statistic into corrected total
+    m_Selector.copyTotal();
+    if (at.hasMissing()) {
+      // Because of sorting, all missing values are in the front :-)
+      while (first < nb_rows && (tuple = data.getTuple(first)).hasNumMissing(idx)) {
+        m_Selector.m_MissingStat.updateWeighted(tuple, first);
+        first++;
+      }
+      m_Selector.subtractMissing();
+    }   
+    double prev = Double.NaN;
+    if (Settings.ONE_NOMINAL) {
+      int prev_cl = -1;   
+      for (int i = first; i < nb_rows; i++) {
+        tuple = data.getTuple(i);
+        double value = tuple.getDoubleVal(idx);
+        int crcl = tuple.getClassification();       
+        if (prev_cl == -1 && value != prev && value != Double.NaN) {
+          m_Selector.updateNumeric(value, at);
+          prev_cl = crcl;
+        }
+        prev = value;         
+        if (prev_cl != crcl) prev_cl = -1;
+        m_Selector.m_PosStat.updateWeighted(tuple, i);        
+      }   
+    } else {
+      for (int i = first; i < nb_rows; i++) {     
+        tuple = data.getTuple(i);
+        double value = tuple.getDoubleVal(idx);           
+        if (value != prev) {
+          if (value != Double.NaN) {
+            m_Selector.updateNumeric(value, at);
+          }
+          prev = value;
+        }       
+        m_Selector.m_PosStat.updateWeighted(tuple, i);
+      }
+    }
+  }
+  
+  /**
+   * Randomly generates numeric split value
+   * @param at
+   * @param data
+   * @param rn
+   */
+  public void findNumericRandom(NumericAttrType at, RowData data, RowData orig_data, Random rn) { 
+    DataTuple tuple;
+    int idx = at.getArrayIndex();
+    // Sort values from large to small
+    if (at.isSparse()) {
+      data.sortSparse(idx);
+    } else {
+      data.sort(idx);
+    }
+    m_Selector.reset(2);    
+    // Missing values
+    int first = 0;        
+    int nb_rows = data.getNbRows();
+    // Copy total statistic into corrected total
+    m_Selector.copyTotal();
+    if (at.hasMissing()) {
+      // Because of sorting, all missing values are in the front :-)
+      while (first < nb_rows && (tuple = data.getTuple(first)).hasNumMissing(idx)) {
+        m_Selector.m_MissingStat.updateWeighted(tuple, first);
+        first++;
+      }
+      m_Selector.subtractMissing();
+    }   
+    // Do the same for original data, except updating the statistics:
+    // Sort values from large to small
+    if (at.isSparse()) {
+      orig_data.sortSparse(idx);
+    } else {
+      orig_data.sort(idx);
+    }
+    // Missing values
+    int orig_first = 0;        
+    int orig_nb_rows = orig_data.getNbRows();
+    if (at.hasMissing()) {
+      // Because of sorting, all missing values are in the front :-)
+      while (orig_first < orig_nb_rows && 
+             (tuple = orig_data.getTuple(orig_first)).hasNumMissing(idx)) {
+        orig_first++;
+      }
+    }   
+    // Generate the random split value based on the original data
+    double min_value = orig_data.getTuple(orig_nb_rows-1).getDoubleVal(idx);
+    double max_value = orig_data.getTuple(orig_first).getDoubleVal(idx);
+    double split_value = (max_value - min_value) * rn.nextDouble() + min_value;
+    for (int i = first; i < nb_rows; i++) {
+      tuple = data.getTuple(i);
+      if (tuple.getDoubleVal(idx) <= split_value) break;
+      m_Selector.m_PosStat.updateWeighted(tuple, i);        
+    }
+    m_Selector.updateNumeric(split_value, at);
+  }
+  
 	public void initSelectorAndSplit(ClusStatistic totstat) throws ClusException {
 		m_Selector.create(m_StatManager, m_MaxStats);
 		m_Selector.setRootStatistic(totstat);

@@ -1,9 +1,12 @@
 package clus.nominal.split;
 
+import java.util.Random;
+
 import clus.main.*;
 import clus.data.type.*;
 import clus.model.test.*;
 import clus.statistic.*;
+import clus.util.ClusException;
 import clus.heuristic.*;
 
 public class NArySplit extends NominalSplit {
@@ -40,4 +43,12 @@ public class NArySplit extends NominalSplit {
 			node.m_BestTest = new NominalTest(type, freq);
 		}
 	}
+
+  public void findRandomSplit(TestSelector node, NominalAttrType type, Random rn) {
+    try {
+      throw new ClusException("Not implemented yet!");
+    } catch (ClusException e) {
+      e.printStackTrace();
+    }
+  }
 }

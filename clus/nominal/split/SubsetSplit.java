@@ -6,6 +6,8 @@ import clus.model.test.*;
 import clus.statistic.*;
 import clus.heuristic.*;
 
+import java.util.*;
+
 public class SubsetSplit extends NominalSplit {
 
 	ClusStatistic m_PStat, m_CStat, m_MStat;
@@ -99,4 +101,49 @@ public class SubsetSplit extends NominalSplit {
 			node.m_BestTest = new SubsetTest(type, card, isin, pos_freq);
 		}
 	}
+
+  public void findRandomSplit(TestSelector node, NominalAttrType type, Random rn) {
+    double unk_freq = 0.0;    
+    int nbvalues = type.getNbValues();
+    boolean isin[] = new boolean[nbvalues];
+    // If has missing values?
+    if (type.hasMissing()) {
+      ClusStatistic unknown = node.m_TestStat[nbvalues];
+      m_MStat.copy(node.m_TotStat);
+      m_MStat.subtractFromThis(unknown);
+      unk_freq = unknown.m_SumWeight / node.m_TotStat.m_SumWeight;
+    } else {
+      m_MStat.copy(node.m_TotStat);
+    }
+    int card = 0;
+    double pos_freq = 0.0;
+    // Generate non-empty and non-full subset
+    while (true) {
+      for (int i = 0; i < isin.length; i++) {
+        isin[i] = rn.nextBoolean();
+      }
+      int sum = 0;
+      for (int i = 0; i < isin.length; i++) {
+        if (isin[i]) {
+          sum++;
+        }
+      }
+      if (!((sum == 0) || (sum == nbvalues))) {
+        card = sum;
+        break;
+      }
+    }
+    // Calculate statistics ...
+    m_PStat.reset();
+    for (int j = 0; j < nbvalues; j++) {
+      if (isin[j]) {
+         	m_PStat.add(node.m_TestStat[j]);
+      }
+    }
+    pos_freq = m_PStat.m_SumWeight / m_MStat.m_SumWeight;
+    node.m_UnknownFreq = unk_freq;
+    node.m_BestHeur = node.calcHeuristic(m_MStat, m_PStat);
+    node.m_TestType = TestSelector.TYPE_TEST;
+    node.m_BestTest = new SubsetTest(type, card, isin, pos_freq);
+  }
 }

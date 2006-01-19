@@ -99,7 +99,7 @@ public abstract class ClusStatistic implements Serializable {
 	}
 	
 	public int[] getNominalPred() {
-		System.err.println(getClass().getName()+": getNumericPred(): Not yet implemented");
+		System.err.println(getClass().getName()+": getNominalPred(): Not yet implemented");
 		return null;
 	}	
 		

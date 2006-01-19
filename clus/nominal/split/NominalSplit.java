@@ -5,6 +5,8 @@ import clus.data.type.*;
 import clus.model.test.*;
 import clus.statistic.*;
 
+import java.util.*;
+
 public abstract class NominalSplit {
 
 	public double[] createFreqList(double n_tot, ClusStatistic[] s_set, int nbvalues) {
@@ -19,4 +21,6 @@ public abstract class NominalSplit {
 	public abstract void setSDataSize(int size);
 		
 	public abstract void findSplit(TestSelector node, NominalAttrType type);
+  
+  public abstract void findRandomSplit(TestSelector node, NominalAttrType type, Random rn);
 }
