@@ -5,7 +5,6 @@ import java.io.*;
 import clus.main.*;
 import clus.data.rows.*;
 import clus.statistic.*;
-import clus.ext.hierarchical.*;
 
 public class WAHNDError extends ClusError {
 	
@@ -37,61 +36,10 @@ public class WAHNDError extends ClusError {
 		System.out.println("WAHNDError: addExample/3 not implemented");
 	}
 	
-	
-	public double calcSquaredDistance(ClassesTuple actual, HierStatistic distr) {
-		
-		//Sort actual tupel
-		ClassesTuple.quickSort(actual,0,actual.size()-1);
-		// Calculate mean
-		ClassHierarchy hier = distr.getHier();
-		double sumWeights = distr.getTotalWeight();
-		ClassesTuple mean = hier.getBestTuple(distr.getCounts(),sumWeights);
-		
-		int j = 0;
-		ClassesValue valActual = actual.elementAt(j);
-		int idxActual = valActual.getIndex();
-		double abActual = valActual.getAbundance();
-		double abundanceActual;
-		
-		double temp = 0;
-		
-		for (int i = 0; i < mean.size(); i++) {
-			
-			ClassesValue valMean = mean.elementAt(i);
-			int idxMean = valMean.getIndex();
-			double abMean = valMean.getAbundance();
-			
-			//System.out.println("Gemiddelde: " + idxMean + " " + abMean);
-			//System.out.println("Actueel: " + idxActual + " " + abActual);
-			
-			if (idxMean == idxActual) {
-				abundanceActual = abActual; 
-				j++;
-				try {
-					valActual = actual.elementAt(j);
-					idxActual = valActual.getIndex();
-					abActual = valActual.getAbundance();
-				}
-				catch (ArrayIndexOutOfBoundsException aiofb) {}
-			}		
-			
-			else abundanceActual = 0;
-			
-			temp += hier.getErrorWeight(idxMean,m_Weight) * Math.abs(abundanceActual - abMean);
-			
-			
-		}
-		
-		double result = temp * temp;
-		
-		return result;
-		
-	}
-	
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		double weight = tuple.getWeight();
-		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
-		m_TreeErr += weight*calcSquaredDistance(tp, (WAHNDStatistic)pred);
+		// ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
+		// m_TreeErr += weight*calcSquaredDistance(tp, (WAHNDStatistic)pred);
 		m_SumWeight += weight;
 	}
 	

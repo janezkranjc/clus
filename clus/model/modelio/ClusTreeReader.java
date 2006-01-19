@@ -48,14 +48,14 @@ public class ClusTreeReader {
 		return root;
 	}
 	
-	public ClusNode loadOutTree(String fname, ClusSchema schema) throws IOException {
+	public ClusNode loadOutTree(String fname, ClusSchema schema, String find) throws IOException {
 		m_FName = fname;
 		m_Schema = schema;
 		m_NoPartialTree = true;
 		System.out.println("Loading .out file: "+fname);
 		LineNumberReader rdr = new LineNumberReader(new InputStreamReader(new FileInputStream(fname)));
 		String line = rdr.readLine();
-		while (line != null && !line.trim().equals("Pruned Model")) {
+		while (line != null && !line.trim().equals(find)) {
 			line = rdr.readLine();
 		}
 		/* Skip line with stars */

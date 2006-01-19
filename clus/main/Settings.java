@@ -127,10 +127,30 @@ public class Settings implements Serializable {
 	
 	public final static int RESOURCE_INFO_LOAD_TEST = 2;	
 	
+	public final static String[] SHOW_MODELS = {"Default", "Original", "Pruned", "Others"};
+	
+	public final static int[] SHOW_MODELS_VALUES = {0,2,3};
+	
+	public final static int SHOW_MODELS_DEFAULT = 0;
+	
+	public final static int SHOW_MODELS_ORIGINAL = 1;
+	
+	public final static int SHOW_MODELS_PRUNED = 2;
+	
+	public final static int SHOW_MODELS_OTHERS = 3;
+		
 	public final static String[] SHOW_INFO = {"Count", "Distribution", "Index"};
 	
-	public final int[] SHOW_INFO_VALUES = {0};
+	public final static int[] SHOW_INFO_VALUES = {0};
 
+	public final static String[] CONVERT_RULES = { "No", "Pruned", "All" };
+	
+	public final static int CONVERT_RULES_NONE = 0;
+	
+	public final static int CONVERT_RULES_PRUNED = 1;
+	
+	public final static int CONVERT_RULES_ALL = 2;
+	
 	/* Filename and date information */
 	protected Date m_Date;
 
@@ -233,7 +253,7 @@ public class Settings implements Serializable {
 	
 	protected INIFileBool m_1SERule;
 
-	protected INIFileBool m_RulesFromTree;
+	protected INIFileNominal m_RulesFromTree;
 	
 	protected INIFileDouble m_M5PruningMult;
 
@@ -275,6 +295,8 @@ public class Settings implements Serializable {
 	protected INIFileBool m_ShowUnknown;
 	
 	protected INIFileNominal m_ShowInfo;
+	
+	protected INIFileNominal m_ShowModels;
 
 	protected INIFileBool m_PrintModelAndExamples;	
 	
@@ -329,6 +351,8 @@ public class Settings implements Serializable {
 	protected INIFileBool m_HierUseBonferroni;
 	
 	protected INIFileNominalOrDoubleOrVector m_HierClassTreshold;
+	
+	protected INIFileString m_HierIgnoreClasses;
 
 	INIFileSection m_SectionKNN;
 
@@ -401,7 +425,7 @@ public class Settings implements Serializable {
 		tree.addNode(m_PruningMethod = new INIFileNominal("PruningMethod", PRUNING_METHODS, 0));
 		tree.addNode(m_1SERule = new INIFileBool("1-SE-Rule", false));
 		tree.addNode(m_M5PruningMult = new INIFileDouble("M5PruningMult", 2.0));
-		tree.addNode(m_RulesFromTree = new INIFileBool("ConvertToRules", false));
+		tree.addNode(m_RulesFromTree = new INIFileNominal("ConvertToRules", CONVERT_RULES, 0));
 
 		INIFileSection rules = new INIFileSection("Rules");
 		rules.addNode(m_OrderedRules = new INIFileBool("OrderedRules", true));
@@ -429,6 +453,7 @@ public class Settings implements Serializable {
 		output.addNode(m_ShowUnknown = new INIFileBool("UnknownFrequency", false));
 		output.addNode(m_ShowBrFreq = new INIFileBool("BranchFrequency", false));
 		output.addNode(m_ShowInfo = new INIFileNominal("ShowInfo", SHOW_INFO, SHOW_INFO_VALUES));
+		output.addNode(m_ShowModels = new INIFileNominal("ShowModels", SHOW_MODELS, SHOW_MODELS_VALUES));		
 		output.addNode(m_PrintModelAndExamples = new INIFileBool("PrintModelAndExamples", false));
 		output.addNode(m_WriteTestPredictions = new INIFileBool("WriteTestSetPredictions", false));
 		output.addNode(m_OutputPythonModel = new INIFileBool("OutputPythonModel", false));
@@ -442,8 +467,9 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierNoRootPreds = new INIFileBool("NoRootPredictions", false));
 		m_SectionHierarchical.addNode(m_HierPruneInSig = new INIFileDouble("PruneInSig", 0.0));
 		m_SectionHierarchical.addNode(m_HierUseBonferroni = new INIFileBool("Bonferroni", false));
-		m_SectionHierarchical.addNode(m_HierClassTreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold",	NONELIST));
+		m_SectionHierarchical.addNode(m_HierClassTreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold", NONELIST));		
 		m_HierClassTreshold.setNominal(0);
+		m_SectionHierarchical.addNode(m_HierIgnoreClasses = new INIFileString("IgnoreClasses", NONE));		
 		m_SectionHierarchical.addNode(HIER_CONT_PROTOTYPE = new INIFileBool("ContinueProto", true));
 		m_SectionHierarchical.addNode(HIER_USE_ABUNDANCES = new INIFileBool("UseAbundances", false));
 		m_SectionHierarchical.addNode(HIER_NODE_ABUNDANCES = new INIFileBool("NodeAbundances", false));
@@ -532,6 +558,14 @@ public class Settings implements Serializable {
 	public INIFileNominalOrDoubleOrVector getClassificationTresholds() {
 		return m_HierClassTreshold;
 	}
+	
+	public String getHierIgnoreClasses() {
+		return m_HierIgnoreClasses.getValue();
+	}
+	
+	public boolean hasHierIgnoreClasses() {
+		return !StringUtils.unCaseCompare(m_HierIgnoreClasses.getValue(), NONE);
+	}
 
 	public int getPruningMethod() {
 		return m_PruningMethod.getValue();
@@ -604,14 +638,13 @@ public class Settings implements Serializable {
 	public double getMEstimate() {
 		return m_MEstimate.getValue();
 	}
-
-	public boolean rulesFromTree() {
+	
+	public int rulesFromTree() {
 		return m_RulesFromTree.getValue();
-	}
+	}	
 
 	public boolean hasConstraintFile() {
-		return !StringUtils.unCaseCompare(m_SyntacticConstrFile.getValue(),
-				NONE);
+		return !StringUtils.unCaseCompare(m_SyntacticConstrFile.getValue(),	NONE);
 	}
 
 	public String getConstraintFile() {
@@ -1036,6 +1069,10 @@ public class Settings implements Serializable {
 		info.SHOW_DISTRIBUTION = m_ShowInfo.contains(1);
 		info.SHOW_INDEX = m_ShowInfo.contains(2);
 		return info;
+	}
+	
+	public boolean getShowModel(int i) {
+		return m_ShowModels.contains(i);  
 	}
 	
 	public void setDate(Date date) {

@@ -10,9 +10,11 @@ import java.io.*;
 import java.util.*;
 
 public interface ClusModel {
+	
+	public static int PRUNE_INVALID = 0;
   
-  public static int TRAIN = 0;
-  public static int TEST = 1;
+    public static int TRAIN = 0;
+    public static int TEST = 1;
 
 	public ClusStatistic predictWeighted(DataTuple tuple);
 	
@@ -31,6 +33,8 @@ public interface ClusModel {
 	public void printModelToPythonScript(PrintWriter wrt);
 		
 	public void attachModel(Hashtable table) throws ClusException;
+	
+	public ClusModel prune(int prunetype);
 	
 	public int getID();
 }

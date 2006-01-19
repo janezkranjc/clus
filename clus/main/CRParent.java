@@ -26,6 +26,10 @@ public class CRParent {
 	public ClusModel getModel(int i) {
 		return getModelInfo(i).getModel();
 	}
+	
+	public String getModelName(int i) {
+		return getModelInfo(i).getName();
+	}	
 
 	public void setModels(MyArray models) {
 		m_Models = models;

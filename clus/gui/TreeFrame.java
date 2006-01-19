@@ -251,19 +251,14 @@ public class TreeFrame extends JFrame {
 	public DefaultMutableTreeNode addFile(String full, String ds) {
 		String fn = FileUtil.removePath(full);
 		fn = correctUnderscores(fn, ds);
-		fn = correctUnderscores(fn, "beam-10");
-		fn = correctUnderscores(fn, "beam-100");
-		fn = correctUnderscores(fn, "beam_pp-100");			
-		fn = correctUnderscores(fn, "beam_c-75");			
 		String[] name = FileUtil.getName(fn).split("\\-");
-		name = doPermute(name);
 		String chname = name[name.length-1];
 		DefaultMutableTreeNode parent = getParentFNode(name);
 		ClusFileTreeElem elem = new ClusFileTreeElem(chname, full);
 		DefaultMutableTreeNode child = new DefaultMutableTreeNode(elem);
 		int ipos = 0;
 		while (ipos < parent.getChildCount() && 
-				cmpName(parent.getChildAt(ipos).toString(), chname)) {
+			cmpName(parent.getChildAt(ipos).toString(), chname)) {
 			ipos++;
 		}
 		m_TreeModel.insertNodeInto(child, parent, ipos);
@@ -337,18 +332,22 @@ public class TreeFrame extends JFrame {
 	
 	public void loadModelType(ClusFileTreeElem elem, DefaultMutableTreeNode node) throws ClusException {
 		ClusModelInfo m = (ClusModelInfo)elem.getObject1();
-		ClusNode root = (ClusNode)m.getModel();
-		root.updateTree();
-		setTree(root, m.getStatManager());
+		if (m.getModel() instanceof ClusNode) {
+			ClusNode root = (ClusNode)m.getModel();
+			root.updateTree();
+			setTree(root, m.getStatManager());
+		}
 	}
 	
 	public void loadModelType2(ClusFileTreeElem elem) throws ClusException {
 		ClusModelCollectionIO io = (ClusModelCollectionIO)elem.getObject1();
 		if (io.getNbModels() > 0) {
 			ClusModelInfo m = (ClusModelInfo)io.getModelInfo(0);
-			ClusNode root = (ClusNode)m.getModel();
-			root.updateTree();
-			setTree(root, m.getStatManager());
+			if (m.getModel() instanceof ClusNode) {
+				ClusNode root = (ClusNode)m.getModel();
+				root.updateTree();
+				setTree(root, m.getStatManager());
+			}
 		}
 	}
 	

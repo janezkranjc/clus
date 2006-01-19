@@ -26,6 +26,7 @@ public class ClassHierarchy implements Serializable {
 	
 	protected int m_Number;
 	protected ClassTerm m_Root;
+	protected ClassesTuple m_Ignore;
 	protected NumericAttrType[] m_DummyTypes;
 	protected transient double[] m_Weights;
 	protected transient Hashtable m_ErrorWeights = new Hashtable();
@@ -193,6 +194,15 @@ public class ClassHierarchy implements Serializable {
 		return count;
 	}
 	
+	public void removeIgnoredClasses(boolean[] classes) {
+		if (m_Ignore != null) {
+			int len = m_Ignore.getLength();
+			for (int i = 0; i < len; i++) {
+				classes[m_Ignore.getPosition(i)] = false;				
+			}
+		}		
+	}
+	
 	public ClassesTuple getBestTupleMajNoParents(double[] mean, double treshold) {
 		boolean[] classes = new boolean[getTotal()];
 		fillBooleanMatrixMaj(getRoot(), mean, classes, treshold);
@@ -205,6 +215,7 @@ public class ClassHierarchy implements Serializable {
 	public ClassesTuple getBestTupleMaj(double[] mean, double treshold) {
 		boolean[] classes = new boolean[getTotal()];
 		fillBooleanMatrixMaj(getRoot(), mean, classes, treshold);
+		removeIgnoredClasses(classes);
 		ClassesTuple tuple = new ClassesTuple(countOnes(classes));
 		addAllClasses(getRoot(), tuple, classes);
 		return tuple;
@@ -487,7 +498,7 @@ public class ClassHierarchy implements Serializable {
 		for (int i = 0; i < root.getNbChildren(); i++) {
 				countClassesRecursive((ClassTerm)root.getChild(i), depth+1, cls);
 		}		
-	}
+	}	
 	
 	public final void initialize() {
 		numberHierarchy();
@@ -564,6 +575,18 @@ public class ClassHierarchy implements Serializable {
 		}
 	}
 	
+	public final ClassesValue createValueByName(String name, StringTable table) throws ClusException {		
+		ClassesValue value = new ClassesValue(name, table);
+		value.addHierarchyIndices(this);
+		return value;
+	}
+	
+	public final ClassesValue createValueByName(String name) throws ClusException {		
+		ClassesValue value = new ClassesValue(name, getType().getTable());
+		value.addHierarchyIndices(this);
+		return value;
+	}
+	
 	public final int getClassIndex(ClassesValue vl) throws ClusException {
 		return getClassTerm(vl).getIndex();
 	}
@@ -574,5 +597,13 @@ public class ClassHierarchy implements Serializable {
 	
 	public final double getErrorWeight (int idx, double widec) {
 		return ((double[])m_ErrorWeights.get(new Double(widec).toString()))[idx];
+	}
+	
+	public final void setIgnoreClasses(ClassesTuple ignore) {
+		m_Ignore = ignore;
+	}
+	
+	public final ClassesTuple getIgnoreClasses() {
+		return m_Ignore;
 	}
 }

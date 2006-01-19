@@ -139,6 +139,12 @@ public class ClassesValue extends IndexedItem {
 		m_Path[i] = strg;
 	}
 	
+	public final void addHierarchyIndices(ClassHierarchy hier) throws ClusException {
+		ClassTerm term = hier.getClassTerm(this);
+		setClassTerm(term);
+		setIndex(term.getIndex());
+  }
+	
 	public String toPathString() {
 		if (m_Path.length == 0) {
 			return "R";

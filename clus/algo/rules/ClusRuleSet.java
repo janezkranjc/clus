@@ -148,12 +148,14 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			rule.printModel(wrt, info);
 			wrt.println();
 		}
-    if (headers) {
-      wrt.println("Default rule:");
-      wrt.println("=============");
-    }
-    wrt.println("Default = "+(m_TargetStat == null ? "N/A" : m_TargetStat.getString()));
-    if (headers) {
+		if (m_TargetStat != null && m_TargetStat.isValidPrediction()) {
+      if (headers) {
+        wrt.println("Default rule:");
+        wrt.println("=============");
+      }
+      wrt.println("Default = "+m_TargetStat.getString());
+		}
+    if (headers && getSettings().computeCompactness()) {
       wrt.println("\n   Avg_Compactness (train): " + (avg_compactness[0][0]/m_Rules.size()) + " = " + (avg_compactness[0][1]/m_Rules.size()) + " + " + (avg_compactness[0][2]/m_Rules.size()) );
       wrt.println("   Avg_Coverage    (train): " + (avg_coverage[0]/m_Rules.size()));
       wrt.println("   Avg_Cover*Comp  (train): " + (avg_prod[0][0]/m_Rules.size()) + " = " + (avg_prod[0][1]/m_Rules.size()) + " + " + (avg_prod[0][2]/m_Rules.size()));
@@ -326,5 +328,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
   
   public int getID() {
   	return 0;
+  }
+  
+  public ClusModel prune(int prunetype) {
+		return this;
   }
 }

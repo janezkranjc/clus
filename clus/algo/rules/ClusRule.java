@@ -405,4 +405,8 @@ public class ClusRule implements ClusModel, Serializable {
 		}
 		stat.optimizePreCalc(data);
   }
+  
+  public ClusModel prune(int prunetype) {
+		return this;
+  }
 }

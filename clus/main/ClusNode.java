@@ -297,6 +297,35 @@ public class ClusNode extends MyNode implements ClusModel {
 		}
 		if (allSameLeaves()) makeLeaf();
 	}
+
+	public final boolean allInvalidLeaves() {
+		int nb_c = getNbChildren();
+		if (nb_c == 0) return false;
+		for (int i = 0; i < nb_c; i++) {
+			ClusNode info = (ClusNode)getChild(i);
+			if (!info.atBottomLevel()) return false;
+			if (info.getTargetStat().isValidPrediction()) return false;
+		}
+		return true;
+	}
+	
+	public final void pruneInvalid() {
+		int nb_c = getNbChildren();
+		for (int i = 0; i < nb_c; i++) {
+			ClusNode info = (ClusNode)getChild(i);
+			info.pruneInvalid();
+		}
+		if (allInvalidLeaves()) makeLeaf();
+	}
+	
+    public ClusModel prune(int prunetype) {
+    	if (prunetype == PRUNE_INVALID) {
+    		ClusNode pruned = (ClusNode)cloneTree();
+    		pruned.pruneInvalid();
+    		return pruned;
+    	}
+		return this;
+	}
 	
 	/***************************************************************************
 	 * Multi score code - this should be made more general!
@@ -634,5 +663,4 @@ public class ClusNode extends MyNode implements ClusModel {
 	public ClusStatistic predictWeightedLeaf(DataTuple tuple) {
 		return getTargetStat();
 	}
-	
 }

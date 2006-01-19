@@ -24,6 +24,10 @@ public class HierClassTresholdPruner extends PruneTree {
 		return m_Tresholds.length;
 	}
 	
+	public double getThreshold(int i) {
+		return m_Tresholds[i];
+	}
+	
 	public void prune(int result, ClusNode node) throws ClusException {
 		pruneRecursive(node, m_Tresholds[result]);
 	}

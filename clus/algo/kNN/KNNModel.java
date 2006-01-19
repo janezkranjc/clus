@@ -115,5 +115,9 @@ public class KNNModel implements ClusModel {
 	
   public int getID() {
   	return 0;
-  }	
+  }
+  
+  public ClusModel prune(int prunetype) {
+	return this;
+  }
 }

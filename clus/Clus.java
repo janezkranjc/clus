@@ -240,9 +240,26 @@ public class Clus implements CMDLineArgsProvider {
 		pruned.makeLeaf();
 		return pruned;
 	}
+	
+	public void convertToRules(ClusRun cr, int tree, int rules, boolean check) throws ClusException, IOException {
+		ClusNode tree_root = (ClusNode)cr.getModel(tree);
+		ClusRulesFromTree rft = new ClusRulesFromTree(true);
+		ClusRuleSet rule_set = null;
+		if (getSettings().computeCompactness()) {
+			rule_set = rft.constructRules(cr, tree_root, getStatManager());
+		} else {
+			rule_set = rft.constructRules(tree_root, getStatManager());
+		}
+		ClusModelInfo rules_info = cr.getModelInfo(rules);
+		rules_info.setModel(rule_set);
+		rules_info.setStatManager(getStatManager());
+		// Be sure that we have found the correct model info
+		if (check && !rules_info.getName().equals("Rules: "+cr.getModelName(tree))) {
+			throw new ClusException("Rules and tree names do not match: '"+rules_info.getName()+"' and '"+cr.getModelName(tree)+"'");
+		}
+	}
 
-	public final void storeAndPruneModel(ClusRun cr, ClusNode orig)
-			throws ClusException, IOException {
+	public final void storeAndPruneModel(ClusRun cr, ClusNode orig)	throws ClusException, IOException {
 		orig.numberTree();
 		// Postprocess tree on training set
 		ClusModelInfo orig_info = cr.getModelInfo(ClusModels.ORIGINAL);
@@ -263,19 +280,16 @@ public class Clus implements CMDLineArgsProvider {
 			pruned_info.setModel(pruned);
 			pruned_info.setStatManager(getStatManager());
 		}
-		ClusNode pruned = (ClusNode) cr.getModel(ClusModels.PRUNED);
 		cr.setPruneTime(ResourceInfo.getTime()-start_time);		
-		if (getSettings().rulesFromTree()) {
-			ClusRulesFromTree rft = new ClusRulesFromTree(true);
-			ClusRuleSet rules;
-			if (getSettings().computeCompactness()) {
-				rules = rft.constructRules(cr, pruned, getStatManager());
-			} else {
-				rules = rft.constructRules(pruned, getStatManager());
+		if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_PRUNED) {
+			convertToRules(cr, ClusModels.PRUNED, ClusModels.RULES, false);
+		}
+		if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_ALL) {
+			for (int i = 0; i < ClusModels.RULES; i++) {
+				if (i != ClusModels.DEFAULT) {
+					convertToRules(cr, i, ClusModels.RULES+i-1, true);					
+				}
 			}
-			ClusModelInfo rules_info = cr.getModelInfo(ClusModels.RULES);
-			rules_info.setModel(rules);
-			rules_info.setStatManager(getStatManager());
 		}
 	}
 
@@ -642,19 +656,26 @@ public class Clus implements CMDLineArgsProvider {
 	public final void out2model(String fname) throws IOException, ClusException {
 		String model_name = FileUtil.getName(fname) + ".model";
 		ClusTreeReader rdr = new ClusTreeReader();
-		ClusNode node = rdr.loadOutTree(fname, m_Schema);
+		ClusNode node = rdr.loadOutTree(fname, m_Schema, "Original Model");		
+		if (node == null) {
+			// If original model not in .out, go with pruned version
+			node = rdr.loadOutTree(fname, m_Schema, "Pruned Model");
+		}
+		if (node == null) {
+			throw new ClusException("Unable to find original tree in .out file");
+		}
 		ClusRun cr = partitionData();
-		ConstraintDFInduce induce = new ConstraintDFInduce(m_Induce);
-		ClusNode res = induce.fillInInduce(cr, node, getScore());
-		res.numberTree();
+		ConstraintDFInduce induce = new ConstraintDFInduce(m_Induce);		
+		ClusNode orig = induce.fillInInduce(cr, node, getScore());
+		orig.numberTree();
 		PruneTree pruner = induce.getStatManager().getTreePruner(cr.getPruneSet());
 		pruner.setTrainingData((RowData) cr.getTrainingSet());
-		ClusNode pruned = (ClusNode) res.cloneTree();
+		ClusNode pruned = (ClusNode) orig.cloneTree();
 		pruner.prune(pruned);
 		pruned.numberTree();
 		System.out.println();
 		System.out.println("Tree read from .out:");
-		res.printTree();
+		orig.printTree();
 		System.out.println();
 		System.out.println("After pruning:");
 		pruned.printTree();
@@ -663,9 +684,12 @@ public class Clus implements CMDLineArgsProvider {
 			System.out.println();
 		}
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
-		ClusModelInfo info = new ClusModelInfo("Pruned Tree");
-		info.setModel(pruned);
-		io.addModel(info);
+		ClusModelInfo pruned_info = new ClusModelInfo("Pruned");
+		pruned_info.setModel(pruned);
+		io.addModel(pruned_info);
+		ClusModelInfo orig_info = new ClusModelInfo("Original");
+		orig_info.setModel(orig);
+		io.addModel(orig_info);
 		io.save(model_name);
 	}
 
@@ -751,15 +775,14 @@ public class Clus implements CMDLineArgsProvider {
 		res.printTree();
 	}	
 
-	public final void saveModels(ClusRun models, ClusModelCollectionIO io)
-			throws IOException {
+	public final void saveModels(ClusRun models, ClusModelCollectionIO io) throws IOException {
 		if (getInduce().isModelWriter()) {
 			getInduce().writeModel(io);
 		}
 		int pos = 0;
 		for (int i = models.getNbModels() - 1; i >= 0; i--) {
 			ClusModelInfo info = models.getModelInfo(i);
-			if (info != null) {
+			if (info != null && info.shouldSave()) {
 				io.insertModel(pos++, info);
 			}
 		}

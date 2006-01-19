@@ -120,6 +120,7 @@ public class ClusStatManager implements Serializable {
 	public void initSH() throws ClusException {
 		initWeights();
 		initStatistic();
+		initHierarchySettings();
 	}
 
 	public ClusAttributeWeights getClusteringWeights() {
@@ -187,22 +188,16 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public void initCompactnessWeights() throws ClusException {
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
-		initWeights(m_CompactnessWeights, num, nom, getSettings()
-				.getCompactnessWeights());
-		System.out.println("Compactness:   "
-				+ m_CompactnessWeights.getName(m_Schema
-						.getAllAttrUse(ClusAttrType.ATTR_USE_ALL)));
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+		initWeights(m_CompactnessWeights, num, nom, getSettings().getCompactnessWeights());
+		System.out.println("Compactness:   " + m_CompactnessWeights.getName(m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_ALL)));
 	}
 
 	public void initClusteringWeights() throws ClusException {
 		if (getMode() == MODE_HIERARCHICAL) {
 			int nb_attrs = m_Schema.getNbAttributes();
-			m_ClusteringWeights = new ClusAttributeWeights(nb_attrs
-					+ m_Hier.getTotal());
+			m_ClusteringWeights = new ClusAttributeWeights(nb_attrs + m_Hier.getTotal());
 			double[] weights = m_Hier.getWeights();
 			NumericAttrType[] dummy = m_Hier.getDummyAttrs();
 			for (int i = 0; i < weights.length; i++) {
@@ -210,15 +205,10 @@ public class ClusStatManager implements Serializable {
 			}
 			return;
 		}
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		initWeights((ClusNormalizedAttributeWeights) m_ClusteringWeights, num,
-				nom, getSettings().getClusteringWeights());
-		System.out.println("Clustering: "
-				+ m_ClusteringWeights.getName(m_Schema
-						.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING)));
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		initWeights((ClusNormalizedAttributeWeights) m_ClusteringWeights, num, nom, getSettings().getClusteringWeights());
+		System.out.println("Clustering: " + m_ClusteringWeights.getName(m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING)));
 	}
 
 	public void initNormalizationWeights(ClusStatistic stat)
@@ -860,5 +850,16 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 			m_Hier = m_HierF;
 		else
 			m_Hier = m_HierN;
+	}
+	
+	public void initHierarchySettings() throws ClusException {
+		if (m_Hier != null) {
+			if (getSettings().hasHierIgnoreClasses()) {
+				String ignore = getSettings().getHierIgnoreClasses();
+				ClassesTuple tuple = new ClassesTuple(ignore, m_Hier.getType().getTable());
+				tuple.addHierarchyIndices(m_Hier);
+				m_Hier.setIgnoreClasses(tuple);
+			}
+		}
 	}
 }

@@ -262,7 +262,6 @@ public class ClassificationStat extends ClusStatistic {
 
 	public String getArrayOfStatistic(){
 		StringBuffer buf = new StringBuffer();		
-		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		if (m_MajorityClasses != null) {
 			buf.append("[");
 			for (int i = 0; i < m_NbTarget; i++) {

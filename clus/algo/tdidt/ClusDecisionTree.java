@@ -64,14 +64,26 @@ public class ClusDecisionTree extends ClusClassifier {
 			}
 		} else if (class_thr != null) {
 			ClusModels.PRUNED = summ.addModel("T("+class_thr[0]+")");
+			summ.getModelInfo(ClusModels.PRUNED).setShouldSave(false);
+			summ.getModelInfo(ClusModels.PRUNED).setPruneInvalid(true);			
 			for (int i = 1; i < class_thr.length; i++) {
-				summ.addModel("T("+class_thr[i]+")");				
+				int model = summ.addModel("T("+class_thr[i]+")");
+				summ.getModelInfo(model).setShouldSave(false);
+				summ.getModelInfo(model).setPruneInvalid(true);
 			}			
 		} else {
 			ClusModels.PRUNED = summ.addModel("Pruned");			
 		}		
-		if (getSettings().rulesFromTree()) {
+		if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_PRUNED) {
 			ClusModels.RULES = summ.addModel("Rules");
+		}
+		if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_ALL) {
+			ClusModels.RULES = summ.getNbModels();			
+			for (int i = 0; i < ClusModels.RULES; i++) {
+				if (i != ClusModels.DEFAULT) {
+					summ.addModel("Rules: "+summ.getModelInfo(i).getName());
+				}
+			}
 		}
 	}
 }

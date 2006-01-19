@@ -76,7 +76,11 @@ public class ClusWekaModel implements ClusModel {
 		System.err.println(getClass().getName()+"attachModel() not implemented");
 	}
 	
-  public int getID() {
-  	return 0;
-  }	
+	public int getID() {
+  		return 0;
+  	}	
+  
+  	public ClusModel prune(int prunetype) {
+  		return this;
+	}  
 }

@@ -266,45 +266,5 @@ public class ClassesTuple implements MySparseVector, Serializable {
 		for (int i = 0; i < m_Tuple.length; i++) {
 			((ClassesValue)m_Tuple[i]).setIntermediate(inter);
 		}		
-	}
-		
-	public final static void quickSort(ClassesTuple tuple, int low, int high) {
-		if (low < high) {
-			int mid = partition(tuple,low,high);
-			quickSort(tuple,low,mid-1);
-			quickSort(tuple,mid+1,high);
-		}
-	}
-	
-	private final static int partition(ClassesTuple tuple, int start, int end) {
-		
-		;
-		//set the pivot
-		int pivot = tuple.elementAt(start).getIndex();
-		ClassesValue pivotValue = tuple.elementAt(start);
-		
-		do {
-			//look for an index smaller than pivot from the end
-			while (start < end && tuple.elementAt(end).getIndex() >= pivot) 
-				end--;
-			if (start < end) {//found a smaller index
-				//System.out.println("found");
-				tuple.setItemAt(tuple.elementAt(end),start);
-				
-				//Now find an index larger than pivot from the start
-				
-				while (start < end && tuple.elementAt(start).getIndex() <= pivot)
-					start++;
-				
-				if (start<end) {//found a larger index
-					tuple.setItemAt(tuple.elementAt(start),end);
-					
-				}
-			}
-		} while (start < end);
-		
-		//done, move pivot back 
-		tuple.setItemAt(pivotValue,start);
-		return start;
-	}	
+	}			
 }

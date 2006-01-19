@@ -67,8 +67,19 @@ public class ClusOutput {
 	public void writeOutput(ClusRun cr, boolean detail) throws IOException, ClusException {
 		writeOutput(cr, detail, false);
 	}
+	
+	public boolean shouldShowModel(int model) {
+		Settings sett = getSettings();
+		boolean others = sett.getShowModel(Settings.SHOW_MODELS_OTHERS);
+		if (model == ClusModels.DEFAULT && sett.getShowModel(Settings.SHOW_MODELS_DEFAULT)) return true;
+		else if (model == ClusModels.ORIGINAL && sett.getShowModel(Settings.SHOW_MODELS_ORIGINAL)) return true;
+		else if (model == ClusModels.PRUNED && (sett.getShowModel(Settings.SHOW_MODELS_PRUNED) || others)) return true;
+		else if (others) return true;
+		return false;
+	}
 
 	public void writeOutput(ClusRun cr, boolean detail, boolean outputtrain) throws IOException, ClusException {
+		ArrayList models = new ArrayList();
 		String ridx = cr.getIndexString();
 		m_Writer.println("Run: "+ridx);
 		m_Writer.println(StringUtils.makeString('*', 5+ridx.length()));
@@ -77,20 +88,30 @@ public class ClusOutput {
 		m_Writer.println("----------");
 		m_Writer.println();
 		m_Writer.println("FTValue (FTest): "+m_Sett.getFTest());
-/*		if (cr.getModel(ClusModels.ORIGINAL) instanceof ClusNode) {
-			OptXVal.showFoldsInfo(m_Writer, (ClusNode)cr.getModel(ClusModels.ORIGINAL));
-			m_Writer.println();
-		}*/
 		double tsec = (double)cr.getInductionTime()/1000.0;
 		double tpru = (double)cr.getPruneTime()/1000.0;
-	  String cpu = ResourceInfo.isLibLoaded() ? " (CPU)" : "";
+		// Prepare models for printing if required
+		for (int i = 0; i < cr.getNbModels(); i++) {
+			ClusModelInfo mi = cr.getModelInfo(i);
+			ClusModel root = mi.getModel();
+			if (root != null) {
+				if (mi.shouldPruneInvalid()) {
+					root = root.prune(ClusModel.PRUNE_INVALID);
+				}
+			}
+			models.add(root);			
+		}
+		// Compute statistics
+	    String cpu = ResourceInfo.isLibLoaded() ? " (CPU)" : "";
 		m_Writer.println("Induction Time: "+ClusFormat.FOUR_AFTER_DOT.format(tsec)+" sec"+cpu);
 		m_Writer.println("Pruning Time: "+ClusFormat.FOUR_AFTER_DOT.format(tpru)+" sec"+cpu);		
 		m_Writer.println("Model information");
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			ClusModelInfo mi = cr.getModelInfo(i);
 			m_Writer.print("     "+mi.getName()+": ");
-			String[] info = mi.getModelInfo().split("\\s*\\,\\s*");
+			ClusModel model = (ClusModel)models.get(i);
+			String info_str = model == null ? "No model available" : model.getModelInfo();			
+			String[] info = info_str.split("\\s*\\,\\s*");
 			for (int j = 0; j < info.length; j++) {
 				if (j > 0) m_Writer.print(StringUtils.makeString(' ', mi.getName().length()+7));
 				m_Writer.println(info[j]);
@@ -125,12 +146,11 @@ public class ClusOutput {
 				m_Writer.println();				
 			}
 		}
-		//for (int i = ClusModels.DEFAULT; i <= ClusModels.PRUNED; i++) {
 		StatisticPrintInfo info = m_Sett.getStatisticPrintInfo();
 		for (int i = 0; i < cr.getNbModels(); i++) {
-			if (i != ClusModels.ORIGINAL) {
+			if (shouldShowModel(i)) {
 				ClusModelInfo mi = cr.getModelInfo(i);
-				ClusModel root = mi.getModel();
+				ClusModel root = (ClusModel)models.get(i);
 				if (root != null) {
 					String modelname = mi.getName() + " Model";
 					m_Writer.println(modelname);
@@ -181,7 +201,6 @@ public class ClusOutput {
 			ClusModelInfo mi = summary.getModelInfo(i);
 			m_Writer.println("     "+mi.getName()+": "+getQuotient(mi.getModelSize(), runs));
 		}
-
 		m_Writer.println();
 		ClusErrorParent tr_err = summary.getTrainError();
 		if (m_Sett.isOutTrainError() && tr_err != null) {
@@ -208,7 +227,6 @@ public class ClusOutput {
 		}
 		m_Writer.println();
 		m_Writer.flush();
-
 	}
 
 	public PrintWriter getWriter() {
