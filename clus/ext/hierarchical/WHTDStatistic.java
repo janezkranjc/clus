@@ -114,7 +114,7 @@ public class WHTDStatistic extends RegressionStat {
 	
 	public int getNbPredictedClasses() {
 		int count = 0;
-		for (int i = 1; i < m_DiscrMean.length; i++) {
+		for (int i = 0; i < m_DiscrMean.length; i++) {
 			if (m_DiscrMean[i] > 0.5) {
 				count++;
 			}
@@ -206,11 +206,9 @@ public class WHTDStatistic extends RegressionStat {
 	
 	public void showRootInfo() {
 		try {
-			double[] weights = m_Hier.getWeights();
 			PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream("hierarchy.txt")));
 			wrt.println("Hier #nodes: "+m_Hier.getTotal());
 			wrt.println("Hier classes by level: "+MIntArray.toString(m_Hier.getClassesByLevel()));
-			wrt.println("Root weighs: "+weights[m_Hier.getRoot().getIndex()]);
 			m_Hier.print(wrt, m_SumValues, null);
 			wrt.close();
 		} catch (IOException e) {
@@ -254,7 +252,8 @@ public class WHTDStatistic extends RegressionStat {
 					out.append(" rule_tot = "+String.valueOf(rule_tot));
 					out.append(" rule_cls = "+String.valueOf(rule_cls));
 					out.append(" upper = "+String.valueOf(upper));					
-					out.append(" prob = "+ClusFormat.FOUR_AFTER_DOT.format(stat));
+					out.append(" prob = "+ClusFormat.SIX_AFTER_DOT.format(stat));
+					// out.append(" siglevel = "+m_SigLevel);
 					out.append("\n");
 				} catch (MathException me) {
 					System.err.println("Math error: "+me.getMessage());
@@ -270,7 +269,9 @@ public class WHTDStatistic extends RegressionStat {
 		StringBuffer res = new StringBuffer();		
 		ClassesTuple meantuple = m_Hier.getBestTupleMaj(m_Means, 50.0);
 		double[] discrmean = meantuple.getVectorWithParents(m_Hier);
-		getExtraInfoRec(m_Hier.getRoot(), discrmean, res);
+		for (int i = 0; i < m_Hier.getRoot().getNbChildren(); i++) {
+			getExtraInfoRec((ClassTerm)m_Hier.getRoot().getChild(i), discrmean, res);
+		}
 		return res.toString();
 	}
 	

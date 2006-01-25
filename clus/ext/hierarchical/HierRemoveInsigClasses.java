@@ -38,12 +38,11 @@ public class HierRemoveInsigClasses extends PruneTree {
 		m_Pruner.prune(node);
 		if (m_SigLevel != 0.0 && m_PruneSet.getNbRows() != 0) {
 			// Make sure global statistic is also computed on prune set!
-			m_Bonferroni = computeNRecursive(node);
 			WHTDStatistic global = (WHTDStatistic)node.getTargetStat().cloneStat();
 			m_PruneSet.calcTotalStat(global);
 			global.calcMean();
+			m_Bonferroni = computeNRecursive(node);			
 			executeRecursive(node, global, (RowData)m_PruneSet);
-			// executeRecursive(node, (WHTDStatistic)node.getTotalStat(), (RowData)m_PruneSet);
 		}
 	}
 	

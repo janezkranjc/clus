@@ -25,7 +25,10 @@ public class HierNodeWeights {
 		CompleteTreeIterator it_i = hier.getRootIter();
 		while (it_i.hasMoreNodes()) {
 			ClassTerm ni = (ClassTerm)it_i.getNextNode();
-			m_Weights[ni.getIndex()] = calcExponentialDepthWeight(ni.getLevel(), w0);
+			int idx = ni.getIndex();
+			if (idx != -1) {
+				m_Weights[idx] = calcExponentialDepthWeight(ni.getLevel()-1, w0);
+			}
 		}
 		m_Name = "Exponential depth weights "+w0;
 	}

@@ -33,6 +33,7 @@ import clus.ext.hierarchical.*;
 import clus.ext.beamsearch.*;
 import clus.ext.constraint.*;
 import clus.pruning.*;
+import clus.heuristic.*;
 
 import clus.model.processor.*;
 import clus.model.modelio.*;
@@ -153,14 +154,15 @@ public class Clus implements CMDLineArgsProvider {
 		initializeSummary(clss);
 		System.out.println();
 		removeMissingTarget();
+		// Initialize F-Test table
+		FTest.initializeFTable(Settings.FTEST_LEVEL);
 		// Sample data
 		if (cargs.hasOption("sample")) {
 			String svalue = cargs.getOptionValue("sample");
 			sample(svalue);
 		}
 		System.out.println("Has missing values: " + m_Schema.hasMissing());
-		if (Debug.debug == 1)
-			ClusStat.m_LoadedMemory = ResourceInfo.getMemorySize();
+		ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
 	}
 
 	public final void loadConstraintFile() throws IOException {
@@ -223,8 +225,7 @@ public class Clus implements CMDLineArgsProvider {
 		m_Data = m_Data.selectFrom(sel);
 		int nb_sel = m_Data.getNbRows();
 		m_Schema.setNbRows(nb_sel);
-		System.out.println("Sample (" + svalue + ") " + nb_rows + " -> "
-				+ nb_sel);
+		System.out.println("Sample (" + svalue + ") " + nb_rows + " -> " + nb_sel);
 		System.out.println();
 	}
 
@@ -325,8 +326,7 @@ public class Clus implements CMDLineArgsProvider {
 		iter.init();
 		ClusSchema mschema = iter.getSchema();
 		if (iter.shouldAttach()) {
-			System.out
-					.println("Effect of should_attach not implemented in postprocModel");
+			System.out.println("Effect of should_attach not implemented in postprocModel");
 		}
 		coll.initialize(model, mschema);
 		DataTuple tuple = iter.readTuple();

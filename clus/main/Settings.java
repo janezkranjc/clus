@@ -334,6 +334,8 @@ public class Settings implements Serializable {
 	/* Hierarchical Multi-Classification */
 	protected INIFileString m_HierSep;
 
+	protected INIFileString m_HierEmptySetIndicator;
+	
 	public static INIFileDouble HIER_W_PARAM;
 
 	public static INIFileBool HIER_SAVE;
@@ -345,12 +347,6 @@ public class Settings implements Serializable {
 	public INIFileNominal m_HierMode;
 
 	INIFileSection m_SectionHierarchical;
-
-	public static INIFileBool HIER_CONT_PROTOTYPE;
-
-	public static INIFileBool HIER_USE_ABUNDANCES;
-
-	public static INIFileBool HIER_NODE_ABUNDANCES;
 
 	public INIFileDouble m_HierPruneInSig;
 
@@ -472,18 +468,16 @@ public class Settings implements Serializable {
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
 		m_SectionHierarchical.addNode(HIER_W_PARAM = new INIFileDouble("WParam", 0.75));
 		m_SectionHierarchical.addNode(m_HierSep = new INIFileString("HSeparator", "."));
+		m_SectionHierarchical.addNode(m_HierEmptySetIndicator = new INIFileString("EmptySetIndicator", "n"));
 		m_SectionHierarchical.addNode(HIER_LOAD = new INIFileBool("HierLoad", false));
-		m_SectionHierarchical.addNode(HIER_SAVE = new INIFileBool("HierSave",	false));
-		m_SectionHierarchical.addNode(HIER_FLAT = new INIFileBool("HierFlat",	false));
+		m_SectionHierarchical.addNode(HIER_SAVE = new INIFileBool("HierSave", false));
+		m_SectionHierarchical.addNode(HIER_FLAT = new INIFileBool("HierFlat", false));
 		m_SectionHierarchical.addNode(m_HierNoRootPreds = new INIFileBool("NoRootPredictions", false));
 		m_SectionHierarchical.addNode(m_HierPruneInSig = new INIFileDouble("PruneInSig", 0.0));
 		m_SectionHierarchical.addNode(m_HierUseBonferroni = new INIFileBool("Bonferroni", false));
 		m_SectionHierarchical.addNode(m_HierClassTreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold", NONELIST));		
 		m_HierClassTreshold.setNominal(0);
 		m_SectionHierarchical.addNode(m_HierIgnoreClasses = new INIFileString("IgnoreClasses", NONE));		
-		m_SectionHierarchical.addNode(HIER_CONT_PROTOTYPE = new INIFileBool("ContinueProto", true));
-		m_SectionHierarchical.addNode(HIER_USE_ABUNDANCES = new INIFileBool("UseAbundances", false));
-		m_SectionHierarchical.addNode(HIER_NODE_ABUNDANCES = new INIFileBool("NodeAbundances", false));
 		m_SectionHierarchical.addNode(m_HierMode = new INIFileNominal("Mode", HIERMODES, 0));		
 		m_SectionHierarchical.setEnabled(false);
 
@@ -1007,6 +1001,7 @@ public class Settings implements Serializable {
 
 	public void initHierarchical() {
 		ClassesValue.setHSeparator(m_HierSep.getValue());
+		ClassesValue.setEmptySetIndicator(m_HierEmptySetIndicator.getValue());
 	}
 
 	public static int enableVerbose(int talk) {

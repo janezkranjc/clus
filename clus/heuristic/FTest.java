@@ -2,11 +2,25 @@ package clus.heuristic;
 
 import clus.main.*;
 import clus.statistic.*;
+import clus.util.*;
 import jeans.math.*;
+
+import java.util.*;
+
+import org.apache.commons.math.*;
+import org.apache.commons.math.distribution.*;
 
 public class FTest {
 
-	public final static double[] FTEST_SIG = {1.0, 0.1, 0.05, 0.01, 0.005, 0.001};
+	public final static double[] FTEST_SIG = 
+		{1.0, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001, 
+		 5e-5, 1e-5, 5e-6, 1e-6, 5e-7, 1e-7, 5e-8, 1e-8, 5e-9, 1e-9};
+	
+	public final static FDistribution m_FDist = DistributionFactory.newInstance().createFDistribution(1,1);
+	
+	public final static boolean OUTPUT_COMPUTE = true;
+	public static double[] FTEST_LIMIT = new double[FTEST_SIG.length];	
+	public static double[][] FTEST_VALUE = new double[FTEST_SIG.length][];
 
 	protected final static double critical_f_01[] = {
 		39.8161, 8.5264, 5.5225, 4.5369, 4.0804, 3.7636,
@@ -41,15 +55,14 @@ public class FTest {
 	};
 
 	public static int getLevel(double significance) {
-		int level = 1;
-		if (Math.abs(significance - 1.0) < 0.0001) level = 0;
-		else if (Math.abs(significance - 0.1) < 0.0001) level = 1;	// 0.1		
-		else if (Math.abs(significance - 0.05) < 0.0001) level = 2;	// 0.05
-		else if (Math.abs(significance - 0.01) < 0.0001) level = 3;	// 0.01
-		else if (Math.abs(significance - 0.005) < 0.0001) level = 4;	// 0.005
-		else if (Math.abs(significance - 0.001) < 0.0001) level = 5;	// 0.001
-		else System.out.println("Wrong significance level for F-Test");
-		return level;
+		for (int level = 0; level < FTEST_SIG.length; level++) {
+			if (Math.abs(significance - FTEST_SIG[level])/FTEST_SIG[level] < 0.01) {
+				return level;
+			}
+		}
+		System.out.println("Wrong significance level for F-Test");
+		System.exit(0);
+		return 0;
 	}
 
 	public static double getCriticalF(int level, int df) {
@@ -83,9 +96,43 @@ public class FTest {
 				else if (df <= 40) return 12.60;
 				else if (df <= 60) return 11.98;
 				else if (df <= 120) return 11.36;
-				else return 10.82;				
+				else return 10.82;
+			default:
+				double[] array = FTEST_VALUE[level];
+				return df < array.length ? array[df] : FTEST_LIMIT[level]; 
 		}
-		return 0.0;
+	}
+	
+	public static double getCriticalFCommonsMath(int level, double df) {
+		try {
+			m_FDist.setDenominatorDegreesOfFreedom(df);
+			return m_FDist.inverseCumulativeProbability(1-FTEST_SIG[level]);
+		} catch (MathException e) {
+			System.err.println("F-Distribution error: "+e.getMessage());
+			return 0.0;
+		}		
+	}
+	
+	// Calling getCriticalFCommonsMath() is slow, so build a table
+	public static void initializeFTable(int level) {
+		if (level <= 5) return;		
+		int df = 3;
+		double value = 0.0;
+		double limit = getCriticalFCommonsMath(level, 1e5);		
+		ArrayList values = new ArrayList();
+		do {
+			value = getCriticalFCommonsMath(level, df);
+			values.add(new Double(value));
+			df++;
+		} while ((value - limit)/limit > 0.05);
+		if (OUTPUT_COMPUTE) { 
+			System.out.println("F-Test = "+FTEST_SIG[level]+" limit = "+ClusFormat.TWO_AFTER_DOT.format(limit)+" values = "+values.size());
+		}
+		FTEST_LIMIT[level] = limit;
+		FTEST_VALUE[level] = new double[values.size()+3];
+		for (int i = 0; i < values.size(); i++) {
+			FTEST_VALUE[level][i+3] = ((Double)values.get(i)).doubleValue();
+		}
 	}
 
 	// ftest: Signif, total SS, residual SS, 2nd DF (1st is 1)
@@ -140,8 +187,7 @@ public class FTest {
 		if (n_2 <= 0) {
 			if (Settings.FTEST_LEVEL == 0) return value;	
 			else return Double.NEGATIVE_INFINITY;
-		} else {
-			
+		} else {			
 			if (FTest.ftest(Settings.FTEST_LEVEL, ss_tot, sum_ss, n_2)) {
 				return value;
 			} else {

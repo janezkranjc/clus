@@ -22,15 +22,19 @@ public class ClassesTuple implements MySparseVector, Serializable {
 	}
 	
 	public ClassesTuple(String constr, StringTable table) throws ClusException {
-		int idx = 0;
-		StringTokenizer tokens = new StringTokenizer(constr, "@");
-		int tlen = tokens.countTokens();
-		m_Tuple = new IndexedItem[tlen];
-		while (tokens.hasMoreTokens()) {
-			ClassesValue val = new ClassesValue(tokens.nextToken(), table);
-			m_Tuple[idx++] = val;
+		if (constr.equals(ClassesValue.EMPTY_SET_INDICATOR)) {
+			m_Tuple = new IndexedItem[0];
+		} else {
+			int idx = 0;		
+			StringTokenizer tokens = new StringTokenizer(constr, "@");
+			int tlen = tokens.countTokens();
+			m_Tuple = new IndexedItem[tlen];
+			while (tokens.hasMoreTokens()) {
+				ClassesValue val = new ClassesValue(tokens.nextToken(), table);
+				m_Tuple[idx++] = val;
+			}
+			if (tlen == 0) new ClusException("Number of classes should be >= 1");
 		}
-		if (tlen == 0) new ClusException("Number of classes should be >= 1");
 	}
 	
 	public ClassesTuple(int size) {
@@ -140,7 +144,7 @@ public class ClassesTuple implements MySparseVector, Serializable {
 		for (int i = 0; i < size(); i++) {
 			ClassesValue val = elementAt(i);
 			ClassTerm term = val.getTerm();
-			while (term != null && vec[term.getIndex()] == 0.0) {
+			while (term.getIndex() != -1 && vec[term.getIndex()] == 0.0) {
 				vec[term.getIndex()] = 1.0;
 				term = term.getCTParent();
 			}
@@ -172,7 +176,7 @@ public class ClassesTuple implements MySparseVector, Serializable {
 			ClassesValue val = elementAt(i);
 			double abundance = val.getAbundance();
 			ClassTerm term = hier.getClassTerm(val).getCTParent();
-			while (term != null) {
+			while (term.getIndex() != -1) {
 				int idx = term.getIndex();
 				if (intabundances[idx] == 0.0) {
 					ClassesValue intm = new ClassesValue(term);

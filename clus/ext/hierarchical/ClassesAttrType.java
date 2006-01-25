@@ -86,8 +86,10 @@ public class ClassesAttrType extends ClusAttrType {
 		String classes = atype.substring("HIERARCHICAL".length()).trim();
 		String[] cls = classes.split("\\s*\\,\\s*");
 		for (int i = 0; i < cls.length; i++) {
-			ClassesValue val = new ClassesValue(cls[i], m_Table);
-			m_Hier.addClass(val);			
+			if (!cls[i].equals(ClassesValue.EMPTY_SET_INDICATOR)) {
+				ClassesValue val = new ClassesValue(cls[i], m_Table);
+				m_Hier.addClass(val);
+			}
 		}		
 	}
 	

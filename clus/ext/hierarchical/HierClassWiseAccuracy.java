@@ -34,7 +34,7 @@ public class HierClassWiseAccuracy extends ClusError {
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);		
 		double[] predarr = ((WHTDStatistic)pred).getDiscretePred();
-		for (int i = 1; i < m_Dim; i++) {
+		for (int i = 0; i < m_Dim; i++) {
 			if (predarr[i] > 0.5) {
 				/* Predicted this class, was it correct? */
 				m_Predicted[i] += 1.0;
@@ -155,9 +155,15 @@ public class HierClassWiseAccuracy extends ClusError {
 		System.arraycopy(other.m_Default, 0, m_Default, 0, m_Default.length);
 	}
 	
+	public void printNonZeroAccuracies(NumberFormat fr, PrintWriter out, ClassTerm node) {
+		for (int i = 0; i < node.getNbChildren(); i++) {
+			printNonZeroAccuraciesRec(fr, out, (ClassTerm)node.getChild(i));
+		}
+	}
+	
 	//prints the evaluation results for each single predicted class
 	//added a value for recall (next to def and acc)
-	public void printNonZeroAccuracies(NumberFormat fr, PrintWriter out, ClassTerm node) {
+	public void printNonZeroAccuraciesRec(NumberFormat fr, PrintWriter out, ClassTerm node) {
 		int idx = node.getIndex();
 		if (m_Predicted[idx] != 0.0) {
 			int nb = getNbTotal();
@@ -183,7 +189,7 @@ public class HierClassWiseAccuracy extends ClusError {
 			out.println();
 		}
 		for (int i = 0; i < node.getNbChildren(); i++) {
-			printNonZeroAccuracies(fr, out, (ClassTerm)node.getChild(i));
+			printNonZeroAccuraciesRec(fr, out, (ClassTerm)node.getChild(i));
 		}
 	}
 	

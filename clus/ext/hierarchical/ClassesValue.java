@@ -13,6 +13,7 @@ public class ClassesValue extends IndexedItem {
 
 	public static String HIERARCY_SEPARATOR = "/";
 	public static String ABUNDANCE_SEPARATOR = ":";
+	public static String EMPTY_SET_INDICATOR = "?";
 	
 	public final static int NO_ABUNDANCE = 0;
 	public final static int PATH_ABUNDANCE = 1;
@@ -26,15 +27,6 @@ public class ClassesValue extends IndexedItem {
 	public ClassesValue(String constr, StringTable table) throws ClusException {
 		StringTokenizer tokens = new StringTokenizer(constr, HIERARCY_SEPARATOR + ABUNDANCE_SEPARATOR);
 		int plen = tokens.countTokens();		
-		int mode = NO_ABUNDANCE;
-		if (Settings.HIER_USE_ABUNDANCES.getValue()) {
-			if (Settings.HIER_NODE_ABUNDANCES.getValue()) mode = NODE_ABUNDANCE;
-			else mode = PATH_ABUNDANCE;
-		}			
-		switch (mode) {
-			case NODE_ABUNDANCE: plen /= 2; break;	
-			case PATH_ABUNDANCE: plen--; break;
-		}
 		m_Path = new String[plen];
 		if (plen == 0)
 			throw new ClusException("Path length should be >= 1");
@@ -52,13 +44,6 @@ public class ClassesValue extends IndexedItem {
 				return;
 			} else {
 				m_Path[idx] = st;
-			}
-			if (mode != NO_ABUNDANCE) {
-				if (idx == plen-1) {
-					m_Abundance = Double.parseDouble(tokens.nextToken());
-				} else if (mode == NODE_ABUNDANCE) {
-					tokens.nextToken();
-				}
 			}
 			idx++;
 		}
@@ -118,6 +103,10 @@ public class ClassesValue extends IndexedItem {
 	public static void setHSeparator(String hsep) {
 		HIERARCY_SEPARATOR = hsep;
 	}
+	
+	public static void setEmptySetIndicator(String empty) {
+		EMPTY_SET_INDICATOR = empty;
+	}
 
 	public boolean equalsValue(ClassesValue other) {
 		if (m_Path.length != other.m_Path.length) return false;
@@ -159,13 +148,7 @@ public class ClassesValue extends IndexedItem {
 	}
 
 	public String toString() {
-		String path = toPathString();
-		if (Settings.HIER_USE_ABUNDANCES.getValue()) {
-			String abn = ClusFormat.TWO_AFTER_DOT.format(getAbundance());
-			return path + ABUNDANCE_SEPARATOR + abn;
-		} else {
-			return path;
-		}
+		return toPathString();
 	}
 	
 	private void copyPath(ClassTerm term) {

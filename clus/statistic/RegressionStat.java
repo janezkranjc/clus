@@ -257,6 +257,7 @@ public class RegressionStat extends ClusStatistic {
 			double k_tot = m_SumWeights[i];
 			double sv_tot = m_SumValues[i];
 			double ss_tot = m_SumSqValues[i];
+//			double wi = scale.getWeight(m_Attrs[i]);
 			result += ((k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0)*scale.getWeight(m_Attrs[i]);
 		}
 		return result / m_NbAttrs;
