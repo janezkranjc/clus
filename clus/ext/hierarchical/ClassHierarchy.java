@@ -27,6 +27,7 @@ public class ClassHierarchy implements Serializable {
 	protected int m_Number;
 	protected ClassTerm m_Root;
 	protected ClassesTuple m_Ignore;
+	protected ClassesTuple m_Eval;
 	protected NumericAttrType[] m_DummyTypes;
 	protected transient double[] m_Weights;
 	protected transient Hashtable m_ErrorWeights = new Hashtable();
@@ -623,5 +624,23 @@ public class ClassHierarchy implements Serializable {
 	
 	public final ClassesTuple getIgnoreClasses() {
 		return m_Ignore;
+	}
+	
+	public final void setEvalClasses(ClassesTuple eval) {
+		m_Eval = eval;
+	}
+	
+	public final ClassesTuple getEvalClasses() {
+		return m_Eval;
+	}
+	
+	public final boolean[] getEvalClassesVector() {
+		if (m_Eval == null) {
+			boolean[] res = new boolean[getTotal()];
+			Arrays.fill(res, true);
+			return res;
+		} else {
+			return m_Eval.getVectorBoolean(this);
+		}
 	}
 }

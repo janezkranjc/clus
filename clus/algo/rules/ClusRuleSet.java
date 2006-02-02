@@ -393,4 +393,6 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		return this;
   }
 
+  public void retrieveStatistics(ArrayList list) {	 
+  }
 }

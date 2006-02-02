@@ -123,7 +123,7 @@ public class ClusStatManager implements Serializable {
 		return m_HierN;
 	}
 
-	public void initSH() throws ClusException {
+	public void initSH() throws ClusException, IOException {
 		initWeights();
 		initStatistic();
 		initHierarchySettings();
@@ -798,14 +798,12 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 	}
 
 	public void setTargetStatistic(ClusStatistic stat) {
-		System.out.println("Setting target statistic: "
-				+ stat.getClass().getName());
+		System.out.println("Setting target statistic: "	+ stat.getClass().getName());
 		m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = stat;
 	}
 
 	public void setClusteringStatistic(ClusStatistic stat) {
-		System.out.println("Setting clustering statistic: "
-				+ stat.getClass().getName());
+		System.out.println("Setting clustering statistic: "	+ stat.getClass().getName());
 		m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = stat;
 	}
 
@@ -879,10 +877,21 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
    * @return Returns the ChiSquare inverse probability for specified
    *         significance level and degrees of freedom. 
    */
-  public double getChiSquareInvProb(int df) {
-    return m_ChiSquareInvProb[df];
-  }
+	public double getChiSquareInvProb(int df) {
+		return m_ChiSquareInvProb[df];
+	}
 
+	public void updateStatistics(ClusModel model) throws ClusException {
+		if (m_Hier != null) {
+			ArrayList stats = new ArrayList();
+			model.retrieveStatistics(stats);
+			for (int i = 0; i < stats.size(); i++) {
+				WHTDStatistic stat = (WHTDStatistic)stats.get(i);
+				stat.setHier(m_Hier);
+			}
+		}
+	}
+  
 	private void createHierarchy() {
 		int idx = 0;
 		for (int i = 0; i < m_Schema.getNbAttributes(); i++) {
@@ -903,13 +912,17 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 			m_Hier = m_HierN;
 	}
 	
-	public void initHierarchySettings() throws ClusException {
+	public void initHierarchySettings() throws ClusException, IOException {
 		if (m_Hier != null) {
 			if (getSettings().hasHierIgnoreClasses()) {
 				String ignore = getSettings().getHierIgnoreClasses();
 				ClassesTuple tuple = new ClassesTuple(ignore, m_Hier.getType().getTable());
 				tuple.addHierarchyIndices(m_Hier);
 				m_Hier.setIgnoreClasses(tuple);
+			}
+			if (getSettings().hasHierEvalClasses()) {
+				ClassesTuple tuple = ClassesTuple.readFromFile(getSettings().getHierEvalClasses(), m_Hier);
+				m_Hier.setEvalClasses(tuple);
 			}
 		}
 	}

@@ -34,6 +34,8 @@ public interface ClusModel {
 		
 	public void attachModel(Hashtable table) throws ClusException;
 	
+	public void retrieveStatistics(ArrayList list);
+	
 	public ClusModel prune(int prunetype);
 	
 	public int getID();

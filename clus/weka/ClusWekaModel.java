@@ -3,9 +3,8 @@
  */
 package clus.weka;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Hashtable;
+import java.io.*;
+import java.util.*;
 
 import jeans.io.*;
 import jeans.util.*;
@@ -82,5 +81,8 @@ public class ClusWekaModel implements ClusModel {
   
   	public ClusModel prune(int prunetype) {
   		return this;
-	}  
+	}
+  	
+    public void retrieveStatistics(ArrayList list) {	 
+    }
 }

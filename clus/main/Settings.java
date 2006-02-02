@@ -358,6 +358,8 @@ public class Settings implements Serializable {
 	
 	protected INIFileString m_HierIgnoreClasses;
 
+	protected INIFileString m_HierEvalClasses;
+
 	INIFileSection m_SectionKNN;
 
 	public static INIFileInt kNN_k;
@@ -478,6 +480,7 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierClassTreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold", NONELIST));		
 		m_HierClassTreshold.setNominal(0);
 		m_SectionHierarchical.addNode(m_HierIgnoreClasses = new INIFileString("IgnoreClasses", NONE));		
+		m_SectionHierarchical.addNode(m_HierEvalClasses = new INIFileString("EvalClasses", NONE));		
 		m_SectionHierarchical.addNode(m_HierMode = new INIFileNominal("Mode", HIERMODES, 0));		
 		m_SectionHierarchical.setEnabled(false);
 
@@ -568,9 +571,17 @@ public class Settings implements Serializable {
 		return m_HierIgnoreClasses.getValue();
 	}
 	
+	public String getHierEvalClasses() {
+		return m_HierEvalClasses.getValue();
+	}	
+	
 	public boolean hasHierIgnoreClasses() {
 		return !StringUtils.unCaseCompare(m_HierIgnoreClasses.getValue(), NONE);
 	}
+	
+	public boolean hasHierEvalClasses() {
+		return !StringUtils.unCaseCompare(m_HierEvalClasses.getValue(), NONE);
+	}	
 
 	public int getPruningMethod() {
 		return m_PruningMethod.getValue();

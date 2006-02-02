@@ -352,42 +352,11 @@ public class ClusNode extends MyNode implements ClusModel {
 			info.attachModel(table);
 		}
 	}
-	
-	/*
-	 public final void attachData(ClusData data) {
-	 int nb_c = getNbChildren();
-	 if (nb_c > 0) data.attach(this);
-	 for (int i = 0; i < nb_c; i++) {
-	 ClusNode info = (ClusNode)getChild(i);
-	 info.attachData(data);
-	 }
-	 }
-	 
-	 public final void detachData() {
-	 m_SplitAttr = null;
-	 int nb_c = getNbChildren();
-	 for (int i = 0; i < nb_c; i++) {
-	 ClusNode info = (ClusNode)getChild(i);
-	 info.detachData();
-	 }
-	 }
-	 */
-	
+		
 	/***************************************************************************
 	 * Code for making predictions
 	 ***************************************************************************/
 	
-	/*
-	 public final ClusNode predict(int idx) {
-	 if (m_Children != null) {
-	 int n_idx = m_Test.predict((ClusAttribute)m_SplitAttr, idx);
-	 ClusNode info = (ClusNode)getChild(n_idx);
-	 return info.predict(idx);
-	 } else {
-	 return this;
-	 }
-	 }
-	 */
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 		if (atBottomLevel()) {
 			return getTargetStat();
@@ -662,5 +631,15 @@ public class ClusNode extends MyNode implements ClusModel {
 	 */
 	public ClusStatistic predictWeightedLeaf(DataTuple tuple) {
 		return getTargetStat();
+	}
+	
+	public void retrieveStatistics(ArrayList list) {
+		if (m_ClusteringStat != null) list.add(m_ClusteringStat);
+		if (m_TargetStat != null) list.add(m_TargetStat);
+		int arity = getNbChildren();
+		for (int i = 0; i < arity; i++) {
+			ClusNode child = (ClusNode)getChild(i);
+			child.retrieveStatistics(list);
+		}	   
 	}
 }

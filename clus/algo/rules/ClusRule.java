@@ -481,4 +481,6 @@ public class ClusRule implements ClusModel, Serializable {
 		return this;
   }
 
+  public void retrieveStatistics(ArrayList list) {	 
+  }
 }

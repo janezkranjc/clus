@@ -7,7 +7,6 @@ import java.io.*;
 
 import clus.data.rows.RowData;
 import clus.main.*;
-import clus.statistic.ClusStatistic;
 import clus.util.*;
 
 public class ClusRulesRandom {

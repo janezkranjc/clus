@@ -37,7 +37,7 @@ public abstract class ClusInduce {
 		return m_StatManager.getSettings();
 	}	
 	
-	public void initialize() throws ClusException {
+	public void initialize() throws ClusException, IOException {
 		m_StatManager.initSH();
 		m_MaxStats = m_Schema.getMaxNbStats();		
 	}

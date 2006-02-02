@@ -112,6 +112,13 @@ public class WHTDStatistic extends RegressionStat {
 		return m_Hier;
 	}
 	
+	public final void setHier(ClassHierarchy hier) throws ClusException {
+		if (m_Hier != null && m_Hier.getTotal() != hier.getTotal()) {
+			throw new ClusException("Different number of classes in new hierarchy: "+hier.getTotal()+" <> "+m_Hier.getTotal());
+		}
+		m_Hier = hier;		
+	}
+	
 	public int getNbPredictedClasses() {
 		int count = 0;
 		for (int i = 0; i < m_DiscrMean.length; i++) {

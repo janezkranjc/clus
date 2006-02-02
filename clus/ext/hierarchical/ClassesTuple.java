@@ -1,7 +1,7 @@
 package clus.ext.hierarchical;
 
 import java.util.*;
-import java.io.Serializable;
+import java.io.*;
 
 import jeans.util.*;
 import jeans.util.array.*;
@@ -128,6 +128,14 @@ public class ClassesTuple implements MySparseVector, Serializable {
 	
 	public final ClassesValue elementAt(int idx) {
 		return (ClassesValue)m_Tuple[idx];
+	}
+	
+	public final boolean[] getVectorBoolean(ClassHierarchy hier) {
+		boolean[] vec = new boolean[hier.getTotal()];
+		for (int i = 0; i < size(); i++) {
+			vec[elementAt(i).getIndex()] = true;
+		}
+		return vec;				
 	}
 	
 	public final double[] getVector(ClassHierarchy hier) {
@@ -270,5 +278,25 @@ public class ClassesTuple implements MySparseVector, Serializable {
 		for (int i = 0; i < m_Tuple.length; i++) {
 			((ClassesValue)m_Tuple[i]).setIntermediate(inter);
 		}		
-	}			
+	}
+	
+	public static ClassesTuple readFromFile(String fname, ClassHierarchy hier) throws ClusException, IOException {
+		int idx = 0;
+		BufferedReader input = new BufferedReader(new FileReader(fname));
+		StringBuffer classes = new StringBuffer();
+		String line = input.readLine();
+		while (line != null) {
+			line = line.trim();
+			if (!line.equals("")) {
+				if (idx != 0) classes.append("@");
+				classes.append(line);
+			}
+			line = input.readLine();
+			idx++;
+		}
+		input.close();
+		ClassesTuple tuple = new ClassesTuple(classes.toString(), hier.getType().getTable());
+		tuple.addHierarchyIndices(hier);
+		return tuple;
+	} 
 }

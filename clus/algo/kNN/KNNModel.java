@@ -120,4 +120,7 @@ public class KNNModel implements ClusModel {
   public ClusModel prune(int prunetype) {
 	return this;
   }
+  
+  public void retrieveStatistics(ArrayList list) {	 
+  }
 }

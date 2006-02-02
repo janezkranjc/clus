@@ -111,7 +111,7 @@ public class NumericTest extends NodeTest {
 	}
 
 	public NodeTest simplifyConjunction(NodeTest other) {
-		if (getType() != other.getType()) {
+		if (getType().getIndex() != other.getType().getIndex()) {
 			return null;
 		} else {
 			NumericTest onum = (NumericTest)other;
@@ -120,19 +120,12 @@ public class NumericTest extends NodeTest {
 			}
 			double pos_freq = Math.min(getPosFreq(), onum.getPosFreq());
 			if (isInverseNumeric()) {
-				double new_bound = Math.max(getBound(), onum.getBound());
+				double new_bound = Math.min(getBound(), onum.getBound());
 				return new InverseNumericTest(m_Type, new_bound, pos_freq);				
 			} else {
-				double new_bound = Math.min(getBound(), onum.getBound());				
+				double new_bound = Math.max(getBound(), onum.getBound());				
 				return new NumericTest(m_Type, new_bound, pos_freq);
 			}			
 		}
-	}
-	
-/*	
-	public int predict(ClusAttribute attr, int idx) {
-		NumericAttribute nattr = (NumericAttribute)attr;
-		return numericPredict(nattr.m_Data[idx]);
-	}
-*/	
+	}	
 }

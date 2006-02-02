@@ -14,8 +14,6 @@ import java.io.*;
 import java.text.NumberFormat;
 import java.util.*;
 
-import org.apache.commons.math.MathException;
-
 import clus.io.*;
 import clus.main.*;
 import clus.util.*;
@@ -588,13 +586,10 @@ public class Clus implements CMDLineArgsProvider {
 		return cr;
 	}
 
-	public final void attachModels(ClusSchema schema, ClusRun cr)
-			throws ClusException {
-		//for (int i = ClusModels.DEFAULT; i <= ClusModels.PRUNED; i++) {
+	public final void attachModels(ClusSchema schema, ClusRun cr) throws ClusException {
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			ClusModel model = cr.getModel(i);
-			if (model != null)
-				schema.attachModel(model);
+			if (model != null) schema.attachModel(model);
 		}
 	}
 
@@ -736,36 +731,16 @@ public class Clus implements CMDLineArgsProvider {
 		
 	public final void testModel(String fname) throws IOException,	ClusException, ClassNotFoundException {
 		ClusModelCollectionIO io = ClusModelCollectionIO.load(fname);
-		ClusNode res = (ClusNode) io.getModel("Pruned");
+		ClusNode res = (ClusNode) io.getModel("Original");
 		String test_name = m_Sett.getAppName() + ".test";
-		PrintWriter out = new PrintWriter(new OutputStreamWriter(
-				new FileOutputStream(test_name)));
+		ClusOutput out = new ClusOutput(test_name, m_Schema, m_Sett);
 		ClusRun cr = partitionData();
-		out.println("Tree read from .model:");
-		out.println();
-		res.printModel(out);
-		out.println();
-		out.println("Converted into rules:");
-		ClusRulesFromTree rft = new ClusRulesFromTree(false);
-		ClusRuleSet rules = rft.constructRules(res, getStatManager());
-		StatisticPrintInfo info = getSettings().getStatisticPrintInfo();		
-		if (cr.getTestIter() != null) {
-			RowData testdata = (RowData) cr.getTestSet();
-			out.println();
-			rules.printModelAndExamples(out, info, testdata);
-			out.println();
-		} else {
-			out.println();
-			rules.printModel(out);
-			out.println();
-		}
-		cr.getModelInfo(ClusModels.DEFAULT).setModel(pruneToRoot(res));
-		cr.getModelInfo(ClusModels.PRUNED).setModel(res);
-		cr.getModelInfo(ClusModels.RULES).setModel(rules);
-		calcError(cr.getTestIter(), ClusModelInfo.TEST_ERR, cr);
-		out.println("Testing error");
-		out.println("-------------");
-		cr.getTestError().showError(cr, ClusModelInfo.TEST_ERR, out);
+		getStatManager().updateStatistics(res);
+		getSchema().attachModel(res);
+		storeAndPruneModel(cr, res);		
+		calcError(cr, null);
+		out.writeHeader();
+		out.writeOutput(cr, true, true);
 		out.close();
 	}
 	

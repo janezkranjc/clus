@@ -217,8 +217,7 @@ public abstract class NodeTest implements Serializable {
 	public final void attachModel(Hashtable table) throws ClusException {
 		ClusAttrType type = getType();
 		ClusAttrType ntype = (ClusAttrType)table.get(type.getName());
-		if (ntype == null)
-			throw new ClusException("Attribute "+type.getName()+" not in dataset");
+		if (ntype == null) throw new ClusException("Attribute "+type.getName()+" not in dataset");
 		ClusAttrType ctype = type.cloneType();
 		// Clone type to avoid overwriting original type
 		ctype.copyIndices(ntype);

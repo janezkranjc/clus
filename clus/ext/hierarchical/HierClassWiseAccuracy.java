@@ -21,10 +21,12 @@ public class HierClassWiseAccuracy extends ClusError {
 	protected double[] m_Predicted;
 	protected double[] m_Correct;
 	protected double[] m_Default;
+	protected boolean[] m_EvalClass;
 	
 	public HierClassWiseAccuracy(ClusErrorParent par, ClassHierarchy hier) {
 		super(par, hier.getTotal());
 		m_Hier = hier;
+		m_EvalClass = hier.getEvalClassesVector();		
 		m_Predicted = new double[m_Dim];
 		m_Correct = new double[m_Dim];
 		//m_Perfect = new double[m_Dim];
@@ -52,85 +54,80 @@ public class HierClassWiseAccuracy extends ClusError {
 	}
 	
 	public double getModelError() {		
-		return 1.0 - getAccuracy();
+		return 1.0 - getPrecision();
 	}
 	
 	public boolean shouldBeLow() {
 		return true;
-	}	
-	
-	/* actually returns the precision */
-	public double getAccuracy() {
-		double tot_pred = 0.0;
-		double tot_corr = 0.0;
-		for (int i = 0; i < m_Dim; i++) {
-			tot_pred += m_Predicted[i];
-			tot_corr += m_Correct[i];
-		}
-		return tot_pred == 0.0 ? 0.0 : tot_corr/tot_pred;
 	}
 	
-	public double getAveragePrecision() {
+	public boolean isEvalClass(int idx) {
+		return m_EvalClass[idx];
+	}
+	
+	public double getPrecision() {
+		double tot_pred = getNbPredicted();
+		double tot_corr = getTP();		
+		return tot_pred == 0.0 ? 0.0 : tot_corr/tot_pred;
+	}
+		
+	public double getRecall() {
+		double tot_corr = getTP();
+		double tot_def = getNbLabels();
+		return tot_def == 0 ? 0.0 : tot_corr / tot_def;
+	}
+	
+	public int getTP() {
+		int tot_corr = 0;
+		for (int i = 0; i < m_Dim; i++) {
+			if (isEvalClass(i)) tot_corr += m_Correct[i];
+		}
+		return tot_corr;
+	}
+	
+	public int getFP() {
+		int tot_pred = getNbPredicted();
+		int tot_corr = getTP();
+		return tot_pred - tot_corr;
+	}
+	
+	public int getFN() {
+		int tot_def = getNbLabels();
+		int tot_corr = getTP();
+		return tot_def - tot_corr;
+	}
+	
+	public int getNbLabels() {
+		int tot_def = 0;
+		for (int i = 0; i < m_Dim; i++) {
+			if (isEvalClass(i)) tot_def += m_Default[i];
+		}
+		return tot_def;
+	}
+	
+	public int getNbPredicted() {
+		int tot_pred = 0;
+		for (int i = 0; i < m_Dim; i++) {
+			if (isEvalClass(i)) tot_pred += m_Predicted[i];
+		}
+		return tot_pred;
+	}
+		
+	public int getNbPosExamplesCheck(){
+		return getTP() + getFN();
+	}
+	
+	public double getMacroAvgPrecision() {
 		int cnt = 0;
 		double avg = 0.0;
 		for (int i = 0; i < m_Dim; i++) {
-			if (m_Predicted[i] != 0) {
+			if (m_Predicted[i] != 0 && isEvalClass(i)) {
 				cnt++;
 				avg += m_Correct[i] / m_Predicted[i];
 			}
 		}
 		return cnt == 0 ? 0 : avg/cnt;		
 	}	
-	
-	public double getRecall() {
-		double tot_corr = 0.0;
-		double tot_def = 0.0;
-		for (int i = 0; i < m_Dim; i++){
-			tot_corr += m_Correct[i];
-			tot_def += m_Default[i];
-		}
-		return tot_def == 0 ? 0.0 : tot_corr / tot_def;
-	}
-	
-	public int getTP(){
-		int tot_corr = 0;
-		for (int i =0; i < m_Dim; i++){
-			tot_corr += m_Correct[i];
-		}
-		return tot_corr;
-	}
-	
-	public int getFP(){
-		int tot_pred = 0;
-		int tot_corr = 0;
-		for (int i = 0; i < m_Dim; i++) {
-			tot_pred += m_Predicted[i];
-			tot_corr += m_Correct[i];
-		}
-		return (tot_pred - tot_corr);
-	}
-	
-	public int getFN(){
-		int tot_def = 0;
-		int tot_corr = 0;
-		for (int i = 0; i < m_Dim; i++) {
-			tot_def += m_Default[i];
-			tot_corr += m_Correct[i];
-		}
-		return (tot_def - tot_corr);
-	}
-	
-	public int getNbPosExamples(){
-		int tot_def = 0;
-		for (int i = 0; i < m_Dim; i++) {
-			tot_def += m_Default[i];
-		}
-		return tot_def;
-	}
-	
-	public int getNbPosExamplesCheck(){
-		return getTP() + getFN();
-	}
 	
 	public void reset() {
 		Arrays.fill(m_Correct, 0.0);
@@ -165,7 +162,7 @@ public class HierClassWiseAccuracy extends ClusError {
 	//added a value for recall (next to def and acc)
 	public void printNonZeroAccuraciesRec(NumberFormat fr, PrintWriter out, ClassTerm node) {
 		int idx = node.getIndex();
-		if (m_Predicted[idx] != 0.0) {
+		if (m_Predicted[idx] != 0.0 && isEvalClass(idx)) {
 			int nb = getNbTotal();
 			double def = nb == 0 ? 0.0 : m_Default[idx]/nb;
 			//added a test
@@ -197,9 +194,10 @@ public class HierClassWiseAccuracy extends ClusError {
 	public void showModelError(PrintWriter out, int detail) {
 		NumberFormat fr1 = getFormat();
 		NumberFormat fr2 = ClusFormat.SIX_AFTER_DOT;
-		out.print("precision: "+fr2.format(getAccuracy()));
+		out.print("precision: "+fr2.format(getPrecision()));
 		out.print(", recall: "+fr2.format(getRecall()));
 		out.print(", coverage: "+fr2.format(getCoverage()));
+		out.print(", TP: "+getTP()+", FP: "+getFP()+", nbPos: "+getNbLabels());
 		out.println();
 		printNonZeroAccuracies(fr1, out, m_Hier.getRoot());
 	}

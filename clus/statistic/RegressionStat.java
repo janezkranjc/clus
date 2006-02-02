@@ -8,7 +8,6 @@ import jeans.util.StringUtils;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.*;
-import org.apache.commons.math.stat.inference.*;
 
 import clus.main.ClusStatManager;
 import clus.main.Settings;
