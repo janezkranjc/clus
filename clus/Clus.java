@@ -675,8 +675,6 @@ public class Clus implements CMDLineArgsProvider {
 		System.out.println("Tree read from .out:");
 		orig.printTree();
 		System.out.println();
-		System.out.println("After pruning:");
-		pruned.printTree();
 		if (rdr.getLineAfterTree() != null) {
 			System.out.println("First line after tree: '"	+ rdr.getLineAfterTree() + "'");
 			System.out.println();
