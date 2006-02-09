@@ -474,7 +474,8 @@ public class ClusTreeReader {
 	public static MStringTokenizer createTokenizer() {
 		MStringTokenizer tokens = new MStringTokenizer();
 		tokens.setCharTokens("=<>{},");
-		tokens.setBlockChars("", "");
+		//to use spaces in attributes when reading tree(eg. specify constraints)
+		tokens.setBlockChars("\"", "\""); 
 		tokens.setSpaceChars(" \t");
 		return tokens;
 	}
