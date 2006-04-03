@@ -1136,4 +1136,13 @@ public class Settings implements Serializable {
 	public String getAppName() {
 		return m_AppName;
 	}
+
+	public boolean isTimeSeriesMode() {
+		return timeSeriesMode;
+	}
+
+	public void setTimeSeriesMode(boolean timeSeriesMode) {
+		this.timeSeriesMode = timeSeriesMode;
+	}
+	
 }

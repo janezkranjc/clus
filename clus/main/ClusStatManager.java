@@ -17,6 +17,7 @@ import clus.pruning.*;
 
 import clus.ext.hierarchical.*;
 import clus.ext.sspd.*;
+import clus.ext.timeseries.TimeSeriesStat;
 import clus.ext.beamsearch.*;
 
 import clus.algo.rules.*;
@@ -45,6 +46,8 @@ public class ClusStatManager implements Serializable {
 	public final static int MODE_SSPD = 3;
 
 	public final static int MODE_CLASSIFY_AND_REGRESSION = 4;
+	
+	public final static int MODE_TIME_SERIES = 5;
 
 	protected int m_Mode = MODE_NONE;
 
@@ -294,9 +297,14 @@ public class ClusStatManager implements Serializable {
 			m_Mode = MODE_SSPD;
 			nb_types++;
 		}
+		if (m_Settings.isTimeSeriesMode()){
+			m_Mode=MODE_TIME_SERIES;
+			nb_types++;
+		}
 		if (nb_types == 0) {
 			System.err.println("No target value defined");
 		}
+		
 		if (nb_types > 1)
 			throw new ClusException(
 					"Incompatible combination of clustering attribute types");
@@ -390,6 +398,10 @@ public class ClusStatManager implements Serializable {
 		case MODE_SSPD:
 			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx));
 			break;
+		case MODE_TIME_SERIES:
+			setTargetStatistic(new TimeSeriesStat());
+			break;
+			
 		}
 	}
 
@@ -489,6 +501,13 @@ public class ClusStatManager implements Serializable {
 		}
 		if (m_Mode == MODE_SSPD) {
 			m_Heuristic = new SSPDHeuristic(m_SSPDMtrx);
+			return;
+		}
+		if (m_Mode == MODE_TIME_SERIES){
+			name = "Time Series Intra-Cluster Variation Heuristic";
+			m_Heuristic = new SSDHeuristic(name, createClusteringStat(),
+					getClusteringWeights(), getSettings()
+					.isHierNoRootPreds());
 			return;
 		}
 		/* Set heuristic for trees */
