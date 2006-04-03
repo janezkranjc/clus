@@ -153,7 +153,7 @@ public class Settings implements Serializable {
 	
 	public final static int CONVERT_RULES_ALL = 2;
 	
-	public final static boolean TIME_SERIES_MODE = false;
+	
 	
 	/* Filename and date information */
 	protected Date m_Date;
@@ -163,6 +163,8 @@ public class Settings implements Serializable {
 	protected String m_DirName;
 
 	/* Static constants should be removed later on */
+	protected boolean timeSeriesMode = false;
+	
 	public static int FTEST_LEVEL;
 
 	public static double FTEST_VALUE;
