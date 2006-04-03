@@ -153,6 +153,8 @@ public class Settings implements Serializable {
 	
 	public final static int CONVERT_RULES_ALL = 2;
 	
+	public final static boolean TIME_SERIES_MODE = false;
+	
 	/* Filename and date information */
 	protected Date m_Date;
 
