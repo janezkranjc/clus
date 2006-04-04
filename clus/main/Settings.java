@@ -164,6 +164,7 @@ public class Settings implements Serializable {
 
 	/* Static constants should be removed later on */
 	protected boolean timeSeriesMode = false;
+	//just testing cvs
 	
 	public static int FTEST_LEVEL;
 
