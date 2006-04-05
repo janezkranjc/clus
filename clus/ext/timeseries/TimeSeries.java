@@ -8,8 +8,10 @@ public class TimeSeries {
 
 	public TimeSeries(String values){
 		values = values.trim();
-		values.replaceAll("\\[", "");
-		values.replaceAll("\\]", "");
+		values = values.replace("[", "");
+		values = values.replace("]", "");
+		//values = values.replaceAll("\\[", "");
+		//values = values.replaceAll("\\]", "");
 		StringTokenizer st = new StringTokenizer(values,",");
 		this.values = new double[st.countTokens()];
 		int i=0;
