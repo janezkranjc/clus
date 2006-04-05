@@ -49,10 +49,10 @@ public class Clus implements CMDLineArgsProvider {
 			"disable", "silent", "lwise", "c45", "info", "sample", "debug",
 			"tuneftest", "load", "soxval", "bag", "obag", "show", "knn",
 			"knnTree", "beam", "gui", "fillin", "rules", "weka", "corrmatrix",
-			"tunesize", "out2model", "test", "normalize" };
+			"tunesize", "out2model", "test", "normalize", "tseries"};
 
 	public final static int[] OPTION_ARITIES = { 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
-			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0 };
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0 };
 
 	protected Settings m_Sett = new Settings();
 
@@ -1033,6 +1033,7 @@ public class Clus implements CMDLineArgsProvider {
 							: new ClusBeamSearch(clus);
 					clus.setExtension(search);
 				}
+				
 				if (cargs.hasOption("corrmatrix")) {
 					clus.initialize(cargs, clss);
 					CorrelationMatrixComputer cmp = new CorrelationMatrixComputer();
@@ -1081,6 +1082,10 @@ public class Clus implements CMDLineArgsProvider {
 					clus.showTree(clus.getAppName());
 				} else if (cargs.hasOption("gui")) {
 					clus.gui(cargs.getMainArg(0));
+				} else if (cargs.hasOption("tseries")) {
+					clus.getSettings().setTimeSeriesMode(true);
+					clus.initialize(cargs, clss);
+					clus.singleRun(clss);
 				} else {
 					clus.initialize(cargs, clss);
 					clus.singleRun(clss);
