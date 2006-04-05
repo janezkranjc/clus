@@ -186,6 +186,29 @@ public class ClusReader {
 		}
 	}
 	
+	public String readTimeSeries() throws IOException {
+		Reader reader = m_Token.getReader();
+		m_Scratch.setLength(0);
+		int ch = getNextChar(reader);
+		while (ch != -1&& ch != ']') {
+			if (ch != '\t' && ch != 10 && ch != 13) {
+				m_Scratch.append((char)ch);
+ 			} else {
+				if (ch == 10 || ch == 13) setLastChar(13);
+			}
+			ch = reader.read();
+		}
+		if ((char)ch==']')m_Scratch.append((char)ch);
+		String result = m_Scratch.toString().trim();
+
+		if (result.length() > 0) {
+			m_Attr++;			
+			return result;
+		} else {
+			throw new IOException("Error reading attirbute "+m_Attr+" at row "+(m_Row+1));
+		}
+	}	
+	
 	public void skipTillComma() throws IOException {		
 		int nb = 0;
 		Reader reader = m_Token.getReader();
