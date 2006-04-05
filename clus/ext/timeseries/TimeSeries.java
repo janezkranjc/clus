@@ -1,8 +1,22 @@
 package clus.ext.timeseries;
 
+import java.util.StringTokenizer;
+
 public class TimeSeries {
 	private double[] values;
 	
+
+	public TimeSeries(String values){
+		values = values.trim();
+		values.replaceAll("[", "");
+		values.replaceAll("]", "");
+		StringTokenizer st = new StringTokenizer(values,",");
+		this.values = new double[st.countTokens()];
+		int i=0;
+		while (st.hasMoreTokens()){
+			this.values[i++]=Double.parseDouble(st.nextToken());
+		}
+	}
 
 	public TimeSeries(double[] values){
 		this.values = new double[values.length];
