@@ -17,6 +17,7 @@ import clus.pruning.*;
 
 import clus.ext.hierarchical.*;
 import clus.ext.sspd.*;
+import clus.ext.timeseries.DTWTimeSeriesStat;
 import clus.ext.timeseries.TimeSeriesStat;
 import clus.ext.beamsearch.*;
 
@@ -399,7 +400,7 @@ public class ClusStatManager implements Serializable {
 			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx));
 			break;
 		case MODE_TIME_SERIES:
-			setTargetStatistic(new TimeSeriesStat());
+			setTargetStatistic(new DTWTimeSeriesStat());
 			break;
 			
 		}
