@@ -20,7 +20,7 @@ public class TimeSeriesTarget extends TimeSeriesAttrBase {
 	
 	@Override
 	public void read(ClusReader data, int row) throws IOException {
-		m_Target.setTimeSeries(m_Index, row, new TimeSeries(data.readTimeSeries()));
+//		m_Target.setTimeSeries(m_Index, row, new TimeSeries(data.readTimeSeries()));
 	}
 
 }
