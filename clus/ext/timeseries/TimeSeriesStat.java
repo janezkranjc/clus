@@ -6,6 +6,7 @@ import clus.data.rows.RowData;
 import clus.ext.sspd.SSPDMatrix;
 import clus.main.Settings;
 import clus.statistic.BitVectorStat;
+import clus.statistic.ClusStatistic;
 
 public abstract class TimeSeriesStat extends BitVectorStat {
 
@@ -40,7 +41,10 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 		m_Modified = false;
 	}	
 	
+
+	
 	public abstract double calcDistance(TimeSeries t1, TimeSeries t2);
+	
 	
 	
 }

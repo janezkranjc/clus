@@ -1,6 +1,12 @@
 package clus.ext.timeseries;
 
+import clus.data.attweights.ClusAttributeWeights;
+import clus.data.rows.RowData;
+import clus.ext.sspd.SSPDStatistic;
 import clus.main.Settings;
+import clus.statistic.BitVectorStat;
+import clus.statistic.ClusStatistic;
+import clus.statistic.StatisticPrintInfo;
 
 public class DTWTimeSeriesStat extends TimeSeriesStat {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
@@ -44,9 +50,37 @@ public class DTWTimeSeriesStat extends TimeSeriesStat {
 		}
 		return wrappingPathMatrix[m-1][n-1]/(m+n);
 	}
+	
 	public double calcDistance(TimeSeries t1, TimeSeries t2) {
 		return calcDistance(t1,t2,Math.max(t1.length(),t2.length())/2);
 	}
+	
+	public double getSS(ClusAttributeWeights scale, RowData data) {
+		// TODO Auto-generated method stub
+		return super.getSS(scale, data);
+	}
+	
+	public void optimizePreCalc(RowData data) {
+		// TODO Auto-generated method stub
+		super.optimizePreCalc(data);
+	}
 
+	public ClusStatistic cloneStat() {
+		DTWTimeSeriesStat stat = new DTWTimeSeriesStat();
+		stat.cloneFrom(this);
+		return stat;
+	}
+	
+	public void copy(ClusStatistic other) {
+		DTWTimeSeriesStat or = (DTWTimeSeriesStat)other;
+		super.copy(or);
+		m_Value = or.m_Value;
+	}
+
+	public double getError(ClusAttributeWeights scale) {
+		// TODO Auto-generated method stub
+		return Double.POSITIVE_INFINITY;
+	}	
+	
 	
 }
