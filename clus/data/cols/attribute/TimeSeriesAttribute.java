@@ -13,7 +13,7 @@ public class TimeSeriesAttribute extends TimeSeriesAttrBase{
 		super(type);
 	}
 
-	@Override
+
 	public void read(ClusReader data, int row) throws IOException {
 		System.out.println("Samo proba");
 	}

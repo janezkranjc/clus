@@ -19,23 +19,19 @@ public class TimeSeriesAttrType extends ClusAttrType{
 		super(name);
 	}
 
-	@Override
 	public ClusAttrType cloneType() {
 		TimeSeriesAttrType tsat = new TimeSeriesAttrType(m_Name); 
 		return tsat;
 	}
 
-	@Override
 	public int getTypeIndex() {
 		return THIS_TYPE;
 	}
 
-	@Override
 	public int getValueType() {
 		return VALUE_TYPE_OBJECT;
 	}
 
-	@Override
 	public String getTypeName() {
 		return THIS_TYPE_NAME;
 	}
