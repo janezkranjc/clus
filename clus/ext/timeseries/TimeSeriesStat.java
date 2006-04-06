@@ -6,7 +6,6 @@ import clus.data.rows.RowData;
 import clus.ext.sspd.SSPDMatrix;
 import clus.main.Settings;
 import clus.statistic.BitVectorStat;
-import clus.statistic.ClusStatistic;
 
 public abstract class TimeSeriesStat extends BitVectorStat {
 
