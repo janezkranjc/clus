@@ -18,7 +18,6 @@ import clus.pruning.*;
 import clus.ext.hierarchical.*;
 import clus.ext.sspd.*;
 import clus.ext.timeseries.DTWTimeSeriesStat;
-import clus.ext.timeseries.TimeSeriesStat;
 import clus.ext.beamsearch.*;
 
 import clus.algo.rules.*;
@@ -400,6 +399,9 @@ public class ClusStatManager implements Serializable {
 			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx));
 			break;
 		case MODE_TIME_SERIES:
+			setClusteringStatistic(new DTWTimeSeriesStat());
+			//Target and Clustering attribute are equal - TimeSeries
+			
 			setTargetStatistic(new DTWTimeSeriesStat());
 			break;
 			
@@ -843,6 +845,7 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
    * @param attType attribute use type (eg., ClusAttrType.ATTR_USE_TARGET) 
    * @return the statistic
    */
+	
   public ClusStatistic createStatistic(int attType) {
     return m_StatisticAttrUse[attType].cloneStat();
   }
