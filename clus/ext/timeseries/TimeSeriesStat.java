@@ -28,7 +28,6 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				DataTuple a = data.getTuple(i);
 				TimeSeries t1 = (TimeSeries)a.getObjVal(0);
 				double a_weight = a.getWeight();			
-				int a_idx = a.m_Ints[0];
 				for (int j = 0; j <= i; j++) {
 					if (m_Bits.getBit(j)) {
 						DataTuple b = data.getTuple(j);
