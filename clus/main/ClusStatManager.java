@@ -755,7 +755,7 @@ public class ClusStatManager implements Serializable {
 			}
 		}
 		INIFileNominalOrDoubleOrVector class_thr = sett
-				.getClassificationTresholds();
+				.getClassificationThresholds();
 		if (class_thr.hasVector()) {
 			return new HierClassTresholdPruner(class_thr.getDoubleVector());
 		}

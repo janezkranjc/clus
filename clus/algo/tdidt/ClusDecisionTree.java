@@ -56,7 +56,7 @@ public class ClusDecisionTree extends ClusClassifier {
 		ClusModels.ORIGINAL = summ.addModel("Original");
 		// ClusModels.CLASS_PRUNED = m_Summary.addModel("Class pruned");
 		int nb_size = getSettings().getSizeConstraintPruningNumber();
-		double[] class_thr = getSettings().getClassificationTresholds().getDoubleVector();
+		double[] class_thr = getSettings().getClassificationThresholds().getDoubleVector();
 		if (nb_size > 0 && getSettings().getPruningMethod() != Settings.PRUNING_METHOD_GAROFALAKIS_VSB) {
 			ClusModels.PRUNED = summ.addModel("S("+getSettings().getSizeConstraintPruning(0)+")");
 			for (int i = 1; i < nb_size; i++) {

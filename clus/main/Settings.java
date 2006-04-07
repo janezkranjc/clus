@@ -247,6 +247,11 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_MinW;
 
 	protected INIFileString m_TuneFolds;
+	
+//	added by Leander 7-4-2006
+	protected INIFileDouble m_PosExampleWeight;
+	
+//	end added by Leander 7-4-2006
 
 	/* Tree */
 	protected INIFileNominal m_Heuristic;
@@ -360,7 +365,7 @@ public class Settings implements Serializable {
 
 	protected INIFileBool m_HierUseBonferroni;
 	
-	protected INIFileNominalOrDoubleOrVector m_HierClassTreshold;
+	protected INIFileNominalOrDoubleOrVector m_HierClassThreshold;
 	
 	protected INIFileString m_HierIgnoreClasses;
 
@@ -434,6 +439,9 @@ public class Settings implements Serializable {
 		INIFileSection model = new INIFileSection("Model");
 		model.addNode(m_MinW = new INIFileDouble("MinimalWeight", 2.0));
 		model.addNode(m_TuneFolds = new INIFileString("ParamTuneNumberFolds", "10"));
+		//added by Leander 7-4-2006
+		model.addNode(m_PosExampleWeight = new INIFileDouble("Weight for positive class", 1.0));
+		//end added by Leander 7-4-2006
 
 		INIFileSection tree = new INIFileSection("Tree");
 		tree.addNode(m_Heuristic = new INIFileNominal("Heuristic", HEURISTICS, 0));
@@ -488,8 +496,8 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierNoRootPreds = new INIFileBool("NoRootPredictions", false));
 		m_SectionHierarchical.addNode(m_HierPruneInSig = new INIFileDouble("PruneInSig", 0.0));
 		m_SectionHierarchical.addNode(m_HierUseBonferroni = new INIFileBool("Bonferroni", false));
-		m_SectionHierarchical.addNode(m_HierClassTreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold", NONELIST));		
-		m_HierClassTreshold.setNominal(0);
+		m_SectionHierarchical.addNode(m_HierClassThreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold", NONELIST));		
+		m_HierClassThreshold.setNominal(0);
 		m_SectionHierarchical.addNode(m_HierIgnoreClasses = new INIFileString("IgnoreClasses", NONE));		
 		m_SectionHierarchical.addNode(m_HierEvalClasses = new INIFileString("EvalClasses", NONE));		
 		m_SectionHierarchical.addNode(m_HierMode = new INIFileNominal("Mode", HIERMODES, 0));		
@@ -589,8 +597,8 @@ public class Settings implements Serializable {
 		return m_HierUseBonferroni.getValue();
 	}
 	
-	public INIFileNominalOrDoubleOrVector getClassificationTresholds() {
-		return m_HierClassTreshold;
+	public INIFileNominalOrDoubleOrVector getClassificationThresholds() {
+		return m_HierClassThreshold;
 	}
 	
 	public String getHierIgnoreClasses() {
@@ -688,6 +696,12 @@ public class Settings implements Serializable {
 	public String getTuneFolds() {
 		return m_TuneFolds.getValue();
 	}
+	
+	//added by Leander 7-4-2006
+	public double getPosExampleWeight() {
+		return m_PosExampleWeight.getValue();
+	}
+	//end added by Leander 7-4-2006
 
 	public boolean getBeamRemoveEqualHeur() {
 		return m_BMRemoveEqualHeur.getValue();

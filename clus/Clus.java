@@ -152,6 +152,11 @@ public class Clus implements CMDLineArgsProvider {
 		initializeSummary(clss);
 		System.out.println();
 		removeMissingTarget();
+		
+		//added 7-4-2006
+		//initializePosExampleWeights();
+		//end added 7-4-2006
+		
 		// Initialize F-Test table
 		FTest.initializeFTable(Settings.FTEST_LEVEL);
 		// Sample data
@@ -204,6 +209,25 @@ public class Clus implements CMDLineArgsProvider {
 			m_Schema.setNbRows(m_Data.getNbRows());
 		}
 	}
+	
+	//added by Leander 7-4-2006
+	
+	public final void initializePosExampleWeights() {
+		
+		double we = m_Sett.getPosExampleWeight();
+		// add the weight to all positive examples (in DataTuple)
+		RowData data = (RowData) m_Data;
+		int nbrows = m_Data.getNbRows();
+		for (int i = 0; i < nbrows; i++) {
+			DataTuple tuple = data.getTuple(i);
+			if (false) { //tuple is positive
+				tuple = tuple.changeWeight(we);
+			}
+		}
+		
+		
+	}
+	//end added by Leander 7-4-2006
 
 	public final void sample(String svalue) {
 		ClusSelection sel;
@@ -407,7 +431,7 @@ public class Clus implements CMDLineArgsProvider {
 		mgr.initClusteringWeights();
 		mgr.initCompactnessWeights();
 		mgr.initHeuristic();
-    mgr.initSignifcanceTestingTable();
+		mgr.initSignifcanceTestingTable();
 	}
 
 	public final void preprocess(ClusData data) throws ClusException {
