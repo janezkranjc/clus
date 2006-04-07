@@ -153,6 +153,8 @@ public class Settings implements Serializable {
 	
 	public final static int CONVERT_RULES_ALL = 2;
 	
+	public final static String[] TIME_SERIES_DISTANCE_MEASURE={"DTW","QDM"};
+	
 	
 	
 	/* Filename and date information */
@@ -163,7 +165,6 @@ public class Settings implements Serializable {
 	protected String m_DirName;
 
 	/* Static constants should be removed later on */
-	protected boolean timeSeriesMode = false;
 	
 	
 	public static int FTEST_LEVEL;
@@ -388,6 +389,11 @@ public class Settings implements Serializable {
 	public static INIFileBool kNNT_normalized;
 
 	public static INIFileBool kNNT_attrWeighted;
+	
+	/*Time Series*/
+	INIFileSection timeSeries;
+	public static INIFileNominal timeSeriesDM;
+
 
 	public void create() {
 		INIFileSection settings = new INIFileSection("General");
@@ -515,6 +521,11 @@ public class Settings implements Serializable {
 		m_SectionBeam.addNode(m_BeamPostPrune = new INIFileBool("PostPrune", false));
 		m_SectionBeam.addNode(m_BMRemoveEqualHeur = new INIFileBool("RemoveEqualHeur", false));
 		m_SectionBeam.setEnabled(false);
+		
+		timeSeries = new INIFileSection("TimeSeries");
+		timeSeries.addNode(timeSeriesDM=new INIFileNominal("DistanceMeasure", TIME_SERIES_DISTANCE_MEASURE,0));
+		timeSeries.setEnabled(false);
+		
 
 		INIFileSection exper = new INIFileSection("Experimental");
 		exper.addNode(m_SetsData = new INIFileInt("NumberBags", 25));
@@ -537,6 +548,7 @@ public class Settings implements Serializable {
 		m_Ini.addNode(m_SectionKNN);
 		m_Ini.addNode(m_SectionKNNT);
 		m_Ini.addNode(exper);
+		m_Ini.addNode(timeSeries);
 	}
 
 	public void initNamedValues() {
@@ -560,6 +572,15 @@ public class Settings implements Serializable {
 		m_SectionKNNT.setEnabled(enable);
 	}
 
+	public void setSectionTimeSeriesEnabled(boolean enable) {
+		timeSeries.setEnabled(enable);
+	}
+	
+	
+	public boolean isSectionTimeSeriesEnabled() {
+		return timeSeries.isEnabled();
+	}
+	
 	public boolean isHierNoRootPreds() {
 		return m_HierNoRootPreds.getValue();
 	}
@@ -1078,6 +1099,9 @@ public class Settings implements Serializable {
 		return m_Compatibility.getValue();
 	}
 	
+	
+
+
 	public void updateDisabledSettings() {
 		int pruning = getPruningMethod();
 		m_M5PruningMult.setEnabled(pruning == PRUNING_METHOD_M5 || pruning == PRUNING_METHOD_M5_MULTI);
@@ -1137,13 +1161,6 @@ public class Settings implements Serializable {
 	public String getAppName() {
 		return m_AppName;
 	}
-
-	public boolean isTimeSeriesMode() {
-		return timeSeriesMode;
-	}
-
-	public void setTimeSeriesMode(boolean timeSeriesMode) {
-		this.timeSeriesMode = timeSeriesMode;
-	}
+	
 	
 }

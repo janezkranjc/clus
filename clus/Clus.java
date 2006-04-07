@@ -1083,7 +1083,7 @@ public class Clus implements CMDLineArgsProvider {
 				} else if (cargs.hasOption("gui")) {
 					clus.gui(cargs.getMainArg(0));
 				} else if (cargs.hasOption("tseries")) {
-					clus.getSettings().setTimeSeriesMode(true);
+					clus.getSettings().setSectionTimeSeriesEnabled(true);
 					clus.initialize(cargs, clss);
 					clus.singleRun(clss);
 				} else {

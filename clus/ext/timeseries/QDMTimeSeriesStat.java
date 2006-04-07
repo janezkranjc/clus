@@ -16,13 +16,14 @@ public class QDMTimeSeriesStat extends TimeSeriesStat {
 		int n = Math.min(t1.length(), t2.length());
 		double[] vt1 = t1.getValues();
 		double[] vt2 = t2.getValues();
-		int distance = 0;
-		for (int i = 1; i < m; i++) {
+		double distance = 0;
+		for (int i = 0; i < m; i++) {
 			for (int j = i + 1; j < m; j++) {
 				distance += Math.abs(Math.signum(vt1[j] - vt1[i]) - Math.signum(vt2[j % n] - vt2[i % n]));
 			}
 		}
-		return distance / (m * (m-1));
+		distance =distance / (m * (m-1)); 
+		return distance;
 	}
 
 	public double getSS(ClusAttributeWeights scale, RowData data) {

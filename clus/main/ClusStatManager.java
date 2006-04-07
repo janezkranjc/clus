@@ -18,6 +18,7 @@ import clus.pruning.*;
 import clus.ext.hierarchical.*;
 import clus.ext.sspd.*;
 import clus.ext.timeseries.DTWTimeSeriesStat;
+import clus.ext.timeseries.QDMTimeSeriesStat;
 import clus.ext.beamsearch.*;
 
 import clus.algo.rules.*;
@@ -277,6 +278,7 @@ public class ClusStatManager implements Serializable {
 		int nb_num = m_Schema
 				.getNbNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		int nb_int = m_Target.getNbType(IntegerAttrType.THIS_TYPE);
+		
 		if (nb_nom > 0 && nb_num > 0) {
 			m_Mode = MODE_CLASSIFY_AND_REGRESSION;
 			nb_types++;
@@ -297,7 +299,7 @@ public class ClusStatManager implements Serializable {
 			m_Mode = MODE_SSPD;
 			nb_types++;
 		}
-		if (m_Settings.isTimeSeriesMode()){
+		if (m_Settings.isSectionTimeSeriesEnabled()){
 			m_Mode=MODE_TIME_SERIES;
 			nb_types++;
 		}
@@ -399,12 +401,14 @@ public class ClusStatManager implements Serializable {
 			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx));
 			break;
 		case MODE_TIME_SERIES:
-			setClusteringStatistic(new DTWTimeSeriesStat());
-			//Target and Clustering attribute are equal - TimeSeries
-			
-			setTargetStatistic(new DTWTimeSeriesStat());
+			if (Settings.timeSeriesDM.getValue()==1){
+				setClusteringStatistic(new QDMTimeSeriesStat());
+				setTargetStatistic(new QDMTimeSeriesStat());
+			}else{
+				setClusteringStatistic(new DTWTimeSeriesStat());
+				setTargetStatistic(new DTWTimeSeriesStat());
+			}
 			break;
-			
 		}
 	}
 
