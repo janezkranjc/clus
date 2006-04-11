@@ -1,12 +1,13 @@
 
-[Data]
+[Attributes]
 Target = 36
 % Constraints = soybean.constr
 
-[Tree]
+[Model]
 MinimalWeight = 5
+
+[Tree]
 BinarySplit = TRUE
-SizeConstraintPrune = 20
 
 [Beam]
 SizePenalty = 0.01
@@ -16,5 +17,3 @@ BeamBestN = 10
 PostPrune = FALSE
 % FastSearch = FALSE
 
-[Output]
-Rules = TRUE

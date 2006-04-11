@@ -13,6 +13,8 @@ import Jama.*;
 
 import clus.main.*;
 import clus.util.*;
+import clus.data.rows.DataTuple;
+import clus.data.rows.RowData;
 import clus.data.type.*;
 
 // FIXME -- This file really needs some cleaning up :-) :-)
@@ -643,4 +645,50 @@ public class ClassHierarchy implements Serializable {
 			return m_Eval.getVectorBoolean(this);
 		}
 	}
+	
+	public void writeTargets(RowData data, ClusSchema schema, String name) throws ClusException, IOException {
+		double[] wis = getWeights();
+		PrintWriter wrt = new PrintWriter(new FileWriter(name + ".weights"));	
+		wrt.print("weights(X) :- X = [");
+		for (int i = 0; i < wis.length; i++) {
+			if (i != 0) wrt.print(",");
+			wrt.print(wis[i]);				
+		}
+		wrt.println("].");
+		wrt.println();
+		ClassTerm[] terms = new ClassTerm[wis.length];
+		CompleteTreeIterator iter = getRootIter();
+		while (iter.hasMoreNodes()) {
+			ClassTerm node = (ClassTerm)iter.getNextNode();
+			if (node.getIndex() != -1) terms[node.getIndex()] = node;
+		}
+		for (int i = 0; i < wis.length; i++) {
+			wrt.print("% class "+terms[i]+": ");
+			wrt.println(wis[i]);				
+		}
+		wrt.close();
+		ClusAttrType[] keys = schema.getAllAttrUse(ClusAttrType.ATTR_USE_KEY);
+		int sidx = getType().getArrayIndex();
+		wrt = new PrintWriter(new FileWriter(name + ".targets"));
+		for (int i = 0; i < data.getNbRows(); i++) {
+			DataTuple tuple = data.getTuple(i);
+			int pos = 0;
+			for (int j = 0; j < keys.length; j++) {
+				if (pos != 0) wrt.print(",");
+				wrt.print(keys[j].getString(tuple));
+				pos++;
+			}
+			ClassesTuple target = (ClassesTuple)tuple.getObjVal(sidx);
+			double[] vec = target.getVectorWithParents(this);
+			wrt.print(",");
+			wrt.print(target.toString());
+			wrt.print(",[");
+			for (int j = 0; j < vec.length; j++) {
+				if (j != 0) wrt.print(",");
+				wrt.print(vec[j]);				
+			}
+			wrt.println("]");			
+		}		
+		wrt.close();
+	}	
 }

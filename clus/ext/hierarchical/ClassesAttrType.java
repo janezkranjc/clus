@@ -29,6 +29,11 @@ public class ClassesAttrType extends ClusAttrType {
 		m_Hier = new ClassHierarchy(this);
 	}
 	
+	public ClassesAttrType(String name, ClassHierarchy hier) {
+		super(name);
+		m_Hier = hier;
+	}	
+	
 	public ClassesAttrType(String name, String atype) throws ClusException {
 		this(name);
 		initializeHierarchy(atype);
@@ -43,7 +48,9 @@ public class ClassesAttrType extends ClusAttrType {
 	}
 	
 	public ClusAttrType cloneType() {
-		return null;
+		ClassesAttrType at = new ClassesAttrType(m_Name, m_Hier);
+		cloneType(at);
+		return at;
 	}
 	
 	public int getTypeIndex() {

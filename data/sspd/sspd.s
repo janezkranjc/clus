@@ -1,9 +1,9 @@
 
 [Data]
-TestFile = sspd_test.arff
-Key = 1
-Heuristic = SSPD
+TestSet = sspd_test.arff
 
+[Tree]
+Heuristic = SSPD
 
 [Output]
 BranchFrequency = TRUE

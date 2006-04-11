@@ -49,7 +49,7 @@ public class Clus implements CMDLineArgsProvider {
 			"disable", "silent", "lwise", "c45", "info", "sample", "debug",
 			"tuneftest", "load", "soxval", "bag", "obag", "show", "knn",
 			"knnTree", "beam", "gui", "fillin", "rules", "weka", "corrmatrix",
-			"tunesize", "out2model", "test", "normalize", "tseries"};
+			"tunesize", "out2model", "test", "normalize", "tseries", "writetargets"};
 
 	public final static int[] OPTION_ARITIES = { 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
 			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0 };
@@ -920,10 +920,16 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
+	public void writeTargets() throws ClusException, IOException {
+		ClassHierarchy hier = getStatManager().getHier();
+		if (hier != null) {
+			hier.writeTargets((RowData)m_Data, m_Schema, m_Sett.getAppName());
+		}
+	}
+	
 	public void showInfo() throws ClusException, IOException {
 		RowData data = (RowData) m_Data;
-		System.out
-				.println("Name            #Rows      #Missing  #Nominal #Numeric #Target    #Classes");
+		System.out.println("Name            #Rows      #Missing  #Nominal #Numeric #Target    #Classes");
 		System.out.print(StringUtils.printStr(m_Sett.getAppName(), 16));
 		System.out.print(StringUtils.printInt(data.getNbRows(), 11));
 		double perc = -1; // (double)m_Schema.getTotalInputNbMissing()/data.getNbRows()/m_Schema.getNbNormalAttr()*100.0;
@@ -1066,6 +1072,9 @@ public class Clus implements CMDLineArgsProvider {
 				} else if (cargs.hasOption("info")) {
 					clus.initialize(cargs, clss);
 					clus.showInfo();
+				} else if (cargs.hasOption("writetargets")) {
+					clus.initialize(cargs, clss);
+					clus.writeTargets();					
 				} else if (cargs.hasOption("out2model")) {
 					clus.initialize(cargs, clss);
 					clus.out2model(cargs.getOptionValue("out2model"));					

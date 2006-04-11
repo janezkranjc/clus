@@ -1,0 +1,104 @@
+\documentclass[a4paper]{book}
+\usepackage{geometry}
+\usepackage{ifpdf}
+\usepackage{makeidx}
+\usepackage{fancyhdr}
+\usepackage{fancyvrb}
+\usepackage{amsmath, amsthm, amssymb}
+
+\ifpdf
+  \usepackage[pdftex]{graphics}
+  \pdfinfo{
+  /Title    (Clus: A Predictive Clustering System)
+  /Author   (J. Struyf)
+}
+\else
+  \usepackage[dvips]{graphics}
+\fi
+
+\ifpdf
+\usepackage[pdftex,colorlinks=true,pdfstartview=FitV,linkcolor=black,citecolor=black,urlcolor=black]{hyperref}
+\else
+\usepackage{url}
+\newcommand{\phantomsection}[1]{}
+\fi
+
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}[chapter]
+\newcommand{\myaddtoc}[1]{\phantomsection{}\addcontentsline{toc}{chapter}{#1}}
+\newcommand{\myb}{\discretionary{}{}{}}
+\newcommand{\myc}{\discretionary{-}{}{}}
+\newcommand{\mmb}{,\discretionary{}{}{}}
+\newcommand{\mmc}{,$\discretionary{}{}{\mbox{$\:$}}$}
+\newcommand{\R}{\mathbb{R}}
+
+% geometry makes sure page size is correct in .pdf files
+\geometry{a4paper,
+          centering,
+          textwidth = 16cm,
+          textheight = 22cm
+}
+
+\newcommand{\Clus}{{\sc Clus}}
+\newcommand{\TildeB}{{\sc Tilde}}
+
+\setlength{\parindent}{0mm}
+\setlength{\parskip}{3mm}
+
+\makeindex
+
+\begin{document}
+\thispagestyle{empty}
+\begin{centering}
+\mbox{}
+\vspace{2cm}
+
+{\Huge \Clus{}: A Predictive Clustering System}
+\vspace{1cm}
+
+{\Huge User's Manual}
+\vspace{3cm}
+
+\mbox{}\hfill\includegraphics{fig/iris-shot}\hfill\mbox{}
+
+\vspace{3cm}
+{\Large J. Struyf}
+
+\mbox{}\hfill\today{}\hfill\mbox{}
+\end{centering}
+
+\newpage
+\pagestyle{fancy}
+\tableofcontents
+
+\chapter{Introduction}
+
+\Clus{} is a predictive clustering system. In predictive clustering \cite{Blockeel98:proc}, the data is partitioned into a set of clusters and the data points in each cluster are characterized by a (symbolic) model. 
+
+\begin{figure}
+\centering
+\includegraphics{fig/3clusters}
+\caption{\label{3clusters}A toy example dataset with two numeric attributes $a_1$ and $a_2$, which is partitioned into clusters $C_1$, $C_2$ and $C_3$.}
+\end{figure}
+
+\Clus{} currently contains two predictive clustering algorithms: one for learning predictive clustering trees (PCTs) \cite{Blockeel98:proc} and one for learning predictive clustering rules (PCRs) \cite{Zenko06:proc}. In PCTs, the symbolic model is a decision tree, of which each leaf describes a cluster in the partition, and in PCRs, the symbolic model is a rule set and each rule describes one of the clusters.
+
+
+
+\chapter{Installing Clus}
+
+\chapter{An Example PCT Run}
+
+\chapter{Clus Settings}
+
+\cleardoublepage
+\myaddtoc{References}
+\bibliographystyle{plain}
+%\bibliography{/home/ml/tex/BIB/.mlbib}
+\bibliography{/u/struyf/paper/tex/mlbib/mlbib}
+
+\cleardoublepage
+\myaddtoc{Index}
+\printindex
+
+\end{document}

@@ -1,6 +1,6 @@
 @relation sspd
 
-@attribute key		string
+@attribute key		key
 @attribute attr_a	{a,b}
 @attribute attr_b	binary
 @attribute attr_c	numeric

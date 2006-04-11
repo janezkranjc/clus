@@ -27,7 +27,8 @@ sspd.s
    
 	[Data]
 	TestFile = sspd_test.arff -> use a test file (remove this line if no test file)
-	Key = 1 -> first attribute is key attribute
+
+	[Tree]
 	Heuristic = SSPD -> use sspd heuristic
    
    the output file contains all settings, one can copy settings from the output file 
@@ -36,7 +37,7 @@ sspd.s
 Run Clus
 --------
 
-$ java -jar Clus.jar sspd
+$ clus sspd
 
 -> sspd is the name of the settings file
 
