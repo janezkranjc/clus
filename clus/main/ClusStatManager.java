@@ -19,6 +19,7 @@ import clus.ext.hierarchical.*;
 import clus.ext.sspd.*;
 import clus.ext.timeseries.DTWTimeSeriesStat;
 import clus.ext.timeseries.QDMTimeSeriesStat;
+import clus.ext.timeseries.TSCTimeSeriesStat;
 import clus.ext.beamsearch.*;
 
 import clus.algo.rules.*;
@@ -401,12 +402,20 @@ public class ClusStatManager implements Serializable {
 			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx));
 			break;
 		case MODE_TIME_SERIES:
-			if (Settings.timeSeriesDM.getValue()==1){
-				setClusteringStatistic(new QDMTimeSeriesStat());
-				setTargetStatistic(new QDMTimeSeriesStat());
-			}else{
+			
+			switch (Settings.timeSeriesDM.getValue()){
+			case 0 :
 				setClusteringStatistic(new DTWTimeSeriesStat());
 				setTargetStatistic(new DTWTimeSeriesStat());
+				break;
+			case 1 :
+				setClusteringStatistic(new QDMTimeSeriesStat());
+				setTargetStatistic(new QDMTimeSeriesStat());
+				break;
+			case 2:
+				setClusteringStatistic(new TSCTimeSeriesStat());
+				setTargetStatistic(new TSCTimeSeriesStat());
+				break;
 			}
 			break;
 		}

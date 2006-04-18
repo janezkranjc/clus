@@ -153,7 +153,7 @@ public class Settings implements Serializable {
 	
 	public final static int CONVERT_RULES_ALL = 2;
 	
-	public final static String[] TIME_SERIES_DISTANCE_MEASURE={"DTW","QDM"};
+	public final static String[] TIME_SERIES_DISTANCE_MEASURE={"DTW","QDM","TSC"};
 	
 	
 	
