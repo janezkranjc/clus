@@ -1,17 +1,19 @@
 package clus.data.type;
 
 import java.io.IOException;
-
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
 import clus.data.rows.RowSerializable;
 import clus.io.ClusReader;
 import clus.io.ClusSerializable;
+import clus.main.Settings;
 import clus.util.ClusException;
 import clus.ext.timeseries.*;
 
 public class TimeSeriesAttrType extends ClusAttrType{
 
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
 	public final static String THIS_TYPE_NAME = "TimeSeries";
 	public final static int THIS_TYPE = 3;
 	

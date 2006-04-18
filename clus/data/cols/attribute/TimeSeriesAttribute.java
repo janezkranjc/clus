@@ -15,7 +15,7 @@ public class TimeSeriesAttribute extends TimeSeriesAttrBase{
 
 
 	public void read(ClusReader data, int row) throws IOException {
-		System.out.println("Samo proba");
+		System.err.println("TimeSerriesAttribute:read(ClusReader,int) - not implemented");
 	}
 
 	
