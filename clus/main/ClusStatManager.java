@@ -412,7 +412,7 @@ public class ClusStatManager implements Serializable {
 				setClusteringStatistic(new QDMTimeSeriesStat());
 				setTargetStatistic(new QDMTimeSeriesStat());
 				break;
-			case 2:
+			case Settings.TIME_SERIES_DISTANCE_MEASURE_TSC:
 				setClusteringStatistic(new TSCTimeSeriesStat());
 				setTargetStatistic(new TSCTimeSeriesStat());
 				break;
