@@ -159,9 +159,8 @@ public class Settings implements Serializable {
 	
 	public final static int TIME_SERIES_DISTANCE_MEASURE_QDM = 1;
 	
-	
-	
-	
+	public final static int TIME_SERIES_DISTANCE_MEASURE_TSC = 2;
+		
 	/* Filename and date information */
 	protected Date m_Date;
 
