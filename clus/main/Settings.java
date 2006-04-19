@@ -155,6 +155,11 @@ public class Settings implements Serializable {
 	
 	public final static String[] TIME_SERIES_DISTANCE_MEASURE={"DTW","QDM","TSC"};
 	
+	public final static int TIME_SERIES_DISTANCE_MEASURE_DTW = 0;
+	
+	public final static int TIME_SERIES_DISTANCE_MEASURE_QDM = 1;
+	
+	
 	
 	
 	/* Filename and date information */

@@ -404,11 +404,11 @@ public class ClusStatManager implements Serializable {
 		case MODE_TIME_SERIES:
 			
 			switch (Settings.timeSeriesDM.getValue()){
-			case 0 :
+			case Settings.TIME_SERIES_DISTANCE_MEASURE_DTW :
 				setClusteringStatistic(new DTWTimeSeriesStat());
 				setTargetStatistic(new DTWTimeSeriesStat());
 				break;
-			case 1 :
+			case Settings.TIME_SERIES_DISTANCE_MEASURE_QDM :
 				setClusteringStatistic(new QDMTimeSeriesStat());
 				setTargetStatistic(new QDMTimeSeriesStat());
 				break;
