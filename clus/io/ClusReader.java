@@ -190,17 +190,17 @@ public class ClusReader {
 		Reader reader = m_Token.getReader();
 		m_Scratch.setLength(0);
 		int ch = getNextChar(reader);
-		while (ch != -1&& ch != ']') {
-			if (ch != '\t' && ch != 10 && ch != 13) {
+		int prev=ch;
+		while ((ch != -1) && (prev !=']')) {
+			if (ch !=(int) '\t' && ch != 10 && ch != 13) {
 				m_Scratch.append((char)ch);
  			} else {
 				if (ch == 10 || ch == 13) setLastChar(13);
 			}
+			prev=ch;
 			ch = reader.read();
 		}
-		if ((char)ch==']')m_Scratch.append((char)ch);
 		String result = m_Scratch.toString().trim();
-
 		if (result.length() > 0) {
 			m_Attr++;			
 			return result;
@@ -209,7 +209,7 @@ public class ClusReader {
 		}
 	}	
 	
-	public void skipTillComma() throws IOException {		
+/*	public void skipTillComma() throws IOException {		
 		int nb = 0;
 		Reader reader = m_Token.getReader();
 		int ch = getNextChar(reader);
@@ -222,8 +222,41 @@ public class ClusReader {
 			}
 			ch = reader.read();
 		}
-	}
+	}*/ 
 
+	//--This is the new method which skips the whole time serie(when TimeSeries attribute is disabled) and the reference character is '['
+
+	public void skipTillComma() throws IOException {		
+			int nb = 0;
+			boolean is_ts=false;
+			Reader reader = m_Token.getReader();
+			int ch = getNextChar(reader);
+			while (ch != -1 && ch != ',') {
+				if (ch != ' ' && ch != '\t' && ch != 10 && ch != 13) {
+					if (ch=='['){
+						is_ts=true;
+						break;
+					}
+					nb++; 
+				} else {
+					if (ch == 10 || ch == 13) setLastChar(13);
+					if (nb > 0) break;
+				}
+				ch = reader.read();
+			}
+			int prev=ch;
+			while (ch != -1 && prev != ']' && is_ts) {
+				if (ch != ' ' && ch != '\t' && ch != 10 && ch != 13) {
+					nb++; 
+				} else {
+					if (ch == 10 || ch == 13) setLastChar(13);
+					if (nb > 0) break;
+				}
+				prev=ch;
+				ch = reader.read();
+			}
+	}
+	
 	public int countRows2() throws IOException {
 		int nbrows = 0;
 		int nbchars = 0;
