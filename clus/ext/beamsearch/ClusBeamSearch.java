@@ -168,9 +168,10 @@ public class ClusBeamSearch extends ClusExtension {
 				NodeTest test = ref_leaf.getTest();
 				for (int j = 0; j < arity; j++) {
 					ClusNode child = new ClusNode();
-					ref_leaf.setChild(child, j);				
-					RowData subset = data.applyWeighted(test, j);				
-					child.initTargetStat(mgr, subset);								
+					ref_leaf.setChild(child, j);
+					RowData subset = data.applyWeighted(test, j);
+					child.initTargetStat(mgr, subset);
+					child.initClusteringStat(mgr, subset);
 				}
 				// create new model
 				ClusNode root_model = (ClusNode)root.getModel();

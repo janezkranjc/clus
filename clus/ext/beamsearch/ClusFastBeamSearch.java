@@ -98,7 +98,7 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 					ref_leaf.setTest(test);
 					// visitor is removed in updateModelRefinement() !
 					ref_leaf.setVisitor(leaf.getVisitor());
-					// if (Settings.VERBOSE) System.out.println("Test: "+ref_leaf.getTestString()+" -> "+ref_leaf.getTest().getHeuristicValue()+" ("+ref_leaf.getTest().getPosFreq()+")");	
+					if (Settings.VERBOSE > 0) System.out.println("Test: "+ref_leaf.getTestString()+" -> "+ref_leaf.getTest().getHeuristicValue()+" ("+ref_leaf.getTest().getPosFreq()+")");
 					int arity = ref_leaf.updateArity();
 					for (int j = 0; j < arity; j++) {
 						ClusNode child = new ClusNode();
