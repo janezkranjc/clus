@@ -2,5 +2,5 @@
 [Beam]
 BeamWidth = 10
 MaxSize = Infinity
-FastSearch = Yes
+FastSearch = No
 RemoveEqualHeur = No

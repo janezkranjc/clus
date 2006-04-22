@@ -13,6 +13,37 @@ import clus.util.*;
 import java.io.*;
 import java.util.ArrayList;
 
+/*
+
+The optimizations over ClusBeamSearch.java the following:
+
+(1) It computes the heuristic value of the refinements of a given leaf
+only once (refinement = new test node with two child leaves that can be
+placed instead of the leaf). This can be done because these values do
+not depend on the rest of the tree. You just add the value of the entire
+tree before the refinement and subtract the value of the leaf that is
+being refined. This is done in the line:
+
+double heuristic = test.getHeuristicValue() + offset;
+
+The possible refinements for each leaf are stored in an object of the
+class ClusBeamAttrSelector in each leaf. It has an array storing the best
+split for each attribute. The "non-fast" version, on the other hand, 
+repeats the compuation of all heuristics each time the leaf is considered 
+for refinement.
+
+(2) If a new test is introduced in a tree, then the data of the node where
+the test is added must be split between the two new leaves based on the
+outcome of the test. The "fast" version postpones this step, i.e., it does
+not do this each time a new tree is added to the beam. The reason is that
+other trees might kick it out of the beam later and then this partitioning
+step (which takes some time) would be done in vain. In the "fast" version,
+these splits are therefore only done for the remaining trees after the entire
+beam of trees is refined. This is done in the updateModelRefinement()
+method.
+
+*/
+
 public class ClusFastBeamSearch extends ClusBeamSearch {
 
 	ClusBeamSizeConstraints m_Constr;

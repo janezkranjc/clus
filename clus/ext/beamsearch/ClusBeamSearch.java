@@ -170,8 +170,10 @@ public class ClusBeamSearch extends ClusExtension {
 					ClusNode child = new ClusNode();
 					ref_leaf.setChild(child, j);
 					RowData subset = data.applyWeighted(test, j);
-					child.initTargetStat(mgr, subset);
 					child.initClusteringStat(mgr, subset);
+					// the following two calls could be removed, but are useful for printing the trees
+					child.initTargetStat(mgr, subset);
+					child.getTargetStat().calcMean();
 				}
 				// create new model
 				ClusNode root_model = (ClusNode)root.getModel();
@@ -183,6 +185,9 @@ public class ClusBeamSearch extends ClusExtension {
 					new_model.setParentModelIndex(getCurrentModel());
 					beam.addModel(new_model);
 					setBeamChanged(true);
+					
+					// Uncomment the following to print each model that is added to the beam
+					((ClusNode)new_model.getModel()).printTree();
 				}
 			}
 		}
