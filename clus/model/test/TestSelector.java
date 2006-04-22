@@ -36,7 +36,9 @@ public class TestSelector {
 	// Cache for numeric attributes
 	public double m_BestSplit;
 	public double m_PosFreq;
-	// public double m_PrevDouble;	
+
+	// Data set
+	public RowData m_Subset;
 
 /***************************************************************************
  * Reset
@@ -76,6 +78,7 @@ public class TestSelector {
 			m_TestStat[i].setSDataSize(subset.getNbRows());
 		}
 		m_Heuristic.setData(subset);
+		m_Subset = subset;
 	}
 
 	// Method for systems that do not support stats on data (like eff. xval.)	
@@ -180,7 +183,7 @@ public class TestSelector {
 		// or if subset if pure -> we test this based on the error
 		boolean stop = false;
 		if (m_TotStat.m_SumWeight < 2.0*Settings.MINIMAL_WEIGHT) stop = true;
-		if (m_TotStat.getError(m_TargetWeights) < MathUtil.C1E_9) stop = true;
+		if (m_TotStat.getError(m_TargetWeights, m_Subset) < MathUtil.C1E_9) stop = true;
 		if (Settings.VERBOSE >= 2) {
 			System.out.print("Stop criterion (weight = "+m_TotStat.m_SumWeight);
 			System.out.print(", error = "+m_TotStat.getError(m_TargetWeights));

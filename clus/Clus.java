@@ -535,7 +535,7 @@ public class Clus implements CMDLineArgsProvider {
 			TupleIterator iter = new DiskTupleIterator(fname, init,	getPreprocs(true), m_Sett);
 			iter.setShouldAttach(true);
 			cr.setTestSet(iter);
-			if (Debug.MAKE_ID_FILES) {
+			if (m_Sett.isWriteModelIDPredictions()) {
 				String tname = FileUtil.getName(fname);
 				ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 				mi.addModelProcessor(ClusModelInfo.TEST_ERR, new NodeIDWriter(tname + ".id", hasMissing, m_Sett));
@@ -552,12 +552,10 @@ public class Clus implements CMDLineArgsProvider {
 				 */
 			}
 		}
-		if (Debug.MAKE_ID_FILES) {
+		if (m_Sett.isWriteModelIDPredictions()) {
 			ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 			String id_tr_name = m_Sett.getAppName() + ".train." + idx + ".id";
-			mi.addModelProcessor(ClusModelInfo.TRAIN_ERR,	new NodeExampleCollector(id_tr_name, hasMissing, m_Sett));
-			String id_ts_name = m_Sett.getAppName() + ".test." + idx + ".id";
-			mi.addModelProcessor(ClusModelInfo.TEST_ERR, new NodeExampleCollector(id_ts_name, hasMissing, m_Sett));
+			mi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new NodeExampleCollector(id_tr_name, hasMissing, m_Sett));
 		}
 		if (Settings.HIER_FLAT.getValue()) {
 			ClassHierarchy hier = m_Induce.getStatManager().getNormalHier();

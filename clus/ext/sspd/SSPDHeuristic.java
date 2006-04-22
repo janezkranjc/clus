@@ -45,6 +45,6 @@ public class SSPDHeuristic extends ClusHeuristic {
 	}
 	
 	public String getName() {
-		return "Sum of Squared Pairwise Distances";
+		return "Sum of Squared Pairwise Distances (SSPD)";
 	}
 }

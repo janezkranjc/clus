@@ -5,6 +5,7 @@ import jeans.list.*;
 import clus.main.Settings;
 import clus.statistic.*;
 import clus.data.rows.*;
+import clus.data.attweights.*;
 
 // This is used in combination with SSPDHeuristic
 // Pairwise distances are taken from matrix
@@ -56,6 +57,10 @@ public class SSPDStatistic extends BitVectorStat {
 		optimizePreCalc(data);
 		return m_Value;
 	}
+
+	public double getError(ClusAttributeWeights scale, RowData data) {
+		return getSS(data);
+	}	
 	
 	public double getDiffSS(SSPDStatistic pos, RowData data) {
 		double value = 0.0;

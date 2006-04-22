@@ -324,6 +324,8 @@ public class Settings implements Serializable {
 	protected INIFileBool m_PrintModelAndExamples;	
 	
 	protected INIFileBool m_WriteTestPredictions;
+	
+	protected INIFileBool m_ModelIDFiles;
 
 	/* Beam Search For Trees */
 	protected INIFileSection m_SectionBeam;
@@ -488,6 +490,7 @@ public class Settings implements Serializable {
 		output.addNode(m_ShowModels = new INIFileNominal("ShowModels", SHOW_MODELS, SHOW_MODELS_VALUES));		
 		output.addNode(m_PrintModelAndExamples = new INIFileBool("PrintModelAndExamples", false));
 		output.addNode(m_WriteTestPredictions = new INIFileBool("WriteTestSetPredictions", false));
+		output.addNode(m_ModelIDFiles = new INIFileBool("ModelIDFiles", false));		
 		output.addNode(m_OutputPythonModel = new INIFileBool("OutputPythonModel", false));
 		
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
@@ -820,6 +823,10 @@ public class Settings implements Serializable {
 	public boolean isWriteTestSetPredictions() {
 		return m_WriteTestPredictions.getValue();
 	}
+
+	public boolean isWriteModelIDPredictions() {
+		return m_ModelIDFiles.getValue();
+	}
 	
 	public boolean isOutputPythonModel() {
 		return m_OutputPythonModel.getValue();
@@ -856,6 +863,10 @@ public class Settings implements Serializable {
 	public boolean isNullTarget() {
 		return StringUtils.unCaseCompare(m_Target.getValue(), NONE);
 	}
+	
+	public boolean isDefaultTarget() {
+		return StringUtils.unCaseCompare(m_Target.getValue(), DEFAULT);
+	}	
 
 	public boolean isNullFile() {
 		return StringUtils.unCaseCompare(m_DataFile.getValue(), NONE);
@@ -949,13 +960,10 @@ public class Settings implements Serializable {
 	}
 
 	public void updateTarget(ClusSchema schema) {
-		int nb = schema.getNbAttributes();
-		if (isNullTarget()) {
-			if (checkHeuristic("SSPD")) {
-				schema.addAttrType(new IntegerAttrType("SSPD"));
-				nb++;
-			}
-			// m_Target.setValue(String.valueOf(nb));
+		if (checkHeuristic("SSPD")) {
+			schema.addAttrType(new IntegerAttrType("SSPD"));
+			int nb = schema.getNbAttributes();			
+			m_Target.setValue(String.valueOf(nb));
 		}
 	}
 

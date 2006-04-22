@@ -274,10 +274,8 @@ public class ClusStatManager implements Serializable {
 
 	public void check() throws ClusException {
 		int nb_types = 0;
-		int nb_nom = m_Schema
-				.getNbNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		int nb_num = m_Schema
-				.getNbNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		int nb_nom = m_Schema.getNbNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		int nb_num = m_Schema.getNbNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		int nb_int = m_Target.getNbType(IntegerAttrType.THIS_TYPE);
 		
 		if (nb_nom > 0 && nb_num > 0) {
@@ -290,13 +288,12 @@ public class ClusStatManager implements Serializable {
 			m_Mode = MODE_REGRESSION;
 			nb_types++;
 		}
-		if (m_Schema.hasAttributeType(ClusAttrType.ATTR_USE_TARGET,
-				ClassesAttrType.THIS_TYPE)) {
+		if (m_Schema.hasAttributeType(ClusAttrType.ATTR_USE_TARGET, ClassesAttrType.THIS_TYPE)) {
 			m_Mode = MODE_HIERARCHICAL;
 			getSettings().setSectionHierarchicalEnabled(true);
 			nb_types++;
 		}
-		if (nb_int > 0) {
+		if (nb_int > 0 || m_Settings.checkHeuristic("SSPD")) {
 			m_Mode = MODE_SSPD;
 			nb_types++;
 		}
@@ -306,11 +303,10 @@ public class ClusStatManager implements Serializable {
 		}
 		if (nb_types == 0) {
 			System.err.println("No target value defined");
+		}		
+		if (nb_types > 1) {
+			throw new ClusException("Incompatible combination of clustering attribute types");
 		}
-		
-		if (nb_types > 1)
-			throw new ClusException(
-					"Incompatible combination of clustering attribute types");
 	}
 
 	public ClusAttributeWeights createClusAttributeWeights() throws ClusException {
@@ -399,6 +395,7 @@ public class ClusStatManager implements Serializable {
 			}
 			break;
 		case MODE_SSPD:
+			setClusteringStatistic(new SSPDStatistic(m_SSPDMtrx));
 			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx));
 			break;
 		case MODE_TIME_SERIES:
@@ -432,10 +429,8 @@ public class ClusStatManager implements Serializable {
 
 	public void initHeuristic() throws ClusException {
 		String name;
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		if (isRuleInduce()) {
 			if (m_Mode == MODE_CLASSIFY) {
 				switch (getSettings().getHeuristic()) {

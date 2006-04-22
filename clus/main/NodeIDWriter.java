@@ -44,6 +44,10 @@ public class NodeIDWriter extends ClusModelProcessor {
 		m_Writer.close();
 	}
 
+	public boolean needsModelUpdate() {
+		return true;
+	}		
+
 	public void modelUpdate(DataTuple tuple, ClusModel model) {	
 		ClusNode node = (ClusNode)model;
 		if (m_First) {

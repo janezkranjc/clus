@@ -6,6 +6,5 @@ TestSet = sspd_test.arff
 Heuristic = SSPD
 
 [Output]
-BranchFrequency = TRUE
-
-
+ShowInfo = {Count, Index}
+ModelIDFiles = TRUE

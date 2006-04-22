@@ -49,22 +49,33 @@ $ clus sspd
 	Loading 'sspd'
 
 	Reading ARFF Header
-	Relation name: sspd
-	Number of attributes: 4
 
 	Reading CSV Data
 	Found 8 rows
 	Loading SSPD Matrix: sspd.dist (Size: 8)
+	Setting clustering statistic: clus.ext.sspd.SSPDStatistic
+	Setting target statistic: clus.ext.sspd.SSPDStatistic
+	Loading: sspd_test.arff
+	Loading 'sspd_test.arff'
+	  Normalization for: attr_c = 2.4844720496894417
+	Clustering: Weights C=[1], N=[1]
+	  Target weight     = 1.0
+	  Non target weight = 1.0
+	  Numeric weight    = 1.0
+	  Nominal weight    = 1.0
+	Compactness:   Weights C=[1,1,1,1], N=[1,1,2.484,1]
 
+	Has missing values: false
 	Run: 01
-	Heuristic: Sum of Squared Pairwise Distances
-	
+	TDIDT
+	Heuristic: Sum of Squared Pairwise Distances (SSPD)
+
 	Test: attr_a = a -> 3427.1247999999996
 	Test: attr_b = 1 -> 234.2427
+	Induction Time: 0.049 sec
+	Pruning Time: 0.035 sec
 
 	Loading 'sspd_test.arff'
-	Relation name: sspd
-	Number of attributes: 4
 	Output written to: sspd.out
 
 -> clus found two useful tests (heuristic value is behind "->")
@@ -76,17 +87,17 @@ sspd.out
 
 -> contains the settings and the decision tree
 
-	Pruned Model
-	************
+Pruned Model
+************
 
-	attr_a = a (50%)
-	+--yes: [0] 4.0
-	+--no:  attr_b = 1 (50%)
-	        +--yes: [1] 2.0
-        	+--no:  [2] 2.0
+	attr_a = a
+	+--yes: 4.0 (1)
+	+--no:  attr_b = 1
+        	+--yes: 2.0 (2)
+        	+--no:  2.0 (3)
 
--> the numbers between the "[,]" are the leaf ID's
--> the numbers behind the leaf ID's are the number of training examples in the leave
+-> the numbers between the "(,)" are the leaf ID's
+-> the numbers before the leaf ID's are the number of training examples in the leave
 -> pruning does not work for sspd, since there is no error measure defined
 
 sspd.1.id
@@ -112,20 +123,14 @@ sspd_test.id
 
 -> predicted leaf ID's for the test data
 
-	pred(e1,0).
-	pred(e2,0).
-	pred(e3,0).
-	pred(e4,0).
-	pred(e5,1).
-	pred(e6,1).
-	pred(e7,2).
-	pred(e8,2).
+	pred(e1,1).
+	pred(e2,1).
+	pred(e3,1).
+	pred(e4,1).
+	pred(e5,2).
+	pred(e6,2).
+	pred(e7,3).
+	pred(e8,3).
 
 that's it for now
-mail questions to jan.struyf@cs.kuleuven.ac.be
-
-
-
-
-
-
+mail questions to jan.struyf@cs.kuleuven.be

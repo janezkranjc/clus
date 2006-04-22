@@ -141,6 +141,10 @@ public abstract class ClusStatistic implements Serializable {
 		return getErrorDiff(null, other);
 	}
 	
+	public double getError(ClusAttributeWeights scale, RowData data) {
+		return getError(scale);
+	}
+	
 	public double getError(ClusAttributeWeights scale) {
 		System.err.println(getClass().getName()+": getError(): Not yet implemented");
 		return Double.POSITIVE_INFINITY;
