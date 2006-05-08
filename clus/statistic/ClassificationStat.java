@@ -393,8 +393,7 @@ public class ClassificationStat extends ClusStatistic {
 		for (int i = 0; i < m_NbTarget; i++) {
 			for (int j = 0; j < m_ClassCounts[i].length; j++) {
 				String value = m_Attrs[i].getValue(j);
-				ClusAttrType type = m_Attrs[i].cloneType();
-				type.setName("p-"+type.getName()+"-"+value);
+				ClusAttrType type = new NumericAttrType("p-"+m_Attrs[i].getName()+"-"+value);
 				schema.addAttrType(type);
 			}
 		}		
