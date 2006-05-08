@@ -5,6 +5,7 @@ import jeans.util.*;
 import java.io.*;
 
 import clus.main.*;
+import clus.io.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.statistic.*;
@@ -64,8 +65,8 @@ public class PredictionWriter extends ClusModelProcessor {
 			m_Writer.print(at.getString(tuple));					
 		}
 		m_Writer.print(",");
-		m_Writer.print(distr.getPredictString());
-		m_Writer.print(",'"+m_ModelParts+"'");
+		m_Writer.print(distr.getPredictWriterString());
+		m_Writer.print(",\""+m_ModelParts+"\"");
 		m_Writer.println();
 		m_ModelParts.setLength(0);
 	}
@@ -88,6 +89,10 @@ public class PredictionWriter extends ClusModelProcessor {
 				m_OutSchema.addAttrType(at.cloneType());
 			}
 		}
-		m_Writer = m_Sett.getFileAbsoluteWriter(m_Fname);		
+		m_Target.addPredictWriterSchema(m_OutSchema);
+		m_OutSchema.addAttrType(new StringAttrType("p-models"));
+		m_Writer = m_Sett.getFileAbsoluteWriter(m_Fname);
+		ARFFFile.writeArffHeader(m_Writer, m_OutSchema);
+		m_Writer.println("@DATA");
 	}
 }

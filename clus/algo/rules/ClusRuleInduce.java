@@ -666,6 +666,8 @@ public class ClusRuleInduce {
 				rset.removeDataFromRules();
 			}
 		}
+		// Number rules (for output prupose in WritePredictions)
+		rset.numberRules();
 		return rset;
 	}
 

@@ -9,6 +9,7 @@ import jeans.util.StringUtils;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.*;
 
+import clus.main.ClusSchema;
 import clus.main.ClusStatManager;
 import clus.main.Settings;
 import clus.util.*;
@@ -325,7 +326,7 @@ public class RegressionStat extends ClusStatistic {
 			buf.append(String.valueOf(m_Means[i]));
 		}
 		return buf.toString();
-	}
+	}	
 	
 	public String getDebugString() {
 		NumberFormat fr = ClusFormat.THREE_AFTER_DOT;
@@ -372,5 +373,26 @@ public class RegressionStat extends ClusStatistic {
 			wrt.print(fr.format(getVariance(i)));
 			wrt.println("]");	
 		}
-	}		
+	}
+	
+	public void addPredictWriterSchema(ClusSchema schema) {
+		for (int i = 0; i < m_NbAttrs; i++) {
+			ClusAttrType type = m_Attrs[i].cloneType();
+			type.setName("p-"+type.getName());
+			schema.addAttrType(type);
+		}
+	}
+	
+	public String getPredictWriterString() {
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < m_NbAttrs; i++) {
+			if (i != 0) buf.append(",");
+			if (m_Means != null) {
+				buf.append(""+m_Means[i]);
+			} else {
+				buf.append("?");
+			}			
+		}
+		return buf.toString();
+	}	
 }

@@ -1,6 +1,6 @@
 package clus.statistic;
 
-import clus.main.Settings;
+import clus.main.*;
 import clus.util.*;
 import clus.data.cols.*; 
 import clus.data.rows.*; 
@@ -203,6 +203,13 @@ public abstract class ClusStatistic implements Serializable {
 			stats[i].calcMean();
 		}
 	}
+	
+	public void addPredictWriterSchema(ClusSchema schema) {
+	}
+	
+	public String getPredictWriterString() {
+		return getPredictString();
+	}	
 	
 	// In multi-label classification: predicted set of classes is union of 
 	//                                predictions of individual rules	

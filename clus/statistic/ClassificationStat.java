@@ -384,6 +384,41 @@ public class ClassificationStat extends ClusStatistic {
 		return buf.toString();
 	}
 	
+	public void addPredictWriterSchema(ClusSchema schema) {
+		for (int i = 0; i < m_NbTarget; i++) {
+			ClusAttrType type = m_Attrs[i].cloneType();
+			type.setName("p-"+type.getName());
+			schema.addAttrType(type);
+		}
+		for (int i = 0; i < m_NbTarget; i++) {
+			for (int j = 0; j < m_ClassCounts[i].length; j++) {
+				String value = m_Attrs[i].getValue(j);
+				ClusAttrType type = m_Attrs[i].cloneType();
+				type.setName("p-"+type.getName()+"-"+value);
+				schema.addAttrType(type);
+			}
+		}		
+	}
+	
+	public String getPredictWriterString() {
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < m_NbTarget; i++) {
+			if (i != 0) buf.append(",");
+			if (m_MajorityClasses != null) {
+				buf.append(m_Attrs[i].getValue(m_MajorityClasses[i]));
+			} else {
+				buf.append("?");
+			}			
+		}
+		for (int i = 0; i < m_NbTarget; i++) {
+			for (int j = 0; j < m_ClassCounts[i].length; j++) {
+				buf.append(",");
+				buf.append(""+m_ClassCounts[i][j]);
+			}
+		}		
+		return buf.toString();
+	}	
+	
 	public int getNbClasses(int idx) {
 		return m_ClassCounts[idx].length;
 	}

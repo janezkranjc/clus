@@ -545,12 +545,13 @@ public class Clus implements CMDLineArgsProvider {
 				ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 				mi.addModelProcessor(ClusModelInfo.TEST_ERR,
 						new PredictionWriter(tname + ".pred", m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
-				/*
-				 * String appname = m_Sett.getAppName();
-				 * mi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new
-				 * PredictionWriter(appname+"."+idx+".pred", m_Sett));
-				 */
 			}
+		}
+		if (m_Sett.isWriteTrainSetPredictions()) {
+			ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
+			String tr_name = m_Sett.getAppName() + ".train." + idx + ".pred";
+			mi.addModelProcessor(ClusModelInfo.TRAIN_ERR,
+					new PredictionWriter(tr_name, m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
 		}
 		if (m_Sett.isWriteModelIDPredictions()) {
 			ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);

@@ -39,7 +39,17 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_COMPACTNESS = 5;
 	
 	public final static int HEURISTIC_MORISHITA = 6;	
+
+	public final static String[] WRITE_PRED = { "None", "Test", "Train" };
 	
+	public final static int[] WRITE_PRED_VALUES = {0};
+	
+	public final static int WRITE_PRED_NONE = 0;
+	
+	public final static int WRITE_PRED_TEST = 1;
+	
+	public final static int WRITE_PRED_TRAIN = 2;
+		
 	public final static String[] PRUNING_METHODS = { "Default", "None", "C4.5",
 		"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB", "CartVSB", "CartMaxSize" };
 	
@@ -372,7 +382,7 @@ public class Settings implements Serializable {
 	
 	protected INIFileBool m_PrintModelAndExamples;	
 	
-	protected INIFileBool m_WriteTestPredictions;
+	protected INIFileNominal m_WritePredictions;
 	
 	protected INIFileBool m_ModelIDFiles;
 
@@ -554,7 +564,7 @@ public class Settings implements Serializable {
 		output.addNode(m_ShowInfo = new INIFileNominal("ShowInfo", SHOW_INFO, SHOW_INFO_VALUES));
 		output.addNode(m_ShowModels = new INIFileNominal("ShowModels", SHOW_MODELS, SHOW_MODELS_VALUES));		
 		output.addNode(m_PrintModelAndExamples = new INIFileBool("PrintModelAndExamples", false));
-		output.addNode(m_WriteTestPredictions = new INIFileBool("WriteTestSetPredictions", false));
+		output.addNode(m_WritePredictions = new INIFileNominal("WritePredictions", WRITE_PRED, WRITE_PRED_VALUES));
 		output.addNode(m_ModelIDFiles = new INIFileBool("ModelIDFiles", false));		
 		output.addNode(m_OutputPythonModel = new INIFileBool("OutputPythonModel", false));
 		
@@ -934,8 +944,12 @@ public class Settings implements Serializable {
 	}
 
 	public boolean isWriteTestSetPredictions() {
-		return m_WriteTestPredictions.getValue();
+		return m_WritePredictions.contains(WRITE_PRED_TEST);
 	}
+	
+	public boolean isWriteTrainSetPredictions() {
+		return m_WritePredictions.contains(WRITE_PRED_TRAIN);
+	}	
 
 	public boolean isWriteModelIDPredictions() {
 		return m_ModelIDFiles.getValue();

@@ -120,6 +120,8 @@ public class ARFFFile {
 						wrt.print("numeric");						
 					} else if (type.getTypeIndex() == NominalAttrType.THIS_TYPE) {
 						wrt.print(((NominalAttrType)type).getTypeString());						
+					} else if (type.getTypeIndex() == StringAttrType.THIS_TYPE) {
+						wrt.print("string");						
 					} else {
 						throw new IOException("Unknown type while writing .arff file: "+type.getClass().getName());
 					}

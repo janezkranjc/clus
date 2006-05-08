@@ -11,6 +11,7 @@ import org.apache.commons.math.MathException;
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.DataTuple;
 import clus.data.type.*;
+import clus.main.ClusSchema;
 import clus.main.ClusStatManager;
 import clus.main.Settings;
 import clus.util.ClusFormat;
@@ -482,6 +483,20 @@ public class CombStat extends ClusStatistic {
     buf.append("]");    
     return buf.toString();
   }
+  
+	public void addPredictWriterSchema(ClusSchema schema) {
+		m_ClassStat.addPredictWriterSchema(schema);
+		m_RegStat.addPredictWriterSchema(schema);		
+	}
+	
+	public String getPredictWriterString() {
+		StringBuffer buf = new StringBuffer();
+		buf.append(m_ClassStat.getPredictWriterString());
+		if (buf.length() != 0) buf.append(",");
+		buf.append(m_RegStat.getPredictWriterString());
+		return buf.toString();
+	}	
+  
 
 	public String getArrayOfStatistic(){
 	    return null;

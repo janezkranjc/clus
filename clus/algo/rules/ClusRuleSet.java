@@ -499,6 +499,13 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		return 0;
 	}
 	
+	public void numberRules() {
+		for (int i = 0; i < m_Rules.size(); i++) {  		
+			ClusRule rule = getRule(i);
+			rule.setID(i+1);
+		}  	
+	}
+	
 	public ClusModel prune(int prunetype) {
 		return this;
   }
