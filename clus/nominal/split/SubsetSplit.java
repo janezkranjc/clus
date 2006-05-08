@@ -1,6 +1,7 @@
 package clus.nominal.split;
 
 import clus.main.*;
+import clus.algo.rules.ClusRuleHeuristicCompactness;
 import clus.data.type.*;
 import clus.model.test.*;
 import clus.statistic.*;
@@ -60,14 +61,24 @@ public class SubsetSplit extends NominalSplit {
 			card = 1;
 			isin[0] = true;			
 			ClusStatistic CStat = node.m_TestStat[0];
+			if ((m_PStat instanceof CombStat) &&
+					((CombStat)m_PStat).getSettings().isCompHeurRuleDist()) {
+				((ClusRuleHeuristicCompactness)node.m_Heuristic).
+					setDataIndexes(((ClusRuleHeuristicCompactness)node.m_Heuristic).
+						getDataIndexesPerVal()[0]);
+			}
 			bheur = node.calcHeuristic(m_MStat, CStat);
 			// showTest(type, isin, -1, bheur, m_MStat, m_CStat);			
 			pos_freq = CStat.m_SumWeight / m_MStat.m_SumWeight;
-		} else {	
+		} else {
 			// Try to add values to subsets
 			// Each iteration the cardinality increases by at most one
 			m_PStat.reset();			
 			int bvalue = 0;	
+			if ((m_PStat instanceof CombStat) &&
+					((CombStat)m_PStat).getSettings().isCompHeurRuleDist()) {
+				((ClusRuleHeuristicCompactness)node.m_Heuristic).setDataIndexes(new int[0]);
+			}
 			while (bvalue != -1) {
 				bvalue = -1;
 				for (int j = 0; j < nbvalues; j++) {
@@ -75,6 +86,15 @@ public class SubsetSplit extends NominalSplit {
 						// Try to add this one to the positive stat
 						m_CStat.copy(m_PStat);
 						m_CStat.add(node.m_TestStat[j]);
+						if ((m_PStat instanceof CombStat) &&
+								((CombStat)m_PStat).getSettings().isCompHeurRuleDist()) {
+							boolean isin_current[] = new boolean[nbvalues];
+							for (int k = 0; k < nbvalues; k++) {
+								isin_current[k] = isin[k];
+							}
+							isin_current[j] = true;
+							((ClusRuleHeuristicCompactness)node.m_Heuristic).setDataIndexes(isin_current);
+						}
 						// Calc heuristic
 						double mheur = node.calcHeuristic(m_MStat, m_CStat);
 						// showTest(type, isin, j, mheur, m_MStat, m_CStat);

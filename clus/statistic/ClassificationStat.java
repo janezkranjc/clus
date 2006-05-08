@@ -31,21 +31,21 @@ public class ClassificationStat extends ClusStatistic {
    * @param nomAtts array of nominal attributes
    */
 	public ClassificationStat(NominalAttrType[] nomAtts) {
-  		m_NbTarget = nomAtts.length;
-  		m_ClassCounts = new double[m_NbTarget][];
-    	for (int i = 0; i < m_NbTarget; i++) {
-    		m_ClassCounts[i] = new double[nomAtts[i].getNbValues()];
-    	}
-    	m_Attrs = nomAtts;
-  	} 
-
-  	public int getNbNominalAttributes() {
-  		return m_NbTarget;
-  	}
-
-  	public ClusStatistic cloneStat() {
-  		return new ClassificationStat(m_Attrs);
-  	}
+		m_NbTarget = nomAtts.length;
+		m_ClassCounts = new double[m_NbTarget][];
+		for (int i = 0; i < m_NbTarget; i++) {
+			m_ClassCounts[i] = new double[nomAtts[i].getNbValues()];
+		}
+		m_Attrs = nomAtts;
+	} 
+	
+	public int getNbNominalAttributes() {
+		return m_NbTarget;
+	}
+	
+	public ClusStatistic cloneStat() {
+		return new ClassificationStat(m_Attrs);
+	}
 	
 	public void initSingleTargetFrom(double[] distro) {
 		m_ClassCounts[0] = distro;
@@ -69,6 +69,23 @@ public class ClassificationStat extends ClusStatistic {
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] clcts = m_ClassCounts[i];
 			for (int j = 0; j < clcts.length; j++) clcts[j] = 0.0;		
+		}
+	}
+
+	/** Resets the SumWeight and majority class count to weight and all other
+	 *  class counts to zero.
+	 */ 
+	public void resetToSimple(double weight) {
+		m_SumWeight = weight;
+		for (int i = 0; i < m_NbTarget; i++) {
+			double[] clcts = m_ClassCounts[i];
+			for (int j = 0; j < clcts.length; j++) {
+				if (j == m_MajorityClasses[i]) {
+					clcts[j] = weight;		
+				} else {
+					clcts[j] = 0.0;
+				}
+			}
 		}
 	}
 	

@@ -48,6 +48,17 @@ public class DataTuple implements Serializable {
 		return res;
 	}
 	
+	/**
+	 * Clones only the tuple's weight.
+	 * @return tuple
+	 */
+/*	public final DataTuple cloneTupleWeight() {
+		DataTuple res = new DataTuple();
+		res.m_Weight = m_Weight;
+		return res;
+	}
+*/
+	
 	public final DataTuple deepCloneTuple() {
 		DataTuple res = new DataTuple();
 		if (m_Ints != null) {

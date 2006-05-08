@@ -958,4 +958,48 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 		}
 	}
 
+	/**
+	 * Initializes/checks/overrides some inter-dependent settings for rule induction.
+	 * @throws ClusException 
+	 *
+	 */
+	public void initRuleSettings() throws ClusException {
+		Settings sett = getSettings();
+		int covering = sett.getCoveringMethod();
+		int prediction = sett.getRulePredictionMethod();
+		// General
+		if ((sett.getHeuristic() != Settings.HEURISTIC_COMPACTNESS) && sett.isCompHeurRuleDist()) {
+			throw new ClusException("Clus rule induction: CompHeurRuleDist parameter only implemented within the compactness heuristic!");
+		}
+		// Random rules
+		if (sett.isRandomRules()) {
+			sett.setCoveringMethod(Settings.COVERING_METHOD_STANDARD);
+			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_DECISION_LIST);
+			sett.setCoveringWeight(0);
+		// Ordered rules
+		} else if (covering == Settings.COVERING_METHOD_STANDARD) {
+			// sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_DECISION_LIST);
+			sett.setCoveringWeight(0);
+		// Unordered rules
+		// TODO: not sure about this!
+		} else if ((covering == Settings.COVERING_METHOD_WEIGHTED_ADDITIVE) ||
+							 (covering == Settings.COVERING_METHOD_WEIGHTED_MULTIPLICATIVE) ||
+							 (covering == Settings.COVERING_METHOD_WEIGHTED_ERROR) ||
+							 (covering == Settings.COVERING_METHOD_RULE_SET) ||
+			         (covering == Settings.COVERING_METHOD_BEAM_RULE_SET) ||
+			         (covering == Settings.COVERING_METHOD_BEAM_RULE_DEF_SET) ||
+			         (covering == Settings.COVERING_METHOD_RANDOM_RULE_SET)) {
+			if ((prediction == Settings.RULE_PREDICTION_METHOD_DECISION_LIST) ||
+					(prediction == Settings.RULE_PREDICTION_METHOD_UNION)) {
+				sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
+			}
+			if (sett.getCoveringWeight() < 0) {
+				throw new ClusException("Clus rule induction - Weighted covering: Covering weight must be >= 0!");
+			}
+		// Multi-label classification
+		} else if (covering == Settings.COVERING_METHOD_UNION) {
+			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_UNION);
+		}
+	}
+
 }

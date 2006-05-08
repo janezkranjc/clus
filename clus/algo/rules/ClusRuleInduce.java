@@ -4,6 +4,10 @@ package clus.algo.rules;
 
 import java.io.*;
 import java.util.*;
+import java.text.DecimalFormat;
+
+import weka.core.Instance;
+import weka.core.Instances;
 
 import clus.algo.induce.*;
 import clus.main.*;
@@ -14,9 +18,10 @@ import clus.data.rows.*;
 import clus.data.type.*;
 import clus.ext.beamsearch.*;
 import clus.util.*;
+import clus.tools.optimization.de.*;;
 
 public class ClusRuleInduce {
-
+	
 	protected boolean m_BeamChanged;
 	protected DepthFirstInduce m_Induce;
 	protected ClusHeuristic m_Heuristic;
@@ -62,16 +67,13 @@ public class ClusRuleInduce {
 		RowData data = (RowData)rule.getVisitor();
 		if (m_Induce.initSelectorAndStopCrit(rule.getClusteringStat(), data)) {
 			model.setFinished(true);
-      return;			
+			return;			
 		}
 		TestSelector sel = m_Induce.getSelector();
 		// ClusStatManager mgr = m_Induce.getStatManager();		
 		ClusAttrType[] attrs = data.getSchema().getDescriptiveAttributes();
 		for (int i = 0; i < attrs.length; i++) {
-      /* if (Settings.VERBOSE > 0) System.out.println("  Ref.Attribute: " + i);
-      if (i == 3) {
-        System.out.print(">>>");
-      } */
+			// if (Settings.VERBOSE > 1) System.out.print("\n    Ref.Attribute: " + attrs[i].getName() + ": ");
 			sel.resetBestTest();
 			double beam_min_value = beam.getMinValue();
 			sel.setBestHeur(beam_min_value);
@@ -82,14 +84,21 @@ public class ClusRuleInduce {
 				NodeTest test = sel.updateTest();
 				if (Settings.VERBOSE > 0) System.out.println("  Test: "+test.getString()+" -> "+sel.m_BestHeur);
 				// RowData subset = data.applyWeighted(test, ClusNode.YES);
-        RowData subset = data.apply(test, ClusNode.YES);
+				RowData subset = data.apply(test, ClusNode.YES);
 				ClusRule ref_rule = rule.cloneRule();
 				ref_rule.addTest(test);
 				ref_rule.setVisitor(subset);
 				ref_rule.setClusteringStat(m_Induce.createTotalClusteringStat(subset));
-        // if (Settings.VERBOSE > 0) System.out.println("  Sanity.check.val: " + sel.m_BestHeur);
+				// if (Settings.VERBOSE > 0) System.out.println("  Sanity.check.val: " + sel.m_BestHeur);
+				if (getSettings().isCompHeurRuleDist()) {
+					int[] subset_idx = new int[subset.getNbRows()];
+					for (int j = 0; j < subset_idx.length; j++) {
+						subset_idx[j] = subset.getTuple(j).getIndex();
+					}
+					((ClusRuleHeuristicCompactness)m_Heuristic).setDataIndexes(subset_idx);
+				}
 				double new_heur = sanityCheck(sel.m_BestHeur, ref_rule);
-        // if (Settings.VERBOSE > 0) System.out.println("  Sanity.check.exp: " + new_heur);
+				// if (Settings.VERBOSE > 0) System.out.println("  Sanity.check.exp: " + new_heur);
 				// Check for sure if _strictly_ better!
 				if (new_heur > beam_min_value) {
 					ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_rule);
@@ -107,7 +116,7 @@ public class ClusRuleInduce {
 		for (int i = 0; i < models.size(); i++) {
 			ClusBeamModel model = (ClusBeamModel)models.get(i);
 			if (!(model.isRefined() || model.isFinished())) {
-        // if (Settings.VERBOSE > 0) System.out.println("  Refine: model " + i);
+				// if (Settings.VERBOSE > 0) System.out.println("  Refine: model " + i);
 				refineModel(model, beam, i);
 				model.setRefined(true);
 				model.setParentModelIndex(-1);
@@ -120,14 +129,14 @@ public class ClusRuleInduce {
 		int i = 0;
 		System.out.print("Step: ");
 		while (true) {
-      if (Settings.VERBOSE > 0) {
-        System.out.println("Step: " + i);
-      } else {
-        if (i != 0) {
-          System.out.print(",");
-        }
-        System.out.print(i);
-      }
+			if (Settings.VERBOSE > 0) {
+				System.out.println("Step: " + i);
+			} else {
+				if (i != 0) {
+					System.out.print(",");
+				}
+				System.out.print(i);
+			}
 			System.out.flush();
 			refineBeam(beam);
 			if (!isBeamChanged()) {
@@ -147,53 +156,391 @@ public class ClusRuleInduce {
 		return result;
 	}
 	
-  public void separateAndConquor(ClusRuleSet rset, RowData data) {
-    while (data.getNbRows() > 0) {
-      ClusRule rule = learnOneRule(data);
-      if (rule.isEmpty()) {
-        break;
-      } else {
-        rule.computePrediction();
-        rule.printModel();
-        System.out.println();
-        rset.add(rule);
-        data = rule.removeCovered(data);
-      }
-    }
-    ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
-    left_over.calcMean();
-    System.out.println("Left Over: "+left_over);
-    rset.setTargetStat(left_over);
-  }
-
-  /**
-   * separateAndConquor method which uses reweighting
-   * @param rset
-   * @param data
-   * @throws ClusException 
-   */
-  public void separateAndConquorWeighted(ClusRuleSet rset, RowData data) throws ClusException {
-    int MAXLOOPS = 10000; // TODO: Should be a parameter?
-    int i = 0;
-    while ((data.getNbRows() > 0) && (i < MAXLOOPS)) {
-      ClusRule rule = learnOneRule(data);
-      if (rule.isEmpty()) {
-        break;
-      } else {
-        rule.computePrediction();
-        rule.printModel();
-        System.out.println();
-        rset.add(rule);
-        data = rule.reweighCovered(data);
-        i++;
-      }
-    }
-    ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
-    left_over.calcMean();
-    System.out.println("Left Over: "+left_over);
-    rset.setTargetStat(left_over);
-  }
-
+	public ClusRule learnEmptyRule(RowData data) {
+		ClusRule result = new ClusRule(m_Induce.getStatManager());
+		// Create target statistic for rule
+		// RowData rule_data = (RowData)result.getVisitor();
+		// result.setTargetStat(m_Induce.createTotalTargetStat(rule_data));
+		// result.setVisitor(null);
+		return result;
+	}
+	
+	/**
+	 * Returns all the rules in the beam, not just the best one.
+	 * @param data
+	 * @return array of rules
+	 */
+	public ClusRule[] learnBeamOfRules(RowData data) {
+		ClusBeam beam = initializeBeam(data);
+		int i = 0;
+		System.out.print("Step: ");
+		while (true) {
+			if (Settings.VERBOSE > 0) {
+				System.out.println("Step: " + i);
+			} else {
+				if (i != 0) {
+					System.out.print(",");
+				}
+				System.out.print(i);
+			}
+			System.out.flush();
+			refineBeam(beam);
+			if (!isBeamChanged()) {
+				break;
+			}
+			i++;
+		}
+		System.out.println();
+		double best = beam.getBestModel().getValue();
+		double worst = beam.getWorstModel().getValue();		
+		System.out.println("Worst = "+worst+" Best = "+best);
+		ArrayList beam_models = beam.toArray();
+		ClusRule[] result = new ClusRule[beam_models.size()];
+		for (int j = 0; j < beam_models.size(); j++) {
+			// Put better models first
+			int k = beam_models.size() - j - 1;
+			ClusRule rule = (ClusRule)((ClusBeamModel)beam_models.get(k)).getModel();
+			// Create target statistic for this rule
+			RowData rule_data = (RowData)rule.getVisitor();
+			rule.setTargetStat(m_Induce.createTotalTargetStat(rule_data));
+			rule.setVisitor(null);
+			result[j] = rule;
+		}
+		return result;
+	}
+	
+	public void separateAndConquor(ClusRuleSet rset, RowData data) {
+		while (data.getNbRows() > 0) {
+			ClusRule rule = learnOneRule(data);
+			if (rule.isEmpty()) {
+				break;
+			} else {
+				rule.computePrediction();
+				rule.printModel();
+				System.out.println();
+				rset.add(rule);
+				data = rule.removeCovered(data);
+			}
+		}
+		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		left_over.calcMean();
+		System.out.println("Left Over: "+left_over);
+		rset.setTargetStat(left_over);
+	}
+	
+	/**
+	 * separateAndConquor method which uses reweighting
+	 * @param rset
+	 * @param data
+	 * @throws ClusException 
+	 */
+	public void separateAndConquorWeighted(ClusRuleSet rset, RowData data) throws ClusException {
+		int max_rules = getSettings().getMaxRulesNb();
+		int i = 0;
+		int nb_rows = data.getNbRows();
+		RowData data_copy = (RowData)data.deepCloneData(); // Probably not nice
+		ArrayList bit_vect_array = new ArrayList();
+		while ((nb_rows > 0) && (i < max_rules)) {
+			ClusRule rule = learnOneRule(data);
+			if (rule.isEmpty()) {
+				break;
+			} else {
+				rule.computePrediction();
+				rule.printModel();
+				System.out.println();
+				rset.add(rule);
+				data = rule.reweighCovered(data);
+				i++;
+				if (getSettings().isCompHeurRuleDist()) {
+					boolean[] bit_vect = new boolean[data_copy.getNbRows()];
+					for (int j = 0; j < bit_vect.length; j++) {
+						if (!bit_vect[j]) {
+							for (int k = 0; k < rset.getModelSize(); k++) {
+								if (rset.getRule(k).covers(data_copy.getTuple(j))) {
+									bit_vect[j] = true;
+									break;									
+								}
+							}
+						}
+					}
+					bit_vect_array.add(bit_vect);
+					((ClusRuleHeuristicCompactness)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
+					// nb_rows = data.getNbNonZeroRows();
+				} else {
+					// nb_rows = data.getNbRows();
+				}
+			}
+		}
+		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		left_over.calcMean();
+		System.out.println("Left Over: "+left_over);
+		rset.setTargetStat(left_over);
+	}
+	
+	/** Modified separateAndConquorWeighted method: evaluates each rule in
+	 *  the context of a complete rule set.
+	 * @param rset
+	 * @param data
+	 */ 
+	public void separateAndConquorModified(ClusRuleSet rset, RowData data) throws ClusException {
+		int max_rules = getSettings().getMaxRulesNb();
+		int i = 0;
+		RowData data_copy = (RowData)data.deepCloneData();
+		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		left_over.calcMean();
+		ClusStatistic new_left_over = left_over;
+		rset.setTargetStat(left_over);
+		double err_score = rset.computeErrorScore(data);
+		while ((data.getNbRows() > 0) && (i < max_rules)) {
+			ClusRule rule = learnOneRule(data_copy);
+			if (rule.isEmpty()) {
+				break;
+			} else {
+				rule.computePrediction();
+				ClusRuleSet new_rset = rset.cloneRuleSet();
+				new_rset.add(rule);
+				data_copy = rule.reweighCovered(data_copy);
+				left_over = new_left_over;
+				new_left_over = m_Induce.createTotalTargetStat(data_copy);
+				new_left_over.calcMean();
+				new_rset.setTargetStat(new_left_over);
+				double new_err_score = new_rset.computeErrorScore(data);
+				if ((err_score - new_err_score) > 1e-6) {
+					i++;
+					rule.printModel();
+					System.out.println();
+					err_score = new_err_score;
+					rset.add(rule);
+				} else {
+					break;
+				}
+			}
+		}
+		System.out.println("Left Over: "+left_over);
+		rset.setTargetStat(left_over);
+	}
+	
+	/** Modified separateAndConquorWeighted method: evaluates each rule in
+	 *  the context of a complete rule set. If first learned rule is no good, it checks
+	 *  next rules in the beam.
+	 * @param rset
+	 * @param data
+	 */ 
+	public void separateAndConquorModified2(ClusRuleSet rset, RowData data) throws ClusException {
+		int max_rules = getSettings().getMaxRulesNb();
+		int i = 0;
+		RowData data_copy = (RowData)data.deepCloneData();
+		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		ClusStatistic new_left_over = left_over;
+		left_over.calcMean();
+		rset.setTargetStat(left_over);
+		int nb_tar = left_over.getNbAttributes();
+		boolean cls_task = false;
+		if (left_over instanceof ClassificationStat) {
+			cls_task = true;
+		}
+		int[] def_maj_class = new int[nb_tar];
+		if (cls_task) {
+			for (int t = 0; t < nb_tar; t++) {
+				def_maj_class[t] = left_over.getNominalPred()[t];
+			}
+		}
+		double err_score = rset.computeErrorScore(data);
+		while ((data.getNbRows() > 0) && (i < max_rules)) {
+			ClusRule[] rules = learnBeamOfRules(data_copy);
+			left_over = new_left_over;
+			int rule_added = -1;
+			// Check all rules in the beam
+			for (int j = 0; j < rules.length; j++) {
+				if (rules[j].isEmpty()) {
+					continue;
+				} else {
+					rules[j].computePrediction();
+					ClusRuleSet new_rset = rset.cloneRuleSet();
+					new_rset.add(rules[j]);
+					RowData data_copy2 = (RowData)data_copy.deepCloneData();
+					data_copy2 = rules[j].reweighCovered(data_copy2);
+					ClusStatistic new_left_over2 = m_Induce.createTotalTargetStat(data_copy2);
+					new_left_over2.calcMean();
+					new_rset.setTargetStat(new_left_over2);
+					double new_err_score = new_rset.computeErrorScore(data);
+					// Add the rule anyway if classifies to the default class
+					boolean add_anyway = false;
+					if (cls_task) {
+						for (int t = 0; t < nb_tar; t++) {
+							if (def_maj_class[t] == rules[j].getTargetStat().getNominalPred()[t]) {
+								add_anyway = true;
+							}
+						}
+					}
+					if (((err_score - new_err_score) > 1e-6) || add_anyway) {
+						err_score = new_err_score;
+						rule_added = j;
+						data_copy = data_copy2;
+						new_left_over = new_left_over2;
+					}
+				}
+			}
+			if (rule_added != -1) {
+				i++;
+				rules[rule_added].printModel();
+				System.out.println();
+				rset.add(rules[rule_added]);
+			} else {
+				break;
+			}
+		}
+		System.out.println("Left Over: "+left_over);
+		rset.setTargetStat(left_over);
+	}
+	
+	/** Evaluates each rule in the context of a complete rule set.
+	 *  Individual rules are generated randomly.
+	 * @param rset
+	 * @param data
+	 */ 
+	public void separateAndConquorRandomly(ClusRuleSet rset, RowData data) throws ClusException {
+    int nb_rules = 100; // TODO: parameter?
+    int max_def_rules = 10; // TODO: parameter?
+		ClusRule[] rules = new ClusRule[nb_rules];
+		Random rn = new Random(42);
+		for (int k = 0; k < nb_rules; k++) {
+			ClusRule rule = generateOneRandomRule(data,rn);
+			rule.computePrediction();
+			rules[k] = rule;
+		}
+		int max_rules = getSettings().getMaxRulesNb();
+		int i = 0;
+		RowData data_copy = (RowData)data.deepCloneData();
+		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		ClusStatistic new_left_over = left_over;
+		left_over.calcMean();
+		rset.setTargetStat(left_over);
+		int nb_tar = left_over.getNbAttributes();
+		boolean cls_task = false;
+		if (left_over instanceof ClassificationStat) {
+			cls_task = true;
+		}
+		int[] def_maj_class = new int[nb_tar];
+		if (cls_task) {
+			for (int t = 0; t < nb_tar; t++) {
+				def_maj_class[t] = left_over.getNominalPred()[t];
+			}
+		}
+		double err_score = rset.computeErrorScore(data);
+		int nb_def_rules = 0;
+		boolean add_anyway = false;
+		while (i < max_rules) {
+			left_over = new_left_over;
+			int rule_added = -1;
+			// Check all random rules
+			for (int j = 0; j < rules.length; j++) {
+				if ((rules[j] == null) || (rules[j].isEmpty())) {
+					continue;
+				} else {
+					rules[j].computePrediction();
+					ClusRuleSet new_rset = rset.cloneRuleSet();
+					new_rset.add(rules[j]);
+					RowData data_copy2 = (RowData)data_copy.deepCloneData();
+					data_copy2 = rules[j].reweighCovered(data_copy2);
+					ClusStatistic new_left_over2 = m_Induce.createTotalTargetStat(data_copy2);
+					new_left_over2.calcMean();
+					new_rset.setTargetStat(new_left_over2);
+					double new_err_score = new_rset.computeErrorScore(data);
+					// Add the rule anyway if classifies to the default class
+					add_anyway = false;
+					if (cls_task) {
+						for (int t = 0; t < nb_tar; t++) {
+							if (def_maj_class[t] == rules[j].getTargetStat().getNominalPred()[t]) {
+								add_anyway = true;
+							}
+						}
+					}
+					double err_d = err_score - new_err_score;
+					if ((err_d > 1e-6) || (nb_def_rules < max_def_rules)) {
+						if (add_anyway) {
+							nb_def_rules++;
+						}
+						err_score = new_err_score;
+						rule_added = j;
+//						System.err.println(err_score + " " + add_anyway + " " + j + " " + err_d);
+						data_copy = data_copy2;
+						new_left_over = new_left_over2;
+					}
+				}
+			}
+			if (rule_added != -1) {
+				i++;
+				rules[rule_added].printModel();
+				System.out.println();
+				rset.addIfUnique(rules[rule_added]);
+				rules[rule_added] = null;
+			} else {
+				break;
+			}
+		}
+		System.out.println("Left Over: "+left_over);
+		rset.setTargetStat(left_over);
+	}
+	
+	/** Modified separateAndConquorWeighted method: evaluates each rule in
+	 *  the context of a complete rule set, it builds the default rule first.
+	 *  If first learned rule is no good, it checks next rules in the beam.
+	 * @param rset
+	 * @param data
+	 */ 
+	public void separateAndConquorModified3(ClusRuleSet rset, RowData data) throws ClusException {
+		int max_rules = getSettings().getMaxRulesNb();
+		int i = 0;
+		RowData data_copy = (RowData)data.deepCloneData();
+		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		// ClusStatistic new_left_over = left_over;
+		left_over.calcMean();
+		rset.setTargetStat(left_over);
+		ClusRule empty_rule = learnEmptyRule(data_copy);
+		empty_rule.setTargetStat(left_over);
+		data_copy = empty_rule.reweighCovered(data_copy);
+		double err_score = rset.computeErrorScore(data);
+		while ((data.getNbRows() > 0) && (i < max_rules)) {
+			ClusRule[] rules = learnBeamOfRules(data_copy);
+			// left_over = new_left_over;
+			int rule_added = -1;
+			// Check all rules in the beam
+			for (int j = 0; j < rules.length; j++) {
+				if (rules[j].isEmpty()) {
+					continue;
+				} else {
+					rules[j].computePrediction();
+					ClusRuleSet new_rset = rset.cloneRuleSet();
+					new_rset.add(rules[j]);
+					RowData data_copy2 = (RowData)data_copy.deepCloneData();
+					data_copy2 = rules[j].reweighCovered(data_copy2);
+					// ClusStatistic new_left_over2 = m_Induce.createTotalTargetStat(data_copy2);
+					// new_left_over2.calcMean();
+					// new_rset.setTargetStat(new_left_over2);
+					new_rset.setTargetStat(left_over);
+					double new_err_score = new_rset.computeErrorScore(data);
+					if ((err_score - new_err_score) > 1e-6) {
+						err_score = new_err_score;
+						rule_added = j;
+						data_copy = data_copy2;
+						// new_left_over = new_left_over2;
+					}
+				}
+			}
+			if (rule_added != -1) {
+				i++;
+				rules[rule_added].printModel();
+				System.out.println();
+				rset.add(rules[rule_added]);
+			} else {
+				break;
+			}
+		}
+		System.out.println("Left Over: "+left_over);
+		// rset.setTargetStat(left_over);
+	}
+	
 	public double sanityCheck(double value, ClusRule rule) {
 		double expected = estimateBeamMeasure(rule);
 		if (Math.abs(value-expected) > 1e-6) {
@@ -206,143 +553,318 @@ public class ClusRuleInduce {
 		}
 		return expected;
 	}
-
+	
 	public ClusModel induce(ClusRun run) throws ClusException, IOException {
 		int method = getSettings().getCoveringMethod();
 		RowData data = (RowData)run.getTrainingSet();
 		ClusStatistic stat = m_Induce.createTotalClusteringStat(data);
 		m_Induce.initSelectorAndSplit(stat);
 		setHeuristic(m_Induce.getSelector().getHeuristic());
+		if (getSettings().isCompHeurRuleDist()) {
+			int[] data_idx = new int[data.getNbRows()];
+			for (int i = 0; i < data.getNbRows(); i++) {
+				data.getTuple(i).setIndex(i);
+				data_idx[i] = i;
+			}
+			data.setNbNonZeroRows(data.getNbRows());
+			((ClusRuleHeuristicCompactness)m_Heuristic).setDataIndexes(data_idx);
+			((ClusRuleHeuristicCompactness)m_Heuristic).initCoveredBitVectArray(data.getNbRows());
+		}
 		ClusRuleSet rset = new ClusRuleSet(m_Induce.getStatManager());
-    if (method == Settings.COVERING_METHOD_STANDARD) {
-      separateAndConquor(rset, data);
-    } else {
-      separateAndConquorWeighted(rset, data);
-    }
+		if (method == Settings.COVERING_METHOD_STANDARD) {
+			separateAndConquor(rset, data);
+		} else if (method == Settings.COVERING_METHOD_RULE_SET) {
+			separateAndConquorModified(rset, data);
+		} else if (method == Settings.COVERING_METHOD_BEAM_RULE_SET) {
+			separateAndConquorModified2(rset, data);
+		} else if (method == Settings.COVERING_METHOD_BEAM_RULE_DEF_SET) {
+			separateAndConquorModified3(rset, data);
+		} else if (method == Settings.COVERING_METHOD_RANDOM_RULE_SET) {
+			separateAndConquorRandomly(rset, data);
+		} else {
+			separateAndConquorWeighted(rset, data);
+		}
 		rset.postProc();
-    // Computing compactness
-    if (getSettings().computeCompactness()) {
-      rset.addDataToRules(data);
-      rset.computeCompactness(ClusModel.TRAIN);
-      rset.removeDataFromRules();
-      if (run.getTestIter() != null) {
-        RowData testdata = (RowData)run.getTestSet();
-        rset.addDataToRules(testdata);
-        rset.computeCompactness(ClusModel.TEST);
-        rset.removeDataFromRules();
-      }
-    }
-    return rset;
+		// Computing optimized weights
+		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
+			String fname = getSettings().getDataFile();
+			PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
+			DecimalFormat mf = new DecimalFormat("###.000");
+			// Generate optimization input
+			ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
+			DeAlg deAlg;
+			int nb_tar = tar_stat.getNbAttributes();
+			int nb_rules = rset.getModelSize();
+			int nb_rows = data.getNbRows();
+			boolean classification = false;
+			if (rset.m_TargetStat instanceof ClassificationStat) {
+				classification = true;
+			}
+			// TODO: more target atts
+			if (classification) {
+				int nb_values = ((ClassificationStat)rset.m_TargetStat).getAttribute(0).getNbValues(); 
+				double[][][] rule_pred = new double[nb_rows][nb_rules][nb_values]; // [instance][rule][class_value]
+				double[] true_val = new double[nb_rows];
+				for (int i = 0; i < nb_rows; i++) {
+					DataTuple tuple = data.getTuple(i);
+					for (int j = 0; j < nb_rules; j++) {
+						ClusRule rule = rset.getRule(j);
+						if (rule.covers(tuple)) {
+							rule_pred[i][j] = (double[])((ClassificationStat)rule.predictWeighted(tuple)).
+							                            getClassCounts(0); // TODO: 
+						} else {
+							for (int k = 0; k < nb_values; k++) {
+								rule_pred[i][j][k] = Double.NaN;
+							}
+						}
+						wrt_pred.print(", [");
+						for (int k = 0; k < nb_values; k++) {
+							wrt_pred.print(", " + mf.format(rule_pred[i][j][k]));
+						}
+						wrt_pred.print("]");
+					}
+					true_val[i] = (double)tuple.getIntVal(0); // TODO: 
+					wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
+				}
+				wrt_pred.close();
+				deAlg = new DeAlg(m_Induce.getStatManager(), rule_pred, true_val);
+			} else { // regression
+				double[][] rule_pred = new double[nb_rows][nb_rules]; // [instance][rule]
+				double[] true_val = new double[nb_rows];
+				for (int i = 0; i < nb_rows; i++) {
+					DataTuple tuple = data.getTuple(i);
+					for (int j = 0; j < nb_rules; j++) {
+						ClusRule rule = rset.getRule(j);
+						if (rule.covers(tuple)) {
+							rule_pred[i][j] = ((RegressionStat)rule.predictWeighted(tuple)).getNumericPred()[0]; // TODO:
+						} else {
+							rule_pred[i][j] = Double.NaN;
+						}
+						wrt_pred.print(", " + mf.format(rule_pred[i][j]));
+					}
+					true_val[i] = tuple.getDoubleVal(0);
+					wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
+				}
+				wrt_pred.close();
+				deAlg = new DeAlg(m_Induce.getStatManager(), rule_pred, true_val);
+			}
+			ArrayList weights = deAlg.evolution();
+			for (int j = 0; j < nb_rules; j++) {
+				rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue());
+			}
+			rset.removeLowWeightRules(0.05); // TODO: parameter for threshold?
+		}
+		// Computing compactness
+		if (getSettings().computeCompactness()) {
+			rset.addDataToRules(data);
+			rset.computeCompactness(ClusModel.TRAIN);
+			rset.removeDataFromRules();
+			if (run.getTestIter() != null) {
+				RowData testdata = (RowData)run.getTestSet();
+				rset.addDataToRules(testdata);
+				rset.computeCompactness(ClusModel.TEST);
+				rset.removeDataFromRules();
+			}
+		}
+		return rset;
 	}
 
-  /**
-   * Method that induces a specified number of random rules.
-   * @param cr ClusRun
-   * @return RuleSet
-   */
-  public ClusModel induceRandomly(ClusRun run) throws ClusException, IOException {
-    int number = getSettings().nbRandomRules();
-    RowData data = (RowData)run.getTrainingSet();
-    ClusStatistic stat = m_Induce.createTotalClusteringStat(data);
-    m_Induce.initSelectorAndSplit(stat);
-    setHeuristic(m_Induce.getSelector().getHeuristic()); // ??? 
-    ClusRuleSet rset = new ClusRuleSet(m_Induce.getStatManager());
-    Random rn = new Random(42);
-    for (int i = 0; i < number; i++) {
-      ClusRule rule = generateOneRandomRule(data,rn);
-      rule.computePrediction();
-      rule.printModel();
-      System.out.println();
-      if (!rset.addIfUnique(rule)) {
-        i--;
-      }
-    }
-    ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
-    left_over.calcMean();
-    System.out.println("Left Over: "+left_over);
-    rset.setTargetStat(left_over);
-    rset.postProc();
-    // Computing compactness
-    if (getSettings().computeCompactness()) {
-      rset.addDataToRules(data);
-      rset.computeCompactness(ClusModel.TRAIN);
-      rset.removeDataFromRules();
-      if (run.getTestIter() != null) {
-        RowData testdata = (RowData)run.getTestSet();
-        rset.addDataToRules(testdata);
-        rset.computeCompactness(ClusModel.TEST);
-        rset.removeDataFromRules();
-      }
-    }
-    return rset;
-  }
-
-  /** 
-   * Generates one random rule.
-   * @param data
-   * @param rn
-   * @return
-   */
-  private ClusRule generateOneRandomRule(RowData data, Random rn) {
-    // TODO: Remove/change the beam stuff!!! 
-  	// Jans: Removed beam stuff (because was more difficult to debug)
-  	ClusStatManager mgr = m_Induce.getStatManager();    
-    ClusRule result = new ClusRule(mgr);
-    ClusAttrType[] attrs = data.getSchema().getDescriptiveAttributes();
-    // Pointer to the complete data set
-    RowData orig_data = data;
-    // Generate number of tests
-    int nb_tests;
-    if (attrs.length > 1) {
-      nb_tests = rn.nextInt(attrs.length - 1) + 1;
-    } else {
-      nb_tests = 1;
-    }
-    // Generate attributes in these tests
-    int[] test_atts = new int[nb_tests];
-    for (int i = 0; i < nb_tests; i++) {
-      while (true) {
-        int att_idx = rn.nextInt(attrs.length);
-        boolean unique = true;
-        for (int j = 0; j < i; j++) {
-          if (att_idx == test_atts[j]) {
-            unique = false;
-          }
-        }
-        if (unique) {
-          test_atts[i] = att_idx;
-          break;
-        }
-      }
-    }
-  	TestSelector sel = m_Induce.getSelector();
-    for (int i = 0; i < test_atts.length; i++) {
-    	result.setClusteringStat(m_Induce.createTotalClusteringStat(data));
-    	if (m_Induce.initSelectorAndStopCrit(result.getClusteringStat(), data)) {
-    		// Do not add test if stop criterion succeeds (???)
-  			break;			
-  		}
-      sel.resetBestTest();
-      sel.setBestHeur(Double.NEGATIVE_INFINITY);
-      ClusAttrType at = attrs[test_atts[i]];
-      if (at instanceof NominalAttrType) {
-        m_Induce.findNominalRandom((NominalAttrType)at, data, rn);
-      } else {
-        m_Induce.findNumericRandom((NumericAttrType)at, data, orig_data, rn);
-      }
-      if (sel.hasBestTest()) {
-        NodeTest test = sel.updateTest();
-        if (Settings.VERBOSE > 0) System.out.println("  Test: "+test.getString()+" -> "+sel.m_BestHeur);
-        result.addTest(test);
-        // data = data.applyWeighted(test, ClusNode.YES);
-        data = data.apply(test, ClusNode.YES);           // ???
-      }
-    }
-    // Create target and clustering statistic for rule
-    result.setTargetStat(m_Induce.createTotalTargetStat(data));
-    result.setClusteringStat(m_Induce.createTotalClusteringStat(data));
-    return result;
-  }
-
-
+/*			try {
+				// Generate pathseeker input
+				ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
+				int nb_tar = tar_stat.getNbNominalAttributes();
+				boolean classification = false;
+				if (rset.m_TargetStat instanceof ClassificationStat) {
+					classification = true;
+				}
+				String fname = getSettings().getDataFile();
+				PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".pred.dat")));
+				PrintWriter wrt_resp = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".resp.dat")));
+				PrintWriter wrt_train = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".train.txt")));
+				for (int i = 0; i < data.getNbRows(); i++) {
+					DataTuple tuple = data.getTuple(i);
+					for (int j = 0; j < rset.getModelSize(); j++) {
+						ClusRule rule = rset.getRule(j);
+						if (rule.covers(tuple)) {
+							if (classification) {
+								// TODO: Don't look just at the first target attribute!
+								wrt_pred.write("" + ((ClassificationStat)rule.predictWeighted(tuple)).
+										                 getNominalPred()[0]);
+							} else {
+								// TODO: Don't look just at the first target attribute!
+								wrt_pred.write("" + ((RegressionStat)rule.predictWeighted(tuple)).
+										                 getNumericPred()[0]);
+							}
+						} 
+						if ((j+1) < rset.getModelSize()) {
+							wrt_pred.write(",");
+						}
+					}
+					wrt_pred.println();
+					if (classification) {
+						// TODO: Don't look just at the first target attribute!
+						wrt_resp.print("" + tuple.getIntVal(0));
+						if ((i+1) < data.getNbRows()) {
+							wrt_resp.write(",");
+						}
+					} else {
+						// TODO: Don't look just at the first target attribute!
+						wrt_resp.print("" + tuple.getDoubleVal(0));
+						if ((i+1) < data.getNbRows()) {
+							wrt_resp.write(",");
+						}
+					}
+				}
+				wrt_resp.println();
+				if (classification) {
+					wrt_train.println("@mode=class");
+				} else {
+					wrt_train.println("@mode=regres");
+				}
+				wrt_train.println("@model_file=" + fname + ".model.pth");
+				wrt_train.println("@coeffs_file=" + fname + ".coeffs.pth");
+				wrt_train.println("@nvar=" + rset.getModelSize());
+				wrt_train.println("@nobs=" + data.getNbRows());
+				wrt_train.println("@format=csv");
+				wrt_train.println("@response_data=" + fname + ".resp.dat");
+				wrt_train.println("@pred_data=" + fname + ".pred.dat");
+				wrt_train.println("@org=by_obs");
+				wrt_train.println("@missing=9.9e35");
+				wrt_train.println("@obs_weights=equal");
+				wrt_train.println("@var_weights=equal");
+				wrt_train.println("@quantile=0.025 ");
+				wrt_train.println("@numspect=0");
+				wrt_train.println("@constraints=all");
+				wrt_train.println("@nfold=3");
+				wrt_train.println("@start=0.0");
+				wrt_train.println("@end=1.0");
+				wrt_train.println("@numval=6");
+				wrt_train.println("@alpha=0.8");
+				wrt_train.println("@modsel=a_roc");
+				wrt_train.println("@delnu=0.01");
+				wrt_train.println("@maxstep=20000");
+				wrt_train.println("@kfreq=100");
+				wrt_train.println("@convfac=1.1");
+				wrt_train.println("@fast=no");
+				wrt_train.println("@impl=auto");
+				wrt_train.println();
+				wrt_pred.close();
+				wrt_resp.close();
+				wrt_train.close();
+				// Run pathseeker
+				// Read pathseeker weights
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+*/
+	
+	/**
+	 * Method that induces a specified number of random rules.
+	 * @param cr ClusRun
+	 * @return RuleSet
+	 */
+	public ClusModel induceRandomly(ClusRun run) throws ClusException, IOException {
+		int number = getSettings().nbRandomRules();
+		RowData data = (RowData)run.getTrainingSet();
+		ClusStatistic stat = m_Induce.createTotalClusteringStat(data);
+		m_Induce.initSelectorAndSplit(stat);
+		setHeuristic(m_Induce.getSelector().getHeuristic()); // ??? 
+		ClusRuleSet rset = new ClusRuleSet(m_Induce.getStatManager());
+		Random rn = new Random(42);
+		for (int i = 0; i < number; i++) {
+			ClusRule rule = generateOneRandomRule(data,rn);
+			rule.computePrediction();
+			rule.printModel();
+			System.out.println();
+			if (!rset.addIfUnique(rule)) {
+				i--;
+			}
+		}
+		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		left_over.calcMean();
+		System.out.println("Left Over: "+left_over);
+		rset.setTargetStat(left_over);
+		rset.postProc();
+		// Computing compactness
+		if (getSettings().computeCompactness()) {
+			rset.addDataToRules(data);
+			rset.computeCompactness(ClusModel.TRAIN);
+			rset.removeDataFromRules();
+			if (run.getTestIter() != null) {
+				RowData testdata = (RowData)run.getTestSet();
+				rset.addDataToRules(testdata);
+				rset.computeCompactness(ClusModel.TEST);
+				rset.removeDataFromRules();
+			}
+		}
+		return rset;
+	}
+	
+	/** 
+	 * Generates one random rule.
+	 * @param data
+	 * @param rn
+	 * @return
+	 */
+	private ClusRule generateOneRandomRule(RowData data, Random rn) {
+		// TODO: Remove/change the beam stuff!!! 
+		// Jans: Removed beam stuff (because was more difficult to debug)
+		ClusStatManager mgr = m_Induce.getStatManager();    
+		ClusRule result = new ClusRule(mgr);
+		ClusAttrType[] attrs = data.getSchema().getDescriptiveAttributes();
+		// Pointer to the complete data set
+		RowData orig_data = data;
+		// Generate number of tests
+		int nb_tests;
+		if (attrs.length > 1) {
+			nb_tests = rn.nextInt(attrs.length - 1) + 1;
+		} else {
+			nb_tests = 1;
+		}
+		// Generate attributes in these tests
+		int[] test_atts = new int[nb_tests];
+		for (int i = 0; i < nb_tests; i++) {
+			while (true) {
+				int att_idx = rn.nextInt(attrs.length);
+				boolean unique = true;
+				for (int j = 0; j < i; j++) {
+					if (att_idx == test_atts[j]) {
+						unique = false;
+					}
+				}
+				if (unique) {
+					test_atts[i] = att_idx;
+					break;
+				}
+			}
+		}
+		TestSelector sel = m_Induce.getSelector();
+		for (int i = 0; i < test_atts.length; i++) {
+			result.setClusteringStat(m_Induce.createTotalClusteringStat(data));
+			if (m_Induce.initSelectorAndStopCrit(result.getClusteringStat(), data)) {
+				// Do not add test if stop criterion succeeds (???)
+				break;			
+			}
+			sel.resetBestTest();
+			sel.setBestHeur(Double.NEGATIVE_INFINITY);
+			ClusAttrType at = attrs[test_atts[i]];
+			if (at instanceof NominalAttrType) {
+				m_Induce.findNominalRandom((NominalAttrType)at, data, rn);
+			} else {
+				m_Induce.findNumericRandom((NumericAttrType)at, data, orig_data, rn);
+			}
+			if (sel.hasBestTest()) {
+				NodeTest test = sel.updateTest();
+				if (Settings.VERBOSE > 0) System.out.println("  Test: "+test.getString()+" -> "+sel.m_BestHeur);
+				result.addTest(test);
+				// data = data.applyWeighted(test, ClusNode.YES);
+				data = data.apply(test, ClusNode.YES);           // ???
+			}
+		}
+		// Create target and clustering statistic for rule
+		result.setTargetStat(m_Induce.createTotalTargetStat(data));
+		result.setClusteringStat(m_Induce.createTotalClusteringStat(data));
+		return result;
+	}
+	
 }

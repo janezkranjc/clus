@@ -29,6 +29,7 @@ public class CombStat extends ClusStatistic {
   protected RegressionStat m_RegStat;
   protected ClassificationStat m_ClassStat;
   private ClusStatManager m_StatManager;
+//  protected boolean[] m_CoveredTuples;
   
   /**
    * Constructor for this class.
@@ -43,6 +44,12 @@ public class CombStat extends ClusStatistic {
     m_NomAtts = nom;
     m_RegStat = new RegressionStat(num);
     m_ClassStat = new ClassificationStat(nom);
+/*    if (getSettings().isCompHeurRuleDist()) {
+    	m_CoveredTuples = new boolean[m_StatManager.getSchema().getNbRows()];
+    	// System.err.println("\nNbRw: " + m_StatManager.getSchema().getNbRows());
+    } else {
+    	m_CoveredTuples = null;
+    } */
   }
 
   protected CombStat() {
@@ -178,7 +185,7 @@ public class CombStat extends ClusStatistic {
     double prop_nom = nom_weight*m_NbNomAtts / (num_weight*m_NbNumAtts + nom_weight*m_NbNomAtts);
     double comp = prop_nom * compactnessNom(IN_HEURISTIC) + prop_num * compactnessNum(IN_HEURISTIC);
     double global_sum_w = m_StatManager.getGlobalStat().getTotalWeight();
-    double heur_par = getSettings().getCompHeurParameter();
+    double heur_par = getSettings().getCompHeurCoveragePar();
     comp = comp * (1 + heur_par*global_sum_w/m_SumWeight);
     // Test if rule significant
     int sign_diff;

@@ -22,14 +22,13 @@ public class SaveWekaPartition extends Evaluation {
 		for (int i = 0; i < numFolds; i++) {
 			System.out.println("Fold: "+i);
 			Instances test_cv = data.testCV(numFolds, i);			
-       	       		for(int j = 0; j<test_cv.numInstances(); j++) {
-		       		Instance in = test_cv.instance(j);
-               	       		// System.out.println(i + ":" + in.toString());
-               	       		if (j != 0) wrt.print(",");
-               	       		wrt.print(in.toString(0));
-               	       		
-       	       		}
-       	       		wrt.println();			
+			for(int j = 0; j<test_cv.numInstances(); j++) {
+				Instance in = test_cv.instance(j);
+				// System.out.println(i + ":" + in.toString());
+				if (j != 0) wrt.print(",");
+				wrt.print(in.toString(0));
+			}
+			wrt.println();			
 		}
 		wrt.close();
 	}
@@ -46,14 +45,14 @@ public class SaveWekaPartition extends Evaluation {
 			classIndex = Integer.parseInt(classIndexString);
 		}
 		trainFileName = Utils.getOption('t', options); 
-      		if (trainFileName.length() == 0) {
+		if (trainFileName.length() == 0) {
 			throw new Exception("No training file and no object input file given.");
 		}
 		trainReader = new BufferedReader(new FileReader(trainFileName));
 		template = train = new Instances(trainReader);
 		if (classIndex != -1) {
 			if (classIndex > train.numAttributes()) {
-	  			throw new Exception("Index of class attribute too large.");
+				throw new Exception("Index of class attribute too large.");
 			}
 			train.setClassIndex(classIndex - 1);
 		} else {
@@ -76,7 +75,7 @@ public class SaveWekaPartition extends Evaluation {
 	
 	public static void main(String[] args) {
 		try {
-		      savePartition(args);
+			savePartition(args);
 		} catch (Exception ex) {
 			System.err.println(ex.getMessage());			
 			ex.printStackTrace();      			

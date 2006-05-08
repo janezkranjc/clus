@@ -69,7 +69,7 @@ public class ClusBeam {
 			return (ClusBeamModel)elem.getObject();
 		}
 	}
-	
+
 	public ClusBeamModel getBestModel() {
 		ClusBeamTreeElem elem = (ClusBeamTreeElem)m_Tree.get(m_Tree.lastKey());
 		return (ClusBeamModel)elem.getAnObject(); 		
@@ -77,7 +77,7 @@ public class ClusBeam {
 
 	public ClusBeamModel getWorstModel() {
 		ClusBeamTreeElem elem = (ClusBeamTreeElem)m_Tree.get(m_Tree.firstKey());
-		return (ClusBeamModel)elem.getAnObject(); 		
+		return (ClusBeamModel)elem.getAnObject();
 	}
 	
 	public double computeMinValue() {

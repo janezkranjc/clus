@@ -87,7 +87,7 @@ public class TargetSchema implements Serializable {
 	}
 	
 	public String getIntVal(int i, int j) {
-	        return getNomType(i).m_Values[j];
+		return getNomType(i).m_Values[j];
 	}
 	
 	public String getNomName(int i) {

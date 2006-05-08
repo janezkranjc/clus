@@ -2,6 +2,7 @@ package clus.algo.induce;
 
 import clus.main.*;
 import clus.util.*;
+import clus.algo.rules.ClusRuleHeuristicCompactness;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.model.test.*;
@@ -38,13 +39,47 @@ public class DepthFirstInduce extends ClusInduce {
     // Reset positive statistic
     int nbvalues = at.getNbValues();
     m_Selector.reset(nbvalues + 1);
-    // For each attribute value   
     int nb_rows = data.getNbRows();
-    for (int i = 0; i < nb_rows; i++) {
-      DataTuple tuple = data.getTuple(i);
-      int value = at.getNominal(tuple);     
-      m_Selector.m_TestStat[value].updateWeighted(tuple, i);      
-    }
+		if (!getSettings().isCompHeurRuleDist()) {
+			// For each attribute value   
+			for (int i = 0; i < nb_rows; i++) {
+				DataTuple tuple = data.getTuple(i);
+				int value = at.getNominal(tuple);     
+				m_Selector.m_TestStat[value].updateWeighted(tuple, i);      
+			}
+		} else {
+			// TODO: Perhaps ListArray[nbvalues] instead of int[nbvalues][nb_rows] would be better? 
+			int[][] data_idx_per_val = new int[nbvalues][nb_rows];
+			for (int j = 0; j < nbvalues; j++) {
+				for (int i = 0; i < nb_rows; i++) {
+					data_idx_per_val[j][i] = -1;
+				}
+			}
+			// For each attribute value
+			int[] counts = new int[nbvalues];
+			for (int i = 0; i < nb_rows; i++) {
+				DataTuple tuple = data.getTuple(i);
+				int value = at.getNominal(tuple);     
+				m_Selector.m_TestStat[value].updateWeighted(tuple, i);
+				if (value < nbvalues) {  // Skip missing values, will this be a problem somewhere?
+					data_idx_per_val[value][i] = tuple.getIndex();
+					counts[value]++;
+				}
+			}
+			// Skip -1s
+			int[][] data_ipv = new int[nbvalues][];
+			for (int j = 0; j < nbvalues; j++) {
+				data_ipv[j] = new int[counts[j]];
+				int k = 0;
+				for (int i = 0; i < nb_rows; i++) {
+					if (data_idx_per_val[j][i] != -1) {
+						data_ipv[j][k] = data_idx_per_val[j][i];
+						k++;
+					}
+				}
+			}
+			((ClusRuleHeuristicCompactness)m_Selector.m_Heuristic).setDataIndexesPerVal(data_ipv);
+		}
     // Find best split
     m_Split.findSplit(m_Selector, at);
   }
@@ -94,16 +129,28 @@ public class DepthFirstInduce extends ClusInduce {
     }   
     double prev = Double.NaN;
     if (Settings.ONE_NOMINAL) {
+    	int[] data_idx = new int[nb_rows];
+    	for (int i = first; i < nb_rows; i++) {
+    		data_idx[i] = data.getTuple(i).getIndex();
+    	}
       int prev_cl = -1;   
       for (int i = first; i < nb_rows; i++) {
         tuple = data.getTuple(i);
         double value = tuple.getDoubleVal(idx);
         int crcl = tuple.getClassification();       
         if (prev_cl == -1 && value != prev && value != Double.NaN) {
-          m_Selector.updateNumeric(value, at);
+  				if (getSettings().isCompHeurRuleDist()) {
+  					// int[] subset_idx = new int[i-first+1];
+  					// System.arraycopy(data_idx, first, subset_idx, 0, i-first+1);
+  					int[] subset_idx = new int[i-first];
+  					System.arraycopy(data_idx, first, subset_idx, 0, i-first);
+  					((ClusRuleHeuristicCompactness)m_Selector.m_Heuristic).setDataIndexes(subset_idx);
+  				}
+  				m_Selector.updateNumeric(value, at);
           prev_cl = crcl;
         }
-        prev = value;         
+        prev = value;
+        // if (Settings.VERBOSE > 1) System.out.print(" " + value);
         if (prev_cl != crcl) prev_cl = -1;
         m_Selector.m_PosStat.updateWeighted(tuple, i);        
       }   
@@ -116,6 +163,7 @@ public class DepthFirstInduce extends ClusInduce {
             m_Selector.updateNumeric(value, at);
           }
           prev = value;
+          // if (Settings.VERBOSE > 1) System.out.print(" " + value);
         }       
         m_Selector.m_PosStat.updateWeighted(tuple, i);
       }

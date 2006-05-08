@@ -66,6 +66,14 @@ public class RowData extends ClusData implements MSortable {
 		return res;
 	}
 	
+	public ClusData deepCloneData() {
+		RowData res = new RowData(m_Schema, m_NbRows);
+		for (int i = 0; i < m_NbRows; i++) {
+			res.setTuple(m_Data[i].deepCloneTuple(), i);
+		}
+		return res;
+	}
+	
 	public final ClusSchema getSchema() {
 		return m_Schema;
 	}	

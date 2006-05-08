@@ -16,32 +16,33 @@ public class ClusRuleClassifier extends ClusClassifier {
 	public ClusRuleClassifier(Clus clus) {
 		super(clus);
 	}
-
-	public void initializeInduce(ClusInduce induce, CMDLineArgs cargs) {
+	
+	public void initializeInduce(ClusInduce induce, CMDLineArgs cargs) throws ClusException {
 		induce.getStatManager().setRuleInduce(true);
+		induce.getStatManager().initRuleSettings();
 	}	
 	
 	public void printInfo() {
-    if (!getSettings().isRandomRules()) {
-      System.out.println("RuleSystem based on CN2");
-      System.out.println("Heuristic: "+getStatManager().getHeuristicName());
-    } else {
-      System.out.println("RuleSystem generating random rules");
-    }
+		if (!getSettings().isRandomRules()) {
+			System.out.println("RuleSystem based on CN2");
+			System.out.println("Heuristic: "+getStatManager().getHeuristicName());
+		} else {
+			System.out.println("RuleSystem generating random rules");
+		}
 	}
 	
 	public ClusModel induceSingle(ClusRun cr) throws ClusException, IOException {
 		// ClusRulesForAttrs rfa = new ClusRulesForAttrs();
 		// return rfa.constructRules(cr);
-    DepthFirstInduce tree_induce = (DepthFirstInduce)getInduce();
-    ClusRuleInduce rule_induce = new ClusRuleInduce(tree_induce);
-    if (!getSettings().isRandomRules()) {
-		  return rule_induce.induce(cr);
-    } else {
-      return rule_induce.induceRandomly(cr);
-    }
+		DepthFirstInduce tree_induce = (DepthFirstInduce)getInduce();
+		ClusRuleInduce rule_induce = new ClusRuleInduce(tree_induce);
+		if (!getSettings().isRandomRules()) {
+			return rule_induce.induce(cr);
+		} else {
+			return rule_induce.induceRandomly(cr);
+		}
 	}
-
+	
 	public void induce(ClusRun cr) throws ClusException, IOException {
 		ClusModel model = induceSingle(cr);
 		// FIXME: implement cloneModel();

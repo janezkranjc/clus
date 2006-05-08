@@ -32,7 +32,7 @@ public abstract class ClusClassifier {
 		return getClus().getSettings();
 	}
 	
-	public void initializeInduce(ClusInduce induce, CMDLineArgs cargs) {
+	public void initializeInduce(ClusInduce induce, CMDLineArgs cargs) throws ClusException {
 	}
 
 	public abstract void printInfo();
