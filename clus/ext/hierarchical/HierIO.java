@@ -142,7 +142,8 @@ public class HierIO {
 				int mydepth = getDepth(line);
 				if (mydepth == depth) {
 					String id = getID(line);
-					child = new ClassTerm(parent, id);
+					child = new ClassTerm(id);
+					child.addParent(parent);
 					parent.addChild(child);					
 				} else {
 					setLastLine(line);

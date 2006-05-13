@@ -22,8 +22,8 @@ public class HierMatrixOutput {
 				Arrays.fill(vector, 0.0);
 				DataTuple tuple = data.getTuple(i);
 				ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
-				for (int j = 0; j < tp.size(); j++) {
-					ClassesValue val = tp.elementAt(j);
+				for (int j = 0; j < tp.getNbClasses(); j++) {
+					ClassesValue val = tp.getClass(j);
 					vector[val.getIndex()] = 1.0;
 				}
 				wrt.println(MDoubleArray.toString(vector));

@@ -1,9 +1,6 @@
 package clus.main;
 
-import clus.tools.debug.Debug;
-
 import jeans.io.ini.INIFileNominalOrDoubleOrVector;
-import jeans.math.matrix.*;
 
 import clus.util.*;
 import clus.data.attweights.*;
@@ -378,20 +375,10 @@ public class ClusStatManager implements Serializable {
 		case MODE_HIERARCHICAL:
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
-			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
-				setClusteringStatistic(new WAHNDStatistic(m_Hier));
-				break;
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
 				setClusteringStatistic(new WHTDStatistic(m_Hier, getCompatibility()));
 				setTargetStatistic(new WHTDStatistic(m_Hier, getCompatibility()));
 				break;
-			case Settings.HIERMODE_XTAX_SET_DIST:
-				setClusteringStatistic(new SPMDStatistic(m_Hier));
-				break;
-			/*
-			 * case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
-			 * setTargetStatistic(DHierStatistic(m_Hier)); break;
-			 */
 			}
 			break;
 		case MODE_SSPD:
@@ -501,12 +488,6 @@ public class ClusStatManager implements Serializable {
 						getClusteringWeights(), getSettings()
 								.isHierNoRootPreds());
 				break;
-			case Settings.HIERMODE_XTAX_SET_DIST:
-				m_Heuristic = new SPMDHeuristic(m_Hier);
-				break;
-			case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
-				m_Heuristic = new DHierHeuristic(m_Hier);
-				break;
 			}
 			return;
 		}
@@ -604,42 +585,6 @@ public class ClusStatManager implements Serializable {
 				// parent.addError(new HierLevelAccuracy(parent, m_Hier));
 				parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
 				break;
-			case Settings.HIERMODE_TREE_DIST_ABS_WEUCLID:
-				if (Debug.HIER_JANS_PAPER) {
-					HierNodeWeights ws = new HierNodeWeights();
-					double widec = Settings.HIER_W_PARAM.getValue();
-					ws.initExponentialDepthWeights(m_HierN, widec);
-					parent.addError(new WAHNDSqError(parent, m_HierN.getType(),
-							false, ws));
-					parent.addError(new WAHNDSqError(parent, m_HierN.getType(),
-							true, ws));
-					parent.addError(new HierBinNodeAccuracy(parent, m_HierN
-							.getType()));
-				} else {
-					double[] widecs = { 1.0, 0.75, 0.5, 0.25 };
-					m_HierN.calcErrorWeights(widecs);
-					parent.addError(new WAHNDError(parent, 1.0));
-					parent.addError(new WAHNDError(parent, 0.75));
-					parent.addError(new WAHNDError(parent, 0.50));
-					parent.addError(new WAHNDError(parent, 0.25));
-				}
-				break;
-			case Settings.HIERMODE_XTAX_SET_DIST:
-			case Settings.HIERMODE_XTAX_SET_DIST_DISCRETE:
-				int depth = m_HierN.getMaxDepth();
-				MSymMatrix km1 = m_HierN.calcMatrix(new HierWeightSPath(depth,
-						1.0));
-				MSymMatrix km2 = m_HierN.calcMatrix(new HierWeightSPath(depth,
-						0.75));
-				MSymMatrix km3 = m_HierN.calcMatrix(new HierWeightSPath(depth,
-						0.5));
-				MSymMatrix km4 = m_HierN.calcMatrix(new HierWeightSPath(depth,
-						0.25));
-				parent.addError(new HierXtAXError(parent, km1, "1.0"));
-				parent.addError(new HierXtAXError(parent, km2, "0.75"));
-				parent.addError(new HierXtAXError(parent, km3, "0.5"));
-				parent.addError(new HierXtAXError(parent, km4, "0.25"));
-				break;
 			}
 		}
 		return parent;
@@ -656,20 +601,6 @@ public class ClusStatManager implements Serializable {
 		}
 		if (num.length != 0) {
 			parent.addError(new RMSError(parent, num));
-		}
-		switch (m_Mode) {
-		case MODE_HIERARCHICAL:
-			if (Debug.HIER_JANS_PAPER) {
-				HierNodeWeights ws = new HierNodeWeights();
-				double widec = Settings.HIER_W_PARAM.getValue();
-				ws.initExponentialDepthWeights(m_Hier, widec);
-				parent.addError(new WAHNDSqError(parent, m_Hier.getType(),
-						true, ws));
-			} else {
-				parent.addError(new HierXtAXError(parent, m_Hier.getKMatrix(),
-						"prune"));
-			}
-			break;
 		}
 		return parent;
 	}
@@ -945,12 +876,6 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 	
 	public void initHierarchySettings() throws ClusException, IOException {
 		if (m_Hier != null) {
-			if (getSettings().hasHierIgnoreClasses()) {
-				String ignore = getSettings().getHierIgnoreClasses();
-				ClassesTuple tuple = new ClassesTuple(ignore, m_Hier.getType().getTable());
-				tuple.addHierarchyIndices(m_Hier);
-				m_Hier.setIgnoreClasses(tuple);
-			}
 			if (getSettings().hasHierEvalClasses()) {
 				ClassesTuple tuple = ClassesTuple.readFromFile(getSettings().getHierEvalClasses(), m_Hier);
 				m_Hier.setEvalClasses(tuple);

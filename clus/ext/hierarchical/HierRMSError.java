@@ -35,8 +35,8 @@ public class HierRMSError extends MSError {
 		if (pred == null) return;
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
 		Arrays.fill(m_Scratch, 0.0);
-		for (int i = 0; i < tp.getLength(); i++) {
-			ClassesValue val = tp.elementAt(i);
+		for (int i = 0; i < tp.getNbClasses(); i++) {
+			ClassesValue val = tp.getClass(i);
 			m_Scratch[val.getIndex()] = 1.0;
 		}
 		if (m_ContPred) {

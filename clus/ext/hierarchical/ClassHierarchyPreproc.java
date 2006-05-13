@@ -38,10 +38,6 @@ public class ClassHierarchyPreproc implements TuplePreproc {
 	
 	public void done(int pass) throws ClusException {
 		if (pass > 0) return;
-		/*
-		ClassesTuple ct = new ClassesTuple("99", m_Type.m_Table);
-		ct.addToHierarchy(getHier());
-		*/
 		getHier().initialize();
 		// showHier();
 		// m_Hier.showEigenValues();

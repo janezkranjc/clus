@@ -28,7 +28,8 @@ public class GenerateData {
 	public static void createSimpleHierarchy(ClassTerm term, int depth) {
 		if (depth >= MAX_DEPTH) return;		
 		for (int i = 0; i < MAX_BRANCH ; i++) {
-			ClassTerm child = new ClassTerm(term, String.valueOf(i+1));
+			ClassTerm child = new ClassTerm(String.valueOf(i+1));
+			child.addParent(child);
 			term.addChild(child);
 			createSimpleHierarchy(child, depth+1);
 		}
@@ -44,7 +45,8 @@ public class GenerateData {
 		if (depth >= MAX_DEPTH) return;
 		int arity = ClusRandom.nextInt(ClusRandom.RANDOM_CREATE_DATA, (int)Math.floor(2*MEAN_BRANCH));
 		for (int i = 0; i < arity; i++) {
-			ClassTerm child = new ClassTerm(term, String.valueOf(i+1));
+			ClassTerm child = new ClassTerm(String.valueOf(i+1));
+			child.addParent(term);
 			term.addChild(child);
 			createInitHier(child, depth+1);
 		}
@@ -58,7 +60,7 @@ public class GenerateData {
 		MyArray terms = new MyArray();
 		addAll(root, terms);
 		MyArray sel_from = new MyArray();
-	    	SingleStat stat = new SingleStat();		
+	    SingleStat stat = new SingleStat();		
 		while (!done) {			
 			int nb_possible = 0;
 			sel_from.removeAllElements();
@@ -73,7 +75,8 @@ public class GenerateData {
 				int to_expand = ClusRandom.nextInt(ClusRandom.RANDOM_CREATE_DATA, nb_possible);
 				ClassTerm myexp = (ClassTerm)sel_from.elementAt(to_expand);
 				int name = myexp.getNbChildren();
-				ClassTerm child = new ClassTerm(myexp, String.valueOf(name+1));
+				ClassTerm child = new ClassTerm(String.valueOf(name+1));
+				child.addParent(myexp);
 				myexp.addChild(child);
 				terms.addElement(child);
 			} else {
@@ -213,7 +216,7 @@ public class GenerateData {
 					mcls = (ClassTerm)cls.elementAt(idx);
 					if (!include[mcls.getIndex()]) found = true;
 				}										
-				mcls.toBoolVector(include);
+//				mcls.toBoolVector(include);
 				target.addElement(mcls);
 			}
 

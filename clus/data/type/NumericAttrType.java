@@ -101,6 +101,10 @@ public class NumericAttrType extends ClusAttrType {
 	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
 		return new MySerializable(data);
 	}
+	
+	public void writeARFFType(PrintWriter wrt) throws ClusException {
+		wrt.print("numeric");
+	}
 
 	public class MySerializable extends RowSerializable {
 

@@ -2,12 +2,13 @@ package clus.main;
 
 import clus.data.rows.*;
 import clus.statistic.*;
+import clus.util.*;
 
 import java.io.*;
 
 public abstract class ClusModelProcessor {
 
-	public void initialize(ClusModel model, ClusSchema schema) throws IOException {
+	public void initialize(ClusModel model, ClusSchema schema) throws IOException, ClusException {
 	}
 	
 	public void terminate(ClusModel model) throws IOException {

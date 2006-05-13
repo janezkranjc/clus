@@ -72,8 +72,7 @@ public class Clus implements CMDLineArgsProvider {
 
 	protected boolean isxval = false;
 
-	public final void initialize(CMDLineArgs cargs, ClusClassifier clss)
-			throws IOException, ClusException {
+	public final void initialize(CMDLineArgs cargs, ClusClassifier clss) throws IOException, ClusException {
 		// Load resource info lib
 		boolean test = m_Sett.getResourceInfoLoaded() == Settings.RESOURCE_INFO_LOAD_TEST;
 		ResourceInfo.loadLibrary(test);
@@ -92,7 +91,7 @@ public class Clus implements CMDLineArgsProvider {
 		} else {
 			System.out.println("Reading ARFF Header");
 			arff = new ARFFFile(reader);
-			m_Schema = arff.read();
+			m_Schema = arff.read(m_Sett);
 		}
 		// Count rows and move to data segment
 		m_Schema.setSettings(m_Sett);
@@ -168,6 +167,20 @@ public class Clus implements CMDLineArgsProvider {
 		ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
 	}
 
+	/***
+	 * Easy to use initialization method to be used from inside add-on
+	 * applications supporting Clus (e.g., applications converting data) 
+	 **/
+	public void initializeAddOn(String appname) throws ClusException, IOException {
+		Settings sett = getSettings();
+		sett.setDate(new Date());
+		sett.setAppName(appname);
+		initSettings(null);
+		setExtension(new DefaultExtension());
+		ClusDecisionTree clss = new ClusDecisionTree(this);
+		initialize(new CMDLineArgs(this), clss);
+	}
+	
 	public final void loadConstraintFile() throws IOException {
 		if (m_Sett.hasConstraintFile()) {
 			ClusConstraintFile constr = ClusConstraintFile.getInstance();
@@ -489,7 +502,7 @@ public class Clus implements CMDLineArgsProvider {
 			System.out.println("Reading: " + fname);
 		ARFFFile arff = new ARFFFile(reader);
 		// FIXME - test if schema equal
-		arff.read(); // Read schema, but ignore :-)
+		arff.read(m_Sett); // Read schema, but ignore :-)
 		int nbrows = reader.countRows();
 		if (Settings.VERBOSE > 0)
 			System.out.println("Found " + nbrows + " rows");
@@ -557,14 +570,7 @@ public class Clus implements CMDLineArgsProvider {
 			ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 			String id_tr_name = m_Sett.getAppName() + ".train." + idx + ".id";
 			mi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new NodeExampleCollector(id_tr_name, hasMissing, m_Sett));
-		}
-		if (Settings.HIER_FLAT.getValue()) {
-			ClassHierarchy hier = m_Induce.getStatManager().getNormalHier();
-			CalcStatisticProcessor proc = new CalcStatisticProcessor(new WAHNDStatistic(hier));
-			cr.getModelInfo(ClusModels.DEFAULT).addModelProcessor(ClusModelInfo.TRAIN_ERR, proc);
-			cr.getModelInfo(ClusModels.ORIGINAL).addModelProcessor(ClusModelInfo.TRAIN_ERR, proc);
-			cr.getModelInfo(ClusModels.PRUNED).addModelProcessor(ClusModelInfo.TRAIN_ERR, proc);
-		}
+		}		
 		return cr;
 	}
 
@@ -712,7 +718,7 @@ public class Clus implements CMDLineArgsProvider {
 		io.save(model_name);
 	}
 
-	public final void normalizeData() throws IOException {
+	public final void normalizeData() throws IOException, ClusException {
 		RowData data = (RowData)m_Data;
 		CombStat cmb = (CombStat)getStatManager().getGlobalStat();
 		RegressionStat rstat = cmb.getRegressionStat();

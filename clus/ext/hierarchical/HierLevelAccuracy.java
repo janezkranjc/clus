@@ -55,13 +55,13 @@ public class HierLevelAccuracy extends ClusError {
 	}
 
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
-		if (!((WHTDStatistic)pred).getMeanTuple().isRoot()) {
+/*		if (!((WHTDStatistic)pred).getMeanTuple().isRoot()) {
 			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
 			tp.toBoolVector(m_ActualArr);
 			double[] predarr = ((WHTDStatistic)pred).getDiscretePred();			
 			Arrays.fill(m_PredLevelErr, false);
 			m_MaxDepth = -1;
-			/* Now scans entiry hierarchy, could be made more eff. */
+			// Now scans entiry hierarchy, could be made more eff.
 			update(m_Hier.getRoot(), 0, predarr);
 			boolean allok = true;
 			for (int i = 0; i <= m_MaxDepth; i++) {
@@ -76,7 +76,7 @@ public class HierLevelAccuracy extends ClusError {
 				m_Correct += 1.0;
 			}
 			m_Predicted += 1.0;
-		}		
+		}	*/
 	}
 	
 	public void addInvalid(DataTuple tuple) {

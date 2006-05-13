@@ -214,6 +214,14 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 		// Currently does nothing, but could copy status etc.
 	}	
 	
+	// Some attributes initialize differently based on some user settings
+	public void initSettings(Settings sett) {
+	}
+	
+	public void writeARFFType(PrintWriter wrt) throws ClusException {
+		throw new ClusException("Type: "+getClass().getName()+" can't be written to a .arff file");
+	}
+	
 //--------------------------------New-------------------------------------
 
 	private BasicDistance $dist;

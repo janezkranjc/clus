@@ -1,9 +1,9 @@
 package clus.ext.hierarchical;
 
-import jeans.util.*;
 import jeans.util.array.*;
 
 import java.io.*;
+import java.util.*;
 
 import clus.io.*;
 import clus.main.*;
@@ -18,11 +18,8 @@ public class ClassesAttrType extends ClusAttrType {
 	public final static int THIS_TYPE = 2;
 	public final static String THIS_TYPE_NAME = "Classes";	
 	
-	protected MyArray m_TargetValues = new MyArray();
-	
 	protected transient StringTable m_Table = new StringTable();	
 	protected ClassHierarchy m_Hier;	
-	protected int m_NbValues;
 	
 	public ClassesAttrType(String name) {
 		super(name);
@@ -64,15 +61,10 @@ public class ClassesAttrType extends ClusAttrType {
 	public int getValueType() {
 		return VALUE_TYPE_OBJECT;
 	}	
-	
-	public int addTargetValue(Object target) {
-		m_TargetValues.addElement(target);
-		return m_NbValues++; 
-	}
-	
+		
 	public String getString(DataTuple tuple) {
 		ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_ArrayIndex];
-		return "["+ct.toStringHumanNoIntermediate(m_Hier)+"]";
+		return ct.toStringData(m_Hier);
 	}
 	
 	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
@@ -103,7 +95,24 @@ public class ClassesAttrType extends ClusAttrType {
 	public void initializeFrom(ClusAttrType other_type) {
 		ClassesAttrType other = (ClassesAttrType)other_type;
 		m_Hier = other.getHier();
-	}		
+	}
+	
+	// Some attributes initialize differently based on some user settings
+	// For HMC, this is whether it uses a tree or DAG representation
+	public void initSettings(Settings sett) {
+		if (sett.getHierType() == Settings.HIERTYPE_DAG) {
+			getHier().setHierType(ClassHierarchy.DAG);
+		}
+	}
+	
+	public void writeARFFType(PrintWriter wrt) throws ClusException {
+		ArrayList list = getHier().getAllPaths();
+		wrt.print("hierarchial ");
+		for (int i = 0; i < list.size(); i++) {
+			if (i != 0) wrt.print(",");
+			wrt.print((String)list.get(i));
+		}
+	}	
 	
 	public class MySerializable extends RowSerializable {
 		

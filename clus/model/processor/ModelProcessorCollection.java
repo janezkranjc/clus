@@ -3,6 +3,7 @@ package clus.model.processor;
 import clus.main.*;
 import clus.data.rows.*;
 import clus.statistic.*;
+import clus.util.*;
 
 import jeans.util.*;
 
@@ -16,7 +17,7 @@ public class ModelProcessorCollection extends MyArray {
 		addElement(proc);
 	}
 	
-	public final void initialize(ClusModel model, ClusSchema schema) throws IOException {
+	public final void initialize(ClusModel model, ClusSchema schema) throws IOException, ClusException {
 		if (model != null) {
 			for (int i = 0; i < size(); i++) {
 				ClusModelProcessor proc = (ClusModelProcessor)elementAt(i);

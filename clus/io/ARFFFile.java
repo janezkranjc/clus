@@ -23,9 +23,10 @@ public class ARFFFile {
 		m_Reader = reader;
 	}
 
-	public ClusSchema read() throws IOException, ClusException {
+	public ClusSchema read(Settings sett) throws IOException, ClusException {
 		int expected = 0;
 		ClusSchema schema = new ClusSchema(m_Reader.getName());
+		schema.setSettings(sett);
 		MStreamTokenizer tokens = m_Reader.getTokens();
 		String token = tokens.getToken().toUpperCase();
 		while (expected < 3) {
@@ -82,9 +83,13 @@ public class ARFFFile {
 		if (uptype.equals("NUMERIC") || uptype.equals("REAL")) {
 			schema.addAttrType(new NumericAttrType(aname));
 		} else if (uptype.equals("CLASSES")) {
-			schema.addAttrType(new ClassesAttrType(aname));
+			ClassesAttrType type = new ClassesAttrType(aname);
+			schema.addAttrType(type);
+			type.initSettings(schema.getSettings());
 		} else if (uptype.startsWith("HIERARCHICAL")) {
-			schema.addAttrType(new ClassesAttrType(aname, atype));			
+			ClassesAttrType type = new ClassesAttrType(aname, atype);
+			schema.addAttrType(type);
+			type.initSettings(schema.getSettings());
 		} else if (uptype.equals("STRING")) {
 			schema.addAttrType(new StringAttrType(aname));
 		} else if (uptype.equals("KEY")) {
@@ -93,8 +98,7 @@ public class ARFFFile {
 			key.setStatus(ClusAttrType.STATUS_KEY);
 		} else if (uptype.equals("TIMESERIES")) {
 			TimeSeriesAttrType tsat = new TimeSeriesAttrType(aname);
-			schema.addAttrType(tsat);
-			
+			schema.addAttrType(tsat);			
 		} else {
 			if (uptype.equals("BINARY")) atype = "{1,0}";
 			int tlen = atype.length();
@@ -106,7 +110,7 @@ public class ARFFFile {
 		}
 	}
 	
-	public static void writeArffHeader(PrintWriter wrt, ClusSchema schema) throws IOException {
+	public static void writeArffHeader(PrintWriter wrt, ClusSchema schema) throws IOException, ClusException {
 		wrt.println("@RELATION "+schema.getRelationName());
 		wrt.println();
 		for (int i = 0; i < schema.getNbAttributes(); i++) {
@@ -116,14 +120,8 @@ public class ARFFFile {
 					wrt.print(StringUtils.printStr(type.getName(), 40));
 					if (type.isKey()) {
 						wrt.print("key");
-					} else if (type.getTypeIndex() == NumericAttrType.THIS_TYPE) {
-						wrt.print("numeric");						
-					} else if (type.getTypeIndex() == NominalAttrType.THIS_TYPE) {
-						wrt.print(((NominalAttrType)type).getTypeString());						
-					} else if (type.getTypeIndex() == StringAttrType.THIS_TYPE) {
-						wrt.print("string");						
 					} else {
-						throw new IOException("Unknown type while writing .arff file: "+type.getClass().getName());
+						type.writeARFFType(wrt);
 					}
 					wrt.println();
 			}
@@ -131,7 +129,7 @@ public class ARFFFile {
 		wrt.println();
 	}
 
-	public static void writeArff(String fname, RowData data) throws IOException {
+	public static void writeArff(String fname, RowData data) throws IOException, ClusException {
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
 		ClusSchema schema = data.getSchema();
 		writeArffHeader(wrt, schema);

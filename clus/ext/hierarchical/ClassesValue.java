@@ -1,13 +1,14 @@
 package clus.ext.hierarchical;
 
+import java.io.*;
 import java.util.*;
+
 import jeans.util.array.*;
-import jeans.util.compound.*;
 
 import clus.util.*;
 import clus.main.*;
 
-public class ClassesValue extends IndexedItem {
+public class ClassesValue implements Serializable {
 	
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
 
@@ -20,7 +21,7 @@ public class ClassesValue extends IndexedItem {
 	public final static int NODE_ABUNDANCE = 2;	
 
 	protected String[] m_Path;
-	protected boolean m_Intermediate = true;	
+	protected boolean m_Intermediate;	
 	protected double m_Abundance = 1.0;
 	protected ClassTerm m_ClassTerm;
 
@@ -50,14 +51,10 @@ public class ClassesValue extends IndexedItem {
 	}
 	
 	public ClassesValue(ClassTerm term) {
-		setIndex(term.getIndex());
-		copyPath(term);	
 		m_ClassTerm = term;
 	}
 	
 	public ClassesValue(ClassTerm term, double abundance) {
-		setIndex(term.getIndex());
-		copyPath(term);	
 		m_Abundance = abundance;
 		m_ClassTerm = term;
 	}	
@@ -67,7 +64,7 @@ public class ClassesValue extends IndexedItem {
 	}
 	
 	public boolean isRoot() {
-		return m_Path.length == 0;
+		return getTerm().getIndex() == -1;
 	}
 	
 	public ClassTerm getTerm() {
@@ -76,6 +73,10 @@ public class ClassesValue extends IndexedItem {
 	
 	public void setClassTerm(ClassTerm term) {
 		m_ClassTerm = term;
+	}
+	
+	public final int getIndex() {
+		return m_ClassTerm.getIndex();
 	}
 	
 	public ClassesValue toFlat(StringTable table) {
@@ -131,32 +132,21 @@ public class ClassesValue extends IndexedItem {
 	public final void addHierarchyIndices(ClassHierarchy hier) throws ClusException {
 		ClassTerm term = hier.getClassTerm(this);
 		setClassTerm(term);
-		setIndex(term.getIndex());
-  }
+    }
 	
 	public String toPathString() {
-		if (m_Path.length == 0) {
-			return "R";
+		return getTerm().toPathString();
+	}
+	
+	public String toStringData(ClassHierarchy hier) {
+		if (hier != null && hier.isDAG()) {
+			return getTerm().getID();
 		} else {
-			StringBuffer buf = new StringBuffer();
-			for (int i = 0; i < m_Path.length; i++) {
-				if (i != 0) buf.append(HIERARCY_SEPARATOR);
-				buf.append(m_Path[i]);
-			}
-			return buf.toString();
+			return toPathString();
 		}
 	}
 
 	public String toString() {
 		return toPathString();
-	}
-	
-	private void copyPath(ClassTerm term) {
-		int depth = term.getLevel();	
-		m_Path = new String[depth];
-		for (int i = depth-1; i >= 0; i--) {
-			m_Path[i] = term.getID();
-			term = term.getCTParent();
-		}
 	}
 }

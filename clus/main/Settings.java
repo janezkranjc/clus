@@ -130,6 +130,14 @@ public class Settings implements Serializable {
 	
 	public final static int HIERMODE_XTAX_SET_DIST_DISCRETE = 3;
 	
+	// Hierarchical multi-classification now supports both trees and DAGS
+	// This was required because Gene Ontology terms are organized in a partial order
+	public final static String[] HIERTYPES = { "Tree", "DAG" };
+	
+	public final static int HIERTYPE_TREE = 0;
+	
+	public final static int HIERTYPE_DAG = 1;
+	
 	public final static String[] NORMALIZATIONS = { "Normalize" };
 	
 	public final static int NORMALIZATION_DEFAULT = 0;
@@ -436,10 +444,10 @@ public class Settings implements Serializable {
 	
 	protected INIFileBool m_HierUseBonferroni;
 	
+	protected INIFileNominal m_HierType;
+	
 	protected INIFileNominalOrDoubleOrVector m_HierClassThreshold;
 	
-	protected INIFileString m_HierIgnoreClasses;
-
 	protected INIFileString m_HierEvalClasses;
 
 	INIFileSection m_SectionKNN;
@@ -569,6 +577,7 @@ public class Settings implements Serializable {
 		output.addNode(m_OutputPythonModel = new INIFileBool("OutputPythonModel", false));
 		
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
+		m_SectionHierarchical.addNode(m_HierType = new INIFileNominal("Type", HIERTYPES, 0));		
 		m_SectionHierarchical.addNode(HIER_W_PARAM = new INIFileDouble("WParam", 0.75));
 		m_SectionHierarchical.addNode(m_HierSep = new INIFileString("HSeparator", "."));
 		m_SectionHierarchical.addNode(m_HierEmptySetIndicator = new INIFileString("EmptySetIndicator", "n"));
@@ -580,7 +589,6 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierUseBonferroni = new INIFileBool("Bonferroni", false));
 		m_SectionHierarchical.addNode(m_HierClassThreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold", NONELIST));		
 		m_HierClassThreshold.setNominal(0);
-		m_SectionHierarchical.addNode(m_HierIgnoreClasses = new INIFileString("IgnoreClasses", NONE));		
 		m_SectionHierarchical.addNode(m_HierEvalClasses = new INIFileString("EvalClasses", NONE));		
 		m_SectionHierarchical.addNode(m_HierMode = new INIFileNominal("Mode", HIERMODES, 0));		
 		m_SectionHierarchical.setEnabled(false);
@@ -683,18 +691,10 @@ public class Settings implements Serializable {
 		return m_HierClassThreshold;
 	}
 	
-	public String getHierIgnoreClasses() {
-		return m_HierIgnoreClasses.getValue();
-	}
-	
 	public String getHierEvalClasses() {
 		return m_HierEvalClasses.getValue();
 	}	
-	
-	public boolean hasHierIgnoreClasses() {
-		return !StringUtils.unCaseCompare(m_HierIgnoreClasses.getValue(), NONE);
-	}
-	
+		
 	public boolean hasHierEvalClasses() {
 		return !StringUtils.unCaseCompare(m_HierEvalClasses.getValue(), NONE);
 	}	
@@ -821,6 +821,10 @@ public class Settings implements Serializable {
   
 	public int getHierMode() {
 		return m_HierMode.getValue();
+	}
+	
+	public int getHierType() {
+		return m_HierType.getValue();
 	}
 
 	public String getTuneFolds() {

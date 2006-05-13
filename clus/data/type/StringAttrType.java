@@ -45,7 +45,11 @@ public class StringAttrType extends ClusAttrType {
 		String s2 = (String)t2.m_Objects[m_ArrayIndex];		
 		return s1.equals(s2) ? 0 : 1;
 	}
-		
+	
+	public void writeARFFType(PrintWriter wrt) throws ClusException {
+		wrt.print("string");
+	}	
+	
 	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
 		return new MySerializable(data);
 	}	

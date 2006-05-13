@@ -95,8 +95,8 @@ public class WHTDStatistic extends RegressionStat {
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
 		m_SumWeight += weight;
 		// Add one to the elements in the tuple, zero to the others
-		for (int j = 0; j < tp.size(); j++) {
-			ClassesValue val = tp.elementAt(j);
+		for (int j = 0; j < tp.getNbClasses(); j++) {
+			ClassesValue val = tp.getClass(j);
 			int idx = val.getIndex();
 			// if (Settings.VERBOSE > 10) System.out.println("idx = "+idx+" weight = "+weight);
 			m_SumValues[idx] += weight;
@@ -132,7 +132,7 @@ public class WHTDStatistic extends RegressionStat {
 	public void calcMean() {
 		super.calcMean();
 		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means, m_Threshold);
-		m_DiscrMean = m_MeanTuple.getVectorWithParents(m_Hier);
+		m_DiscrMean = m_MeanTuple.getVectorNodeAndAncestors(m_Hier);
 		performSignificanceTest();
 	}
 	
@@ -200,11 +200,11 @@ public class WHTDStatistic extends RegressionStat {
 	}
 	
 	public String getString(StatisticPrintInfo info) {
-		return m_MeanTuple.toStringHuman()+" ["+ClusFormat.TWO_AFTER_DOT.format(getTotalWeight())+"]";
+		return m_MeanTuple.toStringHuman(getHier())+" ["+ClusFormat.TWO_AFTER_DOT.format(getTotalWeight())+"]";
 	}
 	
 	public String getPredictString() {
-		return "["+m_MeanTuple.toStringHuman()+"]";
+		return "["+m_MeanTuple.toStringHuman(getHier())+"]";
 	}
 	
 	public boolean isValidPrediction() {
@@ -253,7 +253,7 @@ public class WHTDStatistic extends RegressionStat {
 				HypergeometricDistribution dist = m_Fac.createHypergeometricDistribution(pop_tot, pop_cls, rule_tot);
 				try {
 					double stat = dist.cumulativeProbability(lower, upper);
-					out.append(node.toString()+":");
+					out.append(node.toStringHuman(getHier())+":");
 					out.append(" pop_tot = "+String.valueOf(pop_tot));
 					out.append(" pop_cls = "+String.valueOf(pop_cls));
 					out.append(" rule_tot = "+String.valueOf(rule_tot));
@@ -275,7 +275,7 @@ public class WHTDStatistic extends RegressionStat {
 	public String getExtraInfo() {
 		StringBuffer res = new StringBuffer();		
 		ClassesTuple meantuple = m_Hier.getBestTupleMaj(m_Means, 50.0);
-		double[] discrmean = meantuple.getVectorWithParents(m_Hier);
+		double[] discrmean = meantuple.getVectorNodeAndAncestors(m_Hier);
 		for (int i = 0; i < m_Hier.getRoot().getNbChildren(); i++) {
 			getExtraInfoRec((ClassTerm)m_Hier.getRoot().getChild(i), discrmean, res);
 		}

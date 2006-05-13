@@ -27,7 +27,7 @@ public class DiskTupleIterator extends FileTupleIterator {
 		System.out.println("Loading '"+m_File+"'");			
 		m_Reader = new ClusReader(m_File, m_Sett);
 		ARFFFile arff = new ARFFFile(m_Reader);
-		ClusSchema schema = arff.read();
+		ClusSchema schema = arff.read(m_Sett);
 		if (m_Init != null) m_Init.initSchema(schema);
 		schema.addIndices(ClusSchema.ROWS);		
 		m_Data = new RowData(schema);		

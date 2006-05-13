@@ -1,22 +1,13 @@
 package clus.ext.hierarchical;
 
-import jeans.util.*;
-import jeans.util.compound.*;
-import jeans.math.matrix.*;
-import jeans.tree.*;
-
-import clus.main.*;
-import clus.data.rows.*;
-
-import java.io.*;
-
 /*
  * Collect target values in each leave 
  *
  */
 
-public class HierModelPostProc extends ClusModelProcessor {
-
+public class HierModelPostProc /*extends ClusModelProcessor*/ {
+/*
+	
 	public ClassHierarchy m_Hier;
 
 	public HierModelPostProc(ClassHierarchy hier) {
@@ -94,5 +85,6 @@ public class HierModelPostProc extends ClusModelProcessor {
 		double piApi = km.xtAx(pred);		
 		return sumweight*piApi - 2 * MSymMatrix.dot(pred, Aai) + aiAai;
 	}
+*/	
 }
 

@@ -2,6 +2,7 @@ package clus.main;
 
 import clus.error.*;
 import clus.model.processor.*;
+import clus.util.*;
 
 import java.io.*;
 
@@ -100,7 +101,7 @@ public class ClusModelInfo implements Serializable {
 		else return null;
 	}
 	
-	public final void initModelProcessors(int type, ClusSchema schema) throws IOException {
+	public final void initModelProcessors(int type, ClusSchema schema) throws IOException, ClusException {
 		ModelProcessorCollection coll = getModelProcessors(type);
 		if (coll != null) coll.initialize(m_Model, schema);
 	}

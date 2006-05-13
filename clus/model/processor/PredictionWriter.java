@@ -6,6 +6,7 @@ import java.io.*;
 
 import clus.main.*;
 import clus.io.*;
+import clus.util.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.statistic.*;
@@ -28,7 +29,7 @@ public class PredictionWriter extends ClusModelProcessor {
 		m_ModelParts = new StringBuffer();		
 	}
 	
-	public void globalInitialize(ClusSchema schema) throws IOException {
+	public void globalInitialize(ClusSchema schema) throws IOException, ClusException {
 		m_Global = true;
 		doInitialize(schema);
 	}
@@ -41,7 +42,7 @@ public class PredictionWriter extends ClusModelProcessor {
 		m_Writer.close();
 	}
 
-	public void initialize(ClusModel model, ClusSchema schema) throws IOException {
+	public void initialize(ClusModel model, ClusSchema schema) throws IOException, ClusException {
 		if (!m_Global) doInitialize(schema);
 	}
 	
@@ -71,7 +72,7 @@ public class PredictionWriter extends ClusModelProcessor {
 		m_ModelParts.setLength(0);
 	}
 	
-	private void doInitialize(ClusSchema schema) throws IOException {
+	private void doInitialize(ClusSchema schema) throws IOException, ClusException {
 		m_Attrs = new MyArray();
 		int nb = schema.getNbAttributes();
 		m_OutSchema = new ClusSchema(schema.getRelationName()+"-predictions");

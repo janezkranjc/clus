@@ -7,8 +7,6 @@ import javax.swing.tree.*;
 
 import clus.ext.hierarchical.*;
 
-import jeans.util.array.*;
-
 import java.util.*;
 
 import clus.main.*;
@@ -185,10 +183,10 @@ public class ShowHierarchy extends JPanel {
 
     //public static double[] getCounts(ClusNode node, ClassHierarchy hier) {
     public static double[] getCounts(ClusNode node) {
-	HierStatistic stat = (HierStatistic)node.getClusteringStat();
+	//HierStatistic stat = (HierStatistic)node.getClusteringStat();
 	//double[] accu = hier.calcAccumulated(stat.getCounts(), stat.m_SumWeight);
 	//		hier.makeRelative(accu);
-	return MDoubleArray.clone(stat.getCounts()); 
+	return null; 
     }
     
     public static double getWeight(ClusNode node) {
@@ -197,10 +195,11 @@ public class ShowHierarchy extends JPanel {
     }	
     
     public static double[] getVariances(ClusNode node) {
-	HierStatistic stat = (HierStatistic)node.getClusteringStat();
+	/*HierStatistic stat = (HierStatistic)node.getClusteringStat();
 	double[] arr = stat.getVariances();
 	if (arr == null) return null;
-	else return MDoubleArray.clone(stat.getVariances());
+	else return MDoubleArray.clone(stat.getVariances());*/
+    	return null;
     }    
     
 

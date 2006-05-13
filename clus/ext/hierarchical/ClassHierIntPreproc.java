@@ -1,15 +1,14 @@
 package clus.ext.hierarchical;
 
 import java.util.*;
-import jeans.util.*;
 
 import clus.data.rows.*;
 import clus.util.ClusException;
 
 public class ClassHierIntPreproc extends ClassHierarchyPreproc {
 	
-	protected transient double[] m_IntermedAbundances;
-	protected transient MyArray m_Scratch;
+	protected transient boolean[] m_Intermediates;
+	protected transient ArrayList m_Scratch;
 	
 	public ClassHierIntPreproc(ClassesAttrType type, boolean single) {
 		super(type);
@@ -18,6 +17,8 @@ public class ClassHierIntPreproc extends ClassHierarchyPreproc {
 	
 	public void preproc(int pass, DataTuple tuple) throws ClusException {
 		super.preproc(pass, tuple);
+		// Pass 0 adds the tuple to the class hierarchy (cf. superclass)
+		// Pass 1 adds intermediate elements (nodes) to it
 		if (pass == 1) {
 			ClassesTuple ct = (ClassesTuple)tuple.getObjVal(m_Type.getArrayIndex());
 			addIntermediateElems(ct);       	        
@@ -36,13 +37,13 @@ public class ClassHierIntPreproc extends ClassHierarchyPreproc {
 	}
 	
 	private void createScratch() {
-		m_IntermedAbundances = new double[getHier().getTotal()];
-		m_Scratch = new MyArray();	
+		m_Intermediates = new boolean[getHier().getTotal()];
+		m_Scratch = new ArrayList();	
 	}
 	
 	private void addIntermediateElems(ClassesTuple ct) throws ClusException {
-		Arrays.fill(m_IntermedAbundances, 0.0);
-		ct.addIntermediateElems(getHier(), m_IntermedAbundances, m_Scratch);
-		m_Scratch.removeAllElements();
+		Arrays.fill(m_Intermediates, false);
+		ct.addIntermediateElems(getHier(), m_Intermediates, m_Scratch);
+		m_Scratch.clear();
 	}
 }
