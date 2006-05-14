@@ -178,14 +178,18 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 				wrt.print(" "+buf.toString());
 			}
 			int no = subterm.getIndex();
-			if (counts != null) {
-				double count = counts[no];
-				wrt.print(": "+ClusFormat.FOUR_AFTER_DOT.format(count));
+			if (no == -1) {
+				wrt.print(": [error index -1]");
+			} else {
+				if (counts != null) {
+					double count = counts[no];
+					wrt.print(": "+ClusFormat.FOUR_AFTER_DOT.format(count));
+				}
+				if (weights != null) {
+					double weight = weights[no];
+					wrt.print(": "+ClusFormat.THREE_AFTER_DOT.format(weight));
+				}
 			}
-			if (weights != null) {
-				double weight = weights[no];
-				wrt.print(": "+ClusFormat.THREE_AFTER_DOT.format(weight));
-			}			
 			wrt.println();
 			subterm.print(tabs+6, wrt, counts, weights);
 		}

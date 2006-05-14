@@ -30,12 +30,7 @@ public class ClassesAttrType extends ClusAttrType {
 		super(name);
 		m_Hier = hier;
 	}	
-	
-	public ClassesAttrType(String name, String atype) throws ClusException {
-		this(name);
-		initializeHierarchy(atype);
-	}	
-	
+		
 	public StringTable getTable() {
 		return m_Table;
 	}
@@ -72,16 +67,15 @@ public class ClassesAttrType extends ClusAttrType {
 	}
 	
 	public void getPreprocs(DataPreprocs pps, boolean single) {
-		int mode = getSettings().getHierMode();
-		if (mode == Settings.HIERMODE_TREE_DIST_WEUCLID ||
-			mode == Settings.HIERMODE_TREE_DIST_ABS_WEUCLID) {
-			pps.addPreproc(new ClassHierIntPreproc(this, single));
-		} else {
-			pps.addPreproc(new ClassHierarchyPreproc(this));
-		}
+		// this builds the hierarchy based on the data
+		// and adds intermediate class nodes to each example
+		pps.addPreproc(new ClassHierarchyPreproc(this, true));
 	}
 	
 	public void initializeHierarchy(String atype) throws ClusException {
+		// hierarchy is given in @attribute specification in .arff
+		// this means we can initialize the hierarchy and lock it
+		// so that no classes can be added afterwards
 		String classes = atype.substring("HIERARCHICAL".length()).trim();
 		String[] cls = classes.split("\\s*\\,\\s*");
 		for (int i = 0; i < cls.length; i++) {
@@ -89,7 +83,8 @@ public class ClassesAttrType extends ClusAttrType {
 				ClassesValue val = new ClassesValue(cls[i], m_Table);
 				m_Hier.addClass(val);
 			}
-		}		
+		}
+		m_Hier.initialize();
 	}
 	
 	public void initializeFrom(ClusAttrType other_type) {
@@ -107,7 +102,7 @@ public class ClassesAttrType extends ClusAttrType {
 	
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
 		ArrayList list = getHier().getAllPaths();
-		wrt.print("hierarchial ");
+		wrt.print("hierarchical ");
 		for (int i = 0; i < list.size(); i++) {
 			if (i != 0) wrt.print(",");
 			wrt.print((String)list.get(i));

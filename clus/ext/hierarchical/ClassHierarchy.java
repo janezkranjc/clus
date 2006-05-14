@@ -28,6 +28,7 @@ public class ClassHierarchy implements Serializable {
 	protected ArrayList m_ClassList = new ArrayList();
 	protected HashMap m_ClassMap = new HashMap();
 	protected NumericAttrType[] m_DummyTypes;
+	protected boolean m_IsLocked;
 	protected transient double[] m_Weights;
 	protected transient Hashtable m_ErrorWeights = new Hashtable();
 	protected transient ClassesAttrType m_Type;
@@ -57,7 +58,7 @@ public class ClassHierarchy implements Serializable {
 	}
 	
 	public final void addClass(ClassesValue val) {
-		m_Root.addClass(val, 0, this);
+		if (!isLocked()) m_Root.addClass(val, 0, this);
 	}
 	
 	public final void print(PrintWriter wrt) {
@@ -119,6 +120,9 @@ public class ClassHierarchy implements Serializable {
 			ClassTerm term = getTermAt(i);
 			term.setIndex(i);
 		}
+		System.out.println("Hierarchy initialized: "+getTotal()+" nodes");	
+		// after this, the hierarchy must not change anymore
+		setLocked(true);
 	}
 	
 	void getAllPathsRecursive(ClassTerm node, String crpath, boolean[] visited, ArrayList paths) {
@@ -284,22 +288,7 @@ public class ClassHierarchy implements Serializable {
 		System.out.println("Leaves: "+leaves);
 	}
 	
-	public final ClassTerm getCheckClassTerm(ClassesValue vl) throws ClusException {
-		int pos = 0;
-		int nb_level = vl.getNbLevels();
-		ClassTerm subterm = m_Root;
-		while (true) {
-			if (pos >= nb_level) return subterm;
-			String lookup = vl.getClassID(pos);
-			ClassTerm found = subterm.getByName(lookup);
-			if (found == null)
-				throw new ClusException("Value not an element of hierarchy: "+vl);
-			subterm = found;
-			pos++;
-		}
-	}
-	
-	public final ClassTerm getClassTerm(ClassesValue vl) throws ClusException {
+	public final ClassTerm getClassTermTree(ClassesValue vl) throws ClusException {
 		int pos = 0;
 		int nb_level = vl.getNbLevels();
 		ClassTerm subterm = m_Root;
@@ -310,10 +299,24 @@ public class ClassHierarchy implements Serializable {
 				return subterm;
 			} else {
 				ClassTerm found = subterm.getByName(lookup);
-				if (found == null) throw new ClusException("Classes value not in hierarchy: "+vl.toPathString());
+				if (found == null) throw new ClusException("Classes value not in tree hierarchy: "+vl.toPathString());
 				subterm = found;
 			}			
 			pos++;
+		}
+	}
+	
+	public final ClassTerm getClassTermDAG(ClassesValue vl) throws ClusException {
+		ClassTerm term = getClassTermByName(vl.getMostSpecificClass());
+		if (term == null) throw new ClusException("Classes value not in DAG hierarchy: "+vl.toPathString());
+		return term;
+	}
+	
+	public final ClassTerm getClassTerm(ClassesValue vl) throws ClusException {
+		if (isTree()) {
+			return getClassTermTree(vl);
+		} else {
+			return getClassTermDAG(vl);
 		}
 	}
 		
@@ -389,6 +392,14 @@ public class ClassHierarchy implements Serializable {
 		wrt.close();
 	}
 	
+	public void setLocked(boolean lock) {
+		m_IsLocked = lock;
+	}
+	
+	public boolean isLocked() {
+		return m_IsLocked;
+	}
+	
 	public void setHierType(int type) {
 		m_HierType = type;
 	}
@@ -407,7 +418,6 @@ public class ClassHierarchy implements Serializable {
 	
 	public void addClassTerm(String id, ClassTerm term) {
 		m_ClassMap.put(id, term);
-		m_ClassList.add(term);
 	}
 	
 	public void addClassTerm(ClassTerm term) {

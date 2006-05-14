@@ -50,8 +50,13 @@ public class HierNodeWeights {
 			for (int i = todo.size()-1; i >= 0; i--) {
 				ClassTerm term = (ClassTerm)todo.get(i);
 				if (allParentsOk(term, weight_computed)) {
-					
-					
+					double sum_wi = 0.0;
+					for (int j = 0; j < term.getNbParents(); j++) {
+						ClassTerm parent = term.getParent(j);
+						if (parent.getIndex() == -1) sum_wi += 1.0;
+						else sum_wi += m_Weights[parent.getIndex()];						
+					}
+					m_Weights[term.getIndex()] = w0*sum_wi;
 					weight_computed[term.getIndex()] = true;
 					todo.remove(i);
 					nb_done++;

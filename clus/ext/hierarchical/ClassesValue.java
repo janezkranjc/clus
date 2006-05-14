@@ -117,6 +117,10 @@ public class ClassesValue implements Serializable {
 		return true;
 	}
 
+	public String getMostSpecificClass() {
+		return m_Path[m_Path.length-1];
+	}
+	
 	public String getClassID(int level) {
 		return m_Path[level];
 	}
@@ -135,7 +139,17 @@ public class ClassesValue implements Serializable {
     }
 	
 	public String toPathString() {
-		return getTerm().toPathString();
+		ClassTerm term = getTerm();
+		if (term != null) {
+			return term.toPathString();
+		} else {
+			StringBuffer buf = new StringBuffer();
+			for (int i = 0; i < getNbLevels(); i++) {
+				if (i != 0) buf.append('/');
+				buf.append(getClassID(i));
+			}
+			return buf.toString();
+		}
 	}
 	
 	public String toStringData(ClassHierarchy hier) {
