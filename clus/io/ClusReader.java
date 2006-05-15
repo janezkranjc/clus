@@ -37,13 +37,27 @@ public class ClusReader {
 		return nbr;
 	}
 
+	public MStreamTokenizer zipOpen(String fname) throws IOException {
+		ZipInputStream zip = new ZipInputStream(new FileInputStream(fname));
+		zip.getNextEntry();
+		return new MStreamTokenizer(zip);
+	}
+	
 	public void open() throws IOException {
-		if (FileUtil.fileExists(m_Name)) {
-			m_Token = new MStreamTokenizer(m_Settings.getFileAbsolute(m_Name));				
+		String fname = m_Settings.getFileAbsolute(m_Name);
+		if (FileUtil.fileExists(fname)) {
+			if (fname.toUpperCase().endsWith(".ZIP")) {
+				m_Token = zipOpen(fname);
+			} else {
+				m_Token = new MStreamTokenizer(fname);
+			}
 		} else {
-			ZipInputStream zip = new ZipInputStream(new FileInputStream(m_Name+".zip"));
-			zip.getNextEntry();
-			m_Token = new MStreamTokenizer(zip);				
+			String zipname = fname+".zip";
+			if (FileUtil.fileExists(zipname)) {
+				m_Token = zipOpen(zipname);				
+			} else {
+				throw new FileNotFoundException("'"+fname+"'");
+			}
 		}
 		m_Token.setCommentChar('%');
 		m_IsClosed = false;

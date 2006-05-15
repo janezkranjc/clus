@@ -1303,9 +1303,17 @@ public class Settings implements Serializable {
 	}
 
 	public String getFileAbsolute(String fname) {
-		if (m_DirName == null)
+		// System.out.println("Dir name: '"+m_DirName+"'");
+		// System.out.println("File name: '"+fname+"'");
+		if (m_DirName == null) {
 			return fname;
-		return m_DirName + File.separator + fname;
+		} else {
+			if (FileUtil.isAbsolutePath(fname)) {
+				return fname;
+			} else {
+				return m_DirName + File.separator + fname;
+			}
+		}
 	}
 
 	public PrintWriter getFileAbsoluteWriter(String fname)
