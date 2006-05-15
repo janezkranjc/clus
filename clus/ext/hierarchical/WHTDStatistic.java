@@ -4,6 +4,7 @@
 package clus.ext.hierarchical;
 
 import java.io.*;
+import java.util.*;
 
 import org.apache.commons.math.distribution.*;
 import org.apache.commons.math.*;
@@ -23,6 +24,7 @@ public class WHTDStatistic extends RegressionStat {
 	
 	protected ClassHierarchy m_Hier;
 	protected ClassesTuple m_MeanTuple;
+	protected ClassesTuple m_PrintTuple;	
 	protected double[] m_DiscrMean;	
 	protected WHTDStatistic m_Global, m_Validation;
 	protected double m_SigLevel;
@@ -134,6 +136,12 @@ public class WHTDStatistic extends RegressionStat {
 		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means, m_Threshold);
 		m_DiscrMean = m_MeanTuple.getVectorNodeAndAncestors(m_Hier);
 		performSignificanceTest();
+		// Same tuple with intermediate elements indicated as such
+		// Useful for printing the tree without the intermediate classes
+		m_PrintTuple = m_Hier.getBestTupleMaj(m_DiscrMean, 0.5);
+		ArrayList added = new ArrayList();
+		boolean[] interms = new boolean[m_Hier.getTotal()];
+		m_PrintTuple.addIntermediateElems(m_Hier, interms, added);
 	}
 	
 	public int round(double value) {
@@ -200,7 +208,13 @@ public class WHTDStatistic extends RegressionStat {
 	}
 	
 	public String getString(StatisticPrintInfo info) {
-		return m_MeanTuple.toStringHuman(getHier())+" ["+ClusFormat.TWO_AFTER_DOT.format(getTotalWeight())+"]";
+		String pred = null;
+		if (m_PrintTuple != null) {
+			pred = m_PrintTuple.toStringHuman(getHier());
+		} else {
+			pred = m_MeanTuple.toStringHuman(getHier());
+		}
+		return pred+" ["+ClusFormat.TWO_AFTER_DOT.format(getTotalWeight())+"]";
 	}
 	
 	public String getPredictString() {

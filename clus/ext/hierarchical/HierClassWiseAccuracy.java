@@ -17,6 +17,7 @@ public class HierClassWiseAccuracy extends ClusError {
 	
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
+	protected boolean m_NoTrivialClasses = true;
 	protected ClassHierarchy m_Hier;
 	protected double[] m_Predicted;
 	protected double[] m_Correct;
@@ -61,7 +62,17 @@ public class HierClassWiseAccuracy extends ClusError {
 		return true;
 	}
 	
+	public boolean isNoTrivialClasses() {
+		return m_NoTrivialClasses;
+	}
+	
 	public boolean isEvalClass(int idx) {
+		if (isNoTrivialClasses()) {
+			// Do not consider classes with default precision = 1.0
+			if (m_Default[idx] == getNbTotal()) {
+				return false;
+			}
+		}
 		return m_EvalClass[idx];
 	}
 	
