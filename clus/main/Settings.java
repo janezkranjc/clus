@@ -301,10 +301,11 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_MinW;
 	
 	protected INIFileString m_TuneFolds;
-
-	//	added by Leander 7-4-2006
-	protected INIFileDouble m_PosExampleWeight;
-  //	end added by Leander 7-4-2006
+	
+//	added by Leander 7-4-2006
+	protected INIFileNominalOrDoubleOrVector m_ClassWeight;
+	
+//	end added by Leander 7-4-2006
 
 	/* Tree */
 	protected INIFileNominal m_Heuristic;
@@ -520,7 +521,8 @@ public class Settings implements Serializable {
 		model.addNode(m_MinW = new INIFileDouble("MinimalWeight", 2.0));
 		model.addNode(m_TuneFolds = new INIFileString("ParamTuneNumberFolds", "10"));
 		//added by Leander 7-4-2006
-		model.addNode(m_PosExampleWeight = new INIFileDouble("Weight for positive class", 1.0));
+		model.addNode(m_ClassWeight = new INIFileNominalOrDoubleOrVector("ClassWeights", EMPTY));
+		//should all weights be initialized to 1 or does this happen automatically? 
 		//end added by Leander 7-4-2006
 
 		INIFileSection tree = new INIFileSection("Tree");
@@ -832,8 +834,8 @@ public class Settings implements Serializable {
 	}
 	
 	//added by Leander 7-4-2006
-	public double getPosExampleWeight() {
-		return m_PosExampleWeight.getValue();
+	public double[] getClassWeight() {
+		return m_ClassWeight.getDoubleVector();
 	}
 	//end added by Leander 7-4-2006
 
