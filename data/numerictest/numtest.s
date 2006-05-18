@@ -10,5 +10,5 @@ MaxSize = 5
 TestSet = numtest.arff
 
 [Output]
-WriteTestSetPredictions = Yes
+WritePredictions = Test
 

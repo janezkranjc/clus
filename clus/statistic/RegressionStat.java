@@ -140,6 +140,10 @@ public class RegressionStat extends ClusStatistic {
 		}	
 	}	
 	
+	public void computePrediction() {
+		// do not need to call calcmean here
+	}	
+	
 	public void calcMean() {
 		if (m_Means == null) m_Means = new double[m_NbAttrs];
 		for (int i = 0; i < m_NbAttrs; i++) {

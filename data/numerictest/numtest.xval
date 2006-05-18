@@ -1,79 +1,98 @@
 Clus run "Test"
 ***************
 
-Date: 4/15/05 9:00 PM
+Date: 5/17/06 11:00 AM
 File: numtest.xval
-Attributes: 4 (input: 2, output: 1)
+Attributes: 4 (input: 3, output: 1)
+Missing values: No
 Rows: 16
 
+[General]
+Verbose = 1
+RandomSeed = 0
+XVal = 10
+ResourceInfoLoaded = Yes
+Compatibility = Latest
+
 [Data]
-Target = 4
-Disable = NULL
-Key = 1
-Testset = 0
-XVal = 3
-Sets = 25
 File = numtest.arff
-TestFile = NULL
-PruneFile = NULL
-Heuristic = NULL
+TestSet = numtest.arff
+PruneSet = None
+PruneSetMax = Infinity
 
-[Numeric]
-FTest = 0.1
-Normalize = FALSE
-MultiScore = NULL
+[Attributes]
+Target = 4
+Disable = None
+Clustering = 4
+Descriptive = 1-3
+Key = None
+Weights = Normalize
+ClusteringWeights = 1.0
 
-[Nominal]
-GainRatio = FALSE
+[Model]
+MinimalWeight = 2.0
+ParamTuneNumberFolds = 10
+Weight for positive class = 1.0
 
 [Tree]
-MinimalWeight = 2.0
-BinarySplit = TRUE
-VSBPrune = 0.0
-SizeConstraintPrune = -1
-MaxDepth = -1
+Heuristic = Default
+MaxDepth = Infinity
+BinarySplit = Yes
+PruningMethod = Default
+1-SE-Rule = No
+M5PruningMult = 2.0
+ConvertToRules = No
 
-[Settings]
-PresetRandom = 0
+[Rules]
+CoveringMethod = Standard
+PredictionMethod = DecisionList
+CoveringWeight = 0.9
+MaxRulesNb = 10000
+CompHeurCoveragePar = 0.0
+CompHeurRuleDistPar = 0.0
+RuleSignificanceLevel = 0.05
+RuleNbSigAtts = 0
+ComputeCompactness = No
+NumCompNormWeight = 4.0
+CompactnessWeights = 
+  TargetWeight = 1.0
+  NonTargetWeight = 1.0
+  NumericWeight = 1.0
+  NominalWeight = 1.0
+RandomRules = 0
+PrintRuleWiseErrors = No
+OptDEPopSize = 500
+OptDENumEval = 20000
+OptDECrossProb = 0.3
+OptDEWeight = 0.5
+OptDESeed = 0
+OptRegPar = 0.0
 
-[Hierarchical]
-WParam = 0.75
-HSeparator = .
-HierLoad = FALSE
-HierSave = FALSE
-HierFlat = FALSE
-ContinueProto = TRUE
-UseAbundances = FALSE
-NodeAbundances = FALSE
-SSWAHND = FALSE
+[Numeric]
+FTest = 1.0
+MultiScore = None
+
+[Nominal]
+GainRatio = No
+MEstimate = 1.0
+
+[Constraints]
+Syntactic = None
+MaxSize = 5
+MaxError = 0.0
 
 [Output]
-FoldTrees = TRUE
-FoldErrors = FALSE
-TrainErros = FALSE
-UnknownFrequency = FALSE
-BranchFrequency = FALSE
-XValForest = FALSE
-
-[kNN]
-k = 3
-VectorDistance = Euclidian
-DistanceWeighted = FALSE
-Normalizing = TRUE
-AttributeWeighted = FALSE
-
-[kNNTree]
-k = 3
-VectorDistance = Euclidian
-DistanceWeighted = FALSE
-Normalizing = TRUE
-AttributeWeighted = FALSE
-
-[Beam]
-SizePenalty = 0.1
-BeamWidth = 10
-BeamBestN = 5
-MaxSize = -1
+AllFoldModels = Yes
+AllFoldErrors = No
+TrainErrors = No
+UnknownFrequency = No
+BranchFrequency = No
+ShowInfo = {Count}
+ShowModels = {Default, Pruned, Others}
+PrintModelAndExamples = No
+WritePredictions = {Test}
+ModelIDFiles = No
+OutputPythonModel = No
 
 Run: 01
 *******
@@ -81,33 +100,36 @@ Run: 01
 Statistics
 ----------
 
-FTValue (FTest): 0.1
-FoldsInfo
-Nodes:  [1.0, 1.0, 0.0, 0.0]
-f(i-1): [1.0, 1.0, 0.0, 0.0]
-Time:   [0.0, 0.0, 0.0, 0.0]
-
-Time: 0 sec
-Number of tests
-     Default: 1
-     Original: 5
-     Pruned: 5
-
+FTValue (FTest): 0.0010
+Induction Time: 0 sec (CPU)
+Pruning Time: 0 sec (CPU)
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 5 (Leaves: 3)
+     S(5): Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
 
-[2.090909]
+[2.2]: 15
 
+Original Model
+**************
 
-Pruned Model
-************
+id > 10
++--yes: [3]: 6
++--no:  id > 4
+        +--yes: [2]: 6
+        +--no:  [1]: 3
 
-b = 1
-+--yes: [3]
-+--no:  a <= 2.5
-        +--yes: [1]
-        +--no:  [2]
+S(5) Model
+**********
+
+id > 10
++--yes: [3]: 6
++--no:  id > 4
+        +--yes: [2]: 6
+        +--no:  [1]: 3
 
 Run: 02
 *******
@@ -115,33 +137,36 @@ Run: 02
 Statistics
 ----------
 
-FTValue (FTest): 0.1
-FoldsInfo
-Nodes:  [1.0, 1.0, 0.0, 0.0]
-f(i-1): [1.0, 1.0, 0.0, 0.0]
-Time:   [0.0, 0.0, 0.0, 0.0]
-
-Time: 0 sec
-Number of tests
-     Default: 1
-     Original: 5
-     Pruned: 5
-
+FTValue (FTest): 0.0010
+Induction Time: 0 sec (CPU)
+Pruning Time: 0 sec (CPU)
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 5 (Leaves: 3)
+     S(5): Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
 
-[2]
+[2.133333]: 15
 
+Original Model
+**************
 
-Pruned Model
-************
+id > 10
++--yes: [3]: 6
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
 
-a <= 2.5
-+--yes: [1]
-+--no:  b = 1
-        +--yes: [3]
-        +--no:  [2]
+S(5) Model
+**********
+
+id > 10
++--yes: [3]: 6
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
 
 Run: 03
 *******
@@ -149,95 +174,324 @@ Run: 03
 Statistics
 ----------
 
-FTValue (FTest): 0.1
-FoldsInfo
-Nodes:  [1.0, 1.0, 0.0, 0.0]
-f(i-1): [1.0, 1.0, 0.0, 0.0]
-Time:   [0.0, 0.0, 0.0, 0.0]
-
-Time: 0 sec
-Number of tests
-     Default: 1
-     Original: 5
-     Pruned: 5
-
+FTValue (FTest): 0.0010
+Induction Time: 0 sec (CPU)
+Pruning Time: 0 sec (CPU)
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 5 (Leaves: 3)
+     S(5): Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
 
-[2.272727]
+[2.071429]: 14
 
+Original Model
+**************
 
-Pruned Model
-************
+id > 10
++--yes: [3]: 5
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
 
-b = 1
-+--yes: [3]
-+--no:  a <= 2
-        +--yes: [1]
-        +--no:  [2]
+S(5) Model
+**********
+
+id > 10
++--yes: [3]: 5
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
+
+Run: 04
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 0.0010
+Induction Time: 0 sec (CPU)
+Pruning Time: 0 sec (CPU)
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 5 (Leaves: 3)
+     S(5): Nodes = 5 (Leaves: 3)
+
+Default Model
+*************
+
+[2.071429]: 14
+
+Original Model
+**************
+
+id > 10
++--yes: [3]: 5
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
+
+S(5) Model
+**********
+
+id > 10
++--yes: [3]: 5
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
+
+Run: 05
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 0.0010
+Induction Time: 0 sec (CPU)
+Pruning Time: 0 sec (CPU)
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 5 (Leaves: 3)
+     S(5): Nodes = 5 (Leaves: 3)
+
+Default Model
+*************
+
+[2.071429]: 14
+
+Original Model
+**************
+
+id > 10
++--yes: [3]: 5
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
+
+S(5) Model
+**********
+
+id > 10
++--yes: [3]: 5
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
+
+Run: 06
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 0.0010
+Induction Time: 0 sec (CPU)
+Pruning Time: 0 sec (CPU)
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 5 (Leaves: 3)
+     S(5): Nodes = 5 (Leaves: 3)
+
+Default Model
+*************
+
+[2.071429]: 14
+
+Original Model
+**************
+
+id > 10
++--yes: [3]: 5
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
+
+S(5) Model
+**********
+
+id > 10
++--yes: [3]: 5
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
+
+Run: 07
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 0.0010
+Induction Time: 0 sec (CPU)
+Pruning Time: 0 sec (CPU)
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 5 (Leaves: 3)
+     S(5): Nodes = 5 (Leaves: 3)
+
+Default Model
+*************
+
+[2.071429]: 14
+
+Original Model
+**************
+
+id > 9
++--yes: [3]: 5
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
+
+S(5) Model
+**********
+
+id > 9
++--yes: [3]: 5
++--no:  id > 4
+        +--yes: [2]: 5
+        +--no:  [1]: 4
+
+Run: 08
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 0.0010
+Induction Time: 0 sec (CPU)
+Pruning Time: 0 sec (CPU)
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 5 (Leaves: 3)
+     S(5): Nodes = 5 (Leaves: 3)
+
+Default Model
+*************
+
+[2.142857]: 14
+
+Original Model
+**************
+
+id > 10
++--yes: [3]: 5
++--no:  id > 3
+        +--yes: [2]: 6
+        +--no:  [1]: 3
+
+S(5) Model
+**********
+
+id > 10
++--yes: [3]: 5
++--no:  id > 3
+        +--yes: [2]: 6
+        +--no:  [1]: 3
+
+Run: 09
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 0.0010
+Induction Time: 0 sec (CPU)
+Pruning Time: 0 sec (CPU)
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 5 (Leaves: 3)
+     S(5): Nodes = 5 (Leaves: 3)
+
+Default Model
+*************
+
+[2.2]: 15
+
+Original Model
+**************
+
+id > 10
++--yes: [3]: 6
++--no:  id > 4
+        +--yes: [2]: 6
+        +--no:  [1]: 3
+
+S(5) Model
+**********
+
+id > 10
++--yes: [3]: 6
++--no:  id > 4
+        +--yes: [2]: 6
+        +--no:  [1]: 3
+
+Run: 10
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 0.0010
+Induction Time: 0 sec (CPU)
+Pruning Time: 0 sec (CPU)
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 5 (Leaves: 3)
+     S(5): Nodes = 5 (Leaves: 3)
+
+Default Model
+*************
+
+[2.2]: 15
+
+Original Model
+**************
+
+id > 10
++--yes: [3]: 6
++--no:  id > 4
+        +--yes: [2]: 6
+        +--no:  [1]: 3
+
+S(5) Model
+**********
+
+id > 10
++--yes: [3]: 6
++--no:  id > 4
+        +--yes: [2]: 6
+        +--no:  [1]: 3
 
 Summary
 *******
 
-Runs: 3
+Runs: 10
 Induction time: 0 sec
 Preprocessing time: 0 sec
 Mean number of tests
      Original: 5
-     Pruned: 5
+     S(5): 5
 
 Testing error
 -------------
 
 Number of examples: 16
 Mean absolute error (MAE)
-   Default        : [0.7159]
-   Original       : [0.0625]
-   Pruned         : [0.0625]
+   Default        : [0.6708]
+   Original       : [0.125]
+   S(5)           : [0.125]
 Root mean squared error (RMSE)
-   Default        : [0.8207]
-   Original       : [0.25]
-   Pruned         : [0.25]
+   Default        : [0.8184]
+   Original       : [0.3536]
+   S(5)           : [0.3536]
+Weighted root mean squared error (RMSE) (Weights [1.641])
+   Default        : [1.0483]
+   Original       : [0.4529]
+   S(5)           : [0.4529]
 Pearson correlation coefficient
-   Default        : [-0.2882]
-   Original       : [0.9509]
-   Pruned         : [0.9509]
-Classification Error
-   Default        :    Attribute: c
-
-     REAL\PRED |  1 | 0 |
-     -----------------------
-             1 | 16 | 0 | 16
-             0 |  0 | 0 |  0
-     -----------------------
-               | 16 | 0 | 16
-
-     Accuracy: 1
-     Cramer's coefficient: 0
-
-   Original       :    Attribute: c
-
-     REAL\PRED |  1 | 0 |
-     -----------------------
-             1 | 16 | 0 | 16
-             0 |  0 | 0 |  0
-     -----------------------
-               | 16 | 0 | 16
-
-     Accuracy: 1
-     Cramer's coefficient: 0
-
-   Pruned         :    Attribute: c
-
-     REAL\PRED |  1 | 0 |
-     -----------------------
-             1 | 16 | 0 | 16
-             0 |  0 | 0 |  0
-     -----------------------
-               | 16 | 0 | 16
-
-     Accuracy: 1
-     Cramer's coefficient: 0
-
+   Default        : [-0.7195]
+   Original       : [0.9074]
+   S(5)           : [0.9074]
 

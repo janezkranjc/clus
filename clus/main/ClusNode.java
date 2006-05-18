@@ -373,7 +373,7 @@ public class ClusNode extends MyNode implements ClusModel {
 					ClusStatistic nodes = node.predictWeighted(tuple);
 					stat.addPrediction(nodes, m_Test.getProportion(i));
 				}
-				stat.calcMean();
+				stat.computePrediction();
 				return stat;
 			}
 		}

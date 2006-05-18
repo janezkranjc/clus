@@ -131,8 +131,7 @@ public class WHTDStatistic extends RegressionStat {
 		return count;			
 	}
 	
-	public void calcMean() {
-		super.calcMean();
+	public void computePrediction() {
 		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means, m_Threshold);
 		m_DiscrMean = m_MeanTuple.getVectorNodeAndAncestors(m_Hier);
 		performSignificanceTest();
@@ -142,6 +141,11 @@ public class WHTDStatistic extends RegressionStat {
 		ArrayList added = new ArrayList();
 		boolean[] interms = new boolean[m_Hier.getTotal()];
 		m_PrintTuple.addIntermediateElems(m_Hier, interms, added);
+	}		
+	
+	public void calcMean() {
+		super.calcMean();
+		computePrediction();
 	}
 	
 	public int round(double value) {
