@@ -72,11 +72,7 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 				boolean is_dag = hier.isDAG();
 				if (is_dag) {
 					// class may already occur in a different place in the hierarchy
-					found = hier.getClassTermByName(cl_idx);
-					if (found == null) {
-						found = new ClassTerm(cl_idx);
-						hier.addClassTerm(cl_idx, found);
-					}
+					found = hier.getClassTermByNameAddIfNotIn(cl_idx);
 				} else {				
 					found = new ClassTerm(cl_idx);
 				}
@@ -253,6 +249,9 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 	}
 
 	public void removeChild(Node node) {
+			ClassTerm child = (ClassTerm)node;
+			m_Hash.remove(child.getID());
+			m_SubTerms.remove(child);			
 	}
 	
 	public int getLevel() {

@@ -23,10 +23,10 @@ public class ClassHierarchy implements Serializable {
 	public final static int DAG = 1;
 	
 	protected int m_HierType = TREE;
-	protected ClassTerm m_Root;
 	protected ClassesTuple m_Eval;
 	protected ArrayList m_ClassList = new ArrayList();
 	protected HashMap m_ClassMap = new HashMap();
+	protected ClassTerm m_Root;	
 	protected NumericAttrType[] m_DummyTypes;
 	protected boolean m_IsLocked;
 	protected transient double[] m_Weights;
@@ -268,6 +268,28 @@ public class ClassHierarchy implements Serializable {
 		}
 	}
 	
+	public void removeZeroClasses(WHTDStatistic stat) {
+		ArrayList new_cls = new ArrayList();
+		for (int i = 0; i < getTotal(); i++) {
+			if (stat.getMean(i) == 0.0) {
+				ClassTerm trm = getTermAt(i);
+				for (int j = 0; j < trm.getNbParents(); j++) {
+					ClassTerm par = trm.getParent(j);
+					par.removeChild(trm);
+				}
+			} else {
+				new_cls.add(getTermAt(i));
+			}
+		}
+		m_ClassList.clear();
+		m_ClassMap.clear();
+		for (int i = 0; i < new_cls.size(); i++) {
+			ClassTerm trm = (ClassTerm)new_cls.get(i);
+			m_ClassMap.put(trm.getID(), trm);
+		}
+		initialize();
+	}
+	
 	public final NumericAttrType[] getDummyAttrs() {
 		return m_DummyTypes;
 	}
@@ -346,6 +368,79 @@ public class ClassHierarchy implements Serializable {
 		}
 	}
 	
+	public void loadDAG(String fname) throws IOException, ClusException {
+		String line = null;
+		LineNumberReader rdr = new LineNumberReader(new FileReader(fname));
+		while ((line = rdr.readLine()) != null) {
+			line = line.trim();
+			if (!line.equals("")) {
+				String[] rel = line.split("\\s*\\,\\s*");
+				if (rel.length != 2) {
+					throw new ClusException("Illegal line '"+line+"' in DAG definition file: '"+fname+"'");
+				}
+				String parent = rel[0];
+				String child  = rel[1];
+				ClassTerm parent_t = getClassTermByNameAddIfNotIn(parent);
+				ClassTerm child_t  = getClassTermByNameAddIfNotIn(child);
+				if (parent_t.getByName(child) != null) {
+					throw new ClusException("Duplicate parent-child relation '"+parent+"' -> '"+child+"' in DAG definition file: '"+fname+"'");
+				}
+				child_t.addParent(parent_t);
+				parent_t.addChild(child_t);
+			}
+		}
+		rdr.close();
+		// terms without parents are children of the root
+		Iterator iter = m_ClassMap.values().iterator();
+		while (iter.hasNext()) {
+			ClassTerm term = (ClassTerm)iter.next();
+			if (term.atTopLevel()) {
+				m_Root.addChild(term);
+				term.addParent(m_Root);
+			}
+		}
+	}
+	
+	public final static char DFS_WHITE = 0;
+	public final static char DFS_GRAY = 1;
+	public final static char DFS_BLACK = 2;
+	
+	public void findCycleRecursive(ClassTerm term, char[] visited, ClassTerm[] pi, boolean[] hasCycle) {
+		visited[term.getIndex()] = DFS_GRAY;
+		for (int i = 0; i < term.getNbChildren(); i++) {
+			ClassTerm child = (ClassTerm)term.getChild(i);
+			if (visited[child.getIndex()] == DFS_WHITE) {
+				pi[child.getIndex()] = term;
+				findCycleRecursive(child, visited, pi, hasCycle);			
+			} else if (visited[child.getIndex()] == DFS_GRAY) {
+				System.out.println("Cycle: ");
+				System.out.print("("+term.getID()+","+child.getID()+")");
+				ClassTerm w = term;
+				do {					
+					System.out.print("; ("+w.getID()+","+pi[w.getIndex()].getID()+")");
+					w = pi[w.getIndex()];
+				} while (w != child);
+				System.out.println();
+				hasCycle[0] = true;
+			}			
+		}
+		visited[term.getIndex()] = DFS_BLACK;
+	}
+		
+	public void findCycle() {
+		char[] visited = new char[getTotal()];
+		ClassTerm[] pi = new ClassTerm[getTotal()];
+		boolean[] hasCycle = new boolean[1];
+		Arrays.fill(visited, DFS_WHITE);
+		for (int i = 0; i < m_ClassList.size(); i++) {
+			ClassTerm term = getTermAt(i);
+			if (visited[term.getIndex()] == DFS_WHITE) {
+				findCycleRecursive(term, visited, pi, hasCycle);
+			}
+		}
+		if (hasCycle[0]) System.exit(-1);
+	}
+	
 	public void writeTargets(RowData data, ClusSchema schema, String name) throws ClusException, IOException {
 		double[] wis = getWeights();
 		PrintWriter wrt = new PrintWriter(new FileWriter(name + ".weights"));	
@@ -411,7 +506,16 @@ public class ClassHierarchy implements Serializable {
 	public boolean isDAG() {
 		return m_HierType == DAG;
 	}	
-	
+
+	public ClassTerm getClassTermByNameAddIfNotIn(String id) {
+		ClassTerm found = getClassTermByName(id);
+		if (found == null) {
+			found = new ClassTerm(id);
+			addClassTerm(id, found);
+		}
+		return found;
+	}
+
 	public ClassTerm getClassTermByName(String id) {
 		return (ClassTerm)m_ClassMap.get(id);
 	}

@@ -72,19 +72,23 @@ public class ClassesAttrType extends ClusAttrType {
 		pps.addPreproc(new ClassHierarchyPreproc(this, true));
 	}
 	
-	public void initializeHierarchy(String atype) throws ClusException {
+	public void initializeHierarchy(String atype) throws ClusException, IOException {
 		// hierarchy is given in @attribute specification in .arff
 		// this means we can initialize the hierarchy and lock it
 		// so that no classes can be added afterwards
 		String classes = atype.substring("HIERARCHICAL".length()).trim();
 		String[] cls = classes.split("\\s*\\,\\s*");
-		for (int i = 0; i < cls.length; i++) {
-			if (!cls[i].equals(ClassesValue.EMPTY_SET_INDICATOR)) {
-				ClassesValue val = new ClassesValue(cls[i], m_Table);
-				m_Hier.addClass(val);
+		if (getSettings().hasDefinitionFile()) {
+			m_Hier.loadDAG(getSettings().getDefinitionFile());
+		} else {
+			for (int i = 0; i < cls.length; i++) {
+				if (!cls[i].equals(ClassesValue.EMPTY_SET_INDICATOR)) {
+					ClassesValue val = new ClassesValue(cls[i], m_Table);
+					m_Hier.addClass(val);
+				}
 			}
 		}
-		m_Hier.initialize();
+		m_Hier.initialize();		
 	}
 	
 	public void initializeFrom(ClusAttrType other_type) {

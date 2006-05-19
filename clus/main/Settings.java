@@ -447,6 +447,8 @@ public class Settings implements Serializable {
 	
 	protected INIFileNominal m_HierType;
 	
+	protected INIFileString m_DefinitionFile;
+	
 	protected INIFileNominalOrDoubleOrVector m_HierClassThreshold;
 	
 	protected INIFileString m_HierEvalClasses;
@@ -583,6 +585,7 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(HIER_W_PARAM = new INIFileDouble("WParam", 0.75));
 		m_SectionHierarchical.addNode(m_HierSep = new INIFileString("HSeparator", "."));
 		m_SectionHierarchical.addNode(m_HierEmptySetIndicator = new INIFileString("EmptySetIndicator", "n"));
+		m_SectionHierarchical.addNode(m_DefinitionFile = new INIFileString("DefinitionFile", NONE)); 
 		m_SectionHierarchical.addNode(HIER_LOAD = new INIFileBool("HierLoad", false));
 		m_SectionHierarchical.addNode(HIER_SAVE = new INIFileBool("HierSave", false));
 		m_SectionHierarchical.addNode(HIER_FLAT = new INIFileBool("HierFlat", false));
@@ -827,6 +830,14 @@ public class Settings implements Serializable {
 	
 	public int getHierType() {
 		return m_HierType.getValue();
+	}
+	
+	public boolean hasDefinitionFile() {
+		return !StringUtils.unCaseCompare(m_DefinitionFile.getValue(), NONE);
+	}
+	
+	public String getDefinitionFile() {
+		return m_DefinitionFile.getValue();
 	}
 
 	public String getTuneFolds() {
