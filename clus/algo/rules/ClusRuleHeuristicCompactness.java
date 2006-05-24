@@ -28,7 +28,7 @@ public class ClusRuleHeuristicCompactness extends ClusHeuristic {
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
 		double n_pos = c_pstat.m_SumWeight;
 		// Acceptable?
-		if (n_pos < Settings.MINIMAL_WEIGHT) {
+		if (n_pos-Settings.MINIMAL_WEIGHT < 1e-6) {
 			return Double.NEGATIVE_INFINITY;
 		}
 		double pos_comp = ((CombStat)c_pstat).compactnessHeur() + 1.0; // See below, why +1.0

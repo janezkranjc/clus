@@ -422,7 +422,7 @@ public class ClusStatManager implements Serializable {
 			if (m_Mode == MODE_CLASSIFY) {
 				switch (getSettings().getHeuristic()) {
 				case Settings.HEURISTIC_REDUCED_ERROR:
-					m_Heuristic = new ClusRuleHeuristicError(
+					m_Heuristic = new ClusRuleHeuristicError(this,
 							createClusAttributeWeights());
 					break;
 				case Settings.HEURISTIC_MESTIMATE:
@@ -434,14 +434,14 @@ public class ClusStatManager implements Serializable {
 							createClusAttributeWeights());
 					break;
 				case Settings.HEURISTIC_DEFAULT:
-					m_Heuristic = new ClusRuleHeuristicError(
+					m_Heuristic = new ClusRuleHeuristicError(this,
 							createClusAttributeWeights());
 					break;
 				}
 			} else {
 				switch (getSettings().getHeuristic()) {
 				case Settings.HEURISTIC_REDUCED_ERROR:
-					m_Heuristic = new ClusRuleHeuristicError(
+					m_Heuristic = new ClusRuleHeuristicError(this,
 							createClusAttributeWeights());
 					break;
 				case Settings.HEURISTIC_COMPACTNESS:
@@ -449,7 +449,7 @@ public class ClusStatManager implements Serializable {
 							createClusAttributeWeights());
 					break;
 				case Settings.HEURISTIC_DEFAULT:
-					m_Heuristic = new ClusRuleHeuristicError(
+					m_Heuristic = new ClusRuleHeuristicError(this,
 							createClusAttributeWeights());
 					break;
 				}
@@ -894,12 +894,12 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 		int prediction = sett.getRulePredictionMethod();
 		// General
 		if ((sett.getHeuristic() != Settings.HEURISTIC_COMPACTNESS) && sett.isCompHeurRuleDist()) {
-			throw new ClusException("Clus rule induction: CompHeurRuleDist parameter only implemented within the compactness heuristic!");
+			sett.setCompHeurRuleDistPar(0.0);
 		}
 		// Random rules
 		if (sett.isRandomRules()) {
 			sett.setCoveringMethod(Settings.COVERING_METHOD_STANDARD);
-			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_DECISION_LIST);
+			// sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_DECISION_LIST); ???
 			sett.setCoveringWeight(0);
 		// Ordered rules
 		} else if (covering == Settings.COVERING_METHOD_STANDARD) {
@@ -907,6 +907,15 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 			sett.setCoveringWeight(0);
 		// Unordered rules
 		// TODO: not sure about this!
+		} else if (covering == Settings.COVERING_METHOD_HEURISTIC_ONLY) {
+			if ((prediction == Settings.RULE_PREDICTION_METHOD_DECISION_LIST) ||
+					(prediction == Settings.RULE_PREDICTION_METHOD_UNION)) {
+				sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
+			}
+			sett.setCoveringWeight(0.0);
+			if (getSettings().getCompHeurRuleDistPar() <= 0) {
+				throw new ClusException("Clus rule induction - Heuristic covering: CompHeurRuleDistPar must be >= 0!");
+			}
 		} else if ((covering == Settings.COVERING_METHOD_WEIGHTED_ADDITIVE) ||
 							 (covering == Settings.COVERING_METHOD_WEIGHTED_MULTIPLICATIVE) ||
 							 (covering == Settings.COVERING_METHOD_WEIGHTED_ERROR) ||
@@ -924,6 +933,8 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 		// Multi-label classification
 		} else if (covering == Settings.COVERING_METHOD_UNION) {
 			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_UNION);
+		} else if (covering == Settings.COVERING_METHOD_STANDARD_BOOTSTRAP) {
+			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_OPTIMIZED);
 		}
 	}
 

@@ -55,7 +55,8 @@ public class SubsetSplit extends NominalSplit {
 		}
 		int card = 0;
 		double pos_freq = 0.0;
-		double bheur = Double.NEGATIVE_INFINITY;		
+		double bheur = Double.NEGATIVE_INFINITY;
+		/* Not working for rules!
 		if (nbvalues == 2) {
 			// Handle binary splits efficiently
 			card = 1;
@@ -70,7 +71,7 @@ public class SubsetSplit extends NominalSplit {
 			bheur = node.calcHeuristic(m_MStat, CStat);
 			// showTest(type, isin, -1, bheur, m_MStat, m_CStat);			
 			pos_freq = CStat.m_SumWeight / m_MStat.m_SumWeight;
-		} else {
+		} else { */
 			// Try to add values to subsets
 			// Each iteration the cardinality increases by at most one
 			m_PStat.reset();			
@@ -79,7 +80,7 @@ public class SubsetSplit extends NominalSplit {
 					((CombStat)m_PStat).getSettings().isCompHeurRuleDist()) {
 				((ClusRuleHeuristicCompactness)node.m_Heuristic).setDataIndexes(new int[0]);
 			}
-			while (bvalue != -1) {
+			while ((bvalue != -1) && ((card+1) < nbvalues)) {
 				bvalue = -1;
 				for (int j = 0; j < nbvalues; j++) {
 					if (!isin[j]) {
@@ -112,7 +113,7 @@ public class SubsetSplit extends NominalSplit {
 					m_PStat.add(node.m_TestStat[bvalue]);
 				}
 			}
-		}
+		// }
 		// Found better test :-)
 		if (bheur > node.m_BestHeur + ClusHeuristic.DELTA) {
 			node.m_UnknownFreq = unk_freq;

@@ -77,7 +77,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	 * @param rule to test
 	 * @return
 	 */
-	private boolean unique(ClusRule rule) {
+	public boolean unique(ClusRule rule) {
 		boolean res = true;
 		for (int i = 0; i < m_Rules.size(); i++) {
 			if (((ClusRule)m_Rules.get(i)).equals(rule)) {
@@ -126,7 +126,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 					ClusRule rule = getRule(i);
 					if (rule.covers(tuple)) {
 						ClusStatistic rulestat = rule.predictWeighted(tuple);
-						stat.addPrediction(rulestat, 1);
+						stat.addPrediction(rulestat, 1); // Is this ok for regression also?
 						covered = true;         
 					}
 				}
@@ -183,11 +183,16 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 	}	
 
-	public void removeLowWeightRules(double threshold) {
-		for (int i = getModelSize()-1; i >= 0; i--) {
+	public void removeLowWeightRules() {
+		double threshold = getSettings().getOptRuleWeightThreshold();
+		int nb_rules = getModelSize();
+		for (int i = nb_rules-1; i >= 0; i--) {
 			if (getRule(i).getOptWeight() < threshold) {
 				m_Rules.remove(i);
 			}
+		}
+		if (Settings.VERBOSE > 0) {
+			System.out.println("Rules left: " + getModelSize() + " out of " + nb_rules);
 		}
 	}	
 	

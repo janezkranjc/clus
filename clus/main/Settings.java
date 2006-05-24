@@ -75,7 +75,7 @@ public class Settings implements Serializable {
 	
 	public final static String[] COVERING_METHODS =	{"Standard", "WeightedMultiplicative",
 		"WeightedAdditive", "WeightedError", "Union", "RuleSet", "BeamRuleSet", "BeamRuleDefSet",
-		"RandomRuleSet"};
+		"RandomRuleSet", "StandardBootstrap", "HeurOnly", "RulesFromTree"};
 	
 	// Standard covering: ordered rules (decision list)
 	public final static int COVERING_METHOD_STANDARD = 0;
@@ -106,6 +106,15 @@ public class Settings implements Serializable {
 	// are constructed randomly: unordered rules
 	public final static int COVERING_METHOD_RANDOM_RULE_SET = 8;
 
+	// Repeated standard covering on bootstraped data
+	public final static int COVERING_METHOD_STANDARD_BOOTSTRAP = 9;
+	
+	// No covering, only heuristic
+	public final static int COVERING_METHOD_HEURISTIC_ONLY = 10;
+	
+	// No covering, rules transcribed from tree
+	public final static int COVERING_METHOD_RULES_FROM_TREE = 11;
+	
 	public final static String[] RULE_PREDICTION_METHODS =
 	{"DecisionList", "CoverageWeighted", "CovAccWeighted", "Union", "Optimized"};
 	
@@ -333,7 +342,7 @@ public class Settings implements Serializable {
 	
 	protected INIFileInt m_MaxRulesNb;
 	
-	protected INIFileDouble m_CompHeurCoveragePar;
+	protected INIFileDouble m_HeurCoveragePar;
 	
 	protected INIFileDouble m_CompHeurRuleDistPar;
 	
@@ -362,6 +371,8 @@ public class Settings implements Serializable {
 	protected INIFileInt m_OptDESeed;
 
 	protected INIFileDouble m_OptRegPar;
+	
+	protected INIFileDouble m_OptRuleWeightThreshold;
 	
 	/* Constraints */
 	protected INIFileString m_SyntacticConstrFile;
@@ -540,8 +551,8 @@ public class Settings implements Serializable {
     rules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));
 		rules.addNode(m_PredictionMethod = new INIFileNominal("PredictionMethod", RULE_PREDICTION_METHODS, 0));
     rules.addNode(m_CoveringWeight = new INIFileDouble("CoveringWeight", 0.9));
-    rules.addNode(m_MaxRulesNb = new INIFileInt("MaxRulesNb", 10000));
-    rules.addNode(m_CompHeurCoveragePar = new INIFileDouble("CompHeurCoveragePar", 0.0));
+    rules.addNode(m_MaxRulesNb = new INIFileInt("MaxRulesNb", 1000));
+    rules.addNode(m_HeurCoveragePar = new INIFileDouble("HeurCoveragePar", 0.0));
     rules.addNode(m_CompHeurRuleDistPar = new INIFileDouble("CompHeurRuleDistPar", 0.0));
     rules.addNode(m_RuleSignificanceLevel = new INIFileDouble("RuleSignificanceLevel", 0.05));
     rules.addNode(m_RuleNbSigAtts = new INIFileInt("RuleNbSigAtts", 0));
@@ -554,11 +565,12 @@ public class Settings implements Serializable {
     rules.addNode(m_RandomRules = new INIFileInt("RandomRules", 0));
     rules.addNode(m_RuleWiseErrors = new INIFileBool("PrintRuleWiseErrors", false));
     rules.addNode(m_OptDEPopSize = new INIFileInt("OptDEPopSize", 500));
-    rules.addNode(m_OptDENumEval = new INIFileInt("OptDENumEval", 20000));
+    rules.addNode(m_OptDENumEval = new INIFileInt("OptDENumEval", 10000));
     rules.addNode(m_OptDECrossProb = new INIFileDouble("OptDECrossProb", 0.3));
     rules.addNode(m_OptDEWeight = new INIFileDouble("OptDEWeight", 0.5));
     rules.addNode(m_OptDESeed = new INIFileInt("OptDESeed", 0));
     rules.addNode(m_OptRegPar = new INIFileDouble("OptRegPar", 0.0));
+    rules.addNode(m_OptRuleWeightThreshold = new INIFileDouble("OptRuleWeightThreshold", 0.1));
 
     INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic",	NONE));
@@ -776,18 +788,28 @@ public class Settings implements Serializable {
     return m_RuleNbSigAtts.getValue();
   }
 
-  public double getCompHeurCoveragePar() {
-    return m_CompHeurCoveragePar.getValue();
+  public double getHeurCoveragePar() {
+    return m_HeurCoveragePar.getValue();
   }
  
   public double getCompHeurRuleDistPar() {
     return m_CompHeurRuleDistPar.getValue();
   }
   
+  public void setCompHeurRuleDistPar(double value) {
+    m_CompHeurRuleDistPar.setValue(value);
+  }
+  
   public boolean isCompHeurRuleDist() {
     return m_CompHeurRuleDistPar.getValue() > 0;
   }
-  
+
+	public void disableRuleInduceParams() {
+		setCompHeurRuleDistPar(0.0);
+		setRulePredictionMethod(RULE_PREDICTION_METHOD_DECISION_LIST);
+		setCoveringMethod(COVERING_METHOD_RULES_FROM_TREE);
+	}
+
   public void setCoveringWeight(double weight) {
     m_CoveringWeight.setValue(weight);
   }
@@ -821,6 +843,10 @@ public class Settings implements Serializable {
 	}
 
 	public double getOptRegPar() {
+		return m_OptRegPar.getValue();
+	}
+	
+	public double getOptRuleWeightThreshold() {
 		return m_OptRegPar.getValue();
 	}
   
@@ -1268,9 +1294,6 @@ public class Settings implements Serializable {
 	public int getCompatibility() {
 		return m_Compatibility.getValue();
 	}
-	
-	
-
 
 	public void updateDisabledSettings() {
 		int pruning = getPruningMethod();

@@ -13,6 +13,7 @@ import clus.algo.induce.*;
 import clus.main.*;
 import clus.model.test.*;
 import clus.heuristic.*;
+import clus.selection.BaggingSelection;
 import clus.statistic.*;
 import clus.data.rows.*;
 import clus.data.type.*;
@@ -265,13 +266,76 @@ public class ClusRuleInduce {
 					}
 					bit_vect_array.add(bit_vect);
 					((ClusRuleHeuristicCompactness)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
-					// nb_rows = data.getNbNonZeroRows();
-				} else {
-					// nb_rows = data.getNbRows();
 				}
 			}
 		}
 		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		left_over.calcMean();
+		System.out.println("Left Over: "+left_over);
+		rset.setTargetStat(left_over);
+	}
+	/**
+	 * separateAndConquor method that induces rules on several bootstraped data subsets
+	 * @param rset
+	 * @param data
+	 * @throws ClusException 
+	 */
+	public void separateAndConquorBootstraped(ClusRuleSet rset, RowData data) throws ClusException {
+		int nb_sets = 10; // TODO: parameter?
+		int nb_rows = data.getNbRows();
+		int max_rules = getSettings().getMaxRulesNb();
+		max_rules /= nb_sets;
+		RowData data_not_covered = (RowData)data.cloneData();
+		for (int z = 0; z < nb_sets; z++) {
+			// Select the data using bootstrap
+			RowData data_sel = (RowData)data.cloneData();
+			BaggingSelection msel = new BaggingSelection(nb_rows);
+			data_sel.update(msel);
+			// Reset tuple indexes used in heuristic
+			if (getSettings().isCompHeurRuleDist()) {
+				int[] data_idx = new int[data_sel.getNbRows()];
+				for (int j = 0; j < data_sel.getNbRows(); j++) {
+					data_sel.getTuple(j).setIndex(j);
+					data_idx[j] = j;
+				}
+				((ClusRuleHeuristicCompactness)m_Heuristic).setDataIndexes(data_idx);
+				((ClusRuleHeuristicCompactness)m_Heuristic).initCoveredBitVectArray(data_sel.getNbRows());
+			}
+			// Induce the rules
+			int i = 0;
+			RowData data_sel_copy = (RowData)data_sel.cloneData(); // No need for deep clone here
+			ArrayList bit_vect_array = new ArrayList();
+			while ((data_sel.getNbRows() > 0) && (i < max_rules)) {
+				ClusRule rule = learnOneRule(data_sel);
+				if (rule.isEmpty()) {
+					break;
+				} else {
+					rule.computePrediction();
+					rule.printModel();
+					System.out.println();
+					rset.addIfUnique(rule);
+					data_sel = rule.removeCovered(data_sel);
+					data_not_covered = rule.removeCovered(data_not_covered);
+					i++;
+					if (getSettings().isCompHeurRuleDist()) {
+						boolean[] bit_vect = new boolean[data_sel_copy.getNbRows()];
+						for (int j = 0; j < bit_vect.length; j++) {
+							if (!bit_vect[j]) {
+								for (int k = 0; k < rset.getModelSize(); k++) {
+									if (rset.getRule(k).covers(data_sel_copy.getTuple(j))) {
+										bit_vect[j] = true;
+										break;									
+									}
+								}
+							}
+						}
+						bit_vect_array.add(bit_vect);
+						((ClusRuleHeuristicCompactness)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
+					}
+				}
+			}
+		}
+		ClusStatistic left_over = m_Induce.createTotalTargetStat(data_not_covered);
 		left_over.calcMean();
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
@@ -540,6 +604,52 @@ public class ClusRuleInduce {
 		System.out.println("Left Over: "+left_over);
 		// rset.setTargetStat(left_over);
 	}
+
+	public void separateAndConquorWithHeuristic(ClusRuleSet rset, RowData data) {
+		int max_rules = getSettings().getMaxRulesNb();
+		ArrayList bit_vect_array = new ArrayList();
+		int i = 0;
+		while (i < max_rules) {
+			ClusRule rule = learnOneRule(data);
+			if (rule.isEmpty() || !rset.unique(rule)) {
+				break;
+			} else {
+				/*
+				getSettings().setCompHeurRuleDistPar(0.0);
+				while (i < max_rules) {
+					ClusRule rule = learnOneRule(data);
+					if (rule.isEmpty()) {
+						break;
+					} else if (!rset.unique(rule)) {
+						i++;
+						double val = getSettings().getCompHeurRuleDistPar();
+						val += 1;
+						getSettings().setCompHeurRuleDistPar(val);
+						continue;
+					} else {
+						getSettings().setCompHeurRuleDistPar(1.0); */
+				rule.computePrediction();
+				rule.printModel();
+				System.out.println();
+				rset.add(rule);
+				i++;
+				boolean[] bit_vect = new boolean[data.getNbRows()];
+				for (int j = 0; j < bit_vect.length; j++) {
+					if (!bit_vect[j]) {
+						for (int k = 0; k < rset.getModelSize(); k++) {
+							if (rset.getRule(k).covers(data.getTuple(j))) {
+								bit_vect[j] = true;
+								break;									
+							}
+						}
+					}
+				}
+				bit_vect_array.add(bit_vect);
+				((ClusRuleHeuristicCompactness)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
+			}
+		}
+		updateDefaultRule(rset, data);
+	}
 	
 	public double sanityCheck(double value, ClusRule rule) {
 		double expected = estimateBeamMeasure(rule);
@@ -566,7 +676,6 @@ public class ClusRuleInduce {
 				data.getTuple(i).setIndex(i);
 				data_idx[i] = i;
 			}
-			data.setNbNonZeroRows(data.getNbRows());
 			((ClusRuleHeuristicCompactness)m_Heuristic).setDataIndexes(data_idx);
 			((ClusRuleHeuristicCompactness)m_Heuristic).initCoveredBitVectArray(data.getNbRows());
 		}
@@ -581,78 +690,17 @@ public class ClusRuleInduce {
 			separateAndConquorModified3(rset, data);
 		} else if (method == Settings.COVERING_METHOD_RANDOM_RULE_SET) {
 			separateAndConquorRandomly(rset, data);
+		} else if (method == Settings.COVERING_METHOD_STANDARD_BOOTSTRAP) {
+			separateAndConquorBootstraped(rset, data);
+		} else if (method == Settings.COVERING_METHOD_HEURISTIC_ONLY) {
+			separateAndConquorWithHeuristic(rset, data);
 		} else {
 			separateAndConquorWeighted(rset, data);
 		}
 		rset.postProc();
-		// Computing optimized weights
+		// Optimizing rule set
 		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
-			String fname = getSettings().getDataFile();
-			PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
-			DecimalFormat mf = new DecimalFormat("###.000");
-			// Generate optimization input
-			ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
-			DeAlg deAlg;
-			int nb_tar = tar_stat.getNbAttributes();
-			int nb_rules = rset.getModelSize();
-			int nb_rows = data.getNbRows();
-			boolean classification = false;
-			if (rset.m_TargetStat instanceof ClassificationStat) {
-				classification = true;
-			}
-			// TODO: more target atts
-			if (classification) {
-				int nb_values = ((ClassificationStat)rset.m_TargetStat).getAttribute(0).getNbValues(); 
-				double[][][] rule_pred = new double[nb_rows][nb_rules][nb_values]; // [instance][rule][class_value]
-				double[] true_val = new double[nb_rows];
-				for (int i = 0; i < nb_rows; i++) {
-					DataTuple tuple = data.getTuple(i);
-					for (int j = 0; j < nb_rules; j++) {
-						ClusRule rule = rset.getRule(j);
-						if (rule.covers(tuple)) {
-							rule_pred[i][j] = (double[])((ClassificationStat)rule.predictWeighted(tuple)).
-							                            getClassCounts(0); // TODO: 
-						} else {
-							for (int k = 0; k < nb_values; k++) {
-								rule_pred[i][j][k] = Double.NaN;
-							}
-						}
-						wrt_pred.print(", [");
-						for (int k = 0; k < nb_values; k++) {
-							wrt_pred.print(", " + mf.format(rule_pred[i][j][k]));
-						}
-						wrt_pred.print("]");
-					}
-					true_val[i] = (double)tuple.getIntVal(0); // TODO: 
-					wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
-				}
-				wrt_pred.close();
-				deAlg = new DeAlg(m_Induce.getStatManager(), rule_pred, true_val);
-			} else { // regression
-				double[][] rule_pred = new double[nb_rows][nb_rules]; // [instance][rule]
-				double[] true_val = new double[nb_rows];
-				for (int i = 0; i < nb_rows; i++) {
-					DataTuple tuple = data.getTuple(i);
-					for (int j = 0; j < nb_rules; j++) {
-						ClusRule rule = rset.getRule(j);
-						if (rule.covers(tuple)) {
-							rule_pred[i][j] = ((RegressionStat)rule.predictWeighted(tuple)).getNumericPred()[0]; // TODO:
-						} else {
-							rule_pred[i][j] = Double.NaN;
-						}
-						wrt_pred.print(", " + mf.format(rule_pred[i][j]));
-					}
-					true_val[i] = tuple.getDoubleVal(0);
-					wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
-				}
-				wrt_pred.close();
-				deAlg = new DeAlg(m_Induce.getStatManager(), rule_pred, true_val);
-			}
-			ArrayList weights = deAlg.evolution();
-			for (int j = 0; j < nb_rules; j++) {
-				rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue());
-			}
-			rset.removeLowWeightRules(0.05); // TODO: parameter for threshold?
+			rset = optimizeRuleSet(rset, data);
 		}
 		// Computing compactness
 		if (getSettings().computeCompactness()) {
@@ -671,6 +719,79 @@ public class ClusRuleInduce {
 		return rset;
 	}
 
+	public ClusRuleSet optimizeRuleSet(ClusRuleSet rset, RowData data) throws ClusException, IOException {
+		String fname = getSettings().getDataFile();
+		PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
+		DecimalFormat mf = new DecimalFormat("###.000");
+		// Generate optimization input
+		ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
+		DeAlg deAlg;
+		int nb_tar = tar_stat.getNbAttributes();
+		int nb_rules = rset.getModelSize();
+		int nb_rows = data.getNbRows();
+		boolean classification = false;
+		if (rset.m_TargetStat instanceof ClassificationStat) {
+			classification = true;
+		}
+		// TODO: more target atts
+		if (classification) {
+			int nb_values = ((ClassificationStat)rset.m_TargetStat).getAttribute(0).getNbValues(); 
+			double[][][] rule_pred = new double[nb_rows][nb_rules][nb_values]; // [instance][rule][class_value]
+			double[] true_val = new double[nb_rows];
+			for (int i = 0; i < nb_rows; i++) {
+				DataTuple tuple = data.getTuple(i);
+				for (int j = 0; j < nb_rules; j++) {
+					ClusRule rule = rset.getRule(j);
+					if (rule.covers(tuple)) {
+						rule_pred[i][j] = (double[])((ClassificationStat)rule.predictWeighted(tuple)).
+						getClassCounts(0); // TODO: 
+					} else {
+						for (int k = 0; k < nb_values; k++) {
+							rule_pred[i][j][k] = Double.NaN;
+						}
+					}
+					wrt_pred.print(", [");
+					for (int k = 0; k < nb_values; k++) {
+						wrt_pred.print(", " + mf.format(rule_pred[i][j][k]));
+					}
+					wrt_pred.print("]");
+				}
+				true_val[i] = (double)tuple.getIntVal(0); // TODO: 
+				wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
+			}
+			wrt_pred.close();
+			deAlg = new DeAlg(m_Induce.getStatManager(), rule_pred, true_val);
+		} else { // regression
+			double[][] rule_pred = new double[nb_rows][nb_rules]; // [instance][rule]
+			double[] true_val = new double[nb_rows];
+			for (int i = 0; i < nb_rows; i++) {
+				DataTuple tuple = data.getTuple(i);
+				for (int j = 0; j < nb_rules; j++) {
+					ClusRule rule = rset.getRule(j);
+					if (rule.covers(tuple)) {
+						rule_pred[i][j] = ((RegressionStat)rule.predictWeighted(tuple)).getNumericPred()[0]; // TODO:
+					} else {
+						rule_pred[i][j] = Double.NaN;
+					}
+					wrt_pred.print(", " + mf.format(rule_pred[i][j]));
+				}
+				true_val[i] = tuple.getDoubleVal(0);
+				wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
+			}
+			wrt_pred.close();
+			deAlg = new DeAlg(m_Induce.getStatManager(), rule_pred, true_val);
+		}
+		ArrayList weights = deAlg.evolution();
+		for (int j = 0; j < nb_rules; j++) {
+			rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue());
+		}
+		rset.removeLowWeightRules();
+		RowData data_copy = (RowData)data.cloneData(); 
+		updateDefaultRule(rset, data_copy);
+		// TODO: Should I update all the rules also, rerun the optimization?
+		return rset;
+	}
+	
 /*			try {
 				// Generate pathseeker input
 				ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
@@ -759,6 +880,16 @@ public class ClusRuleInduce {
 				// TODO: handle exception
 			}
 */
+
+	public void updateDefaultRule(ClusRuleSet rset, RowData data) {
+		for (int i = 0; i < rset.getModelSize(); i++) {
+			data = rset.getRule(i).removeCovered(data);
+		}
+		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		left_over.calcMean();
+		System.out.println("Left Over: "+left_over);
+		rset.setTargetStat(left_over);
+	}
 	
 	/**
 	 * Method that induces a specified number of random rules.

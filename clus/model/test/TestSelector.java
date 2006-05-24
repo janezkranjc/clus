@@ -13,7 +13,8 @@ public class TestSelector {
 	
 	public final static int TYPE_NONE = -1;
 	public final static int TYPE_NUMERIC = 0;
-	public final static int TYPE_TEST = 1;	
+	public final static int TYPE_TEST = 1;
+	public final static int TYPE_INVERSE_NUMERIC = 2;
 
 	// Statistics	
 	public ClusStatistic m_TotStat;		// Points to total statistic of node
@@ -60,6 +61,9 @@ public class TestSelector {
 		if (m_TestType == TYPE_NUMERIC) {
 			m_TestType = TYPE_TEST;
 			m_BestTest = new NumericTest(m_SplitAttr.getType(), m_BestSplit, m_PosFreq);
+		} else if (m_TestType == TYPE_INVERSE_NUMERIC) {
+			m_TestType = TYPE_TEST;
+			m_BestTest = new InverseNumericTest(m_SplitAttr.getType(), m_BestSplit, m_PosFreq);
 		}
 		m_BestTest.preprocess(ClusMode.DEPTH_FIRST);
 		m_BestTest.setUnknownFreq(m_UnknownFreq);
@@ -213,7 +217,9 @@ public class TestSelector {
 	
 	public final void updateNumeric(double val, ClusAttrProxy at) {
 		double heur = m_Heuristic.calcHeuristic(m_TotCorrStat, m_PosStat, m_MissingStat);
-		if (heur > m_BestHeur + ClusHeuristic.DELTA) {		
+		System.err.println("Heur: " + heur + " nb: " + m_PosStat.m_SumWeight);
+		if (heur > m_BestHeur + ClusHeuristic.DELTA) {
+			System.err.println("OK");
 			double tot_w = getTotWeight();
 			double tot_no_unk = getTotNoUnkW();
 			m_UnknownFreq = (tot_w - tot_no_unk) / tot_w;
@@ -225,6 +231,22 @@ public class TestSelector {
 		}
 //		System.out.println("Try: "+at+">"+ClusFormat.TWO_AFTER_DOT.format(val)+" -> "+heur);
 //		DebugFile.log(""+at.getType().getName()+">"+ClusFormat.TWO_AFTER_DOT.format(val)+","+heur);
+	}	
+
+	public final void updateInverseNumeric(double val, ClusAttrProxy at) {
+		double heur = m_Heuristic.calcHeuristic(m_TotCorrStat, m_PosStat, m_MissingStat);
+		System.err.println("Heur: " + heur + " nb: " + m_PosStat.m_SumWeight);
+		if (heur > m_BestHeur + ClusHeuristic.DELTA) {
+			System.err.println("OK");
+			double tot_w = getTotWeight();
+			double tot_no_unk = getTotNoUnkW();
+			m_UnknownFreq = (tot_w - tot_no_unk) / tot_w;
+			m_TestType = TYPE_INVERSE_NUMERIC;						
+			m_PosFreq = getPosWeight() / tot_no_unk;
+			m_BestSplit = val;			
+			m_BestHeur = heur;
+			m_SplitAttr = at;			
+		}
 	}	
 		
 /***************************************************************************

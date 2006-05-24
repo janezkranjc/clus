@@ -74,7 +74,7 @@ public class CombStat extends ClusStatistic {
    * Adds the tuple to the statistics
    * @param tuple
    */
-  public void updateWeighted(DataTuple tuple, int idx) {
+  public void updateWeighted(DataTuple tuple, int idx) { // idx?
     m_RegStat.updateWeighted(tuple, tuple.getWeight());
     m_ClassStat.updateWeighted(tuple, tuple.getWeight());
     m_SumWeight += tuple.getWeight();
@@ -184,9 +184,9 @@ public class CombStat extends ClusStatistic {
     nom_weight = nom_weight / sum;
     double prop_num = num_weight*m_NbNumAtts / (num_weight*m_NbNumAtts + nom_weight*m_NbNomAtts);
     double prop_nom = nom_weight*m_NbNomAtts / (num_weight*m_NbNumAtts + nom_weight*m_NbNomAtts);
-    double comp = prop_nom * compactnessNom(IN_HEURISTIC) + prop_num * compactnessNum(IN_HEURISTIC);
+    double comp = 1.0 + prop_nom * compactnessNom(IN_HEURISTIC) + prop_num * compactnessNum(IN_HEURISTIC);
     double global_sum_w = m_StatManager.getGlobalStat().getTotalWeight();
-    double heur_par = getSettings().getCompHeurCoveragePar();
+    double heur_par = getSettings().getHeurCoveragePar();
     comp = comp * (1 + heur_par*global_sum_w/m_SumWeight);
     // Test if rule significant
     int sign_diff;
@@ -247,7 +247,7 @@ public class CombStat extends ClusStatistic {
       svar += var * weight / (range * range);
       // svar += var * weight * weight;
     }
-    double res = sumweight == 0 ? 0.0 : svar / sumweight;
+    double res = sumweight == 0.0 ? 0.0 : svar / sumweight;
     return res;
   }
 

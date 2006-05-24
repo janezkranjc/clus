@@ -134,6 +134,9 @@ public class Clus implements CMDLineArgsProvider {
 		reader.close();
 		// Preprocess and initialize induce
 		m_Sett.update(m_Schema);
+		// If not rule induction, reset some settings just to be sure
+		if (!m_Induce.getStatManager().isRuleInduce())
+			m_Sett.disableRuleInduceParams();
 		// Multiscore?
 		if (Settings.IS_MULTISCORE) {
 			if (m_Schema.isRegression())
@@ -1065,8 +1068,7 @@ public class Clus implements CMDLineArgsProvider {
 					clus.getSettings().setSectionBeamEnabled(true);
 					clss = new ClusRuleClassifier(clus);
 				} else if (cargs.hasOption("weka")) {
-					clss = new ClusWekaClassifier(clus, cargs
-							.getOptionValue("weka"));
+					clss = new ClusWekaClassifier(clus, cargs.getOptionValue("weka"));
 				} else {
 					clss = new ClusDecisionTree(clus);
 				}

@@ -9,7 +9,6 @@ import clus.statistic.*;
 public abstract class ClusData {
 
 	protected int m_NbRows;
-	protected int m_NbNonZeroRows;
 	
 	public final int getNbRows() {
 		return m_NbRows;
@@ -17,14 +16,6 @@ public abstract class ClusData {
 	
 	public final void setNbRows(int nb) {
 		m_NbRows = nb;
-	}
-	
-	public final int getNbNonZeroRows() {
-		return m_NbNonZeroRows;
-	}	
-	
-	public final void setNbNonZeroRows(int nb) {
-		m_NbNonZeroRows = nb;
 	}
 	
 	public ClusData selectFrom(ClusSelection sel) {

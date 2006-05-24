@@ -128,48 +128,53 @@ public class DepthFirstInduce extends ClusInduce {
       m_Selector.subtractMissing();
     }   
     double prev = Double.NaN;
-    if (Settings.ONE_NOMINAL) {
-    	int[] data_idx = new int[nb_rows];
-    	for (int i = first; i < nb_rows; i++) {
-    		data_idx[i] = data.getTuple(i).getIndex();
-    	}
-      int prev_cl = -1;   
-      for (int i = first; i < nb_rows; i++) {
-        tuple = data.getTuple(i);
-        double value = tuple.getDoubleVal(idx);
-        int crcl = tuple.getClassification();       
-        if (prev_cl == -1 && value != prev && value != Double.NaN) {
+  	int[] data_idx = new int[nb_rows]; // TODO: Skip missing ones?!
+  	if (getSettings().isCompHeurRuleDist()) {
+  		for (int i = first; i < nb_rows; i++) {
+  			data_idx[i] = data.getTuple(i).getIndex();
+  		}
+  	}
+  	for (int i = first; i < nb_rows; i++) {
+  		tuple = data.getTuple(i);
+  		double value = tuple.getDoubleVal(idx);
+  		if (value != prev) {
+  			if (value != Double.NaN) {
   				if (getSettings().isCompHeurRuleDist()) {
-  					// int[] subset_idx = new int[i-first+1];
-  					// System.arraycopy(data_idx, first, subset_idx, 0, i-first+1);
   					int[] subset_idx = new int[i-first];
   					System.arraycopy(data_idx, first, subset_idx, 0, i-first);
   					((ClusRuleHeuristicCompactness)m_Selector.m_Heuristic).setDataIndexes(subset_idx);
   				}
+  				System.err.println("Value (>): " + value);
   				m_Selector.updateNumeric(value, at);
-          prev_cl = crcl;
-        }
-        prev = value;
-        // if (Settings.VERBOSE > 1) System.out.print(" " + value);
-        if (prev_cl != crcl) prev_cl = -1;
-        m_Selector.m_PosStat.updateWeighted(tuple, i);        
-      }   
-    } else {
-      for (int i = first; i < nb_rows; i++) {     
-        tuple = data.getTuple(i);
-        double value = tuple.getDoubleVal(idx);           
-        if (value != prev) {
-          if (value != Double.NaN) {
-            m_Selector.updateNumeric(value, at);
-          }
-          prev = value;
-          // if (Settings.VERBOSE > 1) System.out.print(" " + value);
-        }       
-        m_Selector.m_PosStat.updateWeighted(tuple, i);
-      }
-    }
+  			}
+  			prev = value;
+  		}       
+  		m_Selector.m_PosStat.updateWeighted(tuple, i);
+  	}
+  	// For rules check inverse splits also
+  	if (m_StatManager.isRuleInduce()) {
+  		m_Selector.reset();
+  		DataTuple next_tuple = data.getTuple(nb_rows-1);
+  		double next = next_tuple.getDoubleVal(idx);
+  		for (int i = nb_rows-1; i > first; i--) {
+  			tuple = next_tuple;
+  			next_tuple = data.getTuple(i-1);
+  			double value = next;
+  			next = next_tuple.getDoubleVal(idx);
+  			m_Selector.m_PosStat.updateWeighted(tuple, i);
+  			if ((value != next) && (value != Double.NaN)) {
+  				if (getSettings().isCompHeurRuleDist()) {
+  					int[] subset_idx = new int[nb_rows-i];
+  					System.arraycopy(data_idx, i, subset_idx, 0, nb_rows-i);
+  					((ClusRuleHeuristicCompactness)m_Selector.m_Heuristic).setDataIndexes(subset_idx);
+  				}
+  				System.err.println("Value (<=): " + value);
+  				m_Selector.updateInverseNumeric(value, at);
+  			}
+  		}
+  	}
   }
-  
+
   /**
    * Randomly generates numeric split value
    * @param at
