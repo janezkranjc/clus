@@ -217,9 +217,9 @@ public class TestSelector {
 	
 	public final void updateNumeric(double val, ClusAttrProxy at) {
 		double heur = m_Heuristic.calcHeuristic(m_TotCorrStat, m_PosStat, m_MissingStat);
-		System.err.println("Heur: " + heur + " nb: " + m_PosStat.m_SumWeight);
+		// System.err.println("Heur: " + heur + " nb: " + m_PosStat.m_SumWeight);
 		if (heur > m_BestHeur + ClusHeuristic.DELTA) {
-			System.err.println("OK");
+			// System.err.println("OK");
 			double tot_w = getTotWeight();
 			double tot_no_unk = getTotNoUnkW();
 			m_UnknownFreq = (tot_w - tot_no_unk) / tot_w;
@@ -235,9 +235,9 @@ public class TestSelector {
 
 	public final void updateInverseNumeric(double val, ClusAttrProxy at) {
 		double heur = m_Heuristic.calcHeuristic(m_TotCorrStat, m_PosStat, m_MissingStat);
-		System.err.println("Heur: " + heur + " nb: " + m_PosStat.m_SumWeight);
+		// System.err.println("Heur: " + heur + " nb: " + m_PosStat.m_SumWeight);
 		if (heur > m_BestHeur + ClusHeuristic.DELTA) {
-			System.err.println("OK");
+			// System.err.println("OK");
 			double tot_w = getTotWeight();
 			double tot_no_unk = getTotNoUnkW();
 			m_UnknownFreq = (tot_w - tot_no_unk) / tot_w;

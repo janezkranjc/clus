@@ -144,7 +144,7 @@ public class DepthFirstInduce extends ClusInduce {
   					System.arraycopy(data_idx, first, subset_idx, 0, i-first);
   					((ClusRuleHeuristicCompactness)m_Selector.m_Heuristic).setDataIndexes(subset_idx);
   				}
-  				System.err.println("Value (>): " + value);
+  				// System.err.println("Value (>): " + value);
   				m_Selector.updateNumeric(value, at);
   			}
   			prev = value;
@@ -168,7 +168,7 @@ public class DepthFirstInduce extends ClusInduce {
   					System.arraycopy(data_idx, i, subset_idx, 0, nb_rows-i);
   					((ClusRuleHeuristicCompactness)m_Selector.m_Heuristic).setDataIndexes(subset_idx);
   				}
-  				System.err.println("Value (<=): " + value);
+  				// System.err.println("Value (<=): " + value);
   				m_Selector.updateInverseNumeric(value, at);
   			}
   		}
