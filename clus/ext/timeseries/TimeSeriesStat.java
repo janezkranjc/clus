@@ -1,5 +1,7 @@
 package clus.ext.timeseries;
 
+import java.text.NumberFormat;
+
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
@@ -7,11 +9,20 @@ import clus.ext.sspd.SSPDMatrix;
 import clus.main.Settings;
 import clus.statistic.BitVectorStat;
 import clus.statistic.ClusStatistic;
+import clus.statistic.StatisticPrintInfo;
+import clus.util.ClusFormat;
 
 public abstract class TimeSeriesStat extends BitVectorStat {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
+	/*
+	 * Aco:
+	 * m_RepresentativeTS is the time series representing the claster
+	*/
+	public double m_SumWeightTS=0;
+	public TimeSeries m_RepresentativeTS=new TimeSeries("[]");
+	
 	protected SSPDMatrix m_Matrix;
 	protected double m_Value;
 
@@ -41,10 +52,14 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 		m_Modified = false;
 	}	
 	
-
+	//public abstract void updateWeighted(DataTuple tuple, int idx);
 	
 	public abstract double calcDistance(TimeSeries t1, TimeSeries t2);
 	
+	public abstract String getString(StatisticPrintInfo info);
 	
+	public String getString(){
+		return getString(StatisticPrintInfo.getInstance());
+	}
 	
 }
