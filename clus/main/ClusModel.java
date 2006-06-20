@@ -30,8 +30,10 @@ public interface ClusModel {
 	
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples);
 
+	public void printModelToQuery(PrintWriter wrt, ClusRun cr);
+	
 	public void printModelToPythonScript(PrintWriter wrt);
-		
+	
 	public void attachModel(Hashtable table) throws ClusException;
 	
 	public void retrieveStatistics(ArrayList list);

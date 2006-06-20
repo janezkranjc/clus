@@ -34,7 +34,7 @@ public abstract class ClusError implements Serializable {
 	}
 	
 	public boolean shouldBeLow() {
-		return true;
+		return false; //if we are measuring the area under the roc curve (otherwise, it should be true)
 	}
 	
 	public boolean isMultiLine() {

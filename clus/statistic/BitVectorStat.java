@@ -104,4 +104,7 @@ public class BitVectorStat extends ClusStatistic {
 		System.err.println("BitVectorStat: getNominalPred not implemented");	
 		return null;	
 	}	
+	public String getPredictedClassName(int idx) {
+		return "";
+	} 
 }

@@ -66,7 +66,7 @@ public abstract class ClusStatistic implements Serializable {
 	public abstract void calcMean();
 	
 	public abstract String getString(StatisticPrintInfo info);
-	
+	public abstract String getPredictedClassName(int idx);
 	public abstract String getArrayOfStatistic();
 	
 	public void computePrediction() {

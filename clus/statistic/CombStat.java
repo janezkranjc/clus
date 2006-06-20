@@ -554,7 +554,11 @@ public class CombStat extends ClusStatistic {
   public int getNbNominalAttributes() {
     return m_ClassStat.getNbNominalAttributes();
   }
-
+  
+  public String getPredictedClassName(int idx) {
+		return "";
+	} 
+  
   public int getNbNumericAttributes() {
     return m_RegStat.getNbNumericAttributes();
   }

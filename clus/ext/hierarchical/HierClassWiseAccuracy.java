@@ -53,9 +53,27 @@ public class HierClassWiseAccuracy extends ClusError {
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
 		tp.updateDistribution(m_Default, 1.0);
 	}
-	
+	/*
 	public double getModelError() {		
 		return 1.0 - getPrecision();
+	}
+	
+	*/
+	
+	public double getModelError() {		
+		return getAUC();
+	}
+	
+	public double getAUC() {
+		double fp =  getFP();
+//		System.out.println("FP = "+fp);
+		double totpos =  getNbLabels();
+//		System.out.println("tot = "+totpos);
+		double ratefp = fp/totpos;
+//		System.out.println("FP/totPos = " +ratefp);	
+		double auc = 0.5 - (ratefp/2) + (getRecall()/2);
+	//	System.out.println("the AUC is : "+auc);
+		return auc;
 	}
 	
 	public boolean shouldBeLow() {
@@ -81,7 +99,7 @@ public class HierClassWiseAccuracy extends ClusError {
 		double tot_corr = getTP();		
 		return tot_pred == 0.0 ? 0.0 : tot_corr/tot_pred;
 	}
-		
+
 	public double getRecall() {
 		double tot_corr = getTP();
 		double tot_def = getNbLabels();
@@ -209,6 +227,7 @@ public class HierClassWiseAccuracy extends ClusError {
 		out.print(", recall: "+fr2.format(getRecall()));
 		out.print(", coverage: "+fr2.format(getCoverage()));
 		out.print(", TP: "+getTP()+", FP: "+getFP()+", nbPos: "+getNbLabels());
+		out.print(", AUC: "+getAUC());
 		out.println();
 		printNonZeroAccuracies(fr1, out, m_Hier.getRoot());
 	}

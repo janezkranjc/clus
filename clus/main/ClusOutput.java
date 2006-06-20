@@ -175,9 +175,21 @@ public class ClusOutput {
 						root.printModelToPythonScript(m_Writer);
 						m_Writer.println();
 					}
-				}				
-			}
-		}
+					if (getSettings().isOutputDatabaseQueries()) {
+						// use the following lines for creating a SQL file that will put the tree into a database
+						String out_database_name =  m_Sett.getAppName()+".sql";
+						PrintWriter database_writer = m_Sett.getFileAbsoluteWriter(out_database_name);
+						//database_writer.print("in the ClusOutput class ...");
+						//root.printModelToQuery(m_Writer,cr);
+						root.printModelToQuery(database_writer,cr);
+						System.out.println("the database name is "+out_database_name);
+						database_writer.close();
+					}
+					
+					
+				}//end if (root != null)				
+			}//end if (shouldShowModel(i))
+		}// end for
 		m_Writer.flush();
 	}
 

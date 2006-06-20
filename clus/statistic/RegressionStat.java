@@ -241,6 +241,10 @@ public class RegressionStat extends ClusStatistic {
 		return m_Means;
 	}
 	
+	public String getPredictedClassName(int idx) {
+		return "";
+	} 
+  
 	public int getNbNumericAttributes() {
 		return m_NbAttrs;
 	}

@@ -427,6 +427,8 @@ public class Settings implements Serializable {
 	
 	protected INIFileBool m_OutputPythonModel;	
 	
+	protected INIFileBool m_OutputDatabaseQueries;	
+	
 	/* Hierarchical Multi-Classification */
 	protected INIFileString m_HierSep;
 
@@ -591,6 +593,7 @@ public class Settings implements Serializable {
 		output.addNode(m_WritePredictions = new INIFileNominal("WritePredictions", WRITE_PRED, WRITE_PRED_VALUES));
 		output.addNode(m_ModelIDFiles = new INIFileBool("ModelIDFiles", false));		
 		output.addNode(m_OutputPythonModel = new INIFileBool("OutputPythonModel", false));
+		output.addNode(m_OutputDatabaseQueries = new INIFileBool("OutputDatabaseQueries", false));
 		
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
 		m_SectionHierarchical.addNode(m_HierType = new INIFileNominal("Type", HIERTYPES, 0));		
@@ -1000,6 +1003,10 @@ public class Settings implements Serializable {
 	
 	public boolean isOutputPythonModel() {
 		return m_OutputPythonModel.getValue();
+	}
+	
+	public boolean isOutputDatabaseQueries() {
+		return m_OutputDatabaseQueries.getValue();
 	}
 	
 	public boolean isPrintModelAndExamples() {

@@ -345,14 +345,15 @@ public class ClassificationStat extends ClusStatistic {
 	public String getString(StatisticPrintInfo info) {
 		StringBuffer buf = new StringBuffer();		
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
-		if (m_MajorityClasses != null) {
+		if (m_MajorityClasses != null) {//print the name of the majority class
 			buf.append("[");
 			for (int i = 0; i < m_NbTarget; i++) {
 				if (i != 0) buf.append(",");
 				buf.append(m_Attrs[i].getValue(m_MajorityClasses[i]));
 			}
 			buf.append("]");
-		} else {
+		}
+		else {
 			buf.append("?");
 		}
 		if (info.SHOW_DISTRIBUTION) {
@@ -365,19 +366,21 @@ public class ClassificationStat extends ClusStatistic {
 					buf.append(fr.format(m_ClassCounts[j][i]));
 				}
 				buf.append("]");
-			}
+			}//end for
 			if (info.SHOW_EXAMPLE_COUNT) {
+				System.out.println("SHOW_EXAMPLE_COUNT = true");
 				buf.append(":");		
 				buf.append(fr.format(m_SumWeight));
 			}			
-		} else {
-			if (m_MajorityClasses != null) {
+		}//end if show distribution
+		else {
+			if (m_MajorityClasses != null) {//print stat on the majority classes
 				buf.append(" [");
 				for (int i = 0; i < m_NbTarget; i++) {
 					if (i != 0) buf.append(",");
 					buf.append(m_ClassCounts[i][m_MajorityClasses[i]]);
 				}
-				buf.append("]/");
+				buf.append("]");
 				buf.append(fr.format(m_SumWeight));
 			}			
 		}

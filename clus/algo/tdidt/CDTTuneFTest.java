@@ -10,6 +10,9 @@ import clus.selection.*;
 import clus.error.ClusError;
 import clus.heuristic.*;
 
+//added 18-05-06
+//import clus.ext.hierarchical.*;
+
 public class CDTTuneFTest extends ClusClassifier {
 
 	protected ClusClassifier m_Class;
@@ -59,7 +62,7 @@ public class CDTTuneFTest extends ClusClassifier {
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(System.out));
 		wrt.print("Error:");			
 		err.showModelError(wrt, 1);
-		wrt.flush();
+		wrt.flush();		
 		return err.getModelError();
 	}
 	
@@ -69,13 +72,14 @@ public class CDTTuneFTest extends ClusClassifier {
 		int best_value = 0;
 		boolean low = getStatManager().createTuneError().getFirstError().shouldBeLow();
 		double best_error = low ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
+//		System.out.println("best error is"+best_error);
 		for (int i = 1; i < 6; i++) {
 			Settings.FTEST_LEVEL = i;
 			System.out.println("Try for: "+FTest.FTEST_SIG[i]);
 			double err = doParamXVal(trset, pruneset);
 			System.out.print(" -> "+err);
 			if (low) {
-				if (err <= best_error) {
+				if (err >= best_error) {
 					best_error = err;
 					best_value = i;
 					System.out.println(" *");
@@ -83,7 +87,7 @@ public class CDTTuneFTest extends ClusClassifier {
 					System.out.println();
 				}				
 			} else {
-				if (err >= best_error) {
+				if (err <= best_error) {
 					best_error = err;
 					best_value = i;
 					System.out.println(" *");
@@ -97,6 +101,7 @@ public class CDTTuneFTest extends ClusClassifier {
 		System.out.println("Best was: "+best_f);
 	}
 
+	
 	public void induce(ClusRun cr) {
 		try {
 			// Find optimal F-test value

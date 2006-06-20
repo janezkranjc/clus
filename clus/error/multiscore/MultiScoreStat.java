@@ -46,7 +46,11 @@ public class MultiScoreStat extends ClusStatistic {
 		return buf.toString();
 
 	}
-
+	
+	public String getPredictedClassName(int idx) {
+		return "";
+	} 
+  
 	public double[] getNumericPred() {
 		return m_MeanValues;
 	}

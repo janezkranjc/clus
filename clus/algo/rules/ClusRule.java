@@ -392,7 +392,8 @@ public class ClusRule implements ClusModel, Serializable {
 	
 	public void printModelToPythonScript(PrintWriter wrt) {
 	}	
-	
+	public void printModelToQuery(PrintWriter wrt, ClusRun cr) {
+	}
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
 	}	
 	
