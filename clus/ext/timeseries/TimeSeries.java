@@ -5,7 +5,6 @@ import java.text.NumberFormat;
 import java.util.StringTokenizer;
 
 import clus.main.Settings;
-import clus.statistic.StatisticPrintInfo;
 import clus.util.ClusFormat;
 
 public class TimeSeries implements Serializable{
@@ -51,6 +50,11 @@ public class TimeSeries implements Serializable{
 		System.arraycopy(values, 0, this.values, 0, values.length); 
 	}
 
+	public TimeSeries(int size){
+		this.values = new double[size];
+		for (int i=0; i<size;i++){this.values[i]=0;} 
+	}
+
 	public int length(){
 		if (values==null)
 			return 0;
@@ -66,7 +70,7 @@ public class TimeSeries implements Serializable{
 
 	/*
 	 * [Aco]
-	 * Seting a single value 
+	 * Geting a single value 
 	 */
 	public double getValue(int index) {
 		return values[index];
@@ -96,6 +100,43 @@ public class TimeSeries implements Serializable{
 				}
 			}
 		}
+	}
+	
+	/*
+	 * [Aco]
+	 * rescaling a time series, for any reason
+	 * the series length must be at least one for this to work
+	 */
+	public void rescale(double min, double max){
+		double tmpMin=min();
+		double tmpMax=max();
+		if (tmpMax==tmpMin)	for (int i=0; i< length(); i++) values[i]=(max-min)/2;
+		else for (int i=0; i< length(); i++) values[i]=((values[i]-tmpMin)/(tmpMax-tmpMin))*(max-min)+min;
+	}
+	
+	/*
+	 * [Aco]
+	 * minimal element
+	 */
+	public double min(){
+		double r = Double.POSITIVE_INFINITY;
+		for (int i=0; i<length();i++ ){
+			if (r > values[i]){r=values[i];}
+		}
+		return r;
+	}
+
+	/*
+	 * [Aco]
+	 * maximal element
+	 */
+	public double max(){
+		double r = Double.NEGATIVE_INFINITY;
+		for (int i=0; i<length();i++ ){
+			if (r < values[i]){r=values[i];}
+		}
+		return r;
+		
 	}
 	
 	public void setValues(double[] values) {
