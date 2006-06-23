@@ -92,15 +92,7 @@ public class DTWTimeSeriesStat extends TimeSeriesStat {
 	 * @see clus.statistic.ClusStatistic#getString(clus.statistic.StatisticPrintInfo)
 	 */
 	public String getString(StatisticPrintInfo info){
-		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
-		StringBuffer buf = new StringBuffer();		
-		buf.append(m_RepresentativeTS.toString());
-		if (info.SHOW_EXAMPLE_COUNT) {
-			buf.append(": ");		
-			buf.append(fr.format(m_SumWeight));
-		}		
-		return buf.toString();
-		//java.lang.Double.toString(m_SumWeight);
+		return super.getString(info);
 	}
 	
 	/*
@@ -110,25 +102,6 @@ public class DTWTimeSeriesStat extends TimeSeriesStat {
 	 */
 	public void updateWeighted(DataTuple tuple, int idx){
 	    super.updateWeighted(tuple,idx);
-	    TimeSeries newTimeSeries= ((TimeSeries)tuple.m_Objects[0]);
-	    if (m_RepresentativeTS.length()<newTimeSeries.length()) {
-	    	if (m_RepresentativeTS.length()==0) {
-	    		m_RepresentativeTS = new TimeSeries(newTimeSeries.getValues());
-	    	}
-	    	else{
-	    		m_RepresentativeTS.resize(newTimeSeries.length(),"linear");
-	    	}
-	    }
-	    
-	    if (newTimeSeries.length()<m_RepresentativeTS.length()){
-	    	newTimeSeries.resize(m_RepresentativeTS.length(),"linear");
-	    }
-	    	
-	    //this must be changed in near future
-	    for (int i=0; i< m_RepresentativeTS.length();i++){
-	    	m_RepresentativeTS.setValue(i,m_RepresentativeTS.getValue(i)+newTimeSeries.getValue(i));
-	    }
-	    m_SumWeightTS += tuple.getWeight();
 	}
 	
 	/*
@@ -137,9 +110,7 @@ public class DTWTimeSeriesStat extends TimeSeriesStat {
 	 * @see clus.statistic.ClusStatistic#calcMean()
 	 */
 	public void calcMean() {
-		for (int i=0; i< m_RepresentativeTS.length();i++){
-	    	m_RepresentativeTS.setValue(i,m_RepresentativeTS.getValue(i)/m_SumWeightTS);
-	    }
+		super.calcMean();
 	}
 
 }
