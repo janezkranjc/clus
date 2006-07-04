@@ -24,11 +24,24 @@ public class QDMTimeSeriesStat extends TimeSeriesStat {
 		double distance = 0;
 		for (int i = 0; i < m; i++) {
 			for (int j = i + 1; j < m; j++) {
-				distance += Math.abs(Math.signum(vt1[j] - vt1[i]) - Math.signum(vt2[j % n] - vt2[i % n]));
+				//x=y means x=y
+				//distance += Math.abs(Math.signum(vt1[j] - vt1[i]) - Math.signum(vt2[j % n] - vt2[i % n]));
+				//x=y means ABS((x/y)-1)<0.02
+				distance += Math.abs(diff(vt1[j],vt1[i]) - diff(vt2[j % n],vt2[i % n]));
 			}
 		}
 		distance =distance / (m * (m-1)); 
 		return distance;
+	}
+	
+	public static int diff(double a, double b ){
+		if (a==0 && b==0) return 0;
+		if (b!=0 && Math.abs((a/b)-1)<0.02)
+			return 0;
+		else if (a<b) 
+			return -1;
+		else
+			return 1;
 	}
 
 	public double getSS(ClusAttributeWeights scale, RowData data) {
