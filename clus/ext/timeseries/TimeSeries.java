@@ -39,7 +39,8 @@ public class TimeSeries implements Serializable{
 			a.append(fr.format(values[i]));
 			a.append(',');
 		}
-		a.append(fr.format(values[length()-1]));
+		if (length()>0)
+			a.append(fr.format(values[length()-1]));
 		a.append(']');
 		return a.toString();
 	}

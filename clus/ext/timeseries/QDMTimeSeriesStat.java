@@ -86,6 +86,7 @@ public class QDMTimeSeriesStat extends TimeSeriesStat {
 	 * @see clus.statistic.ClusStatistic#updateWeighted(clus.data.rows.DataTuple, int)
 	 */
 	public void updateWeighted(DataTuple tuple, int idx){
+		//System.out.println("noproto");
 	    super.updateWeighted(tuple,idx);
 	}
 	

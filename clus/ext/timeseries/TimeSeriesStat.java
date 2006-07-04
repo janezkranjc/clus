@@ -2,6 +2,7 @@ package clus.ext.timeseries;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedList;
 
 import clus.data.attweights.ClusAttributeWeights;
@@ -42,7 +43,10 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 	}
 
 	public void optimizePreCalc(RowData data) {
+		
+		//long t = Calendar.getInstance().getTimeInMillis();
 		if (!m_Modified) return;
+		//System.out.print(data.getNbRows()+"\t");
 		m_Value = 0.0;		
 		int nb = m_Bits.size();
 		for (int i = 0; i < nb; i++) {
@@ -60,6 +64,8 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 			}
 		}
 		m_Modified = false;
+		//System.out.println((Calendar.getInstance().getTimeInMillis()-t)/1000+"sec.");
+		
 	}	
 	
 	/*
@@ -68,6 +74,7 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 	 * @see clus.statistic.ClusStatistic#updateWeighted(clus.data.rows.DataTuple, int)
 	 */
 	public void updateWeighted(DataTuple tuple, int idx){
+		
 		super.updateWeighted(tuple,idx);
 
 		//if different length we first resize it
@@ -92,8 +99,9 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 	    
 	    TimeSeriesStack.add(newTimeSeries);
 	    
+	    
 	}
-	
+
 	/*
 	 * [Aco]
 	 * this is executed in the end
