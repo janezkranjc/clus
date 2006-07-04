@@ -550,17 +550,18 @@ public class ClusNode extends MyNode implements ClusModel {
 		printTreeToPythonScript(wrt, "\t");
 	}
 	
-	public void printModelToQuery(PrintWriter wrt, ClusRun cr){
+	//Please add class Global to cvs, otherwise source bellow cannot be compiled	
+ public void printModelToQuery(PrintWriter wrt, ClusRun cr){
 		String tabitem[] = new String[100]; //table of item
 		int tabexist[] = new int[100]; //table of booleen for each item 
-		Global.set_itemsetcpt(0);
-		Global.set_greedytreecpt(1);
-		printTreeInDatabase(wrt,tabitem,tabexist, 0);
+		//Global.set_itemsetcpt(0);
+		//Global.set_greedytreecpt(1);
+		//printTreeInDatabase(wrt,tabitem,tabexist, 0);
 //		print the statitistics here
 		//writer.println("INSERT INTO Trees_charac VALUES(T1,"+size+accuracy+error+auc);
 		int lastmodel = cr.getNbModels()-1;
 		ClusModelInfo mod = cr.getModelInfo(lastmodel);
-		wrt.print("INSERT INTO Trees_charac (tree_id, sz) VALUES("+Global.get_greedytreecpt()+", "+mod.getModelSize()+")");
+		//wrt.print("INSERT INTO Trees_charac (tree_id, sz) VALUES("+Global.get_greedytreecpt()+", "+mod.getModelSize()+")");
 	}
 	
 	public final void printTree() {
@@ -611,7 +612,8 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 	
 	/*to print the tree directly into an IDB : Elisa Fromont 19/06/2006*/
-	public final void printTreeInDatabase(PrintWriter writer, String tabitem[], int tabexist[], int cpt) {
+	/*Please add class Global to cvs, otherwise source bellow cannot be compiled
+/*	public final void printTreeInDatabase(PrintWriter writer, String tabitem[], int tabexist[], int cpt) {
 		int arity = getNbChildren();
 			if (arity > 0) {
 			int delta = hasUnknownBranch() ? 1 : 0;
@@ -688,7 +690,7 @@ public class ClusNode extends MyNode implements ClusModel {
 			}//end else if arity =0
 			
 	}
-			
+*/			
 
 	
 	
