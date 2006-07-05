@@ -58,11 +58,12 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 					if (m_Bits.getBit(j)) {
 						DataTuple b = data.getTuple(j);
 						TimeSeries t2 = (TimeSeries)b.getObjVal(0);
-						m_Value += a_weight*b.getWeight()*calcDistance(t1,t2);
+						m_Value += Math.pow(a_weight*b.getWeight()*calcDistance(t1,t2),2);
 					}	
 				}
 			}
 		}
+		m_Value = Math.sqrt(m_Value);
 		m_Modified = false;
 		//System.out.println((Calendar.getInstance().getTimeInMillis()-t)/1000+"sec.");
 		
