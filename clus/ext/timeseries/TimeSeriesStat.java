@@ -63,7 +63,6 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				}
 			}
 		}
-		m_Value = Math.sqrt(m_Value);
 		m_Modified = false;
 		//System.out.println((Calendar.getInstance().getTimeInMillis()-t)/1000+"sec.");
 		
