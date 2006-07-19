@@ -148,7 +148,40 @@ public class ClusErrorParent implements Serializable {
 		}
 		setNbTotal(par.getNbExamples());
 	}	
-
+	
+	/*
+	public double get_errorclassif(){
+		System.out.println("le nomre d'exemple est"+getNbExamples());
+		System.out.println("le nomre d'exemple couvert est"+getNbCover());
+			return (getNbExamples()-getNbCover());
+	}
+	*/
+	public double getErrorClassif(){
+		ClusError err = getError(0);
+		return err.get_error_classif();
+	}
+	
+	public double getErrorAccuracy() {
+		ClusError err = getError(0);
+		return err.get_accuracy();
+	}
+	
+	public double getErrorPrecision() {
+		ClusError err = getError(0);
+		return err.get_precision();
+	}
+	
+	public double getErrorRecall() {
+		ClusError err = getError(0);
+		return err.get_recall();
+	}
+	
+	public double getErrorAuc() {
+		ClusError err = getError(0);
+		return err.get_auc();
+	}
+	
+	
 	public void showError(PrintWriter out) {
 		int nb = m_Error.size();
 		out.println("Number of examples: "+getNbTotal()+" (covered: "+getNbCover()+")");

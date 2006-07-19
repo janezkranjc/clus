@@ -19,10 +19,12 @@ public class ClusOutput {
 	protected Settings m_Sett;
 	protected PrintWriter m_Writer;
 	protected String m_Fname;
+	protected Settings m_Sett2;
 
 	public ClusOutput(String fname, ClusSchema schema, Settings sett) throws IOException {
 		m_Schema = schema;
 		m_Sett = sett;
+		m_Sett2 = sett;
 		m_Fname = fname;
 		m_Writer = sett.getFileAbsoluteWriter(fname);
 	}
@@ -177,13 +179,11 @@ public class ClusOutput {
 					}
 					if (getSettings().isOutputDatabaseQueries()) {
 						// use the following lines for creating a SQL file that will put the tree into a database
-						String out_database_name =  m_Sett.getAppName()+".sql";
-						PrintWriter database_writer = m_Sett.getFileAbsoluteWriter(out_database_name);
-						//database_writer.print("in the ClusOutput class ...");
-						//root.printModelToQuery(m_Writer,cr);
+						String out_database_name =  m_Sett2.getAppName()+".txt";
+						PrintWriter database_writer = m_Sett2.getFileAbsoluteWriter(out_database_name);
 						root.printModelToQuery(database_writer,cr);
-						System.out.println("the database name is "+out_database_name);
 						database_writer.close();
+						System.out.println("the queries are in "+out_database_name);
 					}
 					
 					

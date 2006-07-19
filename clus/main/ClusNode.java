@@ -550,18 +550,22 @@ public class ClusNode extends MyNode implements ClusModel {
 		printTreeToPythonScript(wrt, "\t");
 	}
 	
-	//Please add class Global to cvs, otherwise source bellow cannot be compiled	
- public void printModelToQuery(PrintWriter wrt, ClusRun cr){
-		String tabitem[] = new String[100]; //table of item
-		int tabexist[] = new int[100]; //table of booleen for each item 
-		//Global.set_itemsetcpt(0);
-		//Global.set_greedytreecpt(1);
-		//printTreeInDatabase(wrt,tabitem,tabexist, 0);
-//		print the statitistics here
-		//writer.println("INSERT INTO Trees_charac VALUES(T1,"+size+accuracy+error+auc);
+	public void printModelToQuery(PrintWriter wrt, ClusRun cr){
+		String tabitem[] = new String[1000]; //table of item
+		int tabexist[] = new int[1000]; //table of booleen for each item 
+		tabitem[0] = "null";
+		tabexist[0] = 1;
+		wrt.println("tree_sets");
+		wrt.println("'"+tabitem[0]+"', "+tabexist[0]+")");
+		wrt.println("greedy_trees");
+		wrt.println("1)"); //it's a leaf
+		printTreeInDatabase(wrt,tabitem,tabexist, 1);
+		//print the statitistics here (the format depend on the needs of the plsql program)
+		//writer.println("INSERT INTO Trees_charac VALUES(T1,"+size+error+accuracy+constraint);
 		int lastmodel = cr.getNbModels()-1;
 		ClusModelInfo mod = cr.getModelInfo(lastmodel);
-		//wrt.print("INSERT INTO Trees_charac (tree_id, sz) VALUES("+Global.get_greedytreecpt()+", "+mod.getModelSize()+")");
+		wrt.println("trees_charac");
+		wrt.println(+mod.getModelSize()+", "+(mod.m_TrainErr).getErrorClassif()+", "+(mod.m_TrainErr).getErrorAccuracy()+", NULL)");
 	}
 	
 	public final void printTree() {
@@ -612,8 +616,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 	
 	/*to print the tree directly into an IDB : Elisa Fromont 19/06/2006*/
-	/*Please add class Global to cvs, otherwise source bellow cannot be compiled
-/*	public final void printTreeInDatabase(PrintWriter writer, String tabitem[], int tabexist[], int cpt) {
+public final void printTreeInDatabase(PrintWriter writer, String tabitem[], int tabexist[], int cpt) {
 		int arity = getNbChildren();
 			if (arity > 0) {
 			int delta = hasUnknownBranch() ? 1 : 0;
@@ -621,33 +624,25 @@ public class ClusNode extends MyNode implements ClusModel {
 			// in case the test is postive
 				tabitem[cpt] = m_Test.getTestString();
 				tabexist[cpt] = 1;
-				if(cpt == 0) {
-					writer.println("INSERT INTO tree_sets VALUES ("+Global.get_itemsetcpt()+", '"+tabitem[cpt]+"', "+tabexist[cpt]+")");
-					writer.println("INSERT INTO greedy_trees VALUES("+Global.get_greedytreecpt()+", "+Global.get_itemsetcpt()+",1)");}
-				if(cpt>0) {
 					for(int i =0; i <= cpt; i++){
-						writer.println("INSERT INTO tree_sets VALUES ("+Global.get_itemsetcpt()+", '"+tabitem[i]+"', "+tabexist[i]+")");
+						writer.println("tree_sets");
+						writer.println("'"+tabitem[i]+"', "+tabexist[i]+")");
 					}
-					writer.println("INSERT INTO greedy_trees VALUES("+Global.get_greedytreecpt()+", "+Global.get_itemsetcpt()+",1)");	
-				}
+					writer.println("greedy_trees");
+					writer.println("1)");	
 				cpt++;
-				Global.inc_itemsetcpt("1");
 			((ClusNode)getChild(YES)).printTreeInDatabase(writer,tabitem, tabexist, cpt);			
 			cpt--;//to remove the last test on the father : now the test is negative		
 			// in case the test is negative
 			tabitem[cpt] = m_Test.getTestString();
 			tabexist[cpt] = 0;
-			if(cpt == 0) {
-				writer.println("INSERT INTO tree_sets VALUES ("+Global.get_itemsetcpt()+", '"+tabitem[cpt]+"', "+tabexist[cpt]+")");
-				writer.println("INSERT INTO greedy_trees VALUES("+Global.get_greedytreecpt()+", "+Global.get_itemsetcpt()+",1)");}
-			if(cpt>0) {
-				for(int i =0; i <= cpt; i++){
-					writer.println("INSERT INTO tree_sets VALUES ("+Global.get_itemsetcpt()+", '"+tabitem[i]+"', "+tabexist[i]+")");
-				}
-				writer.println("INSERT INTO greedy_trees VALUES("+Global.get_greedytreecpt()+", "+Global.get_itemsetcpt()+",1)");	
+			for(int i =0; i <= cpt; i++){
+				writer.println("tree_sets");
+				writer.println("'"+tabitem[i]+"', "+tabexist[i]+")");
 			}
+			writer.println("greedy_trees");
+			writer.println("1)");	
 			cpt++;
-			Global.inc_itemsetcpt("2");
 				if (hasUnknownBranch()) {
 					((ClusNode)getChild(NO)).printTreeInDatabase(writer,tabitem, tabexist, cpt);
 					
@@ -679,20 +674,17 @@ public class ClusNode extends MyNode implements ClusModel {
 				} else {
 					tabitem[cpt] = m_TargetStat.getPredictedClassName(0);
 					tabexist[cpt] = 1;
-					for(int i =0; i <= cpt;i++){
-						writer.println("INSERT INTO tree_sets VALUES ("+Global.get_itemsetcpt()+", '"+tabitem[i]+"', "+tabexist[i]+")");
+					for(int i =0; i <= cpt; i++){
+						writer.println("tree_sets");
+						writer.println("'"+tabitem[i]+"', "+tabexist[i]+")");
 					}
-					writer.println("INSERT INTO greedy_trees VALUES("+Global.get_greedytreecpt()+", "+Global.get_itemsetcpt()+",0)");
-					cpt++;
-					Global.inc_itemsetcpt("3");
-					
+					writer.println("greedy_trees");
+					writer.println("0)");	
+					cpt++;			
 				}
 			}//end else if arity =0
 			
 	}
-*/			
-
-	
 	
 
 	public final void printTreeToPythonScript(PrintWriter writer, String prefix) {

@@ -405,29 +405,20 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_WritePredictions;
 	
 	protected INIFileBool m_ModelIDFiles;
-
-	/* Beam Search For Trees */
-	protected INIFileSection m_SectionBeam;
-	
-	protected INIFileDouble m_SizePenalty;
-	
-	protected INIFileInt m_BeamWidth;
-	
-	protected INIFileInt m_BeamBestN;
-	
-	protected INIFileInt m_TreeMaxSize;
-	
-	protected INIFileNominal m_BeamAttrHeuristic;
-	
-	protected INIFileBool m_FastBS;
-	
-	protected INIFileBool m_BeamPostPrune;
-	
-	protected INIFileBool m_BMRemoveEqualHeur;
 	
 	protected INIFileBool m_OutputPythonModel;	
-	
 	protected INIFileBool m_OutputDatabaseQueries;	
+	
+	/* Beam Search For Trees */
+	protected INIFileSection m_SectionBeam;
+	protected INIFileDouble m_SizePenalty;
+	protected INIFileInt m_BeamWidth;
+	protected INIFileInt m_BeamBestN;
+	protected INIFileInt m_TreeMaxSize;
+	protected INIFileNominal m_BeamAttrHeuristic;
+	protected INIFileBool m_FastBS;
+	protected INIFileBool m_BeamPostPrune;
+	protected INIFileBool m_BMRemoveEqualHeur;
 	
 	/* Hierarchical Multi-Classification */
 	protected INIFileString m_HierSep;

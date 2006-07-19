@@ -242,4 +242,31 @@ public class ContingencyTable extends ClusNominalError {
 	
 	public void addInvalid(DataTuple tuple) {
 	}	
+	
+		public double get_error_classif(){
+			//System.out.println("nb of examples : "+getNbExamples());
+			//System.out.println("nb of correctly classify examples : "+calcNbCorrect(m_ContTable[0]));
+		return (1 - get_accuracy());
+		}
+	
+		public double get_TP(){
+			return calcNbCorrect(m_ContTable[0]);
+		}
+	
+		public double get_accuracy() {
+			return calcAccuracy(m_ContTable[0]);
+		}
+		
+		public double get_precision() {
+			return 0.0;
+		}
+		
+		public double get_recall() {
+			return 0.0;
+		}
+		
+		public double get_auc() {
+			return 0.0;
+		}
+	
 }

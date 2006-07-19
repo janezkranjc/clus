@@ -52,6 +52,7 @@ public class Accuracy extends ClusNominalError {
 		for (int i = 0; i < m_Dim; i++) {
 			avg += getModelErrorComponent(i);
 		}
+		System.out.println("in ACCURACY class, error = "+(avg / m_Dim));
 		return avg / m_Dim;
 	}
 	

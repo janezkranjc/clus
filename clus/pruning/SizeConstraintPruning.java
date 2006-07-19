@@ -109,8 +109,10 @@ public class SizeConstraintPruning extends PruneTree {
 			// Can be made more efficient :-)
 			TreeErrorComputer.computeErrorStandard(copy, m_Data, err);
 			cr_err.setNbExamples(m_Data.getNbRows());
+			
 			if (m_MaxError.length == 1) {
 				double max_err = m_MaxError[0];
+				System.out.println("dans SizeConstraintPruning, maxError = "+max_err);
 				if (err.getModelError() <= max_err) {
 					constr_ok_size = crsize;
 					break;

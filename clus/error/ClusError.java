@@ -74,6 +74,7 @@ public abstract class ClusError implements Serializable {
 	public void updateFromGlobalMeasure(ClusError global) {
 	}
 	
+	
 /***************************************************************************
  * Inspectors
  ***************************************************************************/	
@@ -100,6 +101,32 @@ public abstract class ClusError implements Serializable {
 	public int getDetailLevel() {
 		return DETAIL_ALWAYS_VISIBLE;
 	}	
+	public double get_error_classif(){
+		//	only implemeted in the ContengyTableClass
+		return 0;	
+	}
+	
+	public double get_accuracy() {
+	//only implemeted in the ContengyTableClass
+		return 0.0;
+	}
+	
+	public double get_precision() {
+   //	only implemeted in the ContengyTableClass
+		return 0.0;
+	}
+	
+	public double get_recall() {
+    //	only implemeted in the ContengyTableClass
+		return 0.0;
+	}
+	
+	public double get_auc() {
+		//only implemeted in the ContengyTableClass
+		return 0.0;
+	}
+	
+	
 	
 /***************************************************************************
  * Display
