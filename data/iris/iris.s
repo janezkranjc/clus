@@ -2,11 +2,8 @@
 [Data]
 File = iris.arff
 
-[Beam]
-BeamWidth = 10
-MaxSize = Infinity
-FastSearch = No
-RemoveEqualHeur = No
+[Constraints]
+MaxError = 0.01
 
 [Output]
 WritePredictions = Train

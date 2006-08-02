@@ -73,13 +73,13 @@ public class CDTTuneFTest extends ClusClassifier {
 		boolean low = getStatManager().createTuneError().getFirstError().shouldBeLow();
 		double best_error = low ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
 //		System.out.println("best error is"+best_error);
-		for (int i = 1; i < 6; i++) {
+		for (int i = 0; i < 6; i++) {
 			Settings.FTEST_LEVEL = i;
 			System.out.println("Try for: "+FTest.FTEST_SIG[i]);
 			double err = doParamXVal(trset, pruneset);
 			System.out.print(" -> "+err);
 			if (low) {
-				if (err >= best_error) {
+				if (err <= best_error) {
 					best_error = err;
 					best_value = i;
 					System.out.println(" *");
@@ -87,7 +87,7 @@ public class CDTTuneFTest extends ClusClassifier {
 					System.out.println();
 				}				
 			} else {
-				if (err <= best_error) {
+				if (err >= best_error) {
 					best_error = err;
 					best_value = i;
 					System.out.println(" *");

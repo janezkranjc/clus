@@ -22,9 +22,9 @@ public class AbsoluteError extends ClusNumericError {
 	}
 
 	public double getModelError() {
-		double ss_tree = 0.0;
-		for (int i = 0; i < m_Dim; i++) ss_tree += m_AbsError[i];
-		return ss_tree;
+		double avg_abs = 0.0;
+		for (int i = 0; i < m_Dim; i++) avg_abs += m_AbsError[i];
+		return avg_abs / m_Dim;
 	}		
 	
 	public void addExample(double[] real, double[] predicted) {
@@ -58,7 +58,8 @@ public class AbsoluteError extends ClusNumericError {
 	}
 	
 	public void showModelError(PrintWriter out, int detail) {
-		out.println(showDoubleArray(m_AbsError, getNbExamples()));
+		NumberFormat fr = getFormat();		
+		out.println(showDoubleArray(m_AbsError, getNbExamples()) + ", Avg: "+fr.format(getModelError()));
 	}
 	
 	public void showRelativeError(PrintWriter out, boolean detail) {

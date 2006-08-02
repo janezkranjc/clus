@@ -154,7 +154,7 @@ public class ClusStatManager implements Serializable {
 	public void initWeights(ClusNormalizedAttributeWeights result,
 			NumericAttrType[] num, NominalAttrType[] nom,
 			INIFileNominalOrDoubleOrVector winfo) throws ClusException {
-		result.setAllWeights(1.0);
+		result.setAllWeights(0.0);
 		int nbattr = result.getNbAttributes();
 		if (winfo.hasArrayIndexNames()) {
 			// Weights given for target, non-target, numeric and nominal
@@ -661,7 +661,8 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new Accuracy(parent, nom));
 		}
 		if (num.length != 0) {
-			parent.addError(new PearsonCorrelation(parent, num));
+			// parent.addError(new PearsonCorrelation(parent, num));
+			parent.addError(new RMSError(parent, num));
 		}
 		return parent;
 	}

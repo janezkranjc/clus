@@ -110,6 +110,7 @@ public class PearsonCorrelation extends ClusNumericError {
 		StringBuffer buf = new StringBuffer();
 		buf.append("[");
 		int nb = getNbExamples();
+		double avg_sq_r = 0.0;
 		for (int i = 0; i < m_Dim; i++) {
 			double Pi_ss = m_SumSPi[i]-m_SumPi[i]*m_SumPi[i]/nb;
 			double Ai_ss = m_SumSAi[i]-m_SumAi[i]*m_SumAi[i]/nb;
@@ -118,8 +119,10 @@ public class PearsonCorrelation extends ClusNumericError {
 			double el = above/root;
 			if (i != 0) buf.append(",");
 			buf.append(fr.format(el));
+			avg_sq_r += el * el;
 		}
-		buf.append("]");
+		avg_sq_r /= m_Dim;
+		buf.append("], Avg r^2: "+fr.format(avg_sq_r));
 		/*
 		{
 			double Pi_ss = m_SumSPi[0]-m_SumPi[0]*m_SumPi[0]/nb;
