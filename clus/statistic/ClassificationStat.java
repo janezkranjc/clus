@@ -368,19 +368,20 @@ public class ClassificationStat extends ClusStatistic {
 				buf.append("]");
 			}//end for
 			if (info.SHOW_EXAMPLE_COUNT) {
-				System.out.println("SHOW_EXAMPLE_COUNT = true");
 				buf.append(":");		
 				buf.append(fr.format(m_SumWeight));
 			}			
 		}//end if show distribution
 		else {
-			if (m_MajorityClasses != null) {//print stat on the majority classes
+			// print stat on the majority classes
+			if (m_MajorityClasses != null) {
 				buf.append(" [");
 				for (int i = 0; i < m_NbTarget; i++) {
 					if (i != 0) buf.append(",");
 					buf.append(m_ClassCounts[i][m_MajorityClasses[i]]);
 				}
-				buf.append("]");
+				// added colon here to make trees print correctly
+				buf.append("]: ");
 				buf.append(fr.format(m_SumWeight));
 			}			
 		}

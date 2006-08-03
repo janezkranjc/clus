@@ -185,8 +185,6 @@ public class ClusOutput {
 						database_writer.close();
 						System.out.println("the queries are in "+out_database_name);
 					}
-					
-					
 				}//end if (root != null)				
 			}//end if (shouldShowModel(i))
 		}// end for

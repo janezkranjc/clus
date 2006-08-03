@@ -4,31 +4,41 @@ Note:
 
 You need Java 2 version 1.4.x or above.
 
-To compile:
------------
+Running Clus
+------------
+
+java -jar /path/to/Clus.jar appfile
+
+With /path/to/Clus.jar the location of Clus.jar in your file system and "appfile"
+the name of your settings file. The settings are briefly discussed below.
+
+See also the example data sets in "data" dir.
+
+Compiling Clus
+--------------
 
 (Windows)
 
-cd C:\Clus
-javac clus/Clus.java
+cd C:\Clus\src
+javac -cp ".;commons-math-1.0.jar" clus/Clus.java
 
 (Unix)
 
 cd /home/jan/Clus
-javac clus/Clus.java
+javac -cp ".:commons-math-1.0.jar" clus/Clus.java
 
-To execute:
------------
+Running Clus (if you compiled from the source code)
+---------------------------------------------------
 
 (Windows)
 
 cd path\to\appfile.s
-java -cp "C:\Clus;." clus.Clus appfile
+java -cp "C:\Clus;C:\Clus\commons-math-1.0.jar;." clus.Clus appfile
 
 (Unix)
 
 cd path/to/appfile.s
-java -cp "/home/jan/Clus:." clus.Clus appfile
+java -cp "/home/jan/Clus:/home/jan/Clus/commons-math-1.0.jar:." clus.Clus appfile
 
 
 Settings overview

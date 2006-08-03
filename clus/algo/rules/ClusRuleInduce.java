@@ -6,8 +6,8 @@ import java.io.*;
 import java.util.*;
 import java.text.DecimalFormat;
 
-import weka.core.Instance;
-import weka.core.Instances;
+//import weka.core.Instance;
+//import weka.core.Instances;
 
 import clus.algo.induce.*;
 import clus.main.*;

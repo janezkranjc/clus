@@ -574,12 +574,22 @@ public class ClusNode extends MyNode implements ClusModel {
 		wrt.flush();
 	}
 	
+	public final void writeDistributionForInternalNode(PrintWriter writer, StatisticPrintInfo info) {
+		if (info.INTERNAL_DISTR) {
+			if (m_TargetStat != null) {
+				writer.print(": "+m_TargetStat.getString(info));
+			}			
+		}
+		writer.println();
+	}
+	
 	public final void printTree(PrintWriter writer, StatisticPrintInfo info, String prefix) {
 		int arity = getNbChildren();
 		if (arity > 0) {
 			int delta = hasUnknownBranch() ? 1 : 0;
 			if (arity - delta == 2) {
-				writer.println(m_Test.getTestString());
+				writer.print(m_Test.getTestString());
+				writeDistributionForInternalNode(writer, info);
 				writer.print(prefix + "+--yes: ");
 				((ClusNode)getChild(YES)).printTree(writer, info, prefix+"|       ");
 				writer.print(prefix + "+--no:  ");

@@ -39,7 +39,7 @@ import clus.model.modelio.*;
 import clus.algo.kNN.*;
 import clus.algo.rules.*;
 
-import clus.weka.*;
+// import clus.weka.*;
 
 public class Clus implements CMDLineArgsProvider {
 
@@ -55,21 +55,13 @@ public class Clus implements CMDLineArgsProvider {
 			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0 };
 
 	protected Settings m_Sett = new Settings();
-
 	protected ClusSummary m_Summary = new ClusSummary();
-
 	protected ClusSchema m_Schema;
-
 	protected MultiScore m_Score;
-
 	protected ClusInduce m_Induce;
-
 	protected ClusExtension m_Ext;
-
 	protected ClusData m_Data;
-
 	protected Date m_StartDate = new Date();
-
 	protected boolean isxval = false;
 
 	public final void initialize(CMDLineArgs cargs, ClusClassifier clss) throws IOException, ClusException {
@@ -156,7 +148,7 @@ public class Clus implements CMDLineArgsProvider {
 		removeMissingTarget();
 		
 		//added 7-4-2006
-		initializeClassWeights();
+		//initializeClassWeights();
 		//end added 7-4-2006
 		
 		// Initialize F-Test table
@@ -199,12 +191,13 @@ public class Clus implements CMDLineArgsProvider {
 		ClusStatManager mgr = m_Induce.getStatManager();
 		ClusErrorParent error = mgr.createErrorMeasure(m_Score);
 		m_Summary.setStatManager(mgr);
-		if (!Settings.HIER_FLAT.getValue())
-			m_Summary.setTrainError(error);
-		if (hasTestSet())
+		m_Summary.setTrainError(error);
+		if (hasTestSet()) {
 			m_Summary.setTestError(error);
-		if (hasPruneSet())
+		}
+		if (hasPruneSet()) {
 			m_Summary.setValidationError(error);
+		}
 		clss.initializeSummary(m_Summary);
 	}
 
@@ -226,23 +219,18 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 	
-	//added by Leander 7-4-2006
-	
+	//added by Leander 7-4-2006	
 	public final void initializeClassWeights() {
-		
 		double[] we = m_Sett.getClassWeight();
 		// add the weight to all examples of specific classes (in DataTuple)
 		// if there are no weights specified, are they automatically 1? yes
 		System.out.println(we);
-		ClusAttrType[] classes = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET); 
-		
+		ClusAttrType[] classes = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET); 		
 		//int nbClasses = 1;
 		//for (int i = 0; i < nbClasses; i++){
 		//	ClusAttrType targetclass = classes[i];
-		//}
-				
-		ClusAttrType targetclass = classes[0];
-		
+		//}				
+		ClusAttrType targetclass = classes[0];		
 		RowData data = (RowData) m_Data;
 		int nbrows = m_Data.getNbRows();
 		for (int i = 0; i < nbrows; i++) {
@@ -254,8 +242,6 @@ public class Clus implements CMDLineArgsProvider {
 				//make hash table for mapping classes with their weights?
 			}
 		}
-		
-		
 	}
 	//end added by Leander 7-4-2006
 
@@ -497,7 +483,7 @@ public class Clus implements CMDLineArgsProvider {
 	public final boolean hasTestSet() {
 		if (!m_Sett.isNullTestFile())
 			return true;
-		if (m_Sett.getPruneProportion() != 0.0)
+		if (m_Sett.getTestProportion() != 0.0)
 			return true;
 		if (isxval)
 			return true;
@@ -539,39 +525,45 @@ public class Clus implements CMDLineArgsProvider {
 
 	public final ClusRun partitionData() throws IOException, ClusException {
 		boolean testfile = false;
+		boolean writetest = false;
 		ClusSelection sel = null;
 		if (!m_Sett.isNullTestFile()) {
 			testfile = true;
+			writetest = true;
 		} else {
 			double test = m_Sett.getTestProportion();
 			if (test != 0.0) {
 				int nbtot = m_Data.getNbRows();
 				sel = new RandomSelection(nbtot, test);
+				writetest = true;
 			}
 		}
-		return partitionData(m_Data, sel, testfile, m_Summary, 1);
+		return partitionData(m_Data, sel, testfile, writetest, m_Summary, 1);
 	}
 
 	public final ClusRun partitionData(ClusSelection sel, int idx) throws IOException, ClusException {
-		return partitionData(m_Data, sel, false, m_Summary, idx);
+		return partitionData(m_Data, sel, false, false, m_Summary, idx);
 	}
 
-	public final ClusRun partitionData(ClusData data, ClusSelection sel, boolean testfile, ClusSummary summary, int idx) throws IOException,	ClusException {
+	public final ClusRun partitionData(ClusData data, ClusSelection sel, boolean testfile, boolean writetest, ClusSummary summary, int idx) throws IOException,	ClusException {
+		String test_fname = m_Sett.getAppName();
 		ClusRun cr = partitionDataBasic(data, sel, summary, idx);
 		boolean hasMissing = m_Schema.hasMissing();
 		if (testfile) {
-			String fname = m_Sett.getTestFile();
+			test_fname = m_Sett.getTestFile();
 			MyClusInitializer init = new MyClusInitializer();
-			TupleIterator iter = new DiskTupleIterator(fname, init,	getPreprocs(true), m_Sett);
+			TupleIterator iter = new DiskTupleIterator(test_fname, init,	getPreprocs(true), m_Sett);
 			iter.setShouldAttach(true);
 			cr.setTestSet(iter);
+		}
+		if (writetest) {
 			if (m_Sett.isWriteModelIDPredictions()) {
-				String tname = FileUtil.getName(fname);
+				String tname = FileUtil.getName(test_fname);
 				ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 				mi.addModelProcessor(ClusModelInfo.TEST_ERR, new NodeIDWriter(tname + ".id", hasMissing, m_Sett));
 			}
 			if (m_Sett.isWriteTestSetPredictions()) {
-				String tname = FileUtil.getName(fname);
+				String tname = FileUtil.getName(test_fname);
 				ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 				mi.addModelProcessor(ClusModelInfo.TEST_ERR,
 						new PredictionWriter(tname + ".pred", m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
@@ -1068,7 +1060,7 @@ public class Clus implements CMDLineArgsProvider {
 					clus.getSettings().setSectionBeamEnabled(true);
 					clss = new ClusRuleClassifier(clus);
 				} else if (cargs.hasOption("weka")) {
-					clss = new ClusWekaClassifier(clus, cargs.getOptionValue("weka"));
+					// clss = new ClusWekaClassifier(clus, cargs.getOptionValue("weka"));
 				} else {
 					clss = new ClusDecisionTree(clus);
 				}

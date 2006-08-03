@@ -8,6 +8,8 @@ public class StatisticPrintInfo {
 	
 	public boolean SHOW_INDEX = false;
 	
+	public boolean INTERNAL_DISTR = false;
+	
 	public static StatisticPrintInfo m_Instance = new StatisticPrintInfo();
 	
 	public static StatisticPrintInfo getInstance() {
