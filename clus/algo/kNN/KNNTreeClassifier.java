@@ -2,6 +2,7 @@ package clus.algo.kNN;
 
 import clus.main.*;
 import clus.*;
+import clus.algo.induce.ClusInduce;
 import clus.algo.tdidt.*;
 
 import clus.data.type.NominalAttrType;
@@ -9,6 +10,7 @@ import clus.data.type.NumericAttrType;
 import clus.data.type.ClusAttrType;
 import clus.data.rows.*;
 import jeans.util.MyArray;
+import jeans.util.cmdline.CMDLineArgs;
 import clus.util.ClusException;
 import clus.error.ClusErrorParent;
 import clus.pruning.BottomUpPruningVSB;
@@ -47,9 +49,9 @@ public class KNNTreeClassifier extends ClusClassifier {
 	 * Normally should induce the given data, but
 	 * there is nothing to induce in a nearest neightbour classifier.
 	 */
-	public ClusModel induceSingle(ClusRun cr) throws ClusException {
+	public ClusModel induceSingle(ClusRun cr) throws ClusException, IOException {
 		// First make normal decision tree
-		ClusNode orig = getInduce().induce(cr, m_Clus.getScore());
+		ClusNode orig = (ClusNode)getInduce().induceSingleUnpruned(cr);
 
 		System.out.println("Calculating Statistical Measures...");
 		// Calculate important measures of the trainingdata.
@@ -90,10 +92,10 @@ public class KNNTreeClassifier extends ClusClassifier {
 	 * Normally should induce the given data, but
 	 * there is nothing to induce in a nearest neightbour classifier.
 	 */
-	public void induce(ClusRun cr) throws ClusException {
+	public void induce(ClusRun cr) throws ClusException, IOException {
 
 		// First make normal decision tree
-		ClusNode orig = getInduce().induce(cr, m_Clus.getScore());
+		ClusNode orig = (ClusNode)getInduce().induceSingleUnpruned(cr);
 
 		// We store the original decision tree
 		// for easy comparison of results.
@@ -136,7 +138,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 		storeDataInTree(trainData,tree);
 
 		// Store this new tree
-		cr.getModelInfo(ClusModels.KNN_ORIGINAL).setModel(tree);
+		cr.getModelInfo(ClusModels.ORIGINAL).setModel(tree);
 
 		//try to prune the tree
 		//(of course) first see if package clus.pruning is wanted
@@ -151,37 +153,12 @@ public class KNNTreeClassifier extends ClusClassifier {
 			//prune the cloned tree
 			pruner.prune(pruned);
 			//Store the pruned tree
-			cr.getModelInfo(ClusModels.KNN_PRUNED).setModel(pruned);
+			cr.getModelInfo(ClusModels.PRUNED).setModel(pruned);
 		}
 
 		// Also store a default prediction tree for comparison
 		ClusModel defmodel = ClusDecisionTree.induceDefault(cr);
 		cr.getModelInfo(ClusModels.DEFAULT).setModel(defmodel);
-
-	}
-
-	public void initializeSummary(ClusSummary summ) {
-		NominalBasicDistance nomDist = new NominalBasicDistance();
-		NumericalBasicDistance numDist = new NumericalBasicDistance();
-
-		ClusModels.DEFAULT = summ.addModel("Default");
-		ClusModels.ORIGINAL = summ.addModel("Decision Tree");
-		ClusModels.KNN_ORIGINAL = summ.addModel("KNNTree");
-		//see if package clus.pruning wanted
-		double vsb = m_Clus.getSettings().getPruneProportion();
-		if (vsb > 0.0){
-			ClusModels.KNN_PRUNED = summ.addModel("Pruned KNNTree");
-		}
-
-		ClusSchema schema = m_Clus.getSchema();
-		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
-		for (int i = 0; i< attrs.length;i++){
-			if (attrs[i].getTypeIndex() == NominalAttrType.THIS_TYPE) {
-				attrs[i].setBasicDistance(nomDist);
-			} else {
-				attrs[i].setBasicDistance(numDist);
-			}
-		}
 
 	}
 
@@ -251,4 +228,14 @@ public class KNNTreeClassifier extends ClusClassifier {
 		return weights;
 	}
 
+	public void pruneAll(ClusRun cr) throws ClusException, IOException {
+	}
+	 
+	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
+		return model;
+	}
+	
+	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+		return null;
+	}	
 }

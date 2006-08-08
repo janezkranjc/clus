@@ -5,7 +5,6 @@ import java.io.IOException;
 import clus.data.cols.ColTarget;
 import clus.data.type.TimeSeriesAttrType;
 import clus.io.ClusReader;
-import clus.ext.timeseries.*;
  
 public class TimeSeriesTarget extends TimeSeriesAttrBase {
 

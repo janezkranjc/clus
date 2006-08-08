@@ -26,6 +26,7 @@ public abstract class OptXValInduce extends ClusInduce {
 	protected int[] m_PrevCl;
 	protected double[] m_PrevVl;	
 	protected TestSelector[] m_Selector;
+	protected int m_MaxStats;
 	
 	public OptXValInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		super(schema, sett);
@@ -397,4 +398,8 @@ if (Debug.debug == 1) {
 	public ClusNode induce(ClusRun cr, MultiScore score) {
 		return null;
 	}
+	
+	public ClusModel induceSingleUnpruned(ClusRun cr) {
+		return null;
+	}	
 }

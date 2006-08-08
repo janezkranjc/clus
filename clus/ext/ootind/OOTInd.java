@@ -15,13 +15,12 @@ import clus.*;
 
 import clus.main.*;
 import clus.util.*;
-import clus.ext.*;
 import clus.data.rows.*;
 import clus.algo.induce.*;
 import clus.selection.*;
 import clus.error.multiscore.*;
 
-public class OOTInd extends ClusExtension {
+public class OOTInd {
 
 	protected Clus m_Clus;
 	
@@ -116,7 +115,7 @@ if (Debug.debug == 1) {
 			ClusRun cr = m_Clus.partitionData(msel, i+1);
 			ClusNode tree = root.getTree(i);
 			tree.postProc(score);			
-			m_Clus.storeAndPruneModel(cr, tree);
+//			m_Clus.storeAndPruneModel(cr, tree);
 //			m_Clus.calcError(cr, summary);
 			if (sett.isOutputFoldModels()) output.writeOutput(cr, false);	
 		}		
@@ -166,7 +165,7 @@ if (Debug.debug == 1) {
 		ClusNode tree = root.getTree(0);
 		ClusRun cr = m_Clus.partitionData();
 		tree.postProc(score);		
-		m_Clus.storeAndPruneModel(cr, tree);		
+//		m_Clus.storeAndPruneModel(cr, tree);		
 //		m_Clus.calcError(cr, null);
 		output.writeOutput(cr, true);
 		output.close();								
@@ -179,7 +178,7 @@ if (Debug.debug == 1) {
 			cr = m_Clus.partitionData(msel, i+1);
 			tree = root.getTree(i+1);
 			tree.postProc(score);			
-			m_Clus.storeAndPruneModel(cr, tree);
+//			m_Clus.storeAndPruneModel(cr, tree);
 //			m_Clus.calcError(cr, summary);
 			if (sett.isOutputFoldModels()) output.writeOutput(cr, false);	
 		}		

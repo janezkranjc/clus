@@ -24,7 +24,7 @@ import org.apache.commons.math.distribution.*;
 import org.apache.commons.math.*;
 */
 
-public class CDTuneSizeConstrPruning extends ClusClassifier {
+public class CDTuneSizeConstrPruning extends ClusDecisionTree {
 
 	protected ClusClassifier m_Class;
 	protected ClusSchema m_Schema;
@@ -273,7 +273,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		ClusErrorParent errorpar = mgr.createDefaultError();
 		errorpar.setWeights(m_TargetWeights);
 		summ.setTestError(errorpar);
-		int model = summ.addModel("Original");
+		int model = ClusModels.ORIGINAL;
 		XValMainSelection sel = getXValSelection(getSettings(), trset.getNbRows());
 		int nbfolds = sel.getNbFolds();
 		ClusRun[] runs = new ClusRun[nbfolds];
@@ -379,7 +379,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		return stat;
 	}
 
-	public void induce(ClusRun cr) throws ClusException {
+	public void induceAll(ClusRun cr) throws ClusException {
 		try {			
 			long start_time = System.currentTimeMillis();
 			m_OrigSize = getSettings().getSizeConstraintPruning(0);
@@ -398,7 +398,7 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 			findBestSize(train);
 			System.out.println();
 			// Induce final model
-			m_Class.induce(cr);
+			m_Class.induceAll(cr);
 			getSettings().setSizeConstraintPruning(m_OrigSize);
 			long time = (System.currentTimeMillis()-start_time);
 			if (Settings.VERBOSE > 0) System.out.println("Time: "+(double)time/1000+" sec");
@@ -408,9 +408,5 @@ public class CDTuneSizeConstrPruning extends ClusClassifier {
 		} catch (IOException e) {
 		    System.err.println("IO Error: "+e);
 		}
-	}
-	
-	public void initializeSummary(ClusSummary summ) {	
-		m_Class.initializeSummary(summ);
 	}
 }

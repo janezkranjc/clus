@@ -1,14 +1,14 @@
 package clus.ext.beamsearch;
 
 import clus.algo.induce.*;
+import clus.algo.tdidt.*;
 import clus.main.*;
 import clus.util.*;
-import clus.data.rows.*;
 import clus.nominal.split.*;
-import clus.error.multiscore.*;
 import clus.model.modelio.*;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class ClusBeamInduce extends ClusInduce {
 	
@@ -23,16 +23,7 @@ public class ClusBeamInduce extends ClusInduce {
 	public void initializeHeuristic() {
 		m_Search.initializeHeuristic();
 	}
-	
-	/*
-	 public ClusBeamInduce(ClusInduce other, NominalSplit split) {
-	 super(other);
-	 }*/
-	
-	public ClusData createData() {
-		return new RowData(m_Schema);
-	}
-	
+		
 	public boolean isModelWriter() {
 		return true;
 	}
@@ -41,18 +32,26 @@ public class ClusBeamInduce extends ClusInduce {
 		m_Search.writeModel(strm);
 	}
 	
-	public ClusNode induce(ClusRun cr, MultiScore score) {
-		try {
-			ClusNode root = m_Search.beamSearch(cr);
-			root.postProc(score);
-			return root;
-		} catch (ClusException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		}
-		return null;
+	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
+		ClusNode root = m_Search.beamSearch(cr);
+		root.postProc(null);
+		return root;
 	}
+	
+	public void induceAll(ClusRun cr) throws ClusException, IOException {
+		m_Search.beamSearch(cr);
+		ClusModelInfo def_model = cr.addModelInfo(ClusModels.DEFAULT);
+		def_model.setModel(ClusDecisionTree.induceDefault(cr));
+		def_model.setName("Default");
+		ArrayList lst = m_Search.getBeam().toArray();
+		for (int i = 0; i < lst.size(); i++) {
+			ClusBeamModel mdl = (ClusBeamModel)lst.get(lst.size()-i-1);
+			ClusNode tree = (ClusNode)mdl.getModel();
+			tree.postProc(null);
+			ClusModelInfo model_info = cr.addModelInfo(i+1);
+			model_info.setModel(tree);
+			model_info.setName("Beam "+(i+1));
+			model_info.clearAll();
+		}
+	}	
 }

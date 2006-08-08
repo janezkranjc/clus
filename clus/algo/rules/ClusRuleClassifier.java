@@ -4,6 +4,7 @@
 package clus.algo.rules;
 
 import java.io.*;
+
 import jeans.util.cmdline.CMDLineArgs;
 import clus.*;
 import clus.algo.tdidt.ClusDecisionTree;
@@ -17,10 +18,12 @@ public class ClusRuleClassifier extends ClusClassifier {
 		super(clus);
 	}
 	
-	public void initializeInduce(ClusInduce induce, CMDLineArgs cargs) throws ClusException {
+	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+		DepthFirstInduce induce = new DepthFirstInduce(schema, sett);
 		induce.getStatManager().setRuleInduce(true);
 		induce.getStatManager().initRuleSettings();
-	}	
+		return new ClusRuleInduce(induce);
+	}
 	
 	public void printInfo() {
 		if (!getSettings().isRandomRules()) {
@@ -31,32 +34,16 @@ public class ClusRuleClassifier extends ClusClassifier {
 		}
 	}
 	
-	public ClusModel induceSingle(ClusRun cr) throws ClusException, IOException {
-		// ClusRulesForAttrs rfa = new ClusRulesForAttrs();
-		// return rfa.constructRules(cr);
-		DepthFirstInduce tree_induce = (DepthFirstInduce)getInduce();
-		ClusRuleInduce rule_induce = new ClusRuleInduce(tree_induce);
-		if (!getSettings().isRandomRules()) {
-			return rule_induce.induce(cr);
-		} else {
-			return rule_induce.induceRandomly(cr);
-		}
+	public void pruneAll(ClusRun cr) throws ClusException, IOException {
+	}
+	 
+	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
+		return model;
 	}
 	
-	public void induce(ClusRun cr) throws ClusException, IOException {
-		ClusModel model = induceSingle(cr);
-		// FIXME: implement cloneModel();
-		// cr.getModelInfo(ClusModels.ORIGINAL).setModel(model);
-		// ClusModel pruned = model.cloneModel();
-		ClusModel pruned = model;
-		cr.getModelInfo(ClusModels.PRUNED).setModel(pruned);
-		ClusModel defmodel = ClusDecisionTree.induceDefault(cr);
-		cr.getModelInfo(ClusModels.DEFAULT).setModel(defmodel);		
-	}
-	
-	public void initializeSummary(ClusSummary summ) {	
-		ClusModels.DEFAULT = summ.addModel("Default");
-		ClusModels.ORIGINAL = summ.addModel("Original");
-		ClusModels.PRUNED = summ.addModel("Pruned");
-	}
+	public void postProcess(ClusRun cr) throws ClusException, IOException {
+		ClusModelInfo def_model = cr.addModelInfo(ClusModels.DEFAULT);
+		def_model.setModel(ClusDecisionTree.induceDefault(cr));
+		def_model.setName("Default");
+	}	
 }

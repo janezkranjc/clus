@@ -3,16 +3,25 @@ package clus.algo.induce;
 import clus.main.*;
 import clus.data.rows.*;
 import clus.util.*;
-import clus.error.multiscore.*;
 import clus.model.modelio.*;
 
 import java.io.*;
+
+/*
+ * Subclasses should implement:
+ * 
+ *	public ClusModel induceSingleUnpruned(ClusRun cr);
+ *
+ * In addition, subclasses may also want to implement (to return more than one model):
+ *
+ * 	public void induceAll(ClusRun cr);
+ *
+ **/
 
 public abstract class ClusInduce {
 
 	protected ClusSchema m_Schema;
 	protected ClusStatManager m_StatManager;	
-	protected int m_MaxStats;	
 	
 	public ClusInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		m_Schema = schema;
@@ -22,7 +31,6 @@ public abstract class ClusInduce {
 	public ClusInduce(ClusInduce other) {
 		m_Schema = other.m_Schema;
 		m_StatManager = other.m_StatManager;		
-		m_MaxStats = other.m_MaxStats;
 	}
 	
 	public ClusSchema getSchema() {
@@ -39,7 +47,6 @@ public abstract class ClusInduce {
 	
 	public void initialize() throws ClusException, IOException {
 		m_StatManager.initSH();
-		m_MaxStats = m_Schema.getMaxNbStats();		
 	}
 	
 	public void getPreprocs(DataPreprocs pps) {
@@ -53,10 +60,18 @@ public abstract class ClusInduce {
 	public void writeModel(ClusModelCollectionIO strm) throws IOException {
 	}
 	
-	public abstract ClusData createData();
+	public ClusData createData() {
+		return new RowData(m_Schema);
+	}
 
-	public abstract ClusNode induce(ClusRun cr, MultiScore score) throws ClusException;
-
+	public void induceAll(ClusRun cr) throws ClusException, IOException {
+		ClusModel model = induceSingleUnpruned(cr);
+		ClusModelInfo model_info = cr.addModelInfo(ClusModels.ORIGINAL);
+		model_info.setModel(model);		
+	}
+	
+	public abstract ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException;
+	
 	public void initializeHeuristic() {
 	}
 }

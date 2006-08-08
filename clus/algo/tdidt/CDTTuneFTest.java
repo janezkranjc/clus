@@ -13,7 +13,7 @@ import clus.heuristic.*;
 //added 18-05-06
 //import clus.ext.hierarchical.*;
 
-public class CDTTuneFTest extends ClusClassifier {
+public class CDTTuneFTest extends ClusDecisionTree {
 
 	protected ClusClassifier m_Class;
 
@@ -37,8 +37,7 @@ public class CDTTuneFTest extends ClusClassifier {
 		int prevVerb = Settings.enableVerbose(0);
 		ClusStatManager mgr = getStatManager();
 		ClusSummary summ = new ClusSummary();
-		summ.setTestError(mgr.createTuneError());
-		int prmodel = summ.addModel("Pruned");
+		summ.setTestError(mgr.createTuneError());		
 //      Next does not always use same partition!		
 //		Random random = ClusRandom.getRandom(ClusRandom.RANDOM_PARAM_TUNE);
 		Random random = new Random(0);
@@ -49,13 +48,13 @@ public class CDTTuneFTest extends ClusClassifier {
 			XValSelection msel = new XValSelection(sel, i);
 			ClusRun cr = m_Clus.partitionDataBasic(trset, msel, pruneset, summ, i+1);
 			ClusModel pruned = m_Class.induceSingle(cr);			
-			cr.getModelInfo(prmodel).setModel(pruned);
+			cr.getModelInfo(ClusModels.PRUNED).setModel(pruned);
 			m_Clus.calcError(cr, summ);
 /*			System.out.println();
 			System.out.println("Model:");
 			((ClusNode)pruned).printTree(); */
 		}
-		ClusModelInfo mi = summ.getModelInfo(prmodel);
+		ClusModelInfo mi = summ.getModelInfo(ClusModels.PRUNED);
 		Settings.enableVerbose(prevVerb);
 		ClusError err = mi.getTestError().getFirstError();
 		System.out.println();
@@ -102,21 +101,17 @@ public class CDTTuneFTest extends ClusClassifier {
 	}
 
 	
-	public void induce(ClusRun cr) {
+	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		try {
 			// Find optimal F-test value
 			findBestFTest(cr.getTrainingSet(), cr.getPruneSet());
 			System.out.println();
 			// Induce final model
-			m_Class.induce(cr);
+			m_Class.induceAll(cr);
 		} catch (ClusException e) {
 		    System.err.println("Error: "+e);
 		} catch (IOException e) {
 		    System.err.println("IO Error: "+e);
 		}
-	}
-	
-	public void initializeSummary(ClusSummary summ) {	
-		m_Class.initializeSummary(summ);
 	}
 }

@@ -2,13 +2,12 @@ package clus.algo.induce;
 
 import clus.main.*;
 import clus.util.*;
-import clus.algo.rules.ClusRuleHeuristicCompactness;
+import clus.algo.rules.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.model.test.*;
 import clus.statistic.*;
 import clus.nominal.split.*;
-import clus.error.multiscore.*;
 
 import java.io.*;
 import java.util.*;
@@ -17,24 +16,23 @@ public class DepthFirstInduce extends ClusInduce {
 	
 	protected NominalSplit m_Split;
 	protected TestSelector m_Selector = new TestSelector();
+	protected int m_MaxStats;	
 	
 	public DepthFirstInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		super(schema, sett);
-	}
-	
-	public DepthFirstInduce(ClusInduce other) {
-		super(other);
-	}
+	}	
 	
 	public DepthFirstInduce(ClusInduce other, NominalSplit split) {
 		super(other);
 		m_Split = split;
+		m_MaxStats = getSchema().getMaxNbStats();
 	}
-	
-	public ClusData createData() {
-		return new RowData(m_Schema);
+		
+	public void initialize() throws ClusException, IOException {
+		super.initialize();
+		m_MaxStats = getSchema().getMaxNbStats();
 	}
-	
+		
   public void findNominal(NominalAttrType at, RowData data) {
     // Reset positive statistic
     int nbvalues = at.getNbValues();
@@ -316,8 +314,8 @@ public class DepthFirstInduce extends ClusInduce {
 		stat.optimizePreCalc(data);
 		return stat;
 	}	
-	
-	public ClusNode induce(ClusRun cr, MultiScore score) throws ClusException {
+		
+	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
 		ClusNode root = null;
 		// Begin of induction process
@@ -335,7 +333,7 @@ public class DepthFirstInduce extends ClusInduce {
 			// Refinement finished
 			if (Settings.EXACT_TIME == false) break;
 		}
-		root.postProc(score);
+		root.postProc(null);
 		cleanSplit();
 		return root;
 	}

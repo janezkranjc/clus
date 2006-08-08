@@ -26,7 +26,7 @@ public class ClusRun extends CRParent {
 	public ClusStatManager getStatManager() {
 		return m_Summary.getStatManager();
 	}
-
+	
 /***************************************************************************
  * Getting to the summary
  ***************************************************************************/	

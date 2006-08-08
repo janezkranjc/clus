@@ -26,7 +26,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 	}
 	
 	public ConstraintDFInduce(ClusInduce other) {
-		super(other);
+		super(other, null);
 	}
 	
 	public void fillInStatsAndTests(ClusNode node, RowData data) {

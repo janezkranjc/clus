@@ -1,10 +1,12 @@
 package clus.main;
 
-import jeans.util.*;
+import java.util.*;
 
-public class CRParent {
+import clus.error.ClusErrorParent;
 
-	protected MyArray m_Models = new MyArray();
+public abstract class CRParent {
+
+	protected ArrayList m_Models = new ArrayList();
 	protected long m_IndTime, m_PrepTime, m_PruneTime;
 
 /***************************************************************************
@@ -14,13 +16,13 @@ public class CRParent {
 	public int getNbModels() {
 		return m_Models.size();	
 	}
-	
+		
 	public ClusModelInfo getModelInfo(int i) {
-		return (ClusModelInfo)m_Models.elementAt(i);
+		return (ClusModelInfo)m_Models.get(i);
 	}
 	
 	public void setModelInfo(int i, ClusModelInfo info) {
-		m_Models.setElementAt(info, i);
+		m_Models.set(i, info);
 	}	
 	
 	public ClusModel getModel(int i) {
@@ -31,20 +33,47 @@ public class CRParent {
 		return getModelInfo(i).getName();
 	}	
 
-	public void setModels(MyArray models) {
+	public void setModels(ArrayList models) {
 		m_Models = models;
 	}
+	
+	/***************************************************************************
+	 * Adding models to it
+	 ***************************************************************************/	
+		
+		public ClusModelInfo addModelInfo() {
+			String name = "M" + (m_Models.size() + 1);
+			ClusModelInfo inf = new ClusModelInfo(name);
+			inf.setAllErrorsClone(getTrainError(), getTestError(), getValidationError());
+			inf.setStatManager(getStatManager());
+			m_Models.add(inf);
+			return inf;
+		}
+		
+		public ClusModelInfo addModelInfo(int i) {
+			while (i >= m_Models.size()) addModelInfo();
+			return (ClusModelInfo)m_Models.get(i);
+		}
+
+		public abstract ClusStatManager getStatManager();
+
+		public abstract ClusErrorParent getTrainError();
+		
+		public abstract ClusErrorParent getTestError();
+		
+		public abstract ClusErrorParent getValidationError();
+
 
 /***************************************************************************
  * Functions for all models
  ***************************************************************************/		
 	
-	public MyArray cloneModels() {
+	public ArrayList cloneModels() {
 		int nb_models = getNbModels();
-		MyArray clones = new MyArray(nb_models);		
+		ArrayList clones = new ArrayList();		
 		for (int i = 0; i < nb_models; i++) {
 			ClusModelInfo my = getModelInfo(i);
-			clones.setElementAt(my.cloneModelInfo(), i);
+			clones.add(my.cloneModelInfo());
 		}
 		return clones;
 	}

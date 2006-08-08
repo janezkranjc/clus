@@ -6,9 +6,6 @@ import java.io.*;
 import java.util.*;
 import java.text.DecimalFormat;
 
-//import weka.core.Instance;
-//import weka.core.Instances;
-
 import clus.algo.induce.*;
 import clus.main.*;
 import clus.model.test.*;
@@ -19,16 +16,26 @@ import clus.data.rows.*;
 import clus.data.type.*;
 import clus.ext.beamsearch.*;
 import clus.util.*;
-import clus.tools.optimization.de.*;;
+import clus.tools.optimization.de.*;
+;
 
-public class ClusRuleInduce {
+public class ClusRuleInduce extends ClusInduce {
 	
 	protected boolean m_BeamChanged;
 	protected DepthFirstInduce m_Induce;
 	protected ClusHeuristic m_Heuristic;
 	
 	public ClusRuleInduce(DepthFirstInduce induce) {
+		super(induce);
 		m_Induce = induce;
+	}
+	
+	void resetAll() {
+		m_BeamChanged = false;
+	}	
+	
+	public void initialize() throws ClusException, IOException {
+		m_Induce.initialize();
 	}
 	
 	public void setHeuristic(ClusHeuristic heur) {
@@ -1000,4 +1007,25 @@ public class ClusRuleInduce {
 		return result;
 	}
 	
+	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
+		// ClusRulesForAttrs rfa = new ClusRulesForAttrs();
+		// return rfa.constructRules(cr);
+		resetAll();
+		if (!getSettings().isRandomRules()) {
+			return induce(cr);
+		} else {
+			return induceRandomly(cr);
+		}
+	}
+	
+	public void induceAll(ClusRun cr) throws ClusException, IOException {
+		ClusModel model = induceSingleUnpruned(cr);
+		// FIXME: implement cloneModel();
+		// cr.getModelInfo(ClusModels.ORIGINAL).setModel(model);
+		// ClusModel pruned = model.cloneModel();
+		ClusModel pruned = model;
+		ClusModelInfo pruned_model = cr.addModelInfo(ClusModels.PRUNED);
+		pruned_model.setModel(pruned);
+		pruned_model.setName("Pruned");
+	}
 }

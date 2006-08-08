@@ -6,8 +6,6 @@ package clus.tools.optimization.de;
 import java.util.*;
 
 import clus.main.*;
-import clus.algo.rules.ClusRuleSet;
-import clus.data.rows.RowData;
 import clus.data.type.*;
 import clus.statistic.*;
 

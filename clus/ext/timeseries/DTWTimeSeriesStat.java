@@ -1,16 +1,11 @@
 package clus.ext.timeseries;
 
-import java.text.NumberFormat;
-
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
-import clus.ext.sspd.SSPDStatistic;
 import clus.main.Settings;
-import clus.statistic.BitVectorStat;
 import clus.statistic.ClusStatistic;
 import clus.statistic.StatisticPrintInfo;
-import clus.util.ClusFormat;
 
 public class DTWTimeSeriesStat extends TimeSeriesStat {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;

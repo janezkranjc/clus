@@ -6,7 +6,6 @@ import jeans.util.*;
 
 import clus.main.*;
 import clus.util.*;
-import clus.error.multiscore.*;
 import clus.data.cols.*;
 import clus.data.cols.attribute.*;
 
@@ -31,7 +30,7 @@ public class LevelWiseInduce extends ClusInduce {
 		return data;
 	}
 
-	public ClusNode induce(ClusRun cr, MultiScore score) {
+	public ClusModel induceSingleUnpruned(ClusRun cr) {
 		// Create leaf Vector
 		MyArray leaves = new MyArray();
 		MyArray newleaves = new MyArray();
@@ -113,7 +112,7 @@ public class LevelWiseInduce extends ClusInduce {
 			level++;
 		}
 		cr.setInductionTime(System.currentTimeMillis() - time);
-		root.postProc(score);
+		root.postProc(null);
 		return null;
 	}
 }

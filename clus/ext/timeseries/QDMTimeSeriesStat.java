@@ -1,14 +1,11 @@
 package clus.ext.timeseries;
 
-import java.text.NumberFormat;
-
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
 import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 import clus.statistic.StatisticPrintInfo;
-import clus.util.ClusFormat;
 
 public class QDMTimeSeriesStat extends TimeSeriesStat {
 

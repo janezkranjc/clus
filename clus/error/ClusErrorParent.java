@@ -211,8 +211,10 @@ public class ClusErrorParent implements Serializable {
 			out.println("Coverage:");
 			for (int j = 0; j < nb_models; j++) {
 				ClusModelInfo inf = models.getModelInfo(j);
-				ClusErrorParent parent = inf.getError(type);		
-				out.println("  "+inf.getName()+": "+parent.getNbCover());						
+				if (inf.getModel() != null) {
+					ClusErrorParent parent = inf.getError(type);		
+					out.println("  "+inf.getName()+": "+parent.getNbCover());
+				}
 			}
 		}
 		for (int i = 0; i < nb; i++) {

@@ -9,11 +9,8 @@ import java.util.*;
 
 import clus.main.*;
 import clus.data.type.*;
-import clus.data.rows.*;
 import clus.statistic.*;
 import clus.util.ClusFormat;
-import clus.algo.rules.*;
-
 
 /**
  * Differential evolution algorithm.

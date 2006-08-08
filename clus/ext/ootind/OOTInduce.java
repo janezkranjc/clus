@@ -30,6 +30,7 @@ public abstract class OOTInduce extends ClusInduce {
 	protected int[] m_PrevCl;
 	protected double[] m_PrevVl;	
 	protected TestSelector[] m_Selector;
+	protected int m_MaxStats;
 	
 	public boolean SHOULD_OPTIMIZE = false;
 	
@@ -305,4 +306,8 @@ if (Debug.debug == 1) {
 	public ClusNode induce(ClusRun cr, MultiScore score) {
 		return null;
 	}
+	
+	public ClusModel induceSingleUnpruned(ClusRun cr) {
+		return null;
+	}	
 }

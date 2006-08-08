@@ -1,6 +1,7 @@
 package clus.main;
 
 import clus.error.*;
+import clus.util.ClusException;
 
 public class ClusSummary extends CRParent {
 
@@ -11,6 +12,11 @@ public class ClusSummary extends CRParent {
 	protected ClusErrorParent m_ValidErr;
 	protected ClusStatManager m_StatMgr;
 
+	public void resetAll() {
+		m_Models.clear();
+		m_IndTime = 0; m_PrepTime = 0; m_PruneTime = 0;
+	}
+	
 	public void setStatManager(ClusStatManager mgr) {
 		m_StatMgr = mgr;
 	}
@@ -65,21 +71,15 @@ public class ClusSummary extends CRParent {
 		return summ;
 	}
 			
-	public void addSummary(ClusRun cr) {	
+	public void addSummary(ClusRun cr) throws ClusException {	
+		m_Runs++;	
 		m_IndTime += cr.getInductionTime();
 		m_PruneTime += cr.getPruneTime();
 		m_PrepTime += cr.getPrepareTime();				
-		m_Runs++;	
-		int nb_models = getNbModels();
+		int nb_models = cr.getNbModels();
 		for (int i = 0; i < nb_models; i++) {
-			ClusModelInfo my = getModelInfo(i);
+			ClusModelInfo my = addModelInfo(i);
 			my.add(cr.getModelInfo(i));
 		}
 	}
-	
-	public int addModel(String name) {
-		ClusModelInfo inf = new ClusModelInfo(name, getTrainError(), getTestError(), getValidationError());
-		m_Models.addElement(inf);
-		return m_Models.size()-1;
-	}	
 }

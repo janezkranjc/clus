@@ -1,7 +1,13 @@
 package clus.algo.kNN;
 
+import java.io.IOException;
+
+import jeans.util.cmdline.CMDLineArgs;
+
 import clus.main.*;
+import clus.util.ClusException;
 import clus.*;
+import clus.algo.induce.ClusInduce;
 import clus.algo.tdidt.*;
 import clus.data.rows.RowData;
 import clus.data.rows.DataTuple;
@@ -122,10 +128,6 @@ public class KNNClassifier extends ClusClassifier {
 	public void initializeSummary(ClusSummary summ) {
 		NominalBasicDistance nomDist = new NominalBasicDistance();
 		NumericalBasicDistance numDist = new NumericalBasicDistance();
-
-		ClusModels.DEFAULT = summ.addModel("Default");
-		ClusModels.ORIGINAL = summ.addModel("kNN");
-
 		ClusSchema schema = m_Clus.getSchema();
 		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
 		for (int i = 0; i< attrs.length;i++){
@@ -183,4 +185,16 @@ public class KNNClassifier extends ClusClassifier {
 		}
 		return weights;
 	}
+	
+	public void pruneAll(ClusRun cr) throws ClusException, IOException {
+	}
+	 
+	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
+		return model;
+	}
+	
+	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+		return null;
+	}
+	
 }

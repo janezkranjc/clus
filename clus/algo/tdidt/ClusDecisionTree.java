@@ -4,11 +4,14 @@ package clus.algo.tdidt;
 import java.io.IOException;
 
 import clus.main.*;
+import clus.pruning.*;
 import clus.util.*;
+import clus.algo.induce.*;
+import clus.algo.rules.*;
 import clus.data.rows.*;
 import clus.*;
 
-import jeans.resource.*;
+import jeans.util.cmdline.*;
 
 public class ClusDecisionTree extends ClusClassifier {
 
@@ -21,6 +24,21 @@ public class ClusDecisionTree extends ClusClassifier {
 		System.out.println("Heuristic: "+getStatManager().getHeuristicName());
 	}
 	
+	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+		if (sett.hasConstraintFile()) {
+			boolean fillin = cargs.hasOption("fillin");
+			return new ConstraintDFInduce(schema, sett, fillin);
+		} else {
+			return new DepthFirstInduce(schema, sett);
+		}
+	}	
+	
+	public final static ClusNode pruneToRoot(ClusNode orig) {
+		ClusNode pruned = (ClusNode) orig.cloneNode();
+		pruned.makeLeaf();
+		return pruned;
+	}
+	
 	public static ClusModel induceDefault(ClusRun cr) {
 		ClusNode node = new ClusNode();
 		RowData data = (RowData)cr.getTrainingSet();
@@ -29,59 +47,64 @@ public class ClusDecisionTree extends ClusClassifier {
 		node.makeLeaf();		
 		return node;
 	}
-
-	public ClusModel induceSingle(ClusRun cr) throws ClusException {
-		ClusNode orig = getInduce().induce(cr, m_Clus.getScore());
-		return m_Clus.pruneTree(orig, cr.getPruneSet(), cr.getTrainingSet());
-	}
 	
-	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException {
-		return getInduce().induce(cr, m_Clus.getScore());
-	}
-
-	public void induce(ClusRun cr) throws ClusException, IOException {
-		long start_time = ResourceInfo.getTime();
-		ClusNode orig = getInduce().induce(cr, m_Clus.getScore());
-		cr.setInductionTime(ResourceInfo.getTime()-start_time);
-		m_Clus.storeAndPruneModel(cr, orig);		
-		if (Settings.VERBOSE > 0) {
-			  String cpu = ResourceInfo.isLibLoaded() ? " (CPU)" : "";
-				System.out.println("Induction Time: "+(double)cr.getInductionTime()/1000+" sec"+cpu);
-				System.out.println("Pruning Time: "+(double)cr.getPruneTime()/1000+" sec"+cpu);
-		}		
-	}
-	
-	public void initializeSummary(ClusSummary summ) {	
-		ClusModels.DEFAULT = summ.addModel("Default");
-		ClusModels.ORIGINAL = summ.addModel("Original");
-		// ClusModels.CLASS_PRUNED = m_Summary.addModel("Class pruned");
-		int nb_size = getSettings().getSizeConstraintPruningNumber();
-		double[] class_thr = getSettings().getClassificationThresholds().getDoubleVector();
-		if (nb_size > 0 && getSettings().getPruningMethod() != Settings.PRUNING_METHOD_GAROFALAKIS_VSB) {
-			ClusModels.PRUNED = summ.addModel("S("+getSettings().getSizeConstraintPruning(0)+")");
-			for (int i = 1; i < nb_size; i++) {
-				summ.addModel("S("+getSettings().getSizeConstraintPruning(i)+")");				
-			}
-		} else if (class_thr != null) {
-			ClusModels.PRUNED = summ.addModel("T("+class_thr[0]+")");
-			summ.getModelInfo(ClusModels.PRUNED).setShouldSave(false);
-			summ.getModelInfo(ClusModels.PRUNED).setPruneInvalid(true);			
-			for (int i = 1; i < class_thr.length; i++) {
-				int model = summ.addModel("T("+class_thr[i]+")");
-				summ.getModelInfo(model).setShouldSave(false);
-				summ.getModelInfo(model).setPruneInvalid(true);
-			}			
+	public void convertToRules(ClusRun cr, int tree) throws ClusException, IOException {
+		ClusNode tree_root = (ClusNode)cr.getModel(tree);
+		ClusRulesFromTree rft = new ClusRulesFromTree(true);
+		ClusRuleSet rule_set = null;
+		if (getSettings().computeCompactness()) {
+			rule_set = rft.constructRules(cr, tree_root, getStatManager());
 		} else {
-			ClusModels.PRUNED = summ.addModel("Pruned");			
-		}		
-		if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_PRUNED) {
-			ClusModels.RULES = summ.addModel("Rules");
+			rule_set = rft.constructRules(tree_root, getStatManager());
 		}
-		if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_ALL) {
-			ClusModels.RULES = summ.getNbModels();			
-			for (int i = 0; i < ClusModels.RULES; i++) {
+		ClusModelInfo rules_info = cr.addModelInfo();
+		rules_info.setModel(rule_set);
+		rules_info.setName("Rules: "+cr.getModelName(tree));
+	}
+
+	public void pruneAll(ClusRun cr)	throws ClusException, IOException {
+		ClusNode orig = (ClusNode)cr.getModel(ClusModels.ORIGINAL);
+		orig.numberTree();
+		PruneTree pruner = getStatManager().getTreePruner(cr.getPruneSet());
+		pruner.setTrainingData((RowData) cr.getTrainingSet());
+		int nb = pruner.getNbResults();
+		for (int i = 0; i < nb; i++) {
+			ClusNode pruned = (ClusNode) orig.cloneTree();
+			pruner.prune(i, pruned);
+			pruned.numberTree();
+			ClusModelInfo pruned_info = cr.addModelInfo(ClusModels.PRUNED + i);
+			pruned_info.setModel(pruned);
+			if (nb == 1) {
+				pruned_info.setName("Pruned");
+			} else {
+				pruned_info.setName("P"+(i+1));
+			}
+		}
+	}
+	
+	public final ClusModel pruneSingle(ClusModel orig, ClusRun cr) throws ClusException {
+		ClusNode pruned = (ClusNode)((ClusNode)orig).cloneTree();
+		PruneTree pruner = getStatManager().getTreePruner(cr.getPruneSet());
+		pruner.setTrainingData((RowData) cr.getTrainingSet());
+		pruner.prune(pruned);
+		return pruned;
+	}	
+	
+	public void postProcess(ClusRun cr) throws ClusException, IOException {
+		ClusNode orig = (ClusNode)cr.getModel(ClusModels.ORIGINAL);		
+		ClusModelInfo orig_info = cr.getModelInfo(ClusModels.ORIGINAL);
+		orig_info.setName("Original");
+		ClusNode defmod = pruneToRoot(orig);
+		ClusModelInfo def_info = cr.addModelInfo(ClusModels.DEFAULT);
+		def_info.setModel(defmod);
+		def_info.setName("Default");
+		if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_PRUNED) {
+			convertToRules(cr, ClusModels.PRUNED);
+		} else if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_ALL) {
+			int cr_nb = cr.getNbModels();
+			for (int i = 0; i < cr_nb; i++) {
 				if (i != ClusModels.DEFAULT) {
-					summ.addModel("Rules: "+summ.getModelInfo(i).getName());
+					convertToRules(cr, i);					
 				}
 			}
 		}

@@ -19,6 +19,10 @@ public class PruneTree {
 		return 1;
 	}
 	
+	public String getPrunedName(int i) {
+		return "Pruned";
+	}
+	
 	public void prune(int result, ClusNode node) throws ClusException {
 		prune(node);
 	}

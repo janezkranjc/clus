@@ -15,23 +15,21 @@ import clus.model.test.*;
 import clus.model.modelio.*;
 import clus.Clus;
 import clus.algo.induce.*;
-import clus.ext.*;
-import clus.ext.constraint.ClusConstraintFile;
+import clus.ext.constraint.*;
 import clus.main.*;
 import clus.heuristic.*;
 import clus.data.rows.*;
 import clus.data.type.*;
-import clus.statistic.ClusStatistic;
-import clus.util.ClusException;
+import clus.statistic.*;
+import clus.util.*;
 
-public class ClusBeamSearch extends ClusExtension {
+public class ClusBeamSearch extends ClusClassifier {
 
 	public final static int HEURISTIC_ERROR = 0;
 	public final static int HEURISTIC_SS = 1;
 	
 //	public final static int m_MaxSteps = 100000;
 	
-	protected Clus m_Clus;
 	protected BasicExampleCollector m_Coll = new BasicExampleCollector();
 	protected ConstraintDFInduce m_Induce;
 	protected ClusBeamInduce m_BeamInduce;
@@ -47,7 +45,7 @@ public class ClusBeamSearch extends ClusExtension {
 	protected boolean m_Verbose;
 	
 	public ClusBeamSearch(Clus clus) throws ClusException, IOException {
-		m_Clus = clus;
+		super(clus);
 	}
 	
 	public void reset() {
@@ -426,4 +424,11 @@ public class ClusBeamSearch extends ClusExtension {
 			log.log();
 		}
 	}
+	
+	public void pruneAll(ClusRun cr) throws ClusException, IOException {
+	}
+	 
+	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
+		return model;
+	}	
 }

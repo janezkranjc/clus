@@ -3,6 +3,8 @@
  */
 package clus.weka;
 
+import java.io.IOException;
+
 import jeans.util.cmdline.*;
 
 import clus.*;
@@ -79,4 +81,11 @@ public class ClusWekaClassifier extends ClusClassifier {
 		ClusModels.DEFAULT = summ.addModel("Default");
 		ClusModels.PRUNED = summ.addModel("Pruned");		
 	}
+	
+	public void pruneAll(ClusRun cr) throws ClusException, IOException {
+	}
+	 
+	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
+		return model;
+	}	
 }

@@ -15,7 +15,8 @@ public class ClusModelInfo implements Serializable {
 	public final static int VALID_ERR = 2;
 	
 	protected String m_Name;
-	protected boolean m_ShouldSave;
+	protected boolean m_HasName = false;
+	protected boolean m_ShouldSave = true;
 	protected boolean m_ShouldPruneInvalid;
 	protected int m_ModelSize, m_NbModels;
 	protected double m_Score;
@@ -25,15 +26,15 @@ public class ClusModelInfo implements Serializable {
 	protected transient ModelProcessorCollection m_TrainModelProc, m_TestModelProc;
 
 	public ClusModelInfo(String name) {
-		this(name, null, null, null);
-	}	
-
-	public ClusModelInfo(String name, ClusErrorParent train, ClusErrorParent test, ClusErrorParent valid) {
 		m_Name = name;
-		m_ShouldSave = true;
+		m_HasName = false;
+	}
+	
+	public void setAllErrorsClone(ClusErrorParent train, ClusErrorParent test, ClusErrorParent valid) {
+		m_TrainErr = null; m_TestErr = null; m_ValidErr = null;
 		if (train != null) m_TrainErr = train.getErrorClone();
 		if (test != null) m_TestErr = test.getErrorClone();
-		if (valid != null) m_ValidErr = valid.getErrorClone();
+		if (valid != null) m_ValidErr = valid.getErrorClone();	
 	}
 	
 	public final String getName() {
@@ -85,6 +86,11 @@ public class ClusModelInfo implements Serializable {
 		System.exit(1);
 	}
 	
+	public void clearAll() {
+		m_TrainModelProc = null;
+		m_TestModelProc = null;
+	}
+	
 	public final void addModelProcessor(int type, ClusModelProcessor proc) {
 		if (type == TRAIN_ERR) {
 			if (m_TrainModelProc == null) m_TrainModelProc = new ModelProcessorCollection();
@@ -112,7 +118,8 @@ public class ClusModelInfo implements Serializable {
 	}	
 				
 	public final ClusModelInfo cloneModelInfo() {
-		ClusModelInfo clone = new ClusModelInfo(m_Name, m_TrainErr, m_TestErr, m_ValidErr);
+		ClusModelInfo clone = new ClusModelInfo(m_Name);
+		clone.setAllErrorsClone(m_TrainErr, m_TestErr, m_ValidErr);
 		clone.setShouldSave(m_ShouldSave);
 		clone.setPruneInvalid(m_ShouldPruneInvalid);
 		return clone;
@@ -136,6 +143,11 @@ public class ClusModelInfo implements Serializable {
 
 	public final void setName(String name) {
 		m_Name = name;
+		m_HasName = true;
+	}
+	
+	public final boolean hasName() {
+		return m_HasName;
 	}
 	
 	public final void setShouldSave(boolean save) {
@@ -197,7 +209,18 @@ public class ClusModelInfo implements Serializable {
 		return getNbModels() > 0;
 	}
 	
-	public final void add(ClusModelInfo other) {
+	public final void updateName(ClusModelInfo other) throws ClusException {
+		if (hasName()) {
+			if (other.hasName() && !getName().equals(other.getName())) {
+				throw new ClusException("Combining error measures of different models: "+getName()+" <> "+other.getName());
+			}
+		} else {
+			if (other.hasName()) setName(other.getName());
+		}
+	}
+	
+	public final void add(ClusModelInfo other) throws ClusException {
+		updateName(other);
 		m_ModelSize += other.getModelSize();
 		m_NbModels += other.getNbModels();
 		if (other.hasTrainError()) {

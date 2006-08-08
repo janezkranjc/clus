@@ -7,7 +7,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
-import clus.ext.*;
 import clus.ext.hierarchical.*;
 
 import java.io.*;
@@ -324,7 +323,7 @@ public class TreeFrame extends JFrame {
 			ClusModelInfo m = (ClusModelInfo)io.getModelInfo(i);
 			ClusFileTreeElem celem = new ClusFileTreeElem(m.getName(), "");
 			celem.setObject1(m);
-			celem.setType(ClusExtension.REGULAR_TREE);
+			celem.setType(ClusClassifier.REGULAR_TREE);
 			DefaultMutableTreeNode ch = new DefaultMutableTreeNode(celem); 
 			m_TreeModel.insertNodeInto(ch, node, pos++);			
 		}	
