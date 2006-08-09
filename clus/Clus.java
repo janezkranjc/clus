@@ -744,6 +744,10 @@ public class Clus implements CMDLineArgsProvider {
 	public final ClusRun singleRunMain(ClusClassifier clss, ClusSummary summ)	throws IOException, ClusException {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".out", m_Schema, m_Sett);
 		ClusRun cr = partitionData();
+		// Compute statistic on training data
+		ClusStatistic tr_stat = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
+		cr.getTrainingSet().calcTotalStat(tr_stat);
+		getStatManager().setTrainSetStat(tr_stat);				
 		// ARFFFile.writeCN2Data("train-all.exs", (RowData)cr.getTrainingSet());
 		induce(cr, clss); // Induce model
 		if (summ == null) {
@@ -751,14 +755,14 @@ public class Clus implements CMDLineArgsProvider {
 			addModelErrorMeasures(cr);
 		}
 		calcError(cr, null); // Calc error
-/*		if (summ != null) {
+		if (summ != null) {
 			for (int i = 0; i < cr.getNbModels(); i++) {
 				ClusModelInfo info = cr.getModelInfo(i);
 				ClusModelInfo summ_info = summ.getModelInfo(i);
 				ClusErrorParent test_err = summ_info.getTestError();
 				info.setTestError(test_err);
 			}
-		}*/
+		}
 		output.writeHeader();
 		output.writeOutput(cr, true, true);
 		output.close();
@@ -789,7 +793,7 @@ public class Clus implements CMDLineArgsProvider {
 			ClusRun cr = partitionData(msel, i + 1);
 			// Create statistic for the training set
 			ClusStatistic tr_stat = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
-			tr_stat.addData((RowData)cr.getTrainingSet());
+			cr.getTrainingSet().calcTotalStat(tr_stat);
 			getStatManager().setTrainSetStat(tr_stat);
 			ClusModelInfo mi = cr.addModelInfo(ClusModels.PRUNED);
 			mi.addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
