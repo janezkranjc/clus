@@ -17,7 +17,6 @@ import clus.data.type.*;
 import clus.ext.beamsearch.*;
 import clus.util.*;
 import clus.tools.optimization.de.*;
-;
 
 public class ClusRuleInduce extends ClusInduce {
 	

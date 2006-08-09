@@ -477,6 +477,7 @@ public class Clus implements CMDLineArgsProvider {
 	}
 
 	public final ClusRun partitionData(ClusData data, ClusSelection sel, boolean testfile, boolean writetest, ClusSummary summary, int idx) throws IOException,	ClusException {
+		// cloning the data is done in partitionDataBasic()
 		String test_fname = m_Sett.getAppName();
 		ClusRun cr = partitionDataBasic(data, sel, summary, idx);
 		boolean hasMissing = m_Schema.hasMissing();
@@ -750,14 +751,14 @@ public class Clus implements CMDLineArgsProvider {
 			addModelErrorMeasures(cr);
 		}
 		calcError(cr, null); // Calc error
-		if (summ != null) {
+/*		if (summ != null) {
 			for (int i = 0; i < cr.getNbModels(); i++) {
 				ClusModelInfo info = cr.getModelInfo(i);
 				ClusModelInfo summ_info = summ.getModelInfo(i);
 				ClusErrorParent test_err = summ_info.getTestError();
 				info.setTestError(test_err);
 			}
-		}
+		}*/
 		output.writeHeader();
 		output.writeOutput(cr, true, true);
 		output.close();
@@ -786,20 +787,20 @@ public class Clus implements CMDLineArgsProvider {
 			wrt.getWrt().println("! Fold = " + i);
 			XValSelection msel = new XValSelection(sel, i);
 			ClusRun cr = partitionData(msel, i + 1);
-			ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 			// Create statistic for the training set
 			ClusStatistic tr_stat = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
 			tr_stat.addData((RowData)cr.getTrainingSet());
 			getStatManager().setTrainSetStat(tr_stat);
+			ClusModelInfo mi = cr.addModelInfo(ClusModels.PRUNED);
 			mi.addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
 			// ARFFFile.writeCN2Data("test-"+i+".exs", cr.getTestSet());
 			// ARFFFile.writeCN2Data("train-"+i+".exs", (RowData)cr.getTrainingSet());
 			induce(cr, clss);			// Induce tree
-      // TODO: Check if this is ok!
-      if (m_Sett.isRuleWiseErrors()) {
-        addModelErrorMeasures(cr);
-      }
-      calcError(cr, m_Summary);	// Calc error
+			// TODO: Check if this is ok!
+			if (m_Sett.isRuleWiseErrors()) {
+				addModelErrorMeasures(cr);
+			}
+			calcError(cr, m_Summary);	// Calc error
 			if (m_Sett.isOutputFoldModels())	{
 				// Write output to file and also store in .model file
 				output.writeOutput(cr, false);

@@ -22,17 +22,25 @@ public class DepthFirstInduce extends ClusInduce {
 		super(schema, sett);
 	}	
 	
+	public DepthFirstInduce(ClusInduce other) {
+		super(other);
+	}
+	
 	public DepthFirstInduce(ClusInduce other, NominalSplit split) {
 		super(other);
 		m_Split = split;
 		m_MaxStats = getSchema().getMaxNbStats();
 	}
-		
+			
 	public void initialize() throws ClusException, IOException {
 		super.initialize();
 		m_MaxStats = getSchema().getMaxNbStats();
 	}
-		
+	
+	public TestSelector getTestSelector() {
+		return m_Selector;
+	}
+			
   public void findNominal(NominalAttrType at, RowData data) {
     // Reset positive statistic
     int nbvalues = at.getNbValues();
