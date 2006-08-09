@@ -207,9 +207,9 @@ public class RegressionStat extends ClusStatistic {
 	 * @throws MathException 
 	 */
 	public double getTTestPValue(int att, ClusStatManager stat_manager) throws MathException {
-		double global_mean = ((CombStat)stat_manager.getGlobalStat()).m_RegStat.getMean(att);
-		double global_var = ((CombStat)stat_manager.getGlobalStat()).m_RegStat.getVariance(att);
-		double global_n = ((CombStat)stat_manager.getGlobalStat()).getTotalWeight();
+		double global_mean = ((CombStat)stat_manager.getTrainSetStat()).m_RegStat.getMean(att);
+		double global_var = ((CombStat)stat_manager.getTrainSetStat()).m_RegStat.getVariance(att);
+		double global_n = ((CombStat)stat_manager.getTrainSetStat()).getTotalWeight();
 		double local_mean = getMean(att);
 		double local_var = getVariance(att);
 		double local_n = getTotalWeight();

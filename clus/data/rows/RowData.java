@@ -294,8 +294,8 @@ public class RowData extends ClusData implements MSortable {
 		return m_Data[i];
 	}
 	
-	public final void setTuple(DataTuple t, int i) {		
-		m_Data[i] = t;
+	public final void setTuple(DataTuple tuple, int i) {		
+		m_Data[i] = tuple;
 	}	
 
 	public final RowData applyWeighted(NodeTest test, int branch) {

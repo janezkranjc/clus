@@ -103,7 +103,7 @@ public class ClusRuleInduce extends ClusInduce {
 					for (int j = 0; j < subset_idx.length; j++) {
 						subset_idx[j] = subset.getTuple(j).getIndex();
 					}
-					((ClusRuleHeuristicCompactness)m_Heuristic).setDataIndexes(subset_idx);
+					((ClusRuleHeuristicDispersion)m_Heuristic).setDataIndexes(subset_idx);
 				}
 				double new_heur = sanityCheck(sel.m_BestHeur, ref_rule);
 				// if (Settings.VERBOSE > 0) System.out.println("  Sanity.check.exp: " + new_heur);
@@ -206,12 +206,13 @@ public class ClusRuleInduce extends ClusInduce {
 		ClusRule[] result = new ClusRule[beam_models.size()];
 		for (int j = 0; j < beam_models.size(); j++) {
 			// Put better models first
-			int k = beam_models.size() - j - 1;
+			int k = beam_models.size()-j-1;
 			ClusRule rule = (ClusRule)((ClusBeamModel)beam_models.get(k)).getModel();
 			// Create target statistic for this rule
 			RowData rule_data = (RowData)rule.getVisitor();
 			rule.setTargetStat(m_Induce.createTotalTargetStat(rule_data));
 			rule.setVisitor(null);
+			rule.simplify();
 			result[j] = rule;
 		}
 		return result;
@@ -245,10 +246,9 @@ public class ClusRuleInduce extends ClusInduce {
 	public void separateAndConquorWeighted(ClusRuleSet rset, RowData data) throws ClusException {
 		int max_rules = getSettings().getMaxRulesNb();
 		int i = 0;
-		int nb_rows = data.getNbRows();
 		RowData data_copy = (RowData)data.deepCloneData(); // Probably not nice
 		ArrayList bit_vect_array = new ArrayList();
-		while ((nb_rows > 0) && (i < max_rules)) {
+		while ((data.getNbRows() > 0) && (i < max_rules)) {
 			ClusRule rule = learnOneRule(data);
 			if (rule.isEmpty()) {
 				break;
@@ -272,7 +272,7 @@ public class ClusRuleInduce extends ClusInduce {
 						}
 					}
 					bit_vect_array.add(bit_vect);
-					((ClusRuleHeuristicCompactness)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
+					((ClusRuleHeuristicDispersion)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
 				}
 			}
 		}
@@ -281,55 +281,48 @@ public class ClusRuleInduce extends ClusInduce {
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 	}
-	/**
-	 * separateAndConquor method that induces rules on several bootstraped data subsets
+	
+	/** Modified separateAndConquorWeighted method: Adds a rule to the rule set
+	 * only if it improves the rule set performance
 	 * @param rset
 	 * @param data
-	 * @throws ClusException 
-	 */
-	public void separateAndConquorBootstraped(ClusRuleSet rset, RowData data) throws ClusException {
-		int nb_sets = 10; // TODO: parameter?
-		int nb_rows = data.getNbRows();
+	 */ 
+	public void separateAndConquorAddRulesIfBetter(ClusRuleSet rset, RowData data) throws ClusException {
 		int max_rules = getSettings().getMaxRulesNb();
-		max_rules /= nb_sets;
-		RowData data_not_covered = (RowData)data.cloneData();
-		for (int z = 0; z < nb_sets; z++) {
-			// Select the data using bootstrap
-			RowData data_sel = (RowData)data.cloneData();
-			BaggingSelection msel = new BaggingSelection(nb_rows);
-			data_sel.update(msel);
-			// Reset tuple indexes used in heuristic
-			if (getSettings().isCompHeurRuleDist()) {
-				int[] data_idx = new int[data_sel.getNbRows()];
-				for (int j = 0; j < data_sel.getNbRows(); j++) {
-					data_sel.getTuple(j).setIndex(j);
-					data_idx[j] = j;
-				}
-				((ClusRuleHeuristicCompactness)m_Heuristic).setDataIndexes(data_idx);
-				((ClusRuleHeuristicCompactness)m_Heuristic).initCoveredBitVectArray(data_sel.getNbRows());
-			}
-			// Induce the rules
-			int i = 0;
-			RowData data_sel_copy = (RowData)data_sel.cloneData(); // No need for deep clone here
-			ArrayList bit_vect_array = new ArrayList();
-			while ((data_sel.getNbRows() > 0) && (i < max_rules)) {
-				ClusRule rule = learnOneRule(data_sel);
-				if (rule.isEmpty()) {
-					break;
-				} else {
-					rule.computePrediction();
+		int i = 0;
+		RowData data_copy = (RowData)data.deepCloneData();
+		ArrayList bit_vect_array = new ArrayList();
+		ClusStatistic left_over = m_Induce.createTotalTargetStat(data_copy);
+		left_over.calcMean();
+		ClusStatistic new_left_over = left_over;
+		rset.setTargetStat(left_over);
+		double err_score = rset.computeErrorScore(data_copy);
+		while ((data.getNbRows() > 0) && (i < max_rules)) {
+			ClusRule rule = learnOneRule(data);
+			if (rule.isEmpty()) {
+				break;
+			} else {
+				rule.computePrediction();
+				ClusRuleSet new_rset = rset.cloneRuleSet();
+				new_rset.add(rule);
+				data = rule.reweighCovered(data);
+				left_over = new_left_over;
+				new_left_over = m_Induce.createTotalTargetStat(data);
+				new_left_over.calcMean();
+				new_rset.setTargetStat(new_left_over);
+				double new_err_score = new_rset.computeErrorScore(data_copy);
+				if ((err_score - new_err_score) > 1e-6) {
+					i++;
 					rule.printModel();
 					System.out.println();
-					rset.addIfUnique(rule);
-					data_sel = rule.removeCovered(data_sel);
-					data_not_covered = rule.removeCovered(data_not_covered);
-					i++;
+					err_score = new_err_score;
+					rset.add(rule);
 					if (getSettings().isCompHeurRuleDist()) {
-						boolean[] bit_vect = new boolean[data_sel_copy.getNbRows()];
+						boolean[] bit_vect = new boolean[data_copy.getNbRows()];
 						for (int j = 0; j < bit_vect.length; j++) {
 							if (!bit_vect[j]) {
 								for (int k = 0; k < rset.getModelSize(); k++) {
-									if (rset.getRule(k).covers(data_sel_copy.getTuple(j))) {
+									if (rset.getRule(k).covers(data_copy.getTuple(j))) {
 										bit_vect[j] = true;
 										break;									
 									}
@@ -337,51 +330,8 @@ public class ClusRuleInduce extends ClusInduce {
 							}
 						}
 						bit_vect_array.add(bit_vect);
-						((ClusRuleHeuristicCompactness)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
+						((ClusRuleHeuristicDispersion)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
 					}
-				}
-			}
-		}
-		ClusStatistic left_over = m_Induce.createTotalTargetStat(data_not_covered);
-		left_over.calcMean();
-		System.out.println("Left Over: "+left_over);
-		rset.setTargetStat(left_over);
-	}
-	
-	/** Modified separateAndConquorWeighted method: evaluates each rule in
-	 *  the context of a complete rule set.
-	 * @param rset
-	 * @param data
-	 */ 
-	public void separateAndConquorModified(ClusRuleSet rset, RowData data) throws ClusException {
-		int max_rules = getSettings().getMaxRulesNb();
-		int i = 0;
-		RowData data_copy = (RowData)data.deepCloneData();
-		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
-		left_over.calcMean();
-		ClusStatistic new_left_over = left_over;
-		rset.setTargetStat(left_over);
-		double err_score = rset.computeErrorScore(data);
-		while ((data.getNbRows() > 0) && (i < max_rules)) {
-			ClusRule rule = learnOneRule(data_copy);
-			if (rule.isEmpty()) {
-				break;
-			} else {
-				rule.computePrediction();
-				ClusRuleSet new_rset = rset.cloneRuleSet();
-				new_rset.add(rule);
-				data_copy = rule.reweighCovered(data_copy);
-				left_over = new_left_over;
-				new_left_over = m_Induce.createTotalTargetStat(data_copy);
-				new_left_over.calcMean();
-				new_rset.setTargetStat(new_left_over);
-				double new_err_score = new_rset.computeErrorScore(data);
-				if ((err_score - new_err_score) > 1e-6) {
-					i++;
-					rule.printModel();
-					System.out.println();
-					err_score = new_err_score;
-					rset.add(rule);
 				} else {
 					break;
 				}
@@ -390,17 +340,18 @@ public class ClusRuleInduce extends ClusInduce {
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 	}
-	
-	/** Modified separateAndConquorWeighted method: evaluates each rule in
-	 *  the context of a complete rule set. If first learned rule is no good, it checks
-	 *  next rules in the beam.
+
+	/** Modified separateAndConquorWeighted method: Adds a rule to the rule set
+	 * only if it improves the rule set performance or if they cover default class.
+	 * If not, it checks other rules in the beam.
 	 * @param rset
 	 * @param data
 	 */ 
-	public void separateAndConquorModified2(ClusRuleSet rset, RowData data) throws ClusException {
+	public void separateAndConquorAddRulesIfBetterFromBeam(ClusRuleSet rset, RowData data) throws ClusException {
 		int max_rules = getSettings().getMaxRulesNb();
 		int i = 0;
 		RowData data_copy = (RowData)data.deepCloneData();
+		ArrayList bit_vect_array = new ArrayList();
 		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
 		ClusStatistic new_left_over = left_over;
 		left_over.calcMean();
@@ -417,7 +368,7 @@ public class ClusRuleInduce extends ClusInduce {
 			}
 		}
 		double err_score = rset.computeErrorScore(data);
-		while ((data.getNbRows() > 0) && (i < max_rules)) {
+		while ((data_copy.getNbRows() > 0) && (i < max_rules)) {
 			ClusRule[] rules = learnBeamOfRules(data_copy);
 			left_over = new_left_over;
 			int rule_added = -1;
@@ -457,10 +408,92 @@ public class ClusRuleInduce extends ClusInduce {
 				rules[rule_added].printModel();
 				System.out.println();
 				rset.add(rules[rule_added]);
+				if (getSettings().isCompHeurRuleDist()) {
+					boolean[] bit_vect = new boolean[data.getNbRows()];
+					for (int j = 0; j < bit_vect.length; j++) {
+						if (!bit_vect[j]) {
+							for (int k = 0; k < rset.getModelSize(); k++) {
+								if (rset.getRule(k).covers(data.getTuple(j))) {
+									bit_vect[j] = true;
+									break;									
+								}
+							}
+						}
+					}
+					bit_vect_array.add(bit_vect);
+					((ClusRuleHeuristicDispersion)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
+				}
 			} else {
 				break;
 			}
 		}
+		System.out.println("Left Over: "+left_over);
+		rset.setTargetStat(left_over);
+	}
+	
+	/**
+	 * separateAndConquor method that induces rules on several bootstraped data subsets
+	 * @param rset
+	 * @param data
+	 * @throws ClusException 
+	 */
+	public void separateAndConquorBootstraped(ClusRuleSet rset, RowData data) throws ClusException {
+		int nb_sets = 10; // TODO: parameter?
+		int nb_rows = data.getNbRows();
+		int max_rules = getSettings().getMaxRulesNb();
+		max_rules /= nb_sets;
+		RowData data_not_covered = (RowData)data.cloneData();
+		for (int z = 0; z < nb_sets; z++) {
+			// Select the data using bootstrap
+			RowData data_sel = (RowData)data.cloneData();
+			BaggingSelection msel = new BaggingSelection(nb_rows);
+			data_sel.update(msel);
+			// Reset tuple indexes used in heuristic
+			if (getSettings().isCompHeurRuleDist()) {
+				int[] data_idx = new int[data_sel.getNbRows()];
+				for (int j = 0; j < data_sel.getNbRows(); j++) {
+					data_sel.getTuple(j).setIndex(j);
+					data_idx[j] = j;
+				}
+				((ClusRuleHeuristicDispersion)m_Heuristic).setDataIndexes(data_idx);
+				((ClusRuleHeuristicDispersion)m_Heuristic).initCoveredBitVectArray(data_sel.getNbRows());
+			}
+			// Induce the rules
+			int i = 0;
+			RowData data_sel_copy = (RowData)data_sel.cloneData(); // No need for deep clone here
+			ArrayList bit_vect_array = new ArrayList();
+			while ((data_sel.getNbRows() > 0) && (i < max_rules)) {
+				ClusRule rule = learnOneRule(data_sel);
+				if (rule.isEmpty()) {
+					break;
+				} else {
+					rule.computePrediction();
+					rule.printModel();
+					System.out.println();
+					rset.addIfUnique(rule);
+					data_sel = rule.removeCovered(data_sel);
+					data_not_covered = rule.removeCovered(data_not_covered);
+					i++;
+					if (getSettings().isCompHeurRuleDist()) {
+						boolean[] bit_vect = new boolean[data_sel_copy.getNbRows()];
+						for (int j = 0; j < bit_vect.length; j++) {
+							if (!bit_vect[j]) {
+								for (int k = 0; k < rset.getModelSize(); k++) {
+									if (rset.getRule(k).covers(data_sel_copy.getTuple(j))) {
+										bit_vect[j] = true;
+										break;									
+									}
+								}
+							}
+						}
+						bit_vect_array.add(bit_vect);
+						((ClusRuleHeuristicDispersion)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
+					}
+				}
+			}
+		}
+		ClusStatistic left_over = m_Induce.createTotalTargetStat(data_not_covered);
+		left_over.calcMean();
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 	}
@@ -560,7 +593,7 @@ public class ClusRuleInduce extends ClusInduce {
 	 * @param rset
 	 * @param data
 	 */ 
-	public void separateAndConquorModified3(ClusRuleSet rset, RowData data) throws ClusException {
+	public void separateAndConquorAddRulesIfBetterFromBeam2(ClusRuleSet rset, RowData data) throws ClusException {
 		int max_rules = getSettings().getMaxRulesNb();
 		int i = 0;
 		RowData data_copy = (RowData)data.deepCloneData();
@@ -616,25 +649,36 @@ public class ClusRuleInduce extends ClusInduce {
 		int max_rules = getSettings().getMaxRulesNb();
 		ArrayList bit_vect_array = new ArrayList();
 		int i = 0;
+		/*
+		getSettings().setCompHeurRuleDistPar(0.0);
 		while (i < max_rules) {
 			ClusRule rule = learnOneRule(data);
+			if (rule.isEmpty()) {
+				break;
+			} else if (!rset.unique(rule)) {
+				i++;
+				double val = getSettings().getCompHeurRuleDistPar();
+				val += 1;
+				getSettings().setCompHeurRuleDistPar(val);
+				continue;
+			} else {
+				getSettings().setCompHeurRuleDistPar(1.0); */
+		while (i < max_rules) {
+			/*
+			ClusRule rule = learnOneRule(data);
+			if (rule.isEmpty() || !rset.unique(rule)) {
+				break; */
+			ClusRule[] rules = learnBeamOfRules(data);
+			ClusRule rule = rules[0];
+			for (int l = 0; l < rules.length-1; l++) {
+				rule = rules[l+1]; 
+				if (rset.unique(rule)) {
+					break;
+				}
+			}
 			if (rule.isEmpty() || !rset.unique(rule)) {
 				break;
 			} else {
-				/*
-				getSettings().setCompHeurRuleDistPar(0.0);
-				while (i < max_rules) {
-					ClusRule rule = learnOneRule(data);
-					if (rule.isEmpty()) {
-						break;
-					} else if (!rset.unique(rule)) {
-						i++;
-						double val = getSettings().getCompHeurRuleDistPar();
-						val += 1;
-						getSettings().setCompHeurRuleDistPar(val);
-						continue;
-					} else {
-						getSettings().setCompHeurRuleDistPar(1.0); */
 				rule.computePrediction();
 				rule.printModel();
 				System.out.println();
@@ -651,9 +695,9 @@ public class ClusRuleInduce extends ClusInduce {
 						}
 					}
 				}
-				bit_vect_array.add(bit_vect);
-				((ClusRuleHeuristicCompactness)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
-			}
+  			bit_vect_array.add(bit_vect);
+	  		((ClusRuleHeuristicDispersion)m_Heuristic).setCoveredBitVectArray(bit_vect_array);
+		  }
 		}
 		updateDefaultRule(rset, data);
 	}
@@ -673,6 +717,7 @@ public class ClusRuleInduce extends ClusInduce {
 	
 	public ClusModel induce(ClusRun run) throws ClusException, IOException {
 		int method = getSettings().getCoveringMethod();
+		int add_method = getSettings().getRuleAddingMethod();
 		RowData data = (RowData)run.getTrainingSet();
 		ClusStatistic stat = m_Induce.createTotalClusteringStat(data);
 		m_Induce.initSelectorAndSplit(stat);
@@ -683,24 +728,24 @@ public class ClusRuleInduce extends ClusInduce {
 				data.getTuple(i).setIndex(i);
 				data_idx[i] = i;
 			}
-			((ClusRuleHeuristicCompactness)m_Heuristic).setDataIndexes(data_idx);
-			((ClusRuleHeuristicCompactness)m_Heuristic).initCoveredBitVectArray(data.getNbRows());
+			((ClusRuleHeuristicDispersion)m_Heuristic).setDataIndexes(data_idx);
+			((ClusRuleHeuristicDispersion)m_Heuristic).initCoveredBitVectArray(data.getNbRows());
 		}
 		ClusRuleSet rset = new ClusRuleSet(m_Induce.getStatManager());
 		if (method == Settings.COVERING_METHOD_STANDARD) {
 			separateAndConquor(rset, data);
-		} else if (method == Settings.COVERING_METHOD_RULE_SET) {
-			separateAndConquorModified(rset, data);
-		} else if (method == Settings.COVERING_METHOD_BEAM_RULE_SET) {
-			separateAndConquorModified2(rset, data);
-		} else if (method == Settings.COVERING_METHOD_BEAM_RULE_DEF_SET) {
-			separateAndConquorModified3(rset, data);
+		} else if (method == Settings.COVERING_METHOD_BEAM_RULE_DEF_SET) { // Obsolete!
+			separateAndConquorAddRulesIfBetterFromBeam2(rset, data);
 		} else if (method == Settings.COVERING_METHOD_RANDOM_RULE_SET) {
 			separateAndConquorRandomly(rset, data);
 		} else if (method == Settings.COVERING_METHOD_STANDARD_BOOTSTRAP) {
 			separateAndConquorBootstraped(rset, data);
 		} else if (method == Settings.COVERING_METHOD_HEURISTIC_ONLY) {
 			separateAndConquorWithHeuristic(rset, data);
+		} else if (add_method == Settings.RULE_ADDING_METHOD_IF_BETTER) {
+			separateAndConquorAddRulesIfBetter(rset, data);
+		} else if (add_method == Settings.RULE_ADDING_METHOD_IF_BETTER_BEAM) {
+			separateAndConquorAddRulesIfBetterFromBeam(rset, data);
 		} else {
 			separateAndConquorWeighted(rset, data);
 		}

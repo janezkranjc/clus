@@ -166,7 +166,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 					}
 				}
 			}
-			stat.calcMean(); // Probably never needed!?
+			stat.computePrediction();
 			if (covered) {
 				return stat;  
 			} else {

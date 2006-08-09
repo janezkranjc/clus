@@ -89,6 +89,12 @@ public abstract class ClusStatistic implements Serializable {
 	
 	public abstract void add(ClusStatistic other);
 	
+	public void addData(RowData data) {
+		for (int i = 0; i < data.getNbRows(); i++) {
+			updateWeighted(data.getTuple(i), 1);
+		}
+	}
+	
 	public void addScaled(double scale, ClusStatistic other) {
 		System.err.println(getClass().getName()+": addScaled(): Not yet implemented");		
 	}

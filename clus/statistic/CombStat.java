@@ -8,7 +8,7 @@ import java.io.*;
 
 import org.apache.commons.math.MathException;
 
-import clus.data.attweights.ClusAttributeWeights;
+import clus.data.attweights.*;
 import clus.data.rows.DataTuple;
 import clus.data.type.*;
 import clus.main.ClusSchema;
@@ -20,8 +20,8 @@ public class CombStat extends ClusStatistic {
 
   public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
   
-  private static int IN_HEURISTIC = 0;
-  private static int IN_OUTPUT = 1;
+  public static int IN_HEURISTIC = 0;
+  public static int IN_OUTPUT = 1;
   
   private int m_NbNumAtts;
   private int m_NbNomAtts;
@@ -30,7 +30,6 @@ public class CombStat extends ClusStatistic {
   protected RegressionStat m_RegStat;
   protected ClassificationStat m_ClassStat;
   private ClusStatManager m_StatManager;
-//  protected boolean[] m_CoveredTuples;
   
   /**
    * Constructor for this class.
@@ -45,15 +44,6 @@ public class CombStat extends ClusStatistic {
     m_NomAtts = nom;
     m_RegStat = new RegressionStat(num);
     m_ClassStat = new ClassificationStat(nom);
-/*    if (getSettings().isCompHeurRuleDist()) {
-    	m_CoveredTuples = new boolean[m_StatManager.getSchema().getNbRows()];
-    	// System.err.println("\nNbRw: " + m_StatManager.getSchema().getNbRows());
-    } else {
-    	m_CoveredTuples = null;
-    } */
-  }
-
-  protected CombStat() {
   }
   
   public ClusStatistic cloneStat() {
@@ -70,145 +60,194 @@ public class CombStat extends ClusStatistic {
     m_SumWeight += weight;  	
   }
   
-  /**
-   * Adds the tuple to the statistics
-   * @param tuple
-   */
   public void updateWeighted(DataTuple tuple, int idx) { // idx?
     m_RegStat.updateWeighted(tuple, tuple.getWeight());
     m_ClassStat.updateWeighted(tuple, tuple.getWeight());
     m_SumWeight += tuple.getWeight();
   }
 
-  /**
-   * Calculates means of both statistics.
-   */
   public void calcMean() {
     m_RegStat.calcMean();
     m_ClassStat.calcMean();
   }
   
   /** Returns the compactness of all attributes. Used when outputing the compactness.
-   * 
    * @return combined compactness
    */
   public double compactnessCalc() {
-    double num_weight;
-    double nom_weight;
-    if (getSettings().getCompactnessWeights().hasArrayIndexNames()) {
-      // Weights given for target, non-target, numeric and nominal
-      num_weight = getSettings().getCompactnessWeights().getDouble(Settings.NUMERIC_WEIGHT);
-      nom_weight = getSettings().getCompactnessWeights().getDouble(Settings.NOMINAL_WEIGHT);
-    } else {
-      num_weight = 0.5; // Or something like that?
-      nom_weight = 0.5;
+    return compactness(IN_OUTPUT);
+  }
+
+  /** Dispersion based heuristic - additive version
+   *  Smaller values are better!
+   * @return heuristic value
+   */
+  public double dispersionAdtHeur() {
+    double comp = 1.0 + compactness(IN_HEURISTIC);  // 1.0 - offset just in case?
+    // Coverage part
+  	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
+    double cov_par = getSettings().getHeurCoveragePar();
+    comp += (1.0 - cov_par*m_SumWeight/train_sum_w);
+    // Prototype distance part
+    if (getSettings().isHeurPrototypeDistPar()) {
+    	double proto_par = getSettings().getHeurPrototypeDistPar();
+    	double proto_val = prototypeDifference((CombStat)m_StatManager.getTrainSetStat());
+    	comp += (1.0 - proto_par*m_SumWeight/train_sum_w*proto_val);
     }
-    double sum = num_weight + nom_weight;
-    num_weight = num_weight / sum; 
-    nom_weight = nom_weight / sum;
-    double prop_num = num_weight*m_NbNumAtts / (num_weight*m_NbNumAtts + nom_weight*m_NbNomAtts);
-    double prop_nom = nom_weight*m_NbNomAtts / (num_weight*m_NbNumAtts + nom_weight*m_NbNomAtts);
-    double comp = prop_nom * compactnessNom(IN_OUTPUT) + prop_num * compactnessNum(IN_OUTPUT); 
+    // Significance testing part - TODO: Complete or remove altogether
+    if (Settings.IS_RULE_SIG_TESTING) {
+    	int sign_diff;
+    	int thresh = getSettings().getRuleNbSigAtt();
+    	if (thresh > 0) {
+    		sign_diff = signDifferent();
+    		if (sign_diff < thresh) {
+    			comp += 1000; // Some big number ???
+    		}
+    	} else if (thresh < 0) { // Testing just one target attribute - TODO: change!
+    		if (!targetSignDifferent()) {
+    			comp += 1000; // Some big number ???
+    		}
+    	}
+    }
     return comp;
   }
 
-  /** Returns the compactness of all attributes. Used when outputing the compactness.
-   * 
-   * @return combined compactness
-   * TODO: Change!
+  /** Weighted relative dispersion based heuristic - additive version
+   *  Smaller values are better!
+   * @return heuristic value
    */
-  /*
-  public double compactnessNumCalc() {
-    double num_weight;
-    double nom_weight;
-    if (getSettings().getCompactnessWeights().hasArrayIndexNames()) {
-      // Weights given for target, non-target, numeric and nominal
-      num_weight = getSettings().getCompactnessWeights().getDouble(Settings.NUMERIC_WEIGHT);
-      nom_weight = getSettings().getCompactnessWeights().getDouble(Settings.NOMINAL_WEIGHT);
-    } else {
-      num_weight = 1.0; // Or something like that?
-      nom_weight = 1.0;
+  public double wRDispersionAdtHeur() {
+    double comp = compactness(IN_HEURISTIC);
+    double def_comp = ((CombStat)m_StatManager.getTrainSetStat()).compactness(IN_HEURISTIC);
+    comp = comp - def_comp;  // This should be < 0
+    // Coverage part
+  	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
+    double cov_par = getSettings().getHeurCoveragePar();
+    comp += (1.0 - cov_par*m_SumWeight/train_sum_w);
+    // Prototype distance part
+    if (getSettings().isHeurPrototypeDistPar()) {
+    	double proto_par = getSettings().getHeurPrototypeDistPar();
+    	double proto_val = prototypeDifference((CombStat)m_StatManager.getTrainSetStat());
+    	comp += (1.0 - proto_par*m_SumWeight/train_sum_w*proto_val);
     }
-    double sum = num_weight + nom_weight;
-    num_weight = num_weight / sum; 
-    nom_weight = nom_weight / sum;
-    double proportion_num = num_weight * m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
-    // double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
-    return proportion_num * compactnessNum(IN_OUTPUT);
-  }
-  */
-
-  /** Returns the compactness of all attributes. Used when outputing the compactness.
-   * 
-   * @return combined compactness
-   * TODO: Change!
-   */
-  /*
-  public double compactnessNomCalc() {
-    double num_weight;
-    double nom_weight;
-    if (getSettings().getCompactnessWeights().hasArrayIndexNames()) {
-      // Weights given for target, non-target, numeric and nominal
-      num_weight = getSettings().getCompactnessWeights().getDouble(Settings.NUMERIC_WEIGHT);
-      nom_weight = getSettings().getCompactnessWeights().getDouble(Settings.NOMINAL_WEIGHT);
-    } else {
-      num_weight = 1.0; // Or something like that?
-      nom_weight = 1.0;
-    }
-    double sum = num_weight + nom_weight;
-    num_weight = num_weight / sum; 
-    nom_weight = nom_weight / sum;
-    // double proportion_num = num_weight * m_NbNumAtts / (m_NbNumAtts + m_NbNomAtts);
-    double proportion_nom = nom_weight * m_NbNomAtts / (m_NbNumAtts + m_NbNomAtts);
-    return proportion_nom * compactnessNom(IN_OUTPUT);
-  }
-  */
-
-  /** Returns the compactness of all attributes. Used in compactness based heuristics.
-   * 
-   * @return combined compactness
-   */
-  public double compactnessHeur() {
-    double num_weight;
-    double nom_weight;
-    if (getSettings().getClusteringWeights().hasArrayIndexNames()) {
-      // Weights given for target, non-target, numeric and nominal
-      num_weight = getSettings().getClusteringWeights().getDouble(Settings.NUMERIC_WEIGHT);
-      nom_weight = getSettings().getClusteringWeights().getDouble(Settings.NOMINAL_WEIGHT);
-    } else {
-      num_weight = 0.5; // Or something like that?
-      nom_weight = 0.5;
-    }
-    double sum = num_weight + nom_weight;
-    num_weight = num_weight / sum; 
-    nom_weight = nom_weight / sum;
-    double prop_num = num_weight*m_NbNumAtts / (num_weight*m_NbNumAtts + nom_weight*m_NbNomAtts);
-    double prop_nom = nom_weight*m_NbNomAtts / (num_weight*m_NbNumAtts + nom_weight*m_NbNomAtts);
-    double comp = 1.0 + prop_nom * compactnessNom(IN_HEURISTIC) + prop_num * compactnessNum(IN_HEURISTIC);
-    double global_sum_w = m_StatManager.getGlobalStat().getTotalWeight();
-    double heur_par = getSettings().getHeurCoveragePar();
-    comp = comp * (1 + heur_par*global_sum_w/m_SumWeight);
-    // Test if rule significant
-    int sign_diff;
-    int thresh = getSettings().getRuleNbSigAtt();
-    if (thresh > 0) {
-      sign_diff = signDifferent();
-      if (sign_diff < thresh) {
-        comp += 1000; // Some big number
-      }
-    } else if (thresh < 0) { // Testing just one target attribute - TODO: change!
-      if (!targetSignDifferent()) {
-        comp += 1000; // Some big number
-      }
+    // Significance testing part - TODO: Complete or remove altogether
+    if (Settings.IS_RULE_SIG_TESTING) {
+    	int sign_diff;
+    	int thresh = getSettings().getRuleNbSigAtt();
+    	if (thresh > 0) {
+    		sign_diff = signDifferent();
+    		if (sign_diff < thresh) {
+    			comp += 1000; // Some big number ???
+    		}
+    	} else if (thresh < 0) { // Testing just one target attribute - TODO: change!
+    		if (!targetSignDifferent()) {
+    			comp += 1000; // Some big number ???
+    		}
+    	}
     }
     return comp;
   }
-  
+
+  /** Dispersion based heuristic - multiplicative version
+   *  Smaller values are better!
+   * @return heuristic value
+   */
+  public double dispersionMltHeur() {
+    // double comp = 1.0 + compactness(IN_HEURISTIC);
+    double comp = compactness(IN_HEURISTIC);
+double dis1 = comp;
+    // Coverage part
+  	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
+    double cov_par = getSettings().getHeurCoveragePar();
+    comp *= (1.0 + cov_par*train_sum_w/m_SumWeight);
+    // comp *= cov_par*m_SumWeight/train_sum_w;
+double dis2 = comp;
+    // Prototype distance part
+    if (getSettings().isHeurPrototypeDistPar()) {
+    	double proto_par = getSettings().getHeurPrototypeDistPar();
+    	double proto_val = prototypeDifference((CombStat)m_StatManager.getTrainSetStat());
+    	comp *= (1.0 + proto_par*m_SumWeight/train_sum_w*proto_val);
+    }
+    // Significance testing part - TODO: Complete or remove altogether
+    if (Settings.IS_RULE_SIG_TESTING) {
+    	int sign_diff;
+    	int thresh = getSettings().getRuleNbSigAtt();
+    	if (thresh > 0) {
+    		sign_diff = signDifferent();
+    		if (sign_diff < thresh) {
+    			comp *= 1000; // Some big number ??? - What if comp < 0???
+    		}
+    	} else if (thresh < 0) { // Testing just one target attribute - TODO: change!
+    		if (!targetSignDifferent()) {
+    			comp *= 1000; // Some big number ???
+    		}
+    	}
+    }
+// System.err.println("Disp: " + dis1 + " FDisp: " + dis2);
+    return comp;
+  }
+
+  /** Weighted relative dispersion based heuristic - multiplicative version
+   *  Smaller values are better!
+   * @return heuristic value
+   */
+  public double wRDispersionMltHeur() {
+  	// Original
+/*  	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
+    double comp = compactness(IN_HEURISTIC);
+    double def_comp = ((CombStat)m_StatManager.getTrainSetStat()).compactness(IN_HEURISTIC);
+    return -m_SumWeight/train_sum_w*(def_comp-comp);
+*/    double comp = compactness(IN_HEURISTIC);
+double dis1 = comp;
+    double def_comp = ((CombStat)m_StatManager.getTrainSetStat()).compactness(IN_HEURISTIC);
+    comp = comp - def_comp;  // This should be < 0
+    double dis2 = comp;
+    // Coverage part
+  	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
+    double cov_par = getSettings().getHeurCoveragePar();
+    // comp *= (1.0 + cov_par*train_sum_w/m_SumWeight); // How about this???
+    // comp *= cov_par*train_sum_w/m_SumWeight;
+    comp *= cov_par*m_SumWeight/train_sum_w;
+double dis3 = comp;
+    // Prototype distance part
+    if (getSettings().isHeurPrototypeDistPar()) {
+    	double proto_par = getSettings().getHeurPrototypeDistPar();
+    	double proto_val = prototypeDifference((CombStat)m_StatManager.getTrainSetStat());
+    	comp *= (1.0 + proto_par*m_SumWeight/train_sum_w*proto_val);
+    }
+    // Significance testing part - TODO: Complete or remove altogether
+    if (Settings.IS_RULE_SIG_TESTING) {
+    	int sign_diff;
+    	int thresh = getSettings().getRuleNbSigAtt();
+    	if (thresh > 0) {
+    		sign_diff = signDifferent();
+    		if (sign_diff < thresh) {
+    			comp *= 1000; // Some big number ??? - What if comp < 0???
+    		}
+    	} else if (thresh < 0) { // Testing just one target attribute - TODO: change!
+    		if (!targetSignDifferent()) {
+    			comp *= 1000; // Some big number ???
+    		}
+    	}
+    }
+// System.err.println("Disp: " + dis1 + " DDisp: " + def_comp + " RDisp: " + dis2 + " FDisp: " + dis3);
+    return comp;
+  }
+
+  /** Returns the compactness over clustering or all attributes (nominal and numeric).
+   *  @return compactness score
+   */
+  public double compactness(int use) {
+    // return compactnessNom(use) + compactnessNum(use);
+  	return compactnessNom(use) + meanVariance(use);
+  }
+
   /** Returns the compactness of numeric attributes.
    * 
    * @return compactness of numeric attributes
    */
   public double compactnessNum(int use) {
+  	// TODO: Try using mean abs distance instead of variance ...
     return meanVariance(use);
   }
   
@@ -226,83 +265,66 @@ public class CombStat extends ClusStatistic {
    * @return the mean variance
    */
   public double meanVariance(int use) {
-    double svar = 0;
-    double weight = 0;
-    double sumweight = 0;
-    double nw, var;
+    double sumvar = 0;
+    double weight;
     // Normalization with the purpose of geting most of the single variances within the 
-    // [0,1] interval. This weight is in the stdev units,
+    // [0,1] interval. This weight is in stdev units,
     // default value = 4 = (-2sigma,2sigma) should cover 95% of examples 
-    double range = getSettings().getNumCompNormWeight();
+    double norm = getSettings().getNumCompNormWeight();
     for (int i = 0; i < m_NbNumAtts; i++) {
       if (use == IN_HEURISTIC) {
         weight = m_StatManager.getClusteringWeights().getWeight(m_RegStat.getAttribute(i));
       } else { // use == IN_OUTPUT
         weight = m_StatManager.getCompactnessWeights().getWeight(m_RegStat.getAttribute(i));
       }
-      nw = m_StatManager.getNormalizationWeights().getWeight(i);
-      weight = weight / nw; // Exclude the normalization weights
-      sumweight += weight;
-      var = m_RegStat.getVariance(i);
-      svar += var * weight / (range * range);
-      // svar += var * weight * weight;
+      sumvar += m_RegStat.getVariance(i) * weight / (norm*norm);
     }
-    double res = sumweight == 0.0 ? 0.0 : svar / sumweight;
-    return res;
+    return sumvar;
   }
 
   /**
-   * Returns the mean distance of all nominal attributes
-   * from the prototypes.
-   * @return the mean distance
+   * Returns the weighted sum of mean distances for all nominal attributes.
+   * @return sum of mean distances
    */
   public double meanDistNom(int use) {
     double sumdist = 0;
     double weight = 0;
-    double sumweight = 0;
-    double result;
     for (int i = 0; i < m_NbNomAtts; i++) {
       if (use == IN_HEURISTIC) {
         weight = m_StatManager.getClusteringWeights().getWeight(m_ClassStat.getAttribute(i));
       } else { // use == IN_OUTPUT
         weight = m_StatManager.getCompactnessWeights().getWeight(m_ClassStat.getAttribute(i));
       }
-      sumweight += weight;
       sumdist += meanDistNomOne(i) * weight;
-      // System.out.println("Mean.dist.nom.w: " + weight);
-      // System.out.println("Mean.dist.nom.one: " + meanDistNomOne(i));
     }
-    // System.out.println(" Mean.dist.nom.w.sum: " + sumweight);
-    // System.out.println(" Mean.dist.nom.one.sum: " + sumdist);
-    result = ((sumweight > 0) && (sumweight > 0)) ? sumdist / sumweight : 0.0;
-    return result;
+    return sumdist;
   }
 
   /**
    * Returns the mean distance of values of a nominal attribute
    * from the prototype.
-   * @param attr the attribute
+   * @param attr_idx the attribute
    * @return the mean distance
    */
-  public double meanDistNomOne(int attr) {
-    // m_ClassStat.m_ClassCounts[nomAttIdx][valueIdx]
-    double[] counts = m_ClassStat.m_ClassCounts[attr];
+  public double meanDistNomOne(int attr_idx) {
+    // Syntax: m_ClassStat.m_ClassCounts[nomAttIdx][valueIdx]
+    double[] counts = m_ClassStat.m_ClassCounts[attr_idx];
     double[] prototype = new double[counts.length];
     double sum = 0;
     double dist = 0;
     int nbval = counts.length;
-    // Calculate the prototype
+    // Prototype
     for (int i = 0; i < nbval; i++) {
       sum += counts[i];
     }
     for (int i = 0; i < nbval; i++) {
       prototype[i] = sum != 0 ? counts[i] / sum : 0;
     }
-    // Calculate the distance 
+    // Sum of distances 
     for (int i = 0; i < nbval; i++) {
       dist += (1 - prototype[i]) * counts[i];
     }
-    // Normalize to [0,1]
+    // Scale and normalize to [0,1]
     dist = dist * nbval / (nbval - 1);
     dist = dist != 0.0 ? dist / sum : 0.0;
     return dist;
@@ -328,6 +350,66 @@ public class CombStat extends ClusStatistic {
    */
   public double entropy(int attr, double total) {
     return m_ClassStat.entropy(attr, total);
+  }
+
+  /**
+   * Calculates the difference 
+   * @return difference
+   */
+  public double prototypeDifference(CombStat stat) {
+    double sumdiff = 0;
+    double weight;
+    // Numeric atts: abs difference
+    for (int i = 0; i < m_NbNumAtts; i++) {
+      weight = m_StatManager.getClusteringWeights().
+               getWeight(m_RegStat.getAttribute(i));
+    	sumdiff += Math.abs(prototypeNum(i) - stat.prototypeNum(i)) * weight;
+    	// System.err.println("sumdiff: " + Math.abs(prototypeNum(i) - stat.prototypeNum(i)) * weight);
+    }
+    // Nominal atts: Mantattan distance
+    for (int i = 0; i < m_NbNomAtts; i++) {
+      weight = m_StatManager.getClusteringWeights().
+               getWeight(m_ClassStat.getAttribute(i));
+      double sum = 0;
+      double[] proto1 = prototypeNom(i);
+      double[] proto2 = stat.prototypeNom(i);
+    	for (int j = 0; j < proto1.length; j++) {
+    		sum += Math.abs(proto1[j] - proto2[j]);
+    	}
+    	sumdiff += sum * weight;
+    	// System.err.println("sumdiff: " + (sum * weight));
+    }
+    // System.err.println("sumdiff-total: " + sumdiff);
+    return sumdiff != 0 ? sumdiff : 0.0;
+  }
+
+  /**
+   * Returns the prototype of a nominal attribute.
+   * @param attr_idx the attribute
+   * @return the prototype
+   */
+  public double[] prototypeNom(int attr_idx) {
+    // Syntax: m_ClassStat.m_ClassCounts[nomAttIdx][valueIdx]
+    double[] counts = m_ClassStat.m_ClassCounts[attr_idx];
+    double[] prototype = new double[counts.length];
+    double sum = 0;
+    int nbval = counts.length;
+    for (int i = 0; i < nbval; i++) {
+      sum += counts[i];
+    }
+    for (int i = 0; i < nbval; i++) {
+      prototype[i] = sum != 0 ? counts[i]/sum : 0;
+    }
+    return prototype;
+  }
+
+  /**
+   * Returns the prototype of a numeric attribute.
+   * @param attr_idx the attribute
+   * @return the prototype
+   */
+  public double prototypeNum(int attr_idx) {
+    return m_RegStat.getMean(attr_idx);
   }
 
   /**
@@ -575,6 +657,7 @@ public class CombStat extends ClusStatistic {
     return m_StatManager.getSettings();
   }
 
+  // TODO: Is this 'null' ok?
   public double getError() {
     return getError(null);
   }

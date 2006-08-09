@@ -150,4 +150,40 @@ public class ARFFFile {
 		}		
 		wrt.close();
 	}
+
+	// Can be deleted ...
+	public static void writeCN2Data(String fname, RowData data) throws IOException, ClusException {
+		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
+		ClusSchema schema = data.getSchema();
+		wrt.println("**EXAMPLE FILE**\n");
+		for (int j = 0; j < data.getNbRows(); j++) {
+			DataTuple tuple = data.getTuple(j);
+			int aidx = 0;
+			for (int i = 0; i < schema.getNbAttributes(); i++) {
+				ClusAttrType type = schema.getAttrType(i);
+				if (!type.isDisabled()) {
+					if (aidx != 0) wrt.print("\t");
+					if (type instanceof NominalAttrType) {
+            String label = type.getString(tuple);
+            label = label.replace("^2","two");
+            label = label.replace("<","le");
+            label = label.replace(">","gt");
+            label = label.replace("-","_");
+            label = label.replace("&","");
+            if (!label.equals("?")) {
+            	wrt.print("_"+label);
+            } else {
+            	wrt.print(label);	
+            }
+					} else {
+						wrt.print(type.getString(tuple));						
+					}
+					aidx++;
+				}
+			}
+			wrt.println(";");
+		}		
+		wrt.close();
+	}
+
 }

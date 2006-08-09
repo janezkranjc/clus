@@ -32,7 +32,7 @@ public class ClusRuleHeuristicError extends ClusHeuristic {
 		}
 		double pos_error = c_pstat.getError(m_TargetWeights);
 		// Prefer rules that cover more examples
-		double global_sum_w = m_StatManager.getGlobalStat().getTotalWeight();
+		double global_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
 		double heur_par = getSettings().getHeurCoveragePar();
 		pos_error *= (1 + heur_par*global_sum_w/c_pstat.m_SumWeight);
 
@@ -48,8 +48,3 @@ public class ClusRuleHeuristicError extends ClusHeuristic {
   }
 
 }
-/*
-double global_sum_w = m_StatManager.getGlobalStat().getTotalWeight();
-double heur_par = getSettings().getCompHeurCoveragePar();
-comp = comp * (1 + heur_par*global_sum_w/m_SumWeight);
-*/

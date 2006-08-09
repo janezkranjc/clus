@@ -188,11 +188,11 @@ public class TestSelector {
 		boolean stop = false;
 		if (m_TotStat.m_SumWeight < 2.0*Settings.MINIMAL_WEIGHT) stop = true;
 		if (m_TotStat.getError(m_TargetWeights, m_Subset) < MathUtil.C1E_9) stop = true;
-		if (Settings.VERBOSE >= 2) {
-			System.out.print("Stop criterion (weight = "+m_TotStat.m_SumWeight);
-			System.out.print(", error = "+m_TotStat.getError(m_TargetWeights));
-			System.out.println(") result: "+stop);
-		}
+//		if (Settings.VERBOSE >= 2) {
+//			System.out.print("Stop criterion (weight = "+m_TotStat.m_SumWeight);
+//			System.out.print(", error = "+m_TotStat.getError(m_TargetWeights));
+//			System.out.println(") result: "+stop);
+//		}
 		return false;
 	}
 	
@@ -217,9 +217,9 @@ public class TestSelector {
 	
 	public final void updateNumeric(double val, ClusAttrProxy at) {
 		double heur = m_Heuristic.calcHeuristic(m_TotCorrStat, m_PosStat, m_MissingStat);
-		// System.err.println("Heur: " + heur + " nb: " + m_PosStat.m_SumWeight);
+		if (Settings.VERBOSE >= 2) System.err.println("Heur: " + heur + " nb: " + m_PosStat.m_SumWeight);
 		if (heur > m_BestHeur + ClusHeuristic.DELTA) {
-			// System.err.println("OK");
+			if (Settings.VERBOSE >= 2) System.err.println("Better.");
 			double tot_w = getTotWeight();
 			double tot_no_unk = getTotNoUnkW();
 			m_UnknownFreq = (tot_w - tot_no_unk) / tot_w;
@@ -235,9 +235,9 @@ public class TestSelector {
 
 	public final void updateInverseNumeric(double val, ClusAttrProxy at) {
 		double heur = m_Heuristic.calcHeuristic(m_TotCorrStat, m_PosStat, m_MissingStat);
-		// System.err.println("Heur: " + heur + " nb: " + m_PosStat.m_SumWeight);
+		if (Settings.VERBOSE >= 2) System.err.println("Heur: " + heur + " nb: " + m_PosStat.m_SumWeight);
 		if (heur > m_BestHeur + ClusHeuristic.DELTA) {
-			// System.err.println("OK");
+			if (Settings.VERBOSE >= 2) System.err.println("Better.");
 			double tot_w = getTotWeight();
 			double tot_no_unk = getTotNoUnkW();
 			m_UnknownFreq = (tot_w - tot_no_unk) / tot_w;

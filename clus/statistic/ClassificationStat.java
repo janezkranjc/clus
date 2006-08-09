@@ -271,10 +271,10 @@ public class ClassificationStat extends ClusStatistic {
    * @throws MathException 
    */
   public double getGTestPValue(int att, ClusStatManager stat_manager) throws MathException {
-    double global_n = ((CombStat)stat_manager.getGlobalStat()).getTotalWeight();
+    double global_n = ((CombStat)stat_manager.getTrainSetStat()).getTotalWeight();
     double local_n = getTotalWeight();
     double ratio = local_n / global_n;
-    double global_counts[] =((CombStat)stat_manager.getGlobalStat()).m_ClassStat.getClassCounts(att); 
+    double global_counts[] =((CombStat)stat_manager.getTrainSetStat()).m_ClassStat.getClassCounts(att); 
     double local_counts[] = getClassCounts(att);
     double g = 0;
     for (int i = 0; i < global_counts.length; i++) {
@@ -296,10 +296,10 @@ public class ClassificationStat extends ClusStatistic {
    * @throws MathException 
    */
   public boolean getGTest(int att, ClusStatManager stat_manager) {
-    double global_n = ((CombStat)stat_manager.getGlobalStat()).getTotalWeight();
+    double global_n = ((CombStat)stat_manager.getTrainSetStat()).getTotalWeight();
     double local_n = getTotalWeight();
     double ratio = local_n / global_n;
-    double global_counts[] =((CombStat)stat_manager.getGlobalStat()).m_ClassStat.getClassCounts(att); 
+    double global_counts[] =((CombStat)stat_manager.getTrainSetStat()).m_ClassStat.getClassCounts(att); 
     double local_counts[] = getClassCounts(att);
     double g = 0;
     for (int i = 0; i < global_counts.length; i++) {

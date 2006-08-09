@@ -24,7 +24,8 @@ public class Settings implements Serializable {
 	public final static int COMPATIBILITY_CMB05 = 1;	
 	
 	public final static String[] HEURISTICS = { "Default", "ReducedError",
-		"Gain", "SSPD", "MEstimate", "Compactness", "Morishita"};
+		"Gain", "SSPD", "MEstimate", "Morishita", "DispersionAdt", "DispersionMlt",
+		"WRDispersionAdt", "WRDispersionMlt"};
 	
 	public final static int HEURISTIC_DEFAULT = 0;
 	
@@ -33,12 +34,18 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_GAIN = 2;
 	
 	public final static int HEURISTIC_SSPD = 3;
-	
+
 	public final static int HEURISTIC_MESTIMATE = 4;
-	
-	public final static int HEURISTIC_COMPACTNESS = 5;
-	
-	public final static int HEURISTIC_MORISHITA = 6;	
+
+	public final static int HEURISTIC_MORISHITA = 5;
+
+	public final static int HEURISTIC_DISPERSION_ADT = 6;
+
+	public final static int HEURISTIC_DISPERSION_MLT = 7;
+
+	public final static int HEURISTIC_WR_DISPERSION_ADT = 8;
+
+	public final static int HEURISTIC_WR_DISPERSION_MLT = 9;
 
 	public final static String[] WRITE_PRED = { "None", "Test", "Train" };
 	
@@ -74,7 +81,7 @@ public class Settings implements Serializable {
 	public final static int PRUNING_METHOD_CART_MAXSIZE = 9;	
 	
 	public final static String[] COVERING_METHODS =	{"Standard", "WeightedMultiplicative",
-		"WeightedAdditive", "WeightedError", "Union", "RuleSet", "BeamRuleSet", "BeamRuleDefSet",
+		"WeightedAdditive", "WeightedError", "Union", "BeamRuleDefSet",
 		"RandomRuleSet", "StandardBootstrap", "HeurOnly", "RulesFromTree"};
 	
 	// Standard covering: ordered rules (decision list)
@@ -92,28 +99,29 @@ public class Settings implements Serializable {
 	public final static int COVERING_METHOD_UNION = 4;
 	
 	// Evaluates rules in the context of complete rule set: unordered rules
-	public final static int COVERING_METHOD_RULE_SET = 5;
+	// public final static int COVERING_METHOD_RULE_SET = 5;
 
 	// Evaluates rules in the context of complete rule set, checks all rules
 	// in the beam: unordered rules
-	public final static int COVERING_METHOD_BEAM_RULE_SET = 6;
+	// public final static int COVERING_METHOD_BEAM_RULE_SET = 6;
 
 	// Evaluates rules in the context of complete rule set, builds default
 	// rule first, checks all rules in the beam: unordered rules
-	public final static int COVERING_METHOD_BEAM_RULE_DEF_SET = 7;
+	// Obsolete - should be deleted!
+	public final static int COVERING_METHOD_BEAM_RULE_DEF_SET = 5; 
 
 	// Evaluates rules in the context of complete rule set, separate rules
 	// are constructed randomly: unordered rules
-	public final static int COVERING_METHOD_RANDOM_RULE_SET = 8;
+	public final static int COVERING_METHOD_RANDOM_RULE_SET = 6;
 
 	// Repeated standard covering on bootstraped data
-	public final static int COVERING_METHOD_STANDARD_BOOTSTRAP = 9;
+	public final static int COVERING_METHOD_STANDARD_BOOTSTRAP = 7;
 	
 	// No covering, only heuristic
-	public final static int COVERING_METHOD_HEURISTIC_ONLY = 10;
+	public final static int COVERING_METHOD_HEURISTIC_ONLY = 8;
 	
 	// No covering, rules transcribed from tree
-	public final static int COVERING_METHOD_RULES_FROM_TREE = 11;
+	public final static int COVERING_METHOD_RULES_FROM_TREE = 9;
 	
 	public final static String[] RULE_PREDICTION_METHODS =
 	{"DecisionList", "CoverageWeighted", "CovAccWeighted", "Union", "Optimized"};
@@ -127,6 +135,18 @@ public class Settings implements Serializable {
 	public final static int RULE_PREDICTION_METHOD_UNION = 3;
 	
 	public final static int RULE_PREDICTION_METHOD_OPTIMIZED = 4;
+
+	public final static String[] RULE_ADDING_METHODS =	{"Always", "IfBetter", "IfBetterBeam"};
+
+	// Always adds a rule to the rule set 
+	public final static int RULE_ADDING_METHOD_ALWAYS = 0;
+
+	// Only adds a rule to the rule set if it improves the rule set performance
+	public final static int RULE_ADDING_METHOD_IF_BETTER = 1;
+
+	// Only adds a rule to the rule set if it improves the rule set performance.
+	// If not, it checks other rules in the beam
+	public final static int RULE_ADDING_METHOD_IF_BETTER_BEAM = 2;
 	
 	public final static String[] HIERMODES = { "TDWEuclid", "TDAbsWEuclid",
 		"XtAXSetDist", "XtAXSetDistDiscrete" };
@@ -258,6 +278,10 @@ public class Settings implements Serializable {
 	
 	public static boolean EXACT_TIME = false;
 	
+	public static boolean IS_RULE_SIG_TESTING = false;
+	
+	public static boolean IS_XVAL = false;
+	
 	/* The INI file structure */
 	protected INIFile m_Ini = new INIFile();
 	
@@ -338,13 +362,19 @@ public class Settings implements Serializable {
 	
 	protected INIFileNominal m_PredictionMethod;
 	
+	protected INIFileNominal m_RuleAddingMethod;
+	
 	protected INIFileDouble m_CoveringWeight;
+
+	protected INIFileDouble m_InstCoveringWeightThreshold;
 	
 	protected INIFileInt m_MaxRulesNb;
 	
 	protected INIFileDouble m_HeurCoveragePar;
 	
 	protected INIFileDouble m_CompHeurRuleDistPar;
+	
+	protected INIFileDouble m_HeurPrototypeDistPar;
 	
 	protected INIFileDouble m_RuleSignificanceLevel;
 	
@@ -543,10 +573,13 @@ public class Settings implements Serializable {
 		INIFileSection rules = new INIFileSection("Rules");
     rules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));
 		rules.addNode(m_PredictionMethod = new INIFileNominal("PredictionMethod", RULE_PREDICTION_METHODS, 0));
-    rules.addNode(m_CoveringWeight = new INIFileDouble("CoveringWeight", 0.9));
-    rules.addNode(m_MaxRulesNb = new INIFileInt("MaxRulesNb", 1000));
-    rules.addNode(m_HeurCoveragePar = new INIFileDouble("HeurCoveragePar", 0.0));
+		rules.addNode(m_RuleAddingMethod = new INIFileNominal("RuleAddingMethod", RULE_ADDING_METHODS, 0));
+		rules.addNode(m_CoveringWeight = new INIFileDouble("CoveringWeight", 0.9));
+		rules.addNode(m_InstCoveringWeightThreshold = new INIFileDouble("InstCoveringWeightThreshold", 0.1));
+		rules.addNode(m_MaxRulesNb = new INIFileInt("MaxRulesNb", 1000));
+    rules.addNode(m_HeurCoveragePar = new INIFileDouble("HeurCoveragePar", 1.0));
     rules.addNode(m_CompHeurRuleDistPar = new INIFileDouble("CompHeurRuleDistPar", 0.0));
+    rules.addNode(m_HeurPrototypeDistPar = new INIFileDouble("HeurPrototypeDistPar", 0.0));
     rules.addNode(m_RuleSignificanceLevel = new INIFileDouble("RuleSignificanceLevel", 0.05));
     rules.addNode(m_RuleNbSigAtts = new INIFileInt("RuleNbSigAtts", 0));
 		rules.addNode(m_ComputeCompactness = new INIFileBool("ComputeCompactness", false));
@@ -762,10 +795,30 @@ public class Settings implements Serializable {
     m_PredictionMethod.setSingleValue(method);
   }
 
+  public int getRuleAddingMethod() {
+    return m_RuleAddingMethod.getValue();
+  }
+  
+  public void setRuleAddingMethod(int method) {
+    m_RuleAddingMethod.setSingleValue(method);
+  }
+  
   public double getCoveringWeight() {
     return m_CoveringWeight.getValue();
   }
 
+  public void setCoveringWeight(double weight) {
+    m_CoveringWeight.setValue(weight);
+  }
+ 
+  public double getInstCoveringWeightThreshold() {
+    return m_InstCoveringWeightThreshold.getValue();
+  }
+
+  public void setInstCoveringWeightThreshold(double thresh) {
+  	m_InstCoveringWeightThreshold.setValue(thresh);
+  }
+  
   public int getMaxRulesNb() {
     return m_MaxRulesNb.getValue();
   }
@@ -780,6 +833,10 @@ public class Settings implements Serializable {
 
   public int getRuleNbSigAtt() {
     return m_RuleNbSigAtts.getValue();
+  }
+
+  public boolean isRuleSignificanceTesting() {
+    return m_RuleNbSigAtts.getValue() != 0;
   }
 
   public double getHeurCoveragePar() {
@@ -798,16 +855,24 @@ public class Settings implements Serializable {
     return m_CompHeurRuleDistPar.getValue() > 0;
   }
 
+  public double getHeurPrototypeDistPar() {
+    return m_HeurPrototypeDistPar.getValue();
+  }
+  
+  public void setHeurPrototypeDistPar(double value) {
+  	m_HeurPrototypeDistPar.setValue(value);
+  }
+  
+  public boolean isHeurPrototypeDistPar() {
+    return m_HeurPrototypeDistPar.getValue() > 0;
+  }
+
 	public void disableRuleInduceParams() {
 		setCompHeurRuleDistPar(0.0);
 		setRulePredictionMethod(RULE_PREDICTION_METHOD_DECISION_LIST);
 		setCoveringMethod(COVERING_METHOD_RULES_FROM_TREE);
 	}
 
-  public void setCoveringWeight(double weight) {
-    m_CoveringWeight.setValue(weight);
-  }
- 
   public boolean computeCompactness() {
     return m_ComputeCompactness.getValue();
   }

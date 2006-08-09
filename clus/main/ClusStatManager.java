@@ -65,6 +65,8 @@ public class ClusStatManager implements Serializable {
 	protected Settings m_Settings;
 
 	protected ClusStatistic m_GlobalStat;
+	
+	protected ClusStatistic m_TrainSetStat;
 
 	protected ClusStatistic[] m_StatisticAttrUse;
 
@@ -159,8 +161,7 @@ public class ClusStatManager implements Serializable {
 		if (winfo.hasArrayIndexNames()) {
 			// Weights given for target, non-target, numeric and nominal
 			double target_weight = winfo.getDouble(Settings.TARGET_WEIGHT);
-			double non_target_weight = winfo
-					.getDouble(Settings.NON_TARGET_WEIGHT);
+			double non_target_weight = winfo.getDouble(Settings.NON_TARGET_WEIGHT);
 			double num_weight = winfo.getDouble(Settings.NUMERIC_WEIGHT);
 			double nom_weight = winfo.getDouble(Settings.NOMINAL_WEIGHT);
 			System.out.println("  Target weight     = " + target_weight);
@@ -193,6 +194,27 @@ public class ClusStatManager implements Serializable {
 			// One single constant weight given
 			result.setAllWeights(winfo.getDouble());
 		}
+		// Normalize the weights
+		double sum = 0;
+		for (int i = 0; i < num.length; i++) {
+			NumericAttrType cr_num = num[i];
+			sum += result.getWeight(cr_num);
+		}
+		for (int i = 0; i < nom.length; i++) {
+			NominalAttrType cr_nom = nom[i];
+			sum += result.getWeight(cr_nom);
+		}
+		if (sum <= 0) {
+			throw new ClusException("initWeights(): Sum of clustering/compactness weights must be > 0!");
+		}
+		for (int i = 0; i < num.length; i++) {
+			NumericAttrType cr_num = num[i];
+			result.setWeight(cr_num, result.getWeight(cr_num)/sum);
+		}
+		for (int i = 0; i < nom.length; i++) {
+			NominalAttrType cr_nom = nom[i];
+			result.setWeight(cr_nom, result.getWeight(cr_nom)/sum);
+		}
 	}
 
 	public void initCompactnessWeights() throws ClusException {
@@ -222,6 +244,7 @@ public class ClusStatManager implements Serializable {
 	public void initNormalizationWeights(ClusStatistic stat)
 			throws ClusException {
 		m_GlobalStat = stat;
+		m_TrainSetStat = stat; // When no XVal
 		int nbattr = m_Schema.getNbAttributes();
 		m_NormalizationWeights.setAllWeights(1.0);
 		boolean[] shouldNormalize = new boolean[nbattr];
@@ -250,8 +273,7 @@ public class ClusStatManager implements Serializable {
 		if (hasBitEqualToOne(shouldNormalize)) {
 			CombStat cmb = (CombStat) stat;
 			RegressionStat rstat = cmb.getRegressionStat();
-			rstat.initNormalizationWeights(m_NormalizationWeights,
-					shouldNormalize);
+			rstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
 		}
 	}
 
@@ -269,6 +291,14 @@ public class ClusStatManager implements Serializable {
 		return m_GlobalStat;
 	}
 
+	public ClusStatistic getTrainSetStat() {
+		return m_TrainSetStat;
+	}
+	
+	public void setTrainSetStat(ClusStatistic stat) {
+		m_TrainSetStat = stat;
+	}
+	
 	public void check() throws ClusException {
 		int nb_types = 0;
 		int nb_nom = m_Schema.getNbNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
@@ -335,7 +365,10 @@ public class ClusStatManager implements Serializable {
 
 	public boolean heuristicNeedsCombStat() {
 		if (isRuleInduce()) {
-			return getSettings().getHeuristic() == Settings.HEURISTIC_COMPACTNESS;
+			return (getSettings().getHeuristic() == Settings.HEURISTIC_DISPERSION_ADT ||
+							getSettings().getHeuristic() == Settings.HEURISTIC_DISPERSION_MLT ||
+							getSettings().getHeuristic() == Settings.HEURISTIC_WR_DISPERSION_ADT ||
+					    getSettings().getHeuristic() == Settings.HEURISTIC_WR_DISPERSION_MLT);
 		} else {
 			return false;
 		}
@@ -419,6 +452,10 @@ public class ClusStatManager implements Serializable {
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		if (isRuleInduce()) {
+			if ((getSettings().getHeuristic() == Settings.HEURISTIC_GAIN)) {
+				System.err.println("Gain heuristic not supported for rule induction!");
+				System.exit(0);
+			}
 			if (m_Mode == MODE_CLASSIFY) {
 				switch (getSettings().getHeuristic()) {
 				case Settings.HEURISTIC_REDUCED_ERROR:
@@ -426,11 +463,22 @@ public class ClusStatManager implements Serializable {
 							createClusAttributeWeights());
 					break;
 				case Settings.HEURISTIC_MESTIMATE:
-					m_Heuristic = new ClusRuleHeuristicMEstimate(getSettings()
-							.getMEstimate());
+					m_Heuristic = new ClusRuleHeuristicMEstimate(getSettings().getMEstimate());
 					break;
-				case Settings.HEURISTIC_COMPACTNESS:
-					m_Heuristic = new ClusRuleHeuristicCompactness(
+				case Settings.HEURISTIC_DISPERSION_ADT:
+					m_Heuristic = new ClusRuleHeuristicDispersionAdt(this,
+							createClusAttributeWeights());
+					break;
+				case Settings.HEURISTIC_DISPERSION_MLT:
+					m_Heuristic = new ClusRuleHeuristicDispersionMlt(this,
+							createClusAttributeWeights());
+					break;
+				case Settings.HEURISTIC_WR_DISPERSION_ADT:
+					m_Heuristic = new ClusRuleHeuristicWRDispersionAdt(this,
+							createClusAttributeWeights());
+					break;
+				case Settings.HEURISTIC_WR_DISPERSION_MLT:
+					m_Heuristic = new ClusRuleHeuristicWRDispersionMlt(this,
 							createClusAttributeWeights());
 					break;
 				case Settings.HEURISTIC_DEFAULT:
@@ -438,14 +486,28 @@ public class ClusStatManager implements Serializable {
 							createClusAttributeWeights());
 					break;
 				}
-			} else {
+			} else {  // m_Mode == MODE_REGRESSION
 				switch (getSettings().getHeuristic()) {
 				case Settings.HEURISTIC_REDUCED_ERROR:
 					m_Heuristic = new ClusRuleHeuristicError(this,
 							createClusAttributeWeights());
 					break;
-				case Settings.HEURISTIC_COMPACTNESS:
-					m_Heuristic = new ClusRuleHeuristicCompactness(
+				case Settings.HEURISTIC_MESTIMATE:
+					throw new ClusException("MEstimate heuristic: regression and/or classification with multiple clustering attributes not supported!");
+				case Settings.HEURISTIC_DISPERSION_ADT:
+					m_Heuristic = new ClusRuleHeuristicDispersionAdt(this,
+							createClusAttributeWeights());
+					break;
+				case Settings.HEURISTIC_DISPERSION_MLT:
+					m_Heuristic = new ClusRuleHeuristicDispersionMlt(this,
+							createClusAttributeWeights());
+					break;
+				case Settings.HEURISTIC_WR_DISPERSION_ADT:
+					m_Heuristic = new ClusRuleHeuristicWRDispersionAdt(this,
+							createClusAttributeWeights());
+					break;
+				case Settings.HEURISTIC_WR_DISPERSION_MLT:
+					m_Heuristic = new ClusRuleHeuristicWRDispersionMlt(this,
 							createClusAttributeWeights());
 					break;
 				case Settings.HEURISTIC_DEFAULT:
@@ -504,14 +566,24 @@ public class ClusStatManager implements Serializable {
 		}
 		/* Set heuristic for trees */
 		if (num.length > 0 && nom.length > 0) {
-			System.err
-					.println("Combined heuristic not yet implemented for trees!");
+			System.err.println("Combined heuristic not yet implemented for trees!");
 			System.exit(0);
 		} else if (num.length > 0) {
-			m_Heuristic = new SSReductionHeuristic(
-					createClusAttributeWeights(), m_Schema
-							.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET));
+			// TODO: Is this true?
+			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT) {
+				System.err.println("Only SS-Reduction (default) heuristic can be used for regression trees!");
+				System.exit(0);
+			}
+			m_Heuristic = new SSReductionHeuristic(createClusAttributeWeights(), m_Schema
+							          .getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET));
 		} else if (nom.length > 0) {
+			// TODO: Is this true?
+			if ((getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT) &&
+					(getSettings().getHeuristic() != Settings.HEURISTIC_REDUCED_ERROR) &&
+					(getSettings().getHeuristic() != Settings.HEURISTIC_GAIN)) {
+				System.err.println("Only Gain (default) or Reduced Error heuristic can be used for classification trees!");
+				System.exit(0);
+			}
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
 				m_Heuristic = new ReducedErrorHeuristic(createClusteringStat());
 			} else {
@@ -894,8 +966,14 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 		int covering = sett.getCoveringMethod();
 		int prediction = sett.getRulePredictionMethod();
 		// General
-		if ((sett.getHeuristic() != Settings.HEURISTIC_COMPACTNESS) && sett.isCompHeurRuleDist()) {
+		if (((sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_ADT) ||
+				 (sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_MLT) ||
+				 (sett.getHeuristic() != Settings.HEURISTIC_WR_DISPERSION_ADT) ||
+				 (sett.getHeuristic() != Settings.HEURISTIC_WR_DISPERSION_MLT)) && sett.isCompHeurRuleDist()) {
 			sett.setCompHeurRuleDistPar(0.0);
+		}
+		if (sett.isRuleSignificanceTesting()) { // Is this faster than calling isRuleSignificanceTesting()
+			Settings.IS_RULE_SIG_TESTING = true;  // from Compactness heuristic each time?
 		}
 		// Random rules
 		if (sett.isRandomRules()) {
@@ -906,22 +984,26 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 		} else if (covering == Settings.COVERING_METHOD_STANDARD) {
 			// sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_DECISION_LIST);
 			sett.setCoveringWeight(0);
-		// Unordered rules
-		// TODO: not sure about this!
+		// Unordered rules - Heuristic covering
 		} else if (covering == Settings.COVERING_METHOD_HEURISTIC_ONLY) {
 			if ((prediction == Settings.RULE_PREDICTION_METHOD_DECISION_LIST) ||
 					(prediction == Settings.RULE_PREDICTION_METHOD_UNION)) {
 				sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
 			}
 			sett.setCoveringWeight(0.0);
-			if (getSettings().getCompHeurRuleDistPar() <= 0) {
-				throw new ClusException("Clus rule induction - Heuristic covering: CompHeurRuleDistPar must be >= 0!");
+			if (getSettings().getCompHeurRuleDistPar() < 0) {
+				throw new ClusException("Clus heuristic covering: CompHeurRuleDistPar must be >= 0!");
 			}
+			if ((sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_ADT) ||
+					(sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_MLT) ||
+					(sett.getHeuristic() != Settings.HEURISTIC_WR_DISPERSION_ADT) ||
+					(sett.getHeuristic() != Settings.HEURISTIC_WR_DISPERSION_MLT)) {
+				throw new ClusException("Clus heuristic covering: Only Dispersion-based heuristics supported!");
+			}
+		// Unordered rules - Weighted coverings
 		} else if ((covering == Settings.COVERING_METHOD_WEIGHTED_ADDITIVE) ||
 							 (covering == Settings.COVERING_METHOD_WEIGHTED_MULTIPLICATIVE) ||
 							 (covering == Settings.COVERING_METHOD_WEIGHTED_ERROR) ||
-							 (covering == Settings.COVERING_METHOD_RULE_SET) ||
-			         (covering == Settings.COVERING_METHOD_BEAM_RULE_SET) ||
 			         (covering == Settings.COVERING_METHOD_BEAM_RULE_DEF_SET) ||
 			         (covering == Settings.COVERING_METHOD_RANDOM_RULE_SET)) {
 			if ((prediction == Settings.RULE_PREDICTION_METHOD_DECISION_LIST) ||
@@ -929,13 +1011,14 @@ public PruneTree getTreePruner(ClusData pruneset) throws ClusException {
 				sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
 			}
 			if (sett.getCoveringWeight() < 0) {
-				throw new ClusException("Clus rule induction - Weighted covering: Covering weight must be >= 0!");
+				throw new ClusException("Clus weighted covering: Covering weight must be >= 0!");
 			}
+		// Rule induction from bootstrap sampled data, optimized ... 
+		} else if (covering == Settings.COVERING_METHOD_STANDARD_BOOTSTRAP) {
+			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_OPTIMIZED);
 		// Multi-label classification
 		} else if (covering == Settings.COVERING_METHOD_UNION) {
 			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_UNION);
-		} else if (covering == Settings.COVERING_METHOD_STANDARD_BOOTSTRAP) {
-			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_OPTIMIZED);
 		}
 	}
 

@@ -134,6 +134,8 @@ public class Clus implements CMDLineArgsProvider {
 			else
 				m_Sett.disableMultiScore();
 		}
+		// Set XVal field in Settings
+		if (isxval) Settings.IS_XVAL = true;
 		// Preprocess() should become for m_Induce.initialize()
 		// -> e.g., for hierarchical multi-classification
 		preprocess();
@@ -741,6 +743,7 @@ public class Clus implements CMDLineArgsProvider {
 	public final ClusRun singleRunMain(ClusClassifier clss, ClusSummary summ)	throws IOException, ClusException {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".out", m_Schema, m_Sett);
 		ClusRun cr = partitionData();
+		// ARFFFile.writeCN2Data("train-all.exs", (RowData)cr.getTrainingSet());
 		induce(cr, clss); // Induce model
 		if (summ == null) {
 			// E.g., rule-wise error measures
@@ -783,8 +786,14 @@ public class Clus implements CMDLineArgsProvider {
 			wrt.getWrt().println("! Fold = " + i);
 			XValSelection msel = new XValSelection(sel, i);
 			ClusRun cr = partitionData(msel, i + 1);
-			ClusModelInfo mi = cr.addModelInfo(ClusModels.PRUNED);
+			ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
+			// Create statistic for the training set
+			ClusStatistic tr_stat = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
+			tr_stat.addData((RowData)cr.getTrainingSet());
+			getStatManager().setTrainSetStat(tr_stat);
 			mi.addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
+			// ARFFFile.writeCN2Data("test-"+i+".exs", cr.getTestSet());
+			// ARFFFile.writeCN2Data("train-"+i+".exs", (RowData)cr.getTrainingSet());
 			induce(cr, clss);			// Induce tree
       // TODO: Check if this is ok!
       if (m_Sett.isRuleWiseErrors()) {
@@ -872,10 +881,9 @@ public class Clus implements CMDLineArgsProvider {
 		System.out.println("Name            #Rows      #Missing  #Nominal #Numeric #Target    #Classes");
 		System.out.print(StringUtils.printStr(m_Sett.getAppName(), 16));
 		System.out.print(StringUtils.printInt(data.getNbRows(), 11));
-		double perc = -1; // (double)m_Schema.getTotalInputNbMissing()/data.getNbRows()/m_Schema.getNbNormalAttr()*100.0;
-		System.out.print(StringUtils.printStr(ClusFormat.TWO_AFTER_DOT
-				.format(perc)
-				+ "%", 10));
+		//double perc = -1; // (double)m_Schema.getTotalInputNbMissing()/data.getNbRows()/m_Schema.getNbNormalAttr()*100.0;
+		double perc = (double)m_Schema.getTotalInputNbMissing()/data.getNbRows()/m_Schema.getNbDescriptiveAttributes()*100.0;
+		System.out.print(StringUtils.printStr(ClusFormat.TWO_AFTER_DOT.format(perc) + "%", 10));
 		System.out.print(StringUtils.printInt(m_Schema
 				.getNbNominalDescriptiveAttributes(), 9));
 		System.out.print(StringUtils.printInt(m_Schema

@@ -76,7 +76,7 @@ public class DepthFirstInduce extends ClusInduce {
 					}
 				}
 			}
-			((ClusRuleHeuristicCompactness)m_Selector.m_Heuristic).setDataIndexesPerVal(data_ipv);
+			((ClusRuleHeuristicDispersion)m_Selector.m_Heuristic).setDataIndexesPerVal(data_ipv);
 		}
     // Find best split
     m_Split.findSplit(m_Selector, at);
@@ -140,7 +140,7 @@ public class DepthFirstInduce extends ClusInduce {
   				if (getSettings().isCompHeurRuleDist()) {
   					int[] subset_idx = new int[i-first];
   					System.arraycopy(data_idx, first, subset_idx, 0, i-first);
-  					((ClusRuleHeuristicCompactness)m_Selector.m_Heuristic).setDataIndexes(subset_idx);
+  					((ClusRuleHeuristicDispersion)m_Selector.m_Heuristic).setDataIndexes(subset_idx);
   				}
   				// System.err.println("Value (>): " + value);
   				m_Selector.updateNumeric(value, at);
@@ -164,7 +164,7 @@ public class DepthFirstInduce extends ClusInduce {
   				if (getSettings().isCompHeurRuleDist()) {
   					int[] subset_idx = new int[nb_rows-i];
   					System.arraycopy(data_idx, i, subset_idx, 0, nb_rows-i);
-  					((ClusRuleHeuristicCompactness)m_Selector.m_Heuristic).setDataIndexes(subset_idx);
+  					((ClusRuleHeuristicDispersion)m_Selector.m_Heuristic).setDataIndexes(subset_idx);
   				}
   				// System.err.println("Value (<=): " + value);
   				m_Selector.updateInverseNumeric(value, at);
@@ -229,6 +229,8 @@ public class DepthFirstInduce extends ClusInduce {
       m_Selector.m_PosStat.updateWeighted(tuple, i);        
     }
     m_Selector.updateNumeric(split_value, at);
+    System.err.println("Inverse splits not yet included!");
+    // TODO: m_Selector.updateInverseNumeric(split_value, at);
   }
   
 	public void initSelectorAndSplit(ClusStatistic totstat) throws ClusException {

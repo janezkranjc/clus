@@ -1,7 +1,7 @@
 package clus.nominal.split;
 
 import clus.main.*;
-import clus.algo.rules.ClusRuleHeuristicCompactness;
+import clus.algo.rules.ClusRuleHeuristicDispersion;
 import clus.data.type.*;
 import clus.model.test.*;
 import clus.statistic.*;
@@ -78,7 +78,7 @@ public class SubsetSplit extends NominalSplit {
 			int bvalue = 0;	
 			if ((m_PStat instanceof CombStat) &&
 					((CombStat)m_PStat).getSettings().isCompHeurRuleDist()) {
-				((ClusRuleHeuristicCompactness)node.m_Heuristic).setDataIndexes(new int[0]);
+				((ClusRuleHeuristicDispersion)node.m_Heuristic).setDataIndexes(new int[0]);
 			}
 			while ((bvalue != -1) && ((card+1) < nbvalues)) {
 				bvalue = -1;
@@ -94,7 +94,7 @@ public class SubsetSplit extends NominalSplit {
 								isin_current[k] = isin[k];
 							}
 							isin_current[j] = true;
-							((ClusRuleHeuristicCompactness)node.m_Heuristic).setDataIndexes(isin_current);
+							((ClusRuleHeuristicDispersion)node.m_Heuristic).setDataIndexes(isin_current);
 						}
 						// Calc heuristic
 						double mheur = node.calcHeuristic(m_MStat, m_CStat);
