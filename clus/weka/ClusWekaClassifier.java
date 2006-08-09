@@ -9,7 +9,6 @@ import jeans.util.cmdline.*;
 
 import clus.*;
 import clus.algo.induce.*;
-import clus.algo.tdidt.*;
 import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;
@@ -39,6 +38,10 @@ public class ClusWekaClassifier extends ClusClassifier {
 		}
 	}
 
+	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+		return new ClusWekaInduce(schema, sett);
+	}	
+	
 	public void printInfo() {
 		System.out.println("Weka Classifier: "+m_Options);
 	}
@@ -70,22 +73,21 @@ public class ClusWekaClassifier extends ClusClassifier {
 		}
 	}
 	
-	public void induce(ClusRun cr) throws ClusException {
-		ClusModel model = induceSingle(cr);
-		cr.getModelInfo(ClusModels.PRUNED).setModel(model);
-		ClusModel defmodel = ClusDecisionTree.induceDefault(cr);
-		cr.getModelInfo(ClusModels.DEFAULT).setModel(defmodel);				
-	}
-
-	public void initializeSummary(ClusSummary summ) {
-		ClusModels.DEFAULT = summ.addModel("Default");
-		ClusModels.PRUNED = summ.addModel("Pruned");		
-	}
-	
 	public void pruneAll(ClusRun cr) throws ClusException, IOException {
 	}
 	 
 	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
 		return model;
-	}	
+	}
+	
+	public class ClusWekaInduce extends ClusInduce {
+		
+		public ClusWekaInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
+			super(schema, sett);
+		}
+		
+		public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
+			return induceSingle(cr); 			
+		}
+	}
 }
