@@ -775,9 +775,9 @@ public class ClusRuleInduce extends ClusInduce {
 		PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
 		DecimalFormat mf = new DecimalFormat("###.000");
 		// Generate optimization input
-		ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
+		//ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 		DeAlg deAlg;
-		int nb_tar = tar_stat.getNbAttributes();
+		//int nb_tar = tar_stat.getNbAttributes();
 		int nb_rules = rset.getModelSize();
 		int nb_rows = data.getNbRows();
 		boolean classification = false;

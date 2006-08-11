@@ -18,12 +18,13 @@ public class ClusBeam {
 	double m_MinValue = Double.NEGATIVE_INFINITY;
 	
 	public ClusBeam(int width, boolean rmEqHeur) {
-		m_Tree = new TreeMap();
+		m_Tree = new TreeMap(); //trees in the beam
 		m_Values = m_Tree.values();
 		m_MaxWidth = width;
 		m_RemoveEqualHeur = rmEqHeur;
 	}	
 
+	//add a tree to the beam if it not already there
 	public int addIfNotIn(ClusBeamModel model) {
 		Double key = new Double(model.getValue());
 		ClusBeamTreeElem found = (ClusBeamTreeElem)m_Tree.get(key);
@@ -86,6 +87,15 @@ public class ClusBeam {
 	
 	public void addModel(ClusBeamModel model) {
 		double value = model.getValue();
+		if(m_MaxWidth == -1){ //the size ot the beam is infinite
+			//System.out.println("try to add model :");
+			//ClusNode tree = (ClusNode)model.getModel();
+			//tree.printTree();
+			m_CrWidth += addIfNotIn(model); 
+			//if (addIfNotIn(model) == 1){System.out.println("we add a model");m_CrWidth +=1;}
+		}
+		else 
+		{	
 		if (m_CrWidth < m_MaxWidth) {	
 			m_CrWidth += addIfNotIn(model); 
 			if (m_CrWidth == m_MaxWidth) {
@@ -98,6 +108,7 @@ public class ClusBeam {
 				// System.out.println("*** Removing model: "+min);
 				m_MinValue = min;
 			}
+		}
 		}
 	}
 	

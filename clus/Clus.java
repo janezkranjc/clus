@@ -26,6 +26,7 @@ import clus.algo.induce.*;
 import clus.selection.*;
 import clus.ext.hierarchical.*;
 import clus.ext.beamsearch.*;
+import clus.ext.exhaustivesearch.*;
 import clus.ext.constraint.*;
 import clus.pruning.*;
 import clus.heuristic.*;
@@ -42,13 +43,14 @@ public class Clus implements CMDLineArgsProvider {
 
 	public final static boolean m_UseHier = true;
 
-	public final static String[] OPTION_ARGS = { "xval", "oxval", "target",
+	//exhaustive was added the 1/08/2006
+	public final static String[] OPTION_ARGS = {"exhaustive", "xval", "oxval", "target",
 			"disable", "silent", "lwise", "c45", "info", "sample", "debug",
 			"tuneftest", "load", "soxval", "bag", "obag", "show", "knn",
 			"knnTree", "beam", "gui", "fillin", "rules", "weka", "corrmatrix",
 			"tunesize", "out2model", "test", "normalize", "tseries", "writetargets"};
 
-	public final static int[] OPTION_ARITIES = { 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
+	public final static int[] OPTION_ARITIES = {0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
 			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0 };
 
 	protected Settings m_Sett = new Settings();
@@ -846,7 +848,20 @@ public class Clus implements CMDLineArgsProvider {
 		output.writeSummary(m_Summary);
 		output.close();
 	}
-
+	/* clss is the object on which the induce methode is 
+	 * called :in our case it is a ClusDecisionTree
+	 * 
+	 * Modify to have more than one model as an output !*/
+	public final void exhaustiveRun(ClusClassifier clss) throws IOException, ClusException {
+		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".all", m_Schema, m_Sett);
+		output.writeHeader();
+		ClusRun cr = partitionData();
+		induce(cr, clss); // Induce model
+		output.writeOutput(cr, false); // Write output to file
+		output.writeSummary(m_Summary);
+		output.close();
+	}
+	
 	private class MyClusInitializer implements ClusSchemaInitializer {
 
 		public void initSchema(ClusSchema schema) throws ClusException {
@@ -1002,7 +1017,12 @@ public class Clus implements CMDLineArgsProvider {
 				} else if (cargs.hasOption("beam")) {
 					clus.getSettings().setSectionBeamEnabled(true);
 					clss = sett.isFastBS() ? new ClusFastBeamSearch(clus) : new ClusBeamSearch(clus);
-				} else {
+				}  //new part added by elisa 1/08/2006
+				else if (cargs.hasOption("exhaustive")) {
+				clus.getSettings().setSectionExhaustiveEnabled(true);
+				clss = new ClusExhaustiveSearch(clus);
+				} 
+				else {
 					clss = new ClusDecisionTree(clus);
 				}
 				
@@ -1046,7 +1066,11 @@ public class Clus implements CMDLineArgsProvider {
 					clus.getSettings().setSectionTimeSeriesEnabled(true);
 					clus.initialize(cargs, clss);
 					clus.singleRun(clss);
-				} else {
+				} /*//new part added by elisa 1/08/2006
+				else if (cargs.hasOption("exhaustive")) {
+					clus.initialize(cargs, clss);
+					clus.exhaustiveRun(clss);
+				} */else {
 					clus.initialize(cargs, clss);
 					clus.singleRun(clss);
 				}
