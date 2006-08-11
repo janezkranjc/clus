@@ -198,7 +198,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 				System.out.println("this new model, has been added to the beam:");	
 				((ClusNode)new_model.getModel()).printTree();
 			}
-			else{System.out.println("no sel.hasBestTest()");}
+			//else{System.out.println("no sel.hasBestTest()");}
 		}// end for each attribute
 	}
 	

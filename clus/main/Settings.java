@@ -450,6 +450,10 @@ public class Settings implements Serializable {
 	protected INIFileBool m_BeamPostPrune;
 	protected INIFileBool m_BMRemoveEqualHeur;
 	
+	/* Exhaustive Search : Elisa 1/08/2006*/
+	protected INIFileSection m_SectionExhaustive;
+	protected INIFileBool m_exhaustive;
+	
 	/* Hierarchical Multi-Classification */
 	protected INIFileString m_HierSep;
 
@@ -664,11 +668,14 @@ public class Settings implements Serializable {
 		m_SectionBeam.addNode(m_BMRemoveEqualHeur = new INIFileBool("RemoveEqualHeur", false));
 		m_SectionBeam.setEnabled(false);
 		
+		//added by elisa 1/08/2006
+		m_SectionExhaustive = new INIFileSection("Exhaustive");
+		m_SectionExhaustive.addNode(m_exhaustive = new INIFileBool("Exhaustive", true));
+		
 		timeSeries = new INIFileSection("TimeSeries");
 		timeSeries.addNode(timeSeriesDM=new INIFileNominal("DistanceMeasure", TIME_SERIES_DISTANCE_MEASURE,0));
 		timeSeries.setEnabled(false);
 		
-
 		INIFileSection exper = new INIFileSection("Experimental");
 		exper.addNode(m_SetsData = new INIFileInt("NumberBags", 25));
 		exper.addNode(m_ShowForest = new INIFileBool("XValForest", false));
@@ -701,6 +708,12 @@ public class Settings implements Serializable {
 	public void setSectionBeamEnabled(boolean enable) {
 		m_SectionBeam.setEnabled(enable);
 	}
+	
+	//new Elisa 1/08/2006
+	public void setSectionExhaustiveEnabled(boolean enable) {
+		m_SectionExhaustive.setEnabled(enable);
+	}
+	
 
 	public void setSectionHierarchicalEnabled(boolean enable) {
 		m_SectionHierarchical.setEnabled(enable);
@@ -963,10 +976,17 @@ public class Settings implements Serializable {
 		return m_BeamPostPrune.getValue();
 	}
 
+	
 	public boolean isFastBS() {
 		return m_FastBS.getValue();
 	}
-
+	
+	//added by elisa 1/08/2006
+	public boolean isExhaustiveSearch() {
+		return m_exhaustive.getValue();
+	}
+	//
+	
 	public int getMaxSize() {
 		return getSizeConstraintPruning(0);
 	}
@@ -1040,7 +1060,8 @@ public class Settings implements Serializable {
 	public int getBeamTreeMaxSize() {
 		return m_TreeMaxSize.getValue();
 	}
-
+	
+	
 	public boolean isShowBranchFreq() {
 		return m_ShowBrFreq.getValue();
 	}
@@ -1061,6 +1082,7 @@ public class Settings implements Serializable {
 		return m_OutputPythonModel.getValue();
 	}
 	
+	//added by elisa 06/2006
 	public boolean isOutputDatabaseQueries() {
 		return m_OutputDatabaseQueries.getValue();
 	}
