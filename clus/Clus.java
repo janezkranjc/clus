@@ -511,7 +511,7 @@ public class Clus implements CMDLineArgsProvider {
 			ClusModelInfo mi = cr.addModelInfo(ClusModels.PRUNED);
 			String id_tr_name = m_Sett.getAppName() + ".train." + idx + ".id";
 			mi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new NodeExampleCollector(id_tr_name, hasMissing, m_Sett));
-		}		
+		}	
 		return cr;
 	}
 

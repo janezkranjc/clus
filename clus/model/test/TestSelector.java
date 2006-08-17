@@ -193,6 +193,10 @@ public class TestSelector {
 //			System.out.print(", error = "+m_TotStat.getError(m_TargetWeights));
 //			System.out.println(") result: "+stop);
 //		}
+		
+		// Is it normal that the stopping criterion is completely handled by the heuristics?
+		// I had a look in the cvs history and this appears to have been always the case
+		// Note: this is also how Clus is presented in most papers, so it might be ok
 		return false;
 	}
 	

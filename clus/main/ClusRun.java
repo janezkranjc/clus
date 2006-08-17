@@ -20,7 +20,6 @@ public class ClusRun extends CRParent {
 		m_Index = 1;
 		m_TrainData = train;		
 		m_Summary = summary;
-		m_Models = summary.cloneModels();
 	}	
 	
 	public ClusStatManager getStatManager() {

@@ -59,7 +59,7 @@ public class ClusDecisionTree extends ClusClassifier {
 		}
 		ClusModelInfo rules_info = cr.addModelInfo();
 		rules_info.setModel(rule_set);
-		rules_info.setName("Rules: "+cr.getModelName(tree));
+		rules_info.setName("Rules - "+cr.getModelName(tree));
 	}
 
 	public void pruneAll(ClusRun cr)	throws ClusException, IOException {
