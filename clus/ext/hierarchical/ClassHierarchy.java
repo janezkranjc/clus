@@ -1,6 +1,7 @@
 package clus.ext.hierarchical;
 
 import jeans.tree.*;
+import jeans.util.array.StringTable;
 import jeans.math.*;
 
 import java.io.*;
@@ -530,5 +531,12 @@ public class ClassHierarchy implements Serializable {
 	
 	public ClassTerm getTermAt(int i) {
 		return (ClassTerm)m_ClassList.get(i);
+	}
+
+	public ClassesValue createValueByName(String name, StringTable table) throws ClusException {
+		ClassesValue val = new ClassesValue(name, table);
+		ClassTerm term = getClassTerm(val);
+		val.setClassTerm(term);
+		return val;
 	}
 }

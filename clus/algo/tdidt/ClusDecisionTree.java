@@ -74,11 +74,7 @@ public class ClusDecisionTree extends ClusClassifier {
 			pruned.numberTree();
 			ClusModelInfo pruned_info = cr.addModelInfo(ClusModels.PRUNED + i);
 			pruned_info.setModel(pruned);
-			if (nb == 1) {
-				pruned_info.setName("Pruned");
-			} else {
-				pruned_info.setName("P"+(i+1));
-			}
+			pruned_info.setName(pruner.getPrunedName(i));
 		}
 	}
 	

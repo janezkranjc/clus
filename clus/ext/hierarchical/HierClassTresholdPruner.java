@@ -10,10 +10,10 @@ import clus.util.ClusException;
 
 public class HierClassTresholdPruner extends PruneTree {
 
-	protected double[] m_Tresholds;
+	protected double[] m_Thresholds;
 	
 	public HierClassTresholdPruner(double[] tresholds) {
-		m_Tresholds = tresholds;
+		m_Thresholds = tresholds;
 	}
 	
 	public void prune(ClusNode node) throws ClusException {
@@ -21,15 +21,19 @@ public class HierClassTresholdPruner extends PruneTree {
 	}
 	
 	public int getNbResults() {
-		return m_Tresholds.length;
+		return m_Thresholds.length;
+	}
+	
+	public String getPrunedName(int i) {
+		return "T("+m_Thresholds[i]+")";
 	}
 	
 	public double getThreshold(int i) {
-		return m_Tresholds[i];
+		return m_Thresholds[i];
 	}
 	
 	public void prune(int result, ClusNode node) throws ClusException {
-		pruneRecursive(node, m_Tresholds[result]);
+		pruneRecursive(node, m_Thresholds[result]);
 	}
 	
 	public void pruneRecursive(ClusNode node, double threshold) throws ClusException {

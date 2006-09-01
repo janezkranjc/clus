@@ -1,18 +1,26 @@
 
-Note:
------
-
-You need Java 2 version 1.4.x or above.
-
 Running Clus
 ------------
 
-java -jar /path/to/Clus.jar appfile
+Clus is based on Java from <http://java.sun.com>. You will need Java 2 version 1.4.x or above to run Clus. Clus is a command line application and should be started from a command prompt (Windows) or X-Terminal (Unix).
 
-With /path/to/Clus.jar the location of Clus.jar in your file system and "appfile"
-the name of your settings file. The settings are briefly discussed below.
+To start Clus, enter the command:
 
-See also the example data sets in "data" dir.
+java -jar /path/to/Clus.jar dataset
+
+With /path/to/Clus.jar the location of Clus.jar in your Clus distribution and "dataset" the name of your settings file. The settings are briefly discussed below.
+
+Try Clus first on the examples in the "data" folder.
+
+E.g., as follows:
+
+cd data/iris
+clus -jar ../../Clus.jar iris
+
+More information about Clus is available here:
+<http://www.cs.kuleuven.be/~dtai/clus/>
+
+Please feel free to contact <jan.struyf@cs.kuleuven.be> with any questions or comments about Clus.
 
 Compiling Clus
 --------------
@@ -43,6 +51,8 @@ java -cp "/home/jan/Clus:/home/jan/Clus/commons-math-1.0.jar:." clus.Clus appfil
 
 Settings overview
 -----------------
+
+All settings with their default values are set in "dataset.s" with "dataset" the name of your data set (assuming your data set is "dataset.arff"). The resulting model is written to "dataset.out". The file "dataset.out" also contains the values of all settings; these can be copy & pasted to "dataset.s".
 
 [General]
 RandomSeed = 0

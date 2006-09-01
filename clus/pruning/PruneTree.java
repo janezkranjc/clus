@@ -20,7 +20,11 @@ public class PruneTree {
 	}
 	
 	public String getPrunedName(int i) {
-		return "Pruned";
+		if (getNbResults() == 1) {
+			return "Pruned";
+		} else {
+			return "P"+(i+1);
+		}
 	}
 	
 	public void prune(int result, ClusNode node) throws ClusException {
