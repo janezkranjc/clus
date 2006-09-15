@@ -1372,6 +1372,10 @@ public class Settings implements Serializable {
 		return m_MinW.getValue();
 	}
 	
+	public void setMinimalWeight(double val) {
+		m_MinW.setValue(val);
+	}
+	
 	public int getResourceInfoLoaded() {
 		return m_ResourceInfoLoaded.getValue();
 	}

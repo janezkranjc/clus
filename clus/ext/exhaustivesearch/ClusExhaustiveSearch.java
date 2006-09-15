@@ -101,7 +101,8 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 	
 	public ClusBeam initializeBeamExhaustive(ClusRun run) throws ClusException {
 		ClusStatManager smanager = m_BeamInduce.getStatManager();
-		Settings sett = smanager.getSettings();		
+		Settings sett = smanager.getSettings();	
+		sett.setMinimalWeight(1); //the minimal number of covered example in a leaf is 1
 		ClusBeam beam = new ClusBeam(-1,false); //infinite size and we add everything
 		/* Create single leaf node */
 		RowData train = (RowData)run.getTrainingSet();
@@ -122,7 +123,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 			root.setClusteringStat(stat);
 			m_Induce.fillInStatsAndTests(root, train);
 		}
-		System.out.println("on initialise l'arbre a :");root.printTree();
+		//System.out.println("the beam is initialized to :");root.printTree();
 		/* Compute total weight */
 		double weight = root.getClusteringStat().getTotalWeight();
 		setTotalWeight(weight);
@@ -150,6 +151,10 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 			System.out.println("stopping criterion reached in refineGivenLeafExhaustive");
 			return;
 		}
+		if((leaf.getClusteringStat()).getError() == 0.0){
+		//System.out.println("pure leaf");
+		return;
+		}
 		// init base value for heuristic
 		TestSelector sel = m_Induce.getSelector();
 		double base_value = root.getValue();		
@@ -159,15 +164,15 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 		for (int i = 0; i < attrs.length; i++) {
 			// reset selector for each attribute
 			sel.resetBestTest();
-			double beam_min_value = -10000.0; //beam.getMinValue();
+			double beam_min_value = Double.NEGATIVE_INFINITY; 
 			sel.setBestHeur(beam_min_value);
 			// process attribute
 			ClusAttrType at = attrs[i];
 			// System.out.println("Attribute: "+at.getName());
-			// lokk for the best test that go with the attribute
+			// look for the best avlue of the attribute the attribute
 			if (at instanceof NominalAttrType) m_Induce.findNominal((NominalAttrType)at, data);
 			else m_Induce.findNumeric((NumericAttrType)at, data);
-			// found good test for attribute ?
+			// found good test for attribute (the test type has been changed in the finnominal function)?
 			if (sel.hasBestTest()) {
 				ClusNode ref_leaf = (ClusNode)leaf.cloneNode();
 				sel.testToNode(ref_leaf);
@@ -190,13 +195,14 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 				ClusNode root_model = (ClusNode)root.getModel();
 				ClusNode ref_tree = (ClusNode)root_model.cloneTree(leaf, ref_leaf);
 				double new_heur = sanityCheck(sel.m_BestHeur, ref_tree);
+				//the default created model is unrefined
 				ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_tree);
 				new_model.setParentModelIndex(getCurrentModel());
 				beam.addModel(new_model);
 				setBeamChanged(true);	
 				// Uncomment the following to print each model that is added to the beam
-				System.out.println("this new model, has been added to the beam:");	
-				((ClusNode)new_model.getModel()).printTree();
+				//System.out.println("this new model, has been added to the beam : ");	
+				//((ClusNode)new_model.getModel()).printTree();
 			}
 			//else{System.out.println("no sel.hasBestTest()");}
 		}// end for each attribute
@@ -212,6 +218,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 		} else {
 			for (int i = 0; i < nb_c; i++) {
 				ClusNode child = (ClusNode)tree.getChild(i);
+				//System.out.print("refining leaf : ");child.printTree();
 				refineEachLeaf(child, root, beam, attrs);
 			}
 		}
@@ -244,7 +251,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 	public void refineBeamExhaustive(ClusBeam beam, ClusRun run) throws IOException {
 		setBeamChanged(false);
 		ArrayList models = beam.toArray();
-		System.out.println("the size of the beam is :"+models.size());
+		//System.out.println("the size of the beam is :"+models.size());
 		for (int i = 0; i < models.size(); i++) {
 			System.out.print("Refining model: "+i);
 			setCurrentModel(i);

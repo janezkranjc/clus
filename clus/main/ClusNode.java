@@ -551,21 +551,45 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 	
 	public void printModelToQuery(PrintWriter wrt, ClusRun cr){
-		String tabitem[] = new String[1000]; //table of item
-		int tabexist[] = new int[1000]; //table of booleen for each item 
-		tabitem[0] = "null";
-		tabexist[0] = 1;
-		wrt.println("tree_sets");
-		wrt.println("'"+tabitem[0]+"', "+tabexist[0]+")");
-		wrt.println("greedy_trees");
-		wrt.println("1)"); //it's a leaf
-		printTreeInDatabase(wrt,tabitem,tabexist, 1);
+		int lastmodel = cr.getNbModels()-1;
+		System.out.print("The number of models to print is:"+lastmodel+", the first one is :");
+		String [][] tabitem = new String[lastmodel+1][10000]; //table of item
+		int [][] tabexist = new int[lastmodel+1][10000]; //table of booleen for each item 
+		Global.set_itemsetcpt(0);
+		Global.set_treecpt(0);
+		ClusModelInfo m = cr.getModelInfo(0);//cr.getModelInfo(lastmodel);
+		String firstmodelname = m.getName();
+		System.out.println(firstmodelname);
+		if(firstmodelname != "Default"){ // exhaustive search
+		for (int i = 0; i < cr.getNbModels(); i++) {
+		ClusModelInfo mod = cr.getModelInfo(i);
+		//String modelnamei = mod.getName();
+		//wrt.println(modelnamei);
+		tabitem[i][0] = "null";
+		tabexist[i][0] = 1;
+		wrt.println("INSERT INTO trees_sets VALUES("+Global.get_itemsetcpt()+", '"+tabitem[i][0]+"', "+tabexist[i][0]+")");
+		wrt.println("INSERT INTO alltrees VALUES("+Global.get_treecpt()+", "+Global.get_itemsetcpt()+",1)");
+		Global.inc_itemsetcpt();
+		printTreeInDatabase(wrt,tabitem[i],tabexist[i], 1,"all_trees");
+		//print the statitistics here (the format depend on the needs of the plsql program)
+		//writer.println("INSERT INTO trees_charac VALUES(T1,"+size+error+accuracy+constraint);
+		wrt.println("INSERT INTO trees_charac VALUES("+Global.get_treecpt()+", "+mod.getModelSize()+", "+(mod.m_TrainErr).getErrorClassif()+", "+(mod.m_TrainErr).getErrorAccuracy()+", NULL)");
+		Global.inc_treecpt();
+		}
+		}
+		else { //greedy search 
+		ClusModelInfo mod = cr.getModelInfo(lastmodel);
+		tabitem[lastmodel][0] = "null";
+		tabexist[lastmodel][0] = 1;
+		wrt.println("INSERT INTO trees_sets VALUES("+Global.get_itemsetcpt()+", '"+tabitem[lastmodel][0]+"', "+tabexist[lastmodel][0]+")");
+		wrt.println("INSERT INTO greedy_trees VALUES("+Global.get_treecpt()+", "+Global.get_itemsetcpt()+",1)");
+		Global.inc_itemsetcpt();
+		printTreeInDatabase(wrt,tabitem[lastmodel],tabexist[lastmodel], 1,"greedy_trees");
 		//print the statitistics here (the format depend on the needs of the plsql program)
 		//writer.println("INSERT INTO Trees_charac VALUES(T1,"+size+error+accuracy+constraint);
-		int lastmodel = cr.getNbModels()-1;
-		ClusModelInfo mod = cr.getModelInfo(lastmodel);
-		wrt.println("trees_charac");
-		wrt.println(+mod.getModelSize()+", "+(mod.m_TrainErr).getErrorClassif()+", "+(mod.m_TrainErr).getErrorAccuracy()+", NULL)");
+		wrt.println("INSERT INTO trees_charac VALUES("+Global.get_treecpt()+", "+mod.getModelSize()+", "+(mod.m_TrainErr).getErrorClassif()+", "+(mod.m_TrainErr).getErrorAccuracy()+", NULL)");
+		Global.inc_treecpt();
+		}
 	}
 	
 	public final void printTree() {
@@ -600,7 +624,7 @@ public class ClusNode extends MyNode implements ClusModel {
 				} else {
 					((ClusNode)getChild(NO)).printTree(writer, info, prefix+"        ");
 				}
-			} else {
+			} else {//on the leaves
 				writer.println(m_Test.getTestString());				
 				for (int i = 0; i < arity; i++) {
 					ClusNode child = (ClusNode)getChild(i);
@@ -626,40 +650,38 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 	
 	/*to print the tree directly into an IDB : Elisa Fromont 19/06/2006*/
-public final void printTreeInDatabase(PrintWriter writer, String tabitem[], int tabexist[], int cpt) {
-		int arity = getNbChildren();
-			if (arity > 0) {
-			int delta = hasUnknownBranch() ? 1 : 0;
+public final void printTreeInDatabase(PrintWriter writer, String tabitem[], int tabexist[], int cpt, String typetree) {
+	int arity = getNbChildren();
+	if (arity > 0) {
+		int delta = hasUnknownBranch() ? 1 : 0;
 			if (arity - delta == 2) { //the tree is binary
-			// in case the test is postive
+				// in case the test is postive
 				tabitem[cpt] = m_Test.getTestString();
 				tabexist[cpt] = 1;
-					for(int i =0; i <= cpt; i++){
-						writer.println("tree_sets");
-						writer.println("'"+tabitem[i]+"', "+tabexist[i]+")");
-					}
-					writer.println("greedy_trees");
-					writer.println("1)");	
+				for(int i =0; i <= cpt; i++){
+					writer.println("INSERT INTO trees_sets VALUES("+Global.get_itemsetcpt()+", '"+tabitem[i]+"', "+tabexist[i]+")");
+				}
+				writer.println("INSERT INTO "+typetree+" VALUES("+Global.get_treecpt()+", "+Global.get_itemsetcpt()+",1)");
+				Global.inc_itemsetcpt();
 				cpt++;
-			((ClusNode)getChild(YES)).printTreeInDatabase(writer,tabitem, tabexist, cpt);			
-			cpt--;//to remove the last test on the father : now the test is negative		
-			// in case the test is negative
-			tabitem[cpt] = m_Test.getTestString();
-			tabexist[cpt] = 0;
-			for(int i =0; i <= cpt; i++){
-				writer.println("tree_sets");
-				writer.println("'"+tabitem[i]+"', "+tabexist[i]+")");
-			}
-			writer.println("greedy_trees");
-			writer.println("1)");	
-			cpt++;
+				((ClusNode)getChild(YES)).printTreeInDatabase(writer,tabitem, tabexist, cpt, typetree);			
+				cpt--;//to remove the last test on the father : now the test is negative		
+				// in ca	se the test is negative
+				tabitem[cpt]= m_Test.getTestString();
+				tabexist[cpt] = 0;
+				for(int i =0; i <= cpt; i++){
+					writer.println("INSERT INTO trees_sets VALUES("+Global.get_itemsetcpt()+", '"+tabitem[i]+"', "+tabexist[i]+")");
+				}
+				writer.println("INSERT INTO "+typetree+" VALUES("+Global.get_treecpt()+", "+Global.get_itemsetcpt()+",1)");
+				Global.inc_itemsetcpt();
+				cpt++;
 				if (hasUnknownBranch()) {
-					((ClusNode)getChild(NO)).printTreeInDatabase(writer,tabitem, tabexist, cpt);
+					((ClusNode)getChild(NO)).printTreeInDatabase(writer,tabitem, tabexist, cpt, typetree);
 					
-					((ClusNode)getChild(UNK)).printTreeInDatabase(writer,tabitem, tabexist, cpt);
+					((ClusNode)getChild(UNK)).printTreeInDatabase(writer,tabitem, tabexist, cpt, typetree);
 					} 
 				else {
-				((ClusNode)getChild(NO)).printTreeInDatabase(writer, tabitem, tabexist, cpt);
+				((ClusNode)getChild(NO)).printTreeInDatabase(writer, tabitem, tabexist, cpt, typetree);
 				}
 			}//end if arity- delta ==2
 			
@@ -671,9 +693,9 @@ public final void printTreeInDatabase(PrintWriter writer, String tabitem[], int 
 				String branchlabel = m_Test.getBranchLabel(i);
 				writer.print("+--" + branchlabel + ": ");
 				if (i != arity-1) {
-					child.printTreeInDatabase(writer,tabitem, tabexist, cpt);						
+					child.printTreeInDatabase(writer,tabitem, tabexist, cpt, typetree);						
 				} else {
-					child.printTreeInDatabase(writer,tabitem, tabexist, cpt);
+					child.printTreeInDatabase(writer,tabitem, tabexist, cpt, typetree);
 				}
 				}// end for
 			}//end else arity -delta =/= 2	
@@ -685,12 +707,11 @@ public final void printTreeInDatabase(PrintWriter writer, String tabitem[], int 
 					tabitem[cpt] = m_TargetStat.getPredictedClassName(0);
 					tabexist[cpt] = 1;
 					for(int i =0; i <= cpt; i++){
-						writer.println("tree_sets");
-						writer.println("'"+tabitem[i]+"', "+tabexist[i]+")");
+					writer.println("INSERT INTO trees_sets VALUES("+Global.get_itemsetcpt()+", '"+tabitem[i]+"', "+tabexist[i]+")");
 					}
-					writer.println("greedy_trees");
-					writer.println("0)");	
-					cpt++;			
+					writer.println("INSERT INTO "+typetree+" VALUES("+Global.get_treecpt()+", "+Global.get_itemsetcpt()+",0)");
+					cpt++;	
+					Global.inc_itemsetcpt();
 				}
 			}//end else if arity =0
 			

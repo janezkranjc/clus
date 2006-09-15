@@ -149,6 +149,7 @@ public class ClusOutput {
 			}
 		}
 		StatisticPrintInfo info = m_Sett.getStatisticPrintInfo();
+		
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			if (shouldShowModel(i)) {
 				ClusModelInfo mi = cr.getModelInfo(i);
@@ -177,17 +178,20 @@ public class ClusOutput {
 						root.printModelToPythonScript(m_Writer);
 						m_Writer.println();
 					}
-					if (getSettings().isOutputDatabaseQueries()) {
-						// use the following lines for creating a SQL file that will put the tree into a database
-						String out_database_name =  m_Sett2.getAppName()+".txt";
-						PrintWriter database_writer = m_Sett2.getFileAbsoluteWriter(out_database_name);
-						root.printModelToQuery(database_writer,cr);
-						database_writer.close();
-						System.out.println("the queries are in "+out_database_name);
-					}
+					
 				}//end if (root != null)				
 			}//end if (shouldShowModel(i))
 		}// end for
+		if (getSettings().isOutputDatabaseQueries()) {
+			ClusModel root = (ClusModel)models.get(cr.getNbModels()-1);
+			// use the following lines for creating a SQL file that will put the tree into a database
+			String out_database_name =  m_Sett2.getAppName()+".txt";
+			PrintWriter database_writer = m_Sett2.getFileAbsoluteWriter(out_database_name);
+			root.printModelToQuery(database_writer,cr);
+			database_writer.close();
+			System.out.println("the queries are in "+out_database_name);
+		}
+		
 		m_Writer.flush();
 	}
 
