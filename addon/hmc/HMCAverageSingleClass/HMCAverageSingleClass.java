@@ -66,7 +66,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		String value = FileUtil.getName(FileUtil.removePath(file));
 		String[] elems = value.split("-");
 		int pos = elems.length - 1;
-		while (pos > 0 && StringUtils.isInteger(elems[pos])) {
+		while (pos > 0 /*&& StringUtils.isInteger(elems[pos])*/) {
 				if (cnt != 0) result = "/" + result;
 				result = "" + elems[pos] + result;
 				cnt++; pos--;

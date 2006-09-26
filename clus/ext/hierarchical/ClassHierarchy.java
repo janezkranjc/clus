@@ -519,10 +519,6 @@ public class ClassHierarchy implements Serializable {
 	}
 
 	public ClassTerm getClassTermByName(String id) {
-		//System.out.println(m_ClassMap.toString());
-		//ClassTerm temp = (ClassTerm)m_ClassMap.get("GO0003674/GO0003824/GO0000385/GO0000386=R");
-		//boolean temp = m_ClassMap.containsValue("GO0003674");
-		//System.out.println(temp.toString());
 		return (ClassTerm)m_ClassMap.get(id);
 	}
 	
