@@ -1,5 +1,5 @@
 #!/bin/sh
-export WEKA_DIR=$HOME/NoCsBack/weka-3-4
+export WEKA_DIR=$HOME/weka-3-4
 export CLUS_DIR=$HOME/Clus
 export HMC_AVG_SINGLE_DIR=$CLUS_DIR/addon/hmc/HMCAverageSingleClass
 echo $HMC_AVG_SINGLE_DIR

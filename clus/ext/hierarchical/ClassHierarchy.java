@@ -330,6 +330,7 @@ public class ClassHierarchy implements Serializable {
 	}
 	
 	public final ClassTerm getClassTermDAG(ClassesValue vl) throws ClusException {
+		//System.out.println("Meest specifieke klasse: "+vl.getMostSpecificClass());
 		ClassTerm term = getClassTermByName(vl.getMostSpecificClass());
 		if (term == null) throw new ClusException("Classes value not in DAG hierarchy: "+vl.toPathString());
 		return term;
@@ -518,6 +519,10 @@ public class ClassHierarchy implements Serializable {
 	}
 
 	public ClassTerm getClassTermByName(String id) {
+		//System.out.println(m_ClassMap.toString());
+		//ClassTerm temp = (ClassTerm)m_ClassMap.get("GO0003674/GO0003824/GO0000385/GO0000386=R");
+		//boolean temp = m_ClassMap.containsValue("GO0003674");
+		//System.out.println(temp.toString());
 		return (ClassTerm)m_ClassMap.get(id);
 	}
 	
