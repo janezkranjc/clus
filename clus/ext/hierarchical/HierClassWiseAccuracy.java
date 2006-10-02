@@ -180,17 +180,14 @@ public class HierClassWiseAccuracy extends ClusError {
 		HierClassWiseAccuracy other = (HierClassWiseAccuracy)global;
 		System.arraycopy(other.m_Default, 0, m_Default, 0, m_Default.length);
 	}
-	
-	public void printNonZeroAccuracies(NumberFormat fr, PrintWriter out, ClassTerm node) {
-		for (int i = 0; i < node.getNbChildren(); i++) {
-			printNonZeroAccuraciesRec(fr, out, (ClassTerm)node.getChild(i));
-		}
-	}
-	
+		
 	//prints the evaluation results for each single predicted class
 	//added a value for recall (next to def and acc)
-	public void printNonZeroAccuraciesRec(NumberFormat fr, PrintWriter out, ClassTerm node) {
+	public void printNonZeroAccuraciesRec(NumberFormat fr, PrintWriter out, ClassTerm node, boolean[] printed) {
 		int idx = node.getIndex();
+		// avoid printing a given node several times
+		if (printed[idx]) return;
+		printed[idx] = true;
 		if (m_Predicted[idx] != 0.0 && isEvalClass(idx)) {
 			int nb = getNbTotal();
 			double def = nb == 0 ? 0.0 : m_Default[idx]/nb;
@@ -215,7 +212,15 @@ public class HierClassWiseAccuracy extends ClusError {
 			out.println();
 		}
 		for (int i = 0; i < node.getNbChildren(); i++) {
-			printNonZeroAccuraciesRec(fr, out, (ClassTerm)node.getChild(i));
+			printNonZeroAccuraciesRec(fr, out, (ClassTerm)node.getChild(i), printed);
+		}
+	}
+	
+	public void printNonZeroAccuracies(NumberFormat fr, PrintWriter out, ClassHierarchy hier) {
+		boolean[] printed = new boolean[hier.getTotal()];
+		ClassTerm node = hier.getRoot();
+		for (int i = 0; i < node.getNbChildren(); i++) {
+			printNonZeroAccuraciesRec(fr, out, (ClassTerm)node.getChild(i), printed);
 		}
 	}
 	
@@ -229,7 +234,7 @@ public class HierClassWiseAccuracy extends ClusError {
 		out.print(", TP: "+getTP()+", FP: "+getFP()+", nbPos: "+getNbLabels());
 		out.print(", AUC: "+getAUC());
 		out.println();
-		printNonZeroAccuracies(fr1, out, m_Hier.getRoot());
+		printNonZeroAccuracies(fr1, out, m_Hier);
 	}
 	
 	public String getName() {
