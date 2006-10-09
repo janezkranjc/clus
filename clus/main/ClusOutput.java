@@ -183,11 +183,13 @@ public class ClusOutput {
 			}//end if (shouldShowModel(i))
 		}// end for
 		if (getSettings().isOutputDatabaseQueries()) {
+			int starttree = getSettings().getStartTreeCpt();
+			int startitem = getSettings().getStartItemCpt();
 			ClusModel root = (ClusModel)models.get(cr.getNbModels()-1);
 			// use the following lines for creating a SQL file that will put the tree into a database
 			String out_database_name =  m_Sett2.getAppName()+".txt";
 			PrintWriter database_writer = m_Sett2.getFileAbsoluteWriter(out_database_name);
-			root.printModelToQuery(database_writer,cr);
+			root.printModelToQuery(database_writer,cr,starttree,startitem);
 			database_writer.close();
 			System.out.println("the queries are in "+out_database_name);
 		}

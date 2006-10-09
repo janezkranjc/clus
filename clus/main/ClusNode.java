@@ -550,27 +550,31 @@ public class ClusNode extends MyNode implements ClusModel {
 		printTreeToPythonScript(wrt, "\t");
 	}
 	
-	public void printModelToQuery(PrintWriter wrt, ClusRun cr){
+	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem){
 		int lastmodel = cr.getNbModels()-1;
 		System.out.print("The number of models to print is:"+lastmodel+", the first one is :");
 		String [][] tabitem = new String[lastmodel+1][10000]; //table of item
 		int [][] tabexist = new int[lastmodel+1][10000]; //table of booleen for each item 
-		Global.set_itemsetcpt(0);
-		Global.set_treecpt(0);
+		Global.set_treecpt(starttree);
+		Global.set_itemsetcpt(startitem);
 		ClusModelInfo m = cr.getModelInfo(0);//cr.getModelInfo(lastmodel);
 		String firstmodelname = m.getName();
 		System.out.println(firstmodelname);
+		
 		if(firstmodelname != "Default"){ // exhaustive search
 		for (int i = 0; i < cr.getNbModels(); i++) {
 		ClusModelInfo mod = cr.getModelInfo(i);
+		ClusNode tree = (ClusNode)cr.getModel(i);
 		//String modelnamei = mod.getName();
 		//wrt.println(modelnamei);
 		tabitem[i][0] = "null";
 		tabexist[i][0] = 1;
 		wrt.println("INSERT INTO trees_sets VALUES("+Global.get_itemsetcpt()+", '"+tabitem[i][0]+"', "+tabexist[i][0]+")");
-		wrt.println("INSERT INTO alltrees VALUES("+Global.get_treecpt()+", "+Global.get_itemsetcpt()+",1)");
+		wrt.println("INSERT INTO all_trees VALUES("+Global.get_treecpt()+", "+Global.get_itemsetcpt()+",1)");
 		Global.inc_itemsetcpt();
+		if(tree.getNbChildren() != 0){
 		printTreeInDatabase(wrt,tabitem[i],tabexist[i], 1,"all_trees");
+		}
 		//print the statitistics here (the format depend on the needs of the plsql program)
 		//writer.println("INSERT INTO trees_charac VALUES(T1,"+size+error+accuracy+constraint);
 		wrt.println("INSERT INTO trees_charac VALUES("+Global.get_treecpt()+", "+mod.getModelSize()+", "+(mod.m_TrainErr).getErrorClassif()+", "+(mod.m_TrainErr).getErrorAccuracy()+", NULL)");
@@ -579,14 +583,15 @@ public class ClusNode extends MyNode implements ClusModel {
 		}
 		else { //greedy search 
 		ClusModelInfo mod = cr.getModelInfo(lastmodel);
+		ClusNode tree = (ClusNode)cr.getModel(lastmodel);
 		tabitem[lastmodel][0] = "null";
 		tabexist[lastmodel][0] = 1;
 		wrt.println("INSERT INTO trees_sets VALUES("+Global.get_itemsetcpt()+", '"+tabitem[lastmodel][0]+"', "+tabexist[lastmodel][0]+")");
 		wrt.println("INSERT INTO greedy_trees VALUES("+Global.get_treecpt()+", "+Global.get_itemsetcpt()+",1)");
 		Global.inc_itemsetcpt();
+		if(tree.getNbChildren() != 0){
 		printTreeInDatabase(wrt,tabitem[lastmodel],tabexist[lastmodel], 1,"greedy_trees");
-		//print the statitistics here (the format depend on the needs of the plsql program)
-		//writer.println("INSERT INTO Trees_charac VALUES(T1,"+size+error+accuracy+constraint);
+		}
 		wrt.println("INSERT INTO trees_charac VALUES("+Global.get_treecpt()+", "+mod.getModelSize()+", "+(mod.m_TrainErr).getErrorClassif()+", "+(mod.m_TrainErr).getErrorAccuracy()+", NULL)");
 		Global.inc_treecpt();
 		}

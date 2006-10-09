@@ -67,7 +67,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 	public void initializeHeuristic() {
 		ClusStatManager smanager = m_BeamInduce.getStatManager();
 		Settings sett = smanager.getSettings();
-		m_MaxTreeSize = sett.getBeamTreeMaxSize();
+		m_MaxTreeSize = sett.getMaxSize();
 		m_BeamPostPruning = sett.isBeamPostPrune();
 		m_Heuristic = (ClusBeamHeuristic)smanager.getHeuristic();
    		int attr_heur = sett.getBeamAttrHeuristic();
@@ -123,6 +123,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 			root.setClusteringStat(stat);
 			m_Induce.fillInStatsAndTests(root, train);
 		}
+		
 		//System.out.println("the beam is initialized to :");root.printTree();
 		/* Compute total weight */
 		double weight = root.getClusteringStat().getTotalWeight();
@@ -131,6 +132,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 		double value = estimateBeamMeasure(root);
 		/* Add tree to beam */
 		beam.addModel(new ClusBeamModel(value, root));
+		System.out.println("the number of children from the root node is :"+root.getNbChildren());
 		return beam;
 	}
 	
@@ -384,8 +386,6 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 		    		ClusBeamModel m = (ClusBeamModel)arraybeam.get(j);
 		    		//m.setRefined(false); //WHY SHOULD I DO THAT ????
 		    		beamresult.addModel(m);
-		    		//ClusNode node = (ClusNode)m.getModel();
-		    		//node.printTree();
 		    	}
 			} else {
 				break;

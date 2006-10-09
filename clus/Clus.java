@@ -1066,11 +1066,7 @@ public class Clus implements CMDLineArgsProvider {
 					clus.getSettings().setSectionTimeSeriesEnabled(true);
 					clus.initialize(cargs, clss);
 					clus.singleRun(clss);
-				} /*//new part added by elisa 1/08/2006
-				else if (cargs.hasOption("exhaustive")) {
-					clus.initialize(cargs, clss);
-					clus.exhaustiveRun(clss);
-				} */else {
+				} else {
 					clus.initialize(cargs, clss);
 					clus.singleRun(clss);
 				}

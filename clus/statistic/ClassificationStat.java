@@ -464,6 +464,17 @@ public class ClassificationStat extends ClusStatistic {
 		return result / m_NbTarget;
 	}
 	
+	/* NEW : 
+	 * */
+	public double getError() {
+		double result = 0.0;
+		for (int i = 0; i < m_NbTarget; i++) {
+			int maj = getMajorityClass(i);
+			result += m_SumWeight - m_ClassCounts[i][maj]; 
+		}
+		return result / m_NbTarget;
+	}
+	
 	public double getErrorDiff(ClusAttributeWeights scale, ClusStatistic other) {
 		double result = 0.0;
 		ClassificationStat or = (ClassificationStat)other;

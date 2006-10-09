@@ -23,6 +23,7 @@ import clus.data.type.*;
 import clus.statistic.*;
 import clus.util.*;
 
+
 public class ClusBeamSearch extends ClusClassifier {
 
 	public final static int HEURISTIC_ERROR = 0;
@@ -67,6 +68,7 @@ public class ClusBeamSearch extends ClusClassifier {
 		ClusStatManager smanager = m_BeamInduce.getStatManager();
 		Settings sett = smanager.getSettings();
 		m_MaxTreeSize = sett.getBeamTreeMaxSize();
+		System.out.println("BeamSearch : the maximal size of the trees is "+m_MaxTreeSize);
 		m_BeamPostPruning = sett.isBeamPostPrune();
 		m_Heuristic = (ClusBeamHeuristic)smanager.getHeuristic();
     		int attr_heur = sett.getBeamAttrHeuristic();
@@ -100,7 +102,7 @@ public class ClusBeamSearch extends ClusClassifier {
 	
 	public ClusBeam initializeBeam(ClusRun run) throws ClusException {
 		ClusStatManager smanager = m_BeamInduce.getStatManager();
-		Settings sett = smanager.getSettings();		
+		Settings sett = smanager.getSettings();	
 		ClusBeam beam = new ClusBeam(sett.getBeamWidth(), sett.getBeamRemoveEqualHeur());
 		/* Create single leaf node */
 		RowData train = (RowData)run.getTrainingSet();

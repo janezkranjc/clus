@@ -453,6 +453,8 @@ public class Settings implements Serializable {
 	/* Exhaustive Search : Elisa 1/08/2006*/
 	protected INIFileSection m_SectionExhaustive;
 	protected INIFileBool m_exhaustive;
+	protected INIFileInt m_StartTreeCpt;
+	protected INIFileInt m_StartItemCpt;
 	
 	/* Hierarchical Multi-Classification */
 	protected INIFileString m_HierSep;
@@ -671,6 +673,8 @@ public class Settings implements Serializable {
 		//added by elisa 1/08/2006
 		m_SectionExhaustive = new INIFileSection("Exhaustive");
 		m_SectionExhaustive.addNode(m_exhaustive = new INIFileBool("Exhaustive", true));
+		m_SectionExhaustive.addNode(m_StartTreeCpt = new INIFileInt("StartTreeCpt", 0));
+		m_SectionExhaustive.addNode(m_StartItemCpt = new INIFileInt("StartItemCpt", 0));
 		
 		timeSeries = new INIFileSection("TimeSeries");
 		timeSeries.addNode(timeSeriesDM=new INIFileNominal("DistanceMeasure", TIME_SERIES_DISTANCE_MEASURE,0));
@@ -692,6 +696,7 @@ public class Settings implements Serializable {
 		m_Ini.addNode(constr);
 		m_Ini.addNode(output);
 		m_Ini.addNode(m_SectionBeam);
+		m_Ini.addNode(m_SectionExhaustive); // add elisa 1/08/06
 		m_Ini.addNode(m_SectionHierarchical);
 		// add kNN section
 		m_Ini.addNode(m_SectionKNN);
@@ -984,6 +989,16 @@ public class Settings implements Serializable {
 	//added by elisa 1/08/2006
 	public boolean isExhaustiveSearch() {
 		return m_exhaustive.getValue();
+	}
+	
+	//added by Elisa 27/09/2006
+	
+	public int getStartTreeCpt() {
+		return m_StartTreeCpt.getValue();
+	}
+	
+	public int getStartItemCpt() {
+		return m_StartItemCpt.getValue();
 	}
 	//
 	

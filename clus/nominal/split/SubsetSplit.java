@@ -115,6 +115,8 @@ public class SubsetSplit extends NominalSplit {
 			}
 		// }
 		// Found better test :-)
+			//System.out.print("In SubsetSlip, new test is "+type.getName());
+			//System.out.println(" with heurisitc :"+bheur);
 		if (bheur > node.m_BestHeur + ClusHeuristic.DELTA) {
 			node.m_UnknownFreq = unk_freq;
 			node.m_BestHeur = bheur;

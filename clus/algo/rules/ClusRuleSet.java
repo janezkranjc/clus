@@ -325,7 +325,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	public void printModelToPythonScript(PrintWriter wrt) {
 	}
 	
-	public void printModelToQuery(PrintWriter wrt, ClusRun cr) {
+	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem) {
 	}
 	public int getModelSize() {
 		return m_Rules.size();
