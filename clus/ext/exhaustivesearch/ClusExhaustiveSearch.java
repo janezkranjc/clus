@@ -37,6 +37,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 	protected boolean m_BeamChanged;
 	protected int m_CurrentModel;
 	protected int m_MaxTreeSize;
+	protected double m_MaxError;
 	protected double m_TotalWeight;
 	protected ArrayList m_BeamStats;
 	protected ClusBeam m_Beam;
@@ -68,6 +69,8 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 		ClusStatManager smanager = m_BeamInduce.getStatManager();
 		Settings sett = smanager.getSettings();
 		m_MaxTreeSize = sett.getMaxSize();
+		m_MaxError = sett.getMaxErrorConstraint(0);
+		System.out.println("ClusExhaustiveSearch : The Max Error is "+m_MaxError);
 		m_BeamPostPruning = sett.isBeamPostPrune();
 		m_Heuristic = (ClusBeamHeuristic)smanager.getHeuristic();
    		int attr_heur = sett.getBeamAttrHeuristic();
@@ -213,6 +216,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 	/*
 	 * Used to go down the tree to each leaf and then refine each leafs
 	 */
+	
 	public void refineEachLeaf(ClusNode tree, ClusBeamModel root, ClusBeam beam, ClusAttrType[] attrs) {
 		int nb_c = tree.getNbChildren();
 		if (nb_c == 0) {
@@ -226,6 +230,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 		}
 	}
 	
+	
 	public void refineModel(ClusBeamModel model, ClusBeam beam, ClusRun run) throws IOException {
 		ClusNode tree = (ClusNode)model.getModel();
 		/* Compute size */
@@ -235,6 +240,29 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 				return;
 			}
 		}
+		
+		//we assume that the test are binary
+		if(m_MaxError >0 && m_MaxTreeSize>0){//default m_MaxError =0
+			int NbpossibleSplit = (m_MaxTreeSize - tree.getModelSize())/2;
+			//System.out.println("the number of possible split is still "+NbpossibleSplit);
+			double[] error = getErrorPerleaf(tree);
+			//System.out.println("the number of leaf is "+error.length);
+			double minerror = 0.0;
+			if(error.length > NbpossibleSplit){
+				for(int i = 0; i < ((error.length)-NbpossibleSplit);i++){
+					//System.out.println(" leaf "+i+", error = "+error[i]);
+					minerror+= error[i];
+				}	
+				double minerrorrel = minerror/m_TotalWeight;
+				//System.out.println("the minimum relative error is : "+minerrorrel);
+				if(minerrorrel > m_MaxError){
+					tree.printTree();
+					System.out.println("PRUNE WITH ERROR");
+					return;
+				}
+			}
+		}
+		
 		/* Sort the data into tree */
 		RowData train = (RowData)run.getTrainingSet();
 		m_Coll.initialize(tree, null);
@@ -249,6 +277,40 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 		/* Remove data from tree */
 		tree.clearVisitors();
 	}
+	
+	public	static double[] getErrorPerleaf(ClusNode tree){
+		int nbleaf = tree.getNbLeaf();
+		double[] resulterror = new double[nbleaf];
+		if (tree.atBottomLevel()) {
+			ClusStatistic total = tree.getClusteringStat();
+			resulterror[0] = total.getError();
+			//System.out.println("ClusNode : error is "+resulterror[0]);
+			}
+		else {
+			ClusNode child0 = (ClusNode)tree.getChild(0);
+			resulterror = getErrorPerleaf(child0);
+				for (int i = 1; i < tree.getNbChildren(); i++) {
+					ClusNode childi = (ClusNode)tree.getChild(i);
+					double [] errori = getErrorPerleaf(childi);
+					resulterror = concatarraysorted(resulterror, errori);
+				}
+			}
+		return resulterror;
+	}
+	
+	public static double [] concatarraysorted(double [] array1, double [] array2){
+	int size_array =  array1.length+ array2.length ;
+	double [] array = new double[size_array];
+		for (int i=0; i< array1.length;i++){
+			array[i] = array1[i];
+		}
+		for(int i=0; i< array2.length;i++){
+		  array[i+array1.length]  = array2[i];	
+		}
+		Arrays.sort(array);
+		return array;
+	}
+	
 	
 	public void refineBeamExhaustive(ClusBeam beam, ClusRun run) throws IOException {
 		setBeamChanged(false);
@@ -369,6 +431,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 		m_Induce = new ConstraintDFInduce(m_BeamInduce);
 		ClusBeam beam = initializeBeamExhaustive(run);
 		ClusBeam beamresult = new ClusBeam(-1, false); 
+		int cpt_tree_evaluation = 0;
 		int i = 0;
 		setVerbose(true);
 		while (true) {
@@ -379,29 +442,39 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 			refineBeamExhaustive(beam, run);
 			if (isBeamChanged()) { //look for the change of the CluBeamInduce object
 				estimateBeamStats(beam);
-			
-				ArrayList arraybeam = beam.toArray();
-				for (int j = 0; j < arraybeam.size(); j++) {
-					//System.out.print("copy the "+j+"th model of the beam : ");
-		    		ClusBeamModel m = (ClusBeamModel)arraybeam.get(j);
-		    		//m.setRefined(false); //WHY SHOULD I DO THAT ????
-		    		beamresult.addModel(m);
-		    	}
 			} else {
 				break;
 			}
 			i++;
 		}
+		ArrayList arraybeam = beam.toArray();
+		for (int j = 0; j < arraybeam.size(); j++) {
+			//System.out.print("copy the "+j+"th model of the beam : ");
+    		ClusBeamModel m = (ClusBeamModel)arraybeam.get(j);
+    		//m.setRefined(false); //WHY SHOULD I DO THAT ????
+    		ClusNode tree = (ClusNode)m.getModel();
+    		
+    		//System.out.println("Clus Exhaus MaxError is "+m_MaxError);
+    		//System.out.println("Clus Exhaus error of the tree is "+(ClusNode.estimateErrorRecursive(tree)/m_TotalWeight));
+    		cpt_tree_evaluation++;
+    		if (m_MaxError<=0 || ((ClusNode.estimateErrorRecursive(tree)/m_TotalWeight) <= m_MaxError)){	
+    		beamresult.addModel(m);
+    		//ClusNode node = (ClusNode)m.getModel();
+    		//node.printTree();
+    		//System.out.println("tree nb "+(beamresult.toArray()).size()+" added");
+    		}
+    	}		
 		System.out.println();
 		setBeam(beamresult);	
 		ArrayList arraybeamresult = beamresult.toArray();
-		System.out.println("la nombre de model construit est "+arraybeamresult.size());
+		System.out.println(" the model that fulfill the constraints are"+arraybeamresult.size());
 		/*for (int j = 0; j < arraybeamresult.size(); j++) {
 			System.out.println("model"+j+": ");
 			ClusBeamModel m = (ClusBeamModel)arraybeamresult.get(j);
 			ClusNode node = (ClusNode)m.getModel();
     		node.printTree();
 		}*/
+		System.out.println("The number of tree evaluated is "+cpt_tree_evaluation);
 		return beamresult;
 	}
 

@@ -12,7 +12,7 @@ public abstract class ClusStatistic implements Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
   
-	public double m_SumWeight;
+	public double m_SumWeight; // the weighted sum of all example
 	
 	public abstract ClusStatistic cloneStat();
 		
@@ -148,6 +148,10 @@ public abstract class ClusStatistic implements Serializable {
  **/	
 	
 	public double getError() {
+		return getError(null);
+	}
+	
+	public double getErrorRel() { // 0<error<1
 		return getError(null);
 	}
 

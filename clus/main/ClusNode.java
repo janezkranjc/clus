@@ -528,6 +528,34 @@ public class ClusNode extends MyNode implements ClusModel {
 		}
 	}	
 	
+	//if all the weight are equal to one
+	// cpt count the number of leaf
+	public static double estimateErrorRecursive(ClusNode tree) {
+		if (tree.atBottomLevel()) {
+			ClusStatistic total = tree.getClusteringStat();
+			//System.out.println("CLUSNODE error at leaf is "+total.getErrorRel());
+			return total.getError();
+			
+		} else {
+			double result = 0.0;
+			for (int i = 0; i < tree.getNbChildren(); i++) {
+				ClusNode child = (ClusNode)tree.getChild(i);
+				result += estimateErrorRecursive(child);
+			}
+			return result;
+		}
+	}	
+	
+	public int getNbLeaf(){
+		int nbleaf =0;
+		if (atBottomLevel()) {nbleaf++;}
+		else {for (int i = 0; i < getNbChildren(); i++) {
+			ClusNode child = (ClusNode)getChild(i);
+			nbleaf += child.getNbLeaf();
+		}}
+		return nbleaf;
+	}
+	
 	/***************************************************************************
 	 * Printing the tree ?
 	 ***************************************************************************/
@@ -565,8 +593,6 @@ public class ClusNode extends MyNode implements ClusModel {
 		for (int i = 0; i < cr.getNbModels(); i++) {
 		ClusModelInfo mod = cr.getModelInfo(i);
 		ClusNode tree = (ClusNode)cr.getModel(i);
-		//String modelnamei = mod.getName();
-		//wrt.println(modelnamei);
 		tabitem[i][0] = "null";
 		tabexist[i][0] = 1;
 		wrt.println("INSERT INTO trees_sets VALUES("+Global.get_itemsetcpt()+", '"+tabitem[i][0]+"', "+tabexist[i][0]+")");
@@ -575,9 +601,15 @@ public class ClusNode extends MyNode implements ClusModel {
 		if(tree.getNbChildren() != 0){
 		printTreeInDatabase(wrt,tabitem[i],tabexist[i], 1,"all_trees");
 		}
+		if(tree.getNbNodes() == 1){ //we look for the majority class in the data
+		double error_rate = (tree.m_ClusteringStat).getErrorRel();
+		wrt.println("INSERT INTO trees_charac VALUES("+Global.get_treecpt()+", "+mod.getModelSize()+", "+error_rate+", "+(1-error_rate)+", NULL)");		
+		}
+		else{
 		//print the statitistics here (the format depend on the needs of the plsql program)
 		//writer.println("INSERT INTO trees_charac VALUES(T1,"+size+error+accuracy+constraint);
 		wrt.println("INSERT INTO trees_charac VALUES("+Global.get_treecpt()+", "+mod.getModelSize()+", "+(mod.m_TrainErr).getErrorClassif()+", "+(mod.m_TrainErr).getErrorAccuracy()+", NULL)");
+		}
 		Global.inc_treecpt();
 		}
 		}

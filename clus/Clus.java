@@ -1020,7 +1020,7 @@ public class Clus implements CMDLineArgsProvider {
 				}  //new part added by elisa 1/08/2006
 				else if (cargs.hasOption("exhaustive")) {
 				clus.getSettings().setSectionExhaustiveEnabled(true);
-				clss = new ClusExhaustiveSearch(clus);
+				clss = new ClusExhaustiveDFSearch(clus);
 				} 
 				else {
 					clss = new ClusDecisionTree(clus);
