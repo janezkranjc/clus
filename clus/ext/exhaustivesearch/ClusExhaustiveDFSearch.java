@@ -150,26 +150,6 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 	 * Used to go down the tree to each leaf and then refine each leafs
 	 */
 	
-	/*
-	
-	boolean stop_ref;
-	stop_ref := false;
-	int nb_c = tree.getNbChildren();
-	if (nb_c == 0) {
-   		refineGivenLeafExhaustive(tree, root, beam, attrs);
-	} else {
-    	for (int i = nb_c-1; i >= 0; i--) {
-    		if (!stop_ref) {
-    			ClusNode child = (ClusNode)tree.getChild(i);
-    			if (child.getNbChildren() > 0) {
-    		`		stop_ref:=true;
-    			}
-    			refineEachLeaf(child, root, beam, attrs);
-    		}
-    	}
-    }
-    */
-	
 	public void refineEachLeafDF(ClusNode tree, ClusBeamModel root, ClusBeam beam, ClusAttrType[] attrs, ClusRun run) throws IOException {
 		int nb_c = tree.getNbChildren();
 		System.out.println("Tree to refine:");
@@ -260,7 +240,7 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 			}
 		}
 		
-		
+		/*
 		//we assume that the test as binary
 		if(m_MaxError >0 && m_MaxTreeSize>0){//default m_MaxError =0
 			int NbpossibleSplit = (m_MaxTreeSize - tree.getModelSize())/2;
@@ -284,7 +264,7 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 				}
 			}
 		}
-		
+		*/
 		
 		/* Sort the data into tree */
 		RowData train = (RowData)run.getTrainingSet();
@@ -304,7 +284,7 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 	public ClusBeam exhaustiveSearch(ClusRun run) throws ClusException, IOException {
 		//int cpt_tree_evaluation = 0;
 		reset();
-		System.out.println("Starting exhaustive depth first search");
+		System.out.println("Starting exhaustive depth first search :");
 		m_Induce = new ConstraintDFInduce(m_BeamInduce);
 		ClusBeam beam = new ClusBeam(-1, false);
 		ClusBeamModel current = getRootNode(run);
