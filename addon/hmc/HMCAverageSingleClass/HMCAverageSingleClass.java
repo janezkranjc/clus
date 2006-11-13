@@ -12,6 +12,7 @@ import jeans.util.*;
 
 import clus.*;
 import clus.algo.tdidt.*;
+import clus.data.rows.*;
 import clus.ext.*;
 import clus.main.*;
 import clus.util.*;
@@ -74,6 +75,13 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		return result;
 	}
 	
+	public int getClassIndex(String file) throws ClusException {
+		String class_str = getClassStr(file);
+		ClassHierarchy hier = getStatManager().getHier();
+		ClassesValue val = new ClassesValue(class_str, hier.getType().getTable());
+		return hier.getClassTerm(val).getIndex();
+	}
+	
 	public void loadModel(String file, HMCAverageTreeModel model) throws IOException, ClusException, ClassNotFoundException {
 		String class_str = getClassStr(file);
 		System.out.println("Loading: "+file+" class: "+class_str);
@@ -118,6 +126,20 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		output.writeHeader();
 		output.writeOutput(cr, true, true);
 		output.close();
+	}
+	
+	public void evaluateModelAndUpdateErrors(int class_idx, ClusModel model, ClusRun cr) throws ClusException, IOException {
+		RowData data = cr.getTestSet();
+		m_Clus.getSchema().attachModel(model);
+		for (int i = 0; i < data.getNbRows(); i++) {
+			DataTuple tuple = data.getTuple(i);
+			ClusStatistic prediction = model.predictWeighted(tuple);
+			double pred_weight = ((WHTDStatistic)prediction).getMean(0);
+			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
+			boolean has_class = tp.hasClass(class_idx);
+			// for each threshold
+			    // update corresponding hierclasswiseacc
+		}
 	}
 	
 	public String[] getOptionArgs() {
