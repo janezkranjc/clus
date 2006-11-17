@@ -152,8 +152,8 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 	
 	public void refineEachLeafDF(ClusNode tree, ClusBeamModel root, ClusBeam beam, ClusAttrType[] attrs, ClusRun run) throws IOException {
 		int nb_c = tree.getNbChildren();
-		System.out.println("Tree to refine:");
-		tree.printTree();
+		//System.out.println("Tree to refine:");
+		//tree.printTree();
 		if (nb_c == 0) {
 	   		refineGivenLeafExhaustiveDF(tree, root, beam, attrs, run);
 		} else {
@@ -229,6 +229,7 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 		if (m_MaxTreeSize > 0 && size > m_MaxTreeSize) tree_ok = false;
 		if (m_MaxError > 0 && ClusNode.estimateErrorRecursive(tree)/m_TotalWeight > m_MaxError) tree_ok = false;
 		if (tree_ok) {
+			//System.out.println("model "+getCTree()+" must be added");
 			beam.addModel(model);	
 		}		
 		//System.out.println("Tree size: "+size+" err: "+ClusNode.estimateErrorRecursive(tree)/m_TotalWeight+" ok: "+tree_ok);
@@ -240,7 +241,7 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 			}
 		}
 		
-		/*
+		
 		//we assume that the test as binary
 		if(m_MaxError >0 && m_MaxTreeSize>0){//default m_MaxError =0
 			int NbpossibleSplit = (m_MaxTreeSize - tree.getModelSize())/2;
@@ -264,7 +265,7 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 				}
 			}
 		}
-		*/
+		
 		
 		/* Sort the data into tree */
 		RowData train = (RowData)run.getTrainingSet();
