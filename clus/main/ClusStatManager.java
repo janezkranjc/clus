@@ -205,7 +205,11 @@ public class ClusStatManager implements Serializable {
 			sum += result.getWeight(cr_nom);
 		}
 		if (sum <= 0) {
-			throw new ClusException("initWeights(): Sum of clustering/compactness weights must be > 0!");
+			/* Valentin: I must comment this, because of when I have only time series as
+			 * clustering attributes, this doesn't work.
+			 * sorry bernard :(
+			 * */ 
+			//throw new ClusException("initWeights(): Sum of clustering/compactness weights must be > 0!");		
 		}
 		for (int i = 0; i < num.length; i++) {
 			NumericAttrType cr_num = num[i];
