@@ -36,11 +36,12 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 
 	public double getSS(ClusAttributeWeights scale, RowData data) {
 		optimizePreCalc(data);
+		//optimizeLinearPreCalc(data);
+		//optimizeLogPreCalc(data);
 		return m_Value;
 	}
 
 	public void optimizePreCalc(RowData data) {
-		
 		//long t = Calendar.getInstance().getTimeInMillis();
 		if (!m_Modified) return;
 		//System.out.print(data.getNbRows()+"\t");
@@ -50,8 +51,8 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 			if (m_Bits.getBit(i)) {
 				DataTuple a = data.getTuple(i);
 				TimeSeries t1 = (TimeSeries)a.getObjVal(0);
-				double a_weight = a.getWeight();			
-				for (int j = 0; j <= i; j++) {
+				double a_weight = a.getWeight();
+				for (int j = 0; j < i; j++) {
 					if (m_Bits.getBit(j)) {
 						DataTuple b = data.getTuple(j);
 						TimeSeries t2 = (TimeSeries)b.getObjVal(0);
@@ -60,10 +61,70 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				}
 			}
 		}
+		m_Value = Math.sqrt(m_Value/nb);
 		m_Modified = false;
-		//System.out.println((Calendar.getInstance().getTimeInMillis()-t)/1000+"sec.");
-		
 	}	
+
+	//linear random
+	public void optimizeLinearPreCalc(RowData data) {
+		Random r = new Random();
+		//long t = Calendar.getInstance().getTimeInMillis();
+		if (!m_Modified) return;
+		//System.out.print(data.getNbRows()+"\t");
+		m_Value = 0.0;		
+		int nb = m_Bits.size();
+		int sumcount = 0;
+		for (int i = 0; i < nb; i++) {
+			if (m_Bits.getBit(i)) {
+				DataTuple a = data.getTuple(i);
+				TimeSeries t1 = (TimeSeries)a.getObjVal(0);
+				double a_weight = a.getWeight();
+				for (int j = 0; j < 2; j++) {
+					int k = r.nextInt(i);
+					if (m_Bits.getBit(k)) {
+						DataTuple b = data.getTuple(k);
+						TimeSeries t2 = (TimeSeries)b.getObjVal(0);
+						m_Value += Math.pow(a_weight*b.getWeight()*calcDistance(t1,t2),2);
+						sumcount++;
+					}	
+				}
+			}
+		}
+		m_Value = Math.sqrt(m_Value/sumcount);
+		m_Modified = false;
+	}	
+
+	
+	// N*LogN random
+	public void optimizeLogPreCalc(RowData data) {
+		Random r = new Random();
+		
+		//long t = Calendar.getInstance().getTimeInMillis();
+		if (!m_Modified) return;
+		//System.out.print(data.getNbRows()+"\t");
+		m_Value = 0.0;		
+		int nb = m_Bits.size();
+		int sumcount = 0;
+		for (int i = 0; i < nb; i++) {
+			if (m_Bits.getBit(i)) {
+				DataTuple a = data.getTuple(i);
+				TimeSeries t1 = (TimeSeries)a.getObjVal(0);
+				double a_weight = a.getWeight();
+				int lognb = (int)Math.floor(Math.log(nb)/Math.log(2))+1;
+				for (int j = 0; j < lognb; j++) {
+					int k = j*(nb / lognb) + r.nextInt(nb / lognb);
+					if (m_Bits.getBit(k)) {
+						DataTuple b = data.getTuple(k);
+						TimeSeries t2 = (TimeSeries)b.getObjVal(0);
+						m_Value += Math.pow(a_weight*b.getWeight()*calcDistance(t1,t2),2);
+						sumcount++;
+					}	
+				}
+			}
+		}
+		m_Value = Math.sqrt(m_Value/sumcount);
+		m_Modified = false;
+	}		
 	
 	/*
 	 * [Aco]
