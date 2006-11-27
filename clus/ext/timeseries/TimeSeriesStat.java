@@ -36,12 +36,30 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 
 	public double getSS(ClusAttributeWeights scale, RowData data) {
 		optimizePreCalc(data);
-		//optimizeLinearPreCalc(data);
-		//optimizeLogPreCalc(data);
 		return m_Value;
 	}
+	
+
 
 	public void optimizePreCalc(RowData data) {
+		switch (Settings.timeSeriesProtoComlexity.getValue()){
+		case 1:
+			System.out.println("Log");
+			optimizeLogPreCalc(data);
+			break;
+		case 2:
+			System.out.println("Linear");
+			optimizeLinearPreCalc(data);
+			break;
+		default :
+			System.out.println("N^2");
+			optimizePreCalcDefault(data);
+			break;
+			
+		}
+	}
+	
+	public void optimizePreCalcDefault(RowData data){
 		//long t = Calendar.getInstance().getTimeInMillis();
 		if (!m_Modified) return;
 		//System.out.print(data.getNbRows()+"\t");
@@ -80,7 +98,8 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				TimeSeries t1 = (TimeSeries)a.getObjVal(0);
 				double a_weight = a.getWeight();
 				for (int j = 0; j < 2; j++) {
-					int k = r.nextInt(i);
+					int k;
+					k=((i==0)?0:r.nextInt(i));
 					if (m_Bits.getBit(k)) {
 						DataTuple b = data.getTuple(k);
 						TimeSeries t2 = (TimeSeries)b.getObjVal(0);
