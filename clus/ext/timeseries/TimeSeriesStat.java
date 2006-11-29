@@ -44,15 +44,15 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 	public void optimizePreCalc(RowData data) {
 		switch (Settings.timeSeriesProtoComlexity.getValue()){
 		case 1:
-			System.out.println("Log");
+			//System.out.println("Log");
 			optimizeLogPreCalc(data);
 			break;
 		case 2:
-			System.out.println("Linear");
+			//System.out.println("Linear");
 			optimizeLinearPreCalc(data);
 			break;
 		default :
-			System.out.println("N^2");
+			//System.out.println("N^2");
 			optimizePreCalcDefault(data);
 			break;
 			
@@ -79,12 +79,12 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				}
 			}
 		}
-		m_Value = Math.sqrt(m_Value/nb);
 		m_Modified = false;
 	}	
 
 	//linear random
 	public void optimizeLinearPreCalc(RowData data) {
+		int linearParameter = 10;
 		Random r = new Random();
 		//long t = Calendar.getInstance().getTimeInMillis();
 		if (!m_Modified) return;
@@ -97,9 +97,13 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				DataTuple a = data.getTuple(i);
 				TimeSeries t1 = (TimeSeries)a.getObjVal(0);
 				double a_weight = a.getWeight();
-				for (int j = 0; j < 2; j++) {
-					int k;
-					k=((i==0)?0:r.nextInt(i));
+				int k=-1;
+				for (int j = 0; j < linearParameter; j++) {
+					if (i<linearParameter){
+						k++;
+					}else{
+						k=r.nextInt(i);	
+					}
 					if (m_Bits.getBit(k)) {
 						DataTuple b = data.getTuple(k);
 						TimeSeries t2 = (TimeSeries)b.getObjVal(0);
@@ -109,7 +113,6 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				}
 			}
 		}
-		m_Value = Math.sqrt(m_Value/sumcount);
 		m_Modified = false;
 	}	
 
@@ -141,7 +144,6 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				}
 			}
 		}
-		m_Value = Math.sqrt(m_Value/sumcount);
 		m_Modified = false;
 	}		
 	

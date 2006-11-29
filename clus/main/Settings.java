@@ -234,6 +234,8 @@ public class Settings implements Serializable {
 	
 	public final static String[] TIME_SERIES_DISTANCE_MEASURE={"DTW","QDM","TSC"};
 	
+	public final static String[] TIME_SERIES_PROTOTYPE_COMPLEXITY={"N2","LOG","LINEAR"};
+	
 	public final static int TIME_SERIES_DISTANCE_MEASURE_DTW = 0;
 	
 	public final static int TIME_SERIES_DISTANCE_MEASURE_QDM = 1;
@@ -521,6 +523,8 @@ public class Settings implements Serializable {
 	INIFileSection timeSeries;
 
 	public static INIFileNominal timeSeriesDM;
+	
+	public static INIFileNominal timeSeriesProtoComlexity;
 
 
 	public void create() {
@@ -678,6 +682,7 @@ public class Settings implements Serializable {
 		
 		timeSeries = new INIFileSection("TimeSeries");
 		timeSeries.addNode(timeSeriesDM=new INIFileNominal("DistanceMeasure", TIME_SERIES_DISTANCE_MEASURE,0));
+		timeSeries.addNode(timeSeriesProtoComlexity=new INIFileNominal("PrototypeComlexity", TIME_SERIES_PROTOTYPE_COMPLEXITY,0));
 		timeSeries.setEnabled(false);
 		
 		INIFileSection exper = new INIFileSection("Experimental");
