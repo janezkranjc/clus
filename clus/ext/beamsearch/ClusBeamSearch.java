@@ -123,6 +123,9 @@ public class ClusBeamSearch extends ClusClassifier {
 			root.setClusteringStat(stat);
 			m_Induce.fillInStatsAndTests(root, train);
 		}
+		/* Make sure root also has target statistics computed */
+		root.initTargetStat(getStatManager(), train);
+		root.getTargetStat().calcMean();
 		/* Compute total weight */
 		double weight = root.getClusteringStat().getTotalWeight();
 		setTotalWeight(weight);
@@ -345,8 +348,8 @@ public class ClusBeamSearch extends ClusClassifier {
 		System.out.println("Starting beam search");
 		m_Induce = new ConstraintDFInduce(m_BeamInduce);
 		ClusBeam beam = initializeBeam(run);
-//		MyFile beamlog = new MyFile("beam.log", true);
-//		tryLogBeam(beamlog, beam, "Initial beam:");
+		//MyFile beamlog = new MyFile("beam.log", true);
+		//tryLogBeam(beamlog, beam, "Initial beam:");
 		int i = 0;
 		System.out.print("Step: ");
 		while (true) {
@@ -355,7 +358,7 @@ public class ClusBeamSearch extends ClusClassifier {
 			System.out.flush();
 			refineBeam(beam, run);
 			if (isBeamChanged()) {
-//				tryLogBeam(beamlog, beam, "Step:"+i);
+				//tryLogBeam(beamlog, beam, "Step:"+i);
 				estimateBeamStats(beam);
 			} else {
 				break;
@@ -369,7 +372,7 @@ public class ClusBeamSearch extends ClusClassifier {
 		System.out.println("Worst = "+worst+" Best = "+best);
 		printBeamStats(i-1);
 		ClusNode result = (ClusNode)beam.getBestAndSmallestModel().getModel();
-//		beamlog.close();
+		//beamlog.close();
 		return result;
 	}
 
