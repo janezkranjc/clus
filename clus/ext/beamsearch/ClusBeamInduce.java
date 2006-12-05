@@ -34,7 +34,7 @@ public class ClusBeamInduce extends ClusInduce {
 	
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 		ClusNode root = m_Search.beamSearch(cr);
-		root.postProc(null);
+		root.updateTree();
 		return root;
 	}
 	
@@ -47,7 +47,7 @@ public class ClusBeamInduce extends ClusInduce {
 		for (int i = 0; i < lst.size(); i++) {
 			ClusBeamModel mdl = (ClusBeamModel)lst.get(lst.size()-i-1);
 			ClusNode tree = (ClusNode)mdl.getModel();
-			tree.postProc(null);
+			tree.updateTree();
 			ClusModelInfo model_info = cr.addModelInfo(i+1);
 			model_info.setModel(tree);
 			model_info.setName("Beam "+(i+1));
