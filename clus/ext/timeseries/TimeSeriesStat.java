@@ -79,6 +79,8 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				}
 			}
 		}
+		m_Value = 2*m_Value /(nb-1);
+		
 		m_Modified = false;
 	}	
 
@@ -113,6 +115,7 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				}
 			}
 		}
+		m_Value = nb*m_Value / sumcount;
 		m_Modified = false;
 	}	
 
@@ -144,6 +147,7 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				}
 			}
 		}
+		m_Value = nb*m_Value / sumcount;
 		m_Modified = false;
 	}		
 	
