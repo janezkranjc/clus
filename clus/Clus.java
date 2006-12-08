@@ -563,6 +563,31 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
+	public final static double calcModelError(ClusStatManager mgr, RowData data, ClusModel model) throws ClusException, IOException {
+		ClusSchema schema = data.getSchema();
+		/* create error measure */
+		ClusErrorParent error = new ClusErrorParent(mgr);
+		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		if (nom.length != 0) {
+			error.addError(new Accuracy(error, nom));
+		} else if (num.length != 0) {
+			error.addError(new PearsonCorrelation(error, num));
+		}
+		/* attach model to given schema */		
+		schema.attachModel(model);
+		/* iterate over tuples and compute error */
+		for (int i = 0; i < data.getNbRows(); i++) {
+			DataTuple tuple = data.getTuple(i);
+			ClusStatistic pred = model.predictWeighted(tuple);
+			error.addExample(tuple, pred);
+		}
+		/* return the error */
+		double err = error.getFirstError().getModelError();
+		System.out.println("Error: "+err);
+		return err;
+	}	
+	
 	public final void calcError(TupleIterator iter, int type, ClusRun cr)	throws IOException, ClusException {
 		iter.init();
 		ClusSchema mschema = iter.getSchema();

@@ -46,7 +46,7 @@ public class ClusBeamInduce extends ClusInduce {
 		ArrayList lst = m_Search.getBeam().toArray();
 		for (int i = 0; i < lst.size(); i++) {
 			ClusBeamModel mdl = (ClusBeamModel)lst.get(lst.size()-i-1);
-			ClusNode tree = (ClusNode)mdl.getModel();
+			ClusNode tree = (ClusNode)mdl.getModel();			
 			tree.updateTree();
 			ClusModelInfo model_info = cr.addModelInfo(i+1);
 			model_info.setModel(tree);
