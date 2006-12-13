@@ -1096,8 +1096,8 @@ public class Clus implements CMDLineArgsProvider {
 					clus.singleRun(clss);
 				}
 			}
-			if (Debug.debug == 1)
-				ClusStat.show();
+			if (Debug.debug == 1) ClusStat.show();
+			DebugFile.close();
 		} catch (ClusException e) {
 			System.err.println("Error: " + e);
 		} catch (IllegalArgumentException e) {

@@ -95,6 +95,10 @@ public class BitVectorStat extends ClusStatistic {
 		m_Modified = true;		
 	}
 	
+	public int getNbTuples() {
+		return m_Bits.getNbOnes();
+	}
+	
 	public double[] getNumericPred() {
 		System.err.println("BitVectorStat: getNumericPred not implemented");	
 		return null;

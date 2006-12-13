@@ -10,7 +10,7 @@ import clus.ext.sspd.SSPDMatrix;
 import clus.main.Settings;
 import clus.statistic.BitVectorStat;
 import clus.statistic.StatisticPrintInfo;
-import clus.util.ClusFormat;
+import clus.util.*;
 
 public abstract class TimeSeriesStat extends BitVectorStat {
 
@@ -42,9 +42,8 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 		return m_Value;
 	}
 	
-
-
 	public void optimizePreCalc(RowData data) {
+		if (!m_Modified) return;
 		switch (Settings.timeSeriesProtoComlexity.getValue()){
 		case 1:
 			//System.out.println("Log");
@@ -54,17 +53,28 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 			//System.out.println("Linear");
 			optimizeLinearPreCalc(data);
 			break;
+		case 4:
+			optimizeLinearPreCalc(data);
+			double linval = m_Value / getTotalWeight();
+			optimizeLogPreCalc(data);
+			double logval = m_Value / getTotalWeight();			
+			optimizePairwiseLinearPreCalc(data);
+			double pairval = m_Value / getTotalWeight();
+			optimizePreCalcDefault(data);
+			double exactval = m_Value / getTotalWeight();			
+			String str = ""+exactval+","+linval+","+logval+","+pairval+","+getTotalWeight();
+			DebugFile.log(str);
+			System.out.println("Next: "+str);
 		default :
 			//System.out.println("N^2");
 			optimizePreCalcDefault(data);
-			break;
-			
+			break;			
 		}
+		m_Modified = false;
 	}
 	
 	public void optimizePreCalcDefault(RowData data) {
 		//long t = Calendar.getInstance().getTimeInMillis();
-		if (!m_Modified) return;
 		m_Value = 0.0;		
 		double sumWi = 0.0;
 		int nb = m_Bits.size();		
@@ -85,7 +95,6 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 			}
 		}
 		m_Value = getTotalWeight() * m_Value / sumWi;
-		m_Modified = false;
 	}	
 	
 	public final static int Sampling_K_Random(int a, int b) {
@@ -93,10 +102,13 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 		return a + m_Random.nextInt(b + 1);
 	}
 
-	//linear random
 	public void optimizeLinearPreCalc(RowData data) {
+		optimizeLinearPreCalc(data, linearParameter);
+	}
+	
+	//linear random
+	public void optimizeLinearPreCalc(RowData data, int samplenb) {
 		//long t = Calendar.getInstance().getTimeInMillis();
-		if (!m_Modified) return;
 		/* reset value */
 		m_Value = 0.0;		
 		int nb = m_Bits.size();
@@ -106,7 +118,7 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 		for (int i = 0; i < nb; i++) {
 			if (m_Bits.getBit(i)) indices[nb_total++] = i; 
 		}
-		if (nb_total < linearParameter) {
+		if (nb_total < samplenb) {
 			/* less examples than sample size, use default method */
 			optimizePreCalcDefault(data);
 			return;
@@ -121,8 +133,8 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				/* Knuth's SAMPLING_K */
 				int T = 0;
 				int M = 0;
-				while (M < linearParameter) {
-					if (Sampling_K_Random(0, nb_total - T - 1) < linearParameter - M) {
+				while (M < samplenb) {
+					if (Sampling_K_Random(0, nb_total - T - 1) < samplenb - M) {
 						DataTuple b = data.getTuple(indices[T]);
 						TimeSeries t2 = (TimeSeries)b.getObjVal(0);
 						double wi = a_weight*b.getWeight();
@@ -135,38 +147,42 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 			}
 		}
 		m_Value = getTotalWeight() * m_Value / sumWi;
-		m_Modified = false;
+	}
+	
+	public void optimizePairwiseLinearPreCalc(RowData data) {
+		/* reset value */
+		m_Value = 0.0;		
+		int nb = m_Bits.size();
+		/* create index */
+		int nb_total = 0;
+		int[] indices = new int[nb];
+		for (int i = 0; i < nb; i++) {
+			if (m_Bits.getBit(i)) indices[nb_total++] = i; 
+		}
+		/* compute SSPD */
+		double sumWi = 0.0;
+		for (int i = 0; i < nb_total; i++) {
+			/* get first tuple */
+			int a = Sampling_K_Random(0, nb_total-1); 
+			DataTuple dt1 = data.getTuple(indices[a]);
+			TimeSeries t1 = (TimeSeries)dt1.getObjVal(0);
+			/* get second tuple */
+			int b = Sampling_K_Random(0, nb_total-1);
+			DataTuple dt2 = data.getTuple(indices[b]);
+			TimeSeries t2 = (TimeSeries)dt2.getObjVal(0);
+			/* update sspd formula */
+			double wi = dt1.getWeight()*dt2.getWeight();
+			m_Value += wi * Math.pow(calcDistance(t1,t2),2);
+			sumWi += wi;
+		}
+		m_Value = getTotalWeight() * m_Value / sumWi;
 	}
 	
 	// N*LogN random
 	public void optimizeLogPreCalc(RowData data) {
-		Random r = new Random();
-		
-		//long t = Calendar.getInstance().getTimeInMillis();
-		if (!m_Modified) return;
-		//System.out.print(data.getNbRows()+"\t");
-		m_Value = 0.0;		
-		int nb = m_Bits.size();
-		int sumcount = 0;
-		for (int i = 0; i < nb; i++) {
-			if (m_Bits.getBit(i)) {
-				DataTuple a = data.getTuple(i);
-				TimeSeries t1 = (TimeSeries)a.getObjVal(0);
-				double a_weight = a.getWeight();
-				int lognb = (int)Math.floor(Math.log(nb)/Math.log(2))+1;
-				for (int j = 0; j < lognb; j++) {
-					int k = j*(nb / lognb) + r.nextInt(nb / lognb);
-					if (m_Bits.getBit(k)) {
-						DataTuple b = data.getTuple(k);
-						TimeSeries t2 = (TimeSeries)b.getObjVal(0);
-						m_Value += Math.pow(a_weight*b.getWeight()*calcDistance(t1,t2),2);
-						sumcount++;
-					}	
-				}
-			}
-		}
-		m_Value = nb*m_Value / sumcount;
-		m_Modified = false;
+		int nb = getNbTuples();
+		int lognb = (int)Math.floor(Math.log(nb)/Math.log(2))+1;
+		optimizeLinearPreCalc(data, lognb);
 	}		
 	
 	/*

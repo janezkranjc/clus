@@ -234,7 +234,7 @@ public class Settings implements Serializable {
 	
 	public final static String[] TIME_SERIES_DISTANCE_MEASURE={"DTW","QDM","TSC"};
 	
-	public final static String[] TIME_SERIES_PROTOTYPE_COMPLEXITY={"N2","LOG","LINEAR"};
+	public final static String[] TIME_SERIES_PROTOTYPE_COMPLEXITY={"N2", "LOG", "LINEAR", "NPAIRS", "TEST"};
 	
 	public final static int TIME_SERIES_DISTANCE_MEASURE_DTW = 0;
 	
