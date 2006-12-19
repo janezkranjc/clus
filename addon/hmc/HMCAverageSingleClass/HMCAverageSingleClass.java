@@ -20,6 +20,7 @@ import clus.statistic.*;
 import clus.data.type.*;
 import clus.model.modelio.ClusModelCollectionIO;
 import clus.ext.hierarchical.*;
+import clus.error.*;
 
 public class HMCAverageSingleClass implements CMDLineArgsProvider {
 
@@ -28,7 +29,11 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 	
 	protected Clus m_Clus;
 	protected StringTable m_Table = new StringTable();
-
+	
+	//added: keeps prediction results for each threshold
+	protected HierClassWiseAccuracy[] m_EvalArray;
+	//
+	
 	public void run(String[] args) throws IOException, ClusException, ClassNotFoundException {
 		m_Clus = new Clus();
 		Settings sett = m_Clus.getSettings();
@@ -42,11 +47,33 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			m_Clus.initialize(cargs, clss);
 			ClusStatistic target = createTargetStat();
 			target.calcMean();
-			HMCAverageTreeModel model = new HMCAverageTreeModel(target);
+			
+			
+			//no single global model anymore
+			//HMCAverageTreeModel model = new HMCAverageTreeModel(target);
+			//ClusModel model = new ClusNode();
+			 
 			if (cargs.hasOption("models")) {
-				loadModels(cargs.getOptionValue("models"), model);
-				ClusRun cr = m_Clus.partitionData();
-				evaluateModel(cr, model);
+				
+				
+				//loadModels(cargs.getOptionValue("models"), model); // this is what we not want to do
+				
+				//initializing m_EvalArray
+				HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
+				m_EvalArray = new HierClassWiseAccuracy[pruner.getNbResults()];
+				// HierClassWiseAccuracy needs some things
+				ClusErrorParent cep = new ClusErrorParent(getStatManager());
+				ClassHierarchy hier = getStatManager().getHier();
+				//initialize each HierClassWiseAccuracy object
+				for (int i=0;i<pruner.getNbResults();i++) {
+					m_EvalArray[i] = new HierClassWiseAccuracy(cep,hier);
+				}
+				//load models and update statistics
+				loadModelPerModel(cargs.getOptionValue("models"));
+				
+				//in the end we will need to give global statistics
+				//ClusRun cr = m_Clus.partitionData();
+				//evaluateModel(cr, model);
 			} else {
 				throw new ClusException("Must specify e.g., -models dirname");
 			}
@@ -82,7 +109,8 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		return hier.getClassTerm(val).getIndex();
 	}
 	
-	public void loadModel(String file, HMCAverageTreeModel model) throws IOException, ClusException, ClassNotFoundException {
+	
+	public void loadModel(String file) throws IOException, ClusException, ClassNotFoundException {
 		String class_str = getClassStr(file);
 		System.out.println("Loading: "+file+" class: "+class_str);
 		ClusModelCollectionIO io = ClusModelCollectionIO.load(file);
@@ -96,17 +124,38 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		ClassesTuple tuple = new ClassesTuple(class_str, hier.getType().getTable());
 		tuple.addHierarchyIndices(hier);
 		stat.setMeanTuple(tuple);
-		model.addSubModel(sub_model, stat, file, m_Table);
+		
+		
+		//model.addSubModel(sub_model, stat, file, m_Table);
+		
+		//code for addSubModel
+		/*public void addSubModel(ClusModel model, ClusStatistic stat, String name, StringTable table) throws ClusException {
+			ClusNode root = (ClusNode)model;
+			WHTDStatistic root_stat = (WHTDStatistic)root.getTargetStat();
+			ClassesValue val = root_stat.getHier().createValueByName("p", table);		
+			m_Models.add(model);
+			m_Stats.add(stat);
+			m_Names.add(name);
+			m_PosClass.add(val);
+		}*/
 	}
 	
-	public void loadModels(String dir, HMCAverageTreeModel model) throws IOException, ClusException, ClassNotFoundException {
+	
+	public void loadModelPerModel(String dir) throws IOException, ClusException, ClassNotFoundException {
 		String[] files = FileUtil.dirList(dir, "model");
 		for (int i = 0; i < files.length; i++) {
-			loadModel(FileUtil.cmbPath(dir, files[i]), model);
+			loadModel(FileUtil.cmbPath(dir, files[i]));
+			
+			//voor iedere threshold 1
+			ClusModel model = new ClusNode(); //how to initialize model, or what to do with it???
+			int class_idx = getClassIndex(files[i]);
+			ClusRun cr = m_Clus.partitionData();
+			evaluateModelAndUpdateErrors(class_idx, model, cr);
 		}
+		
 	}
 	
-	void evaluateModel(ClusRun cr, HMCAverageTreeModel model) throws IOException, ClusException {
+	/*void evaluateModel(ClusRun cr, HMCAverageTreeModel model) throws IOException, ClusException {
 		Settings sett = m_Clus.getSettings();
 		ClusOutput output = new ClusOutput(sett.getAppName() + ".combined.out", m_Clus.getSchema(), sett);		
 		HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);		
@@ -126,19 +175,31 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		output.writeHeader();
 		output.writeOutput(cr, true, true);
 		output.close();
-	}
+	}*/
 	
 	public void evaluateModelAndUpdateErrors(int class_idx, ClusModel model, ClusRun cr) throws ClusException, IOException {
 		RowData data = cr.getTestSet();
 		m_Clus.getSchema().attachModel(model);
+		HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
 		for (int i = 0; i < data.getNbRows(); i++) {
 			DataTuple tuple = data.getTuple(i);
 			ClusStatistic prediction = model.predictWeighted(tuple);
 			double pred_weight = ((WHTDStatistic)prediction).getMean(0);
 			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
 			boolean has_class = tp.hasClass(class_idx);
-			// for each threshold
+			
+			
+			for (int j = 0; j < pruner.getNbResults(); j++) {
 			    // update corresponding hierclasswiseacc
+				//hoe predicted and correct te weten komen?
+				//number of predictions for that particular class?
+				int pred = 0; //prediction.;
+				//number of correct predictions?
+				int corr = 0;
+				m_EvalArray[j].setPredicted(class_idx, pred);
+				m_EvalArray[j].setCorrect(class_idx, corr);
+				
+			}
 		}
 	}
 	

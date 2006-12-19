@@ -243,5 +243,25 @@ public class HierClassWiseAccuracy extends ClusError {
 	
 	public ClusError getErrorClone(ClusErrorParent par) {
 		return new HierClassWiseAccuracy(par, m_Hier);
-	}	
+	}
+	
+	//Leander added 15/11/06
+	public void setPredicted(int idx, int pred){
+		if (m_Predicted[idx] != 0){
+			m_Predicted[idx] = pred;
+		}
+		else{
+			System.out.println("Model tries to update class information that has already been loaded in.");
+		}
+		
+	}
+	
+	public void setCorrect(int idx, int corr){
+		if (m_Correct[idx] != 0){
+			m_Correct[idx] = corr;
+		}
+		else{
+			System.out.println("Model tries to update class information that has already been loaded in.");
+		}
+	}
 }
