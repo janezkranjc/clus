@@ -76,6 +76,15 @@ public class ClusRun extends CRParent {
 		m_Orig = data;
 	}		
 	
+	public final RowData getDataSet(int whichone) throws ClusException, IOException {
+		switch (whichone) {
+			case TRAINSET: return (RowData)getTrainingSet();
+			case TESTSET: return getTestSet();
+			case VALIDATIONSET: return (RowData)getPruneSet();
+		}
+		return null;
+	}
+	
 /***************************************************************************
  * Training set
  ***************************************************************************/

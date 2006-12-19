@@ -6,6 +6,10 @@ import clus.error.ClusErrorParent;
 
 public abstract class CRParent {
 
+	public final static int TRAINSET = 0;
+	public final static int TESTSET = 1;
+	public final static int VALIDATIONSET = 2;
+	
 	protected ArrayList m_Models = new ArrayList();
 	protected long m_IndTime, m_PrepTime, m_PruneTime;
 

@@ -128,7 +128,12 @@ public class ClusErrorParent implements Serializable {
 				err.addInvalid(tuple);
 			}
 		}
-	}	
+	}
+	
+	public void addExample() {
+		m_NbExamples++;
+		m_NbCover++;			
+	}		
 	
 	public void add(ClusErrorParent par) {
 		int nb = m_Error.size();

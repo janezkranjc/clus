@@ -656,9 +656,6 @@ public class ClusStatManager implements Serializable {
 			int hiermode = getSettings().getHierMode();
 			switch (hiermode) {
 			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				parent.addError(new HierRMSError(parent, getClusteringWeights(), true, true, m_Hier));
-				// parent.addError(new HierRMSError(parent, getClusteringWeights(), true, false, m_Hier));
-				// parent.addError(new HierLevelAccuracy(parent, m_Hier));
 				parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
 				break;
 			}
