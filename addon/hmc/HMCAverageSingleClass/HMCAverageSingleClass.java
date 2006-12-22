@@ -62,6 +62,8 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				//load models and update statistics
 				ClusRun cr = m_Clus.partitionData();
 				loadModelPerModel(cargs.getOptionValue("models"), cr);
+				
+				//write output
 				ClusOutput output = new ClusOutput(sett.getAppName() + ".combined.out", m_Clus.getSchema(), sett);
 				// create default model
 				ClusNode def = new ClusNode();
@@ -156,8 +158,6 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			boolean actually_has_class = tp.hasClass(class_idx);
 			for (int j = 0; j < pruner.getNbResults(); j++) {
 			    // update corresponding hierclasswiseacc
-				//hoe predicted and correct te weten komen?
-				//number of predictions for that particular class?
 				boolean predicted_class = predicted_distr[0] >= pruner.getThreshold(j)/100.0;
 				HierClassWiseAccuracy acc = (HierClassWiseAccuracy)m_EvalArray[train_or_test][j].getError(0);
 				acc.nextPrediction(class_idx, predicted_class, actually_has_class);
