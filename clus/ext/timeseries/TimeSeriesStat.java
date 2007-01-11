@@ -332,5 +332,11 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 		//java.lang.Double.toString(m_SumWeight);
 	}
 
+	public TimeSeries getTimeSeriesPred() {
+		return m_RepresentativeMedian;
+	}
+
+	
+	
 	
 }

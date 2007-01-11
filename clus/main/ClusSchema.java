@@ -24,6 +24,7 @@ public class ClusSchema implements Serializable {
 	protected ClusAttrType[][] m_AllAttrUse;
 	protected NominalAttrType[][] m_NominalAttrUse;
 	protected NumericAttrType[][] m_NumericAttrUse;
+	protected TimeSeriesAttrType[][] m_TimeSeriesAttrUse;
 	protected Settings m_Settings;
 	protected IndexAttrType m_TSAttr;
 	protected IntervalCollection m_Target = IntervalCollection.EMPTY;
@@ -102,6 +103,10 @@ public class ClusSchema implements Serializable {
 		return m_AllAttrUse[attruse].length;
 	}	
 	
+	public TimeSeriesAttrType[] getTimeSeriesAttrUse(int attruse) {
+		return m_TimeSeriesAttrUse[attruse];
+	}
+
 	public final NominalAttrType[] getNominalAttrUse(int attruse) {
 		return m_NominalAttrUse[attruse];
 	}
@@ -521,6 +526,13 @@ public class ClusSchema implements Serializable {
 		}
 		return res;
 	}
+	public static TimeSeriesAttrType[] vectorToTimeSeriesAttrArray(ArrayList list){
+		TimeSeriesAttrType[] res = new TimeSeriesAttrType[list.size()];
+		for (int i = 0; i < list.size(); i++) {
+			res[i] = (TimeSeriesAttrType)list.get(i);
+		}
+		return res;
+	}
 	
 	protected ArrayList collectAttributes(int attruse, int attrtype) {
 		ArrayList result = new ArrayList();
@@ -581,10 +593,12 @@ public class ClusSchema implements Serializable {
 		m_AllAttrUse = new ClusAttrType[ClusAttrType.NB_ATTR_USE][];
 		m_NominalAttrUse = new NominalAttrType[ClusAttrType.NB_ATTR_USE][];
 		m_NumericAttrUse = new NumericAttrType[ClusAttrType.NB_ATTR_USE][];
+		m_TimeSeriesAttrUse = new TimeSeriesAttrType[ClusAttrType.NB_ATTR_USE][];
 		for (int attruse = ClusAttrType.ATTR_USE_ALL; attruse <= ClusAttrType.ATTR_USE_KEY; attruse++) {
 			m_AllAttrUse[attruse] = vectorToAttrArray(collectAttributes(attruse, ClusAttrType.THIS_TYPE));
 			m_NominalAttrUse[attruse] = vectorToNominalAttrArray(collectAttributes(attruse, NominalAttrType.THIS_TYPE));
 			m_NumericAttrUse[attruse] = vectorToNumericAttrArray(collectAttributes(attruse, NumericAttrType.THIS_TYPE));
+			m_TimeSeriesAttrUse[attruse] = vectorToTimeSeriesAttrArray(collectAttributes(attruse, TimeSeriesAttrType.THIS_TYPE));
 		}
 	}
 }

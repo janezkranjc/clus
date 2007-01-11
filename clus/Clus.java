@@ -569,9 +569,12 @@ public class Clus implements CMDLineArgsProvider {
 		ClusErrorParent error = new ClusErrorParent(mgr);
 		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] nom = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		TimeSeriesAttrType[] ts = schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			error.addError(new Accuracy(error, nom));
 		} else if (num.length != 0) {
+			error.addError(new PearsonCorrelation(error, num));
+		} else if (ts.length != 0){
 			error.addError(new PearsonCorrelation(error, num));
 		}
 		/* attach model to given schema */		

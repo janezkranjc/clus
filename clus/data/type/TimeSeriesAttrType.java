@@ -1,6 +1,8 @@
 package clus.data.type;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
 import clus.data.rows.RowSerializable;
@@ -74,5 +76,10 @@ public class TimeSeriesAttrType extends ClusAttrType{
 			tuple.setObjectVal(value, 0);
 		}
 	}
+
+	public void writeARFFType(PrintWriter wrt) throws ClusException {
+		wrt.print("TimeSeries");
+	}
+	
 	
 }

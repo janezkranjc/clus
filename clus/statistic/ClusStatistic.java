@@ -5,6 +5,7 @@ import clus.util.*;
 import clus.data.cols.*; 
 import clus.data.rows.*; 
 import clus.data.attweights.*;
+import clus.ext.timeseries.TimeSeries;
 
 import java.io.*;
 
@@ -112,6 +113,11 @@ public abstract class ClusStatistic implements Serializable {
 		return null;
 	}
 	
+	public TimeSeries getTimeSeriesPred() {
+		System.err.println(getClass().getName()+": getTimeSeriesPred(): Not yet implemented");
+		return null;
+	}
+
 	public int[] getNominalPred() {
 		System.err.println(getClass().getName()+": getNominalPred(): Not yet implemented");
 		return null;
