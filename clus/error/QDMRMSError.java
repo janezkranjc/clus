@@ -15,6 +15,11 @@ public class QDMRMSError extends ClusTimeSeriesError {
 	public QDMRMSError(ClusErrorParent par, TimeSeriesAttrType[] ts) {
 		super(par, ts);
 	}
+	
+	public void reset() {
+		m_SumErr = 0.0;
+		m_SumSqErr = 0.0;
+	}
 
 	public void add(ClusError other) {
 		QDMRMSError oe = (QDMRMSError)other;
@@ -33,6 +38,13 @@ public class QDMRMSError extends ClusTimeSeriesError {
 		return value*value;
 	}
 	
+	public double getModelError() {
+		return getModelErrorComponent(0);
+	}
+	
+	public boolean shouldBeLow() {
+		return true;
+	}	
 	
 	public TimeSeriesAttrType getAttr(int i) {
 		return m_Attrs[i];
