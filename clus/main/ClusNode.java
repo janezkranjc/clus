@@ -7,6 +7,9 @@ import jeans.util.compound.*;
 import java.util.*;
 import java.io.*;
 
+import weka.classifiers.trees.j48.NoSplit;
+import weka.core.Utils;
+
 import clus.util.*;
 import clus.model.test.*;
 import clus.statistic.*;
@@ -291,6 +294,21 @@ public class ClusNode extends MyNode implements ClusModel {
 		return true;
 	}
 	
+	public void pruneByTrainErr(ClusAttributeWeights scale) {
+		if (!atBottomLevel()){
+			double errorsOfSubtree = estimateErrorAbsolute(scale);
+			double errorsOfLeaf = getTargetStat().getError(scale);
+			if (errorsOfSubtree >= errorsOfLeaf-1E-3) {
+				makeLeaf();
+			} else {
+				for (int i = 0; i < getNbChildren(); i++) {
+					ClusNode child = (ClusNode)getChild(i);
+					child.pruneByTrainErr(scale);
+			    }
+			}
+		}
+	}	
+	
 	// Safe prune this tree (using predictions in leaves)
 	public final void safePrune() {
 		int nb_c = getNbChildren();
@@ -427,17 +445,27 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	public final void initTargetStat(ClusStatManager smgr, RowData subset) {
 		m_TargetStat = smgr.createTargetStat();
-		m_TargetStat.setSDataSize(subset.getNbRows());
-		subset.calcTotalStat(m_TargetStat);
-		m_TargetStat.optimizePreCalc(subset);
+		subset.calcTotalStatBitVector(m_TargetStat);
 	}
 	
 	public final void initClusteringStat(ClusStatManager smgr, RowData subset) {
 		m_ClusteringStat = smgr.createClusteringStat();
-		m_ClusteringStat.setSDataSize(subset.getNbRows());
-		subset.calcTotalStat(m_ClusteringStat);
-		m_ClusteringStat.optimizePreCalc(subset);
+		subset.calcTotalStatBitVector(m_ClusteringStat);
 	}
+	
+	public final void reInitTargetStat(RowData subset) {
+		if (m_TargetStat != null) {
+			m_TargetStat.reset();
+			subset.calcTotalStatBitVector(m_TargetStat);			
+		}
+	}
+	
+	public final void reInitClusteringStat(RowData subset) {
+		if (m_ClusteringStat != null) {
+			m_ClusteringStat.reset();
+			subset.calcTotalStatBitVector(m_ClusteringStat);
+		}
+	}	
 		
 	public final void initTotStats(ClusStatistic stat) {
 		m_ClusteringStat = stat.cloneStat();
@@ -502,7 +530,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	public static double estimateSSRecursive(ClusNode tree, ClusAttributeWeights scale) {
 		if (tree.atBottomLevel()) {
-			ClusStatistic total = tree.getClusteringStat();
+			ClusStatistic total = tree.getTargetStat();
 			return total.getSS(scale);
 		} else {
 			double result = 0.0;
@@ -516,7 +544,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	public static double estimateErrorRecursive(ClusNode tree, ClusAttributeWeights scale) {
 		if (tree.atBottomLevel()) {
-			ClusStatistic total = tree.getClusteringStat();
+			ClusStatistic total = tree.getTargetStat();
 			return total.getError(scale);
 		} else {
 			double result = 0.0;
@@ -532,7 +560,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	// cpt count the number of leaf
 	public static double estimateErrorRecursive(ClusNode tree) {
 		if (tree.atBottomLevel()) {
-			ClusStatistic total = tree.getClusteringStat();
+			ClusStatistic total = tree.getTargetStat();
 			//System.out.println("CLUSNODE error at leaf is "+total.getErrorRel());
 			return total.getError();
 			
@@ -802,5 +830,32 @@ public final void printTreeInDatabase(PrintWriter writer, String tabitem[], int 
 			ClusNode child = (ClusNode)getChild(i);
 			child.retrieveStatistics(list);
 		}	   
+	}
+
+	public int getLargestBranchIndex() {
+		double max = 0.0;
+		int max_idx = -1;
+		for (int i = 0; i < getNbChildren(); i++) {
+			ClusNode child = (ClusNode)getChild(i);
+			double child_w = child.getTotWeight();
+			if (ClusUtil.grOrEq(child_w, max)) {
+				max = child_w;
+				max_idx = i;
+			}
+		}
+		return max_idx;
+	}
+
+	public void adaptToData(RowData data) {
+		// sort data into tree
+		NodeTest tst = getTest();
+		for (int i = 0; i < getNbChildren(); i++) {
+			ClusNode child = (ClusNode)getChild(i);
+			RowData subset = data.applyWeighted(tst, i);
+			child.adaptToData(subset);
+		}
+		// recompute statistics
+		reInitTargetStat(data);
+		reInitClusteringStat(data);
 	}
 }

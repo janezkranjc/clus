@@ -827,6 +827,10 @@ public class Clus implements CMDLineArgsProvider {
 			getStatManager().setTrainSetStat(tr_stat);
 			ClusModelInfo mi = cr.addModelInfo(ClusModels.PRUNED);
 			mi.addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
+			
+			cr.showModelInfos();
+			System.exit(0);
+			
 			// ARFFFile.writeCN2Data("test-"+i+".exs", cr.getTestSet());
 			// ARFFFile.writeCN2Data("train-"+i+".exs", (RowData)cr.getTrainingSet());
 			induce(cr, clss);			// Induce tree

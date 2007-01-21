@@ -633,31 +633,23 @@ public class ClusStatManager implements Serializable {
 	 */
 	public void initSignifcanceTestingTable() {
 		int max_nom_val = 0;
-		int num_nom_atts = m_Schema
-				.getNbNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+		int num_nom_atts = m_Schema.getNbNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
 		for (int i = 0; i < num_nom_atts; i++) {
 			if (m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL)[i].m_NbValues > max_nom_val) {
-				max_nom_val = m_Schema
-						.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL)[i].m_NbValues;
+				max_nom_val = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL)[i].m_NbValues;
 			}
 		}
 		if (max_nom_val == 0) { // If no nominal attributes in data set
 			max_nom_val = 1;
 		}
 		double[] table = new double[max_nom_val];
-		table[0] = 1.0 - getSettings().getRuleSignificanceLevel(); // Not
-		// really
-		// used
-		// except
-		// below
+		table[0] = 1.0 - getSettings().getRuleSignificanceLevel(); 
+		// Not really used except below
 		for (int i = 1; i < table.length; i++) {
-			DistributionFactory distributionFactory = DistributionFactory
-					.newInstance();
-			ChiSquaredDistribution chiSquaredDistribution = distributionFactory
-					.createChiSquareDistribution(i);
+			DistributionFactory distributionFactory = DistributionFactory.newInstance();
+			ChiSquaredDistribution chiSquaredDistribution = distributionFactory.createChiSquareDistribution(i);
 			try {
-				table[i] = chiSquaredDistribution
-						.inverseCumulativeProbability(table[0]);
+				table[i] = chiSquaredDistribution.inverseCumulativeProbability(table[0]);
 			} catch (MathException e) {
 				e.printStackTrace();
 			}
@@ -831,8 +823,13 @@ public class ClusStatManager implements Serializable {
 				sett.setPruningMethod(Settings.PRUNING_METHOD_M5);
 				return new M5Pruner(createClusAttributeWeights(), mult);
 			}
-		}
-		if (m_Mode == MODE_HIERARCHICAL) {
+		} else if (m_Mode == MODE_CLASSIFY) {			
+			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT
+					|| sett.getPruningMethod() == Settings.PRUNING_METHOD_C45) {
+				sett.setPruningMethod(Settings.PRUNING_METHOD_C45);
+				return new C45Pruner();
+			}
+		} else if (m_Mode == MODE_HIERARCHICAL) {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
 				double mult = sett.getM5PruningMult();
 				return new M5Pruner(m_NormalizationWeights, mult);

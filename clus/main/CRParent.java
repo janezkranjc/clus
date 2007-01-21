@@ -41,6 +41,13 @@ public abstract class CRParent {
 		m_Models = models;
 	}
 	
+	public void showModelInfos() {
+		for (int i = 0; i < getNbModels(); i++) {
+			ClusModelInfo info = (ClusModelInfo)getModelInfo(i);
+			System.out.println("Model "+i+" name: '"+info.getName()+"'");
+		}
+	}
+	
 	/***************************************************************************
 	 * Adding models to it
 	 ***************************************************************************/	

@@ -56,13 +56,14 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 		case 4:
 			optimizeLinearPreCalc(data);
 			double linval = m_Value / getTotalWeight();
-			optimizeLogPreCalc(data);
+			/*optimizeLogPreCalc(data);
 			double logval = m_Value / getTotalWeight();			
 			optimizePairwiseLinearPreCalc(data);
-			double pairval = m_Value / getTotalWeight();
+			double pairval = m_Value / getTotalWeight();*/
 			optimizePreCalcDefault(data);
 			double exactval = m_Value / getTotalWeight();			
-			String str = ""+exactval+","+linval+","+logval+","+pairval+","+getTotalWeight();
+			// String str = ""+exactval+","+linval+","+logval+","+pairval+","+getTotalWeight();
+			String str = ""+exactval+","+linval+","+getTotalWeight();
 			DebugFile.log(str);
 			System.out.println("Next: "+str);
 		default :

@@ -463,27 +463,11 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		return result / m_NbTarget;
 	}
-	
-	/* NEW : 
-	 * */
-	public double getError() {
-		double result = 0.0;
-		for (int i = 0; i < m_NbTarget; i++) {
-			int maj = getMajorityClass(i);
-		result += m_SumWeight - m_ClassCounts[i][maj];
-		}
-		return result / m_NbTarget;
-	}
-	
+		
 	public double getErrorRel() {
-		double result = 0.0;
-		for (int i = 0; i < m_NbTarget; i++) {
-			int maj = getMajorityClass(i);
-		result += m_SumWeight - m_ClassCounts[i][maj];
-		}
-		//System.out.println("ClassificationStat nb error is "+result);
-		//System.out.println("ClassificationStat nb example in the leaf "+m_SumWeight);
-		return (result / m_NbTarget)/m_SumWeight;
+		// System.out.println("ClassificationStat nb error is "+result);
+		// System.out.println("ClassificationStat nb example in the leaf "+m_SumWeight);
+		return getError() / getTotalWeight();
 	}
 	
 	public double getErrorDiff(ClusAttributeWeights scale, ClusStatistic other) {

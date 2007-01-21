@@ -60,6 +60,7 @@ public class PredictionWriter extends ClusModelProcessor {
 	}	
 	
 	public void exampleUpdate(DataTuple tuple, ClusStatistic distr) {
+		// System.out.println("PredictionWriter::exampleUpdate()");
 		for (int j = 0; j < m_Attrs.size(); j++) {
 			if (j != 0) m_Writer.print(",");
 			ClusAttrType at = (ClusAttrType)m_Attrs.elementAt(j);					

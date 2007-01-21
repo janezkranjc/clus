@@ -12,18 +12,24 @@ import java.util.*;
 public class SubsetSplit extends NominalSplit {
 
 	ClusStatistic m_PStat, m_CStat, m_MStat;
+	ClusStatManager m_StatManager;
 
 	public void initialize(ClusStatManager manager) {
 		m_PStat = manager.createClusteringStat();
 		m_CStat = m_PStat.cloneStat();
 		m_MStat = m_PStat.cloneStat();
+		m_StatManager = manager;
 	}
 	
 	public void setSDataSize(int size) {
 		m_PStat.setSDataSize(size);
 		m_CStat.setSDataSize(size);
 		m_MStat.setSDataSize(size);		
-	}	
+	}
+	
+	public ClusStatManager getStatManager() {
+		return m_StatManager;
+	}
 	
 	public void showTest(NominalAttrType type, boolean[] isin, int add, double mheur, ClusStatistic tot, ClusStatistic pos) {
 		int count = 0;
@@ -56,22 +62,16 @@ public class SubsetSplit extends NominalSplit {
 		int card = 0;
 		double pos_freq = 0.0;
 		double bheur = Double.NEGATIVE_INFINITY;
-		/* Not working for rules!
-		if (nbvalues == 2) {
+		/* Not working for rules! */
+		if (nbvalues == 2 && !getStatManager().isRuleInduce()) {
 			// Handle binary splits efficiently
 			card = 1;
 			isin[0] = true;			
 			ClusStatistic CStat = node.m_TestStat[0];
-			if ((m_PStat instanceof CombStat) &&
-					((CombStat)m_PStat).getSettings().isCompHeurRuleDist()) {
-				((ClusRuleHeuristicCompactness)node.m_Heuristic).
-					setDataIndexes(((ClusRuleHeuristicCompactness)node.m_Heuristic).
-						getDataIndexesPerVal()[0]);
-			}
 			bheur = node.calcHeuristic(m_MStat, CStat);
 			// showTest(type, isin, -1, bheur, m_MStat, m_CStat);			
 			pos_freq = CStat.m_SumWeight / m_MStat.m_SumWeight;
-		} else { */
+		} else {
 			// Try to add values to subsets
 			// Each iteration the cardinality increases by at most one
 			m_PStat.reset();			
@@ -113,7 +113,7 @@ public class SubsetSplit extends NominalSplit {
 					m_PStat.add(node.m_TestStat[bvalue]);
 				}
 			}
-		// }
+		}
 		// Found better test :-)
 			//System.out.print("In SubsetSlip, new test is "+type.getName());
 			//System.out.println(" with heurisitc :"+bheur);
