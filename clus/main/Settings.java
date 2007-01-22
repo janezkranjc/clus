@@ -266,6 +266,8 @@ public class Settings implements Serializable {
 	
 	public static double SIZE_PENALTY;
 	
+	public static double BEAM_SIMILARITY;
+	
 	public static boolean SHOW_UNKNOWN_FREQ;
 	
 	public static boolean SHOW_BRANCH_FREQ;
@@ -451,6 +453,8 @@ public class Settings implements Serializable {
 	protected INIFileBool m_FastBS;
 	protected INIFileBool m_BeamPostPrune;
 	protected INIFileBool m_BMRemoveEqualHeur;
+	protected INIFileDouble m_BeamSimilarity;
+	protected INIFileBool m_BSortTrainParameter;
 	
 	/* Exhaustive Search : Elisa 1/08/2006*/
 	protected INIFileSection m_SectionExhaustive;
@@ -672,6 +676,8 @@ public class Settings implements Serializable {
 		m_SectionBeam.addNode(m_FastBS = new INIFileBool("FastSearch", true));
 		m_SectionBeam.addNode(m_BeamPostPrune = new INIFileBool("PostPrune", false));
 		m_SectionBeam.addNode(m_BMRemoveEqualHeur = new INIFileBool("RemoveEqualHeur", false));
+		m_SectionBeam.addNode(m_BeamSimilarity = new INIFileDouble("BeamSimilarity", 0.0));
+		m_SectionBeam.addNode(m_BSortTrainParameter = new INIFileBool("BeamSortOnTrainParameteres", false));
 		m_SectionBeam.setEnabled(false);
 		
 		//added by elisa 1/08/2006
@@ -957,11 +963,7 @@ public class Settings implements Serializable {
 		return m_ClassWeight.getDoubleVector();
 	}
 	//end added by Leander 7-4-2006
-
-	public boolean getBeamRemoveEqualHeur() {
-		return m_BMRemoveEqualHeur.getValue();
-	}
-
+	
 	public double getMEstimate() {
 		return m_MEstimate.getValue();
 	}
@@ -1080,7 +1082,18 @@ public class Settings implements Serializable {
 	public int getBeamTreeMaxSize() {
 		return m_TreeMaxSize.getValue();
 	}
+
+	public boolean getBeamRemoveEqualHeur() {
+		return m_BMRemoveEqualHeur.getValue();
+	}
+
+	public boolean getBeamSortOnTrainParameter() {
+		return m_BSortTrainParameter.getValue();
+	}
 	
+	public double getBeamSimilarity(){
+		return m_BeamSimilarity.getValue();
+	}
 	
 	public boolean isShowBranchFreq() {
 		return m_ShowBrFreq.getValue();
@@ -1334,6 +1347,7 @@ public class Settings implements Serializable {
 				.getNbNumericTargetAttributes() == 0);
 		SIZE_PENALTY = getSizePenalty();
 		BEAM_WIDTH = m_BeamWidth.getValue();
+		BEAM_SIMILARITY = getBeamSimilarity();
 		VERBOSE = m_Verbose.getValue();
 	}
 
