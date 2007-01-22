@@ -18,6 +18,9 @@ public class ClusBeamModel implements Comparable, Serializable {
 	protected ClusModel m_Root;
 	protected Object m_Refinement;
 	
+	protected double m_SimilarityWithBeam; //stores the Similarity to beam
+	protected double[] m_Predictions; //stores the predictions for each row
+
 	public ClusBeamModel() {
 	}
 	
@@ -116,4 +119,20 @@ public class ClusBeamModel implements Comparable, Serializable {
 		res.m_Root = m_Root;
 		return res;
 	}	
+	
+	public void setSimilarityWithBeam(double similarity){
+		m_SimilarityWithBeam = similarity;
+	}
+	
+	public double getSimilarityWithBeam(){
+		return m_SimilarityWithBeam;
+	}
+	
+	public void setModelPredictions(double[] predictions){
+		m_Predictions = predictions;
+	}
+	
+	public double[] getModelPredictions(){
+		return m_Predictions;
+	}
 }

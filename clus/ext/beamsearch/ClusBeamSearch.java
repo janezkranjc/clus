@@ -44,6 +44,7 @@ public class ClusBeamSearch extends ClusClassifier {
 	protected ClusBeamHeuristic m_Heuristic;
 	protected ClusHeuristic m_AttrHeuristic;
 	protected boolean m_Verbose;
+	protected ClusBeamModelDistance m_BeamModelDistance;
 	
 	public ClusBeamSearch(Clus clus) throws ClusException, IOException {
 		super(clus);
@@ -133,6 +134,8 @@ public class ClusBeamSearch extends ClusClassifier {
 		double value = estimateBeamMeasure(root);
 		/* Add tree to beam */
 		beam.addModel(new ClusBeamModel(value, root));
+		/* Initialize Tree Distance */
+		m_BeamModelDistance = new ClusBeamModelDistance(run,beam);
 		return beam;
 	}
 	
@@ -183,14 +186,28 @@ public class ClusBeamSearch extends ClusClassifier {
 				ClusNode ref_tree = (ClusNode)root_model.cloneTree(leaf, ref_leaf);
 				double new_heur = sanityCheck(sel.m_BestHeur, ref_tree);
 				// Check for sure if _strictly_ better!
-				if (new_heur > beam_min_value) {
+			
+				
+				if (Settings.BEAM_SIMILARITY != 0){
 					ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_tree);
 					new_model.setParentModelIndex(getCurrentModel());
-					beam.addModel(new_model);
-					setBeamChanged(true);
-					
-					// Uncomment the following to print each model that is added to the beam
-					((ClusNode)new_model.getModel()).printTree();
+					new_model.setModelPredictions(m_BeamModelDistance.getPredictions(new_model.getModel()));
+					if (!beam.modelAlreadyIn(new_model)){
+						m_BeamModelDistance.calculatePredictionDistances(beam, new_model);
+						if (beam.removeMinUpdated(new_model) == 1) setBeamChanged(true);
+					}
+//					m_BeamModelDistance.updateDistancesWithinBeam(beam);
+				}
+				else{
+				// Check for sure if _strictly_ better!
+					if (new_heur > beam_min_value) {
+						ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_tree);
+						new_model.setParentModelIndex(getCurrentModel());
+						beam.addModel(new_model);
+						setBeamChanged(true);
+						// Uncomment the following to print each model that is added to the beam
+	//					((ClusNode)new_model.getModel()).printTree();
+					}
 				}
 			}
 		}
@@ -368,7 +385,11 @@ public class ClusBeamSearch extends ClusClassifier {
 		System.out.println();
 		setBeam(beam);	
 		double best = beam.getBestModel().getValue();
-		double worst = beam.getWorstModel().getValue();		
+		double worst = beam.getWorstModel().getValue();
+		m_BeamModelDistance.fillBeamWithPredictions(beam);
+		m_BeamModelDistance.updateDistancesWithinBeam(beam);
+		printBeamSimilarityInFile(beam);
+		System.out.println("Beam Similarity = "+beam.getBeamSimilarity());		
 		System.out.println("Worst = "+worst+" Best = "+best);
 		printBeamStats(i-1);
 		ClusNode result = (ClusNode)beam.getBestAndSmallestModel().getModel();
@@ -427,6 +448,21 @@ public class ClusBeamSearch extends ClusClassifier {
 			log.log("*********************************************");
 			beam.print(log.getWriter(), m_Clus.getSettings().getBeamBestN());
 			log.log();
+		}
+	}
+	
+	public void printBeamSimilarityInFile(ClusBeam beam){
+		String str = m_BeamInduce.getSettings().getFileAbsolute(m_BeamInduce.getSettings().getAppName())+".bsimilar";
+		File ex = new File(str);
+		FileWriter w;
+		try {
+			w = new FileWriter(ex);
+			w.write("Beam Similarity: ");
+			w.write(String.valueOf(beam.getBeamSimilarity()));
+			w.close();
+		} catch (IOException e) {
+			System.err.println(getClass().getName()+": printBeamSimilarityInFile(): Error while writing the beam similarity in the file " + ex.getName());
+			e.printStackTrace();
 		}
 	}
 	

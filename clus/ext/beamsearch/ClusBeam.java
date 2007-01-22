@@ -16,6 +16,7 @@ public class ClusBeam {
 	int m_CrWidth;
 	boolean m_RemoveEqualHeur;
 	double m_MinValue = Double.NEGATIVE_INFINITY;
+	double m_BeamSimilarity;
 	
 	public ClusBeam(int width, boolean rmEqHeur) {
 		m_Tree = new TreeMap(); //trees in the beam
@@ -156,5 +157,85 @@ public class ClusBeam {
 		System.out.println("All:");
 		m_Tree.printTree();
 		System.out.println("Done"); */
+	}
+	
+	/**Dragi
+	 * 
+	 * @param model - candidate model
+	 * @return 0 - no change in the beam (the candidate didn't entered the beam)
+	 * @return 1 - change in the beam (the candidate entered the beam)
+	 */
+	public int removeMinUpdated(ClusBeamModel model){
+		// until we reach the Beam Width we put all models in
+		if (m_CrWidth < m_MaxWidth) {	
+			m_CrWidth += addIfNotIn(model); 
+			return 1;
+		}
+		double currentMin = model.getValue() - Settings.BEAM_SIMILARITY * model.getSimilarityWithBeam();
+		double currentMinSimilarity = model.getSimilarityWithBeam();
+		ArrayList arr = toArray();
+		double modelUpdatedHeur,modelSimilarity;
+		int bsize = arr.size();
+		int min_pos = bsize;
+		for (int i = 0; i < bsize; i++){
+			modelSimilarity = ((ClusBeamModel)arr.get(i)).getSimilarityWithBeam();
+			modelUpdatedHeur = ((ClusBeamModel)arr.get(i)).getValue() - Settings.BEAM_SIMILARITY * modelSimilarity;
+			if (currentMin == modelUpdatedHeur){		
+				//this is for handling the case when the updated heuristic is equal
+				//we select the model with smaller similarity
+				if (currentMinSimilarity > modelSimilarity){
+					min_pos = i;
+					currentMinSimilarity = modelSimilarity;
+				}
+			}
+			else if (currentMin > modelUpdatedHeur){
+					min_pos = i;
+					currentMin = modelUpdatedHeur;
+					currentMinSimilarity = modelSimilarity;
+				}
+		}
+
+		if (min_pos != bsize){
+			TreeMap temp = new TreeMap();
+			ClusBeamModel cbm;
+			ClusBeamTreeElem found;
+			for (int j = 0; j <= bsize; j++){
+				if (j != min_pos){
+					if (j !=bsize)	cbm = (ClusBeamModel)arr.get(j);
+					else cbm = model; 
+					found = (ClusBeamTreeElem) temp.get(Double.valueOf(cbm.getValue()));
+					if (found == null) temp.put(Double.valueOf(cbm.getValue()), new ClusBeamTreeElem(cbm));
+					else found.addIfNotIn(cbm);
+				}
+			}
+			m_Tree = temp;
+			m_Values = m_Tree.values();
+			m_MinValue = computeMinValue();
+			return 1;
+		}
+		return 0;
+	}
+	
+	//this checks if the same tree is already in the beam
+	public boolean modelAlreadyIn(ClusBeamModel model){
+		ArrayList arr = toArray();
+		ClusBeamModel bmodel;
+		for (int k = 0; k < arr.size(); k++){
+			bmodel = (ClusBeamModel)arr.get(k);
+			if (((ClusNode)bmodel.getModel()).equals(((ClusNode)model.getModel())))return true;
+		}
+		return false;
+	}
+	
+	/**Dragi
+	 * Sets the Current Beam Similarity
+	 * @param similarity
+	 */
+	public void setBeamSimilarity(double similarity){
+		m_BeamSimilarity = similarity;
+	}
+	
+	public double getBeamSimilarity(){
+		return m_BeamSimilarity;
 	}
 }
