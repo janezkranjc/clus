@@ -84,15 +84,18 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				DataTuple a = data.getTuple(i);
 				TimeSeries t1 = (TimeSeries)a.getObjVal(0);
 				double a_weight = a.getWeight();
+				// sum up elements in upper triangle of matrix (and give double weights)
 				for (int j = 0; j < i; j++) {
 					if (m_Bits.getBit(j)) {
 						DataTuple b = data.getTuple(j);
 						TimeSeries t2 = (TimeSeries)b.getObjVal(0);
-						double wi = a_weight*b.getWeight();
+						double wi = 2.0*a_weight*b.getWeight();
 						m_Value += wi * Math.pow(calcDistance(t1,t2),2);
 						sumWi += wi;
 					}	
 				}
+				// sum up weights for elements on diagonal (with corresponding zero distances)
+				sumWi += a_weight*a_weight;
 			}
 		}
 		m_Value = getTotalWeight() * m_Value / sumWi;

@@ -78,6 +78,7 @@ public class SizeConstraintPruning extends PruneTree {
 				pruneMaxError(node, m_MaxSize[result]);
 			}
 		}
+		node.clearVisitors();
 	}
 	
 	public void sequenceInitialize(ClusNode node) {
