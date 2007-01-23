@@ -1,6 +1,7 @@
 package clus.pruning;
 
 import clus.main.*;
+import clus.model.test.NodeTest;
 import clus.data.attweights.*;
 import clus.data.rows.*;
 import clus.error.*;
@@ -11,6 +12,7 @@ public class SizeConstraintPruning extends PruneTree {
 	public RowData m_Data;
 	public double[] m_MaxError;
 	public ClusErrorParent m_ErrorMeasure;
+	public ClusErrorParent m_AdditiveError;
 	public int[] m_MaxSize;
 	public ClusAttributeWeights m_TargetWeights;
 	public int m_CrIndex, m_MaxIndex;
@@ -39,7 +41,13 @@ public class SizeConstraintPruning extends PruneTree {
 	}
 
 	public void pruneInitialize(ClusNode node, int size) {
-		recursiveInitialize(node, size);		
+		recursiveInitialize(node, size);
+		// compute error for each internal node and leaf
+		if (isUsingAdditiveError()) {			
+			recursiveInitializeError(node, m_Data);
+		} else {
+			recursiveInitializeErrorFromStatistic(node);
+		}
 	}
 	
 	public void pruneExecute(ClusNode node, int size) {
@@ -150,13 +158,48 @@ public class SizeConstraintPruning extends PruneTree {
 		}
 	}
 	
+	private void recursiveInitializeError(ClusNode node, RowData data) {
+		// get visitor and error measure
+		SizeConstraintVisitor visitor = (SizeConstraintVisitor)node.getVisitor();
+		ClusErrorParent parent = getAdditiveError(); 
+		ClusError err = parent.getFirstError();
+		// compute error for given node
+		parent.reset();
+		TreeErrorComputer.computeErrorNode(node, data, err);		
+		parent.setNbExamples(data.getNbRows());
+		visitor.error = err.getModelErrorAdditive();
+		// do recursive call for each child
+		NodeTest tst = node.getTest();
+		for (int i = 0; i < node.getNbChildren(); i++) {
+			ClusNode child = (ClusNode)node.getChild(i);
+			RowData subset = data.applyWeighted(tst, i);
+			recursiveInitializeError(child, subset);
+		}
+	}
+	
+	private void recursiveInitializeErrorFromStatistic(ClusNode node) {
+		// compute error for given node
+		SizeConstraintVisitor visitor = (SizeConstraintVisitor)node.getVisitor();
+		visitor.error = node.getTargetStat().getError(m_TargetWeights); 
+		// do recursive call for each child
+		for (int i = 0; i < node.getNbChildren(); i++) {
+			ClusNode child = (ClusNode)node.getChild(i);
+			recursiveInitializeErrorFromStatistic(child);
+		}
+	}
+	
+	public double computeNodeCost(ClusNode node) {
+		SizeConstraintVisitor visitor = (SizeConstraintVisitor)node.getVisitor();
+		return visitor.error;
+	}
+	
 	public double computeCosts(ClusNode node, int l) {
 		SizeConstraintVisitor visitor = (SizeConstraintVisitor)node.getVisitor();
 		if (visitor.computed[l]) return visitor.cost[l];
 		if (l < 3 || node.atBottomLevel()) {
-			visitor.cost[l] = node.getTargetStat().getError(m_TargetWeights);
+			visitor.cost[l] = computeNodeCost(node);
 		} else {
-			visitor.cost[l] = node.getTargetStat().getError(m_TargetWeights);
+			visitor.cost[l] = computeNodeCost(node);
 			ClusNode ch1 = (ClusNode)node.getChild(0);
 			ClusNode ch2 = (ClusNode)node.getChild(1);
 			for (int k1 = 1; k1 <= l-2; k1++) {
@@ -194,5 +237,19 @@ public class SizeConstraintPruning extends PruneTree {
 
 	public void setErrorMeasure(ClusErrorParent parent) {
 		m_ErrorMeasure = parent;
+	}
+
+	// if the default statistic is unable to compute the additive error used during pruning
+	// note: this is, e.g., the case for time series clustering 
+	public void setAdditiveError(ClusErrorParent parent) {
+		m_AdditiveError = parent;
+	}
+	
+	public ClusErrorParent getAdditiveError() {
+		return m_AdditiveError;
+	}
+	
+	public boolean isUsingAdditiveError() {
+		return m_AdditiveError != null;
 	}
 }

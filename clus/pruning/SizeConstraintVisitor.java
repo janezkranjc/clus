@@ -6,8 +6,9 @@ package clus.pruning;
 public class SizeConstraintVisitor extends ErrorVisitor {
 
 	public double[] cost;
-	int[] left;
-	boolean[] computed;
+	public int[] left;
+	public boolean[] computed;
+	public double error;
 	
 	public SizeConstraintVisitor(int size) {
 		cost = new double[size+1];

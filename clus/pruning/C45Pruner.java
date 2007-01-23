@@ -6,9 +6,10 @@ import org.apache.commons.math.distribution.*;
 import clus.data.rows.RowData;
 import clus.main.*;
 import clus.model.test.NodeTest;
-import clus.weka.*;
 import clus.util.*;
 import clus.statistic.*;
+
+// import clus.weka.*;
 
 public class C45Pruner extends PruneTree {
 	
@@ -20,7 +21,7 @@ public class C45Pruner extends PruneTree {
 	public void prune(ClusNode node) throws ClusException {
 		m_ZScore = computeZScore();
 		node.safePrune();
-		ClusNode orig = (ClusNode)node.cloneTree();
+		// ClusNode orig = (ClusNode)node.cloneTree();
 		node.pruneByTrainErr(null);
 		pruneC45Recursive(node, m_TrainingData);
 		// System.out.println("Performing test of C45 pruning");		
@@ -97,7 +98,6 @@ public class C45Pruner extends PruneTree {
 	}
 	
 	public double getEstimatedErrors(ClusNode node) {
-		double errors = 0;
 		if (node.atBottomLevel()) {    
 		    return getEstimatedErrorsForDistribution((ClassificationStat)node.getTargetStat());
 		} else {

@@ -251,7 +251,6 @@ public class Settings implements Serializable {
 	
 	/* Static constants should be removed later on */
 	
-	
 	public static int FTEST_LEVEL;
 	
 	public static double FTEST_VALUE;
@@ -612,7 +611,7 @@ public class Settings implements Serializable {
     rules.addNode(m_OptRegPar = new INIFileDouble("OptRegPar", 0.0));
     rules.addNode(m_OptRuleWeightThreshold = new INIFileDouble("OptRuleWeightThreshold", 0.1));
 
-    INIFileSection constr = new INIFileSection("Constraints");
+    	INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic",	NONE));
 		constr.addNode(m_MaxSizeConstr = new INIFileNominalOrIntOrVector("MaxSize", INFINITY));
 		constr.addNode(m_MaxErrorConstr = new INIFileNominalOrDoubleOrVector("MaxError", INFINITY));

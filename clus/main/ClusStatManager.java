@@ -744,10 +744,8 @@ public class ClusStatManager implements Serializable {
 	// additive and weighted targets
 	public ClusErrorParent createAdditiveError() {
 		ClusErrorParent parent = new ClusErrorParent(this);
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			parent.addError(new MisclassificationError(parent, nom));
 		}
@@ -757,6 +755,10 @@ public class ClusStatManager implements Serializable {
 		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
 			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
+			break;
+		case MODE_TIME_SERIES:
+			TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
+			parent.addError(new QDMRMSError(parent, ts));
 			break;
 		}
 		parent.setWeights(getClusteringWeights());
@@ -788,7 +790,7 @@ public class ClusStatManager implements Serializable {
 		if (isBeamSearch() && sett.isBeamPostPrune()) {
 			sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
 			return new SizeConstraintPruning(sett.getBeamTreeMaxSize(),
-					getClusteringWeights());
+                                             getClusteringWeights());
 		}
 		int err_nb = sett.getMaxErrorConstraintNumber();
 		int size_nb = sett.getSizeConstraintPruningNumber();
@@ -798,18 +800,19 @@ public class ClusStatManager implements Serializable {
 				return new CartPruning(sizes, getClusteringWeights());
 			} else {
 				sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
-				SizeConstraintPruning sc_prune = new SizeConstraintPruning(
-						sizes, createClusAttributeWeights());
+				SizeConstraintPruning sc_prune = new SizeConstraintPruning(sizes, createClusAttributeWeights());
 				if (err_nb > 0) {
 					double[] max_err = sett.getMaxErrorConstraintVector();
 					sc_prune.setMaxError(max_err);
 					sc_prune.setErrorMeasure(createDefaultError());
 				}
+				if (m_Mode == MODE_TIME_SERIES) {
+					sc_prune.setAdditiveError(createAdditiveError());
+				}
 				return sc_prune;
 			}
 		}
-		INIFileNominalOrDoubleOrVector class_thr = sett
-				.getClassificationThresholds();
+		INIFileNominalOrDoubleOrVector class_thr = sett.getClassificationThresholds();
 		if (class_thr.hasVector()) {
 			return new HierClassTresholdPruner(class_thr.getDoubleVector());
 		}

@@ -65,6 +65,14 @@ public class TreeErrorComputer extends ClusModelProcessor {
 		}
 	}
 	
+	public static void computeErrorNode(ClusNode node, RowData test, ClusError error) {
+		ClusStatistic pred = node.getTargetStat();
+		for (int i = 0; i < test.getNbRows(); i++) {
+			DataTuple tuple = test.getTuple(i);
+			error.addExample(tuple, pred);
+		}
+	}
+	
 	public static void initializeTestErrorsData(ClusNode tree, RowData test, ClusError error) throws IOException {
 		TreeErrorComputer comp = new TreeErrorComputer(); 
 		initializeTestErrors(tree, error);

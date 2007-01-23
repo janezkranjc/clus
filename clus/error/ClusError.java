@@ -79,8 +79,14 @@ public abstract class ClusError implements Serializable {
  * Inspectors
  ***************************************************************************/	
 			
-	// What should we do with this one?
+	// getModelError() returns the error averaged over all targets
 	public double getModelError() {
+		return getModelErrorAdditive() / getNbExamples();
+	}
+	
+	// getModelErrorAdditive() returns the error NOT divided by the number of examples
+	public double getModelErrorAdditive() {
+		System.out.println(getClass().getName()+"::getModelErrorAdditive() not implemented!");
 		return 0.0;
 	}
 
