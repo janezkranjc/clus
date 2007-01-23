@@ -7,6 +7,7 @@ import clus.data.rows.RowData;
 import clus.main.*;
 import clus.util.*;
 import clus.nominal.split.*;
+import clus.pruning.PruneTree;
 import clus.model.modelio.*;
 
 import java.io.*;
@@ -56,19 +57,37 @@ public class ClusBeamInduce extends ClusInduce {
 			model_info.setName("Beam "+(i+1));
 			model_info.clearAll();
 		}
-	}	
+	}
 	
+	/**Dragi, JSI
+	 *Post Pruning of the models in the beam
+	 * 
+	 * @param cr - ClusRun
+	 * @param arr - List with the beam
+	 * @throws ClusException
+	 */
+	public void postPruneBeamModels(ClusRun cr, ArrayList arr) throws ClusException{
+		for (int i=0; i<arr.size();i++){
+			    PruneTree pruner = getStatManager().getTreePruner(null);
+			    pruner.setTrainingData((RowData)cr.getTrainingSet());
+			    pruner.prune((ClusNode)((ClusBeamModel)arr.get(i)).getModel());
+		}
+	}
+
 	/**Dragi, JSI
 	 * Sorts the beam according to train accuracy/correlation in descending order
 	 * In case of equal train accuracy/correlation 
 	 * then the tree with greater heuristic score are put higher
 	 * @param cr - Clus Run
-	 * @param arr	- The list with the beam
+	 * @param arr	- List with the beam
+	 * @throws ClusException 
 	 * @throws ClusException
 	 * @throws IOException
 	 */
-	
 	public void sortModels(ClusRun cr, ArrayList arr) throws ClusException, IOException{
+		if (cr.getStatManager().getSettings().getBeamTreeMaxSize() <= -1) {
+			postPruneBeamModels(cr, arr);
+		}
 		int size = arr.size();
 		ClusBeamModel[] models = new ClusBeamModel[size];
 		double[]err = new double [size];
