@@ -131,6 +131,7 @@ public class ClusOutput {
 					tr_err.showError(cr, ClusModelInfo.TRAIN_ERR, m_Writer);
 					m_Writer.println();
 				}
+				ClusErrorParent.printExtraError(cr, ClusModelInfo.TRAIN_ERR, m_Writer);
 			}
 			ClusErrorParent va_err = cr.getValidationError();
 			if (va_err != null) {

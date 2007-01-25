@@ -69,8 +69,11 @@ public class SizeConstraintPruning extends PruneTree {
 	
 	public void prune(int result, ClusNode node) throws ClusException {
 		if (m_MaxError == null) {
-			pruneInitialize(node, m_MaxSize[result]);
-			pruneExecute(node, m_MaxSize[result]);
+			int size = m_MaxSize[result];
+			int orig = node.getNbNodes();
+			System.out.println("Pruning to size ("+orig+"): "+size);
+			pruneInitialize(node, size);
+			pruneExecute(node, size);
 		} else {
 			if (m_MaxSize.length == 0) {
 				pruneMaxError(node, node.getNbNodes());

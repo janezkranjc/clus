@@ -1,5 +1,6 @@
 package clus.main;
 
+import java.io.PrintWriter;
 import java.util.*;
 
 import clus.error.ClusErrorParent;
@@ -101,7 +102,7 @@ public abstract class CRParent {
 		ClusModelInfo my = getModelInfo(i);
 		return my.getNbModels() > 0;
 	}
-	
+		
 /***************************************************************************
  * Induction time
  ***************************************************************************/		

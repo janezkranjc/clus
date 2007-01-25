@@ -640,6 +640,16 @@ public class Clus implements CMDLineArgsProvider {
 			}
 		}
 	}
+	
+	public final void calcExtraTrainingSetErrors(ClusRun cr) {
+		ClusErrorParent parent = getStatManager().createExtraError(ClusModelInfo.TRAIN_ERR);
+		for (int i = 0; i < cr.getNbModels(); i++) {
+			ClusModelInfo info = cr.getModelInfo(i);
+			ClusErrorParent parent_cl = parent.getErrorClone();
+			parent_cl.compute((RowData)cr.getTrainingSet(), info.getModel());
+			info.setExtraError(ClusModelInfo.TRAIN_ERR, parent_cl);
+		}
+	}
 
 	public final void calcError(ClusRun cr, ClusSummary summary) throws IOException, ClusException {
 		calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr);
@@ -793,6 +803,7 @@ public class Clus implements CMDLineArgsProvider {
 				info.setTestError(test_err);
 			}
 		}
+		calcExtraTrainingSetErrors(cr);
 		output.writeHeader();
 		output.writeOutput(cr, true, true);
 		output.close();

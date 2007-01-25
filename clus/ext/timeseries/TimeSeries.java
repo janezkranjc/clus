@@ -68,6 +68,10 @@ public class TimeSeries implements Serializable{
 		System.arraycopy(values, 0, result, 0, values.length);
 		return result;
 	}
+	
+	public double[] getValuesNoCopy() {
+		return values;
+	}
 
 	/*
 	 * [Aco]

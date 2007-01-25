@@ -28,7 +28,7 @@ public class ClusErrorParent implements Serializable {
 		m_StatManager = smanager;
 		m_NbTotal = -1;
 	}
-	
+			
 	public void setNbTotal(int nb) {
 		m_NbTotal = nb;
 	}
@@ -86,6 +86,10 @@ public class ClusErrorParent implements Serializable {
 		m_Error.addElement(err);
 	}
 	
+	public int getNbErrors() {
+		return m_Error.size();
+	}	
+	
 	public ClusError getFirstError() {
 		return getError(0);
 	}
@@ -102,7 +106,17 @@ public class ClusErrorParent implements Serializable {
 		}		
 		return null;
 	}	
-		
+
+	public void compute(RowData data, ClusModel model) {
+		int nb = m_Error.size();
+		for (int i = 0; i < nb; i++) {
+			ClusError err = (ClusError)m_Error.elementAt(i);
+			err.compute(data, model);
+		}	
+		m_NbExamples = data.getNbRows();
+		m_NbCover = m_NbExamples;
+	}
+
 	public void reset() {
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
@@ -241,6 +255,25 @@ public class ClusErrorParent implements Serializable {
 		}			
 	}
 	
+	public static void printExtraError(CRParent models, int type, PrintWriter out) {
+		int ctr = 0;
+		int nb_models = models.getNbModels();		
+		for (int j = 0; j < nb_models; j++) {
+			ClusModelInfo inf = models.getModelInfo(j);
+			ClusErrorParent parent = inf.getExtraError(type);		
+			if (parent != null && inf.hasModel()) {
+				int nb_err = parent.getNbErrors();
+				for (int i = 0; i < nb_err; i++) {
+					out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
+					ClusError err = parent.getError(i);
+					err.showModelError(out, ClusError.DETAIL_SMALL);
+					ctr++;
+				}
+			}
+		}
+		if (ctr != 0) out.println();
+	}		
+	
 	public void showErrorBrief(CRParent models, int type, PrintWriter out) {
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
@@ -274,5 +307,5 @@ public class ClusErrorParent implements Serializable {
 	public NumberFormat getFormat() {
 		return ClusFormat.FOUR_AFTER_DOT;
 //		return NumberFormat.getInstance();
-	}		
+	}
 }

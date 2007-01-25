@@ -170,5 +170,5 @@ public class ClusRun extends CRParent {
 			ClusModelInfo my = getModelInfo(i);
 			my.setTestError(par.getErrorClone());
 		}		
-	}	
+	}
 }

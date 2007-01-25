@@ -184,6 +184,14 @@ public class RowData extends ClusData implements MSortable {
 		m_NbRows = nbsel;
 	}	
 	
+	public final double getSumWeights() {
+		double sum = 0.0;
+		for (int i = 0; i < m_NbRows; i++) {
+			sum += m_Data[i].getWeight();
+		}
+		return sum;
+	}
+	
 	public final boolean containsFold(DataTuple tuple, int[] folds) {
 		for (int i = 0; i < folds.length; i++) {
 			if (tuple.m_Folds[folds[i]] > 0) return true;

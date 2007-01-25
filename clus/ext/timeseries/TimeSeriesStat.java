@@ -3,38 +3,31 @@ package clus.ext.timeseries;
 import java.text.NumberFormat;
 import java.util.*;
 
-import clus.data.attweights.ClusAttributeWeights;
-import clus.data.rows.DataTuple;
-import clus.data.rows.RowData;
-import clus.ext.sspd.SSPDMatrix;
-import clus.main.Settings;
-import clus.statistic.BitVectorStat;
-import clus.statistic.StatisticPrintInfo;
+import clus.data.attweights.*;
+import clus.data.rows.*;
+import clus.ext.sspd.*;
+import clus.main.*;
+import clus.statistic.*;
 import clus.util.*;
 
-public abstract class TimeSeriesStat extends BitVectorStat {
+public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistance {
 
 	public final static int linearParameter = 10;
 	
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	public final static Random m_Random = new Random();
+	public final static Random m_Random = new Random(0);
 	
 	/*
 	 * Aco:
 	 * m_RepresentativeMean is the time series representing the claster
 	*/
-	public double m_SumWeightTS=0;
 	public TimeSeries m_RepresentativeMean=new TimeSeries("[]");
 
 	private LinkedList TimeSeriesStack = new LinkedList();
 	public TimeSeries m_RepresentativeMedian=new TimeSeries("[]");
 	
 	public TimeSeries m_RepresentativeQuantitve=new TimeSeries("[]");
-	
-	
-	//private double[][] m_RepresentativeQualitativeMatrix;
-	
-	protected SSPDMatrix m_Matrix;
+		
 	protected double m_Value;
 
 	public double getSS(ClusAttributeWeights scale, RowData data) {
@@ -77,7 +70,8 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 	public void optimizePreCalcDefault(RowData data) {
 		//long t = Calendar.getInstance().getTimeInMillis();
 		m_Value = 0.0;		
-		double sumWi = 0.0;
+		double sumWiDiag = 0.0;
+		double sumWiTria = 0.0;
 		int nb = m_Bits.size();		
 		for (int i = 0; i < nb; i++) {
 			if (m_Bits.getBit(i)) {
@@ -89,16 +83,17 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 					if (m_Bits.getBit(j)) {
 						DataTuple b = data.getTuple(j);
 						TimeSeries t2 = (TimeSeries)b.getObjVal(0);
-						double wi = 2.0*a_weight*b.getWeight();
-						m_Value += wi * Math.pow(calcDistance(t1,t2),2);
-						sumWi += wi;
+						double wi = a_weight*b.getWeight();
+						double d = calcDistance(t1,t2);
+						m_Value += wi * d * d;
+						sumWiTria += wi;
 					}	
 				}
 				// sum up weights for elements on diagonal (with corresponding zero distances)
-				sumWi += a_weight*a_weight;
+				sumWiDiag += a_weight*a_weight;
 			}
 		}
-		m_Value = getTotalWeight() * m_Value / sumWi;
+		m_Value = getTotalWeight() * m_Value / (2 * sumWiTria + sumWiDiag);
 	}	
 	
 	public final static int Sampling_K_Random(int a, int b) {
@@ -142,7 +137,8 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 						DataTuple b = data.getTuple(indices[T]);
 						TimeSeries t2 = (TimeSeries)b.getObjVal(0);
 						double wi = a_weight*b.getWeight();
-						m_Value += wi * Math.pow(calcDistance(t1,t2),2);
+						double d = calcDistance(t1,t2);
+						m_Value += wi * d * d;
 						sumWi += wi;
 						M++;
 					}
@@ -150,7 +146,7 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 				}
 			}
 		}
-		m_Value = getTotalWeight() * m_Value / sumWi;
+		m_Value = getTotalWeight() * m_Value / sumWi / 2.0;
 	}
 	
 	public void optimizePairwiseLinearPreCalc(RowData data) {
@@ -207,8 +203,7 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 	    	else{
 	    		m_RepresentativeMean.resize(newTimeSeries.length(),"linear");
 	    	}
-	    }
-	    
+	    }	    
 	    if (newTimeSeries.length()<m_RepresentativeMean.length()){
 	    	newTimeSeries.resize(m_RepresentativeMean.length(),"linear");
 	    }
@@ -216,11 +211,8 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 	    for (int i=0; i< m_RepresentativeMean.length();i++){
 	    	m_RepresentativeMean.setValue(i,m_RepresentativeMean.getValue(i)+newTimeSeries.getValue(i));
 	    }
-	    m_SumWeightTS += tuple.getWeight();
-	    
+
 	    TimeSeriesStack.add(newTimeSeries);
-	    
-	    
 	}
 
 	/*
@@ -229,8 +221,9 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 	 * @see clus.statistic.ClusStatistic#calcMean()
 	 */
 	public void calcMean() {
+		
 		for (int i=0; i< m_RepresentativeMean.length();i++){
-	    	m_RepresentativeMean.setValue(i,m_RepresentativeMean.getValue(i)/m_SumWeightTS);
+	    	m_RepresentativeMean.setValue(i,m_RepresentativeMean.getValue(i)/m_SumWeight);
 	    }
 		
 		//first generate matrix of zeros
@@ -289,8 +282,15 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 //			}
 //			System.err.println();
 //		}
-		
-		
+	}
+	
+	public void reset() {
+		super.reset();
+		TimeSeriesStack.clear();
+	}
+	
+	public double calcDistance(DataTuple d1, DataTuple d2) {
+		return calcDistance((TimeSeries)d1.getObjVal(0), (TimeSeries)d2.getObjVal(0));
 	}
 	
 	public abstract double calcDistance(TimeSeries t1, TimeSeries t2);
@@ -339,8 +339,4 @@ public abstract class TimeSeriesStat extends BitVectorStat {
 	public TimeSeries getTimeSeriesPred() {
 		return m_RepresentativeMedian;
 	}
-
-	
-	
-	
 }

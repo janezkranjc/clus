@@ -3,6 +3,7 @@ package clus.error;
 import java.io.*;
 import java.text.*;
 
+import clus.main.*;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 import clus.main.Settings;
@@ -33,6 +34,10 @@ public abstract class ClusError implements Serializable {
 		m_Parent = par;
 	}
 	
+	public ClusError(ClusErrorParent par) {
+		this(par, 0);
+	}	
+	
 	public boolean shouldBeLow() {
 		return false; //if we are measuring the area under the roc curve (otherwise, it should be true)
 	}
@@ -62,12 +67,22 @@ public abstract class ClusError implements Serializable {
 		System.err.println(getClass().getName()+": normalize() not implemented!");
 	}
 	
-	public abstract void add(ClusError other);
+	public void add(ClusError other) {
+		System.err.println(getClass().getName()+": add() not implemented!");
+	}
 	
-	public abstract void addExample(DataTuple tuple, ClusStatistic pred);
+	public void addExample(DataTuple tuple, ClusStatistic pred) {
+		System.err.println(getClass().getName()+": addExample() not implemented!");
+	}
 	
-	public abstract void addInvalid(DataTuple tuple);
+	public void addInvalid(DataTuple tuple) {
+		System.err.println(getClass().getName()+": addInvalid() not implemented!");
+	}
 
+	public void compute(RowData data, ClusModel model) {
+		System.err.println(getClass().getName()+": compute() not implemented!");
+	}
+	
 	// For errors computed on a subset of the examples, it is sometimes useful
 	// to also have information about all the examples, this information is
 	// passed via this method in the global error measure "global"

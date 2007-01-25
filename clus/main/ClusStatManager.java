@@ -784,6 +784,14 @@ public class ClusStatManager implements Serializable {
 		}
 		return parent;
 	}
+	
+	public ClusErrorParent createExtraError(int train_err) {
+		ClusErrorParent parent = new ClusErrorParent(this);
+		if (m_Mode == MODE_TIME_SERIES) {
+			parent.addError(new SSPDICVError(parent, new QDMTimeSeriesStat()));
+		}
+		return parent;
+	}	
 
 	public PruneTree getTreePrunerNoVSB() throws ClusException {
 		Settings sett = getSettings();
@@ -1098,5 +1106,4 @@ public class ClusStatManager implements Serializable {
 			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_UNION);
 		}
 	}
-
 }

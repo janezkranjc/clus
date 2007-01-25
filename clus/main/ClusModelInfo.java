@@ -21,7 +21,7 @@ public class ClusModelInfo implements Serializable {
 	protected int m_ModelSize, m_NbModels;
 	protected double m_Score;
 	protected ClusModel m_Model;
-	protected ClusErrorParent m_TrainErr, m_TestErr, m_ValidErr;
+	protected ClusErrorParent m_TrainErr, m_TestErr, m_ValidErr, m_ExtraErr;
 	protected ClusStatManager m_Manager;
 	protected transient ModelProcessorCollection m_TrainModelProc, m_TestModelProc;
 
@@ -141,6 +141,18 @@ public class ClusModelInfo implements Serializable {
 		m_ValidErr = err;
 	}		
 
+	public void setExtraError(int type, ClusErrorParent parent) {
+		m_ExtraErr = parent;
+	}
+	
+	public boolean hasExtraError(int type) {
+		return m_ExtraErr != null;
+	}
+	
+	public ClusErrorParent getExtraError(int type) {
+		return m_ExtraErr;
+	}
+	
 	public final void setName(String name) {
 		m_Name = name;
 		m_HasName = true;
