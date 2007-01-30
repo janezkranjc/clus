@@ -48,6 +48,11 @@ public class TimeSeriesAttrType extends ClusAttrType{
 		tuple.setObjectVal(value, m_ArrayIndex);
 	}	
 	
+	public String getString(DataTuple tuple) {
+		TimeSeries ts_data = (TimeSeries)tuple.getObjVal(0);
+		return ts_data.toString();
+	}	
+	
 	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
 		return new MySerializable(data);
 	}
