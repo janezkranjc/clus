@@ -383,10 +383,10 @@ public class RegressionStat extends ClusStatistic {
 		}
 	}
 	
-	public void addPredictWriterSchema(ClusSchema schema) {
+	public void addPredictWriterSchema(String prefix, ClusSchema schema) {
 		for (int i = 0; i < m_NbAttrs; i++) {
 			ClusAttrType type = m_Attrs[i].cloneType();
-			type.setName("p-"+type.getName());
+			type.setName(prefix+"-p-"+type.getName());
 			schema.addAttrType(type);
 		}
 	}

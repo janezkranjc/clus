@@ -498,14 +498,14 @@ public class Clus implements CMDLineArgsProvider {
 			}
 			if (m_Sett.isWriteTestSetPredictions()) {
 				String tname = FileUtil.getName(test_fname);
-				ClusModelInfo mi = cr.addModelInfo(ClusModels.PRUNED);
-				mi.addModelProcessor(ClusModelInfo.TEST_ERR, new PredictionWriter(tname + ".pred", m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
+				ClusModelInfo allmi = cr.getAllModelsMI();				
+				allmi.addModelProcessor(ClusModelInfo.TEST_ERR, new PredictionWriter(tname + ".pred", m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
 			}
 		}
 		if (m_Sett.isWriteTrainSetPredictions()) {
-			ClusModelInfo mi = cr.addModelInfo(ClusModels.PRUNED);
 			String tr_name = m_Sett.getAppName() + ".train." + idx + ".pred";
-			mi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new PredictionWriter(tr_name, m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
+			ClusModelInfo allmi = cr.getAllModelsMI();
+			allmi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new PredictionWriter(tr_name, m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
 		}
 		if (m_Sett.isWriteModelIDPredictions()) {
 			ClusModelInfo mi = cr.addModelInfo(ClusModels.PRUNED);
@@ -591,16 +591,15 @@ public class Clus implements CMDLineArgsProvider {
 		return err;
 	}	
 	
-	public final void calcError(TupleIterator iter, int type, ClusRun cr)	throws IOException, ClusException {
+	public final void calcError(TupleIterator iter, int type, ClusRun cr) throws IOException, ClusException {
 		iter.init();
 		ClusSchema mschema = iter.getSchema();
 		if (iter.shouldAttach()) attachModels(mschema, cr);
-		for (int i = 0; i < cr.getNbModels(); i++) {
-			ClusModelInfo mi = cr.getModelInfo(i);
-			mi.initModelProcessors(type, mschema);
-		}
+		cr.initModelProcessors(type, mschema);
+		ModelProcessorCollection allcoll = cr.getAllModelsMI().getAddModelProcessors(type);
 		DataTuple tuple = iter.readTuple();
 		while (tuple != null) {
+			allcoll.exampleUpdate(tuple);
 			for (int i = 0; i < cr.getNbModels(); i++) {
 				ClusModelInfo mi = cr.getModelInfo(i);
 				ClusModel model = mi.getModel();
@@ -618,13 +617,11 @@ public class Clus implements CMDLineArgsProvider {
 					}
 				}
 			}
+			allcoll.exampleDone();
 			tuple = iter.readTuple();
 		}
-		iter.close();
-		for (int i = 0; i < cr.getNbModels(); i++) {
-			ClusModelInfo mi = cr.getModelInfo(i);
-			mi.termModelProcessors(type);
-		}
+		iter.close();		
+		cr.termModelProcessors(type);
 	}
 
 	public void addModelErrorMeasures(ClusRun cr) {
@@ -652,6 +649,7 @@ public class Clus implements CMDLineArgsProvider {
 	}
 
 	public final void calcError(ClusRun cr, ClusSummary summary) throws IOException, ClusException {
+		cr.copyAllModelsMIs();
 		calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr);
 		TupleIterator tsiter = cr.getTestIter();
 		if (tsiter != null) calcError(tsiter, ClusModelInfo.TEST_ERR, cr);
@@ -829,18 +827,15 @@ public class Clus implements CMDLineArgsProvider {
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
 		m_Summary.setTotalRuns(sel.getNbFolds());
 		for (int i = 0; i < sel.getNbFolds(); i++) {
-			wrt.getWrt().println("! Fold = " + i);
+			wrt.println("! Fold = " + i);
 			XValSelection msel = new XValSelection(sel, i);
 			ClusRun cr = partitionData(msel, i + 1);
 			// Create statistic for the training set
 			ClusStatistic tr_stat = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
 			cr.getTrainingSet().calcTotalStat(tr_stat);
 			getStatManager().setTrainSetStat(tr_stat);
-			ClusModelInfo mi = cr.addModelInfo(ClusModels.PRUNED);
-			mi.addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
-			
-//			cr.showModelInfos();
-//			System.exit(0);
+			ClusModelInfo allmi = cr.getAllModelsMI();
+			allmi.addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
 			
 			// ARFFFile.writeCN2Data("test-"+i+".exs", cr.getTestSet());
 			// ARFFFile.writeCN2Data("train-"+i+".exs", (RowData)cr.getTrainingSet());
@@ -853,6 +848,7 @@ public class Clus implements CMDLineArgsProvider {
 			if (m_Sett.isOutputFoldModels())	{
 				// Write output to file and also store in .model file
 				output.writeOutput(cr, false);
+				ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);				
 				mi.setName("Fold: " + (i + 1));
 				io.addModel(mi);
 			} else {

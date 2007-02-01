@@ -224,11 +224,15 @@ public abstract class ClusStatistic implements Serializable {
 		}
 	}
 	
-	public void addPredictWriterSchema(ClusSchema schema) {
+	public void addPredictWriterSchema(String prefix, ClusSchema schema) {
 	}
 	
 	public String getPredictWriterString() {
 		return getPredictString();
+	}
+	
+	public String getPredictWriterString(DataTuple tuple) {
+		return getPredictWriterString();
 	}	
 	
 	// In multi-label classification: predicted set of classes is union of 

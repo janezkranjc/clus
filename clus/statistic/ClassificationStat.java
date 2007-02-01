@@ -388,16 +388,16 @@ public class ClassificationStat extends ClusStatistic {
 		return buf.toString();
 	}
 	
-	public void addPredictWriterSchema(ClusSchema schema) {
+	public void addPredictWriterSchema(String prefix, ClusSchema schema) {
 		for (int i = 0; i < m_NbTarget; i++) {
 			ClusAttrType type = m_Attrs[i].cloneType();
-			type.setName("p-"+type.getName());
+			type.setName(prefix+"-p-"+type.getName());
 			schema.addAttrType(type);
 		}
 		for (int i = 0; i < m_NbTarget; i++) {
 			for (int j = 0; j < m_ClassCounts[i].length; j++) {
 				String value = m_Attrs[i].getValue(j);
-				ClusAttrType type = new NumericAttrType("p-"+m_Attrs[i].getName()+"-"+value);
+				ClusAttrType type = new NumericAttrType(prefix+"-p-"+m_Attrs[i].getName()+"-"+value);
 				schema.addAttrType(type);
 			}
 		}		

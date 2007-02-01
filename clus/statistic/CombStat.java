@@ -566,9 +566,9 @@ double dis3 = comp;
     return buf.toString();
   }
   
-	public void addPredictWriterSchema(ClusSchema schema) {
-		m_ClassStat.addPredictWriterSchema(schema);
-		m_RegStat.addPredictWriterSchema(schema);		
+	public void addPredictWriterSchema(String prefix, ClusSchema schema) {
+		m_ClassStat.addPredictWriterSchema(prefix, schema);
+		m_RegStat.addPredictWriterSchema(prefix, schema);		
 	}
 	
 	public String getPredictWriterString() {

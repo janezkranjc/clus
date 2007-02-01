@@ -5,6 +5,7 @@ import java.util.*;
 
 import clus.data.attweights.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.ext.sspd.*;
 import clus.main.*;
 import clus.statistic.*;
@@ -21,12 +22,12 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	 * Aco:
 	 * m_RepresentativeMean is the time series representing the claster
 	*/
-	public TimeSeries m_RepresentativeMean=new TimeSeries("[]");
-
-	private LinkedList TimeSeriesStack = new LinkedList();
-	public TimeSeries m_RepresentativeMedian=new TimeSeries("[]");
 	
-	public TimeSeries m_RepresentativeQuantitve=new TimeSeries("[]");
+	private ArrayList TimeSeriesStack = new ArrayList();
+	public TimeSeries m_RepresentativeMean = new TimeSeries("[]");
+	public TimeSeries m_RepresentativeMedian = new TimeSeries("[]");
+	
+	// public TimeSeries m_RepresentativeQuantitve=new TimeSeries("[]");
 		
 	protected double m_Value;
 
@@ -221,44 +222,41 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	 * @see clus.statistic.ClusStatistic#calcMean()
 	 */
 	public void calcMean() {
-		
+		// Mean
 		for (int i=0; i< m_RepresentativeMean.length();i++){
 	    	m_RepresentativeMean.setValue(i,m_RepresentativeMean.getValue(i)/m_SumWeight);
 	    }
-		
-		//first generate matrix of zeros
+		// Median
+		m_RepresentativeMedian = null;
+		double minDistance = Double.POSITIVE_INFINITY;
+		for(int i=0; i<TimeSeriesStack.size();i++){
+			double crDistance=0.0;
+			TimeSeries t1 = (TimeSeries)TimeSeriesStack.get(i);
+			for (int j=0; j<TimeSeriesStack.size();j++){
+				double dist = calcDistance(t1,(TimeSeries)TimeSeriesStack.get(j));
+				crDistance += dist * dist;
+			}			
+			if (crDistance<minDistance) {
+				m_RepresentativeMedian=(TimeSeries)TimeSeriesStack.get(i);
+				minDistance = crDistance;
+			}
+		}
+		// Qualitative distance
+/*		
 		double[][] m_RepresentativeQualitativeMatrix = new double[m_RepresentativeMean.length()][m_RepresentativeMean.length()];
 		for(int i=0;i<m_RepresentativeMean.length();i++){
 			for(int j=0;j<m_RepresentativeMean.length();j++){
 				m_RepresentativeQualitativeMatrix[i][j]=0;
 			}
-		}
-		
-		double minDistance = Double.POSITIVE_INFINITY;
-		for(int i=0; i<TimeSeriesStack.size();i++){
-			double tmpDistance=0;
-			
-			//for diferent length time series we need resizing
+		}		
+		for(int i=0; i<TimeSeriesStack.size();i++){			
 			TimeSeries newTemeSeries = (TimeSeries)TimeSeriesStack.get(i);
-			if (newTemeSeries.length()<m_RepresentativeMean.length()){
-				newTemeSeries.resize(m_RepresentativeMean.length(),"linear");
-			}
-			// the quantitive becomes euclidian :)
 			for (int j = 0; j < newTemeSeries.length(); j++) {
 				for (int k = 0; k < newTemeSeries.length(); k++) {
 					m_RepresentativeQualitativeMatrix[j][k]+=Math.signum(newTemeSeries.getValue(k) - newTemeSeries.getValue(j));
 				}
 			}
-			
-			for (int j=0; j<TimeSeriesStack.size();j++){
-				tmpDistance+=calcDistance((TimeSeries)TimeSeriesStack.get(i),(TimeSeries)TimeSeriesStack.get(j));
-			}
-			
-			if (tmpDistance<minDistance){
-				m_RepresentativeMedian=(TimeSeries)TimeSeriesStack.get(i);
-			}
 		}
-		
 		double tmpMaxValue=(double)(m_RepresentativeQualitativeMatrix.length - 1);
 		m_RepresentativeQuantitve=new TimeSeries(m_RepresentativeQualitativeMatrix.length);
 		for (int i=0;i<m_RepresentativeQualitativeMatrix.length;i++){
@@ -268,20 +266,10 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 				if (m_RepresentativeQualitativeMatrix[i][j]>0){numBigger++;}
 				if (m_RepresentativeQualitativeMatrix[i][j]<0){numSmaller++;}
 			}
-			
 			m_RepresentativeQuantitve.setValue(i,((double)(numSmaller+tmpMaxValue-numBigger))/2);
-			
 		}
 		m_RepresentativeQuantitve.rescale(m_RepresentativeMedian.min(),m_RepresentativeMedian.max());
-		
-//		System.err.println();
-//		System.err.println("-------------");
-//		for (int i=0;i<m_RepresentativeQualitativeMatrix.length; i++){
-//			for (int j=0;j<m_RepresentativeQualitativeMatrix.length; j++){
-//				System.err.print(m_RepresentativeQualitativeMatrix[i][j]+" ");
-//			}
-//			System.err.println();
-//		}
+*/		
 	}
 	
 	public void reset() {
@@ -322,7 +310,7 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 			buf.append(fr.format(m_SumWeight));
 		}		
 		buf.append("; ");
-		
+/*		
 		buf.append("Quantitive: ");
 		buf.append(m_RepresentativeQuantitve.toString());
 		if (info.SHOW_EXAMPLE_COUNT) {
@@ -330,10 +318,26 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 			buf.append(fr.format(m_SumWeight));
 		}		
 		buf.append("; ");
-		
-		
+*/		
 		return buf.toString();
-		//java.lang.Double.toString(m_SumWeight);
+	}
+	
+	public void addPredictWriterSchema(String prefix, ClusSchema schema) {
+		schema.addAttrType(new TimeSeriesAttrType(prefix+"-p-TimeSeries"));
+		schema.addAttrType(new NumericAttrType(prefix+"-p-Distance"));
+		schema.addAttrType(new NumericAttrType(prefix+"-p-Size"));
+	}
+	
+	public String getPredictWriterString(DataTuple tuple) {
+		StringBuffer buf = new StringBuffer();
+		buf.append(m_RepresentativeMedian.toString());
+		TimeSeries target = (TimeSeries)tuple.getObjVal(0);
+		double dist = calcDistance(target, m_RepresentativeMedian);
+		buf.append(",");
+		buf.append(dist);
+		buf.append(",");
+		buf.append(getTotalWeight());
+		return buf.toString();
 	}
 
 	public TimeSeries getTimeSeriesPred() {

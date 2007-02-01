@@ -3,6 +3,7 @@ package clus.model.processor;
 import jeans.util.*;
 
 import java.io.*;
+import java.util.*;
 
 import clus.main.*;
 import clus.io.*;
@@ -21,12 +22,59 @@ public class PredictionWriter extends ClusModelProcessor {
 	protected StringBuffer m_ModelParts;
 	protected ClusSchema m_OutSchema;
 	protected ClusStatistic m_Target;
+	protected boolean m_Initialized;
+	protected String m_ToPrint;
+	protected ArrayList m_ModelNames = new ArrayList();
+	protected HashSet m_ModelNamesMap = new HashSet();
 	
 	public PredictionWriter(String fname, Settings sett, ClusStatistic target) {
 		m_Fname = fname;
 		m_Sett = sett;
 		m_Target = target;
 		m_ModelParts = new StringBuffer();		
+	}
+	
+	public boolean shouldProcessModel(ClusModelInfo info) {
+		if (info.getName().equals("Default")) return false;
+		else return true;
+	}
+	
+	public void addModelInfo(ClusModelInfo info) {
+		if (!m_ModelNamesMap.contains(info.getName())) {
+			m_ModelNamesMap.add(info.getName());
+			m_ModelNames.add(info.getName());
+		}
+	}
+	
+	public void addTargetAttributesForEachModel() {
+		for (int i = 0; i < m_ModelNames.size(); i++) {
+			String mn = (String)m_ModelNames.get(i);
+			m_Target.addPredictWriterSchema(mn, m_OutSchema);
+			m_OutSchema.addAttrType(new StringAttrType(mn+"-p-models"));
+		}
+	}
+	
+	public void println(String line) {
+		if (m_Initialized) m_Writer.println(line);
+		else m_ToPrint = line;
+	}
+		
+	public void initializeAll(ClusSchema schema) throws IOException, ClusException {
+		if (m_Initialized) return;
+		if (!m_Global) doInitialize(schema);
+		addTargetAttributesForEachModel();
+		System.out.println("PredictionWriter is writing the ARFF header");
+		ARFFFile.writeArffHeader(m_Writer, m_OutSchema);
+		m_Writer.println("@DATA");
+		if (m_ToPrint != null) {
+			m_Writer.println(m_ToPrint);
+			m_ToPrint = null;
+		}
+		m_Initialized = true;
+	}
+
+	public void terminateAll() throws IOException {
+		if (!m_Global) close();
 	}
 	
 	public void globalInitialize(ClusSchema schema) throws IOException, ClusException {
@@ -42,14 +90,6 @@ public class PredictionWriter extends ClusModelProcessor {
 		m_Writer.close();
 	}
 
-	public void initialize(ClusModel model, ClusSchema schema) throws IOException, ClusException {
-		if (!m_Global) doInitialize(schema);
-	}
-	
-	public void terminate(ClusModel model) throws IOException {
-		if (!m_Global) close();
-	}
-
 	public boolean needsModelUpdate() {
 		return true;
 	}	
@@ -59,17 +99,23 @@ public class PredictionWriter extends ClusModelProcessor {
 		m_ModelParts.append(String.valueOf(model.getID()));
 	}	
 	
-	public void exampleUpdate(DataTuple tuple, ClusStatistic distr) {
-		// System.out.println("PredictionWriter::exampleUpdate()");
+	public void exampleUpdate(DataTuple tuple) {
 		for (int j = 0; j < m_Attrs.size(); j++) {
 			if (j != 0) m_Writer.print(",");
 			ClusAttrType at = (ClusAttrType)m_Attrs.elementAt(j);					
 			m_Writer.print(at.getString(tuple));					
 		}
-		m_Writer.print(",");
-		m_Writer.print(distr.getPredictWriterString());
-		m_Writer.print(",\""+m_ModelParts+"\"");
+	}
+	
+	public void exampleDone() {
 		m_Writer.println();
+		m_ModelParts.setLength(0);
+	}	
+	
+	public void exampleUpdate(DataTuple tuple, ClusStatistic distr) {
+		m_Writer.print(",");
+		m_Writer.print(distr.getPredictWriterString(tuple));
+		m_Writer.print(",\""+m_ModelParts+"\"");
 		m_ModelParts.setLength(0);
 	}
 	
@@ -91,10 +137,6 @@ public class PredictionWriter extends ClusModelProcessor {
 				m_OutSchema.addAttrType(at.cloneType());
 			}
 		}
-		m_Target.addPredictWriterSchema(m_OutSchema);
-		m_OutSchema.addAttrType(new StringAttrType("p-models"));
 		m_Writer = m_Sett.getFileAbsoluteWriter(m_Fname);
-		ARFFFile.writeArffHeader(m_Writer, m_OutSchema);
-		m_Writer.println("@DATA");
 	}
 }

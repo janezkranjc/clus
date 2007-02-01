@@ -92,30 +92,72 @@ public class ClusModelInfo implements Serializable {
 	}
 	
 	public final void addModelProcessor(int type, ClusModelProcessor proc) {
+		ModelProcessorCollection coll = getAddModelProcessors(type);
+		coll.addModelProcessor(proc);
+	}
+
+	public final void addCheckModelProcessor(int type, ClusModelProcessor proc) {
+		ModelProcessorCollection coll = getAddModelProcessors(type);
+		if (coll.addCheckModelProcessor(proc)) proc.addModelInfo(this);
+	}
+	
+	public final ModelProcessorCollection getAddModelProcessors(int type) {
 		if (type == TRAIN_ERR) {
 			if (m_TrainModelProc == null) m_TrainModelProc = new ModelProcessorCollection();
-			m_TrainModelProc.addElement(proc);
+			return m_TrainModelProc;
 		} else if (type == TEST_ERR) {
 			if (m_TestModelProc == null) m_TestModelProc = new ModelProcessorCollection();
-			m_TestModelProc.addElement(proc);
+			return m_TestModelProc;
+		} else {
+			return null;
 		}
 	}
 	
 	public final ModelProcessorCollection getModelProcessors(int type) {
-		if (type == TRAIN_ERR) return m_TrainModelProc;
-		else if (type == TEST_ERR) return m_TestModelProc;
-		else return null;
-	}
+		if (type == TRAIN_ERR) {
+			return m_TrainModelProc;
+		} else if (type == TEST_ERR) {
+			return m_TestModelProc;
+		} else {
+			return null;
+		}
+	}	
 	
 	public final void initModelProcessors(int type, ClusSchema schema) throws IOException, ClusException {
 		ModelProcessorCollection coll = getModelProcessors(type);
 		if (coll != null) coll.initialize(m_Model, schema);
 	}
 	
+	public final void initAllModelProcessors(int type, ClusSchema schema) throws IOException, ClusException {
+		ModelProcessorCollection coll = getModelProcessors(type);
+		if (coll != null) coll.initializeAll(schema);
+	}	
+	
 	public final void termModelProcessors(int type) throws IOException {
 		ModelProcessorCollection coll = getModelProcessors(type);
 		if (coll != null) coll.terminate(m_Model);
+	}
+	
+	public final void termAllModelProcessors(int type) throws IOException {
+		ModelProcessorCollection coll = getModelProcessors(type);
+		if (coll != null) coll.terminateAll();
 	}	
+	
+	public final void copyModelProcessors(ClusModelInfo target) {
+		copyModelProcessors(TRAIN_ERR, target);
+		copyModelProcessors(TEST_ERR, target);
+	}	
+	
+	public final void copyModelProcessors(int type, ClusModelInfo target) {
+		ModelProcessorCollection coll = getModelProcessors(type);
+		if (coll == null) return;
+		for (int i = 0; i < coll.size(); i++) {
+			ClusModelProcessor mproc = coll.getModelProcessor(i);
+			if (mproc.shouldProcessModel(target)) {
+				target.addCheckModelProcessor(type, mproc);
+			}
+		}
+	}
 				
 	public final ClusModelInfo cloneModelInfo() {
 		ClusModelInfo clone = new ClusModelInfo(m_Name);
