@@ -2,12 +2,13 @@ package clus.main;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.*;
 
 import clus.error.ClusErrorParent;
 import clus.util.ClusException;
 
-public abstract class CRParent {
+public abstract class CRParent implements Serializable {
 
 	public final static int TRAINSET = 0;
 	public final static int TESTSET = 1;
@@ -94,6 +95,14 @@ public abstract class CRParent {
 			clones.add(my.cloneModelInfo());
 		}
 		return clones;
+	}
+	
+	public void deleteModels() {
+		int nb_models = getNbModels();
+		for (int i = 0; i < nb_models; i++) {
+			ClusModelInfo my = getModelInfo(i);
+			my.deleteModel();
+		}
 	}
 	
 	public void checkModelInfo() {

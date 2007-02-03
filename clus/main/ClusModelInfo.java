@@ -171,6 +171,10 @@ public class ClusModelInfo implements Serializable {
 		m_Model = model;
 	}
 	
+	public final void deleteModel() {
+		m_Model = null;
+	}
+	
 	public final void setTestError(ClusErrorParent err) {
 		m_TestErr = err;
 	}

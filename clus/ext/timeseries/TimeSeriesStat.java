@@ -30,6 +30,8 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	// public TimeSeries m_RepresentativeQuantitve=new TimeSeries("[]");
 		
 	protected double m_Value;
+	protected double m_AvgDistances;
+	protected double m_AvgSqDistances;
 
 	public double getSS(ClusAttributeWeights scale, RowData data) {
 		optimizePreCalc(data);
@@ -216,6 +218,19 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	    TimeSeriesStack.add(newTimeSeries);
 	}
 
+	public void calcSumAndSumSqDistances(TimeSeries prototype) {
+		m_AvgDistances = 0.0;
+		m_AvgSqDistances = 0.0;
+		int count = TimeSeriesStack.size();
+		for (int i = 0; i < count; i++){
+			double dist = calcDistance(prototype,(TimeSeries)TimeSeriesStack.get(i));
+			m_AvgSqDistances += dist * dist;
+			m_AvgDistances += dist;
+		}
+		m_AvgSqDistances /= count;
+		m_AvgDistances /= count;
+	}
+	
 	/*
 	 * [Aco]
 	 * this is executed in the end
@@ -241,6 +256,8 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 				minDistance = crDistance;
 			}
 		}
+		calcSumAndSumSqDistances(m_RepresentativeMedian);
+		
 		// Qualitative distance
 /*		
 		double[][] m_RepresentativeQualitativeMatrix = new double[m_RepresentativeMean.length()][m_RepresentativeMean.length()];
@@ -308,6 +325,10 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		if (info.SHOW_EXAMPLE_COUNT) {
 			buf.append(": ");		
 			buf.append(fr.format(m_SumWeight));
+			buf.append(", ");
+			buf.append(fr.format(m_AvgDistances));
+			buf.append(", ");
+			buf.append(fr.format(Math.sqrt(m_AvgSqDistances)));
 		}		
 		buf.append("; ");
 /*		
@@ -326,6 +347,8 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		schema.addAttrType(new TimeSeriesAttrType(prefix+"-p-TimeSeries"));
 		schema.addAttrType(new NumericAttrType(prefix+"-p-Distance"));
 		schema.addAttrType(new NumericAttrType(prefix+"-p-Size"));
+		schema.addAttrType(new NumericAttrType(prefix+"-p-AvgDist"));
+		schema.addAttrType(new NumericAttrType(prefix+"-p-AvgSqDist"));
 	}
 	
 	public String getPredictWriterString(DataTuple tuple) {
@@ -337,6 +360,10 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		buf.append(dist);
 		buf.append(",");
 		buf.append(getTotalWeight());
+		buf.append(",");
+		buf.append(m_AvgDistances);
+		buf.append(",");		
+		buf.append(m_AvgSqDistances);
 		return buf.toString();
 	}
 

@@ -20,6 +20,7 @@ public class ClusOutput {
 	protected PrintWriter m_Writer;
 	protected String m_Fname;
 	protected Settings m_Sett2;
+	protected StringWriter m_StrWrt;
 
 	public ClusOutput(String fname, ClusSchema schema, Settings sett) throws IOException {
 		m_Schema = schema;
@@ -28,7 +29,23 @@ public class ClusOutput {
 		m_Fname = fname;
 		m_Writer = sett.getFileAbsoluteWriter(fname);
 	}
+	
+	public ClusOutput(ClusSchema schema, Settings sett) throws IOException {
+		m_Schema = schema;
+		m_Sett = sett;
+		m_Sett2 = sett;		
+		m_StrWrt = new StringWriter();
+		m_Writer = new PrintWriter(m_StrWrt);
+	}
+	
+	public void print(String str) {
+		m_Writer.print(str);
+	}
 
+	public String getString() {
+		return m_StrWrt.toString();
+	}
+	
 	public Settings getSettings() {
 		return m_Sett;
 	}
@@ -251,7 +268,7 @@ public class ClusOutput {
 	}
 
 	public void close() {
-		System.out.println("Output written to: "+m_Fname);
+		if (m_Fname != null) System.out.println("Output written to: "+m_Fname);
 		m_Writer.close();
 	}
 

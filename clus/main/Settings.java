@@ -1279,7 +1279,7 @@ public class Settings implements Serializable {
 	}
 
 	public void preprocess(CMDLineArgs cargs) {
-		if (cargs.hasOption("xval")) {
+		if (cargs.hasOption("xval") || cargs.hasOption("fold")) {
 			m_OutTrainErr.setValue(false);
 		}
 	}

@@ -316,6 +316,12 @@ public class ClusStatManager implements Serializable {
 	public void setTrainSetStat(ClusStatistic stat) {
 		m_TrainSetStat = stat;
 	}
+	
+	public void computeTrainSetStat(RowData trainset) {
+		ClusStatistic tr_stat = createStatistic(ClusAttrType.ATTR_USE_ALL);
+		trainset.calcTotalStat(tr_stat);
+		setTrainSetStat(tr_stat);
+	}
 
 	public void check() throws ClusException {
 		int nb_types = 0;

@@ -171,4 +171,16 @@ public class ClusRun extends CRParent {
 			my.setTestError(par.getErrorClone());
 		}		
 	}
+	
+	public void deleteData() {
+		m_Train = null;
+		m_TrainData = null; m_Prune = null;
+		m_Orig = null; m_TestSel = null; 
+		m_PruneSel = null; m_Test = null;
+	}
+	
+	public void deleteDataAndModels() {
+		deleteData();
+		deleteModels();
+	}
 }
