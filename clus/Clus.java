@@ -653,7 +653,7 @@ public class Clus implements CMDLineArgsProvider {
 		calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr);
 		TupleIterator tsiter = cr.getTestIter();
 		if (tsiter != null) calcError(tsiter, ClusModelInfo.TEST_ERR, cr);
-		if (cr.getPruneSet() != null)	calcError(cr.getPruneIter(), ClusModelInfo.VALID_ERR, cr);
+		if (cr.getPruneSet() != null) calcError(cr.getPruneIter(), ClusModelInfo.VALID_ERR, cr);
 		if (summary != null) summary.addSummary(cr);
 	}
 

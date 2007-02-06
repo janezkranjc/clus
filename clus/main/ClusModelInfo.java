@@ -23,7 +23,7 @@ public class ClusModelInfo implements Serializable {
 	protected ClusModel m_Model;
 	protected ClusErrorParent m_TrainErr, m_TestErr, m_ValidErr, m_ExtraErr;
 	protected ClusStatManager m_Manager;
-	protected transient ModelProcessorCollection m_TrainModelProc, m_TestModelProc;
+	protected transient ModelProcessorCollection m_TrainModelProc, m_TestModelProc, m_ValidModelProc;
 
 	public ClusModelInfo(String name) {
 		m_Name = name;
@@ -109,7 +109,8 @@ public class ClusModelInfo implements Serializable {
 			if (m_TestModelProc == null) m_TestModelProc = new ModelProcessorCollection();
 			return m_TestModelProc;
 		} else {
-			return null;
+			if (m_ValidModelProc == null) m_ValidModelProc = new ModelProcessorCollection();
+			return m_ValidModelProc;
 		}
 	}
 	
@@ -119,7 +120,7 @@ public class ClusModelInfo implements Serializable {
 		} else if (type == TEST_ERR) {
 			return m_TestModelProc;
 		} else {
-			return null;
+			return m_ValidModelProc;
 		}
 	}	
 	
