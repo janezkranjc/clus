@@ -11,8 +11,10 @@ import clus.pruning.PruneTree;
 import clus.model.modelio.*;
 
 import java.io.*;
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+
 
 public class ClusBeamInduce extends ClusInduce {
 	
@@ -140,7 +142,7 @@ public class ClusBeamInduce extends ClusInduce {
 	public void writeSimilarityFile(ArrayList beam, ClusRun run) throws IOException, ClusException{
 		String str = run.getStatManager().getSettings().getFileAbsolute(run.getStatManager().getSettings().getAppName())+".bsim";
 		File output = new File(str);
-		if (!isHeaderWritten)writeHeader(output);
+		if (!isHeaderWritten)writeHeader(output, run.getStatManager().getSettings());
 		FileWriter wrtr = new FileWriter(output, true);
 		double[]sim = new double [2];
 		//sim[0] - training
@@ -152,7 +154,6 @@ public class ClusBeamInduce extends ClusInduce {
 		}
 		boolean isNum = (run.getStatManager().getMode()==1);
 		sim[0] = ClusBeamModelDistance.calcBeamSimilarity(beam, (RowData)run.getTrainingSet(), isNum);
-		System.out.println("sim[0] = "+sim[0]);
 		m_BeamSimTrain.add(Double.valueOf(sim[0]));
 		try {
 		sim[1] = ClusBeamModelDistance.calcBeamSimilarity(beam, run.getTestSet(), isNum);
@@ -171,8 +172,13 @@ public class ClusBeamInduce extends ClusInduce {
 		wrtr.flush();
 	}
 	
-	public void writeHeader(File output) throws IOException{
+	public void writeHeader(File output, Settings sett) throws IOException{
 		FileWriter wrtr = new FileWriter(output);
+		wrtr.write("Clus Beam-Search run\n");
+		wrtr.write("----------------------\n");
+		wrtr.write("Date:\t"+DateFormat.getInstance().format(sett.getDate())+"\n");
+		wrtr.write("File:\t"+output+"\n");
+		wrtr.write("\n");
 		wrtr.write("Beam Similarity Output\n");
 		wrtr.write("----------------------\n");
 		wrtr.write("\t\tTraining\tTesting\n");
