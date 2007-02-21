@@ -6,6 +6,7 @@ package clus.ext.beamsearch;
 import clus.main.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class ClusBeamModel implements Comparable, Serializable {
 	
@@ -19,7 +20,7 @@ public class ClusBeamModel implements Comparable, Serializable {
 	protected Object m_Refinement;
 	
 	protected double m_SimilarityWithBeam; //stores the Similarity to beam
-	protected double[] m_Predictions; //stores the predictions for each row
+	protected ArrayList m_Predictions; //stores the predictions for each target attribute for each row
 
 	public ClusBeamModel() {
 	}
@@ -128,11 +129,11 @@ public class ClusBeamModel implements Comparable, Serializable {
 		return m_SimilarityWithBeam;
 	}
 	
-	public void setModelPredictions(double[] predictions){
+	public void setModelPredictions(ArrayList predictions){
 		m_Predictions = predictions;
 	}
 	
-	public double[] getModelPredictions(){
+	public ArrayList getModelPredictions(){
 		return m_Predictions;
 	}
 }

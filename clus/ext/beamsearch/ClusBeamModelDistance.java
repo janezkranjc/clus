@@ -11,8 +11,9 @@ public class ClusBeamModelDistance{
 
 	RowData m_Data;
 	int m_NbRows; //number of rows of the dataset
-	boolean isNumeric = false;
-	boolean isNominal = false;
+	static int m_NbTarget; //number of target attributes
+	static boolean isNumeric = false;
+	static boolean isNominal = false;
 	boolean isStatInitialized = false;
 	boolean isBeamUpdated = false; 
 	
@@ -30,9 +31,14 @@ public class ClusBeamModelDistance{
 	public void setStatType(ClusRun run){
 			NumericAttrType[] num = run.getStatManager().getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			NominalAttrType[] nom = run.getStatManager().getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			if (num.length != 0) isNumeric = true;
-			 else if (nom.length != 0)isNominal = true;
-
+			if (num.length != 0) {
+				isNumeric = true;
+				m_NbTarget = num.length;
+			}
+			 else if (nom.length != 0){
+				 isNominal = true;
+				 m_NbTarget = nom.length;
+			 }
 			if (isNumeric && isNominal){
 				System.err.println(getClass().getName()+": initializeStat(): Combined Heuristic not yet implemented");
 				System.exit(1);
@@ -53,15 +59,38 @@ public class ClusBeamModelDistance{
 		}
 	}
 	
-	public double[] getPredictions(ClusModel model){
+	public ArrayList getPredictions(ClusModel model){
 		ClusStatistic stat;
 		DataTuple tuple;
-		double[] predictions = new double[m_NbRows];
-		for (int i = 0; i < (m_NbRows); i++){
-			tuple = m_Data.getTuple(i);
-			stat = model.predictWeighted(tuple);
-			if (isNumeric)	predictions[i] = stat.getNumericPred()[0];
-			else if (isNominal)	predictions[i] = stat.getNominalPred()[0];
+		ArrayList predictions = new ArrayList();
+		double[] predictattr;// = new double[m_NbRows];
+		for (int k = 0; k < m_NbTarget; k++){
+			predictattr = new double[m_NbRows];
+			for (int i = 0; i < (m_NbRows); i++){
+				tuple = m_Data.getTuple(i);
+				stat = model.predictWeighted(tuple);
+				if (isNumeric)	predictattr[i] = stat.getNumericPred()[k];
+				else if (isNominal)	predictattr[i] = stat.getNominalPred()[k];
+			}
+			predictions.add(predictattr);
+		}
+		return predictions;
+	}
+	
+	public static ArrayList getPredictionsDataSet(ClusModel model, RowData train){
+		ClusStatistic stat;
+		DataTuple tuple;
+		ArrayList predictions = new ArrayList();
+		double[] predictattr;// = new double[m_NbRows];
+		for (int k = 0; k < m_NbTarget; k++){
+			predictattr = new double[train.getNbRows()];
+			for (int i = 0; i < (train.getNbRows()); i++){
+				tuple = train.getTuple(i);
+				stat = model.predictWeighted(tuple);
+				if (isNumeric)	predictattr[i] = stat.getNumericPred()[k];
+				else if (isNominal)	predictattr[i] = stat.getNominalPred()[k];
+			}
+			predictions.add(predictattr);
 		}
 		return predictions;
 	}
@@ -70,18 +99,24 @@ public class ClusBeamModelDistance{
 	 * For nominal target attributes
 	 * @param pred1 - predictions for model 1
 	 * @param pred2 - predictions for model 2
-	 * @return quare root from mean distance between the predictions
+	 * @return square root from mean distance between the predictions
 	 */
-	public double getDistanceNominal(double[] pred1, double[] pred2){
+	public static double getDistanceNominal(ArrayList pred1, ArrayList pred2){
 		double result = 0.0;
-		if (pred1.length != pred2.length){
-			System.err.println(getClass().getName()+": getDistanceNominal(): Error in the size of predictions");
-			System.exit(1);
+		double resAttr;
+		double[] pred1val;
+		double[] pred2val;
+		for (int k = 0; k < pred1.size(); k++){
+			resAttr = 0.0;
+			pred1val = (double[])pred1.get(k);
+			pred2val = (double[])pred2.get(k);
+			for (int i=0; i < pred1val.length; i++)
+				if (pred1val[i] != pred2val[i]) 
+					resAttr++;
+			result += Math.sqrt(resAttr / pred1val.length);
+			
 		}
-		for (int i=0; i < pred1.length; i++)
-			if (pred1[i] != pred2[i]) 
-				result++;
-		return Math.sqrt(result / m_NbRows);
+		return result / pred1.size();
 	}
 	
 	
@@ -92,33 +127,37 @@ public class ClusBeamModelDistance{
 	 * @param pred2 - predictions for model 2
 	 * @return normalized square root from mean squared distance between the predictions
 	 */
-	public double getDistanceNumeric(double[] pred1, double[] pred2){
+	public static double getDistanceNumeric(ArrayList pred1, ArrayList pred2){
 		double result = 0.0;
-		if (pred1.length != pred2.length){
-			System.err.println(getClass().getName()+": getDistanceNumeric(): Error in the size of predictions");
-			System.exit(1);
+		double resAttr;// = 0.0;
+		double max;// = Double.NEGATIVE_INFINITY;
+		double min;// = Double.POSITIVE_INFINITY;
+		double[] pred1val;
+		double[] pred2val;
+		for (int k = 0; k < pred1.size(); k++){
+			max = Double.NEGATIVE_INFINITY;
+			min = Double.POSITIVE_INFINITY;
+			pred1val = (double[])pred1.get(k);
+			pred2val = (double[])pred2.get(k);
+			resAttr = 0.0;
+			for (int i=0; i < pred1val.length; i++){
+				if (pred1val[i] > max) max = pred1val[i];
+				if (pred2val[i] > max) max = pred2val[i];
+				if (pred1val[i] < min) min = pred1val[i];
+				if (pred2val[i] < min) min = pred2val[i];
+				resAttr +=Math.pow((pred1val[i]-pred2val[i]), 2);	
+			}
+			if (max == min) return 0.0; // this is extreme case when all predictions are equal to 0
+			result += Math.sqrt(resAttr/pred1val.length)/(max-min);
 		}
-		double max = Double.NEGATIVE_INFINITY;
-		double min = Double.POSITIVE_INFINITY;
-		for (int i=0; i < pred1.length; i++){
-			if (pred1[i] > max) max = pred1[i];
-			if (pred2[i] > max) max = pred2[i];
-			if (pred1[i] < min) min = pred1[i];
-			if (pred2[i] < min) min = pred2[i];
-//			max = Math.max(pred1[i], max);
-//			max = Math.max(pred2[i], max);
-//			min = Math.min(pred1[i], min);
-//			min = Math.min(pred2[i], min);
-			result +=Math.pow((pred1[i]-pred2[i]), 2);	
-		}
-		if (max == min) return 0.0; // this is extreme case when all predictions are equal to 0
-		return Math.sqrt(result/m_NbRows)/(max-min);
+		return result / pred1.size();
 	}
 	
 	public void calculatePredictionDistances(ClusBeam beam,ClusBeamModel candidate){
 		ArrayList arr = beam.toArray();
 		ClusBeamModel beamModel1, beamModel2;
-		double[] predModel1, predModel2, predCandidate;
+//		double[] predModel1, predModel2, predCandidate;
+		ArrayList predModel1, predModel2, predCandidate;
 		predCandidate = candidate.getModelPredictions();
 		double dist; // the average distance of each model of the beam to the other beam members + the candidate model
 		double candidateDist = 0.0; //the average distance of the candidate model to all beam members
@@ -144,6 +183,7 @@ public class ClusBeamModelDistance{
 				candidateDist += getDistanceNominal(predModel1, predCandidate);
 			}
 			dist = 1-(dist / beam.getCrWidth());
+//			System.out.println("dist = "+dist);
 			beamModel1.setSimilarityWithBeam(dist);
 		}
 		candidateDist = 1 - (candidateDist / beam.getCrWidth());
@@ -159,7 +199,8 @@ public class ClusBeamModelDistance{
 	public void updateDistancesWithinBeam(ClusBeam beam){
 		ArrayList arr = beam.toArray();
 		ClusBeamModel beamModel1, beamModel2;
-		double[] predModel1, predModel2;
+//		double[] predModel1, predModel2;
+		ArrayList predModel1, predModel2;
 		double dist;// the average distance of each model of the beam to the other beam members
 		double bsim = 0.0;//the average beam similarity
 		for (int i = 0; i < arr.size(); i++){
@@ -188,5 +229,33 @@ public class ClusBeamModelDistance{
 	
 	public void setIsBeamUpdated(boolean update){
 		isBeamUpdated = update;
+	}
+	
+	/**Dragi
+	 * Calculates BeamSimilarity for a given Data Set
+	 * 
+	 * @param beam
+	 * @param data
+	 * @return Beam Similarity
+	 */
+	public static double calcBeamSimilarity(ArrayList beam, RowData data, boolean isNum){
+		ArrayList predictions = new ArrayList();
+		ClusBeamModel model;
+		double result = 0.0;
+		double dist;
+		for (int i = 0; i < beam.size(); i++){
+			model = (ClusBeamModel)beam.get(i);
+			predictions.add(getPredictionsDataSet(model.getModel(), data));
+		}
+		for (int m = 0; m < predictions.size(); m++){
+			dist = 0.0;
+			for (int n = 0; n < predictions.size(); n++){
+				if (isNum)dist += getDistanceNumeric((ArrayList)predictions.get(m), (ArrayList)predictions.get(n));
+				else dist += getDistanceNominal((ArrayList)predictions.get(m), (ArrayList)predictions.get(n));
+			}
+			dist = 1 - (dist / beam.size());
+			result += dist;
+		}
+		return result / beam.size();
 	}
 }
