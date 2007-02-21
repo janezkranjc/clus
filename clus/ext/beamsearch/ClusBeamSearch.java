@@ -386,10 +386,6 @@ public class ClusBeamSearch extends ClusClassifier {
 		setBeam(beam);	
 		double best = beam.getBestModel().getValue();
 		double worst = beam.getWorstModel().getValue();
-		m_BeamModelDistance.fillBeamWithPredictions(beam);
-		m_BeamModelDistance.updateDistancesWithinBeam(beam);
-		printBeamSimilarityInFile(beam);
-		System.out.println("Beam Similarity = "+beam.getBeamSimilarity());		
 		System.out.println("Worst = "+worst+" Best = "+best);
 		printBeamStats(i-1);
 		ClusNode result = (ClusNode)beam.getBestAndSmallestModel().getModel();
@@ -451,24 +447,9 @@ public class ClusBeamSearch extends ClusClassifier {
 		}
 	}
 	
-	public void printBeamSimilarityInFile(ClusBeam beam){
-		String str = m_BeamInduce.getSettings().getFileAbsolute(m_BeamInduce.getSettings().getAppName())+".bsimilar";
-		File ex = new File(str);
-		FileWriter w;
-		try {
-			w = new FileWriter(ex);
-			w.write("Beam Similarity: ");
-			w.write(String.valueOf(beam.getBeamSimilarity()));
-			w.close();
-		} catch (IOException e) {
-			System.err.println(getClass().getName()+": printBeamSimilarityInFile(): Error while writing the beam similarity in the file " + ex.getName());
-			e.printStackTrace();
-		}
-	}
-	
 	public void pruneAll(ClusRun cr) throws ClusException, IOException {
 	}
-	 
+	
 	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
 		return model;
 	}	
