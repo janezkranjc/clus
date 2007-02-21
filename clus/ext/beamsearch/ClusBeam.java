@@ -160,7 +160,7 @@ public class ClusBeam {
 	}
 	
 	/**Dragi
-	 * 
+	 * This part is applied only when we have similarity constraints
 	 * @param model - candidate model
 	 * @return 0 - no change in the beam (the candidate didn't entered the beam)
 	 * @return 1 - change in the beam (the candidate entered the beam)
@@ -172,7 +172,6 @@ public class ClusBeam {
 			return 1;
 		}
 		double currentMin = model.getValue() - Settings.BEAM_SIMILARITY * model.getSimilarityWithBeam();
-		double currentMinSimilarity = model.getSimilarityWithBeam();
 		ArrayList arr = toArray();
 		double modelUpdatedHeur,modelSimilarity;
 		int bsize = arr.size();
@@ -180,19 +179,16 @@ public class ClusBeam {
 		for (int i = 0; i < bsize; i++){
 			modelSimilarity = ((ClusBeamModel)arr.get(i)).getSimilarityWithBeam();
 			modelUpdatedHeur = ((ClusBeamModel)arr.get(i)).getValue() - Settings.BEAM_SIMILARITY * modelSimilarity;
-			if (currentMin == modelUpdatedHeur){		
+			if ((currentMin == modelUpdatedHeur)&& m_RemoveEqualHeur){		
 				//this is for handling the case when the updated heuristic is equal
-				//we select the model with smaller similarity
-				if (currentMinSimilarity > modelSimilarity){
-					min_pos = i;
-					currentMinSimilarity = modelSimilarity;
-				}
+				//with this the candidate doesn't enter the beam
+				min_pos = bsize;
+				break;
 			}
 			else if (currentMin > modelUpdatedHeur){
 					min_pos = i;
 					currentMin = modelUpdatedHeur;
-					currentMinSimilarity = modelSimilarity;
-				}
+					}
 		}
 
 		if (min_pos != bsize){
@@ -216,7 +212,11 @@ public class ClusBeam {
 		return 0;
 	}
 	
-	//this checks if the same tree is already in the beam
+	/**Dragi
+	 * check if the same tree is already in the beam
+	 * @param model
+	 * @return
+	 */
 	public boolean modelAlreadyIn(ClusBeamModel model){
 		ArrayList arr = toArray();
 		ClusBeamModel bmodel;
@@ -227,10 +227,6 @@ public class ClusBeam {
 		return false;
 	}
 	
-	/**Dragi
-	 * Sets the Current Beam Similarity
-	 * @param similarity
-	 */
 	public void setBeamSimilarity(double similarity){
 		m_BeamSimilarity = similarity;
 	}
