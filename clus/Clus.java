@@ -587,7 +587,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		/* return the error */
 		double err = error.getFirstError().getModelError();
-		System.out.println("Error: "+err);
+//		System.out.println("Error: "+err);
 		return err;
 	}	
 	
