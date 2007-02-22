@@ -1,5 +1,6 @@
 package clus.ext.beamsearch;
 
+
 import java.util.ArrayList;
 
 import clus.data.rows.*;
@@ -7,13 +8,14 @@ import clus.data.type.*;
 import clus.main.*;
 import clus.statistic.*;
 
+
 public class ClusBeamModelDistance{
 
 	RowData m_Data;
 	int m_NbRows; //number of rows of the dataset
 	static int m_NbTarget; //number of target attributes
-	static boolean isNumeric = false;
-	static boolean isNominal = false;
+	boolean isNumeric = false;
+	boolean isNominal = false;
 	boolean isStatInitialized = false;
 	boolean isBeamUpdated = false; 
 	
@@ -59,6 +61,7 @@ public class ClusBeamModelDistance{
 		}
 	}
 	
+	//this method should be optimized
 	public ArrayList getPredictions(ClusModel model){
 		ClusStatistic stat;
 		DataTuple tuple;
@@ -77,7 +80,7 @@ public class ClusBeamModelDistance{
 		return predictions;
 	}
 	
-	public static ArrayList getPredictionsDataSet(ClusModel model, RowData train){
+	public static ArrayList getPredictionsDataSet(ClusModel model, RowData train, boolean isNum){
 		ClusStatistic stat;
 		DataTuple tuple;
 		ArrayList predictions = new ArrayList();
@@ -87,8 +90,8 @@ public class ClusBeamModelDistance{
 			for (int i = 0; i < (train.getNbRows()); i++){
 				tuple = train.getTuple(i);
 				stat = model.predictWeighted(tuple);
-				if (isNumeric)	predictattr[i] = stat.getNumericPred()[k];
-				else if (isNominal)	predictattr[i] = stat.getNominalPred()[k];
+				if (isNum)	predictattr[i] = stat.getNumericPred()[k];
+				else predictattr[i] = stat.getNominalPred()[k];
 			}
 			predictions.add(predictattr);
 		}
@@ -114,8 +117,10 @@ public class ClusBeamModelDistance{
 				if (pred1val[i] != pred2val[i]) 
 					resAttr++;
 			result += Math.sqrt(resAttr / pred1val.length);
-			
+			System.out.print((1-Math.sqrt(resAttr / pred1val.length))+"\t");
 		}
+		System.out.println();
+		System.out.println((1-result / pred1.size()));
 		return result / pred1.size();
 	}
 	
@@ -156,7 +161,6 @@ public class ClusBeamModelDistance{
 	public void calculatePredictionDistances(ClusBeam beam,ClusBeamModel candidate){
 		ArrayList arr = beam.toArray();
 		ClusBeamModel beamModel1, beamModel2;
-//		double[] predModel1, predModel2, predCandidate;
 		ArrayList predModel1, predModel2, predCandidate;
 		predCandidate = candidate.getModelPredictions();
 		double dist; // the average distance of each model of the beam to the other beam members + the candidate model
@@ -183,7 +187,6 @@ public class ClusBeamModelDistance{
 				candidateDist += getDistanceNominal(predModel1, predCandidate);
 			}
 			dist = 1-(dist / beam.getCrWidth());
-//			System.out.println("dist = "+dist);
 			beamModel1.setSimilarityWithBeam(dist);
 		}
 		candidateDist = 1 - (candidateDist / beam.getCrWidth());
@@ -199,7 +202,6 @@ public class ClusBeamModelDistance{
 	public void updateDistancesWithinBeam(ClusBeam beam){
 		ArrayList arr = beam.toArray();
 		ClusBeamModel beamModel1, beamModel2;
-//		double[] predModel1, predModel2;
 		ArrayList predModel1, predModel2;
 		double dist;// the average distance of each model of the beam to the other beam members
 		double bsim = 0.0;//the average beam similarity
@@ -236,16 +238,17 @@ public class ClusBeamModelDistance{
 	 * 
 	 * @param beam
 	 * @param data
-	 * @return Beam Similarity
+	 * @param isNum
+	 * @return
 	 */
-	public static double calcBeamSimilarity(ArrayList beam, RowData data, boolean isNum){
+	public static double calcBeamSimilarity(ArrayList beam, RowData data, boolean isNum) {
 		ArrayList predictions = new ArrayList();
 		ClusBeamModel model;
 		double result = 0.0;
 		double dist;
 		for (int i = 0; i < beam.size(); i++){
 			model = (ClusBeamModel)beam.get(i);
-			predictions.add(getPredictionsDataSet(model.getModel(), data));
+			predictions.add(getPredictionsDataSet(model.getModel(), data, isNum));
 		}
 		for (int m = 0; m < predictions.size(); m++){
 			dist = 0.0;
@@ -257,5 +260,18 @@ public class ClusBeamModelDistance{
 			result += dist;
 		}
 		return result / beam.size();
+	}
+	
+	/**Dragi
+	 * Calculates the distance between a given model and the syntactic constraint
+	 * @param model
+	 * @param constraint
+	 * @return Similarity between the candidate and the constraint
+	 */
+	public double getDistToConstraint(ClusBeamModel model, ClusBeamSyntacticConstraint constraint){
+		if (isNumeric)
+			return (1 - getDistanceNumeric(model.getModelPredictions(), constraint.getConstraintPredictions()));
+		else
+			return (1- getDistanceNominal(model.getModelPredictions(), constraint.getConstraintPredictions()));
 	}
 }

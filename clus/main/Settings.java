@@ -267,6 +267,8 @@ public class Settings implements Serializable {
 	
 	public static double BEAM_SIMILARITY;
 	
+	public static boolean BEAM_SYNT_DIST_CONSTR;
+	
 	public static boolean SHOW_UNKNOWN_FREQ;
 	
 	public static boolean SHOW_BRANCH_FREQ;
@@ -454,6 +456,7 @@ public class Settings implements Serializable {
 	protected INIFileBool m_BMRemoveEqualHeur;
 	protected INIFileDouble m_BeamSimilarity;
 	protected INIFileBool m_BSortTrainParameter;
+	protected INIFileString m_BeamSyntacticConstrFile;
 	
 	/* Exhaustive Search : Elisa 1/08/2006*/
 	protected INIFileSection m_SectionExhaustive;
@@ -677,6 +680,7 @@ public class Settings implements Serializable {
 		m_SectionBeam.addNode(m_BMRemoveEqualHeur = new INIFileBool("RemoveEqualHeur", false));
 		m_SectionBeam.addNode(m_BeamSimilarity = new INIFileDouble("BeamSimilarity", 0.0));
 		m_SectionBeam.addNode(m_BSortTrainParameter = new INIFileBool("BeamSortOnTrainParameteres", false));
+		m_SectionBeam.addNode(m_BeamSyntacticConstrFile = new INIFileString("DistSyntacticConstr",NONE));
 		m_SectionBeam.setEnabled(false);
 		
 		//added by elisa 1/08/2006
@@ -979,6 +983,15 @@ public class Settings implements Serializable {
 		return m_SyntacticConstrFile.getValue();
 	}
 
+	public boolean hasBeamConstraintFile() {
+		return !StringUtils.unCaseCompare(m_BeamSyntacticConstrFile.getValue(),	NONE);
+	}
+
+	public String getBeamConstraintFile() {
+		return m_BeamSyntacticConstrFile.getValue();
+	}
+	
+	
 	public int getBeamAttrHeuristic() {
 		return m_BeamAttrHeuristic.getValue();
 	}
@@ -1347,6 +1360,7 @@ public class Settings implements Serializable {
 		SIZE_PENALTY = getSizePenalty();
 		BEAM_WIDTH = m_BeamWidth.getValue();
 		BEAM_SIMILARITY = getBeamSimilarity();
+		BEAM_SYNT_DIST_CONSTR = hasBeamConstraintFile();
 		VERBOSE = m_Verbose.getValue();
 	}
 

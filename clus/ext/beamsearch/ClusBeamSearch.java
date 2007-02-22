@@ -45,6 +45,7 @@ public class ClusBeamSearch extends ClusClassifier {
 	protected ClusHeuristic m_AttrHeuristic;
 	protected boolean m_Verbose;
 	protected ClusBeamModelDistance m_BeamModelDistance;
+	protected ClusBeamSyntacticConstraint m_BeamSyntConstr;
 	
 	public ClusBeamSearch(Clus clus) throws ClusException, IOException {
 		super(clus);
@@ -101,7 +102,7 @@ public class ClusBeamSearch extends ClusClassifier {
 		return m_AttrHeuristic != null;
 	}
 	
-	public ClusBeam initializeBeam(ClusRun run) throws ClusException {
+	public ClusBeam initializeBeam(ClusRun run) throws ClusException, IOException {
 		ClusStatManager smanager = m_BeamInduce.getStatManager();
 		Settings sett = smanager.getSettings();	
 		ClusBeam beam = new ClusBeam(sett.getBeamWidth(), sett.getBeamRemoveEqualHeur());
@@ -136,6 +137,8 @@ public class ClusBeamSearch extends ClusClassifier {
 		beam.addModel(new ClusBeamModel(value, root));
 		/* Initialize Tree Distance */
 		m_BeamModelDistance = new ClusBeamModelDistance(run,beam);
+		/* Initialize the Syntactic Distance Constraint */ 
+		if (Settings.BEAM_SYNT_DIST_CONSTR)m_BeamSyntConstr = new ClusBeamSyntacticConstraint(run);		// this can throw IOException
 		return beam;
 	}
 	
@@ -187,22 +190,29 @@ public class ClusBeamSearch extends ClusClassifier {
 				double new_heur = sanityCheck(sel.m_BestHeur, ref_tree);
 				// Check for sure if _strictly_ better!
 			
+				ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_tree);
+				new_model.setParentModelIndex(getCurrentModel());
 				
-				if (Settings.BEAM_SIMILARITY != 0){
-					ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_tree);
-					new_model.setParentModelIndex(getCurrentModel());
+				if ((Settings.BEAM_SIMILARITY != 0)&&!Settings.BEAM_SYNT_DIST_CONSTR){
+//					ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_tree);
+//					new_model.setParentModelIndex(getCurrentModel());
 					new_model.setModelPredictions(m_BeamModelDistance.getPredictions(new_model.getModel()));
 					if (!beam.modelAlreadyIn(new_model)){
 						m_BeamModelDistance.calculatePredictionDistances(beam, new_model);
 						if (beam.removeMinUpdated(new_model) == 1) setBeamChanged(true);
 					}
-//					m_BeamModelDistance.updateDistancesWithinBeam(beam);
 				}
 				else{
+					if (Settings.BEAM_SYNT_DIST_CONSTR){
+						System.out.println("OLD HEUR = "+new_heur);
+						new_model.setModelPredictions(m_BeamModelDistance.getPredictions(new_model.getModel()));
+						new_heur -= Settings.BEAM_SIMILARITY * m_BeamModelDistance.getDistToConstraint(new_model, m_BeamSyntConstr);
+						System.out.println("UPDT HEUR = "+new_heur);
+					}
 				// Check for sure if _strictly_ better!
 					if (new_heur > beam_min_value) {
-						ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_tree);
-						new_model.setParentModelIndex(getCurrentModel());
+//						ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_tree);
+//						new_model.setParentModelIndex(getCurrentModel());
 						beam.addModel(new_model);
 						setBeamChanged(true);
 						// Uncomment the following to print each model that is added to the beam
