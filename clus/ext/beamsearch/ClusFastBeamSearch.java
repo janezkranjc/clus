@@ -53,7 +53,7 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 		m_Constr = new ClusBeamSizeConstraints(); 
 	}
 	
-	public ClusBeam initializeBeam(ClusRun run) throws ClusException {
+	public ClusBeam initializeBeam(ClusRun run) throws ClusException, IOException {
 		ClusBeam beam = super.initializeBeam(run);
 		ClusBeamModel model = beam.getBestModel();
 		initModelRecursive((ClusNode)model.getModel(), (RowData)run.getTrainingSet());
