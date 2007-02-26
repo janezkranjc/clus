@@ -117,10 +117,7 @@ public class ClusBeamModelDistance{
 				if (pred1val[i] != pred2val[i]) 
 					resAttr++;
 			result += Math.sqrt(resAttr / pred1val.length);
-			System.out.print((1-Math.sqrt(resAttr / pred1val.length))+"\t");
 		}
-		System.out.println();
-		System.out.println((1-result / pred1.size()));
 		return result / pred1.size();
 	}
 	
@@ -152,7 +149,7 @@ public class ClusBeamModelDistance{
 				if (pred2val[i] < min) min = pred2val[i];
 				resAttr +=Math.pow((pred1val[i]-pred2val[i]), 2);	
 			}
-			if (max == min) return 0.0; // this is extreme case when all predictions are equal to 0
+			if (max == min) return 0.0; // this is extreme case when all predictions are equal
 			result += Math.sqrt(resAttr/pred1val.length)/(max-min);
 		}
 		return result / pred1.size();
@@ -194,11 +191,11 @@ public class ClusBeamModelDistance{
 		candidate.setSimilarityWithBeam(candidateDist);
 	}
 	
-	/**Dragi
+/*	*//**Dragi
 	 * Updates the distances of each model to the other members of the beam
 	 * and calculates the beam similarity
 	 * @param beam
-	 */
+	 *//*
 	public void updateDistancesWithinBeam(ClusBeam beam){
 		ArrayList arr = beam.toArray();
 		ClusBeamModel beamModel1, beamModel2;
@@ -223,7 +220,7 @@ public class ClusBeamModelDistance{
 			beamModel1.setSimilarityWithBeam(dist);
 		}
 		beam.setBeamSimilarity(bsim/beam.m_CrWidth);
-	}
+	}*/
 	
 	public boolean getIsBeamUpdated(){
 		return isBeamUpdated;
@@ -250,6 +247,7 @@ public class ClusBeamModelDistance{
 			model = (ClusBeamModel)beam.get(i);
 			predictions.add(getPredictionsDataSet(model.getModel(), data, isNum));
 		}
+//		System.out.println("\tHeur\t\t\tSimilarity");
 		for (int m = 0; m < predictions.size(); m++){
 			dist = 0.0;
 			for (int n = 0; n < predictions.size(); n++){
@@ -257,6 +255,7 @@ public class ClusBeamModelDistance{
 				else dist += getDistanceNominal((ArrayList)predictions.get(m), (ArrayList)predictions.get(n));
 			}
 			dist = 1 - (dist / beam.size());
+//			System.out.println("Model "+m+": "+(-((ClusBeamModel)beam.get(m)).getValue())+"\t"+dist);
 			result += dist;
 		}
 		return result / beam.size();
