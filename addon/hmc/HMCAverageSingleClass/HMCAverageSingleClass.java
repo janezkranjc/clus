@@ -24,8 +24,8 @@ import clus.error.*;
 
 public class HMCAverageSingleClass implements CMDLineArgsProvider {
 
-	private static String[] g_Options = {"models"};
-	private static int[] g_OptionArities = {1};
+	private static String[] g_Options = {"models", "nodewise"};
+	private static int[] g_OptionArities = {1, 0};
 	
 	protected Clus m_Clus;
 	protected StringTable m_Table = new StringTable();
@@ -46,7 +46,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			m_Clus.initialize(cargs, clss);
 			ClusStatistic target = createTargetStat();
 			target.calcMean();
-			if (cargs.hasOption("models")) {
+			if (cargs.hasOption("models") || cargs.hasOption("nodewise")) {
 				//initializing m_EvalArray
 				HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
 				m_EvalArray = new ClusErrorParent[2][pruner.getNbResults()];
@@ -61,8 +61,12 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				}
 				//load models and update statistics
 				ClusRun cr = m_Clus.partitionData();
-				loadModelPerModel(cargs.getOptionValue("models"), cr);
-				
+				if (cargs.hasOption("nodewise")) {
+					HMCAverageNodeWiseModels avg = new HMCAverageNodeWiseModels(this);
+					avg.processModels(cr);
+				} else {
+					loadModelPerModel(cargs.getOptionValue("models"), cr);
+				}				
 				//write output
 				ClusOutput output = new ClusOutput(sett.getAppName() + ".combined.out", m_Clus.getSchema(), sett);
 				// create default model
@@ -97,6 +101,18 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 	public ClusStatManager getStatManager() {
 		return m_Clus.getStatManager();
 	}
+	
+	public Settings getSettings() {
+		return m_Clus.getSettings();
+	}
+	
+	public Clus getClus() {
+		return m_Clus;
+	}
+	
+	public ClusErrorParent getEvalArray(int traintest, int j) {
+		return m_EvalArray[traintest][j];
+	}	
 	
 	public WHTDStatistic createTargetStat() {
 		return (WHTDStatistic)m_Clus.getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
@@ -146,6 +162,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		}		
 	}
 	
+	// evaluate tree for one class on all examples and update errors
 	public void evaluateModelAndUpdateErrors(int train_or_test, int class_idx, ClusModel model, ClusRun cr) throws ClusException, IOException {
 		RowData data = cr.getDataSet(train_or_test);
 		m_Clus.getSchema().attachModel(model);
