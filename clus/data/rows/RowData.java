@@ -78,6 +78,10 @@ public class RowData extends ClusData implements MSortable {
 		return m_Schema;
 	}	
 	
+	public void setSchema(ClusSchema schema) {
+		m_Schema = schema;		
+	}	
+	
 	public void sortSparse(int idx) {
 		m_Index = idx;	
 		int nbmiss = 0, nbzero = 0, nbother = 0;

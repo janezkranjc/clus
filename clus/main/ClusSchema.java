@@ -1,6 +1,7 @@
 package clus.main;
 
 import jeans.util.*;
+
 import java.io.*;
 import java.util.*;
 
@@ -45,6 +46,18 @@ public class ClusSchema implements Serializable {
 	
 	public void setSettings(Settings sett) {
 		m_Settings = sett;
+	}
+	
+	public void initializeSettings(Settings sett) throws ClusException {
+		setSettings(sett);
+		setTestSet(-1); /* Support ID for XVAL attribute later on? */
+		setTarget(new IntervalCollection(sett.getTarget()));
+		setDisabled(new IntervalCollection(sett.getDisabled()));
+		setClustering(new IntervalCollection(sett.getClustering()));
+		setDescriptive(new IntervalCollection(sett.getDescriptive()));
+		setKey(new IntervalCollection(sett.getKey()));
+		updateAttributeUse();		
+		addIndices(ClusSchema.ROWS);
 	}
 	
 	public Settings getSettings() {

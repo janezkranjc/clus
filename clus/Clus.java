@@ -72,22 +72,16 @@ public class Clus implements CMDLineArgsProvider {
 		ARFFFile arff = null;
 		System.out.println("Loading '" + m_Sett.getAppName() + "'");
 		ClusRandom.initialize(m_Sett);
-		// Load header
-		//		String hdr_ext = cargs.hasOption("c45") ? ".names" : ".arff";
 		ClusReader reader = new ClusReader(m_Sett.getDataFile(), m_Sett);
 		System.out.println();
 		if (cargs.hasOption("c45")) {
 			System.out.println("Reading C45 .names/.data");
-			//			C45File c45f = new C45File(reader);
-			//			m_Schema = c45f.read();
 		} else {
 			System.out.println("Reading ARFF Header");
 			arff = new ARFFFile(reader);
 			m_Schema = arff.read(m_Sett);
 		}
 		// Count rows and move to data segment
-		m_Schema.setSettings(m_Sett);
-		m_Schema.setTestSet(-1); /* Support ID for XVAL attribute later on? */
 		System.out.println();
 		System.out.println("Reading CSV Data");
 		m_Schema.setNbRows(reader.countRows());
@@ -96,27 +90,12 @@ public class Clus implements CMDLineArgsProvider {
 			arff.skipTillData();
 		// Updata schema based on settings
 		m_Sett.updateTarget(m_Schema);
-		m_Schema.setTarget(new IntervalCollection(m_Sett.getTarget()));
-		m_Schema.setDisabled(new IntervalCollection(m_Sett.getDisabled()));
-		m_Schema.setClustering(new IntervalCollection(m_Sett.getClustering()));
-		m_Schema.setDescriptive(new IntervalCollection(m_Sett.getDescriptive()));
-		m_Schema.setKey(new IntervalCollection(m_Sett.getKey()));
-		m_Schema.updateAttributeUse();
+		m_Schema.initializeSettings(m_Sett);
 		m_Sett.setTarget(m_Schema.getTarget().toString());
 		m_Sett.setDisabled(m_Schema.getDisabled().toString());
 		m_Sett.setClustering(m_Schema.getClustering().toString());
-		m_Sett.setDescriptive(m_Schema.getDescriptive().toString());
-		// FIXME - move somewhere else - MyInitializer?
-		if (Settings.HIER_FLAT.getValue()) {
-			ClusAttrType attr = m_Schema
-					.getAttrType(m_Schema.getNbAttributes() - 1);
-			ClusAttrType adda = new FlatClassesAttrType("FLAT",
-					(ClassesAttrType) attr);
-			adda.setStatus(ClusAttrType.STATUS_TARGET);
-			m_Schema.addAttrType(adda);
-		}
+		m_Sett.setDescriptive(m_Schema.getDescriptive().toString());		
 		// Create induce
-		m_Schema.addIndices(ClusSchema.ROWS);
 		m_Induce = clss.createInduce(m_Schema, m_Sett, cargs);		
 		// Load data from file
 		m_Data = m_Induce.createData();
@@ -148,11 +127,6 @@ public class Clus implements CMDLineArgsProvider {
 		initializeSummary(clss);
 		System.out.println();
 		removeMissingTarget();
-		
-		//added 7-4-2006
-		//initializeClassWeights();
-		//end added 7-4-2006
-		
 		// Initialize F-Test table
 		FTest.initializeFTable(Settings.FTEST_LEVEL);
 		// Sample data
@@ -164,6 +138,24 @@ public class Clus implements CMDLineArgsProvider {
 		ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
 	}
 
+	/***
+	 * Method for recreating ClusInduce and most other instance variables
+	 * Useful for running Clus on different data sets with a similar schema 
+	 */
+	public void recreateInduce(CMDLineArgs cargs, ClusClassifier clss, ClusSchema schema, RowData data) throws ClusException, IOException {
+		m_Summary = new ClusSummary();
+		m_Schema = schema;
+		m_Induce = clss.createInduce(schema, m_Sett, cargs);		
+		m_Data = data;
+		m_Classifier = clss;
+		data.setSchema(schema);
+		schema.setNbRows(data.getNbRows());
+		m_Induce.initialize();
+		initializeAttributeWeights(data);
+		m_Induce.initializeHeuristic();
+		initializeSummary(clss);		
+	}
+	
 	/***
 	 * Easy to use initialization method to be used from inside add-on
 	 * applications supporting Clus (e.g., applications converting data) 

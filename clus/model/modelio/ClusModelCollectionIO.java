@@ -49,6 +49,17 @@ public class ClusModelCollectionIO implements Serializable {
 		return null;
 	}
 	
+	public void printModelNames() {
+		if (getNbModels() == 0) {
+			System.out.println("Collection does not contain any models");
+		} else {
+			for (int i = 0; i < getNbModels(); i++) {
+				ClusModelInfo info = (ClusModelInfo)m_ModelInfos.get(i);
+				System.out.println("Model: "+info.getName());
+			}
+		}
+	}	
+	
 	public void save(String filename) throws IOException {
 		ObjectSaveStream strm = new ObjectSaveStream(new FileOutputStream(filename));
 		strm.writeObject(this);

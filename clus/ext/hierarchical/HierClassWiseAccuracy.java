@@ -17,7 +17,7 @@ public class HierClassWiseAccuracy extends ClusError {
 	
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
-	protected boolean m_NoTrivialClasses = true;
+	protected boolean m_NoTrivialClasses = false;
 	protected ClassHierarchy m_Hier;
 	protected double[] m_NbPosPredictions;
 	protected double[] m_TP;

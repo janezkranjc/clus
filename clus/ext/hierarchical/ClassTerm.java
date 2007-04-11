@@ -274,6 +274,10 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 	}	
 	
 	public String toPathString() {
+		return toPathString("/");
+	}
+	
+	public String toPathString(String sep) {
 		if (getIndex() == -1) {
 			return "R";
 		} else {
@@ -282,11 +286,11 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 			while (true) {
 				int nb_par = term.getNbParents();
 				if (nb_par != 1) {
-					return "?/" + path;
+					return "P" + sep + path;
 				}
 				term = term.getParent(0);
 				if (term.getIndex() == -1) return path;
-				path = term.getID() + "/" + path;
+				path = term.getID() + sep + path;
 			}
 		}
 	}
