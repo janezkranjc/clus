@@ -81,10 +81,14 @@ public class ClassesAttrType extends ClusAttrType {
 		if (getSettings().hasDefinitionFile()) {
 			m_Hier.loadDAG(getSettings().getDefinitionFile());
 		} else {
-			for (int i = 0; i < cls.length; i++) {
-				if (!cls[i].equals(ClassesValue.EMPTY_SET_INDICATOR)) {
-					ClassesValue val = new ClassesValue(cls[i], m_Table);
-					m_Hier.addClass(val);
+			if (getSettings().getHierType() == Settings.HIERTYPE_DAG) {
+				m_Hier.loadDAG(cls);
+			} else {
+				for (int i = 0; i < cls.length; i++) {
+					if (!cls[i].equals(ClassesValue.EMPTY_SET_INDICATOR)) {
+						ClassesValue val = new ClassesValue(cls[i], m_Table);
+						m_Hier.addClass(val);
+					}
 				}
 			}
 		}
@@ -105,7 +109,7 @@ public class ClassesAttrType extends ClusAttrType {
 	}
 	
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
-		ArrayList list = getHier().getAllPaths();
+		ArrayList list = getHier().getAllParentChildTuples();
 		wrt.print("hierarchical ");
 		for (int i = 0; i < list.size(); i++) {
 			if (i != 0) wrt.print(",");

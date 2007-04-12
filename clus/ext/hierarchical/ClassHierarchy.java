@@ -125,6 +125,25 @@ public class ClassHierarchy implements Serializable {
 		// after this, the hierarchy must not change anymore
 		setLocked(true);
 	}
+
+	void getAllParentChildTuplesRecursive(ClassTerm node, boolean[] visited, ArrayList parentchilds) {
+		for (int i = 0; i < node.getNbChildren(); i++) {
+			ClassTerm child = (ClassTerm)node.getChild(i);
+			parentchilds.add(node.getID()+"/"+child.getID());
+			if (!visited[child.getIndex()]) {
+				// If visited, then all tuples for subtree below child are already included
+				visited[child.getIndex()] = true;
+				getAllParentChildTuplesRecursive(child, visited, parentchilds);
+			}			
+		}
+	}	
+	
+	public ArrayList getAllParentChildTuples() {
+		ArrayList parentchilds = new ArrayList();
+		boolean[] visited = new boolean[getTotal()];
+		getAllParentChildTuplesRecursive(m_Root, visited, parentchilds);
+		return parentchilds;
+	}
 	
 	void getAllPathsRecursive(ClassTerm node, String crpath, boolean[] visited, ArrayList paths) {
 		for (int i = 0; i < node.getNbChildren(); i++) {
@@ -370,6 +389,41 @@ public class ClassHierarchy implements Serializable {
 		}
 	}
 	
+	public void addChildrenToRoot() {
+		// terms without parents are children of the root
+		Iterator iter = m_ClassMap.values().iterator();
+		while (iter.hasNext()) {
+			ClassTerm term = (ClassTerm)iter.next();
+			if (term.atTopLevel()) {
+				m_Root.addChild(term);
+				term.addParent(m_Root);
+			}
+		}
+	}
+	
+	public void addParentChildTuple(String parent, String child) throws ClusException {
+		ClassTerm parent_t = getClassTermByNameAddIfNotIn(parent);
+		ClassTerm child_t  = getClassTermByNameAddIfNotIn(child);
+		if (parent_t.getByName(child) != null) {
+			throw new ClusException("Duplicate parent-child relation '"+parent+"' -> '"+child+"' in DAG definition in .arff file");
+		}
+		child_t.addParent(parent_t);
+		parent_t.addChild(child_t);
+	}
+	
+	public void loadDAG(String[] cls) throws IOException, ClusException {
+		for (int i = 0; i < cls.length; i++) {
+			String[] rel = cls[i].split("\\s*\\/\\s*");
+			if (rel.length != 2) {
+				throw new ClusException("Illegal parent child tuple in .arff");
+			}
+			String parent = rel[0];
+			String child  = rel[1];
+			addParentChildTuple(parent, child);
+		}
+		addChildrenToRoot();
+	}
+	
 	public void loadDAG(String fname) throws IOException, ClusException {
 		String line = null;
 		LineNumberReader rdr = new LineNumberReader(new FileReader(fname));
@@ -382,25 +436,11 @@ public class ClassHierarchy implements Serializable {
 				}
 				String parent = rel[0];
 				String child  = rel[1];
-				ClassTerm parent_t = getClassTermByNameAddIfNotIn(parent);
-				ClassTerm child_t  = getClassTermByNameAddIfNotIn(child);
-				if (parent_t.getByName(child) != null) {
-					throw new ClusException("Duplicate parent-child relation '"+parent+"' -> '"+child+"' in DAG definition file: '"+fname+"'");
-				}
-				child_t.addParent(parent_t);
-				parent_t.addChild(child_t);
+				addParentChildTuple(parent, child);
 			}
 		}
 		rdr.close();
-		// terms without parents are children of the root
-		Iterator iter = m_ClassMap.values().iterator();
-		while (iter.hasNext()) {
-			ClassTerm term = (ClassTerm)iter.next();
-			if (term.atTopLevel()) {
-				m_Root.addChild(term);
-				term.addParent(m_Root);
-			}
-		}
+		addChildrenToRoot();
 	}
 	
 	public final static char DFS_WHITE = 0;
