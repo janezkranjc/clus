@@ -6,6 +6,7 @@ import jeans.util.StringUtils;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.*;
+import java.util.ArrayList;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.*;
@@ -524,4 +525,39 @@ public class ClassificationStat extends ClusStatistic {
 			wrt.println("]: "+fr.format(sum));	
 		}
 	}	
+	
+	public void vote(ArrayList votes) {
+		switch (Settings.m_ClassificationVoteType.getValue()){
+			case 0: voteMajority(votes);break;
+			case 1: voteProbDistr(votes);break;
+			default: voteMajority(votes);
+		}
+	}
+
+	public void voteMajority(ArrayList votes) {
+		reset();
+		ClassificationStat vote;
+		int nb_votes = votes.size();
+		for (int j = 0; j < nb_votes; j++){
+			vote = (ClassificationStat) votes.get(j);
+			for (int i = 0; i < m_NbTarget; i++){
+				m_ClassCounts[i] [vote.getNominalPred()[i]] ++;
+			}
+		}
+		calcMean();
+	}
+	
+	public void voteProbDistr(ArrayList votes) {
+		reset();
+		ClassificationStat vote;
+		int nb_votes = votes.size();
+		for (int j = 0; j < nb_votes; j++){
+			vote = (ClassificationStat) votes.get(j);
+			for (int i = 0; i < m_NbTarget; i++){
+				add(vote);
+			}
+		}
+		calcMean();
+	}
+	
 }

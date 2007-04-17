@@ -1,5 +1,7 @@
 package clus.statistic;
 
+import java.util.ArrayList;
+
 import jeans.list.*;
 
 import clus.data.cols.*;
@@ -112,5 +114,9 @@ public class BitVectorStat extends ClusStatistic {
 	}	
 	public String getPredictedClassName(int idx) {
 		return "";
+	} 
+	
+	public void vote(ArrayList votes) {
+		System.err.println(getClass().getName() + "vote (): Not implemented");
 	} 
 }

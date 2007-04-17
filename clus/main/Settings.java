@@ -241,6 +241,13 @@ public class Settings implements Serializable {
 	public final static int TIME_SERIES_DISTANCE_MEASURE_QDM = 1;
 	
 	public final static int TIME_SERIES_DISTANCE_MEASURE_TSC = 2;
+	
+	public final static String[] VOTING_TYPE={"Majority","ProbabilityDistribution"};
+
+	public final static int VOTING_TYPE_MAJORITY = 0;
+	
+	public final static int VOTING_TYPE_PROBAB_DISTR = 1;
+	
 		
 	/* Filename and date information */
 	protected Date m_Date;
@@ -532,6 +539,19 @@ public class Settings implements Serializable {
 	
 	public static INIFileNominal timeSeriesProtoComlexity;
 
+	
+	/*Bagging*/
+	INIFileSection m_SectionBagging;
+	
+	protected INIFileInt m_NbBags;
+	
+	public static INIFileNominal m_ClassificationVoteType;
+	
+	protected INIFileBool m_RandomForest;
+	
+	protected INIFileInt m_RandomAttrSelected;
+	
+	public static boolean m_BaggingMode = false;
 
 	public void create() {
 		INIFileSection settings = new INIFileSection("General");
@@ -694,6 +714,13 @@ public class Settings implements Serializable {
 		timeSeries.addNode(timeSeriesProtoComlexity=new INIFileNominal("PrototypeComlexity", TIME_SERIES_PROTOTYPE_COMPLEXITY,0));
 		timeSeries.setEnabled(false);
 		
+		m_SectionBagging = new INIFileSection("Bagging");
+		m_SectionBagging.addNode(m_NbBags = new INIFileInt("NumberBags", 25));
+			m_SectionBagging.addNode(m_ClassificationVoteType =new INIFileNominal("VotingType", VOTING_TYPE,0));
+		m_SectionBagging.addNode(m_RandomForest = new INIFileBool("RandomForest", false));
+		m_SectionBagging.addNode(m_RandomAttrSelected = new INIFileInt("SelectRandomAttributes", 1));
+		m_SectionBagging.setEnabled(false);
+		
 		INIFileSection exper = new INIFileSection("Experimental");
 		exper.addNode(m_SetsData = new INIFileInt("NumberBags", 25));
 		exper.addNode(m_ShowForest = new INIFileBool("XValForest", false));
@@ -717,6 +744,7 @@ public class Settings implements Serializable {
 		m_Ini.addNode(m_SectionKNNT);
 		m_Ini.addNode(exper);
 		m_Ini.addNode(timeSeries);
+		m_Ini.addNode(m_SectionBagging);
 	}
 
 	public void initNamedValues() {
@@ -1106,6 +1134,33 @@ public class Settings implements Serializable {
 	public double getBeamSimilarity(){
 		return m_BeamSimilarity.getValue();
 	}
+	
+//	 start Bagging section
+	public int getNbBaggingSets(){
+		return m_NbBags.getValue();
+	}
+	
+	public boolean isRandomForest(){
+		return m_RandomForest.getValue();
+	}
+
+	public int getNbRandomAttrSelected(){
+		return m_RandomAttrSelected.getValue();
+	}
+	
+	public void setNbRandomAttrSelected(int value){
+		m_RandomAttrSelected.setValue(value);
+	}
+	
+	public boolean getIsBaggingMode(){
+		return m_BaggingMode;
+	}
+	
+	public void setBaggingMode(boolean value){
+		m_BaggingMode = value;
+	}
+	
+// end Bagging section	
 	
 	public boolean isShowBranchFreq() {
 		return m_ShowBrFreq.getValue();

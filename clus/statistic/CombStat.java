@@ -4,6 +4,7 @@
 package clus.statistic;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.io.*;
 
 import org.apache.commons.math.MathException;
@@ -679,5 +680,9 @@ double dis3 = comp;
   public void printDistribution(PrintWriter wrt) throws IOException {
   	m_ClassStat.printDistribution(wrt);
   	m_RegStat.printDistribution(wrt);
+  }
+  
+  public void vote(ArrayList votes) {
+	  System.err.println(getClass().getName() + "vote (): Not implemented");
   }
 }

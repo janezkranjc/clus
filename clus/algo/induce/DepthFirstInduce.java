@@ -273,7 +273,19 @@ public class DepthFirstInduce extends ClusInduce {
 		}
 		// Find best test
 		ClusSchema schema = data.getSchema();
-		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
+//		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
+		
+		ClusAttrType[] attrs;
+		//This part is used for Random Forests
+		if (schema.getSettings().isRandomForest()&&schema.getSettings().getIsBaggingMode()){
+			ClusAttrType[] attrsAll = schema.getDescriptiveAttributes();
+			attrs = new ClusAttrType[schema.getSettings().getNbRandomAttrSelected()];
+			attrs = ClusForest.selectAttributesForRandomForest(attrsAll,schema.getSettings().getNbRandomAttrSelected());
+		}
+		else {
+			attrs = schema.getDescriptiveAttributes();
+		}
+		
 		int nb_normal = attrs.length;
 		for (int i = 0; i < nb_normal; i++) {
 			ClusAttrType at = attrs[i];

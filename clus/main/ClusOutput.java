@@ -231,7 +231,14 @@ public class ClusOutput {
 		double psec = (double)summary.getPrepareTime()/1000.0;
 		m_Writer.println("Preprocessing time: "+ClusFormat.ONE_AFTER_DOT.format(psec)+" sec");
 		m_Writer.println("Mean number of tests");
-		for (int i = ClusModels.ORIGINAL; i <= ClusModels.PRUNED; i++) {
+		
+		//Bagging doesn't have pruned models
+		int end_model;
+		if (!Settings.m_BaggingMode)end_model = ClusModels.PRUNED;
+		else end_model = ClusModels.ORIGINAL;
+		
+//		for (int i = ClusModels.ORIGINAL; i <= ClusModels.PRUNED; i++) {
+		for (int i = ClusModels.ORIGINAL; i <= end_model; i++) {
 			ClusModelInfo mi = summary.getModelInfo(i);
 			m_Writer.println("     "+mi.getName()+": "+getQuotient(mi.getModelSize(), runs));
 		}

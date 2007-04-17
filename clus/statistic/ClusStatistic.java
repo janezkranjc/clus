@@ -8,6 +8,7 @@ import clus.data.attweights.*;
 import clus.ext.timeseries.TimeSeries;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public abstract class ClusStatistic implements Serializable {
 
@@ -245,4 +246,7 @@ public abstract class ClusStatistic implements Serializable {
 	
 	public void union(ClusStatistic other) {
 	}
+	
+	public abstract void vote(ArrayList votes);
+	
 }

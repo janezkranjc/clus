@@ -1,6 +1,7 @@
 package clus.error.multiscore;
 
 import java.text.*;
+import java.util.ArrayList;
 
 import clus.main.Settings;
 import clus.statistic.*;
@@ -98,5 +99,9 @@ public class MultiScoreStat extends ClusStatistic {
 	}
 	
 	public void subtractFromOther(ClusStatistic other) {
+	}	
+	
+	public void vote(ArrayList votes) {
+		System.err.println(getClass().getName() + "vote (): Not implemented");
 	}	
 }

@@ -48,10 +48,10 @@ public class Clus implements CMDLineArgsProvider {
 			"disable", "silent", "lwise", "c45", "info", "sample", "debug",
 			"tuneftest", "load", "soxval", "bag", "obag", "show", "knn",
 			"knnTree", "beam", "gui", "fillin", "rules", "weka", "corrmatrix",
-			"tunesize", "out2model", "test", "normalize", "tseries", "writetargets", "fold"};
+			"tunesize", "out2model", "test", "normalize", "tseries", "writetargets", "fold","forest"};
 
 	public final static int[] OPTION_ARITIES = {0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
-			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1};
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0};
 
 	protected Settings m_Sett = new Settings();
 	protected ClusSummary m_Summary = new ClusSummary();
@@ -898,10 +898,12 @@ public class Clus implements CMDLineArgsProvider {
 		if (m_Sett.isOutputFoldModels())	{
 			// Write output to file and also store in .model file
 			output.writeOutput(cr, false);
+			if (!Settings.m_BaggingMode){
 			ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 			// Commented out because otherwise error: combining errors of different models
 			// mi.setName("Fold: " + (fold + 1));
 			io.addModel(mi);
+			}
 		} else {
 			output.writeBrief(cr);
 		}
@@ -1126,6 +1128,10 @@ public class Clus implements CMDLineArgsProvider {
 				clus.getSettings().setSectionExhaustiveEnabled(true);
 				clss = new ClusExhaustiveDFSearch(clus);
 				} 
+				else if (cargs.hasOption("forest")) {
+					sett.setBaggingMode(true);
+					clss = new ClusForestClassifier(clus);
+					} 
 				else {
 					clss = new ClusDecisionTree(clus);
 				}
