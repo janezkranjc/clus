@@ -44,7 +44,8 @@ public class ClusReader {
 	}
 	
 	public void open() throws IOException {
-		String fname = m_Settings.getFileAbsolute(m_Name);
+		String fname = m_Name;
+		if (m_Settings != null) m_Settings.getFileAbsolute(m_Name);
 		if (FileUtil.fileExists(fname)) {
 			if (fname.toUpperCase().endsWith(".ZIP")) {
 				m_Token = zipOpen(fname);

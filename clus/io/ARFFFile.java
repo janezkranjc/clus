@@ -129,7 +129,22 @@ public class ARFFFile {
 		}
 		wrt.println();
 	}
-
+	
+	public static RowData readArff(String fname) throws IOException, ClusException {
+			ClusReader reader = new ClusReader(fname, null);
+			ARFFFile arff = new ARFFFile(reader);
+			ClusSchema schema = arff.read(null);
+			schema.setNbRows(reader.countRows());
+			schema.initialize();
+			arff.skipTillData();
+			RowData data = new RowData(schema);
+			data.resize(schema.getNbRows());
+			ClusView view = data.createNormalView(schema);
+			view.readData(reader, schema);
+			reader.close();
+			return data;
+	}
+	
 	public static void writeArff(String fname, RowData data) throws IOException, ClusException {
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
 		ClusSchema schema = data.getSchema();

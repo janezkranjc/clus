@@ -42,7 +42,15 @@ public class RowData extends ClusData implements MSortable {
 			m_Data[i] = (DataTuple)list.get(i);
 		}
 		setNbRows(list.size());
-	}	
+	}
+	
+	public ArrayList toArray() {
+		ArrayList array = new ArrayList();
+		for (int i = 0; i < getNbRows(); i++) {
+			array.add(getTuple(i));
+		}
+		return array;
+	}
 	
 	public DataTuple createTuple() {
 		return new DataTuple(m_Schema);

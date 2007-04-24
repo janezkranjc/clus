@@ -59,6 +59,11 @@ public class ClusSchema implements Serializable {
 		updateAttributeUse();		
 		addIndices(ClusSchema.ROWS);
 	}
+
+	public void initialize() throws ClusException {
+		updateAttributeUse();		
+		addIndices(ClusSchema.ROWS);
+	}
 	
 	public Settings getSettings() {
 		return m_Settings;

@@ -18,7 +18,6 @@ public class HMCConvertDAGData {
 		String appname = FileUtil.getName(input)+".s";
 		clus.initializeAddOn(appname);
 		ClusStatManager mgr = clus.getStatManager();
-		ClusNode root = new ClusNode();
 		Settings sett = clus.getSettings();
 		RowData data = (RowData)clus.getData();		
 		if (CREATE_TRAIN_TUNE_TEST_SPLIT) {
