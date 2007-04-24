@@ -1,19 +1,20 @@
 
 [Data]
-File = multitest_norm.arff
-TestSet = multitest_norm.arff
+File = multitest_nokey.arff
+% TestSet = multitest_norm.arff
 
 [Attributes]
+%Disable = 4,5
+Target = 3,4
 Weights = Normalize
-Disable = 4,5
-Target = 4,5
+ClusteringWeights = 1.0
 
-[Data]
-PruneSet = .33
+%[Data]
+%PruneSet = .33
 
-[Tree]
-PruningMethod = GarofalakisVSB
+%[Tree]
+%PruningMethod = GarofalakisVSB
 
-[Output]
-WriteTestSetPredictions = Yes
+% [Output]
+% WriteTestSetPredictions = Yes
 

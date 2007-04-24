@@ -213,14 +213,14 @@ public class ClusStatManager implements Serializable {
 			// throw new ClusException("initWeights(): Sum of
 			// clustering/compactness weights must be > 0!");
 		}
-/*		for (int i = 0; i < num.length; i++) {
+		for (int i = 0; i < num.length; i++) {
 			NumericAttrType cr_num = num[i];
 			result.setWeight(cr_num, result.getWeight(cr_num) / sum);
 		}
 		for (int i = 0; i < nom.length; i++) {
 			NominalAttrType cr_nom = nom[i];
 			result.setWeight(cr_nom, result.getWeight(cr_nom) / sum);
-		}*/
+		}
 	}
 
 	public void initCompactnessWeights() throws ClusException {
