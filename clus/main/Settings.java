@@ -472,42 +472,31 @@ public class Settings implements Serializable {
 	protected INIFileInt m_StartItemCpt;
 	
 	/* Hierarchical Multi-Classification */
-	protected INIFileString m_HierSep;
-
-	protected INIFileString m_HierEmptySetIndicator;
-	
-	public static INIFileDouble HIER_W_PARAM;
-	
-	public static INIFileBool HIER_SAVE;
-	
-	public static INIFileBool HIER_LOAD;
-	
-	public static INIFileBool HIER_FLAT;
-	
-	public INIFileNominal m_HierMode;
-	
 	INIFileSection m_SectionHierarchical;
-	
-	public static INIFileBool HIER_CONT_PROTOTYPE;
-	
-	public static INIFileBool HIER_USE_ABUNDANCES;
-	
+	protected INIFileString m_HierSep;
+	protected INIFileString m_HierEmptySetIndicator;
+	public static INIFileDouble HIER_W_PARAM;
+	public static INIFileBool HIER_SAVE;
+	public static INIFileBool HIER_LOAD;
+	public static INIFileBool HIER_FLAT;
+	public INIFileNominal m_HierMode;
+	public static INIFileBool HIER_CONT_PROTOTYPE;	
+	public static INIFileBool HIER_USE_ABUNDANCES;	
 	public static INIFileBool HIER_NODE_ABUNDANCES;
-	
-	public INIFileDouble m_HierPruneInSig;
-	
-	protected INIFileBool m_HierNoRootPreds;
-	
-	protected INIFileBool m_HierUseBonferroni;
-	
-	protected INIFileNominal m_HierType;
-	
-	protected INIFileString m_DefinitionFile;
-	
-	protected INIFileNominalOrDoubleOrVector m_HierClassThreshold;
-	
+	public INIFileDouble m_HierPruneInSig;	
+	protected INIFileBool m_HierNoRootPreds;	
+	protected INIFileBool m_HierUseBonferroni;	
+	protected INIFileNominal m_HierType;	
+	protected INIFileString m_DefinitionFile;	
+	protected INIFileNominalOrDoubleOrVector m_HierClassThreshold;	
 	protected INIFileString m_HierEvalClasses;
 
+	protected INIFileSection m_SectionILevelC;
+	protected INIFileString m_ILevelCFile;
+	protected INIFileDouble m_ILevelCAlpha;
+	protected INIFileInt m_ILevelNbRandomConstr;
+	protected INIFileBool m_ILevelCCOPKMeans;
+	
 	INIFileSection m_SectionKNN;
 	
 	public static INIFileInt kNN_k;
@@ -673,6 +662,13 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierMode = new INIFileNominal("Mode", HIERMODES, 0));		
 		m_SectionHierarchical.setEnabled(false);
 
+		m_SectionILevelC = new INIFileSection("ILevelC");
+		m_SectionILevelC.addNode(m_ILevelCAlpha = new INIFileDouble("Alpha", 0.5));
+		m_SectionILevelC.addNode(m_ILevelCFile = new INIFileString("File", NONE));
+		m_SectionILevelC.addNode(m_ILevelNbRandomConstr = new INIFileInt("NbRandomConstraints", 0));
+		m_SectionILevelC.addNode(m_ILevelCCOPKMeans = new INIFileBool("RunCOPKMeans", false));
+		m_SectionILevelC.setEnabled(false);		
+		
 		m_SectionKNN = new INIFileSection("kNN");
 		m_SectionKNN.addNode(kNN_k = new INIFileInt("k", 3));
 		m_SectionKNN.addNode(kNN_vectDist = new INIFileString("VectorDistance", "Euclidian"));
@@ -739,6 +735,7 @@ public class Settings implements Serializable {
 		m_Ini.addNode(m_SectionBeam);
 		m_Ini.addNode(m_SectionExhaustive); // add elisa 1/08/06
 		m_Ini.addNode(m_SectionHierarchical);
+		m_Ini.addNode(m_SectionILevelC);
 		// add kNN section
 		m_Ini.addNode(m_SectionKNN);
 		m_Ini.addNode(m_SectionKNNT);
@@ -777,8 +774,7 @@ public class Settings implements Serializable {
 	public void setSectionTimeSeriesEnabled(boolean enable) {
 		timeSeries.setEnabled(enable);
 	}
-	
-	
+		
 	public boolean isSectionTimeSeriesEnabled() {
 		return timeSeries.isEnabled();
 	}
@@ -1160,8 +1156,36 @@ public class Settings implements Serializable {
 		m_BaggingMode = value;
 	}
 	
-// end Bagging section	
+// end Bagging section
 	
+/*************************************************************
+ * Instance level constraints section
+ *************************************************************/
+	
+	public boolean isSectionILevelCEnabled() {
+		return m_SectionILevelC.isEnabled();
+	}
+	
+	public boolean hasILevelCFile() {
+		return !StringUtils.unCaseCompare(m_ILevelCFile.getValue(), NONE);
+	}
+	
+	public String getILevelCFile() {
+		return m_ILevelCFile.getValue();
+	}	
+	
+	public double getILevelCAlpha() {
+		return m_ILevelCAlpha.getValue();
+	}
+	
+	public int getILevelCNbRandomConstraints() {
+		return m_ILevelNbRandomConstr.getValue();
+	}
+	
+	public boolean isILevelCCOPKMeans() {
+		return m_ILevelCCOPKMeans.getValue();
+	}	
+		
 	public boolean isShowBranchFreq() {
 		return m_ShowBrFreq.getValue();
 	}
@@ -1554,5 +1578,4 @@ public class Settings implements Serializable {
 	public String getAppName() {
 		return m_AppName;
 	}
-
 }

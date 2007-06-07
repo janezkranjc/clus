@@ -14,10 +14,9 @@ import clus.pruning.*;
 
 import clus.ext.hierarchical.*;
 import clus.ext.sspd.*;
-import clus.ext.timeseries.DTWTimeSeriesStat;
-import clus.ext.timeseries.QDMTimeSeriesStat;
-import clus.ext.timeseries.TSCTimeSeriesStat;
+import clus.ext.timeseries.*;
 import clus.ext.beamsearch.*;
+import clus.ext.ilevelc.*;
 
 import clus.algo.rules.*;
 
@@ -47,6 +46,8 @@ public class ClusStatManager implements Serializable {
 	public final static int MODE_CLASSIFY_AND_REGRESSION = 4;
 
 	public final static int MODE_TIME_SERIES = 5;
+	
+	public final static int MODE_ILEVELC = 6;	
 
 	protected int m_Mode = MODE_NONE;
 
@@ -213,14 +214,14 @@ public class ClusStatManager implements Serializable {
 			// throw new ClusException("initWeights(): Sum of
 			// clustering/compactness weights must be > 0!");
 		}
-		for (int i = 0; i < num.length; i++) {
+/*		for (int i = 0; i < num.length; i++) {
 			NumericAttrType cr_num = num[i];
 			result.setWeight(cr_num, result.getWeight(cr_num) / sum);
 		}
 		for (int i = 0; i < nom.length; i++) {
 			NominalAttrType cr_nom = nom[i];
 			result.setWeight(cr_nom, result.getWeight(cr_nom) / sum);
-		}
+		}*/
 	}
 
 	public void initCompactnessWeights() throws ClusException {
@@ -355,6 +356,9 @@ public class ClusStatManager implements Serializable {
 			m_Mode = MODE_TIME_SERIES;
 			nb_types++;
 		}
+		if (m_Settings.isSectionILevelCEnabled()) {
+			m_Mode = MODE_ILEVELC;
+		}
 		if (nb_types == 0) {
 			System.err.println("No target value defined");
 		}
@@ -364,8 +368,7 @@ public class ClusStatManager implements Serializable {
 		}
 	}
 
-	public ClusAttributeWeights createClusAttributeWeights()
-			throws ClusException {
+	public ClusAttributeWeights createClusAttributeWeights() {
 		return getClusteringWeights();
 	}
 
@@ -449,7 +452,6 @@ public class ClusStatManager implements Serializable {
 			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx));
 			break;
 		case MODE_TIME_SERIES:
-
 			switch (Settings.timeSeriesDM.getValue()) {
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_DTW:
 				setClusteringStatistic(new DTWTimeSeriesStat());
@@ -464,6 +466,10 @@ public class ClusStatManager implements Serializable {
 				setTargetStatistic(new TSCTimeSeriesStat());
 				break;
 			}
+			break;
+		case MODE_ILEVELC:
+			setTargetStatistic(new ILevelCStatistic(num2));
+			setClusteringStatistic(new ILevelCStatistic(num3));						
 			break;
 		}
 	}
@@ -610,9 +616,7 @@ public class ClusStatManager implements Serializable {
 						.println("Only SS-Reduction (default) heuristic can be used for regression trees!");
 				System.exit(0);
 			}
-			m_Heuristic = new SSReductionHeuristic(
-					createClusAttributeWeights(), m_Schema
-							.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET));
+			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 		} else if (nom.length > 0) {
 			// TODO: Is this true?
 			if ((getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT)
@@ -665,13 +669,9 @@ public class ClusStatManager implements Serializable {
 
 	public ClusErrorParent createErrorMeasure(MultiScore score) {
 		ClusErrorParent parent = new ClusErrorParent(this);
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		TimeSeriesAttrType[] ts = m_Schema
-				.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
-
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			parent.addError(new ContingencyTable(parent, nom));
 		}
@@ -679,42 +679,35 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new AbsoluteError(parent, num));
 			parent.addError(new RMSError(parent, num));
 			if (getSettings().hasNonTrivialWeights()) {
-				parent.addError(new RMSError(parent, num,
-						m_NormalizationWeights));
+				parent.addError(new RMSError(parent, num, m_NormalizationWeights));
 			}
 			parent.addError(new PearsonCorrelation(parent, num));
-			/*
-			 * if (Settings.IS_MULTISCORE) { TargetSchema nts =
-			 * MultiScoreWrapper.createTarSchema(m_Target); ContingencyTable ct =
-			 * new ContingencyTable(parent, nts); parent.addError(new
-			 * MultiScoreWrapper(ct)); }
-			 */
 		}
 		if (ts.length != 0) {
 			parent.addError(new QDMRMSError(parent, ts));
 		}
-
 		switch (m_Mode) {
-		case MODE_HIERARCHICAL:
-			int hiermode = getSettings().getHierMode();
-			switch (hiermode) {
-			case Settings.HIERMODE_TREE_DIST_WEUCLID:
-				parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
+			case MODE_HIERARCHICAL:
+				int hiermode = getSettings().getHierMode();
+				switch (hiermode) {
+					case Settings.HIERMODE_TREE_DIST_WEUCLID:
+						parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
+						break;
+				}
 				break;
-			}
+			case MODE_ILEVELC:
+				NominalAttrType cls = (NominalAttrType)getSchema().getAttrType(getSchema().getNbAttributes()-1);
+				parent.addError(new ILevelCRandIndex(parent, cls));
+				break;
 		}
 		return parent;
 	}
 
 	public ClusErrorParent createEvalError() {
 		ClusErrorParent parent = new ClusErrorParent(this);
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		TimeSeriesAttrType[] ts = m_Schema
-				.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
-
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			parent.addError(new Accuracy(parent, nom));
 		}

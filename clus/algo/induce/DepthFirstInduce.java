@@ -337,7 +337,7 @@ public class DepthFirstInduce extends ClusInduce {
 		return stat;
 	}	
 		
-	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException {
+	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 		RowData data = (RowData)cr.getTrainingSet();
 		ClusNode root = null;
 		// Begin of induction process

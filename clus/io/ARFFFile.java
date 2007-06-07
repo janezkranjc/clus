@@ -80,7 +80,7 @@ public class ARFFFile {
 		
 	protected void addAttribute(ClusSchema schema, String aname, String atype) throws IOException, ClusException {
 		String uptype = atype.toUpperCase();
-		if (uptype.equals("NUMERIC") || uptype.equals("REAL")) {
+		if (uptype.equals("NUMERIC") || uptype.equals("REAL") || uptype.equals("INTEGER")) {
 			schema.addAttrType(new NumericAttrType(aname));
 		} else if (uptype.equals("CLASSES")) {
 			ClassesAttrType type = new ClassesAttrType(aname);

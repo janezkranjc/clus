@@ -54,6 +54,10 @@ public class RegressionStat extends ClusStatistic {
 		return new RegressionStat(m_Attrs, true);		
 	}
 	
+	public int getNbAttributes() {
+		return m_NbAttrs;
+	}
+	
 	public NumericAttrType getAttribute(int idx) {
 		return m_Attrs[idx];
 	}

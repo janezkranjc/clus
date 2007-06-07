@@ -144,5 +144,8 @@ public class DataTuple implements Serializable {
 	public final double getWeight() {
 		return m_Weight;
 	}	
-		
+
+	public final void setWeight(double weight) {
+		m_Weight = weight;
+	}	
 }

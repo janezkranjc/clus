@@ -9,6 +9,7 @@ import clus.util.*;
 import clus.algo.induce.*;
 import clus.algo.rules.*;
 import clus.data.rows.*;
+import clus.ext.ilevelc.*;
 import clus.*;
 
 import jeans.util.cmdline.*;
@@ -28,6 +29,8 @@ public class ClusDecisionTree extends ClusClassifier {
 		if (sett.hasConstraintFile()) {
 			boolean fillin = cargs.hasOption("fillin");
 			return new ConstraintDFInduce(schema, sett, fillin);
+		} else if (sett.isSectionILevelCEnabled()){
+			return new ILevelCInduce(schema, sett);
 		} else {
 			return new DepthFirstInduce(schema, sett);
 		}

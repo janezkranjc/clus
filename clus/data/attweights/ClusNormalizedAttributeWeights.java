@@ -4,6 +4,8 @@
  */
 package clus.data.attweights;
 
+import java.util.Arrays;
+
 import clus.data.type.*;
 import clus.main.Settings;
 import clus.util.ClusFormat;
@@ -17,7 +19,7 @@ public class ClusNormalizedAttributeWeights extends ClusAttributeWeights {
 	public ClusNormalizedAttributeWeights(ClusAttributeWeights norm) {
 		super(norm.getNbAttributes());
 		m_NormalizationWeights = norm.getWeights();
-	}	
+	}
 	
 	public double getWeight(ClusAttrType atttype) {
 		int idx = atttype.getIndex();
@@ -38,6 +40,10 @@ public class ClusNormalizedAttributeWeights extends ClusAttributeWeights {
 	
 	public double[] getNormalizationWeights() {
 		return m_NormalizationWeights;
+	}
+	
+	public void setAllNormalizationWeights(double value) {
+		Arrays.fill(m_NormalizationWeights, value);
 	}
 	
 	public String getName(ClusAttrType[] type) {

@@ -29,10 +29,8 @@ public class ClusNode extends MyNode implements ClusModel {
 	public NodeTest m_Test;
 	public ClusStatistic m_ClusteringStat;
 	public ClusStatistic m_TargetStat;
-	public transient Object m_Visitor;
-	
-	public long m_Time;
-	
+	public transient Object m_Visitor;	
+	public long m_Time;	
 	
 	public MyNode cloneNode() {
 		ClusNode clone = new ClusNode();
@@ -530,7 +528,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	public static double estimateSSRecursive(ClusNode tree, ClusAttributeWeights scale) {
 		if (tree.atBottomLevel()) {
-			ClusStatistic total = tree.getTargetStat();
+			ClusStatistic total = tree.getClusteringStat();
 			return total.getSS(scale);
 		} else {
 			double result = 0.0;

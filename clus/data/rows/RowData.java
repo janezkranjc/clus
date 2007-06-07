@@ -46,12 +46,16 @@ public class RowData extends ClusData implements MSortable {
 	
 	public ArrayList toArray() {
 		ArrayList array = new ArrayList();
-		for (int i = 0; i < getNbRows(); i++) {
-			array.add(getTuple(i));
-		}
+		addTo(array);
 		return array;
 	}
 	
+	public void addTo(ArrayList array) {
+		for (int i = 0; i < getNbRows(); i++) {
+			array.add(getTuple(i));
+		}		
+	}
+		
 	public DataTuple createTuple() {
 		return new DataTuple(m_Schema);
 	}	
@@ -523,6 +527,12 @@ public class RowData extends ClusData implements MSortable {
 	
 	public MemoryTupleIterator getIterator() {
 		return new MemoryTupleIterator(this);
+	}
+	
+	public void addIndices() {
+		for (int i = 0; i < m_NbRows; i++) {
+			m_Data[i].setIndex(i);
+		}
 	}
 	
 	public class MySortableArray implements MSortable {

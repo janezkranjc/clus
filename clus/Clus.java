@@ -1004,24 +1004,22 @@ public class Clus implements CMDLineArgsProvider {
 	
 	public void showInfo() throws ClusException, IOException {
 		RowData data = (RowData) m_Data;
-		System.out.println("Name            #Rows      #Missing  #Nominal #Numeric #Target    #Classes");
+		System.out.println("Name            #Rows      #Missing  #Nominal #Numeric #Target  #Classes");
 		System.out.print(StringUtils.printStr(m_Sett.getAppName(), 16));
 		System.out.print(StringUtils.printInt(data.getNbRows(), 11));
 		//double perc = -1; // (double)m_Schema.getTotalInputNbMissing()/data.getNbRows()/m_Schema.getNbNormalAttr()*100.0;
 		double perc = (double)m_Schema.getTotalInputNbMissing()/data.getNbRows()/m_Schema.getNbDescriptiveAttributes()*100.0;
 		System.out.print(StringUtils.printStr(ClusFormat.TWO_AFTER_DOT.format(perc) + "%", 10));
-		System.out.print(StringUtils.printInt(m_Schema
-				.getNbNominalDescriptiveAttributes(), 9));
-		System.out.print(StringUtils.printInt(m_Schema
-				.getNbNumericDescriptiveAttributes(), 9));
-		System.out.print(StringUtils.printInt(m_Schema
-				.getNbAllAttrUse(ClusAttrType.ATTR_USE_TARGET), 5));
-		/*
-		 * if (schema.getNbTarNom() > 0) { System.out.print("(nom) ");
-		 * NominalAttrType ctype = schema.getTarNom(0);
-		 * System.out.println(ctype.getNbValues()); } else {
-		 * System.out.println("(num)"); }
-		 */
+		System.out.print(StringUtils.printInt(m_Schema.getNbNominalDescriptiveAttributes(), 9));
+		System.out.print(StringUtils.printInt(m_Schema.getNbNumericDescriptiveAttributes(), 9));
+		System.out.print(StringUtils.printInt(m_Schema.getNbAllAttrUse(ClusAttrType.ATTR_USE_TARGET), 9));
+		NominalAttrType[] tarnom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		if (tarnom != null && tarnom.length >= 1) {
+			if (tarnom.length == 1) System.out.println(tarnom[0].getNbValues());
+			else System.out.println("M:"+tarnom.length);
+		} else {
+			System.out.println("(num)");
+		}
 		System.out.println();
 		m_Schema.showDebug();
 		if (getStatManager().hasClusteringStat()) {

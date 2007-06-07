@@ -114,7 +114,11 @@ public class PredictionWriter extends ClusModelProcessor {
 	
 	public void exampleUpdate(DataTuple tuple, ClusStatistic distr) {
 		m_Writer.print(",");
-		m_Writer.print(distr.getPredictWriterString(tuple));
+		if (distr == null) {
+			m_Writer.print("???");
+		} else {
+			m_Writer.print(distr.getPredictWriterString(tuple));
+		}
 		m_Writer.print(",\""+m_ModelParts+"\"");
 		m_ModelParts.setLength(0);
 	}

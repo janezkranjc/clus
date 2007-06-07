@@ -83,8 +83,18 @@ public class ILevelCGUI extends JFrame {
 		public int m_FirstIndex = -1;
 		public ArrayList m_Points = new ArrayList();
 		public ArrayList m_Constraints = new ArrayList();
-		
+
 		public void computeClosure() {
+			DerivedConstraintsComputer comp = new DerivedConstraintsComputer(m_Points, m_Constraints);
+			comp.compute();
+			repaint();
+		}
+		
+		public void indexPoints() {
+			for (int i = 0; i < m_Points.size(); i++) {
+				DataTuple tuple = (DataTuple)m_Points.get(i);
+				tuple.setIndex(i);
+			}
 		}
 		
 		public void load() {
@@ -94,24 +104,10 @@ public class ILevelCGUI extends JFrame {
 				try {					
 					RowData data = ARFFFile.readArff(fname);
 					m_Points = data.toArray();
-					for (int i = 0; i < m_Points.size(); i++) {
-						DataTuple tuple = (DataTuple)m_Points.get(i);
-						tuple.setIndex(i);
-					}
+					indexPoints();
 					m_Constraints.clear();
-					String mname = FileUtil.getName(fname);
-					LineNumberReader rdr = new LineNumberReader(new InputStreamReader(new FileInputStream(mname+".ilevelc")));
-					rdr.readLine();
-					String line = rdr.readLine();
-					while (line != null) {
-						StringTokenizer tokens = new StringTokenizer(line, ",");
-						int type = Integer.parseInt(tokens.nextToken());
-						int t1 = Integer.parseInt(tokens.nextToken());
-						int t2 = Integer.parseInt(tokens.nextToken());
-						m_Constraints.add(new ILevelConstraint((DataTuple)m_Points.get(t1), (DataTuple)m_Points.get(t2), type));
-						line = rdr.readLine();
-					}					
-					rdr.close();					
+					String mname = FileUtil.getName(fname)+".ilevelc";
+					ILevelConstraint.loadConstraints(mname, m_Constraints, m_Points);
 					repaint();
 				} catch (Exception e) {
 					System.out.println("Error saving: "+fname);
@@ -130,10 +126,7 @@ public class ILevelCGUI extends JFrame {
 					ARFFFile.writeArff(fname, data);					
 					String mname = FileUtil.getName(fname);
 					PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(mname+".ilevelc")));
-					for (int i = 0; i < m_Points.size(); i++) {
-						DataTuple tuple = (DataTuple)m_Points.get(i);
-						tuple.setIndex(i);
-					}
+					indexPoints();
 					wrt.println("TYPE,T1,T2");					
 					for (int i = 0; i < m_Constraints.size(); i++) {
 						ILevelConstraint ic = (ILevelConstraint)m_Constraints.get(i);
