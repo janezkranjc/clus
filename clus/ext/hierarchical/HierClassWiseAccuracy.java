@@ -232,7 +232,7 @@ public class HierClassWiseAccuracy extends ClusError {
 		out.print(", recall: "+fr2.format(getRecall()));
 		out.print(", coverage: "+fr2.format(getCoverage()));
 		out.print(", TP: "+getTP()+", FP: "+getFP()+", nbPos: "+getSumNbPosActual());
-		out.print(", AUC: "+getAUC());
+		// out.print(", AUC: "+getAUC());
 		out.println();
 		printNonZeroAccuracies(fr1, out, m_Hier);
 	}

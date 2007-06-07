@@ -233,6 +233,15 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 		m_SubTerms.add(node);
 	}
 	
+	public void addChildCheckAndParent(ClassTerm node) {
+		String id = node.getID();
+		if (!m_Hash.containsKey(id)) { 
+			m_Hash.put(id, node);	
+			m_SubTerms.add(node);
+			node.addParent(this);
+		}
+	}
+	
 	public void removeChild(int idx) {
 		// used by artificial data generator only
 		ClassTerm child = (ClassTerm)getChild(idx);

@@ -1421,7 +1421,7 @@ public class Settings implements Serializable {
 
 	public void setFTest(double ftest) {
 		FTEST_VALUE = ftest;
-		FTEST_LEVEL = FTest.getLevel(ftest);
+		FTEST_LEVEL = FTest.getLevelAndComputeArray(ftest);
 		m_FTest.setValue(ftest);
 	}
 

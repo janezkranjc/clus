@@ -247,6 +247,8 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		double total = stat.getTotalWeight();
 		wrt.println();
 		wrt.println("% Number of examples: "+total);
+		wrt.println("% Number of classes: "+hier.getTotal());		
+		wrt.println("% Hierarchy depth: "+hier.getDepth());		
 		wrt.println();
 		ARFFFile.writeArffHeader(wrt, schema);
 		wrt.println("@DATA");

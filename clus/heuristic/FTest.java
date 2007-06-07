@@ -12,15 +12,11 @@ import org.apache.commons.math.distribution.*;
 
 public class FTest {
 
-	public final static double[] FTEST_SIG = 
-		{1.0, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001, 
-		 5e-5, 1e-5, 5e-6, 1e-6, 5e-7, 1e-7, 5e-8, 1e-8, 5e-9, 1e-9};
+	public static double[] FTEST_SIG = {1.0, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0};
+	public static double FTEST_LIMIT;	
+	public static double[] FTEST_VALUE;
 	
 	public final static FDistribution m_FDist = DistributionFactory.newInstance().createFDistribution(1,1);
-	
-	public final static boolean OUTPUT_COMPUTE = true;
-	public static double[] FTEST_LIMIT = new double[FTEST_SIG.length];	
-	public static double[][] FTEST_VALUE = new double[FTEST_SIG.length][];
 
 	protected final static double critical_f_01[] = {
 		39.8161, 8.5264, 5.5225, 4.5369, 4.0804, 3.7636,
@@ -54,15 +50,16 @@ public class FTest {
 		14.5924, 14.3641, 14.2129, 13.9876, 13.8384, 13.7641, 13.6161, 13.4689, 13.3956, 13.3225
 	};
 
-	public static int getLevel(double significance) {
-		for (int level = 0; level < FTEST_SIG.length; level++) {
+	public static int getLevelAndComputeArray(double significance) {
+		int maxlevel = FTEST_SIG.length-1;
+		for (int level = 0; level < maxlevel; level++) {
 			if (Math.abs(significance - FTEST_SIG[level])/FTEST_SIG[level] < 0.01) {
 				return level;
 			}
 		}
-		System.out.println("Wrong significance level for F-Test");
-		System.exit(0);
-		return 0;
+		FTEST_SIG[maxlevel] = significance;
+		initializeFTable(significance);
+		return maxlevel;
 	}
 
 	public static double getCriticalF(int level, int df) {
@@ -98,15 +95,14 @@ public class FTest {
 				else if (df <= 120) return 11.36;
 				else return 10.82;
 			default:
-				double[] array = FTEST_VALUE[level];
-				return df < array.length ? array[df] : FTEST_LIMIT[level]; 
+				return df < FTEST_VALUE.length ? FTEST_VALUE[df] : FTEST_LIMIT; 
 		}
 	}
 	
-	public static double getCriticalFCommonsMath(int level, double df) {
+	public static double getCriticalFCommonsMath(double sig, double df) {
 		try {
 			m_FDist.setDenominatorDegreesOfFreedom(df);
-			return m_FDist.inverseCumulativeProbability(1-FTEST_SIG[level]);
+			return m_FDist.inverseCumulativeProbability(1-sig);
 		} catch (MathException e) {
 			System.err.println("F-Distribution error: "+e.getMessage());
 			return 0.0;
@@ -114,24 +110,21 @@ public class FTest {
 	}
 	
 	// Calling getCriticalFCommonsMath() is slow, so build a table
-	public static void initializeFTable(int level) {
-		if (level <= 5) return;		
+	public static void initializeFTable(double sig) {
 		int df = 3;
 		double value = 0.0;
-		double limit = getCriticalFCommonsMath(level, 1e5);		
+		double limit = getCriticalFCommonsMath(sig, 1e5);		
 		ArrayList values = new ArrayList();
 		do {
-			value = getCriticalFCommonsMath(level, df);
+			value = getCriticalFCommonsMath(sig, df);
 			values.add(new Double(value));
 			df++;
 		} while ((value - limit)/limit > 0.05);
-		if (OUTPUT_COMPUTE) { 
-			System.out.println("F-Test = "+FTEST_SIG[level]+" limit = "+ClusFormat.TWO_AFTER_DOT.format(limit)+" values = "+values.size());
-		}
-		FTEST_LIMIT[level] = limit;
-		FTEST_VALUE[level] = new double[values.size()+3];
+		System.out.println("F-Test = "+sig+" limit = "+ClusFormat.TWO_AFTER_DOT.format(limit)+" values = "+values.size());
+		FTEST_LIMIT = limit;
+		FTEST_VALUE = new double[values.size()+3];
 		for (int i = 0; i < values.size(); i++) {
-			FTEST_VALUE[level][i+3] = ((Double)values.get(i)).doubleValue();
+			FTEST_VALUE[i+3] = ((Double)values.get(i)).doubleValue();
 		}
 	}
 

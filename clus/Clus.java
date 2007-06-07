@@ -127,8 +127,6 @@ public class Clus implements CMDLineArgsProvider {
 		initializeSummary(clss);
 		System.out.println();
 		removeMissingTarget();
-		// Initialize F-Test table
-		FTest.initializeFTable(Settings.FTEST_LEVEL);
 		// Sample data
 		if (cargs.hasOption("sample")) {
 			String svalue = cargs.getOptionValue("sample");

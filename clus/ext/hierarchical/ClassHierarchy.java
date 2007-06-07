@@ -404,9 +404,8 @@ public class ClassHierarchy implements Serializable {
 		Iterator iter = m_ClassMap.values().iterator();
 		while (iter.hasNext()) {
 			ClassTerm term = (ClassTerm)iter.next();
-			if (term.atTopLevel()) {
-				m_Root.addChild(term);
-				term.addParent(m_Root);
+			if (term != m_Root && term.atTopLevel()) {
+				m_Root.addChildCheckAndParent(term);
 			}
 		}
 	}
@@ -417,11 +416,11 @@ public class ClassHierarchy implements Serializable {
 		if (parent_t.getByName(child) != null) {
 			throw new ClusException("Duplicate parent-child relation '"+parent+"' -> '"+child+"' in DAG definition in .arff file");
 		}
-		child_t.addParent(parent_t);
-		parent_t.addChild(child_t);
+		parent_t.addChildCheckAndParent(child_t);
 	}
 	
 	public void loadDAG(String[] cls) throws IOException, ClusException {
+		addClassTerm("root", getRoot());
 		for (int i = 0; i < cls.length; i++) {
 			String[] rel = cls[i].split("\\s*\\/\\s*");
 			if (rel.length != 2) {
