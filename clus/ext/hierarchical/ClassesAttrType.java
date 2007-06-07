@@ -109,7 +109,12 @@ public class ClassesAttrType extends ClusAttrType {
 	}
 	
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
-		ArrayList list = getHier().getAllParentChildTuples();
+		ArrayList list;
+		if (getSettings().getHierType() == Settings.HIERTYPE_DAG) {
+			list = getHier().getAllParentChildTuples();
+		} else {
+			list = getHier().getAllPaths();
+		}
 		wrt.print("hierarchical ");
 		for (int i = 0; i < list.size(); i++) {
 			if (i != 0) wrt.print(",");

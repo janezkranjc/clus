@@ -119,6 +119,14 @@ public class HMCAverageNodeWiseModels {
 				}				
 			}
 		}
+		// prediction(class) = avg(prediction(parent_i)*prediction(class|parent_i))
+		int child_idx = term.getIndex();
+		for (int traintest = CRParent.TRAINSET; traintest <= CRParent.TESTSET; traintest++) {
+			RowData data = cr.getDataSet(traintest);
+			for (int exid = 0; exid < data.getNbRows(); exid++) {
+				m_PredProb[traintest][child_idx][exid] /= term.getNbParents(); 
+			}				
+		}
 	}
 
 	public void updatePrediction(RowData data, int exid, int traintest, ClusModel model, ClassTerm parent, ClassTerm term) {

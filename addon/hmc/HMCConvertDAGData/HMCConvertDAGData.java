@@ -40,14 +40,14 @@ public class HMCConvertDAGData {
 			hier.removeZeroClasses(stat);
 			hier.showSummary();
 			RowData train = (RowData)run.getTrainingSet();
-			ARFFFile.writeArff(output+"-train.arff", train);
+			ARFFFile.writeArff(output+".train.arff", train);
 			if (!sett.isNullTestFile()) {
 				RowData test  = (RowData)run.getTestSet();
-				ARFFFile.writeArff(output+"-test.arff", test);
+				ARFFFile.writeArff(output+".test.arff", test);
 			}
 			if (!sett.isNullPruneFile()) {
 				RowData tune  = (RowData)run.getPruneSet();	
-				ARFFFile.writeArff(output+"-tune.arff", tune);			
+				ARFFFile.writeArff(output+".valid.arff", tune);			
 			}		
 		} else {
 			ARFFFile.writeArff(output, data);

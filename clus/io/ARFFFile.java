@@ -118,13 +118,40 @@ public class ARFFFile {
 			ClusAttrType type = schema.getAttrType(i);
 			if (!type.isDisabled()) {
 					wrt.print("@ATTRIBUTE ");
-					wrt.print(StringUtils.printStr(type.getName(), 40));
+					wrt.print(StringUtils.printStr(type.getName(), 65));
 					if (type.isKey()) {
 						wrt.print("key");
 					} else {
 						type.writeARFFType(wrt);
 					}
 					wrt.println();
+			}
+		}
+		wrt.println();
+	}
+	
+	public static void writeArffHeaderToSC(PrintWriter wrt, ClusSchema schema, String[] classterms) throws IOException, ClusException {
+		wrt.println("@RELATION "+schema.getRelationName());
+		wrt.println();
+		for (int i = 0; i < schema.getNbAttributes(); i++) {
+			ClusAttrType type = schema.getAttrType(i);
+			if (!type.isDisabled() && !type.getName().equals("class")) {
+					wrt.print("@ATTRIBUTE ");
+					wrt.print(StringUtils.printStr(type.getName(), 65));
+					if (type.isKey()) {
+						wrt.print("key");
+					} else {
+						type.writeARFFType(wrt);
+					}
+					wrt.println();
+			}
+		}
+		for (int i = 0; i < classterms.length; i++) {
+			if (!classterms[i].equals("root"))	{
+				wrt.print("@ATTRIBUTE ");
+				wrt.print(classterms[i]);
+				wrt.print("     hierarchical     p,n");
+				wrt.println();
 			}
 		}
 		wrt.println();
@@ -144,7 +171,7 @@ public class ARFFFile {
 			reader.close();
 			return data;
 	}
-	
+
 	public static void writeArff(String fname, RowData data) throws IOException, ClusException {
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
 		ClusSchema schema = data.getSchema();
@@ -159,6 +186,35 @@ public class ARFFFile {
 					if (aidx != 0) wrt.print(",");
 					wrt.print(type.getString(tuple));
 					aidx++;
+				}
+			}
+			wrt.println();
+		}		
+		wrt.close();
+	}
+	
+	
+	public static void writeArffToSC(String fname, RowData data, String[] classterms, boolean[][] classes) throws IOException, ClusException {
+		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
+		ClusSchema schema = data.getSchema();
+		writeArffHeaderToSC(wrt, schema, classterms);
+		wrt.println("@DATA");
+		for (int j = 0; j < data.getNbRows(); j++) {
+			DataTuple tuple = data.getTuple(j);
+			int aidx = 0;
+			for (int i = 0; i < schema.getNbAttributes(); i++) {
+				ClusAttrType type = schema.getAttrType(i);
+				if (!type.isDisabled() && !type.getName().equals("class")) {
+					if (aidx != 0) wrt.print(",");
+					wrt.print(type.getString(tuple));
+					aidx++;
+				}
+			}
+			for (int i = 0; i < classterms.length; i++) {
+				if (!classterms[i].equals("root"))	{
+					if (classes[j][i])
+						wrt.print(",p");
+					else wrt.print(",n");
 				}
 			}
 			wrt.println();
