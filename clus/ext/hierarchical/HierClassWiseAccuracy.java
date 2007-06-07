@@ -201,7 +201,7 @@ public class HierClassWiseAccuracy extends ClusError {
 			int nbPos = (int)m_NbPosActual[idx];
 			ClassesValue val = new ClassesValue(node);
 			//adapted output somewhat for clarity
-			out.print("      "+val.toPathString());
+			out.print("      "+val.toStringWithDepths(m_Hier));
 			out.print(", def: "+fr.format(def));
 //			out.print(" ("+m_Default[idx]+"/"+nb+")");
 			out.print(", prec: "+fr.format(prec));

@@ -160,6 +160,10 @@ public class RegressionStat extends ClusStatistic {
 		return m_SumWeights[i] != 0.0 ? m_SumValues[i] / m_SumWeights[i] : 0.0;		
 	}
 	
+	public double getSumValues(int i) {
+		return m_SumValues[i];		
+	}
+	
 	public double getSS(int i) {
 		double n_tot = m_SumWeight; 
 		double k_tot = m_SumWeights[i];

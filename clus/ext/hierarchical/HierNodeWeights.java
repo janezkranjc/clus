@@ -51,11 +51,17 @@ public class HierNodeWeights {
 				ClassTerm term = (ClassTerm)todo.get(i);
 				if (allParentsOk(term, weight_computed)) {
 					double sum_wi = 0.0;
+					int maxDepth = 0;					
+					int minDepth = Integer.MAX_VALUE;
 					for (int j = 0; j < term.getNbParents(); j++) {
 						ClassTerm parent = term.getParent(j);
 						if (parent.getIndex() == -1) sum_wi += 1.0;
-						else sum_wi += m_Weights[parent.getIndex()];						
+						else sum_wi += m_Weights[parent.getIndex()];
+						maxDepth = Math.max(maxDepth, parent.getMaxDepth()+1);
+						minDepth = Math.min(minDepth, parent.getMinDepth()+1);
 					}
+					term.setMinDepth(minDepth);
+					term.setMaxDepth(maxDepth);
 					m_Weights[term.getIndex()] = w0*sum_wi;
 					weight_computed[term.getIndex()] = true;
 					todo.remove(i);
@@ -68,6 +74,8 @@ public class HierNodeWeights {
 	public void initExponentialDepthWeightsRec(ClassTerm node, int depth, double w0) {
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			ClassTerm child = (ClassTerm)node.getChild(i);
+			child.setMinDepth(depth);
+			child.setMaxDepth(depth);
 			m_Weights[child.getIndex()] = calcExponentialDepthWeight(depth, w0);
 			initExponentialDepthWeightsRec(child, depth+1, w0);
 		}
@@ -80,6 +88,8 @@ public class HierNodeWeights {
 			initExponentialDepthWeightsRec(root, 0, w0);
 			m_Name = "Exponential depth weights (tree) "+w0;
 		} else {
+			root.setMinDepth(-1);
+			root.setMaxDepth(-1);
 			initExponentialDepthWeightsDAG(hier, w0);
 			m_Name = "Exponential depth weights (DAG) "+w0;
 		}

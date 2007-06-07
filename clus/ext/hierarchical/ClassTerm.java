@@ -19,6 +19,8 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 	protected HashMap m_Hash = new HashMap();
 	protected ArrayList m_SubTerms = new ArrayList();
 	protected ArrayList m_Parents = new ArrayList();
+	protected int m_MinDepth = Integer.MAX_VALUE;
+	protected int m_MaxDepth = 0;
 
 	public ClassTerm() {
 		m_ID = "root";
@@ -265,12 +267,19 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 	}	
 	
 	public int getMaxDepth() {
-		int depth = 0;
-		for (int i = 0; i < m_SubTerms.size(); i++) {
-			ClassTerm subterm = (ClassTerm)m_SubTerms.get(i);		
-			depth = Math.max(depth, subterm.getMaxDepth());
-		}
-		return depth+1;
+		return m_MaxDepth;
+	}
+	
+	public int getMinDepth() {
+		return m_MinDepth;
+	}	
+	
+	public void setMinDepth(int depth) {
+		m_MinDepth = depth;
+	}
+	
+	public void setMaxDepth(int depth) {
+		m_MaxDepth = depth;
 	}	
 	
 	public String toPathString() {

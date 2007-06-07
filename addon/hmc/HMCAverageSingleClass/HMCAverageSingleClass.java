@@ -14,18 +14,19 @@ import clus.*;
 import clus.algo.tdidt.*;
 import clus.data.rows.*;
 import clus.ext.*;
+import clus.io.*;
 import clus.main.*;
 import clus.util.*;
 import clus.statistic.*;
 import clus.data.type.*;
-import clus.model.modelio.ClusModelCollectionIO;
+import clus.model.modelio.*;
 import clus.ext.hierarchical.*;
 import clus.error.*;
 
 public class HMCAverageSingleClass implements CMDLineArgsProvider {
 
-	private static String[] g_Options = {"models", "nodewise"};
-	private static int[] g_OptionArities = {1, 0};
+	private static String[] g_Options = {"models", "nodewise", "stats"};
+	private static int[] g_OptionArities = {1, 0, 0};
 	
 	protected Clus m_Clus;
 	protected StringTable m_Table = new StringTable();
@@ -46,6 +47,10 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			m_Clus.initialize(cargs, clss);
 			ClusStatistic target = createTargetStat();
 			target.calcMean();
+			if (cargs.hasOption("stats")) {
+				computeStats();
+				System.exit(0);
+			}
 			if (cargs.hasOption("models") || cargs.hasOption("nodewise")) {
 				//initializing m_EvalArray
 				HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
@@ -219,6 +224,43 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 	}
 
 	public void showHelp() {
+	}
+	
+	public void computeStats() throws ClusException, IOException {
+		ClusRun cr = m_Clus.partitionData();
+		RegressionStat stat = (RegressionStat)getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
+		RowData train = (RowData)cr.getTrainingSet();
+		RowData valid = (RowData)cr.getPruneSet();
+		RowData test = (RowData)cr.getTestSet();
+		train.calcTotalStat(stat);
+		if (valid != null) valid.calcTotalStat(stat);
+		if (test != null) test.calcTotalStat(stat);
+		stat.calcMean();
+		ClassHierarchy hier = getStatManager().getHier();
+		PrintWriter wrt = getSettings().getFileAbsoluteWriter(getSettings().getAppName() + "-hmcstat.arff");
+		ClusSchema schema = new ClusSchema("HMC-Statistics");
+		schema.addAttrType(new StringAttrType("Class"));
+		schema.addAttrType(new NumericAttrType("Weight"));
+		schema.addAttrType(new NumericAttrType("MinDepth"));
+		schema.addAttrType(new NumericAttrType("MaxDepth"));
+		schema.addAttrType(new NumericAttrType("Frequency"));
+		double total = stat.getTotalWeight();
+		wrt.println();
+		wrt.println("% Number of examples: "+total);
+		wrt.println();
+		ARFFFile.writeArffHeader(wrt, schema);
+		wrt.println("@DATA");
+		for (int i = 0; i < hier.getTotal(); i++) {
+			ClassTerm term = hier.getTermAt(i);
+			int index = term.getIndex();
+			wrt.print(term.toStringHuman(hier));
+			wrt.print(","+hier.getWeight(index));
+			wrt.print(","+term.getMinDepth());			
+			wrt.print(","+term.getMaxDepth());			
+			wrt.print(","+stat.getSumValues(index));
+			wrt.println();
+		}
+		wrt.close();
 	}
 	
 	public static void main(String[] args) {

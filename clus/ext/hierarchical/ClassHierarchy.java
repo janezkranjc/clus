@@ -23,6 +23,7 @@ public class ClassHierarchy implements Serializable {
 	public final static int TREE = 0;	
 	public final static int DAG = 1;
 	
+	protected int m_MaxDepth = 0;
 	protected int m_HierType = TREE;
 	protected ClassesTuple m_Eval;
 	protected ArrayList m_ClassList = new ArrayList();
@@ -247,6 +248,14 @@ public class ClassHierarchy implements Serializable {
 		m_Weights = ws.getWeights();
 	}
 	
+	public final void calcMaxDepth() {
+		m_MaxDepth = 0;
+		for (int i = 0; i < getTotal(); i++) {
+			ClassTerm term = getTermAt(i);
+			m_MaxDepth = Math.max(m_MaxDepth, term.getMaxDepth());
+		}
+	}
+	
 	public final SingleStat getMeanBranch(boolean[] enabled) {
 		SingleStat stat = new SingleStat();
 		m_Root.getMeanBranch(enabled, stat);
@@ -258,11 +267,11 @@ public class ClassHierarchy implements Serializable {
 	}
 	
 	public final int getDepth() {
-		return m_Root.getMaxDepth();
+		return m_MaxDepth;
 	}
 	
 	public final int[] getClassesByLevel() {
-		int[] res = new int[getDepth()];
+		int[] res = new int[getDepth()+2];
 		countClassesRecursive(m_Root, 0, res);
 		return res;
 	}
@@ -277,6 +286,7 @@ public class ClassHierarchy implements Serializable {
 	public final void initialize() {
 		numberHierarchy();
 		calcWeights();
+		calcMaxDepth();
 		ClusSchema schema = m_Type.getSchema();
 		int maxIndex = schema.getNbAttributes();
 		m_DummyTypes = new NumericAttrType[getTotal()];

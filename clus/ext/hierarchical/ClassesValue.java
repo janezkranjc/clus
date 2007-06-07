@@ -159,6 +159,19 @@ public class ClassesValue implements Serializable {
 			return toPathString();
 		}
 	}
+	
+	public String toStringWithDepths(ClassHierarchy hier) {
+		if (hier != null && hier.isDAG()) {
+			ClassTerm term = getTerm();
+			if (term.getMinDepth() == term.getMaxDepth()) {
+				return getTerm().getID()+"["+term.getMinDepth()+"]";
+			} else {
+				return getTerm().getID()+"["+term.getMinDepth()+";"+term.getMaxDepth()+"]";
+			}
+		} else {
+			return toPathString();
+		}
+	}
 
 	public String toString() {
 		return toPathString();
