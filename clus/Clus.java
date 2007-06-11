@@ -26,6 +26,7 @@ import clus.algo.induce.*;
 import clus.selection.*;
 import clus.ext.hierarchical.*;
 import clus.ext.beamsearch.*;
+import clus.ext.ensembles.*;
 import clus.ext.exhaustivesearch.*;
 import clus.ext.constraint.*;
 import clus.pruning.*;
@@ -896,7 +897,7 @@ public class Clus implements CMDLineArgsProvider {
 		if (m_Sett.isOutputFoldModels())	{
 			// Write output to file and also store in .model file
 			output.writeOutput(cr, false);
-			if (!Settings.m_BaggingMode){
+			if (!Settings.m_EnsembleMode){
 			ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
 			// Commented out because otherwise error: combining errors of different models
 			// mi.setName("Fold: " + (fold + 1));
@@ -1125,8 +1126,8 @@ public class Clus implements CMDLineArgsProvider {
 				clss = new ClusExhaustiveDFSearch(clus);
 				} 
 				else if (cargs.hasOption("forest")) {
-					sett.setBaggingMode(true);
-					clss = new ClusForestClassifier(clus);
+					sett.setEnsembleMode(true);
+					clss = new ClusEnsembleClassifier(clus);
 					} 
 				else {
 					clss = new ClusDecisionTree(clus);

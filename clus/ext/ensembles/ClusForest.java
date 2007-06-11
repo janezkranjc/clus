@@ -1,8 +1,9 @@
-package clus.main;
+package clus.ext.ensembles;
 
 
 import jeans.util.*;
 
+import clus.main.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.statistic.*;
@@ -17,6 +18,8 @@ public class ClusForest implements ClusModel, Serializable{
 
 	ArrayList m_Forest;
 	ClusStatistic m_FStat;
+	static ClusAttrType[] m_RandomSubspaces;
+	
 	
 	public ClusForest(ClusSchema schema){
 		m_Forest = new ArrayList();
@@ -180,5 +183,40 @@ public class ClusForest implements ClusModel, Serializable{
 		}
 //		System.out.println(java.util.Arrays.toString(samples));
 		return result;
+	}
+	
+	public static void selectRandomSubspaces(ClusAttrType[] attrs, int select){
+		int origsize = attrs.length;
+		int[] samples = new int [origsize];
+		int rnd;
+		boolean randomize = true;
+		int i = 0;
+		while (randomize) {
+			rnd = ClusRandom.nextInt(ClusRandom.RANDOM_SELECTION, origsize);
+			if (samples[rnd] == 0) {
+				samples[rnd]++;
+				i++;
+			}
+			if ( i == select)
+				randomize = false;
+		}
+		ClusAttrType[] result = new ClusAttrType[select];
+		int res = 0;
+		for (int k = 0; k < origsize; k++){
+			if (samples[k] !=0){
+				result[res] = attrs[k];
+				res++;
+			}
+		}
+//		System.out.println(java.util.Arrays.toString(samples));
+		setRandomSubspaces(result);
+	}
+	
+	public static ClusAttrType[] getRandomSubspaces(){
+		return m_RandomSubspaces;
+	}
+	
+	public static void setRandomSubspaces(ClusAttrType[] attrs){
+		m_RandomSubspaces = attrs;
 	}
 }

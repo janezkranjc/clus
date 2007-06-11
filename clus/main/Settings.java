@@ -242,10 +242,16 @@ public class Settings implements Serializable {
 	
 	public final static int TIME_SERIES_DISTANCE_MEASURE_TSC = 2;
 	
+	public final static String[] ENSEMBLE_TYPE = {"Bagging", "RForest", "RSubspaces","BagSubspaces"};
+	
+	public final static int ENSEMBLE_BAGGING = 0;
+	public final static int ENSEMBLE_RFOREST = 1;
+	public final static int ENSEMBLE_RSUBSPACES = 2;
+	public final static int ENSEMBLE_BAGSUBSPACES = 3;
+	
 	public final static String[] VOTING_TYPE={"Majority","ProbabilityDistribution"};
 
 	public final static int VOTING_TYPE_MAJORITY = 0;
-	
 	public final static int VOTING_TYPE_PROBAB_DISTR = 1;
 	
 		
@@ -529,18 +535,13 @@ public class Settings implements Serializable {
 	public static INIFileNominal timeSeriesProtoComlexity;
 
 	
-	/*Bagging*/
-	INIFileSection m_SectionBagging;
-	
+	/*Ensembles*/
+	INIFileSection m_SectionEnsembles;
 	protected INIFileInt m_NbBags;
-	
+	public static INIFileNominal m_EnsembleMethod;
 	public static INIFileNominal m_ClassificationVoteType;
-	
-	protected INIFileBool m_RandomForest;
-	
 	protected INIFileInt m_RandomAttrSelected;
-	
-	public static boolean m_BaggingMode = false;
+	public static boolean m_EnsembleMode = false;
 
 	public void create() {
 		INIFileSection settings = new INIFileSection("General");
@@ -710,12 +711,12 @@ public class Settings implements Serializable {
 		timeSeries.addNode(timeSeriesProtoComlexity=new INIFileNominal("PrototypeComlexity", TIME_SERIES_PROTOTYPE_COMPLEXITY,0));
 		timeSeries.setEnabled(false);
 		
-		m_SectionBagging = new INIFileSection("Bagging");
-		m_SectionBagging.addNode(m_NbBags = new INIFileInt("NumberBags", 25));
-			m_SectionBagging.addNode(m_ClassificationVoteType =new INIFileNominal("VotingType", VOTING_TYPE,0));
-		m_SectionBagging.addNode(m_RandomForest = new INIFileBool("RandomForest", false));
-		m_SectionBagging.addNode(m_RandomAttrSelected = new INIFileInt("SelectRandomAttributes", 1));
-		m_SectionBagging.setEnabled(false);
+		m_SectionEnsembles = new INIFileSection("Ensemble");
+		m_SectionEnsembles.addNode(m_NbBags = new INIFileInt("Iterations", 25));
+		m_SectionEnsembles.addNode(m_EnsembleMethod =new INIFileNominal("EnsembleMethod", ENSEMBLE_TYPE,0));
+		m_SectionEnsembles.addNode(m_ClassificationVoteType =new INIFileNominal("VotingType", VOTING_TYPE,0));
+		m_SectionEnsembles.addNode(m_RandomAttrSelected = new INIFileInt("SelectRandomSubspaces", 1));
+		m_SectionEnsembles.setEnabled(false);
 		
 		INIFileSection exper = new INIFileSection("Experimental");
 		exper.addNode(m_SetsData = new INIFileInt("NumberBags", 25));
@@ -741,7 +742,7 @@ public class Settings implements Serializable {
 		m_Ini.addNode(m_SectionKNNT);
 		m_Ini.addNode(exper);
 		m_Ini.addNode(timeSeries);
-		m_Ini.addNode(m_SectionBagging);
+		m_Ini.addNode(m_SectionEnsembles);
 	}
 
 	public void initNamedValues() {
@@ -1136,8 +1137,8 @@ public class Settings implements Serializable {
 		return m_NbBags.getValue();
 	}
 	
-	public boolean isRandomForest(){
-		return m_RandomForest.getValue();
+	public int getEnsembleMethod(){
+		return m_EnsembleMethod.getValue();
 	}
 
 	public int getNbRandomAttrSelected(){
@@ -1148,12 +1149,12 @@ public class Settings implements Serializable {
 		m_RandomAttrSelected.setValue(value);
 	}
 	
-	public boolean getIsBaggingMode(){
-		return m_BaggingMode;
+	public boolean getIsEnsembleMode(){
+		return m_EnsembleMode;
 	}
 	
-	public void setBaggingMode(boolean value){
-		m_BaggingMode = value;
+	public void setEnsembleMode(boolean value){
+		m_EnsembleMode = value;
 	}
 	
 // end Bagging section

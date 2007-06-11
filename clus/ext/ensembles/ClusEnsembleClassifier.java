@@ -1,16 +1,17 @@
-package clus.main;
+package clus.ext.ensembles;
 
 import java.io.IOException;
 
 import jeans.util.cmdline.CMDLineArgs;
 
+import clus.main.*;
 import clus.Clus;
 import clus.algo.induce.*;
 import clus.util.ClusException;
 
-public class ClusForestClassifier extends ClusClassifier {
+public class ClusEnsembleClassifier extends ClusClassifier {
 
-	public ClusForestClassifier(Clus clus) {
+	public ClusEnsembleClassifier(Clus clus) {
 		super(clus);
 		// TODO Auto-generated constructor stub
 	}
@@ -18,7 +19,7 @@ public class ClusForestClassifier extends ClusClassifier {
 	public ClusInduce createInduce(ClusSchema schema, Settings sett,
 			CMDLineArgs cargs) throws ClusException, IOException {
 		// TODO Auto-generated method stub
-		return new ClusForestInduce(schema,sett,m_Clus);
+		return new ClusEnsembleInduce(schema,sett,m_Clus);
 	}
 
 	public ClusModel pruneSingle(ClusModel model, ClusRun cr)

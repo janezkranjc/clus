@@ -232,9 +232,9 @@ public class ClusOutput {
 		m_Writer.println("Preprocessing time: "+ClusFormat.ONE_AFTER_DOT.format(psec)+" sec");
 		m_Writer.println("Mean number of tests");
 		
-		//Bagging doesn't have pruned models
+		//Currently implemented ensemble methods don't have pruned models
 		int end_model;
-		if (!Settings.m_BaggingMode)end_model = ClusModels.PRUNED;
+		if (!Settings.m_EnsembleMode)end_model = ClusModels.PRUNED;
 		else end_model = ClusModels.ORIGINAL;
 		
 //		for (int i = ClusModels.ORIGINAL; i <= ClusModels.PRUNED; i++) {

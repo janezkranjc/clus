@@ -554,10 +554,24 @@ public class ClassificationStat extends ClusStatistic {
 		for (int j = 0; j < nb_votes; j++){
 			vote = (ClassificationStat) votes.get(j);
 			for (int i = 0; i < m_NbTarget; i++){
-				add(vote);
+				addVote(vote);
 			}
 		}
 		calcMean();
 	}
+	
+	public void addVote(ClusStatistic vote) {
+		ClassificationStat or = (ClassificationStat)vote;
+		m_SumWeight += or.m_SumWeight;
+		for (int i = 0; i < m_NbTarget; i++) {
+			double[] my = m_ClassCounts[i];
+			double[] your = or.m_ClassCounts[i];
+			double total = 0.0;
+			for (int k = 0; k < your.length; k++) total += your[k];
+			for (int j = 0; j < my.length; j++) my[j] += your[j]/total;
+		}
+	}
+	
+	
 	
 }

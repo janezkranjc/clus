@@ -8,6 +8,7 @@ import clus.data.type.*;
 import clus.model.test.*;
 import clus.statistic.*;
 import clus.nominal.split.*;
+import clus.ext.ensembles.ClusForest;
 
 import java.io.*;
 import java.util.*;
@@ -275,12 +276,31 @@ public class DepthFirstInduce extends ClusInduce {
 		ClusSchema schema = data.getSchema();
 //		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
 		
+		//This is used for the ensemble methods
 		ClusAttrType[] attrs;
-		//This part is used for Random Forests
-		if (schema.getSettings().isRandomForest()&&schema.getSettings().getIsBaggingMode()){
-			ClusAttrType[] attrsAll = schema.getDescriptiveAttributes();
-			attrs = new ClusAttrType[schema.getSettings().getNbRandomAttrSelected()];
-			attrs = ClusForest.selectAttributesForRandomForest(attrsAll,schema.getSettings().getNbRandomAttrSelected());
+		if (Settings.m_EnsembleMode){
+			switch (schema.getSettings().getEnsembleMethod()){
+			case 0: {//Bagging - do nothing
+				attrs = schema.getDescriptiveAttributes();
+				break;}
+			case 1:{//RandomForests
+				ClusAttrType[] attrsAll = schema.getDescriptiveAttributes();
+				attrs = new ClusAttrType[schema.getSettings().getNbRandomAttrSelected()];
+				attrs = ClusForest.selectAttributesForRandomForest(attrsAll,schema.getSettings().getNbRandomAttrSelected());				
+				break;
+				}
+			case 2:{//RandomSubspaces
+				attrs = ClusForest.getRandomSubspaces();
+				break;
+				}
+			case 3:{//BaggingSubspaces
+				attrs = ClusForest.getRandomSubspaces();
+				}
+			default: {
+				attrs = schema.getDescriptiveAttributes();
+				break;
+				}
+			}
 		}
 		else {
 			attrs = schema.getDescriptiveAttributes();
