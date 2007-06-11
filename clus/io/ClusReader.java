@@ -201,22 +201,28 @@ public class ClusReader {
 		}
 	}
 	
+	//TimeSeries attribute can be placed anywhere
 	public String readTimeSeries() throws IOException {
 		Reader reader = m_Token.getReader();
 		m_Scratch.setLength(0);
 		int ch = getNextChar(reader);
-		//int prev=ch;
-		while ((ch != -1) && (ch !=']')) {
+		int prev = ch;
+		while ((ch != -1) && (prev !=']')) {		
 			if (ch !=(int) '\t' && ch != 10 && ch != 13) {
 				m_Scratch.append((char)ch);
  			} else {
 				if (ch == 10 || ch == 13) setLastChar(13);
 			}
-			//prev=ch;
+			prev = ch;
 			ch = reader.read();
 		}
-		if (ch==']')
-			m_Scratch.append((char)ch);		
+		
+//		if (ch==']')
+//			m_Scratch.append((char)ch);	
+
+		if (ch == -1)
+			m_Scratch.append((char)prev);	
+
 		String result = m_Scratch.toString().trim();
 		if (result.length() > 0) {
 			m_Attr++;			
