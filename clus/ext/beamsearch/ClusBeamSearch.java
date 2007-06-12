@@ -194,12 +194,17 @@ public class ClusBeamSearch extends ClusClassifier {
 				new_model.setParentModelIndex(getCurrentModel());
 				
 				if ((Settings.BEAM_SIMILARITY != 0)&&!Settings.BEAM_SYNT_DIST_CONSTR){
-//					ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_tree);
-//					new_model.setParentModelIndex(getCurrentModel());
 					new_model.setModelPredictions(m_BeamModelDistance.getPredictions(new_model.getModel()));
 					if (!beam.modelAlreadyIn(new_model)){
-						m_BeamModelDistance.calculatePredictionDistances(beam, new_model);
-						if (beam.removeMinUpdated(new_model) == 1) setBeamChanged(true);
+						//This version is linear wrt the beam-width
+//						m_BeamModelDistance.addDistToCandOpt(beam, new_model);
+//						if (beam.removeMinUpdatedOpt(new_model, m_BeamModelDistance) == 1) setBeamChanged(true);
+						
+						//These were used for KDID 2006 paper
+/*						m_BeamModelDistance.calculatePredictionDistances(beam, new_model);
+						if (beam.removeMinUpdated(new_model) == 1) setBeamChanged(true);*/
+/*						m_BeamModelDistance.calculatePredictionDistancesOpt(beam, new_model);
+						if (beam.removeMinUpdated(new_model) == 1) setBeamChanged(true);*/
 					}
 				}
 				else{
@@ -211,8 +216,7 @@ public class ClusBeamSearch extends ClusClassifier {
 					}
 				// Check for sure if _strictly_ better!
 					if (new_heur > beam_min_value) {
-//						ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_tree);
-//						new_model.setParentModelIndex(getCurrentModel());
+
 						beam.addModel(new_model);
 						setBeamChanged(true);
 						// Uncomment the following to print each model that is added to the beam
