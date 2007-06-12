@@ -160,25 +160,34 @@ public class ClusBeam {
 	}
 	
 	/**Dragi
-	 * This part is applied only when we have similarity constraints
+	 * This part is used only when we have similarity constraints
 	 * @param model - candidate model
 	 * @return 0 - no change in the beam (the candidate didn't entered the beam)
 	 * @return 1 - change in the beam (the candidate entered the beam)
 	 */
-	public int removeMinUpdated(ClusBeamModel model){
+	public int removeMinUpdated(ClusBeamModel candidate){
 		// until we reach the Beam Width we put all models in
+		
 		if (m_CrWidth < m_MaxWidth) {	
-			m_CrWidth += addIfNotIn(model); 
+			m_CrWidth += addIfNotIn(candidate); 
+			String info = "BEAM SIZE = "+getCrWidth();
+//			printBeamTrees(info);
 			return 1;
 		}
-		double currentMin = model.getValue() - Settings.BEAM_SIMILARITY * model.getSimilarityWithBeam();
+		String info = "BEAM SIZE = "+getCrWidth();
+//		printBeamTrees(info);
+//		NumberFormat form = ClusFormat.makeNAfterDot(8);
+//		double candidateSimilarity = Double.parseDouble(form.format(1 - candidate.getDistanceToBeam()/getCrWidth()));
+		double candidateSimilarity = 1 - candidate.getDistanceToBeam()/getCrWidth();
+		double currentMin = candidate.getValue() - Settings.BEAM_SIMILARITY * candidateSimilarity;
 		ArrayList arr = toArray();
 		double modelUpdatedHeur,modelSimilarity;
 		int bsize = arr.size();
 		int min_pos = bsize;
 		for (int i = 0; i < bsize; i++){
-			modelSimilarity = ((ClusBeamModel)arr.get(i)).getSimilarityWithBeam();
-			modelUpdatedHeur = ((ClusBeamModel)arr.get(i)).getValue() - Settings.BEAM_SIMILARITY * modelSimilarity;
+			modelSimilarity = 1 - ((ClusBeamModel)arr.get(i)).getDistanceToBeam()/getCrWidth();
+//			modelSimilarity = Double.parseDouble(form.format(1 - ((ClusBeamModel)arr.get(i)).getDistanceToBeam()/getCrWidth()));
+			modelUpdatedHeur = ((ClusBeamModel)arr.get(i)).getValue() - Settings.BEAM_SIMILARITY *  modelSimilarity;
 			if ((currentMin == modelUpdatedHeur)&& m_RemoveEqualHeur){		
 				//this is for handling the case when the updated heuristic is equal
 				//with this the candidate doesn't enter the beam
@@ -190,7 +199,6 @@ public class ClusBeam {
 					currentMin = modelUpdatedHeur;
 					}
 		}
-
 		if (min_pos != bsize){
 			TreeMap temp = new TreeMap();
 			ClusBeamModel cbm;
@@ -198,7 +206,7 @@ public class ClusBeam {
 			for (int j = 0; j <= bsize; j++){
 				if (j != min_pos){
 					if (j !=bsize)	cbm = (ClusBeamModel)arr.get(j);
-					else cbm = model; 
+					else cbm = candidate; 
 					found = (ClusBeamTreeElem) temp.get(Double.valueOf(cbm.getValue()));
 					if (found == null) temp.put(Double.valueOf(cbm.getValue()), new ClusBeamTreeElem(cbm));
 					else found.addIfNotIn(cbm);
@@ -211,6 +219,64 @@ public class ClusBeam {
 		}
 		return 0;
 	}
+	
+		public int removeMinUpdatedOpt(ClusBeamModel candidate, ClusBeamModelDistance distance){
+			// until we reach the Beam Width we put all models in
+			if (m_CrWidth < m_MaxWidth) {	
+				m_CrWidth += addIfNotIn(candidate); 
+//				String info = "BEAM SIZE = "+getCrWidth();
+//				printBeamTrees(info);
+				return 1;
+			}
+//			String info = "BEAM SIZE = "+getCrWidth();
+//			printBeamTrees(info);
+//			NumberFormat form = ClusFormat.makeNAfterDot(10);
+//			double candidateSimilarity = Double.parseDouble(form.format(1 - candidate.getDistanceToBeam()/getCrWidth()));
+			double candidateSimilarity = 1 - candidate.getDistanceToBeam()/getCrWidth();
+			double currentMin = candidate.getValue() - Settings.BEAM_SIMILARITY * candidateSimilarity;			
+			ArrayList arr = toArray();
+			int bsize = arr.size();
+			int min_pos = bsize;
+			double modelUpdatedHeur,modelDistance;
+			
+			for (int i = 0; i < bsize; i++){
+//				modelDistance = Double.parseDouble(form.format(1 - ((ClusBeamModel)arr.get(i)).getDistanceToBeam()/getCrWidth()));
+				modelDistance = 1 - ((ClusBeamModel)arr.get(i)).getDistanceToBeam()/getCrWidth();
+				modelUpdatedHeur = ((ClusBeamModel)arr.get(i)).getValue() - Settings.BEAM_SIMILARITY * modelDistance;
+
+				if ((currentMin == modelUpdatedHeur)&& m_RemoveEqualHeur){		
+					//this is for handling the case when the updated heuristic is equal
+					//with this the candidate doesn't enter the beam
+					min_pos = bsize;
+					break;
+				}
+				else if (currentMin > modelUpdatedHeur){
+						min_pos = i;
+						currentMin = modelUpdatedHeur;
+						}
+			}			
+			distance.deductFromBeamOpt(this, candidate, min_pos);
+			if (min_pos != bsize){
+				TreeMap temp = new TreeMap();
+				ClusBeamModel cbm;
+				ClusBeamTreeElem found;
+				for (int j = 0; j <= bsize; j++){
+					if (j != min_pos){
+						if (j !=bsize)	cbm = (ClusBeamModel)arr.get(j);
+						else cbm = candidate; 
+						found = (ClusBeamTreeElem) temp.get(Double.valueOf(cbm.getValue()));
+						if (found == null) temp.put(Double.valueOf(cbm.getValue()), new ClusBeamTreeElem(cbm));
+						else found.addIfNotIn(cbm);
+					}
+				}
+				m_Tree = temp;
+				m_Values = m_Tree.values();
+				m_MinValue = computeMinValue();
+				return 1;
+			}
+			return 0;
+		}
+	
 	
 	/**Dragi
 	 * check if the same tree is already in the beam
