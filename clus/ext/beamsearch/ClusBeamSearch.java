@@ -197,8 +197,8 @@ public class ClusBeamSearch extends ClusClassifier {
 					new_model.setModelPredictions(m_BeamModelDistance.getPredictions(new_model.getModel()));
 					if (!beam.modelAlreadyIn(new_model)){
 						//This version is linear wrt the beam-width
-//						m_BeamModelDistance.addDistToCandOpt(beam, new_model);
-//						if (beam.removeMinUpdatedOpt(new_model, m_BeamModelDistance) == 1) setBeamChanged(true);
+						m_BeamModelDistance.addDistToCandOpt(beam, new_model);
+						if (beam.removeMinUpdatedOpt(new_model, m_BeamModelDistance) == 1) setBeamChanged(true);
 						
 						//These were used for KDID 2006 paper
 /*						m_BeamModelDistance.calculatePredictionDistances(beam, new_model);
