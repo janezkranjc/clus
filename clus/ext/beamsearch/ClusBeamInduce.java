@@ -4,6 +4,7 @@ import clus.Clus;
 import clus.algo.induce.*;
 import clus.algo.tdidt.*;
 import clus.data.rows.RowData;
+import clus.ext.ensembles.ClusForest;
 import clus.main.*;
 import clus.util.*;
 import clus.nominal.split.*;
@@ -55,8 +56,16 @@ public class ClusBeamInduce extends ClusInduce {
 		def_model.setModel(ClusDecisionTree.induceDefault(cr));
 		def_model.setName("Default");
 		ArrayList lst = m_Search.getBeam().toArray();
+		
+		//the pruning is ON for all setings! This could be turned off when needed!
+		if (cr.getStatManager().getSettings().getBeamTreeMaxSize() <= -1) postPruneBeamModels(cr, lst);
+		
 		if (cr.getStatManager().getSettings().getBeamSortOnTrainParameter())sortModels(cr, lst);
-		writeSimilarityFile(lst, cr);
+		if (!cr.getStatManager().getSettings().isFastBS())writeSimilarityFile(lst, cr);
+
+		boolean toForest = cr.getStatManager().getSettings().isBeamToForest();
+		ClusForest bForest = new ClusForest(cr.getStatManager().getSchema());
+		
 		for (int i = 0; i < lst.size(); i++) {
 			ClusBeamModel mdl = (ClusBeamModel)lst.get(lst.size()-i-1);
 			ClusNode tree = (ClusNode)mdl.getModel();			
@@ -65,6 +74,12 @@ public class ClusBeamInduce extends ClusInduce {
 			model_info.setModel(tree);
 			model_info.setName("Beam "+(i+1));
 			model_info.clearAll();
+			if (toForest)bForest.addModelToForest((ClusModel)tree);
+		}
+		if (toForest){
+			ClusModelInfo forest_info = cr.addModelInfo(lst.size()+1);
+			forest_info.setModel(bForest);
+			forest_info.setName("BeamToForest");
 		}
 	}
 	
@@ -94,9 +109,9 @@ public class ClusBeamInduce extends ClusInduce {
 	 * @throws IOException
 	 */
 	public void sortModels(ClusRun cr, ArrayList arr) throws ClusException, IOException{
-		if (cr.getStatManager().getSettings().getBeamTreeMaxSize() <= -1) {
-			postPruneBeamModels(cr, arr);
-		}
+//		if (cr.getStatManager().getSettings().getBeamTreeMaxSize() <= -1) {
+//			postPruneBeamModels(cr, arr);
+//		}
 		int size = arr.size();
 		ClusBeamModel[] models = new ClusBeamModel[size];
 		double[]err = new double [size];

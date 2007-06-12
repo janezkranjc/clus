@@ -469,6 +469,7 @@ public class Settings implements Serializable {
 	protected INIFileBool m_BMRemoveEqualHeur;
 	protected INIFileDouble m_BeamSimilarity;
 	protected INIFileBool m_BSortTrainParameter;
+	protected INIFileBool m_BeamToForest;
 	protected INIFileString m_BeamSyntacticConstrFile;
 	
 	/* Exhaustive Search : Elisa 1/08/2006*/
@@ -698,6 +699,7 @@ public class Settings implements Serializable {
 		m_SectionBeam.addNode(m_BeamSimilarity = new INIFileDouble("BeamSimilarity", 0.0));
 		m_SectionBeam.addNode(m_BSortTrainParameter = new INIFileBool("BeamSortOnTrainParameteres", false));
 		m_SectionBeam.addNode(m_BeamSyntacticConstrFile = new INIFileString("DistSyntacticConstr",NONE));
+		m_SectionBeam.addNode(m_BeamToForest = new INIFileBool("BeamToForest", false));
 		m_SectionBeam.setEnabled(false);
 		
 		//added by elisa 1/08/2006
@@ -1028,6 +1030,10 @@ public class Settings implements Serializable {
 	
 	public boolean isFastBS() {
 		return m_FastBS.getValue();
+	}
+	
+	public boolean isBeamToForest(){
+		return m_BeamToForest.getValue();
 	}
 	
 	//added by elisa 1/08/2006

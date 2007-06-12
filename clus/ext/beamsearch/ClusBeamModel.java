@@ -19,7 +19,7 @@ public class ClusBeamModel implements Comparable, Serializable {
 	protected ClusModel m_Root;
 	protected Object m_Refinement;
 	
-	protected double m_SimilarityWithBeam; //stores the Similarity to beam
+	protected double m_DistanceToBeam; //stores the Similarity to beam
 	protected ArrayList m_Predictions; //stores the predictions for each target attribute for each row
 
 	public ClusBeamModel() {
@@ -121,12 +121,12 @@ public class ClusBeamModel implements Comparable, Serializable {
 		return res;
 	}	
 	
-	public void setSimilarityWithBeam(double similarity){
-		m_SimilarityWithBeam = similarity;
+	public void setDistanceToBeam(double distance){
+		m_DistanceToBeam = distance;
 	}
 	
-	public double getSimilarityWithBeam(){
-		return m_SimilarityWithBeam;
+	public double getDistanceToBeam(){
+		return m_DistanceToBeam;
 	}
 	
 	public void setModelPredictions(ArrayList predictions){
