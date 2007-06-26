@@ -123,7 +123,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		return root;		
 	}		
 	
-	public ClusNode induce(ClusRun cr, MultiScore score) throws ClusException {
+/*	public ClusNode induce(ClusRun cr, MultiScore score) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
 		ClusStatistic cstat = createTotalClusteringStat(data);
 		ClusStatistic tstat = createTotalTargetStat(data);
@@ -134,6 +134,21 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 			induceRecursive(root, data);
 		}	
 		root.postProc(score);
+		cleanSplit();
+		return root;
+	}*/
+	
+	public ClusNode induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
+		RowData data = (RowData)cr.getTrainingSet();
+		ClusStatistic cstat = createTotalClusteringStat(data);
+		ClusStatistic tstat = createTotalTargetStat(data);
+		initSelectorAndSplit(cstat);
+		ClusNode root = createRootNode(data, cstat, tstat);
+		if (!m_FillIn) {
+			// Call induce on each leaf
+			induceRecursive(root, data);
+		}	
+		root.postProc(null);
 		cleanSplit();
 		return root;
 	}
