@@ -513,11 +513,16 @@ public class ILevelCInduce extends DepthFirstInduce {
 		if (getSettings().isILevelCCOPKMeans()) { 
 			COPKMeans km = new COPKMeans(m_MaxNbClasses, getStatManager());
 			COPKMeansModel model = null;
+			int sumIter = 0;
 			long t1 = System.currentTimeMillis();
 			for (int i = 0; i < 100000; i++) {
 				model = (COPKMeansModel)km.induce(data, m_Constraints);
+				sumIter = Math.max(sumIter, model.getIterations());
+				model.setCSets(i+1);
+				model.setAvgIter(sumIter);
 				long t2 = System.currentTimeMillis();
-				if (!model.isIllegal() || (t2-t1) > 5*60*1000) return model;
+				// if (!model.isIllegal() || (t2-t1) > 5*60*1000) return model;
+				if (!model.isIllegal()) return model;
 				m_Constraints = createConstraints(data, nbRows);
 			}
 			return model;

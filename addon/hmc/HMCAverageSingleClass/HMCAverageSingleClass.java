@@ -2,7 +2,7 @@
  * Created on Dec 22, 2005
  */
 
-import java.util.Date;
+import java.util.*;
 
 import java.io.*;
 
@@ -226,6 +226,27 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 	public void showHelp() {
 	}
 	
+	public void countClasses(RowData data, double[] counts) {
+		ClassHierarchy hier = getStatManager().getHier();
+		int sidx = hier.getType().getArrayIndex();
+		boolean[] arr = new boolean[hier.getTotal()];
+		for (int i = 0; i < data.getNbRows(); i++) {
+			DataTuple tuple = data.getTuple(i);
+			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
+			// count with parents
+			Arrays.fill(arr, false);
+			tp.fillBoolArrayNodeAndAncestors(arr);
+			for (int j = 0; j < arr.length; j++) {
+				if (arr[j]) counts[0] += 1.0;
+			}
+			// count without parents
+			hier.removeParentNodes(arr);
+			for (int j = 0; j < arr.length; j++) {
+				if (arr[j]) counts[1] += 1.0;
+			}			
+		}
+	}
+		
 	public void computeStats() throws ClusException, IOException {
 		ClusRun cr = m_Clus.partitionData();
 		RegressionStat stat = (RegressionStat)getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
@@ -245,9 +266,14 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		schema.addAttrType(new NumericAttrType("MaxDepth"));
 		schema.addAttrType(new NumericAttrType("Frequency"));
 		double total = stat.getTotalWeight();
+		double[] classCounts = new double[2];
+		countClasses(train, classCounts);
+		countClasses(valid, classCounts);
+		countClasses(test, classCounts);
 		wrt.println();
 		wrt.println("% Number of examples: "+total);
-		wrt.println("% Number of classes: "+hier.getTotal());		
+		wrt.println("% Number of classes: "+hier.getTotal());
+		wrt.println("% Number of labels/example: "+classCounts[0]+" (most specific: "+classCounts[1]+")");
 		wrt.println("% Hierarchy depth: "+hier.getDepth());		
 		wrt.println();
 		ARFFFile.writeArffHeader(wrt, schema);

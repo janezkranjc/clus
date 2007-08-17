@@ -201,6 +201,25 @@ public class ClassHierarchy implements Serializable {
 		}
 	}
 	
+	public void removeParentNodesRecursive(ClassTerm term, boolean[] array) {
+		for (int i = 0; i < term.getNbParents(); i++) {
+			ClassTerm par = term.getParent(i);
+			if (par.getIndex() != -1 && array[par.getIndex()]) {
+				array[par.getIndex()] = false;
+				removeParentNodesRecursive(par, array);
+			}
+		}
+	}
+	
+	public void removeParentNodes(boolean[] array) {
+		for (int i = 0; i < getTotal(); i++) {
+			ClassTerm term = getTermAt(i);
+			if (term.getIndex() != -1 && array[term.getIndex()]) {
+				removeParentNodesRecursive(term, array);
+			}
+		}
+	}
+	
 	public static int countOnes(boolean[] matrix) {
 		int count = 0;
 		for (int i = 0; i < matrix.length; i++) {

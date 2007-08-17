@@ -9,7 +9,7 @@ import clus.statistic.StatisticPrintInfo;
 
 public class COPKMeansModel extends ClusNode {
 
-	protected int m_K, m_Iterations;
+	protected int m_K, m_Iterations, m_CSets, m_AvgIter;
 	protected boolean m_Illegal;
 	protected double m_RandIndex;
 	protected COPKMeansCluster[] m_Clusters;
@@ -40,7 +40,7 @@ public class COPKMeansModel extends ClusNode {
 	}
 	
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
-		wrt.println("COPKMeans("+m_K+", iter = "+m_Iterations+")");
+		wrt.println("COPKMeans("+m_K+", iter = "+m_Iterations+", max = "+m_AvgIter+", csets = "+m_CSets+")");
 		if (m_Illegal) {
 			wrt.println("   Illegal");
 		} else {
@@ -56,7 +56,19 @@ public class COPKMeansModel extends ClusNode {
 		} else {
 			return "Rand Index = "+m_RandIndex;
 		}
-	}	
+	}
+	
+	public void setCSets(int sets) {
+		m_CSets = sets;
+	}
+	
+	public int getCSets() {
+		return m_CSets;
+	}
+	
+	public void setAvgIter(int avg) {
+		m_AvgIter = avg;
+	}
 	
 	public void setIllegal(boolean illegal) {
 		m_Illegal = illegal;
@@ -74,6 +86,10 @@ public class COPKMeansModel extends ClusNode {
 		m_Iterations = i;
 	}
 
+	public int getIterations() {
+		return m_Iterations;
+	}
+	
 	public boolean isIllegal() {
 		return m_Illegal;
 	}

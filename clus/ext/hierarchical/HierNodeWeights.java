@@ -62,7 +62,7 @@ public class HierNodeWeights {
 					}
 					term.setMinDepth(minDepth);
 					term.setMaxDepth(maxDepth);
-					m_Weights[term.getIndex()] = w0*sum_wi;
+					m_Weights[term.getIndex()] = w0*sum_wi; /*/term.getNbParents();*/
 					weight_computed[term.getIndex()] = true;
 					todo.remove(i);
 					nb_done++;
