@@ -498,6 +498,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 			test.addTo(allData);
 			data = new RowData(allData, data.getSchema());
 		}
+		System.out.println("All data: "+data.getNbRows());
 		/* and process it ... */
 		data.addIndices();
 		m_NbTrain = data.getNbRows();
@@ -526,6 +527,9 @@ public class ILevelCInduce extends DepthFirstInduce {
 				m_Constraints = createConstraints(data, nbRows);
 			}
 			return model;
+		} else if (getSettings().isILevelCMPCKMeans()) {
+			MPCKMeansWrapper wrap = new MPCKMeansWrapper(getStatManager());
+			return wrap.induce(data, test, m_Constraints, m_MaxNbClasses);
 		} else {
 			/* add derived constraints */
 			DerivedConstraintsComputer comp = new DerivedConstraintsComputer(points, m_Constraints);

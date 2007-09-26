@@ -503,6 +503,7 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_ILevelCAlpha;
 	protected INIFileInt m_ILevelNbRandomConstr;
 	protected INIFileBool m_ILevelCCOPKMeans;
+	protected INIFileBool m_ILevelCMPCKMeans;	
 	
 	INIFileSection m_SectionKNN;
 	
@@ -669,6 +670,7 @@ public class Settings implements Serializable {
 		m_SectionILevelC.addNode(m_ILevelCFile = new INIFileString("File", NONE));
 		m_SectionILevelC.addNode(m_ILevelNbRandomConstr = new INIFileInt("NbRandomConstraints", 0));
 		m_SectionILevelC.addNode(m_ILevelCCOPKMeans = new INIFileBool("RunCOPKMeans", false));
+		m_SectionILevelC.addNode(m_ILevelCMPCKMeans = new INIFileBool("RunMPCKMeans", false));
 		m_SectionILevelC.setEnabled(false);		
 		
 		m_SectionKNN = new INIFileSection("kNN");
@@ -1192,7 +1194,11 @@ public class Settings implements Serializable {
 	public boolean isILevelCCOPKMeans() {
 		return m_ILevelCCOPKMeans.getValue();
 	}	
-		
+	
+	public boolean isILevelCMPCKMeans() {
+		return m_ILevelCMPCKMeans.getValue();
+	}
+	
 	public boolean isShowBranchFreq() {
 		return m_ShowBrFreq.getValue();
 	}
