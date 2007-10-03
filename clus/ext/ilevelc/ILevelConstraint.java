@@ -44,11 +44,11 @@ public class ILevelConstraint {
 		rdr.readLine();
 		String line = rdr.readLine();
 		while (line != null) {
-			StringTokenizer tokens = new StringTokenizer(line, ",");
-			int type = Integer.parseInt(tokens.nextToken());
+			StringTokenizer tokens = new StringTokenizer(line, "\t");
 			int t1 = Integer.parseInt(tokens.nextToken());
 			int t2 = Integer.parseInt(tokens.nextToken());
-			constr.add(new ILevelConstraint((DataTuple)points.get(t1), (DataTuple)points.get(t2), type));
+			int type = Integer.parseInt(tokens.nextToken()) == 1 ? ILevelCMustLink : ILevelCCannotLink; 
+			constr.add(new ILevelConstraint((DataTuple)points.get(t1), (DataTuple)points.get(t2), type));			
 			line = rdr.readLine();
 		}					
 		rdr.close();					
