@@ -477,7 +477,7 @@ public class Clus implements CMDLineArgsProvider {
 		if (testfile) {
 			test_fname = m_Sett.getTestFile();
 			MyClusInitializer init = new MyClusInitializer();
-			TupleIterator iter = new DiskTupleIterator(test_fname, init,	getPreprocs(true), m_Sett);
+			TupleIterator iter = new DiskTupleIterator(test_fname, init, getPreprocs(true), m_Sett);
 			iter.setShouldAttach(true);
 			cr.setTestSet(iter);
 		}

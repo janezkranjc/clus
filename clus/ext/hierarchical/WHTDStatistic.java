@@ -10,6 +10,7 @@ import org.apache.commons.math.distribution.*;
 import org.apache.commons.math.*;
 
 import clus.data.rows.*;
+import clus.data.type.ClusAttrType;
 import clus.main.*;
 import clus.statistic.*;
 import clus.util.*;
@@ -298,6 +299,16 @@ public class WHTDStatistic extends RegressionStat {
 			getExtraInfoRec((ClassTerm)m_Hier.getRoot().getChild(i), discrmean, res);
 		}
 		return res.toString();
+	}
+	
+	public void addPredictWriterSchema(String prefix, ClusSchema schema) {
+		ClassHierarchy hier = getHier();
+		for (int i = 0; i < m_NbAttrs; i++) {
+			ClusAttrType type = m_Attrs[i].cloneType();
+			ClassTerm term = hier.getTermAt(i);
+			type.setName(prefix+"-p-"+term.toStringHuman(hier));
+			schema.addAttrType(type);
+		}
 	}
 	
 	public void unionInit() {
