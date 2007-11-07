@@ -543,6 +543,7 @@ public class Settings implements Serializable {
 	public static INIFileNominal m_EnsembleMethod;
 	public static INIFileNominal m_ClassificationVoteType;
 	protected INIFileInt m_RandomAttrSelected;
+	public static INIFileBool m_PrintAllModels;
 	public static boolean m_EnsembleMode = false;
 
 	public void create() {
@@ -720,6 +721,7 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_EnsembleMethod =new INIFileNominal("EnsembleMethod", ENSEMBLE_TYPE,0));
 		m_SectionEnsembles.addNode(m_ClassificationVoteType =new INIFileNominal("VotingType", VOTING_TYPE,0));
 		m_SectionEnsembles.addNode(m_RandomAttrSelected = new INIFileInt("SelectRandomSubspaces", 1));
+		m_SectionEnsembles.addNode(m_PrintAllModels = new INIFileBool("PrintAllModels", false));
 		m_SectionEnsembles.setEnabled(false);
 		
 		INIFileSection exper = new INIFileSection("Experimental");
@@ -1163,6 +1165,10 @@ public class Settings implements Serializable {
 	
 	public void setEnsembleMode(boolean value){
 		m_EnsembleMode = value;
+	}
+	
+	public static boolean isPrintEnsembleModels(){
+		return m_PrintAllModels.getValue();
 	}
 	
 // end Bagging section

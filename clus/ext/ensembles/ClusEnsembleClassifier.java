@@ -33,7 +33,7 @@ public class ClusEnsembleClassifier extends ClusClassifier {
 	}
 	
 	public void printInfo() {
-		System.out.println("Classifier: Bagging");
+		System.out.println("Ensemble Classifier");
 	}	
 	
 }

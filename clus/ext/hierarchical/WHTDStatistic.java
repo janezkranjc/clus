@@ -62,6 +62,10 @@ public class WHTDStatistic extends RegressionStat {
 		m_Threshold = threshold;
 	}
 	
+	public double getThreshold(){
+		return m_Threshold;
+	}
+	
 	public ClusStatistic cloneStat() {
 		return new WHTDStatistic(m_Hier, false, m_Compatibility);
 	}
@@ -325,4 +329,19 @@ public class WHTDStatistic extends RegressionStat {
 	public void unionDone() {
 		m_MeanTuple = m_Hier.getBestTupleMaj(m_DiscrMean, 0.5);		
 	}
+	
+	public void vote(ArrayList votes) {
+		reset();
+		m_Means = new double[m_NbAttrs];
+		WHTDStatistic vote;
+		int nb_votes = votes.size();
+		for (int j = 0; j < nb_votes; j++){
+			vote = (WHTDStatistic) votes.get(j);
+			for (int i = 0; i < m_NbAttrs; i++){
+				m_Means[i] += vote.m_Means[i] / nb_votes;
+			}
+		}
+		computePrediction();
+	}
+	
 }

@@ -6,6 +6,8 @@ import jeans.util.*;
 import clus.main.*;
 import clus.data.rows.*;
 import clus.data.type.*;
+import clus.ext.hierarchical.HierClassTresholdPruner;
+import clus.ext.hierarchical.WHTDStatistic;
 import clus.statistic.*;
 import clus.util.*;
 
@@ -17,20 +19,29 @@ public class ClusForest implements ClusModel, Serializable{
 	private static final long serialVersionUID = 1L;
 
 	ArrayList m_Forest;
-	ClusStatistic m_FStat;
+	ClusStatistic m_Stat;
 	static ClusAttrType[] m_RandomSubspaces;
+	boolean m_PrintModels;
 	
-	
-	public ClusForest(ClusSchema schema){
+	public ClusForest(){
 		m_Forest = new ArrayList();
-		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		if (nom.length != 0) {
-			m_FStat = new ClassificationStat(nom);
-		} else if (num.length != 0) {
-			m_FStat = new RegressionStat(num);
-		} else {
-			System.err.println(getClass().getName() + "initForest(): Error itializing the statistic");
+//		m_PrintModels = false;
+	}
+	
+	public ClusForest(ClusStatManager statmgr){
+		m_Forest = new ArrayList();
+		initForest(statmgr);
+	}
+	
+	public void initForest(ClusStatManager statmgr){
+		if (statmgr.getMode() == ClusStatManager.MODE_CLASSIFY){
+			m_Stat = new ClassificationStat(statmgr.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET));
+		}else if (statmgr.getMode() == ClusStatManager.MODE_REGRESSION){
+			m_Stat = new RegressionStat(statmgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET));
+		}else if (statmgr.getMode() == ClusStatManager.MODE_HIERARCHICAL){
+			m_Stat = new WHTDStatistic(statmgr.getHier(),statmgr.getCompatibility());
+		}else{
+			System.err.println(getClass().getName() + "initForest(): Error initializing the statistic");
 		}
 	}
 	
@@ -76,32 +87,45 @@ public class ClusForest implements ClusModel, Serializable{
 		for (int i = 0; i < m_Forest.size(); i++){
 			model = (ClusModel)m_Forest.get(i);
 			votes.add(model.predictWeighted(tuple));
+			if (tuple.getWeight() != 1.0) System.out.println("Tuple "+tuple.getIndex()+" = "+tuple.getWeight());
 		}
-		m_FStat.vote(votes);
-		return m_FStat;
+		m_Stat.vote(votes);
+		return m_Stat;
 	}
 
 	public void printModel(PrintWriter wrt) {
-		// This should be better organized
-		ClusModel model;
-		for (int i = 0; i < m_Forest.size(); i++){
-			model = (ClusModel)m_Forest.get(i);
-			wrt.write("Model "+(i+1)+": \n");
-			wrt.write("\n");
-			model.printModel(wrt);
-			wrt.write("\n");
+		// This could be better organized
+		
+		if (Settings.isPrintEnsembleModels()){
+			ClusModel model;
+			for (int i = 0; i < m_Forest.size(); i++){
+				model = (ClusModel)m_Forest.get(i);
+				if (m_PrintModels) thresholdToModel(i, getThreshold());//This will be enabled only in HMLC mode
+				wrt.write("Model "+(i+1)+": \n");
+				wrt.write("\n");
+				model.printModel(wrt);
+				wrt.write("\n");
+			}
+		}else{
+			wrt.write("Forest with "+getNbModels()+" models\n");
 		}
 	}
 
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
-		// This should be better organized
-		ClusModel model;
-		for (int i = 0; i < m_Forest.size(); i++){
-			model = (ClusModel)m_Forest.get(i);
-			wrt.write("Model "+(i+1)+": \n");
-			wrt.write("\n");
-			model.printModel(wrt, info);
-			wrt.write("\n");
+		// This could be better organized
+		
+		if (Settings.isPrintEnsembleModels()){
+			ClusModel model;
+			for (int i = 0; i < m_Forest.size(); i++){
+				model = (ClusModel)m_Forest.get(i);
+				if (m_PrintModels) thresholdToModel(i, getThreshold());//This will be enabled only in HMLC mode
+				wrt.write("Model "+(i+1)+": \n");
+				wrt.write("\n");
+				model.printModel(wrt);
+				wrt.write("\n");
+			}
+		}else{
+			wrt.write("Forest with "+getNbModels()+" models\n");
 		}
 	}
 
@@ -218,5 +242,61 @@ public class ClusForest implements ClusModel, Serializable{
 	
 	public static void setRandomSubspaces(ClusAttrType[] attrs){
 		m_RandomSubspaces = attrs;
+	}
+	
+	public ClusStatistic getStat(){
+		return m_Stat;
+	}
+	
+	public void setStat(ClusStatistic stat){
+		m_Stat = stat;
+	}
+	
+	public void thresholdToModel(int model_nb, double threshold){
+		try {
+			HierClassTresholdPruner pruner = new HierClassTresholdPruner(null);
+			pruner.pruneRecursive((ClusNode)getModel(model_nb), threshold);
+		} catch (ClusException e) {
+			System.err.println(getClass().getName()+" thrsholdToModel(): Error while applying threshold "+threshold+" to model "+model_nb);
+			e.printStackTrace();
+		}
+	}
+	
+	public ArrayList getModels(){
+		return m_Forest;
+	}
+	
+	public void setModels(ArrayList models){
+		m_Forest = models;
+	}
+	
+	public ClusForest cloneForestSimple(){
+		ClusForest clone = new ClusForest();
+		clone.setModels(m_Forest);
+		clone.setStat(m_Stat);
+		return clone;
+	}
+	
+	//this is only for Hierarchical ML Classification
+	public ClusForest cloneForestWithThreshold(double threshold){
+		ClusForest clone = new ClusForest();
+		clone.setModels(getModels());
+		WHTDStatistic stat = (WHTDStatistic)getStat().cloneStat();
+		stat.copyAll(getStat());
+		stat.setThreshold(threshold);
+		clone.setStat(stat);
+		return clone;
+	}
+	
+	public void setPrintModels(boolean print){
+		m_PrintModels = print;
+	}
+	
+	public boolean isPrintModels(){
+		return m_PrintModels;
+	}
+	
+	public double getThreshold(){
+		return ((WHTDStatistic)getStat()).getThreshold();
 	}
 }

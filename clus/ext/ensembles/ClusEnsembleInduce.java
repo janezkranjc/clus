@@ -11,9 +11,9 @@ import clus.util.ClusException;
 
 public class ClusEnsembleInduce extends ClusInduce {
 	Clus m_BagClus;
-	ClusForest m_Forest_ORIGINAL;
-	ClusForest m_Forest_DEFAULT;
-	
+	ClusForest m_OForest;//Forest with the original models
+	ClusForest m_DForest;//Forest with stumps (default models)
+
 	public ClusEnsembleInduce(ClusSchema schema, Settings sett, Clus clus) throws ClusException, IOException {
 		super(schema, sett);
 		m_BagClus = clus;
@@ -39,6 +39,8 @@ public class ClusEnsembleInduce extends ClusInduce {
 			break;
 			}
 		}
+		
+		postProcessForest(cr);
 	}
 	
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException,
@@ -47,32 +49,47 @@ public class ClusEnsembleInduce extends ClusInduce {
 		return null;
 	}
 
-	public void postProcessForest(ClusRun cr){
+	public void postProcessForest(ClusRun cr) throws ClusException{
 		
 		ClusModelInfo def_info = cr.addModelInfo(ClusModels.DEFAULT);
-		def_info.setModel(m_Forest_DEFAULT);
+		def_info.setModel(m_DForest);
 		def_info.setName("Default");
 		
 		ClusModelInfo orig_info = cr.addModelInfo(ClusModels.ORIGINAL);
-		orig_info.setModel(m_Forest_ORIGINAL);
+		orig_info.setModel(m_OForest);
 		orig_info.setName("Original");
+	
+	//Application of Thresholds for HMC
+	if (cr.getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL){
+			double[] thresholds = cr.getStatManager().getSettings().getClassificationThresholds().getDoubleVector();
+			//setting the printing preferences in the HMC mode
+			m_OForest.setPrintModels(Settings.isPrintEnsembleModels());
+			m_DForest.setPrintModels(Settings.isPrintEnsembleModels());
+			if (thresholds != null){
+				for (int i = 0; i < thresholds.length; i++){
+					ClusModelInfo pruned_info = cr.addModelInfo(ClusModels.PRUNED + i);
+					ClusForest new_forest = m_OForest.cloneForestWithThreshold(thresholds[i]);
+					new_forest.setPrintModels(Settings.isPrintEnsembleModels());
+					pruned_info.setModel(new_forest);
+					pruned_info.setName("T("+thresholds[i]+")");
+				}
+			}
+		}	
 	}
 
 	public void induceSubspaces(ClusRun cr) throws ClusException, IOException {
 		Settings sett = getStatManager().getSettings();
 		int nbsets = sett.getNbBaggingSets();
-//		int nbrows = cr.getTrainingSet().getNbRows();
-		m_Forest_ORIGINAL = new ClusForest(getStatManager().getSchema());
-		m_Forest_DEFAULT = new ClusForest(getStatManager().getSchema());
-
+		m_OForest = new ClusForest(getStatManager());
+		m_DForest = new ClusForest(getStatManager());
+		
 		for (int i = 0; i < nbsets; i++) {
-			System.out.println();
 			System.out.println("Bag: "+(i+1));
 			ClusRun crSingle = new ClusRun(cr.getTrainingSet(), cr.getSummary());
 			ClusForest.selectRandomSubspaces(cr.getStatManager().getSchema().getDescriptiveAttributes(), cr.getStatManager().getSettings().getNbRandomAttrSelected());
 			DepthFirstInduce ind = new DepthFirstInduce(this);
 			ind.initialize();
-			ind.initializeHeuristic();
+			crSingle.getStatManager().initClusteringWeights();
 			ClusModel model = ind.induceSingleUnpruned(crSingle);
 			ClusModelInfo model_info = crSingle.addModelInfo(ClusModels.ORIGINAL);
 			model_info.setModel(model);	
@@ -83,27 +100,25 @@ public class ClusEnsembleInduce extends ClusInduce {
 			def_info.setModel(defmod);
 			def_info.setName("Default");
 			
-			m_Forest_ORIGINAL.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
-			m_Forest_DEFAULT.addModelToForest(crSingle.getModel(ClusModels.DEFAULT));
+			m_OForest.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
+			m_DForest.addModelToForest(crSingle.getModel(ClusModels.DEFAULT));
 		}
-		postProcessForest(cr);
 	}
 	
 	public void induceBagging(ClusRun cr) throws ClusException, IOException {
 		Settings sett = getStatManager().getSettings();
 		int nbsets = sett.getNbBaggingSets();
 		int nbrows = cr.getTrainingSet().getNbRows();
-		m_Forest_ORIGINAL = new ClusForest(getStatManager().getSchema());
-		m_Forest_DEFAULT = new ClusForest(getStatManager().getSchema());
+		m_OForest = new ClusForest(getStatManager());
+		m_DForest = new ClusForest(getStatManager());
 
 		for (int i = 0; i < nbsets; i++) {
-			System.out.println();
 			System.out.println("Bag: "+(i+1));
 			BaggingSelection msel = new BaggingSelection(nbrows);
 			ClusRun crSingle = m_BagClus.partitionDataBasic(cr.getTrainingSet(),msel,cr.getSummary(),i + 1);
 			DepthFirstInduce ind = new DepthFirstInduce(this);
 			ind.initialize();
-			ind.initializeHeuristic();
+			crSingle.getStatManager().initClusteringWeights();
 			ClusModel model = ind.induceSingleUnpruned(crSingle);
 			ClusModelInfo model_info = crSingle.addModelInfo(ClusModels.ORIGINAL);
 			model_info.setModel(model);	
@@ -114,10 +129,9 @@ public class ClusEnsembleInduce extends ClusInduce {
 			def_info.setModel(defmod);
 			def_info.setName("Default");
 			
-			m_Forest_ORIGINAL.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
-			m_Forest_DEFAULT.addModelToForest(crSingle.getModel(ClusModels.DEFAULT));
+			m_OForest.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
+			m_DForest.addModelToForest(crSingle.getModel(ClusModels.DEFAULT));
 		}
-		postProcessForest(cr);
 	}
 	
 	
@@ -125,17 +139,17 @@ public class ClusEnsembleInduce extends ClusInduce {
 		Settings sett = getStatManager().getSettings();
 		int nbsets = sett.getNbBaggingSets();
 		int nbrows = cr.getTrainingSet().getNbRows();
-		m_Forest_ORIGINAL = new ClusForest(getStatManager().getSchema());
-		m_Forest_DEFAULT = new ClusForest(getStatManager().getSchema());
-
+		m_OForest = new ClusForest(getStatManager());
+		m_DForest = new ClusForest(getStatManager());
+		
 		for (int i = 0; i < nbsets; i++) {
-			System.out.println();
 			System.out.println("Bag: "+(i+1));
 			BaggingSelection msel = new BaggingSelection(nbrows);
 			ClusRun crSingle = m_BagClus.partitionDataBasic(cr.getTrainingSet(),msel,cr.getSummary(),i + 1);
 			ClusForest.selectRandomSubspaces(cr.getStatManager().getSchema().getDescriptiveAttributes(), cr.getStatManager().getSettings().getNbRandomAttrSelected());
 			DepthFirstInduce ind = new DepthFirstInduce(this);
 			ind.initialize();
+			crSingle.getStatManager().initClusteringWeights();
 			ind.initializeHeuristic();
 			ClusModel model = ind.induceSingleUnpruned(crSingle);
 			ClusModelInfo model_info = crSingle.addModelInfo(ClusModels.ORIGINAL);
@@ -147,14 +161,13 @@ public class ClusEnsembleInduce extends ClusInduce {
 			def_info.setModel(defmod);
 			def_info.setName("Default");
 			
-			m_Forest_ORIGINAL.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
-			m_Forest_DEFAULT.addModelToForest(crSingle.getModel(ClusModels.DEFAULT));
+			m_OForest.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
+			m_DForest.addModelToForest(crSingle.getModel(ClusModels.DEFAULT));
 		}
-		postProcessForest(cr);
 	}
 	
 	public ClusForest getOriginalForest(){
-		if (m_Forest_ORIGINAL != null)return m_Forest_ORIGINAL;
+		if (m_OForest != null)return m_OForest;
 		else {
 			System.err.println(getClass().getName()+" getForest(): Original Forest is Not created Yet");
 			return null;
@@ -162,10 +175,10 @@ public class ClusEnsembleInduce extends ClusInduce {
 	}
 
 	public ClusForest getDefaultForest(){
-		if (m_Forest_DEFAULT != null)return m_Forest_DEFAULT;
+		if (m_DForest != null)return m_DForest;
 		else {
 			System.err.println(getClass().getName()+" getForest(): Default Forest is Not created Yet");
 			return null;
 		}
 	}
-	}
+}
