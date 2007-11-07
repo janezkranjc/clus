@@ -64,7 +64,7 @@ public class ClusBeamInduce extends ClusInduce {
 		if (!cr.getStatManager().getSettings().isFastBS())writeSimilarityFile(lst, cr);
 
 		boolean toForest = cr.getStatManager().getSettings().isBeamToForest();
-		ClusForest bForest = new ClusForest(cr.getStatManager().getSchema());
+		ClusForest bForest = new ClusForest(getStatManager());
 		
 		for (int i = 0; i < lst.size(); i++) {
 			ClusBeamModel mdl = (ClusBeamModel)lst.get(lst.size()-i-1);
