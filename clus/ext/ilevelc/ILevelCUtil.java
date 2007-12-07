@@ -24,7 +24,7 @@ public class ILevelCUtil {
 				index[i] = new int[nb];
 				for (int j = 0; j < nb; j++) {
 					Integer value = (Integer)crIndex[i].get(j);
-					index[i][j] = value;
+					index[i][j] = value.intValue();
 				}				
 			}
 		}		

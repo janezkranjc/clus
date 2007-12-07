@@ -138,7 +138,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		return root;
 	}*/
 	
-	public ClusNode induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
+	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 		RowData data = (RowData)cr.getTrainingSet();
 		ClusStatistic cstat = createTotalClusteringStat(data);
 		ClusStatistic tstat = createTotalTargetStat(data);
