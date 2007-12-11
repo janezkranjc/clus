@@ -48,7 +48,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 			XValSelection msel = new XValSelection(sel, i);
 			ClusRun cr = m_Clus.partitionDataBasic(trset, msel, pruneset, summ, i+1);
 			ClusModel pruned = m_Class.induceSingle(cr);			
-			cr.getModelInfo(ClusModels.PRUNED).setModel(pruned);
+			cr.addModelInfo(ClusModels.PRUNED).setModel(pruned);
 			m_Clus.calcError(cr, summ);
 /*			System.out.println();
 			System.out.println("Model:");

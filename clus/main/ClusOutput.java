@@ -280,21 +280,22 @@ public class ClusOutput {
 	}
 
 	public static void printHeader() {
-		System.out.println("Clus v1.0");
+		System.out.println("Clus v2.0");
 		System.out.println("---------");
 		System.out.println();
 	}
 
 	public static void showHelp() {
-		System.out.println("Written by: Jan Struyf <Jan.Struyf@cs.kuleuven.ac.be>");
-		System.out.println("            Hendrik Blockeel <Hendrik Blockeel@cs.kuleuven.ac.be>");
+		System.out.println("Co-developed by:");
+		System.out.println("   Katholieke Universiteit Leuven, Leuven, Belgium");
+		System.out.println("   Jozef Stefan Institute, Ljubljana, Slovenia"); 
 		System.out.println();
-		System.out.println("Usage: Clus appname");
+		System.out.println("Usage: clus appname");
 		System.out.println("Database: appname.arff");
 		System.out.println("Settings: appname.s");
-		System.out.println("Output: appname.out");
+		System.out.println("Output:   appname.out");
 		System.out.println();
 		System.out.println("More information on:");
-		System.out.println("http:://www.cs.kuleuven.ac.be/~ml");
+		System.out.println("http://www.cs.kuleuven.be/~dtai/clus");
 	}
 }

@@ -1114,25 +1114,24 @@ public class Clus implements CMDLineArgsProvider {
 				} else if (cargs.hasOption("weka")) {
 					// clss = new ClusWekaClassifier(clus, cargs.getOptionValue("weka"));
 				} else if (cargs.hasOption("tuneftest")) {
+					clss = new ClusDecisionTree(clus);
 					clss = new CDTTuneFTest(clss);
 				} else if (cargs.hasOption("tunesize")) {
+					clss = new ClusDecisionTree(clus);
 					clss = new CDTuneSizeConstrPruning(clss);
 				} else if (cargs.hasOption("beam")) {
 					clus.getSettings().setSectionBeamEnabled(true);
 					clss = sett.isFastBS() ? new ClusFastBeamSearch(clus) : new ClusBeamSearch(clus);
-				}  //new part added by elisa 1/08/2006
-				else if (cargs.hasOption("exhaustive")) {
-				clus.getSettings().setSectionExhaustiveEnabled(true);
-				clss = new ClusExhaustiveDFSearch(clus);
-				} 
-				else if (cargs.hasOption("forest")) {
+				} else if (cargs.hasOption("exhaustive")) {
+					// new part added by elisa 1/08/2006
+					clus.getSettings().setSectionExhaustiveEnabled(true);
+					clss = new ClusExhaustiveDFSearch(clus);
+				} else if (cargs.hasOption("forest")) {
 					sett.setEnsembleMode(true);
 					clss = new ClusEnsembleClassifier(clus);
-					} 
-				else {
+				} else {
 					clss = new ClusDecisionTree(clus);
-				}
-				
+				}				
 				if (cargs.hasOption("corrmatrix")) {
 					clus.initialize(cargs, clss);
 					CorrelationMatrixComputer cmp = new CorrelationMatrixComputer();

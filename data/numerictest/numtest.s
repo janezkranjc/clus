@@ -4,7 +4,7 @@ Weights = Normalize
 
 [Constraints]
 Syntactic = None
-MaxSize = 5
+%MaxSize = 5
 
 [Data]
 TestSet = numtest.arff
