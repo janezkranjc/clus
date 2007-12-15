@@ -86,6 +86,10 @@ public class ClusReader {
 		return m_Token;
 	}
 	
+	public boolean isNextToken(String token) throws IOException {
+		return m_Token.isNextToken(token);
+	}
+	
 	public boolean hasMoreTokens() throws IOException {
 		Reader reader = m_Token.getReader();
 		int ch = reader.read();
@@ -114,6 +118,24 @@ public class ClusReader {
 		return reader.read();		
 	}
 	
+	public int getNextChar() throws IOException {
+		return getNextChar(m_Token.getReader());
+	}
+	
+	public boolean isNextChar(int ch) throws IOException {
+		int found = getNextChar();
+		if (ch == found) return true;
+		setLastChar(found);
+		return false;
+	}
+	
+	public void ensureNextChar(int ch) throws IOException {
+		int found = getNextChar();
+		if (ch != found) {
+			throw new IOException("Character '"+(char)ch+"' expected on row "+m_Row+", not '"+(char)found+"'");
+		}
+	}
+		
 	public void readEol() throws IOException {
 		boolean allowall = false;
 		Reader reader = m_Token.getReader();
@@ -144,12 +166,13 @@ public class ClusReader {
 		}
 	}
 	
+	// TODO: add better support for quotes?
 	public String readString() throws IOException {
 		int nb = 0;
 		Reader reader = m_Token.getReader();
 		m_Scratch.setLength(0);
 		int ch = getNextChar(reader);
-		while (ch != -1 && ch != ',') {
+		while (ch != -1 && ch != ',' && ch != '}') {
 			if (ch == '%') {
 				readTillEol();
 				break;
@@ -163,6 +186,7 @@ public class ClusReader {
 			}
 			ch = reader.read();
 		}
+		if (ch == '}') setLastChar(ch);
 		String result = m_Scratch.toString().trim();
 		if (result.length() > 0) {
 			m_Attr++;			
@@ -170,23 +194,30 @@ public class ClusReader {
 		} else {
 			throw new IOException("Error reading attirbute "+m_Attr+" at row "+(m_Row+1));
 		}
-	}	
+	}
 	
-	public double readFloat() throws IOException {		
-		int nb = 0;
+	public void readScratchNoSpace() throws IOException {
+		int nb = 0;		
 		Reader reader = m_Token.getReader();
 		m_Scratch.setLength(0);
 		int ch = getNextChar(reader);
-		while (ch != -1 && ch != ',') {
+		while (ch != -1 && ch != ',' && ch != '}') {
 			if (ch != ' ' && ch != '\t' && ch != 10 && ch != 13) {
-				m_Scratch.append((char)ch);
-				nb++; 
+				if (ch != '\'' && ch != '"') {
+					m_Scratch.append((char)ch);
+					nb++;
+				}
 			} else {
 				if (ch == 10 || ch == 13) setLastChar(13);
 				if (nb > 0) break;
 			}
 			ch = reader.read();
 		}
+		if (ch == '}') setLastChar(ch);
+	}
+	
+	public double readFloat() throws IOException {
+		readScratchNoSpace();
 		if (m_Scratch.length() > 0) {
 			m_Attr++;
 			String value = m_Scratch.toString();			
@@ -200,7 +231,21 @@ public class ClusReader {
 			throw new IOException("Error reading numeric attirbute "+m_Attr+" at row "+(m_Row+1));
 		}
 	}
-	
+
+	public int readIntIndex() throws IOException {		
+		readScratchNoSpace();
+		if (m_Scratch.length() > 0) {
+			String value = m_Scratch.toString();			
+			try {	
+				return Integer.parseInt(value);
+			} catch (NumberFormatException e) {
+				throw new IOException("Error parsing integer index '"+value+"' at row "+(m_Row+1));
+			}		
+		} else {
+			throw new IOException("Error: empty index at row "+(m_Row+1));
+		}
+	}
+		
 	//TimeSeries attribute can be placed anywhere
 	public String readTimeSeries() throws IOException {
 		Reader reader = m_Token.getReader();
@@ -232,21 +277,6 @@ public class ClusReader {
 		}
 	}	
 	
-/*	public void skipTillComma() throws IOException {		
-		int nb = 0;
-		Reader reader = m_Token.getReader();
-		int ch = getNextChar(reader);
-		while (ch != -1 && ch != ',') {
-			if (ch != ' ' && ch != '\t' && ch != 10 && ch != 13) {
-				nb++; 
-			} else {
-				if (ch == 10 || ch == 13) setLastChar(13);
-				if (nb > 0) break;
-			}
-			ch = reader.read();
-		}
-	}*/ 
-
 	//--This is the new method which skips the whole time serie(when TimeSeries attribute is disabled) and the reference character is '['
 
 	public void skipTillComma() throws IOException {		

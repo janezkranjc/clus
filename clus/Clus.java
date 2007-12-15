@@ -60,13 +60,13 @@ public class Clus implements CMDLineArgsProvider {
 	protected MultiScore m_Score;
 	protected ClusClassifier m_Classifier;
 	protected ClusInduce m_Induce;
-	protected ClusData m_Data;
+	protected RowData m_Data;
 	protected Date m_StartDate = new Date();
 	protected boolean isxval = false;
 
 	public final void initialize(CMDLineArgs cargs, ClusClassifier clss) throws IOException, ClusException {
 		m_Classifier = clss;
-		// Load resource info lib
+		// Load resource info (this measures among others CPU time on Linux)
 		boolean test = m_Sett.getResourceInfoLoaded() == Settings.RESOURCE_INFO_LOAD_TEST;
 		ResourceInfo.loadLibrary(test);
 		// Load settings file
@@ -99,7 +99,7 @@ public class Clus implements CMDLineArgsProvider {
 		// Create induce
 		m_Induce = clss.createInduce(m_Schema, m_Sett, cargs);		
 		// Load data from file
-		m_Data = m_Induce.createData();
+		m_Data = (RowData)m_Induce.createData();		
 		m_Data.resize(m_Schema.getNbRows());
 		ClusView view = m_Data.createNormalView(m_Schema);
 		view.readData(reader, m_Schema);
@@ -200,9 +200,8 @@ public class Clus implements CMDLineArgsProvider {
 				sel.select(i);
 		}
 		if (sel.getNbSelected() != nbrows) {
-			System.out.println("Tuples with missing target: "
-					+ (nbrows - sel.getNbSelected()));
-			m_Data = m_Data.selectFrom(sel);
+			System.out.println("Tuples with missing target: " + (nbrows - sel.getNbSelected()));
+			m_Data = (RowData)m_Data.selectFrom(sel);
 			m_Schema.setNbRows(m_Data.getNbRows());
 		}
 	}
@@ -248,7 +247,7 @@ public class Clus implements CMDLineArgsProvider {
 		} else {
 			sel = new RandomSelection(nb_rows, Integer.parseInt(svalue));
 		}
-		m_Data = m_Data.selectFrom(sel);
+		m_Data = (RowData)m_Data.selectFrom(sel);
 		int nb_sel = m_Data.getNbRows();
 		m_Schema.setNbRows(nb_sel);
 		System.out.println("Sample (" + svalue + ") " + nb_rows + " -> " + nb_sel);

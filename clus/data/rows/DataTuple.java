@@ -9,18 +9,16 @@ public class DataTuple implements Serializable {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	// Attributes can have several base types
-//	public int[] m_Ints;
-	
 	public int[] m_Ints;
 	public double[] m_Doubles;
 	public Object[] m_Objects;
 		
 	// Each example can have a weight
 	public double m_Weight;
-	
+	public int m_Index;
+
 	// Hack for efficient xval, should be replaced later
 	public int[] m_Folds;
-	public int m_Index;
 
 	protected DataTuple() {
 	}
@@ -48,17 +46,6 @@ public class DataTuple implements Serializable {
 		return res;
 	}
 	
-	/**
-	 * Clones only the tuple's weight.
-	 * @return tuple
-	 */
-/*	public final DataTuple cloneTupleWeight() {
-		DataTuple res = new DataTuple();
-		res.m_Weight = m_Weight;
-		return res;
-	}
-*/
-	
 	public final DataTuple deepCloneTuple() {
 		DataTuple res = new DataTuple();
 		if (m_Ints != null) {
@@ -80,23 +67,13 @@ public class DataTuple implements Serializable {
 	}	
 	
 	public final DataTuple changeWeight(double weight) {
-		DataTuple res = new DataTuple();
-		res.m_Ints = m_Ints;
-		res.m_Doubles = m_Doubles;
-		res.m_Objects = m_Objects;
-		res.m_Index = m_Index;
-		res.m_Folds = m_Folds;		
+		DataTuple res = cloneTuple();
 		res.m_Weight = weight;
 		return res;
 	}
 	
 	public final DataTuple multiplyWeight(double weight) {
-		DataTuple res = new DataTuple();
-		res.m_Ints = m_Ints;
-		res.m_Doubles = m_Doubles;
-		res.m_Objects = m_Objects;
-		res.m_Index = m_Index;
-		res.m_Folds = m_Folds;		
+		DataTuple res = cloneTuple();		
 		res.m_Weight = m_Weight * weight;
 		return res;
 	}		

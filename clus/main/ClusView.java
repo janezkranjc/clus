@@ -25,14 +25,26 @@ public class ClusView {
 	public void readData(ClusReader reader, ClusSchema schema) throws IOException {
 		schema.setReader(true);
 		int nb = m_Attr.size();
-		int rows = schema.getNbRows();
+		int rows = schema.getNbRows();		
 		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < nb; j++) {
-				ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(j);
-				attr.read(reader, i);
+			boolean sparse = reader.isNextChar('{'); 
+			if (sparse) {
+				while (!reader.isNextChar('}')) {
+					int idx = reader.readIntIndex();
+					if (idx < 1 || idx > m_Attr.size()) {
+						throw new IOException("Error attribute index '"+idx+"' out of range [1,"+m_Attr.size()+"] at row "+(reader.getRow()+1));
+					}
+					ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(idx-1);
+					attr.read(reader, i);
+				}
+			} else {
+				for (int j = 0; j < nb; j++) {
+					ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(j);
+					attr.read(reader, i);
+				}
 			}
 			reader.readEol();
-		}
+		}		
 		for (int j = 0; j < nb; j++) {
 			ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(j);
 			attr.term(schema);
