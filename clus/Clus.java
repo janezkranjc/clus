@@ -71,10 +71,10 @@ public class Clus implements CMDLineArgsProvider {
 			"tuneftest", "load", "soxval", "bag", "obag", "show", "knn",
 			"knnTree", "beam", "gui", "fillin", "rules", "weka", "corrmatrix",
 			"tunesize", "out2model", "test", "normalize", "tseries", "writetargets", "fold", "forest",
-			"warranty", "copying"};
+			"copying"};
 
 	public final static int[] OPTION_ARITIES = {0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
-			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0};
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0};
 
 	protected Settings m_Sett = new Settings();
 	protected ClusSummary m_Summary = new ClusSummary();
@@ -1118,10 +1118,7 @@ public class Clus implements CMDLineArgsProvider {
 			Settings sett = clus.getSettings();
 			CMDLineArgs cargs = new CMDLineArgs(clus);
 			cargs.process(args);
-			if (cargs.hasOption("warranty")) {
-				ClusOutput.printWarranty();
-				System.exit(0);
-			} else if (cargs.hasOption("copying")) {
+			if (cargs.hasOption("copying")) {
 				ClusOutput.printGPL();
 				System.exit(0);
 			} else if (cargs.getNbMainArgs() == 0) {

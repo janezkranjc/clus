@@ -308,40 +308,12 @@ public class ClusOutput {
 		System.out.println("   Katholieke Universiteit Leuven, Leuven, Belgium");
 		System.out.println("   Jozef Stefan Institute, Ljubljana, Slovenia");
 		System.out.println();
-		System.out.println("This program comes with ABSOLUTELY NO WARRANTY; for details");
-		System.out.println("type 'clus -warranty'. This is free software, and you are");
-		System.out.println("welcome to redistribute it under certain conditions; type");
-		System.out.println("'clus -copying' for details.");
+		System.out.println("This program is free software and comes with ABSOLUTELY NO");
+		System.out.println("WARRANTY. You are welcome to redistribute it under certain");
+		System.out.println("conditions. Type 'clus -copying' for distribution details.");
 		System.out.println();
 	}
 	
-	public static void printWarranty() {
-		System.out.println("Disclaimer of Warranty.");
-		System.out.println();
-		System.out.println("  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY");
-		System.out.println("APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT");
-		System.out.println("HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY");
-		System.out.println("OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,");
-		System.out.println("THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR");
-		System.out.println("PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM");
-		System.out.println("IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF");
-		System.out.println("ALL NECESSARY SERVICING, REPAIR OR CORRECTION.");
-		System.out.println();
-		System.out.println("Limitation of Liability.");
-		System.out.println();
-		System.out.println("IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING");
-		System.out.println("WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS");
-		System.out.println("THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY");
-		System.out.println("GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE");
-		System.out.println("USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF");
-		System.out.println("DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD");
-		System.out.println("PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),");
-		System.out.println("EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF");
-		System.out.println("SUCH DAMAGES.");
-		System.out.println();
-		System.out.println("Type 'clus -copying' for more details.");
-	}
-
 	public static void showHelp() {	    
 		System.out.println("Usage: clus appname");
 		System.out.println("Database: appname.arff");
@@ -353,6 +325,6 @@ public class ClusOutput {
 	}
 	
 	public static void printGPL() {
-		
+		System.out.println("This function will display the content of 'LICENSE.TXT'.");
 	}	
 }
