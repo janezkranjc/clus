@@ -230,6 +230,7 @@ public class ClusRule implements ClusModel, Serializable {
 		double gamma = getSettings().getCoveringWeight();
 		double newweight;
 		RowData result = new RowData(data.getSchema(), data.getNbRows());
+		NominalAttrType[] target = data.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		for (int i = 0; i < data.getNbRows(); i++) {
 			DataTuple tuple = data.getTuple(i);
 			double oldweight = tuple.getWeight();
@@ -251,7 +252,7 @@ public class ClusRule implements ClusModel, Serializable {
 							// TODO: weighted by a distance to a prototype of examples covered by this rule
 							double coeff = predictions.length;
 							for (int j = 0; j < predictions.length; j++) {
-								int true_value = tuple.getIntVal(j);
+								int true_value = target[j].getNominal(tuple);
 								if (predictions[j] == true_value) {
 									coeff--;
 								}
@@ -339,6 +340,8 @@ public class ClusRule implements ClusModel, Serializable {
 		RowData result = new RowData(data.getSchema(), nb_rows);
 		double old_weight, new_weight;
 		boolean cls_mode = true;
+		ClusSchema schema = data.getSchema();
+		NominalAttrType[] target = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (m_TargetStat instanceof RegressionStat) {
 			cls_mode = false;
 		} else if (m_TargetStat instanceof CombStat){ 
@@ -364,7 +367,7 @@ public class ClusRule implements ClusModel, Serializable {
 					if (predictions.length > 1) { // Multiple target
 						double prop_true = 0;
 						for (int j = 0; j < predictions.length; j++) {
-							int true_value = tuple.getIntVal(j);
+							int true_value = target[j].getNominal(tuple);
 							if (predictions[j] == true_value) {
 								prop_true++;
 							}
@@ -373,7 +376,7 @@ public class ClusRule implements ClusModel, Serializable {
 						new_weight = old_weight * (1 + prop_true * (gamma - 1));
 					} else { // Single target
 						int prediction = predictions[0];
-						int true_value = tuple.getClassification(); 
+						int true_value = target[0].getNominal(tuple); 
 						if (prediction == true_value) {
 							new_weight = old_weight * gamma;
 						} else {
