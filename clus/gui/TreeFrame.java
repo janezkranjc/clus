@@ -17,6 +17,7 @@ import clus.main.*;
 import clus.util.*;
 import clus.model.modelio.*;
 import clus.data.attweights.*;
+import clus.data.type.*;
 
 public class TreeFrame extends JFrame {
 	

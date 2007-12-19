@@ -1,11 +1,11 @@
-package clus.main;
+package clus.data.type;
 
 import jeans.util.*;
 
 import java.io.*;
 import java.util.*;
 
-import clus.data.type.*;
+import clus.main.*;
 import clus.data.rows.*;
 import clus.util.*;
 import clus.selection.*;
@@ -552,7 +552,7 @@ public class ClusSchema implements Serializable {
 		return res;
 	}
 	
-	protected ArrayList collectAttributes(int attruse, int attrtype) {
+	public ArrayList collectAttributes(int attruse, int attrtype) {
 		ArrayList result = new ArrayList();
 		for (int i = 0; i < getNbAttributes(); i++) {
 			ClusAttrType type = getAttrType(i);

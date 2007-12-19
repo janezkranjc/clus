@@ -16,6 +16,7 @@ import clus.util.*;
 import clus.pruning.*;
 import clus.data.rows.*;
 import clus.data.attweights.*;
+import clus.data.type.*;
 import clus.error.*;
 import clus.ext.hierarchical.HierRemoveInsigClasses;
 

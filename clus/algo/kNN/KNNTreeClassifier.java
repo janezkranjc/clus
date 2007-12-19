@@ -5,9 +5,7 @@ import clus.*;
 import clus.algo.induce.ClusInduce;
 import clus.algo.tdidt.*;
 
-import clus.data.type.NominalAttrType;
-import clus.data.type.NumericAttrType;
-import clus.data.type.ClusAttrType;
+import clus.data.type.*;
 import clus.data.rows.*;
 import jeans.util.MyArray;
 import jeans.util.cmdline.CMDLineArgs;

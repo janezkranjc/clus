@@ -1,7 +1,6 @@
 package clus.ext.ootind;
+
 import clus.tools.debug.Debug;
-
-
 import clus.ext.optxval.*;
 
 import jeans.util.list.*;
@@ -12,6 +11,7 @@ import java.io.*;
 import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.model.test.*;
 
 public class OOTIndNO extends OOTInduce {

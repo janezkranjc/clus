@@ -4,6 +4,7 @@ import java.io.*;
 
 import clus.io.*;
 import clus.main.*;
+import clus.data.type.*;
 import clus.util.*;
 
 public class DiskTupleIterator extends FileTupleIterator {

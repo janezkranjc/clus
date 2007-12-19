@@ -1,6 +1,7 @@
 package clus.main;
 
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.statistic.*;
 import clus.util.*;
 

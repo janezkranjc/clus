@@ -10,7 +10,6 @@ import jeans.util.StringUtils;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.*;
 
-import clus.main.ClusSchema;
 import clus.main.ClusStatManager;
 import clus.main.Settings;
 import clus.util.*;

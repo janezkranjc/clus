@@ -7,6 +7,7 @@ import jeans.tree.*;
 
 import clus.main.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.statistic.*;
 
 public class CalcStatisticProcessor extends ClusModelProcessor {

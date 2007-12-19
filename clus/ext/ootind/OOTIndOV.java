@@ -1,4 +1,5 @@
 package clus.ext.ootind;
+
 import clus.tools.debug.Debug;
 
 import clus.ext.optxval.*;
@@ -12,6 +13,7 @@ import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;
 import clus.model.test.*;
+import clus.data.type.*;
 
 public class OOTIndOV extends OOTInduce {
 

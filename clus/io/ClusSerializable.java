@@ -3,7 +3,7 @@ package clus.io;
 import java.io.*;
 
 import clus.data.rows.*;
-import clus.main.*;
+import clus.data.type.*;
 
 public abstract class ClusSerializable {	
 	

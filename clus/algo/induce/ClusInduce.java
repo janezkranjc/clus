@@ -2,6 +2,7 @@ package clus.algo.induce;
 
 import clus.main.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.util.*;
 import clus.model.modelio.*;
 

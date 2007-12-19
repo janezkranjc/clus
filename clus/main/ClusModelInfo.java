@@ -2,6 +2,7 @@ package clus.main;
 
 import clus.error.*;
 import clus.model.processor.*;
+import clus.data.type.*;
 import clus.util.*;
 
 import java.io.*;

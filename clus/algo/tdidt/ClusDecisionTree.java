@@ -9,6 +9,7 @@ import clus.util.*;
 import clus.algo.induce.*;
 import clus.algo.rules.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.ext.ilevelc.*;
 import clus.*;
 

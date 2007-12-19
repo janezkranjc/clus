@@ -1,19 +1,19 @@
 package clus.ext.optxval;
-import clus.tools.debug.Debug;
 
+import clus.tools.debug.Debug;
 
 import java.io.*;
 import java.util.*;
+
 import jeans.util.array.*;
 import jeans.util.cmdline.*;
-
 import jeans.resource.*;
 
 import clus.*;
-
 import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.algo.induce.*;
 import clus.selection.*;
 import clus.error.multiscore.*;

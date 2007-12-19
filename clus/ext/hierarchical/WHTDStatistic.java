@@ -10,7 +10,7 @@ import org.apache.commons.math.distribution.*;
 import org.apache.commons.math.*;
 
 import clus.data.rows.*;
-import clus.data.type.ClusAttrType;
+import clus.data.type.*;
 import clus.main.*;
 import clus.statistic.*;
 import clus.util.*;

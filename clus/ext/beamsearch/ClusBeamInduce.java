@@ -4,6 +4,7 @@ import clus.Clus;
 import clus.algo.induce.*;
 import clus.algo.tdidt.*;
 import clus.data.rows.RowData;
+import clus.data.type.*;
 import clus.ext.ensembles.ClusForest;
 import clus.main.*;
 import clus.util.*;

@@ -5,6 +5,7 @@ import java.io.*;
 import clus.io.*;
 import clus.main.*;
 import clus.util.*;
+import clus.data.type.*;
 
 public class FileTupleIterator extends TupleIterator {
 

@@ -3,9 +3,9 @@ package clus.data.type;
 import java.io.*;
 
 import clus.io.*;
-import clus.main.ClusSchema;
 import clus.util.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.data.cols.*;
 import clus.data.cols.attribute.*;
 

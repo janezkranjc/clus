@@ -3,6 +3,7 @@ package clus.data.rows;
 import java.io.*;
 
 import clus.main.*;
+import clus.data.type.*;
 
 public class DataTuple implements Serializable {
 	

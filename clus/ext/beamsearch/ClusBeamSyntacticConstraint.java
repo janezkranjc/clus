@@ -3,8 +3,8 @@ package clus.ext.beamsearch;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import clus.data.rows.DataTuple;
-import clus.data.rows.RowData;
+import clus.data.rows.*;
+import clus.data.type.*;
 import clus.main.*;
 import clus.model.modelio.ClusTreeReader;
 import clus.statistic.ClusStatistic;

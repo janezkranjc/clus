@@ -8,6 +8,7 @@ import jeans.util.cmdline.*;
 import clus.*;
 import clus.util.*;
 import clus.algo.induce.*;
+import clus.data.type.*;
 
 public abstract class ClusClassifier {
 

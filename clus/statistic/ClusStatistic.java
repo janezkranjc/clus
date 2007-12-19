@@ -3,7 +3,8 @@ package clus.statistic;
 import clus.main.*;
 import clus.util.*;
 import clus.data.cols.*; 
-import clus.data.rows.*; 
+import clus.data.rows.*;
+import clus.data.type.*;
 import clus.data.attweights.*;
 import clus.ext.timeseries.TimeSeries;
 

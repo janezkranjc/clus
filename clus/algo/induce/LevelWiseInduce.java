@@ -7,6 +7,7 @@ import jeans.util.*;
 import clus.main.*;
 import clus.util.*;
 import clus.data.cols.*;
+import clus.data.type.*;
 import clus.data.cols.attribute.*;
 
 public class LevelWiseInduce extends ClusInduce {

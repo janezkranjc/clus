@@ -2,11 +2,8 @@ package clus.algo.kNN;
 
 import clus.data.rows.RowData;
 import clus.data.rows.DataTuple;
-import clus.main.ClusSchema;
 import clus.main.TargetSchema;
-import clus.data.type.NominalAttrType;
-import clus.data.type.NumericAttrType;
-import clus.data.type.ClusAttrType;
+import clus.data.type.*;
 
 /**
  * This class calculates several usefull statistics of

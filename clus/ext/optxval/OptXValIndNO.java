@@ -1,4 +1,5 @@
 package clus.ext.optxval;
+
 import clus.tools.debug.Debug;
 
 import jeans.util.list.*;
@@ -9,6 +10,7 @@ import java.io.*;
 import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.model.test.*;
 
 public class OptXValIndNO extends OptXValInduce {

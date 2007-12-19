@@ -1,6 +1,6 @@
 package clus.ext.ootind;
-import clus.tools.debug.Debug;
 
+import clus.tools.debug.Debug;
 
 import clus.ext.optxval.*;
 
@@ -12,10 +12,10 @@ import jeans.util.cmdline.*;
 import jeans.resource.*;
 
 import clus.*;
-
 import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.algo.induce.*;
 import clus.selection.*;
 import clus.error.multiscore.*;

@@ -4,6 +4,7 @@ import clus.algo.induce.*;
 import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.nominal.split.*;
 import clus.model.modelio.*;
 import clus.ext.beamsearch.*;

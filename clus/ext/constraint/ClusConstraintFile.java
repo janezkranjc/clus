@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.*;
 
 import clus.main.*;
+import clus.data.type.*;
 import clus.model.modelio.*;
 
 public class ClusConstraintFile {

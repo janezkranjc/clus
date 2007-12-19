@@ -9,7 +9,7 @@ import jeans.graph.*;
 import jeans.io.*;
 
 import clus.main.*;
-
+import clus.data.type.*;
 import clus.model.modelio.tilde.*;
 
 public class SimpleTreeFrame extends JFrame {

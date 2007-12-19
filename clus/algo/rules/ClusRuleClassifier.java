@@ -7,6 +7,7 @@ import java.io.*;
 
 import jeans.util.cmdline.CMDLineArgs;
 import clus.*;
+import clus.data.type.*;
 import clus.algo.tdidt.ClusDecisionTree;
 import clus.main.*;
 import clus.util.ClusException;

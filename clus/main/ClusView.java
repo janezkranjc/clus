@@ -5,6 +5,7 @@ import java.io.*;
 
 import clus.io.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 
 public class ClusView {
 

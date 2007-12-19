@@ -7,6 +7,7 @@ import java.util.*;
 
 import clus.error.ClusErrorParent;
 import clus.util.ClusException;
+import clus.data.type.*;
 
 public abstract class CRParent implements Serializable {
 

@@ -9,7 +9,7 @@ import jeans.util.*;
 
 import clus.statistic.StatisticPrintInfo;
 import clus.util.*;
-import clus.data.type.ClusAttrType;
+import clus.data.type.*;
 import clus.error.*;
 import clus.data.rows.*;
 

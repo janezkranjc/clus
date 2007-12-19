@@ -9,12 +9,9 @@ import clus.util.ClusException;
 import clus.*;
 import clus.algo.induce.ClusInduce;
 import clus.algo.tdidt.*;
-import clus.data.rows.RowData;
-import clus.data.rows.DataTuple;
+import clus.data.rows.*;
+import clus.data.type.*;
 
-import clus.data.type.NominalAttrType;
-import clus.data.type.ClusAttrType;
-import clus.data.type.NumericAttrType;
 
 /*import clus.algo.induce.*;
 import clus.error.multiscore.*;*/

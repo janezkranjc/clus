@@ -7,6 +7,7 @@ import jeans.util.cmdline.CMDLineArgs;
 import clus.main.*;
 import clus.Clus;
 import clus.algo.induce.*;
+import clus.data.type.*;
 import clus.util.ClusException;
 
 public class ClusEnsembleClassifier extends ClusClassifier {

@@ -12,7 +12,6 @@ import org.apache.commons.math.MathException;
 import clus.data.attweights.*;
 import clus.data.rows.DataTuple;
 import clus.data.type.*;
-import clus.main.ClusSchema;
 import clus.main.ClusStatManager;
 import clus.main.Settings;
 import clus.util.ClusFormat;

@@ -2,7 +2,7 @@ package clus.algo.kNN;
 
 import clus.main.ClusModelProcessor;
 import clus.main.ClusModel;
-import clus.main.ClusSchema;
+import clus.data.type.*;
 import clus.data.rows.DataTuple;
 
 import java.io.IOException;

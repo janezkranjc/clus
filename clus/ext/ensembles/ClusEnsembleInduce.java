@@ -6,6 +6,7 @@ import clus.Clus;
 import clus.algo.induce.*;
 import clus.algo.tdidt.ClusDecisionTree;
 import clus.main.*;
+import clus.data.type.*;
 import clus.selection.BaggingSelection;
 import clus.util.ClusException;
 

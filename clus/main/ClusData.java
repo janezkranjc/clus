@@ -2,6 +2,7 @@ package clus.main;
 
 import clus.util.*;
 import clus.data.rows.*;
+import clus.data.type.*;
 import clus.error.*;
 import clus.selection.*;
 import clus.statistic.*;

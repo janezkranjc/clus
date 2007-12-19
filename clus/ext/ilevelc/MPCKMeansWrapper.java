@@ -6,7 +6,7 @@ import java.util.*;
 
 import jeans.util.*;
 import clus.data.rows.*;
-import clus.data.type.NominalAttrType;
+import clus.data.type.*;
 import clus.main.*;
 import clus.util.ClusException;
 import clus.io.*;
