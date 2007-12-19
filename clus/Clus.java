@@ -70,10 +70,11 @@ public class Clus implements CMDLineArgsProvider {
 			"disable", "silent", "lwise", "c45", "info", "sample", "debug",
 			"tuneftest", "load", "soxval", "bag", "obag", "show", "knn",
 			"knnTree", "beam", "gui", "fillin", "rules", "weka", "corrmatrix",
-			"tunesize", "out2model", "test", "normalize", "tseries", "writetargets", "fold","forest"};
+			"tunesize", "out2model", "test", "normalize", "tseries", "writetargets", "fold", "forest",
+			"warranty", "copying"};
 
 	public final static int[] OPTION_ARITIES = {0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
-			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0};
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0};
 
 	protected Settings m_Sett = new Settings();
 	protected ClusSummary m_Summary = new ClusSummary();
@@ -1117,6 +1118,18 @@ public class Clus implements CMDLineArgsProvider {
 			Settings sett = clus.getSettings();
 			CMDLineArgs cargs = new CMDLineArgs(clus);
 			cargs.process(args);
+			if (cargs.hasOption("warranty")) {
+				ClusOutput.printWarranty();
+				System.exit(0);
+			} else if (cargs.hasOption("copying")) {
+				ClusOutput.printGPL();
+				System.exit(0);
+			} else if (cargs.getNbMainArgs() == 0) {
+				clus.showHelp();
+				System.out.println();
+				System.out.println("Expected main argument");
+				System.exit(0);
+			}	
 			if (cargs.allOK()) {
 				sett.setDate(new Date());
 				sett.setAppName(cargs.getMainArg(0));
@@ -1195,7 +1208,7 @@ public class Clus implements CMDLineArgsProvider {
 				} else if (cargs.hasOption("tseries")) {
 					clus.getSettings().setSectionTimeSeriesEnabled(true);
 					clus.initialize(cargs, clss);
-					clus.singleRun(clss);
+					clus.singleRun(clss);					
 				} else {
 					clus.initialize(cargs, clss);
 					clus.singleRun(clss);
