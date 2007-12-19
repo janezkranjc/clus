@@ -179,10 +179,8 @@ public class ClassificationStat extends ClusStatistic {
 	
 	public void updateWeighted(DataTuple tuple, double weight) {
 		m_SumWeight += weight;		
-		// int[] values = tuple.m_Ints;		
-		int[] values = tuple.m_Ints;
 		for (int i = 0; i < m_NbTarget; i++) {
-			int val = values[m_Attrs[i].getArrayIndex()];
+			int val = m_Attrs[i].getNominal(tuple);
 			if (val != m_Attrs[i].getNbValues()) {				
 				m_ClassCounts[i][val] += weight;
 			}
