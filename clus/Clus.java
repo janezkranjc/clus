@@ -91,6 +91,7 @@ public class Clus implements CMDLineArgsProvider {
 		// Load resource info (this measures among others CPU time on Linux)
 		boolean test = m_Sett.getResourceInfoLoaded() == Settings.RESOURCE_INFO_LOAD_TEST;
 		ResourceInfo.loadLibrary(test);
+		ClusStat.m_InitialMemory = ResourceInfo.getMemorySize();
 		// Load settings file
 		ARFFFile arff = null;
 		System.out.println("Loading '" + m_Sett.getAppName() + "'");
@@ -157,6 +158,8 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		System.out.println("Has missing values: " + m_Schema.hasMissing());
 		ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
+		System.out.println("Initial memory usage: "+ClusStat.m_InitialMemory);		
+		System.out.println("Memory after loading data: "+ClusStat.m_LoadedMemory);
 	}
 
 	/***
@@ -1110,8 +1113,6 @@ public class Clus implements CMDLineArgsProvider {
 	}
 
 	public static void main(String[] args) {
-		if (Debug.debug == 1)
-			ClusStat.m_InitialMemory = ResourceInfo.getMemorySize();
 		try {
 			ClusOutput.printHeader();
 			Clus clus = new Clus();
