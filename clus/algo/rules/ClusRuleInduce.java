@@ -28,9 +28,8 @@ import java.io.*;
 import java.util.*;
 import java.text.DecimalFormat;
 
-import clus.algo.ClusInductionAlgorithm;
-import clus.algo.induce.*;
-import clus.algo.tdidt.DepthFirstInduce;
+import clus.algo.*;
+import clus.algo.tdidt.*;
 import clus.main.*;
 import clus.model.test.*;
 import clus.heuristic.*;

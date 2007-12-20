@@ -34,7 +34,6 @@ import jeans.math.*;
 
 import clus.model.test.*;
 import clus.Clus;
-import clus.algo.induce.*;
 import clus.algo.tdidt.ConstraintDFInduce;
 import clus.ext.constraint.ClusConstraintFile;
 import clus.ext.beamsearch.*;

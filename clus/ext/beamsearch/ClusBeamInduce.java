@@ -23,8 +23,7 @@
 package clus.ext.beamsearch;
 
 import clus.Clus;
-import clus.algo.ClusInductionAlgorithm;
-import clus.algo.induce.*;
+import clus.algo.*;
 import clus.algo.tdidt.*;
 import clus.data.rows.RowData;
 import clus.data.type.*;

@@ -28,9 +28,7 @@ import jeans.util.cmdline.CMDLineArgs;
 
 import clus.main.*;
 import clus.Clus;
-import clus.algo.ClusInductionAlgorithm;
-import clus.algo.ClusInductionAlgorithmType;
-import clus.algo.induce.*;
+import clus.algo.*;
 import clus.data.type.*;
 import clus.util.ClusException;
 

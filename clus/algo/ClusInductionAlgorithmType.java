@@ -32,7 +32,6 @@ import clus.main.ClusRun;
 import clus.main.ClusStatManager;
 import clus.main.Settings;
 import clus.util.*;
-import clus.algo.induce.*;
 import clus.data.type.*;
 
 public abstract class ClusInductionAlgorithmType {

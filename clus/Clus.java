@@ -46,7 +46,6 @@ import clus.data.rows.*;
 import clus.error.*;
 import clus.error.multiscore.*;
 import clus.statistic.*;
-import clus.algo.induce.*;
 import clus.selection.*;
 import clus.ext.hierarchical.*;
 import clus.ext.beamsearch.*;

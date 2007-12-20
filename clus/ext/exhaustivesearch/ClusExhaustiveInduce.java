@@ -22,8 +22,7 @@
 
 package clus.ext.exhaustivesearch;
 
-import clus.algo.ClusInductionAlgorithm;
-import clus.algo.induce.*;
+import clus.algo.*;
 import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;

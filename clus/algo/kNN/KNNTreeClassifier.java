@@ -24,8 +24,7 @@ package clus.algo.kNN;
 
 import clus.main.*;
 import clus.*;
-import clus.algo.ClusInductionAlgorithm;
-import clus.algo.ClusInductionAlgorithmType;
+import clus.algo.*;
 import clus.algo.tdidt.*;
 
 import clus.data.type.*;
@@ -35,10 +34,6 @@ import jeans.util.cmdline.CMDLineArgs;
 import clus.util.ClusException;
 import clus.error.ClusErrorParent;
 import clus.pruning.BottomUpPruningVSB;
-
-
-/*import clus.algo.induce.*;
-import clus.error.multiscore.*;*/
 
 import java.io.IOException;
 

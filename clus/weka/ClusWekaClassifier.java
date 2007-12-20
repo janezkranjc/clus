@@ -30,9 +30,7 @@ import java.io.IOException;
 import jeans.util.cmdline.*;
 
 import clus.*;
-import clus.algo.ClusInductionAlgorithm;
-import clus.algo.ClusInductionAlgorithmType;
-import clus.algo.induce.*;
+import clus.algo.*;
 import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;

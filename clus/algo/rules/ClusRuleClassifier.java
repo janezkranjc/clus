@@ -30,13 +30,10 @@ import java.io.*;
 import jeans.util.cmdline.CMDLineArgs;
 import clus.*;
 import clus.data.type.*;
-import clus.algo.ClusInductionAlgorithm;
-import clus.algo.ClusInductionAlgorithmType;
-import clus.algo.tdidt.ClusDecisionTree;
-import clus.algo.tdidt.DepthFirstInduce;
+import clus.algo.*;
+import clus.algo.tdidt.*;
 import clus.main.*;
 import clus.util.ClusException;
-import clus.algo.induce.*;
 
 public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 	

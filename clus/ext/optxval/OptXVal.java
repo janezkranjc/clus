@@ -36,8 +36,7 @@ import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;
 import clus.data.type.*;
-import clus.algo.ClusInductionAlgorithm;
-import clus.algo.induce.*;
+import clus.algo.*;
 import clus.selection.*;
 import clus.error.multiscore.*;
 

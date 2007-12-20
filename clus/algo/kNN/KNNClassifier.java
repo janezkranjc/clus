@@ -29,15 +29,10 @@ import jeans.util.cmdline.CMDLineArgs;
 import clus.main.*;
 import clus.util.ClusException;
 import clus.*;
-import clus.algo.ClusInductionAlgorithm;
-import clus.algo.ClusInductionAlgorithmType;
+import clus.algo.*;
 import clus.algo.tdidt.*;
 import clus.data.rows.*;
 import clus.data.type.*;
-
-
-/*import clus.algo.induce.*;
-import clus.error.multiscore.*;*/
 
 /**
  * This class represents a Nearest Neighbour classifier for the Clus program.

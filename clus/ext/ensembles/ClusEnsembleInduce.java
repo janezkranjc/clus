@@ -25,10 +25,8 @@ package clus.ext.ensembles;
 import java.io.IOException;
 
 import clus.Clus;
-import clus.algo.ClusInductionAlgorithm;
-import clus.algo.induce.*;
-import clus.algo.tdidt.ClusDecisionTree;
-import clus.algo.tdidt.DepthFirstInduce;
+import clus.algo.*;
+import clus.algo.tdidt.*;
 import clus.main.*;
 import clus.data.type.*;
 import clus.selection.BaggingSelection;
