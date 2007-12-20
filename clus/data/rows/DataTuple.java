@@ -24,6 +24,7 @@ package clus.data.rows;
 
 import java.io.*;
 
+import clus.data.type.ClusAttrType;
 import clus.main.*;
 import clus.data.type.*;
 
@@ -147,5 +148,32 @@ public class DataTuple implements Serializable {
 
 	public final void setWeight(double weight) {
 		m_Weight = weight;
-	}	
+	}
+
+	public String toString() {
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < m_Objects.length; i++) {
+			if (i != 0) buf.append(",");
+			buf.append(m_Objects[i].toString());				
+		}		
+/*		for (int i = 0; i < m_Doubles.length; i++) {
+			if (i != 0) buf.append(",");
+			buf.append(m_Doubles[i]);				
+		}*/
+		return buf.toString();
+	}
+	
+	public String toString(ClusSchema schema) {
+		int aidx = 0;
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < schema.getNbAttributes(); i++) {
+			ClusAttrType type = schema.getAttrType(i);
+			if (!type.isDisabled()) {
+				if (aidx != 0) buf.append(",");
+				buf.append(type.getString(this));
+				aidx++;
+			}
+		}
+		return buf.toString();
+	}
 }

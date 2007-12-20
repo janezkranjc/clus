@@ -40,6 +40,9 @@ public class HierClassWiseAccuracy extends ClusError {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
 	protected boolean m_NoTrivialClasses = false;
+	//Leander bijgevoegd 11/12/07
+	protected boolean m_NoClassesOnUpperLevels = true;
+	//
 	protected ClassHierarchy m_Hier;
 	protected double[] m_NbPosPredictions;
 	protected double[] m_TP;
@@ -61,7 +64,9 @@ public class HierClassWiseAccuracy extends ClusError {
 		double[] predarr = ((WHTDStatistic)pred).getDiscretePred();
 		for (int i = 0; i < m_Dim; i++) {
 			if (predarr[i] > 0.5) {
+				//System.out.println("Ex: "+tuple.toString());
 				/* Predicted this class, was it correct? */
+				//System.out.println(pred.getClassString()+" "+m_Hier.getTermAt(i).toStringHuman(m_Hier));
 				m_NbPosPredictions[i] += 1.0;
 				if (tp.hasClass(i)) {
 					m_TP[i] += 1.0;
@@ -106,6 +111,10 @@ public class HierClassWiseAccuracy extends ClusError {
 		return m_NoTrivialClasses;
 	}
 	
+	public boolean noClassesOnUpperLevels() {
+		return m_NoClassesOnUpperLevels;
+	}
+	
 	public boolean isEvalClass(int idx) {
 		if (isNoTrivialClasses()) {
 			// Do not consider classes with default precision = 1.0
@@ -113,6 +122,14 @@ public class HierClassWiseAccuracy extends ClusError {
 				return false;
 			}
 		}
+		/*if (noClassesOnUpperLevels()) {
+			//Leander: doe iets
+			ClassTerm ct = m_Hier.getTermAt(idx);
+			//System.out.println(ct.getMaxDepth());
+			if (ct.getMaxDepth() != 3) { //hardcoded: moet veranderd worden
+				return false;
+			}
+		}*/
 		return m_EvalClass[idx];
 	}
 	

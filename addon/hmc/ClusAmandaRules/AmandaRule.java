@@ -36,7 +36,8 @@ public class AmandaRule extends ClusRule {
   }
   
   public boolean doTest(NodeTest test, DataTuple tuple) {
-		if (test.isUnknown(tuple)) {
+  ///Leander: gans eerste if-test geblokkeerd
+	  /*if (test.isUnknown(tuple)) {
 			// Amanda does someting weird with unknown values
 			// (because of the perl implementation of > and <=)  
 			if (test instanceof InverseNumericTest) {
@@ -50,9 +51,9 @@ public class AmandaRule extends ClusRule {
 			} else {
 				return false;
 			}
-		} else {
+		} else {*/
 			if (test.predictWeighted(tuple) != ClusNode.YES) return false;
-		}
+		//}
 		return true;
   }
 
