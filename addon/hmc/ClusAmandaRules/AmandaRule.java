@@ -24,6 +24,7 @@
  * Created on Jan 2, 2006
  */
 
+import clus.algo.tdidt.*;
 import clus.algo.rules.*;
 import clus.data.rows.*;
 import clus.main.*;

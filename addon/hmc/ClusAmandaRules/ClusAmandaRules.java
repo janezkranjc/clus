@@ -31,6 +31,7 @@ import java.io.*;
 import clus.*;
 import jeans.util.cmdline.*;
 import jeans.util.*;
+import clus.algo.*;
 import clus.algo.rules.*;
 import clus.ext.*;
 import clus.main.*;
@@ -58,7 +59,7 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 			sett.setAppName(cargs.getMainArg(0));
 			m_Clus.initSettings(cargs);
 			// m_Clus.setExtension(new DefaultExtension());
-			ClusClassifier clss = new ClusRuleClassifier(m_Clus);
+			ClusInductionAlgorithmType clss = new ClusRuleClassifier(m_Clus);
 			m_Clus.initialize(cargs, clss);
 			ClusRuleSet set = loadRules(cargs.getMainArg(1));
 			ClusRun cr = m_Clus.partitionData();

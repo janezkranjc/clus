@@ -35,6 +35,7 @@ import clus.data.rows.*;
 import clus.main.*;
 import clus.statistic.*;
 import clus.util.ClusException;
+import clus.algo.tdidt.*;
 
 public class HMCAverageTreeModel implements ClusModel {
 	
