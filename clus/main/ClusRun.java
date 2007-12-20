@@ -26,6 +26,7 @@ import java.io.*;
 
 import clus.selection.*;
 import clus.error.*;
+import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.util.*;
 

@@ -27,6 +27,7 @@ package clus.pruning;
 
 import java.io.IOException;
 
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.error.ClusError;
 import clus.error.ClusErrorParent;

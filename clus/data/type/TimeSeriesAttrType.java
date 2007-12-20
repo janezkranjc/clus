@@ -25,10 +25,10 @@ package clus.data.type;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import clus.data.io.ClusReader;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
 import clus.data.rows.RowSerializable;
-import clus.io.ClusReader;
 import clus.io.ClusSerializable;
 import clus.main.Settings;
 import clus.util.ClusException;

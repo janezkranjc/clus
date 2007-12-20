@@ -30,6 +30,7 @@ import clus.util.*;
 import clus.data.rows.*;
 import clus.data.cols.*;
 import clus.data.cols.attribute.*;
+import clus.data.io.ClusReader;
 
 import clus.algo.kNN.NominalStatistic;
 

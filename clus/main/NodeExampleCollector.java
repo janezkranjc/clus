@@ -25,6 +25,7 @@ package clus.main;
 import jeans.util.*;
 import jeans.tree.*;
 
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.data.type.*;
 

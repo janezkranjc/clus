@@ -22,6 +22,7 @@
 
 package clus.weka;
 
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.main.*;
 import clus.model.test.*;

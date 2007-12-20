@@ -25,6 +25,7 @@
  */
 package clus.ext.beamsearch;
 
+import clus.algo.tdidt.ClusNode;
 import clus.main.*;
 
 import java.util.*;

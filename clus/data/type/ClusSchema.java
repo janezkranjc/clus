@@ -28,6 +28,7 @@ import java.io.*;
 import java.util.*;
 
 import clus.main.*;
+import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.util.*;
 import clus.selection.*;

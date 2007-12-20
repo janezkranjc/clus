@@ -25,6 +25,7 @@ package clus.model.modelio.tilde;
 import java.io.*;
 import jeans.util.*;
 
+import clus.algo.tdidt.ClusNode;
 import clus.main.*;
 import clus.model.test.*;
 import clus.statistic.*;

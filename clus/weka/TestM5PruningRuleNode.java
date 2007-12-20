@@ -58,6 +58,7 @@ import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.Filter;
 
 import clus.main.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 import clus.model.test.*;

@@ -26,7 +26,7 @@
  */
 package clus.ext.hierarchical;
 
-import clus.main.ClusNode;
+import clus.algo.tdidt.ClusNode;
 import clus.pruning.PruneTree;
 import clus.util.ClusException;
 

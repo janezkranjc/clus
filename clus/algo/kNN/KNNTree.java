@@ -23,6 +23,7 @@
 package clus.algo.kNN;
 
 import clus.main.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.statistic.ClusStatistic;
 import java.util.Vector;

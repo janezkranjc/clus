@@ -26,6 +26,7 @@
 package clus.ext.beamsearch;
 
 import clus.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.main.*;

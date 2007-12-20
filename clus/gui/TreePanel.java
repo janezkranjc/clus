@@ -35,6 +35,7 @@ import clus.model.test.*;
 import clus.statistic.*;
 import clus.pruning.*;
 import clus.util.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.attweights.*;
 
 import clus.gui.statvis.*;

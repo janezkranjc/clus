@@ -26,7 +26,7 @@
  */
 package clus.ext.beamsearch;
 
-import clus.main.ClusNode;
+import clus.algo.tdidt.ClusNode;
 import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 import clus.statistic.RegressionStat;

@@ -24,6 +24,7 @@ package clus.data.rows;
 
 import java.io.*;
 
+import clus.data.io.ClusReader;
 import clus.io.*;
 
 public abstract class RowSerializable extends ClusSerializable {	

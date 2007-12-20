@@ -37,6 +37,7 @@ import clus.model.test.*;
 import clus.model.modelio.*;
 import clus.Clus;
 import clus.algo.*;
+import clus.algo.tdidt.ClusNode;
 import clus.algo.tdidt.ConstraintDFInduce;
 import clus.ext.constraint.*;
 import clus.main.*;

@@ -23,6 +23,7 @@
 package clus.pruning;
 
 import clus.main.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.error.*;
 import clus.statistic.*;

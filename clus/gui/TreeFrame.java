@@ -39,6 +39,7 @@ import clus.main.*;
 import clus.util.*;
 import clus.model.modelio.*;
 import clus.algo.ClusInductionAlgorithmType;
+import clus.algo.tdidt.ClusNode;
 import clus.data.attweights.*;
 import clus.data.type.*;
 

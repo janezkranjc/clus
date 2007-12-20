@@ -26,9 +26,9 @@
 package clus.ext.beamsearch;
 
 import jeans.math.MathUtil;
-import clus.main.ClusNode;
 import clus.main.Settings;
 import clus.statistic.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.attweights.*;
 
 public class ClusBeamHeuristicSS extends ClusBeamHeuristic {

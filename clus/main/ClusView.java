@@ -26,6 +26,7 @@ import jeans.util.*;
 import java.io.*;
 
 import clus.io.*;
+import clus.data.io.ClusReader;
 import clus.data.rows.*;
 import clus.data.type.*;
 

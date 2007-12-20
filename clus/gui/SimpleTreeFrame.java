@@ -31,6 +31,7 @@ import jeans.graph.*;
 import jeans.io.*;
 
 import clus.main.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.type.*;
 import clus.model.modelio.tilde.*;
 

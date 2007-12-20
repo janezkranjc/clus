@@ -23,6 +23,7 @@
 package clus.model.test;
 
 import clus.main.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.data.cols.attribute.*;
 

@@ -25,6 +25,7 @@ package clus.ext.exhaustivesearch;
 import clus.algo.*;
 import clus.main.*;
 import clus.util.*;
+import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.nominal.split.*;
@@ -32,6 +33,7 @@ import clus.model.modelio.*;
 import clus.ext.beamsearch.*;
 import java.io.*;
 import clus.algo.tdidt.*;
+
 import java.util.ArrayList;
 
 public class ClusExhaustiveInduce extends ClusInductionAlgorithm {

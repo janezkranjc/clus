@@ -26,6 +26,7 @@ package clus.ext.ensembles;
 import jeans.util.*;
 
 import clus.main.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.ext.hierarchical.HierClassTresholdPruner;

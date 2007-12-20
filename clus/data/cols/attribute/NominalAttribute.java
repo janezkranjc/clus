@@ -28,6 +28,7 @@ import jeans.util.*;
 import clus.io.*;
 import clus.main.*;
 import clus.data.cols.*;
+import clus.data.io.ClusReader;
 import clus.data.type.*;
 import clus.selection.*;
 

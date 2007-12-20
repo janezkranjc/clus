@@ -37,6 +37,7 @@ import clus.statistic.*;
 import clus.util.*;
 import clus.pruning.*;
 import clus.algo.ClusInductionAlgorithmType;
+import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 import clus.data.type.*;

@@ -31,6 +31,7 @@ import clus.io.*;
 import clus.main.*;
 import clus.util.*;
 import clus.data.type.*;
+import clus.data.io.ClusReader;
 import clus.data.rows.*;
 
 public class ClassesAttrType extends ClusAttrType {

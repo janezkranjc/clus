@@ -25,6 +25,7 @@ package clus.error;
 import java.io.*;
 
 import clus.main.*;
+import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.statistic.*;
 

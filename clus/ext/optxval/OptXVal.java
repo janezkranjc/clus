@@ -37,6 +37,7 @@ import clus.util.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.algo.*;
+import clus.algo.tdidt.ClusNode;
 import clus.selection.*;
 import clus.error.multiscore.*;
 

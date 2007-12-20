@@ -30,6 +30,7 @@ import java.text.NumberFormat;
 import java.util.*;
 
 import jeans.util.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.main.*;
 import clus.statistic.*;

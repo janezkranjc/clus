@@ -26,6 +26,7 @@ import java.io.*;
 
 import clus.main.*;
 import clus.util.*;
+import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.model.test.*;

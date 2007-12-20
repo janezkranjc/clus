@@ -27,6 +27,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
+import clus.algo.tdidt.ClusNode;
 import clus.ext.hierarchical.*;
 
 import java.util.*;

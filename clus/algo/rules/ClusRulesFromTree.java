@@ -26,6 +26,8 @@
 package clus.algo.rules;
 
 import java.io.*;
+
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.RowData;
 import clus.main.*;
 import clus.model.test.*;

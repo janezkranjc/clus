@@ -29,6 +29,7 @@ import clus.main.*;
 import clus.util.*;
 import clus.selection.*;
 import clus.algo.ClusInductionAlgorithmType;
+import clus.data.ClusData;
 import clus.error.ClusError;
 import clus.heuristic.*;
 

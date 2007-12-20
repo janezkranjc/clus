@@ -28,6 +28,7 @@ import java.util.*;
 import jeans.tree.*;
 import jeans.util.array.*;
 
+import clus.algo.tdidt.ClusNode;
 import clus.main.*;
 import clus.util.*;
 

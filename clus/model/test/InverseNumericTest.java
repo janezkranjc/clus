@@ -27,6 +27,7 @@ package clus.model.test;
 
 import java.text.NumberFormat;
 
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.main.*;

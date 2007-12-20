@@ -20,12 +20,14 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.main;
+package clus.data;
 
 import clus.util.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.error.*;
+import clus.main.ClusView;
 import clus.selection.*;
 import clus.statistic.*;
 

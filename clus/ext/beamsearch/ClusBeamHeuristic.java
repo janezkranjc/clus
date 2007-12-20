@@ -25,8 +25,8 @@
  */
 package clus.ext.beamsearch;
 
+import clus.algo.tdidt.ClusNode;
 import clus.heuristic.ClusHeuristic;
-import clus.main.ClusNode;
 import clus.statistic.ClusStatistic;
 
 public abstract class ClusBeamHeuristic extends ClusHeuristic {

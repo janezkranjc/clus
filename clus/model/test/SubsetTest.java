@@ -24,6 +24,7 @@ package clus.model.test;
 
 import clus.main.*;
 import clus.util.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.type.*;
 import clus.data.rows.*;
 

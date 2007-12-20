@@ -26,6 +26,7 @@ import java.io.*;
 
 import clus.io.*;
 import clus.util.*;
+import clus.data.io.ClusReader;
 import clus.data.rows.*;
 
 public class IndexAttrType extends ClusAttrType {

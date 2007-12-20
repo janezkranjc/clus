@@ -22,6 +22,7 @@
 
 package clus.pruning;
 
+import clus.algo.tdidt.ClusNode;
 import clus.data.attweights.*;
 import clus.main.*;
 import clus.util.ClusException;

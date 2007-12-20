@@ -27,6 +27,7 @@ import java.io.*;
 import clus.io.*;
 import clus.main.Settings;
 import clus.util.*;
+import clus.data.io.ClusReader;
 import clus.data.rows.*;
 
 public class FlatClassesAttrType extends ClassesAttrType {

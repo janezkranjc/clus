@@ -27,6 +27,7 @@ package clus.pruning;
 
 import clus.main.*;
 import clus.statistic.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 

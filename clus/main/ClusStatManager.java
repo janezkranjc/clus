@@ -25,6 +25,7 @@ package clus.main;
 import jeans.io.ini.INIFileNominalOrDoubleOrVector;
 
 import clus.util.*;
+import clus.data.ClusData;
 import clus.data.attweights.*;
 import clus.data.type.*;
 import clus.data.rows.*;

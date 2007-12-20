@@ -33,6 +33,7 @@ import clus.util.*;
 import clus.main.*;
 import clus.model.test.*;
 import clus.statistic.*;
+import clus.algo.tdidt.ClusNode;
 import clus.gui.statvis.*;
 
 public class ClusNodePainter extends MyNodePainter implements ActionListener {

@@ -20,7 +20,7 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.io;
+package clus.data.io;
 
 import jeans.util.*;
 import java.io.*;

@@ -28,6 +28,7 @@ import java.io.*;
 import jeans.io.MyFile;
 
 import clus.main.*;
+import clus.algo.tdidt.ClusNode;
 import clus.data.attweights.*;
 import clus.data.rows.*;
 import clus.error.*;

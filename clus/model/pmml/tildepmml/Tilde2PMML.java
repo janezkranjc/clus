@@ -25,6 +25,8 @@ package clus.model.pmml.tildepmml;
 import java.util.*;
 
 import java.io.*;
+
+import clus.algo.tdidt.ClusNode;
 import clus.main.*;
 
 import jeans.util.*;

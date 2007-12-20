@@ -24,6 +24,7 @@ package clus.ext.ilevelc;
 
 import java.io.PrintWriter;
 
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.DataTuple;
 import clus.main.*;
 import clus.statistic.ClusStatistic;

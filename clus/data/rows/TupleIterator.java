@@ -27,6 +27,7 @@ import java.util.*;
 
 import clus.main.*;
 import clus.util.*;
+import clus.data.ClusData;
 import clus.data.type.*;
 
 public abstract class TupleIterator {
