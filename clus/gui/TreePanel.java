@@ -87,7 +87,7 @@ public class TreePanel extends JPanel {
 	}	
 
 	public ClusAttributeWeights createClusAttributeWeights() throws ClusException {
-		return m_Manager.createClusAttributeWeights();
+		return m_Manager.getClusteringWeights();
 	}
 	
 	public void setHorzVert(boolean toggle) {
@@ -161,7 +161,7 @@ public class TreePanel extends JPanel {
 	}
 	
 	public void pruneTree(ClusNode node, int size) throws ClusException {
-		SizeConstraintPruning pruner = new SizeConstraintPruning(size, m_Manager.createClusAttributeWeights());
+		SizeConstraintPruning pruner = new SizeConstraintPruning(size, m_Manager.getClusteringWeights());
 		pruner.prune(node);
 		recursiveUpdate(m_Root);
 		doRender();

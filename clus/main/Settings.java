@@ -170,17 +170,6 @@ public class Settings implements Serializable {
 	// If not, it checks other rules in the beam
 	public final static int RULE_ADDING_METHOD_IF_BETTER_BEAM = 2;
 	
-	public final static String[] HIERMODES = { "TDWEuclid", "TDAbsWEuclid",
-		"XtAXSetDist", "XtAXSetDistDiscrete" };
-	
-	public final static int HIERMODE_TREE_DIST_WEUCLID = 0;
-	
-	public final static int HIERMODE_TREE_DIST_ABS_WEUCLID = 1;
-	
-	public final static int HIERMODE_XTAX_SET_DIST = 2;
-	
-	public final static int HIERMODE_XTAX_SET_DIST_DISCRETE = 3;
-	
 	// Hierarchical multi-classification now supports both trees and DAGS
 	// This was required because Gene Ontology terms are organized in a partial order
 	public final static String[] HIERTYPES = { "Tree", "DAG" };
@@ -508,7 +497,6 @@ public class Settings implements Serializable {
 	public static INIFileBool HIER_SAVE;
 	public static INIFileBool HIER_LOAD;
 	public static INIFileBool HIER_FLAT;
-	public INIFileNominal m_HierMode;
 	public static INIFileBool HIER_CONT_PROTOTYPE;	
 	public static INIFileBool HIER_USE_ABUNDANCES;	
 	public static INIFileBool HIER_NODE_ABUNDANCES;
@@ -685,7 +673,6 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierClassThreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold", NONELIST));		
 		m_HierClassThreshold.setNominal(0);
 		m_SectionHierarchical.addNode(m_HierEvalClasses = new INIFileString("EvalClasses", NONE));		
-		m_SectionHierarchical.addNode(m_HierMode = new INIFileNominal("Mode", HIERMODES, 0));		
 		m_SectionHierarchical.setEnabled(false);
 
 		m_SectionILevelC = new INIFileSection("ILevelC");
@@ -994,10 +981,6 @@ public class Settings implements Serializable {
 		return m_OptRegPar.getValue();
 	}
   
-	public int getHierMode() {
-		return m_HierMode.getValue();
-	}
-	
 	public int getHierType() {
 		return m_HierType.getValue();
 	}

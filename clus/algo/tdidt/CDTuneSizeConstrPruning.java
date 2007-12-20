@@ -317,7 +317,7 @@ public class CDTuneSizeConstrPruning extends ClusDecisionTree {
 			int size = tree.getModelSize();
 			if (m_OrigSize != -1 && size > m_OrigSize) size = m_OrigSize;
 			if (size > maxsize) maxsize = size;
-			SizeConstraintPruning pruner = new SizeConstraintPruning(size, mgr.createClusAttributeWeights());
+			SizeConstraintPruning pruner = new SizeConstraintPruning(size, mgr.getClusteringWeights());
 			pruner.pruneInitialize(tree, size);
 			pruners[i] = pruner;
 		}
@@ -416,7 +416,7 @@ public class CDTuneSizeConstrPruning extends ClusDecisionTree {
 			m_NbExamples = train.getNbRows();
 //			m_Distribution = DistributionFactory.newInstance().createTDistribution(getSettings().getTuneNbFolds()-1);
 			System.out.println("Has missing values: "+m_HasMissing);
-			m_TargetWeights = m_Class.getStatManager().createClusAttributeWeights();
+			m_TargetWeights = m_Class.getStatManager().getClusteringWeights();
 			// Find optimal F-test value
 			findBestSize(train);
 			System.out.println();

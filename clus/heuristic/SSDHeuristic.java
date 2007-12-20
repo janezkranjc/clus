@@ -33,13 +33,11 @@ public class SSDHeuristic extends ClusHeuristic {
 	protected String m_BasicDist;
 	protected ClusStatistic m_NegStat;
 	protected ClusAttributeWeights m_TargetWeights;
-	protected boolean m_CheckValid;
 
-	public SSDHeuristic(String basicdist, ClusStatistic negstat, ClusAttributeWeights targetweights, boolean checkvalid) {
+	public SSDHeuristic(String basicdist, ClusStatistic negstat, ClusAttributeWeights targetweights) {
 		m_BasicDist = basicdist;
 		m_NegStat = negstat;
 		m_TargetWeights = targetweights;
-		m_CheckValid = checkvalid;
 	}
 	
 	public void setData(RowData data) {

@@ -147,7 +147,7 @@ public class TestSelector {
 		for (int i = 0; i < nbstat; i++) {
 			m_TestStat[i] = smanager.createClusteringStat();
 		}
-		m_TargetWeights = smanager.createClusAttributeWeights();		
+		m_TargetWeights = smanager.getClusteringWeights();		
 		m_TotCorrStat = smanager.createClusteringStat();		
 		m_PosStat = m_TestStat[0];		
 	}	

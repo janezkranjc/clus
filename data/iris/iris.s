@@ -5,13 +5,8 @@ File = iris.arff
 [Output]
 WritePredictions = {Test}
 
-
-[Data]
-File = 
-TestSet = 
-
 [Attributes]
-Target = 
-Clustering = 
-Descriptive = 
+Target = 5
+Clustering = 1-4
+Descriptive = 1-4
 
