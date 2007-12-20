@@ -28,6 +28,7 @@ import java.util.*;
 import clus.main.*;
 import clus.util.*;
 import clus.selection.*;
+import clus.algo.ClusInductionAlgorithmType;
 import clus.error.ClusError;
 import clus.heuristic.*;
 
@@ -36,9 +37,9 @@ import clus.heuristic.*;
 
 public class CDTTuneFTest extends ClusDecisionTree {
 
-	protected ClusClassifier m_Class;
+	protected ClusInductionAlgorithmType m_Class;
 
-	public CDTTuneFTest(ClusClassifier clss) {
+	public CDTTuneFTest(ClusInductionAlgorithmType clss) {
 		super(clss.getClus());
 		m_Class = clss;
 	}

@@ -20,7 +20,7 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.induce;
+package clus.algo;
 
 import clus.main.*;
 import clus.data.rows.*;
@@ -41,17 +41,17 @@ import java.io.*;
  *
  **/
 
-public abstract class ClusInduce {
+public abstract class ClusInductionAlgorithm {
 
 	protected ClusSchema m_Schema;
 	protected ClusStatManager m_StatManager;	
 	
-	public ClusInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
+	public ClusInductionAlgorithm(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		m_Schema = schema;
 		m_StatManager = new ClusStatManager(schema, sett);
 	}
 	
-	public ClusInduce(ClusInduce other) {
+	public ClusInductionAlgorithm(ClusInductionAlgorithm other) {
 		m_Schema = other.m_Schema;
 		m_StatManager = other.m_StatManager;		
 	}

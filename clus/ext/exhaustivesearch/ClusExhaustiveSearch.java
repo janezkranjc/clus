@@ -37,7 +37,10 @@ import jeans.io.*;
 import clus.model.test.*;
 import clus.model.modelio.*;
 import clus.Clus;
+import clus.algo.ClusInductionAlgorithm;
+import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.induce.*;
+import clus.algo.tdidt.ConstraintDFInduce;
 import clus.ext.constraint.ClusConstraintFile;
 import clus.ext.beamsearch.*;
 import clus.main.*;
@@ -47,7 +50,7 @@ import clus.data.type.*;
 import clus.statistic.ClusStatistic;
 import clus.util.ClusException;
 
-public class ClusExhaustiveSearch extends ClusClassifier {
+public class ClusExhaustiveSearch extends ClusInductionAlgorithmType {
 
 	public final static int HEURISTIC_ERROR = 0;
 	public final static int HEURISTIC_SS = 1;
@@ -80,7 +83,7 @@ public class ClusExhaustiveSearch extends ClusClassifier {
 		m_BeamStats = new ArrayList();
 	}
 	
-	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		schema.addIndices(ClusSchema.ROWS);
 		m_BeamInduce = new ClusExhaustiveInduce(schema, sett, this);
 		m_BeamInduce.getStatManager().setBeamSearch(true);

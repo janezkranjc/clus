@@ -20,10 +20,11 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.induce;
+package clus.algo.tdidt;
 
 import clus.main.*;
 import clus.util.*;
+import clus.algo.ClusInductionAlgorithm;
 import clus.algo.rules.*;
 import clus.data.rows.*;
 import clus.data.type.*;
@@ -35,7 +36,7 @@ import clus.ext.ensembles.ClusForest;
 import java.io.*;
 import java.util.*;
 
-public class DepthFirstInduce extends ClusInduce {
+public class DepthFirstInduce extends ClusInductionAlgorithm {
 	
 	protected NominalSplit m_Split;
 	protected TestSelector m_Selector = new TestSelector();
@@ -45,11 +46,11 @@ public class DepthFirstInduce extends ClusInduce {
 		super(schema, sett);
 	}	
 	
-	public DepthFirstInduce(ClusInduce other) {
+	public DepthFirstInduce(ClusInductionAlgorithm other) {
 		super(other);
 	}
 	
-	public DepthFirstInduce(ClusInduce other, NominalSplit split) {
+	public DepthFirstInduce(ClusInductionAlgorithm other, NominalSplit split) {
 		super(other);
 		m_Split = split;
 		m_MaxStats = getSchema().getMaxNbStats();

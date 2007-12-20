@@ -349,6 +349,8 @@ public class ClusSchema implements Serializable {
 		setStatus(m_Key, ClusAttrType.STATUS_KEY, true);
 		setDescriptiveAll(false);
 		setDescriptive(m_Descriptive, true);
+		setClusteringAll(false);
+		setClustering(m_Clustering, true);
 	}
 	
 	public final void checkRange(IntervalCollection coll, String type) throws ClusException {
@@ -386,8 +388,23 @@ public class ClusSchema implements Serializable {
 			ClusAttrType at = getAttrType(i);
 			at.setDescriptive(descr);
 		}			
-	}	
+	}
 	
+	public final void setClustering(IntervalCollection coll, boolean clust) {
+		coll.reset();
+		while (coll.hasMoreInts()) {
+			ClusAttrType at = getAttrType(coll.nextInt()-1);
+			at.setClustering(clust);
+		}
+	}
+	
+	public final void setClusteringAll(boolean clust) {
+		for (int i = 0; i < getNbAttributes(); i++) {
+			ClusAttrType at = getAttrType(i);
+			at.setClustering(clust);
+		}			
+	}	
+		
 	public final void addIndices(int type) throws ClusException {
 		if (type == COLS) {
 // FIXME: COLS mode currently disabled :-(		
@@ -586,7 +603,7 @@ public class ClusSchema implements Serializable {
 						}
 						break;						
 					case ClusAttrType.ATTR_USE_CLUSTERING:
-						if (type.getStatus() == ClusAttrType.STATUS_TARGET || type.getStatus() == ClusAttrType.STATUS_CLUSTER_NO_TARGET) {
+						if (type.isClustering()) {
 							result.add(type);
 						}						
 						break;						

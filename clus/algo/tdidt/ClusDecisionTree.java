@@ -27,6 +27,8 @@ import java.io.IOException;
 import clus.main.*;
 import clus.pruning.*;
 import clus.util.*;
+import clus.algo.ClusInductionAlgorithm;
+import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.induce.*;
 import clus.algo.rules.*;
 import clus.data.rows.*;
@@ -36,7 +38,7 @@ import clus.*;
 
 import jeans.util.cmdline.*;
 
-public class ClusDecisionTree extends ClusClassifier {
+public class ClusDecisionTree extends ClusInductionAlgorithmType {
 
 	public ClusDecisionTree(Clus clus) {
 		super(clus);
@@ -47,7 +49,7 @@ public class ClusDecisionTree extends ClusClassifier {
 		System.out.println("Heuristic: "+getStatManager().getHeuristicName());
 	}
 	
-	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		if (sett.hasConstraintFile()) {
 			boolean fillin = cargs.hasOption("fillin");
 			return new ConstraintDFInduce(schema, sett, fillin);

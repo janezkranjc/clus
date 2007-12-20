@@ -20,18 +20,22 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.main;
+package clus.algo;
 
 import java.io.IOException;
 
 import jeans.resource.ResourceInfo;
 import jeans.util.cmdline.*;
 import clus.*;
+import clus.main.ClusModel;
+import clus.main.ClusRun;
+import clus.main.ClusStatManager;
+import clus.main.Settings;
 import clus.util.*;
 import clus.algo.induce.*;
 import clus.data.type.*;
 
-public abstract class ClusClassifier {
+public abstract class ClusInductionAlgorithmType {
 
 	public final static int REGULAR_TREE = 0; 
 	
@@ -39,7 +43,7 @@ public abstract class ClusClassifier {
 	
 	protected Clus m_Clus;
 	
-	public ClusClassifier(Clus clus) {
+	public ClusInductionAlgorithmType(Clus clus) {
 		m_Clus = clus;
 	}
 	
@@ -47,7 +51,7 @@ public abstract class ClusClassifier {
 		return m_Clus;
 	}
 	
-	public ClusInduce getInduce() {
+	public ClusInductionAlgorithm getInduce() {
 		return getClus().getInduce();
 	}	
 	
@@ -59,7 +63,7 @@ public abstract class ClusClassifier {
 		return getClus().getSettings();
 	}
 	
-	public abstract ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException;
+	public abstract ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException;
 	
 	public void printInfo() {
 		System.out.println("Classifier: "+getClass().getName());

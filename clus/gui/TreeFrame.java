@@ -38,6 +38,7 @@ import jeans.graph.*;
 import clus.main.*;
 import clus.util.*;
 import clus.model.modelio.*;
+import clus.algo.ClusInductionAlgorithmType;
 import clus.data.attweights.*;
 import clus.data.type.*;
 
@@ -346,7 +347,7 @@ public class TreeFrame extends JFrame {
 			ClusModelInfo m = (ClusModelInfo)io.getModelInfo(i);
 			ClusFileTreeElem celem = new ClusFileTreeElem(m.getName(), "");
 			celem.setObject1(m);
-			celem.setType(ClusClassifier.REGULAR_TREE);
+			celem.setType(ClusInductionAlgorithmType.REGULAR_TREE);
 			DefaultMutableTreeNode ch = new DefaultMutableTreeNode(celem); 
 			m_TreeModel.insertNodeInto(ch, node, pos++);			
 		}	

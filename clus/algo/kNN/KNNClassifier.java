@@ -29,7 +29,8 @@ import jeans.util.cmdline.CMDLineArgs;
 import clus.main.*;
 import clus.util.ClusException;
 import clus.*;
-import clus.algo.induce.ClusInduce;
+import clus.algo.ClusInductionAlgorithm;
+import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.tdidt.*;
 import clus.data.rows.*;
 import clus.data.type.*;
@@ -41,7 +42,7 @@ import clus.error.multiscore.*;*/
 /**
  * This class represents a Nearest Neighbour classifier for the Clus program.
  */
-public class KNNClassifier extends ClusClassifier {
+public class KNNClassifier extends ClusInductionAlgorithmType {
 
 	public KNNClassifier(Clus clus) {
 		super(clus);
@@ -212,7 +213,7 @@ public class KNNClassifier extends ClusClassifier {
 		return model;
 	}
 	
-	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		return null;
 	}
 	

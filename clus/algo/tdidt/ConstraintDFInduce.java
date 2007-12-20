@@ -23,10 +23,11 @@
 /*
  * Created on May 1, 2005
  */
-package clus.algo.induce;
+package clus.algo.tdidt;
 
 import java.io.*;
 
+import clus.algo.ClusInductionAlgorithm;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.error.multiscore.MultiScore;
@@ -47,7 +48,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		m_ConstrFile = sett.getConstraintFile();
 	}
 	
-	public ConstraintDFInduce(ClusInduce other) {
+	public ConstraintDFInduce(ClusInductionAlgorithm other) {
 		super(other, null);
 	}
 	

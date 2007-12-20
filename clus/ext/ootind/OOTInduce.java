@@ -34,13 +34,15 @@ import clus.util.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.model.test.*;
+import clus.algo.ClusInductionAlgorithm;
 import clus.algo.induce.*;
+import clus.algo.tdidt.DepthFirstInduce;
 import clus.statistic.*;
 import clus.heuristic.*;
 import clus.nominal.split.*;
 import clus.error.multiscore.*;
 
-public abstract class OOTInduce extends ClusInduce {
+public abstract class OOTInduce extends ClusInductionAlgorithm {
 
 	protected ClusHeuristic m_Heuristic;
 	protected DepthFirstInduce m_DFirst;

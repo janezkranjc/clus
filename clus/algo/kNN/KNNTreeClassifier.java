@@ -24,7 +24,8 @@ package clus.algo.kNN;
 
 import clus.main.*;
 import clus.*;
-import clus.algo.induce.ClusInduce;
+import clus.algo.ClusInductionAlgorithm;
+import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.tdidt.*;
 
 import clus.data.type.*;
@@ -45,7 +46,7 @@ import java.io.IOException;
  * This class represents a classifier for the Clus program that
  * combines kNN and Decision Trees
  */
-public class KNNTreeClassifier extends ClusClassifier {
+public class KNNTreeClassifier extends ClusInductionAlgorithmType {
 
 	public KNNTreeClassifier(Clus clus) {
 		super(clus);
@@ -255,7 +256,7 @@ public class KNNTreeClassifier extends ClusClassifier {
 		return model;
 	}
 	
-	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		return null;
 	}	
 }

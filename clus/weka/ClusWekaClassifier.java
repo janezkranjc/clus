@@ -30,6 +30,8 @@ import java.io.IOException;
 import jeans.util.cmdline.*;
 
 import clus.*;
+import clus.algo.ClusInductionAlgorithm;
+import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.induce.*;
 import clus.main.*;
 import clus.util.*;
@@ -40,7 +42,7 @@ import clus.statistic.*;
 import weka.classifiers.*;
 import weka.core.*;
 
-public class ClusWekaClassifier extends ClusClassifier {
+public class ClusWekaClassifier extends ClusInductionAlgorithmType {
 
 	protected String m_Options;
 	protected Classifier m_Classifier;
@@ -61,7 +63,7 @@ public class ClusWekaClassifier extends ClusClassifier {
 		}
 	}
 
-	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		return new ClusWekaInduce(schema, sett);
 	}	
 	
@@ -69,7 +71,7 @@ public class ClusWekaClassifier extends ClusClassifier {
 		System.out.println("Weka Classifier: "+m_Options);
 	}
 	
-	public void initializeInduce(ClusInduce induce, CMDLineArgs cargs) {
+	public void initializeInduce(ClusInductionAlgorithm induce, CMDLineArgs cargs) {
 		m_Data = new ClusToWekaData(induce.getSchema());
 		m_Manager = induce.getStatManager();
 	}
@@ -103,7 +105,7 @@ public class ClusWekaClassifier extends ClusClassifier {
 		return model;
 	}
 	
-	public class ClusWekaInduce extends ClusInduce {
+	public class ClusWekaInduce extends ClusInductionAlgorithm {
 		
 		public ClusWekaInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 			super(schema, sett);

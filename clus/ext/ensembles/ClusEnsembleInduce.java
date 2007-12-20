@@ -25,14 +25,16 @@ package clus.ext.ensembles;
 import java.io.IOException;
 
 import clus.Clus;
+import clus.algo.ClusInductionAlgorithm;
 import clus.algo.induce.*;
 import clus.algo.tdidt.ClusDecisionTree;
+import clus.algo.tdidt.DepthFirstInduce;
 import clus.main.*;
 import clus.data.type.*;
 import clus.selection.BaggingSelection;
 import clus.util.ClusException;
 
-public class ClusEnsembleInduce extends ClusInduce {
+public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	Clus m_BagClus;
 	ClusForest m_OForest;//Forest with the original models
 	ClusForest m_DForest;//Forest with stumps (default models)

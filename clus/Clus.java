@@ -25,6 +25,8 @@ package clus;
 import clus.tools.debug.Debug;
 
 import clus.gui.*;
+import clus.algo.ClusInductionAlgorithm;
+import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.tdidt.*;
 
 import jeans.io.*;
@@ -80,18 +82,18 @@ public class Clus implements CMDLineArgsProvider {
 	protected ClusSummary m_Summary = new ClusSummary();
 	protected ClusSchema m_Schema;
 	protected MultiScore m_Score;
-	protected ClusClassifier m_Classifier;
-	protected ClusInduce m_Induce;
+	protected ClusInductionAlgorithmType m_Classifier;
+	protected ClusInductionAlgorithm m_Induce;
 	protected RowData m_Data;
 	protected Date m_StartDate = new Date();
 	protected boolean isxval = false;
 
-	public final void initialize(CMDLineArgs cargs, ClusClassifier clss) throws IOException, ClusException {
+	public final void initialize(CMDLineArgs cargs, ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		m_Classifier = clss;
 		// Load resource info (this measures among others CPU time on Linux)
 		boolean test = m_Sett.getResourceInfoLoaded() == Settings.RESOURCE_INFO_LOAD_TEST;
 		ResourceInfo.loadLibrary(test);
-		ClusStat.m_InitialMemory = ResourceInfo.getMemorySize();
+		ClusStat.m_InitialMemory = ResourceInfo.getMemory();
 		// Load settings file
 		ARFFFile arff = null;
 		System.out.println("Loading '" + m_Sett.getAppName() + "'");
@@ -166,7 +168,7 @@ public class Clus implements CMDLineArgsProvider {
 	 * Method for recreating ClusInduce and most other instance variables
 	 * Useful for running Clus on different data sets with a similar schema 
 	 */
-	public void recreateInduce(CMDLineArgs cargs, ClusClassifier clss, ClusSchema schema, RowData data) throws ClusException, IOException {
+	public void recreateInduce(CMDLineArgs cargs, ClusInductionAlgorithmType clss, ClusSchema schema, RowData data) throws ClusException, IOException {
 		m_Summary = new ClusSummary();
 		m_Schema = schema;
 		m_Induce = clss.createInduce(schema, m_Sett, cargs);		
@@ -204,7 +206,7 @@ public class Clus implements CMDLineArgsProvider {
 		m_Sett.initialize(cargs, true);
 	}
 
-	public final void initializeSummary(ClusClassifier clss) {
+	public final void initializeSummary(ClusInductionAlgorithmType clss) {
 		ClusStatManager mgr = m_Induce.getStatManager();
 		ClusErrorParent error = mgr.createErrorMeasure(m_Score);
 		m_Summary.resetAll();
@@ -279,7 +281,7 @@ public class Clus implements CMDLineArgsProvider {
 		System.out.println();
 	}
 
-	public final void induce(ClusRun cr, ClusClassifier clss) throws ClusException, IOException {
+	public final void induce(ClusRun cr, ClusInductionAlgorithmType clss) throws ClusException, IOException {
 		if (Settings.VERBOSE > 0) {
 			System.out.println("Run: " + cr.getIndexString());
 			clss.printInfo();
@@ -337,11 +339,11 @@ public class Clus implements CMDLineArgsProvider {
 		return m_Score;
 	}
 
-	public final ClusInduce getInduce() {
+	public final ClusInductionAlgorithm getInduce() {
 		return m_Induce;
 	}
 	
-	public final ClusClassifier getClassifier() {
+	public final ClusInductionAlgorithmType getClassifier() {
 		return m_Classifier;
 	}
 
@@ -789,7 +791,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
-	public final void singleRun(ClusClassifier clss) throws IOException, ClusException {
+	public final void singleRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
 		m_Summary.setTotalRuns(1);
 		ClusRun run = singleRunMain(clss, null);
@@ -797,7 +799,7 @@ public class Clus implements CMDLineArgsProvider {
 		io.save(getSettings().getFileAbsolute(m_Sett.getAppName() + ".model"));
 	}
 
-	public final ClusRun singleRunMain(ClusClassifier clss, ClusSummary summ)	throws IOException, ClusException {
+	public final ClusRun singleRunMain(ClusInductionAlgorithmType clss, ClusSummary summ)	throws IOException, ClusException {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".out", m_Schema, m_Sett);
 		ClusRun cr = partitionData();
 		// Compute statistic on training data
@@ -835,7 +837,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 	
-	public final void combineAllFoldRuns(ClusClassifier clss) throws IOException, ClusException {
+	public final void combineAllFoldRuns(ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".xval", m_Schema, m_Sett);
 		output.writeHeader();
 		XValMainSelection sel = getXValSelection();
@@ -877,7 +879,7 @@ public class Clus implements CMDLineArgsProvider {
 		singleRunMain(clss, m_Summary);
 	}
 	
-	public final void oneFoldRun(ClusClassifier clss, int fold) throws IOException, ClusException {
+	public final void oneFoldRun(ClusInductionAlgorithmType clss, int fold) throws IOException, ClusException {
 		if (fold == 0) {
 			combineAllFoldRuns(clss);
 		} else {			
@@ -905,7 +907,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
-	public final ClusRun doOneFold(int fold, ClusClassifier clss, XValMainSelection sel, ClusModelCollectionIO io, PredictionWriter wrt, ClusOutput output) throws IOException, ClusException {
+	public final ClusRun doOneFold(int fold, ClusInductionAlgorithmType clss, XValMainSelection sel, ClusModelCollectionIO io, PredictionWriter wrt, ClusOutput output) throws IOException, ClusException {
 		wrt.println("! Fold = " + fold);
 		XValSelection msel = new XValSelection(sel, fold);
 		ClusRun cr = partitionData(msel, fold + 1);
@@ -936,7 +938,7 @@ public class Clus implements CMDLineArgsProvider {
 		return cr;
 	}
 
-	public final void xvalRun(ClusClassifier clss) throws IOException, ClusException {
+	public final void xvalRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".xval", m_Schema, m_Sett);
 		output.writeHeader();
 		ClusStatistic target = getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
@@ -958,7 +960,7 @@ public class Clus implements CMDLineArgsProvider {
 		io.save(getSettings().getFileAbsolute(m_Sett.getAppName() + ".model"));
 	}
 
-	public final void baggingRun(ClusClassifier clss) throws IOException, ClusException {
+	public final void baggingRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".bag", m_Schema, m_Sett);
 		output.writeHeader();
 		ClusStatistic target = getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
@@ -984,7 +986,7 @@ public class Clus implements CMDLineArgsProvider {
 	 * called :in our case it is a ClusDecisionTree
 	 * 
 	 * Modify to have more than one model as an output !*/
-	public final void exhaustiveRun(ClusClassifier clss) throws IOException, ClusException {
+	public final void exhaustiveRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".all", m_Schema, m_Sett);
 		output.writeHeader();
 		ClusRun cr = partitionData();
@@ -1135,7 +1137,7 @@ public class Clus implements CMDLineArgsProvider {
 				sett.setDate(new Date());
 				sett.setAppName(cargs.getMainArg(0));
 				clus.initSettings(cargs);
-				ClusClassifier clss = null;
+				ClusInductionAlgorithmType clss = null;
 				if (cargs.hasOption("knn")) {
 					clus.getSettings().setSectionKNNEnabled(true);
 					clss = new KNNClassifier(clus);

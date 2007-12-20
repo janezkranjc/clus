@@ -30,18 +30,21 @@ import java.io.*;
 import jeans.util.cmdline.CMDLineArgs;
 import clus.*;
 import clus.data.type.*;
+import clus.algo.ClusInductionAlgorithm;
+import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.tdidt.ClusDecisionTree;
+import clus.algo.tdidt.DepthFirstInduce;
 import clus.main.*;
 import clus.util.ClusException;
 import clus.algo.induce.*;
 
-public class ClusRuleClassifier extends ClusClassifier {
+public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 	
 	public ClusRuleClassifier(Clus clus) {
 		super(clus);
 	}
 	
-	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		DepthFirstInduce induce = new DepthFirstInduce(schema, sett);
 		induce.getStatManager().setRuleInduce(true);
 		induce.getStatManager().initRuleSettings();

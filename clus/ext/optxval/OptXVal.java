@@ -36,6 +36,7 @@ import clus.main.*;
 import clus.util.*;
 import clus.data.rows.*;
 import clus.data.type.*;
+import clus.algo.ClusInductionAlgorithm;
 import clus.algo.induce.*;
 import clus.selection.*;
 import clus.error.multiscore.*;
@@ -48,7 +49,7 @@ public class OptXVal {
 		m_Clus = clus;
 	}
 
-	public ClusInduce createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		schema.addIndices(ClusSchema.ROWS);
 		int nb_num = schema.getNbNumericDescriptiveAttributes();
 		if (Settings.XVAL_OVERLAP && nb_num > 0) return new OptXValIndOV(schema, sett);

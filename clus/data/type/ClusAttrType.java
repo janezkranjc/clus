@@ -67,6 +67,7 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 	protected ClusSchema m_Schema;
 	protected int m_Status = STATUS_NORMAL;
 	protected boolean m_IsDescriptive;
+	protected boolean m_IsClustering;
 
 	public ClusAttrType(String name) {
 		m_Name = name;
@@ -160,12 +161,16 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 		return m_Status == ClusAttrType.STATUS_DISABLED;
 	}
 	
-	public boolean isClustering() {
-		return m_Status == ClusAttrType.STATUS_TARGET || m_Status == ClusAttrType.STATUS_CLUSTER_NO_TARGET;
-	}
-	
 	public boolean isKey() {
 		return m_Status == ClusAttrType.STATUS_KEY;
+	}
+	
+	public boolean isClustering() {
+		return m_IsClustering;
+	}
+
+	public void setClustering(boolean clust) {
+		m_IsClustering = clust;
 	}
 	
 	public void setDescriptive(boolean descr) {
@@ -182,11 +187,7 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 
 	public void setReader(boolean start_stop) {
 	}
-/*
-	public boolean addToData(ColData data) {
-		return getStatus() != STATUS_NORMAL;
-	}
-*/
+
 	public ClusAttrType getType() {
 		return this;
 	}

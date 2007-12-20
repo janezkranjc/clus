@@ -36,6 +36,7 @@ import clus.selection.*;
 import clus.statistic.*;
 import clus.util.*;
 import clus.pruning.*;
+import clus.algo.ClusInductionAlgorithmType;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 import clus.data.type.*;
@@ -49,7 +50,7 @@ import org.apache.commons.math.*;
 
 public class CDTuneSizeConstrPruning extends ClusDecisionTree {
 
-	protected ClusClassifier m_Class;
+	protected ClusInductionAlgorithmType m_Class;
 	protected ClusSchema m_Schema;
 	protected ClusStatistic m_TotalStat;
 	protected boolean m_HasMissing;
@@ -63,7 +64,7 @@ public class CDTuneSizeConstrPruning extends ClusDecisionTree {
 	protected boolean m_Relative;
 	protected double m_RelativeScale;
 	
-	public CDTuneSizeConstrPruning(ClusClassifier clss) {
+	public CDTuneSizeConstrPruning(ClusInductionAlgorithmType clss) {
 		super(clss.getClus());
 		m_Class = clss;
 	}

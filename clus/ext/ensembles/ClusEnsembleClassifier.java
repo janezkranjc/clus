@@ -28,18 +28,20 @@ import jeans.util.cmdline.CMDLineArgs;
 
 import clus.main.*;
 import clus.Clus;
+import clus.algo.ClusInductionAlgorithm;
+import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.induce.*;
 import clus.data.type.*;
 import clus.util.ClusException;
 
-public class ClusEnsembleClassifier extends ClusClassifier {
+public class ClusEnsembleClassifier extends ClusInductionAlgorithmType {
 
 	public ClusEnsembleClassifier(Clus clus) {
 		super(clus);
 		// TODO Auto-generated constructor stub
 	}
 
-	public ClusInduce createInduce(ClusSchema schema, Settings sett,
+	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett,
 			CMDLineArgs cargs) throws ClusException, IOException {
 		// TODO Auto-generated method stub
 		return new ClusEnsembleInduce(schema,sett,m_Clus);

@@ -22,6 +22,7 @@
 
 package clus.ext.exhaustivesearch;
 
+import clus.algo.ClusInductionAlgorithm;
 import clus.algo.induce.*;
 import clus.main.*;
 import clus.util.*;
@@ -34,7 +35,7 @@ import java.io.*;
 import clus.algo.tdidt.*;
 import java.util.ArrayList;
 
-public class ClusExhaustiveInduce extends ClusInduce {
+public class ClusExhaustiveInduce extends ClusInductionAlgorithm {
 
 		protected NominalSplit m_Split;
 		protected ClusExhaustiveSearch m_Search;

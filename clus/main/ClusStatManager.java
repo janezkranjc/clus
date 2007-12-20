@@ -529,8 +529,7 @@ public class ClusStatManager implements Serializable {
 				m_Heuristic = new ClusRuleHeuristicError(this, getClusteringWeights());
 				break;
 			case Settings.HEURISTIC_MESTIMATE:
-				throw new ClusException(
-						"MEstimate heuristic: regression and/or classification with multiple clustering attributes not supported!");
+				throw new ClusException("MEstimate heuristic: regression and/or classification with multiple clustering attributes not supported!");
 			case Settings.HEURISTIC_DISPERSION_ADT:
 				m_Heuristic = new ClusRuleHeuristicDispersionAdt(this, getClusteringWeights());
 				break;

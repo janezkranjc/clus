@@ -26,6 +26,7 @@ import java.io.*;
 import java.util.*;
 
 import clus.algo.induce.*;
+import clus.algo.tdidt.DepthFirstInduce;
 import clus.data.attweights.*;
 import clus.data.rows.*;
 import clus.data.type.*;

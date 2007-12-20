@@ -28,7 +28,9 @@ import java.io.*;
 import java.util.*;
 import java.text.DecimalFormat;
 
+import clus.algo.ClusInductionAlgorithm;
 import clus.algo.induce.*;
+import clus.algo.tdidt.DepthFirstInduce;
 import clus.main.*;
 import clus.model.test.*;
 import clus.heuristic.*;
@@ -40,7 +42,7 @@ import clus.ext.beamsearch.*;
 import clus.util.*;
 import clus.tools.optimization.de.*;
 
-public class ClusRuleInduce extends ClusInduce {
+public class ClusRuleInduce extends ClusInductionAlgorithm {
 	
 	protected boolean m_BeamChanged;
 	protected DepthFirstInduce m_Induce;
