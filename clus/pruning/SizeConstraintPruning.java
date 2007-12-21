@@ -22,9 +22,8 @@
 
 package clus.pruning;
 
-import clus.main.*;
-import clus.model.test.NodeTest;
-import clus.algo.tdidt.ClusNode;
+import clus.model.test.*;
+import clus.algo.tdidt.*;
 import clus.data.attweights.*;
 import clus.data.rows.*;
 import clus.error.*;

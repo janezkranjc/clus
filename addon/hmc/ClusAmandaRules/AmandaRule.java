@@ -31,6 +31,8 @@ import clus.main.*;
 import clus.model.test.*;
 
 public class AmandaRule extends ClusRule {
+	
+  public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
 
   public AmandaRule(ClusStatManager statManager) {
     super(statManager);

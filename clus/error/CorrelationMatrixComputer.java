@@ -27,8 +27,6 @@ package clus.error;
 
 import clus.data.rows.*;
 import clus.data.type.*;
-import clus.data.type.ClusAttrType;
-import clus.main.*;
 import clus.util.*;
 
 public class CorrelationMatrixComputer {

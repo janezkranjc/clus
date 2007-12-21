@@ -22,13 +22,11 @@
 
 package clus.main;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 
-import clus.error.ClusErrorParent;
-import clus.util.ClusException;
+import clus.error.*;
+import clus.util.*;
 import clus.data.type.*;
 
 public abstract class CRParent implements Serializable {

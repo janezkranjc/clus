@@ -22,10 +22,9 @@
 
 package clus.pruning;
 
-import clus.algo.tdidt.ClusNode;
+import clus.algo.tdidt.*;
 import clus.data.attweights.*;
-import clus.main.*;
-import clus.util.ClusException;
+import clus.util.*;
 
 public class CartPruning extends PruneTree {
 

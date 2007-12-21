@@ -30,9 +30,8 @@ import java.util.*;
 
 import jeans.util.*;
 
-import clus.algo.tdidt.ClusNode;
+import clus.algo.tdidt.*;
 import clus.data.type.*;
-import clus.main.*;
 import clus.model.test.*;
 
 public class ClusTreeReader {

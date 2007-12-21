@@ -22,11 +22,9 @@
 
 package clus.ext.exhaustivesearch;
 
-import clus.main.*;
 import java.util.*;
 import java.io.*;
-
-import clus.algo.tdidt.ClusNode;
+import clus.algo.tdidt.*;
 import clus.ext.beamsearch.*;
 
 public class ClusExhaustive {

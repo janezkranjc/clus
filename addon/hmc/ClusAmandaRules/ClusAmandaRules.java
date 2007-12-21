@@ -33,7 +33,6 @@ import jeans.util.cmdline.*;
 import jeans.util.*;
 import clus.algo.*;
 import clus.algo.rules.*;
-import clus.ext.*;
 import clus.main.*;
 import clus.util.*;
 import clus.statistic.*;

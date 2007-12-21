@@ -24,10 +24,8 @@ package clus.data.rows;
 
 import java.io.*;
 
-import clus.io.*;
 import clus.main.*;
-import clus.data.io.ARFFFile;
-import clus.data.io.ClusReader;
+import clus.data.io.*;
 import clus.data.type.*;
 import clus.util.*;
 

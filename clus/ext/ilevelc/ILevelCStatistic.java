@@ -22,14 +22,15 @@
 
 package clus.ext.ilevelc;
 
-import java.util.*;
 
-import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.*;
 import clus.data.type.NumericAttrType;
+import clus.main.Settings;
 import clus.statistic.*;
 
 public class ILevelCStatistic extends RegressionStat {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
 	protected NumericAttrType[] m_Numeric;
 	protected int m_ClusterID = -1;

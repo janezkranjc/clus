@@ -38,7 +38,6 @@ import java.io.*;
 import java.text.NumberFormat;
 import java.util.*;
 
-import clus.io.*;
 import clus.main.*;
 import clus.util.*;
 import clus.data.ClusData;

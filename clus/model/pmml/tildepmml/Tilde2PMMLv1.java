@@ -26,8 +26,7 @@ import java.util.*;
 
 import java.io.*;
 
-import clus.algo.tdidt.ClusNode;
-import clus.main.*;
+import clus.algo.tdidt.*;
 import clus.statistic.*;
 
 import jeans.util.*;

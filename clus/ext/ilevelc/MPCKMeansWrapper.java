@@ -26,12 +26,11 @@ import java.io.*;
 import java.util.*;
 
 import jeans.util.*;
-import clus.data.io.ARFFFile;
+import clus.data.io.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.main.*;
 import clus.util.ClusException;
-import clus.io.*;
 
 public class MPCKMeansWrapper {
 

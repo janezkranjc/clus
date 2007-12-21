@@ -27,7 +27,6 @@ import java.io.*;
 import clus.io.*;
 import clus.util.*;
 import clus.data.rows.*;
-import clus.data.type.*;
 import clus.data.cols.*;
 import clus.data.cols.attribute.*;
 import clus.data.io.ClusReader;

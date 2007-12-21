@@ -22,10 +22,7 @@
 
 package clus.error;
 
-import clus.data.rows.DataTuple;
-import clus.data.type.NumericAttrType;
 import clus.data.type.TimeSeriesAttrType;
-import clus.statistic.ClusStatistic;
 
 public abstract class ClusTimeSeriesError extends ClusError {
 

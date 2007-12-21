@@ -25,7 +25,6 @@ package clus.data.cols.attribute;
 import java.io.*;
 import jeans.util.*;
 
-import clus.io.*;
 import clus.main.*;
 import clus.data.cols.*;
 import clus.data.io.ClusReader;

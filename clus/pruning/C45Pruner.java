@@ -25,10 +25,9 @@ package clus.pruning;
 import org.apache.commons.math.*;
 import org.apache.commons.math.distribution.*;
 
-import clus.algo.tdidt.ClusNode;
-import clus.data.rows.RowData;
-import clus.main.*;
-import clus.model.test.NodeTest;
+import clus.algo.tdidt.*;
+import clus.data.rows.*;
+import clus.model.test.*;
 import clus.util.*;
 import clus.statistic.*;
 

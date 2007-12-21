@@ -30,6 +30,8 @@ import clus.data.type.*;
 import clus.main.*;
 
 public class COPKMeansCluster implements Serializable {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int m_Index;
 	protected ClusStatManager m_Mgr;

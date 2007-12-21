@@ -24,9 +24,8 @@ package clus.data.cols.attribute;
 
 import java.io.*;
 
-import clus.io.*;
 import clus.data.cols.*;
-import clus.data.io.ClusReader;
+import clus.data.io.*;
 import clus.data.type.*;
 
 public class NumericTarget extends NumericAttrBase {

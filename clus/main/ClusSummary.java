@@ -26,6 +26,8 @@ import clus.error.*;
 import clus.util.ClusException;
 
 public class ClusSummary extends CRParent {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int m_Runs;
 	protected int m_TotalRuns = 1;

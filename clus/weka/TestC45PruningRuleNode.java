@@ -22,14 +22,16 @@
 
 package clus.weka;
 
-import clus.algo.tdidt.ClusNode;
+import clus.algo.tdidt.*;
 import clus.data.rows.*;
-import clus.main.*;
+import clus.main.Settings;
 import clus.model.test.*;
 import weka.core.*;
 import weka.classifiers.trees.j48.*;
 
 public class TestC45PruningRuleNode extends C45PruneableClassifierTree {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public TestC45PruningRuleNode(Instances all) throws Exception {
 		 super(new BinC45ModelSelection(2, all), true, 0.25f, false, true);		
@@ -97,6 +99,8 @@ public class TestC45PruningRuleNode extends C45PruneableClassifierTree {
 	}
 	
 	public static class MyBinC45Split extends BinC45Split {
+		
+			public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
 			public MyBinC45Split(int attIndex,int minNoObj,double sumOfWeights) {
 				super(attIndex, minNoObj, sumOfWeights);

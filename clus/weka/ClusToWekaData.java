@@ -31,7 +31,6 @@ import weka.core.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.data.attweights.*;
-import clus.main.*;
 
 public class ClusToWekaData {
 

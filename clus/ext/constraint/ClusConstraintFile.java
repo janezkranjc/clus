@@ -28,8 +28,7 @@ package clus.ext.constraint;
 import java.io.*;
 import java.util.*;
 
-import clus.main.*;
-import clus.algo.tdidt.ClusNode;
+import clus.algo.tdidt.*;
 import clus.data.type.*;
 import clus.model.modelio.*;
 

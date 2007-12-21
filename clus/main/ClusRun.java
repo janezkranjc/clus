@@ -31,6 +31,8 @@ import clus.data.rows.*;
 import clus.util.*;
 
 public class ClusRun extends CRParent {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int m_Index;
 	protected boolean m_FileTestSet;

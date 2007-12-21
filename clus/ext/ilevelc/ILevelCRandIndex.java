@@ -28,10 +28,12 @@ import java.util.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.error.*;
-import clus.main.*;
+import clus.main.Settings;
 import clus.statistic.*;
 
 public class ILevelCRandIndex extends ClusError {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double m_RandIndex;
 	protected boolean m_Invalid;

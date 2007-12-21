@@ -26,8 +26,7 @@ import jeans.graph.swing.drawable.*;
 import jeans.graph.tree.*;
 import java.awt.*;
 
-import clus.algo.tdidt.ClusNode;
-import clus.main.*;
+import clus.algo.tdidt.*;
 import clus.model.test.*;
 
 public class ClusDummyPainter extends MyNodePainter {

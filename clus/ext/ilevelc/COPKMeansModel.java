@@ -24,13 +24,14 @@ package clus.ext.ilevelc;
 
 import java.io.PrintWriter;
 
-import clus.algo.tdidt.ClusNode;
-import clus.data.rows.DataTuple;
+import clus.algo.tdidt.*;
+import clus.data.rows.*;
 import clus.main.*;
-import clus.statistic.ClusStatistic;
-import clus.statistic.StatisticPrintInfo;
+import clus.statistic.*;
 
 public class COPKMeansModel extends ClusNode {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int m_K, m_Iterations, m_CSets, m_AvgIter;
 	protected boolean m_Illegal;

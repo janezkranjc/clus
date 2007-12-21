@@ -22,6 +22,10 @@
 
 package clus.data.rows;
 
+import clus.main.Settings;
+
 public class SparseDataTuple extends DataTuple {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 }

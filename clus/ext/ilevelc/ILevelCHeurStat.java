@@ -25,9 +25,11 @@ package clus.ext.ilevelc;
 import java.util.ArrayList;
 
 import clus.data.rows.*;
-import clus.data.type.*;
+import clus.main.Settings;
 
 public class ILevelCHeurStat extends ILevelCStatistic {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public static final int EXT = 0;
 	public static final int POS = 1;

@@ -25,7 +25,6 @@ package clus.ext.sspd;
 import jeans.math.matrix.*;
 
 import clus.data.io.ClusReader;
-import clus.io.*;
 
 import java.io.*;
 

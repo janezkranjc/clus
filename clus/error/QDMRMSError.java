@@ -26,9 +26,12 @@ import clus.data.rows.DataTuple;
 import clus.data.type.TimeSeriesAttrType;
 import clus.ext.timeseries.TimeSeries;
 import clus.ext.timeseries.TimeSeriesStat;
+import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
 public class QDMRMSError extends ClusTimeSeriesError {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double m_SumSqErr;
 

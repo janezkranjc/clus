@@ -26,10 +26,9 @@ import java.io.*;
 import jeans.util.*;
 import jeans.util.sort.*;
 
-import clus.io.*;
 import clus.main.*;
 import clus.data.cols.*;
-import clus.data.io.ClusReader;
+import clus.data.io.*;
 import clus.data.type.*;
 import clus.selection.*;
 

@@ -33,6 +33,8 @@ import clus.statistic.StatisticPrintInfo;
 
 public class SimpleClusterModel extends ClusNode {
 	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
 	protected int[] m_Assign;
 	protected ClusStatManager m_Manager;
 

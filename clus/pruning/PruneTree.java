@@ -22,10 +22,9 @@
 
 package clus.pruning;
 
-import clus.algo.tdidt.ClusNode;
-import clus.data.rows.RowData;
-import clus.main.*;
-import clus.util.ClusException;
+import clus.algo.tdidt.*;
+import clus.data.rows.*;
+import clus.util.*;
 
 public class PruneTree {
 	
