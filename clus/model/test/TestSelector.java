@@ -48,7 +48,7 @@ public class TestSelector {
 	
 	// Heuristic
 	public ClusHeuristic m_Heuristic;
-	public ClusAttributeWeights m_TargetWeights;
+	public ClusAttributeWeights m_ClusteringWeights;
 
 	// Best test information
 	public NodeTest m_BestTest;	
@@ -148,7 +148,7 @@ public class TestSelector {
 		for (int i = 0; i < nbstat; i++) {
 			m_TestStat[i] = smanager.createClusteringStat();
 		}
-		m_TargetWeights = smanager.getClusteringWeights();		
+		m_ClusteringWeights = smanager.getClusteringWeights();		
 		m_TotCorrStat = smanager.createClusteringStat();		
 		m_PosStat = m_TestStat[0];		
 	}	
@@ -210,7 +210,7 @@ public class TestSelector {
 		// or if subset if pure -> we test this based on the error
 		boolean stop = false;
 		if (m_TotStat.m_SumWeight < 2.0*Settings.MINIMAL_WEIGHT) stop = true;
-		if (m_TotStat.getError(m_TargetWeights, m_Subset) < MathUtil.C1E_9) stop = true;
+		if (m_TotStat.getError(m_ClusteringWeights, m_Subset) < MathUtil.C1E_9) stop = true;
 //		if (Settings.VERBOSE >= 2) {
 //			System.out.print("Stop criterion (weight = "+m_TotStat.m_SumWeight);
 //			System.out.print(", error = "+m_TotStat.getError(m_TargetWeights));
