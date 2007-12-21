@@ -153,16 +153,16 @@ public class Clus implements CMDLineArgsProvider {
 		loadConstraintFile();
 		initializeSummary(clss);
 		System.out.println();
-		removeMissingTarget();
 		// Sample data
 		if (cargs.hasOption("sample")) {
 			String svalue = cargs.getOptionValue("sample");
 			sample(svalue);
 		}
-		System.out.println("Has missing values: " + m_Schema.hasMissing());
-		ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
-		System.out.println("Initial memory usage: "+ClusStat.m_InitialMemory);		
-		System.out.println("Memory after loading data: "+ClusStat.m_LoadedMemory);
+		System.out.println("Has missing values: " + m_Schema.hasMissing());		
+		if (ResourceInfo.isLibLoaded()) {
+			ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
+			System.out.println("Memory usage: "+ClusStat.m_InitialMemory+" kB (initial), "+ClusStat.m_LoadedMemory+" kB (data loaded)");
+		}
 	}
 
 	/***
@@ -215,23 +215,6 @@ public class Clus implements CMDLineArgsProvider {
 		m_Summary.setTrainError(error);
 		if (hasTestSet()) m_Summary.setTestError(error);
 		if (hasPruneSet()) m_Summary.setValidationError(error);
-	}
-
-	public final void removeMissingTarget() {
-		RowData data = (RowData) m_Data;
-		int nbrows = m_Data.getNbRows();
-		TargetSchema schema = m_Schema.getTargetSchema();
-		BitMapSelection sel = new BitMapSelection(nbrows);
-		for (int i = 0; i < nbrows; i++) {
-			DataTuple tuple = data.getTuple(i);
-			if (!schema.isMissingTarget(tuple))
-				sel.select(i);
-		}
-		if (sel.getNbSelected() != nbrows) {
-			System.out.println("Tuples with missing target: " + (nbrows - sel.getNbSelected()));
-			m_Data = (RowData)m_Data.selectFrom(sel);
-			m_Schema.setNbRows(m_Data.getNbRows());
-		}
 	}
 	
 	//added by Leander 7-4-2006	
