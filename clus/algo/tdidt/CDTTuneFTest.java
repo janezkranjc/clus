@@ -30,7 +30,14 @@ import clus.util.*;
 import clus.selection.*;
 import clus.algo.ClusInductionAlgorithmType;
 import clus.data.ClusData;
+import clus.data.type.ClusAttrType;
+import clus.data.type.NominalAttrType;
+import clus.data.type.NumericAttrType;
+import clus.error.Accuracy;
 import clus.error.ClusError;
+import clus.error.ClusErrorList;
+import clus.error.RMSError;
+import clus.ext.hierarchical.HierClassWiseAccuracy;
 import clus.heuristic.*;
 
 //added 18-05-06
@@ -56,11 +63,29 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		System.out.flush();	
 	}
 	
+	public ClusErrorList createTuneError(ClusStatManager mgr) {
+		ClusErrorList parent = new ClusErrorList(mgr);
+		if (mgr.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
+			parent.addError(new HierClassWiseAccuracy(parent, mgr.getHier()));
+			return parent;
+		}
+		NumericAttrType[] num = mgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom = mgr.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		if (nom.length != 0) {
+			parent.addError(new Accuracy(parent, nom));
+		}
+		if (num.length != 0) {
+			// parent.addError(new PearsonCorrelation(parent, num));
+			parent.addError(new RMSError(parent, num));
+		}
+		return parent;
+	}
+	
 	public double doParamXVal(ClusData trset, ClusData pruneset) throws ClusException, IOException {
 		int prevVerb = Settings.enableVerbose(0);
 		ClusStatManager mgr = getStatManager();
 		ClusSummary summ = new ClusSummary();
-		summ.setTestError(mgr.createTuneError());		
+		summ.setTestError(createTuneError(mgr));		
 //      Next does not always use same partition!		
 //		Random random = ClusRandom.getRandom(ClusRandom.RANDOM_PARAM_TUNE);
 		Random random = new Random(0);
@@ -82,8 +107,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		ClusError err = mi.getTestError().getFirstError();
 		System.out.println();
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(System.out));
-		wrt.print("Error:");			
-		err.showModelError(wrt, 1);
+		// wrt.print("Error:"); err.showModelError(wrt, 1);
 		wrt.flush();		
 		return err.getModelError();
 	}
@@ -92,7 +116,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 	
 	public void findBestFTest(ClusData trset, ClusData pruneset) throws ClusException, IOException {
 		int best_value = 0;
-		boolean low = getStatManager().createTuneError().getFirstError().shouldBeLow();
+		boolean low = createTuneError(getStatManager()).getFirstError().shouldBeLow();
 		double best_error = low ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
 //		System.out.println("best error is"+best_error);
 		for (int i = 0; i < 6; i++) {

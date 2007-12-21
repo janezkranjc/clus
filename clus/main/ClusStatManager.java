@@ -734,26 +734,6 @@ public class ClusStatManager implements Serializable {
 		parent.setWeights(getClusteringWeights());
 		return parent;
 	}
-
-	public ClusErrorList createTuneError() {
-		ClusErrorList parent = new ClusErrorList(this);
-		if (m_Mode == MODE_HIERARCHICAL) {
-			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
-			return parent;
-		}
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		if (nom.length != 0) {
-			parent.addError(new Accuracy(parent, nom));
-		}
-		if (num.length != 0) {
-			// parent.addError(new PearsonCorrelation(parent, num));
-			parent.addError(new RMSError(parent, num));
-		}
-		return parent;
-	}
 	
 	public ClusErrorList createExtraError(int train_err) {
 		ClusErrorList parent = new ClusErrorList(this);

@@ -668,12 +668,12 @@ public class Clus implements CMDLineArgsProvider {
 
 	public final void calcError(ClusRun cr, ClusSummary summary) throws IOException, ClusException {
 		cr.copyAllModelsMIs();
-		System.out.println("Computing training error");
+		if (Settings.VERBOSE > 0) System.out.println("Computing training error");
 		calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr);
-		System.out.println("Computing testing error");
+		if (Settings.VERBOSE > 0) System.out.println("Computing testing error");
 		TupleIterator tsiter = cr.getTestIter();
 		if (tsiter != null) calcError(tsiter, ClusModelInfo.TEST_ERR, cr);
-		System.out.println("Computing validation error");
+		if (Settings.VERBOSE > 0) System.out.println("Computing validation error");
 		if (cr.getPruneSet() != null) calcError(cr.getPruneIter(), ClusModelInfo.VALID_ERR, cr);
 		if (summary != null) summary.addSummary(cr);
 	}
