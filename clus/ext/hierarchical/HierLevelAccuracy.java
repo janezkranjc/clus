@@ -47,7 +47,7 @@ public class HierLevelAccuracy extends ClusError {
 	protected boolean[] m_PredLevelErr;
 	protected int m_MaxDepth;
 	
-	public HierLevelAccuracy(ClusErrorParent par, ClassHierarchy hier) {
+	public HierLevelAccuracy(ClusErrorList par, ClassHierarchy hier) {
 		super(par, hier.getMaxDepth());
 		m_Hier = hier;
 		m_CorrectLevel = new double[m_Dim];
@@ -134,7 +134,7 @@ public class HierLevelAccuracy extends ClusError {
 		return "Hierarchical accuracy by level";
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new HierLevelAccuracy(par, m_Hier);
 	}
 	

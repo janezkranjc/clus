@@ -49,7 +49,7 @@ public class HierClassWiseAccuracy extends ClusError {
 	protected double[] m_NbPosActual;
 	protected boolean[] m_EvalClass;
 	
-	public HierClassWiseAccuracy(ClusErrorParent par, ClassHierarchy hier) {
+	public HierClassWiseAccuracy(ClusErrorList par, ClassHierarchy hier) {
 		super(par, hier.getTotal());
 		m_Hier = hier;
 		m_EvalClass = hier.getEvalClassesVector();		
@@ -280,7 +280,7 @@ public class HierClassWiseAccuracy extends ClusError {
 		return "Hierarchical accuracy by class";
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new HierClassWiseAccuracy(par, m_Hier);
 	}
 	

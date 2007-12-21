@@ -513,7 +513,7 @@ public class RowData extends ClusData implements MSortable {
 		}
 	}	
 	
-	public void calcError(ClusNode node, ClusErrorParent par) {
+	public void calcError(ClusNode node, ClusErrorList par) {
 		for (int i = 0; i < m_NbRows; i++) {
 			DataTuple tuple = getTuple(i);
 			ClusStatistic stat = node.predictWeighted(tuple);

@@ -105,7 +105,7 @@ public class MultiScoreWrapper extends ClusNumericError {
 		return m_Child.getName();
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new MultiScoreWrapper((ClusNominalError)m_Child.getErrorClone(par), m_Attrs);
 	}
 }

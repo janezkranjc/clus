@@ -34,16 +34,16 @@ import clus.error.*;
 public class ClusCalcRuleErrorProc extends ClusModelProcessor {
 
 	protected int m_Subset;
-	protected ClusErrorParent m_Global;
+	protected ClusErrorList m_Global;
 	
-	public ClusCalcRuleErrorProc(int subset, ClusErrorParent global) {
+	public ClusCalcRuleErrorProc(int subset, ClusErrorList global) {
 		m_Subset = subset;
 		m_Global = global;
 	}
 	
 	public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
 		ClusRule rule = (ClusRule)model;
-		ClusErrorParent error = rule.getError(m_Subset);
+		ClusErrorList error = rule.getError(m_Subset);
 		error.addExample(tuple, rule.getTargetStat());
 	}
 	

@@ -33,15 +33,15 @@ public class RMSError extends MSError {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	
-	public RMSError(ClusErrorParent par, NumericAttrType[] num) {
+	public RMSError(ClusErrorList par, NumericAttrType[] num) {
 		super(par, num);
 	}
 	
-	public RMSError(ClusErrorParent par, NumericAttrType[] num, ClusAttributeWeights weights) {
+	public RMSError(ClusErrorList par, NumericAttrType[] num, ClusAttributeWeights weights) {
 		super(par, num, weights);
 	}
 	
-	public RMSError(ClusErrorParent par, NumericAttrType[] num, ClusAttributeWeights weights, boolean printall) {
+	public RMSError(ClusErrorList par, NumericAttrType[] num, ClusAttributeWeights weights, boolean printall) {
 		super(par, num, weights, printall);
 	}
 	
@@ -63,7 +63,7 @@ public class RMSError extends MSError {
 		else return "Weighted root mean squared error (RMSE) ("+m_Weights.getName(m_Attrs)+")";
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new RMSError(par, m_Attrs, m_Weights, m_PrintAllComps);
 	}
 }

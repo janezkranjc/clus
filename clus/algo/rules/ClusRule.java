@@ -55,7 +55,7 @@ public class ClusRule implements ClusModel, Serializable {
 	protected CombStat[] m_CombStat = new CombStat[2];
 	/* Number of examples covered by this rule */
 	protected double[] m_Coverage = new double[2];
-	protected ClusErrorParent[] m_Errors;
+	protected ClusErrorList[] m_Errors;
 	/* Accuracy score of the rule on the training set */
 	protected double m_TrainAccuracy;
 	/* Optimized weight of the rule */
@@ -502,13 +502,13 @@ public class ClusRule implements ClusModel, Serializable {
 		}
 		if (hasErrors()) {
 			// Enable with setting PrintRuleWiseErrors = Yes
-			ClusErrorParent train_err = getError(ClusModel.TRAIN);
+			ClusErrorList train_err = getError(ClusModel.TRAIN);
 			if (train_err != null) {
 				wrt.println();
 				wrt.println("Training error");
 				train_err.showError(wrt);    			
 			}
-			ClusErrorParent test_err = getError(ClusModel.TEST);
+			ClusErrorList test_err = getError(ClusModel.TEST);
 			if (test_err != null) {
 				wrt.println();
 				wrt.println("Testing error");
@@ -666,12 +666,12 @@ public class ClusRule implements ClusModel, Serializable {
 	/**
 	 * For computation of rule-wise error measures
 	 */
-	public void setError(ClusErrorParent error, int subset) {
-		if (m_Errors == null) m_Errors = new ClusErrorParent[2];
+	public void setError(ClusErrorList error, int subset) {
+		if (m_Errors == null) m_Errors = new ClusErrorList[2];
 		m_Errors[subset] = error;
 	}
 	
-	public ClusErrorParent getError(int subset) {
+	public ClusErrorList getError(int subset) {
 		if (m_Errors == null) return null;
 		return m_Errors[subset];
 	}

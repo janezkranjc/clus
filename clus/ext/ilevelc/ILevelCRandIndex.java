@@ -42,7 +42,7 @@ public class ILevelCRandIndex extends ClusError {
 	protected ArrayList m_Exs = new ArrayList();
 	protected int m_Count;
 	
-	public ILevelCRandIndex(ClusErrorParent par, NominalAttrType nom) {
+	public ILevelCRandIndex(ClusErrorList par, NominalAttrType nom) {
 		super(par, 1);
 		m_Attr = nom;
 	}
@@ -120,7 +120,7 @@ public class ILevelCRandIndex extends ClusError {
 		}
 	}	
 
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new ILevelCRandIndex(getParent(), m_Attr);
 	}	
 

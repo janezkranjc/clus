@@ -36,7 +36,7 @@ import clus.statistic.*;
 
 // FIXME : replace nbexamples by sumweight (not?) !
 
-public class ClusErrorParent implements Serializable {
+public class ClusErrorList implements Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
 	
@@ -46,7 +46,7 @@ public class ClusErrorParent implements Serializable {
 	protected ClusStatManager m_StatManager;
 	protected Vector m_Error = new Vector();	
 		
-	public ClusErrorParent(ClusStatManager smanager) {
+	public ClusErrorList(ClusStatManager smanager) {
 		m_StatManager = smanager;
 		m_NbTotal = -1;
 	}
@@ -94,8 +94,8 @@ public class ClusErrorParent implements Serializable {
 		iter.close();
 	}
 	
-	public ClusErrorParent getErrorClone() {	
-		ClusErrorParent res = new ClusErrorParent(m_StatManager);
+	public ClusErrorList getErrorClone() {	
+		ClusErrorList res = new ClusErrorList(m_StatManager);
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
 			ClusError err = (ClusError)m_Error.elementAt(i);
@@ -171,7 +171,7 @@ public class ClusErrorParent implements Serializable {
 		m_NbCover++;			
 	}		
 	
-	public void add(ClusErrorParent par) {
+	public void add(ClusErrorList par) {
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
 			ClusError err = (ClusError)m_Error.elementAt(i);
@@ -181,7 +181,7 @@ public class ClusErrorParent implements Serializable {
 		m_NbCover += par.getNbCover();
 	}
 	
-	public void updateFromGlobalMeasure(ClusErrorParent par) {
+	public void updateFromGlobalMeasure(ClusErrorList par) {
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
 			ClusError err = (ClusError)m_Error.elementAt(i);
@@ -236,7 +236,7 @@ public class ClusErrorParent implements Serializable {
 	public static boolean checkCoverage(CRParent models, int type, int nb) {
 		int nb_models = models.getNbModels();
 		for (int j = 0; j < nb_models; j++) {
-			ClusErrorParent parent = models.getModelInfo(j).getError(type);
+			ClusErrorList parent = models.getModelInfo(j).getError(type);
 			if (parent.getNbCover() != nb) return false;
 		}
 		return true;
@@ -245,7 +245,7 @@ public class ClusErrorParent implements Serializable {
 	public void showError(CRParent models, int type, PrintWriter out) {
 		int nb = m_Error.size();
 		ClusModelInfo definf = models.getModelInfo(ClusModels.DEFAULT);
-		ClusErrorParent defpar = definf.getError(type);
+		ClusErrorList defpar = definf.getError(type);
 		out.println("Number of examples: "+defpar.getNbExamples());
 		int nb_models = models.getNbModels();
 		if (!checkCoverage(models, type, defpar.getNbExamples())) {
@@ -253,7 +253,7 @@ public class ClusErrorParent implements Serializable {
 			for (int j = 0; j < nb_models; j++) {
 				ClusModelInfo inf = models.getModelInfo(j);
 				if (inf.getModel() != null) {
-					ClusErrorParent parent = inf.getError(type);		
+					ClusErrorList parent = inf.getError(type);		
 					out.println("  "+inf.getName()+": "+parent.getNbCover());
 				}
 			}
@@ -263,7 +263,7 @@ public class ClusErrorParent implements Serializable {
 			out.println(err1.getName());			
 			for (int j = 0; j < nb_models; j++) {
 				ClusModelInfo inf = models.getModelInfo(j);
-				ClusErrorParent parent = inf.getError(type);		
+				ClusErrorList parent = inf.getError(type);		
 				ClusError err2 = parent.getError(i);
 				if (inf.hasModel()) {
 					if (err2.isMultiLine()) {
@@ -282,7 +282,7 @@ public class ClusErrorParent implements Serializable {
 		int nb_models = models.getNbModels();		
 		for (int j = 0; j < nb_models; j++) {
 			ClusModelInfo inf = models.getModelInfo(j);
-			ClusErrorParent parent = inf.getExtraError(type);		
+			ClusErrorList parent = inf.getExtraError(type);		
 			if (parent != null && inf.hasModel()) {
 				int nb_err = parent.getNbErrors();
 				for (int i = 0; i < nb_err; i++) {
@@ -306,7 +306,7 @@ public class ClusErrorParent implements Serializable {
 			int nb_models = models.getNbModels();
 			for (int j = 0; j < nb_models; j++) {
 				ClusModelInfo inf = models.getModelInfo(j);
-				ClusErrorParent parent = inf.getError(type);		
+				ClusErrorList parent = inf.getError(type);		
 				ClusError err2 = parent.getError(i);
 				out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
 				err2.showModelError(out, ClusError.DETAIL_VERY_SMALL);

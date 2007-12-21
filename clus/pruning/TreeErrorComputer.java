@@ -30,7 +30,7 @@ import java.io.IOException;
 import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.error.ClusError;
-import clus.error.ClusErrorParent;
+import clus.error.ClusErrorList;
 import clus.main.*;
 import clus.statistic.ClusStatistic;
 
@@ -60,7 +60,7 @@ public class TreeErrorComputer extends ClusModelProcessor {
 		return true;
 	}
 
-	public static ClusError computeErrorOptimized(ClusNode tree, RowData test, ClusErrorParent error, boolean miss) {
+	public static ClusError computeErrorOptimized(ClusNode tree, RowData test, ClusErrorList error, boolean miss) {
 		error.reset();
 		error.setNbExamples(test.getNbRows());
 		ClusError child_err = error.getFirstError().getErrorClone();

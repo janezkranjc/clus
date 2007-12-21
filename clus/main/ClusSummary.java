@@ -31,9 +31,9 @@ public class ClusSummary extends CRParent {
 
 	protected int m_Runs;
 	protected int m_TotalRuns = 1;
-	protected ClusErrorParent m_TrainErr;
-	protected ClusErrorParent m_TestErr;
-	protected ClusErrorParent m_ValidErr;
+	protected ClusErrorList m_TrainErr;
+	protected ClusErrorList m_TestErr;
+	protected ClusErrorList m_ValidErr;
 	protected ClusStatManager m_StatMgr;
 
 	public void resetAll() {
@@ -49,15 +49,15 @@ public class ClusSummary extends CRParent {
 		return m_StatMgr;
 	}
 
-	public ClusErrorParent getTrainError() {
+	public ClusErrorList getTrainError() {
 		return m_TrainErr;
 	}
 	
-	public ClusErrorParent getTestError() {
+	public ClusErrorList getTestError() {
 		return m_TestErr;
 	}
 	
-	public ClusErrorParent getValidationError() {
+	public ClusErrorList getValidationError() {
 		return m_ValidErr;
 	}		
 	
@@ -65,15 +65,15 @@ public class ClusSummary extends CRParent {
 		return m_TestErr != null;
 	}		
 	
-	public void setTrainError(ClusErrorParent err) {
+	public void setTrainError(ClusErrorList err) {
 		m_TrainErr = err;
 	}
 	
-	public void setTestError(ClusErrorParent err) {
+	public void setTestError(ClusErrorList err) {
 		m_TestErr = err;
 	}
 	
-	public void setValidationError(ClusErrorParent err) {
+	public void setValidationError(ClusErrorList err) {
 		m_ValidErr = err;
 	}		
 				

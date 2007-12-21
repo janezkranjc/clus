@@ -33,8 +33,8 @@ public class SizeConstraintPruning extends PruneTree {
 
 	public RowData m_Data;
 	public double[] m_MaxError;
-	public ClusErrorParent m_ErrorMeasure;
-	public ClusErrorParent m_AdditiveError;
+	public ClusErrorList m_ErrorMeasure;
+	public ClusErrorList m_AdditiveError;
 	public int[] m_MaxSize;
 	public ClusAttributeWeights m_TargetWeights;
 	public int m_CrIndex, m_MaxIndex;
@@ -142,7 +142,7 @@ public class SizeConstraintPruning extends PruneTree {
 		for (int crsize = 1; crsize <= maxsize; crsize += 2) {
 			ClusNode copy = node.cloneTreeWithVisitors();
 			pruneExecute(copy, crsize);
-			ClusErrorParent cr_err = m_ErrorMeasure.getErrorClone();
+			ClusErrorList cr_err = m_ErrorMeasure.getErrorClone();
 			ClusError err = cr_err.getFirstError();
 			// Can be made more efficient :-)
 			TreeErrorComputer.computeErrorStandard(copy, m_Data, err);
@@ -187,7 +187,7 @@ public class SizeConstraintPruning extends PruneTree {
 	private void recursiveInitializeError(ClusNode node, RowData data) {
 		// get visitor and error measure
 		SizeConstraintVisitor visitor = (SizeConstraintVisitor)node.getVisitor();
-		ClusErrorParent parent = getAdditiveError(); 
+		ClusErrorList parent = getAdditiveError(); 
 		ClusError err = parent.getFirstError();
 		// compute error for given node
 		parent.reset();
@@ -261,17 +261,17 @@ public class SizeConstraintPruning extends PruneTree {
 		m_MaxError = max_err;
 	}
 
-	public void setErrorMeasure(ClusErrorParent parent) {
+	public void setErrorMeasure(ClusErrorList parent) {
 		m_ErrorMeasure = parent;
 	}
 
 	// if the default statistic is unable to compute the additive error used during pruning
 	// note: this is, e.g., the case for time series clustering 
-	public void setAdditiveError(ClusErrorParent parent) {
+	public void setAdditiveError(ClusErrorList parent) {
 		m_AdditiveError = parent;
 	}
 	
-	public ClusErrorParent getAdditiveError() {
+	public ClusErrorList getAdditiveError() {
 		return m_AdditiveError;
 	}
 	

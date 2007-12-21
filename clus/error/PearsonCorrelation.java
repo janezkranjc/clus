@@ -38,7 +38,7 @@ public class PearsonCorrelation extends ClusNumericError {
 	protected double[] m_SumAi, m_SumSAi;
 	protected double[] m_SumPiAi;
 
-	public PearsonCorrelation(ClusErrorParent par, NumericAttrType[] num) {
+	public PearsonCorrelation(ClusErrorList par, NumericAttrType[] num) {
 		super(par, num);
 		m_SumPi = new double[m_Dim];
 		m_SumSPi = new double[m_Dim];
@@ -165,7 +165,7 @@ public class PearsonCorrelation extends ClusNumericError {
 		return "Pearson correlation coefficient";
 	}
 
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new PearsonCorrelation(par, m_Attrs);
 	}
 }

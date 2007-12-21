@@ -51,7 +51,7 @@ public class ClusShowModelInfo {
 				output.println("Size: "+model.getModelSize());
 				output.println();
 				model.printModel(output);
-				ClusErrorParent train_error = model_info.getTrainingError();
+				ClusErrorList train_error = model_info.getTrainingError();
 				output.println();				
 				if (train_error != null) {
 					output.println("Training Error:");
@@ -59,7 +59,7 @@ public class ClusShowModelInfo {
 				} else {
 					output.println("No Training Error Available");
 				}				
-				ClusErrorParent test_error = model_info.getTestError();
+				ClusErrorList test_error = model_info.getTestError();
 				output.println();				
 				if (test_error != null) {
 					output.println("Testing Error:");

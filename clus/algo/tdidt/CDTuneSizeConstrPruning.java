@@ -295,7 +295,7 @@ public class CDTuneSizeConstrPruning extends ClusDecisionTree {
 		int prevVerb = Settings.enableVerbose(0);
 		ClusStatManager mgr = getStatManager();
 		ClusSummary summ = new ClusSummary();
-		ClusErrorParent errorpar = mgr.createDefaultError();
+		ClusErrorList errorpar = mgr.createDefaultError();
 		errorpar.setWeights(m_TargetWeights);
 		summ.setTestError(errorpar);
 		int model = ClusModels.ORIGINAL;

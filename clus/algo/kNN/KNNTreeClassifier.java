@@ -32,7 +32,7 @@ import clus.data.rows.*;
 import jeans.util.MyArray;
 import jeans.util.cmdline.CMDLineArgs;
 import clus.util.ClusException;
-import clus.error.ClusErrorParent;
+import clus.error.ClusErrorList;
 import clus.pruning.BottomUpPruningVSB;
 
 import java.io.IOException;
@@ -163,7 +163,7 @@ public class KNNTreeClassifier extends ClusInductionAlgorithmType {
 			// next make a clone of the tree.
 			KNNTree pruned = (KNNTree) tree.cloneTree();
 			//Prepare a pruner for the tree
-			ClusErrorParent error_parent = cr.getStatManager().createEvalError();
+			ClusErrorList error_parent = cr.getStatManager().createEvalError();
 			RowData pruneset = (RowData) cr.getPruneSet();
 			BottomUpPruningVSB pruner = new BottomUpPruningVSB(error_parent,pruneset);
 			//prune the cloned tree

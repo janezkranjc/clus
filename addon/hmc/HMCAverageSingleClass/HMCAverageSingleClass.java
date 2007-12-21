@@ -53,7 +53,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 	protected StringTable m_Table = new StringTable();
 	
 	//added: keeps prediction results for each threshold
-	protected ClusErrorParent[][] m_EvalArray;
+	protected ClusErrorList[][] m_EvalArray;
 	
 	public void run(String[] args) throws IOException, ClusException, ClassNotFoundException {
 		m_Clus = new Clus();
@@ -75,13 +75,13 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			if (cargs.hasOption("models") || cargs.hasOption("nodewise")) {
 				//initializing m_EvalArray
 				HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
-				m_EvalArray = new ClusErrorParent[2][pruner.getNbResults()];
+				m_EvalArray = new ClusErrorList[2][pruner.getNbResults()];
 				// HierClassWiseAccuracy needs some things				
 				ClassHierarchy hier = getStatManager().getHier();
 				//initialize each HierClassWiseAccuracy object
 				for (int i=0;i<pruner.getNbResults();i++) {
 					for (int j = CRParent.TRAINSET; j <= CRParent.TESTSET; j++) {
-						m_EvalArray[j][i] = new ClusErrorParent(getStatManager());
+						m_EvalArray[j][i] = new ClusErrorList(getStatManager());
 						m_EvalArray[j][i].addError(new HierClassWiseAccuracy(m_EvalArray[j][i], hier));
 					}
 				}
@@ -136,7 +136,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		return m_Clus;
 	}
 	
-	public ClusErrorParent getEvalArray(int traintest, int j) {
+	public ClusErrorList getEvalArray(int traintest, int j) {
 		return m_EvalArray[traintest][j];
 	}	
 	

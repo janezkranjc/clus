@@ -35,7 +35,7 @@ public class QDMRMSError extends ClusTimeSeriesError {
 
 	protected double m_SumSqErr;
 
-	public QDMRMSError(ClusErrorParent par, TimeSeriesAttrType[] ts) {
+	public QDMRMSError(ClusErrorList par, TimeSeriesAttrType[] ts) {
 		super(par, ts);
 	}
 	
@@ -79,7 +79,7 @@ public class QDMRMSError extends ClusTimeSeriesError {
 	public void addInvalid(DataTuple tuple) {
 	}
 
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new QDMRMSError(par, m_Attrs);
 	}
 

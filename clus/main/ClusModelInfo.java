@@ -44,7 +44,7 @@ public class ClusModelInfo implements Serializable {
 	protected int m_ModelSize, m_NbModels;
 	protected double m_Score;
 	protected ClusModel m_Model;
-	public ClusErrorParent m_TrainErr, m_TestErr, m_ValidErr, m_ExtraErr;
+	public ClusErrorList m_TrainErr, m_TestErr, m_ValidErr, m_ExtraErr;
 	protected ClusStatManager m_Manager;
 	protected transient ModelProcessorCollection m_TrainModelProc, m_TestModelProc, m_ValidModelProc;
 
@@ -53,7 +53,7 @@ public class ClusModelInfo implements Serializable {
 		m_HasName = false;
 	}
 	
-	public void setAllErrorsClone(ClusErrorParent train, ClusErrorParent test, ClusErrorParent valid) {
+	public void setAllErrorsClone(ClusErrorList train, ClusErrorList test, ClusErrorList valid) {
 		m_TrainErr = null; m_TestErr = null; m_ValidErr = null;
 		if (train != null) m_TrainErr = train.getErrorClone();
 		if (test != null) m_TestErr = test.getErrorClone();
@@ -84,15 +84,15 @@ public class ClusModelInfo implements Serializable {
 		return m_Manager.getSettings();
 	}
 	
-	public final ClusErrorParent getTrainingError() {
+	public final ClusErrorList getTrainingError() {
 		return m_TrainErr;
 	}
 	
-	public final ClusErrorParent getTestError() {
+	public final ClusErrorList getTestError() {
 		return m_TestErr;
 	}
 	
-	public final ClusErrorParent getValidationError() {
+	public final ClusErrorList getValidationError() {
 		return m_ValidErr;
 	}	
 		
@@ -199,19 +199,19 @@ public class ClusModelInfo implements Serializable {
 		m_Model = null;
 	}
 	
-	public final void setTestError(ClusErrorParent err) {
+	public final void setTestError(ClusErrorList err) {
 		m_TestErr = err;
 	}
 	
-	public final void setTrainError(ClusErrorParent err) {
+	public final void setTrainError(ClusErrorList err) {
 		m_TrainErr = err;
 	}
 	
-	public final void setValidationError(ClusErrorParent err) {
+	public final void setValidationError(ClusErrorList err) {
 		m_ValidErr = err;
 	}		
 
-	public void setExtraError(int type, ClusErrorParent parent) {
+	public void setExtraError(int type, ClusErrorList parent) {
 		m_ExtraErr = parent;
 	}
 	
@@ -219,7 +219,7 @@ public class ClusModelInfo implements Serializable {
 		return m_ExtraErr != null;
 	}
 	
-	public ClusErrorParent getExtraError(int type) {
+	public ClusErrorList getExtraError(int type) {
 		return m_ExtraErr;
 	}
 	
@@ -248,14 +248,14 @@ public class ClusModelInfo implements Serializable {
 		return m_ShouldPruneInvalid;
 	}	
 	
-	public final ClusErrorParent getError(int traintest) {
+	public final ClusErrorList getError(int traintest) {
 		if (traintest == TRAIN_ERR) return m_TrainErr;
 		else if (traintest == VALID_ERR) return m_ValidErr; 
 		else if (traintest == TEST_ERR) return m_TestErr;
 		else return null;
 	}
 	
-	public final ClusErrorParent getCreateTestError() {
+	public final ClusErrorList getCreateTestError() {
 		if (m_TestErr == null) m_TestErr = m_TrainErr.getErrorClone();
 		return m_TestErr;
 	}	
@@ -312,7 +312,7 @@ public class ClusModelInfo implements Serializable {
 			m_ValidErr.add(other.getValidationError());
 		}		
 		if (other.hasTestError()) {
-			ClusErrorParent mytesterr = getCreateTestError();
+			ClusErrorList mytesterr = getCreateTestError();
 			mytesterr.add(other.getTestError());		
 		}		
 	}

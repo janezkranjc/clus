@@ -39,7 +39,7 @@ public class ContingencyTable extends ClusNominalError {
 
 	protected int[][][] m_ContTable;
 
-	public ContingencyTable(ClusErrorParent par, NominalAttrType[] nom) {
+	public ContingencyTable(ClusErrorList par, NominalAttrType[] nom) {
 		super(par, nom);
 		m_ContTable = new int[m_Dim][][];
 		for (int i = 0; i < m_Dim; i++) {
@@ -251,7 +251,7 @@ public class ContingencyTable extends ClusNominalError {
 		return "Classification Error";
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new ContingencyTable(par, m_Attrs);
 	}
 	

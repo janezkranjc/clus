@@ -41,11 +41,11 @@ public class HierRMSError extends MSError {
 	protected double[] m_Scratch;
 	protected boolean m_Root, m_ContPred;
 	
-	public HierRMSError(ClusErrorParent par, ClusAttributeWeights weights, boolean root, boolean proto, ClassHierarchy hier) {
+	public HierRMSError(ClusErrorList par, ClusAttributeWeights weights, boolean root, boolean proto, ClassHierarchy hier) {
 		this(par, weights, false, root, proto, hier);
 	}
 	
-	public HierRMSError(ClusErrorParent par, ClusAttributeWeights weights, boolean printall, boolean root, boolean proto, ClassHierarchy hier) {
+	public HierRMSError(ClusErrorList par, ClusAttributeWeights weights, boolean printall, boolean root, boolean proto, ClassHierarchy hier) {
 		super(par, hier.getDummyAttrs(), weights, printall);
 		m_Hier = hier;
 		m_Root = root;
@@ -85,7 +85,7 @@ public class HierRMSError extends MSError {
 		else return "Hierarchical weighted "+root+" ("+m_Weights.getName()+") "+proto;
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new HierRMSError(par, m_Weights, m_PrintAllComps, m_Root, m_ContPred, m_Hier);
 	}
 }

@@ -30,7 +30,7 @@ public abstract class ClusNominalError extends ClusError {
 	protected int[] m_Default;
 	protected NominalAttrType[] m_Attrs;
 
-	public ClusNominalError(ClusErrorParent par, NominalAttrType[] nom) {
+	public ClusNominalError(ClusErrorList par, NominalAttrType[] nom) {
 		super(par, nom.length);
 		m_Attrs = nom;
 	}
@@ -39,7 +39,7 @@ public abstract class ClusNominalError extends ClusError {
 		return m_Attrs[i];
 	}
 	
-	public ClusNominalError(ClusErrorParent par, int nb_nominal) {
+	public ClusNominalError(ClusErrorList par, int nb_nominal) {
 		super(par, nb_nominal);
 	}	
 	

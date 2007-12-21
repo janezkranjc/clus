@@ -28,7 +28,7 @@ public abstract class ClusNumericError extends ClusError {
 
 	protected NumericAttrType[] m_Attrs;
 
-	public ClusNumericError(ClusErrorParent par, NumericAttrType[] num) {
+	public ClusNumericError(ClusErrorList par, NumericAttrType[] num) {
 		super(par, num.length);
 		m_Attrs = num;
 	}
@@ -37,7 +37,7 @@ public abstract class ClusNumericError extends ClusError {
 		return m_Attrs[i];
 	}
 	
-	public ClusNumericError(ClusErrorParent par, int nbnum) {
+	public ClusNumericError(ClusErrorList par, int nbnum) {
 		super(par, nbnum);
 	}
 	

@@ -209,7 +209,7 @@ public class Clus implements CMDLineArgsProvider {
 
 	public final void initializeSummary(ClusInductionAlgorithmType clss) {
 		ClusStatManager mgr = m_Induce.getStatManager();
-		ClusErrorParent error = mgr.createErrorMeasure(m_Score);
+		ClusErrorList error = mgr.createErrorMeasure(m_Score);
 		m_Summary.resetAll();
 		m_Summary.setStatManager(mgr);
 		m_Summary.setTrainError(error);
@@ -584,7 +584,7 @@ public class Clus implements CMDLineArgsProvider {
 	public final static double calcModelError(ClusStatManager mgr, RowData data, ClusModel model) throws ClusException, IOException {
 		ClusSchema schema = data.getSchema();
 		/* create error measure */
-		ClusErrorParent error = new ClusErrorParent(mgr);
+		ClusErrorList error = new ClusErrorList(mgr);
 		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] nom = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		TimeSeriesAttrType[] ts = schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -623,7 +623,7 @@ public class Clus implements CMDLineArgsProvider {
 				ClusModel model = mi.getModel();
 				if (model != null) {
 					ClusStatistic pred = model.predictWeighted(tuple);
-					ClusErrorParent err = mi.getError(type);
+					ClusErrorList err = mi.getError(type);
 					if (err != null) err.addExample(tuple, pred);
 					ModelProcessorCollection coll = mi.getModelProcessors(type);
 					if (coll != null) {
@@ -657,10 +657,10 @@ public class Clus implements CMDLineArgsProvider {
 	}
 	
 	public final void calcExtraTrainingSetErrors(ClusRun cr) {
-		ClusErrorParent parent = getStatManager().createExtraError(ClusModelInfo.TRAIN_ERR);
+		ClusErrorList parent = getStatManager().createExtraError(ClusModelInfo.TRAIN_ERR);
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			ClusModelInfo info = cr.getModelInfo(i);
-			ClusErrorParent parent_cl = parent.getErrorClone();
+			ClusErrorList parent_cl = parent.getErrorClone();
 			parent_cl.compute((RowData)cr.getTrainingSet(), info.getModel());
 			info.setExtraError(ClusModelInfo.TRAIN_ERR, parent_cl);
 		}
@@ -818,7 +818,7 @@ public class Clus implements CMDLineArgsProvider {
 			for (int i = 0; i < cr.getNbModels(); i++) {
 				ClusModelInfo info = cr.getModelInfo(i);
 				ClusModelInfo summ_info = summ.getModelInfo(i);
-				ClusErrorParent test_err = summ_info.getTestError();
+				ClusErrorList test_err = summ_info.getTestError();
 				info.setTestError(test_err);
 			}
 		}

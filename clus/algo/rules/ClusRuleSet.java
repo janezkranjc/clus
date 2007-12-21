@@ -32,7 +32,7 @@ import java.util.*;
 import jeans.util.*;
 import clus.data.rows.*;
 import clus.data.type.*;
-import clus.error.ClusErrorParent;
+import clus.error.ClusErrorList;
 import clus.main.*;
 import clus.statistic.*;
 import clus.util.*;
@@ -511,7 +511,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 	}
 	
-	public void setError(ClusErrorParent error, int subset) {
+	public void setError(ClusErrorList error, int subset) {
 		m_HasRuleErrors = true;  	
 		for (int i = 0; i < m_Rules.size(); i++) {  		
 			ClusRule rule = getRule(i);

@@ -32,7 +32,7 @@ public class MisclassificationError extends Accuracy {
 	
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-	public MisclassificationError(ClusErrorParent par, NominalAttrType[] nom) {
+	public MisclassificationError(ClusErrorList par, NominalAttrType[] nom) {
 		super(par, nom);
 	}
 	
@@ -48,7 +48,7 @@ public class MisclassificationError extends Accuracy {
 		return "Misclassification error";
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new MisclassificationError(par, m_Attrs);
 	}
 }

@@ -98,11 +98,11 @@ public abstract class CRParent implements Serializable {
 
 	public abstract ClusStatManager getStatManager();
 
-	public abstract ClusErrorParent getTrainError();
+	public abstract ClusErrorList getTrainError();
 		
-	public abstract ClusErrorParent getTestError();
+	public abstract ClusErrorList getTestError();
 		
-	public abstract ClusErrorParent getValidationError();
+	public abstract ClusErrorList getValidationError();
 
 /***************************************************************************
  * Functions for all models

@@ -49,14 +49,14 @@ public abstract class ClusError implements Serializable {
 	protected final static String RELATIVE_POSTFIX = "";
 
 	protected int m_Dim;
-	protected ClusErrorParent m_Parent;
+	protected ClusErrorList m_Parent;
 
-	public ClusError(ClusErrorParent par, int dim) {
+	public ClusError(ClusErrorList par, int dim) {
 		m_Dim = dim;
 		m_Parent = par;
 	}
 	
-	public ClusError(ClusErrorParent par) {
+	public ClusError(ClusErrorList par) {
 		this(par, 0);
 	}	
 	
@@ -137,7 +137,7 @@ public abstract class ClusError implements Serializable {
 		return 0.0;
 	}	
 	
-	public abstract ClusError getErrorClone(ClusErrorParent par);
+	public abstract ClusError getErrorClone(ClusErrorList par);
 	
 	public ClusError getErrorClone() {
 		return getErrorClone(getParent());
@@ -193,7 +193,7 @@ public abstract class ClusError implements Serializable {
  * Old stuff - to be removed :-)
  ***************************************************************************/		
 		
-	public ClusErrorParent getParent() {
+	public ClusErrorList getParent() {
 		return m_Parent;
 	}
 	

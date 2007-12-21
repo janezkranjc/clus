@@ -94,11 +94,11 @@ public class ClusOutput {
 	public void writeBrief(ClusRun cr) throws IOException {
 		String ridx = cr.getIndexString();
 		m_Writer.println("Run: "+ridx);
-		ClusErrorParent te_err = cr.getTestError();
+		ClusErrorList te_err = cr.getTestError();
 		if (te_err != null) {
 			te_err.showErrorBrief(cr, ClusModelInfo.TEST_ERR, m_Writer);
 		}
-		ClusErrorParent tr_err = cr.getTrainError();
+		ClusErrorList tr_err = cr.getTrainError();
 		if (m_Sett.isOutTrainError() && tr_err != null) {
 			tr_err.showErrorBrief(cr, ClusModelInfo.TRAIN_ERR, m_Writer);			
 		}
@@ -159,10 +159,10 @@ public class ClusOutput {
 			}
 		}
 		m_Writer.println();
-		ClusErrorParent te_err = cr.getTestError();
+		ClusErrorList te_err = cr.getTestError();
 		if (m_Sett.isOutFoldError() || detail) {
 			if (outputtrain) {
-				ClusErrorParent tr_err = cr.getTrainError();
+				ClusErrorList tr_err = cr.getTrainError();
 				if (tr_err != null) {
 					m_Writer.println("Training error");
 					m_Writer.println("--------------");
@@ -170,9 +170,9 @@ public class ClusOutput {
 					tr_err.showError(cr, ClusModelInfo.TRAIN_ERR, m_Writer);
 					m_Writer.println();
 				}
-				ClusErrorParent.printExtraError(cr, ClusModelInfo.TRAIN_ERR, m_Writer);
+				ClusErrorList.printExtraError(cr, ClusModelInfo.TRAIN_ERR, m_Writer);
 			}
-			ClusErrorParent va_err = cr.getValidationError();
+			ClusErrorList va_err = cr.getValidationError();
 			if (va_err != null) {
 				m_Writer.println("Validation error");
 				m_Writer.println("----------------");
@@ -265,7 +265,7 @@ public class ClusOutput {
 			m_Writer.println("     "+mi.getName()+": "+getQuotient(mi.getModelSize(), runs));
 		}
 		m_Writer.println();
-		ClusErrorParent tr_err = summary.getTrainError();
+		ClusErrorList tr_err = summary.getTrainError();
 		if (m_Sett.isOutTrainError() && tr_err != null) {
 			m_Writer.println("Training error");
 			m_Writer.println("--------------");
@@ -273,7 +273,7 @@ public class ClusOutput {
 			tr_err.showError(summary, ClusModelInfo.TRAIN_ERR, m_Writer);
 			m_Writer.println();
 		}
-		ClusErrorParent va_err = summary.getValidationError();
+		ClusErrorList va_err = summary.getValidationError();
 		if (va_err != null) {
 			m_Writer.println("Validation error");
 			m_Writer.println("----------------");
@@ -281,7 +281,7 @@ public class ClusOutput {
 			va_err.showError(summary, ClusModelInfo.VALID_ERR, m_Writer);
 			m_Writer.println();
 		}		
-		ClusErrorParent te_err = summary.getTestError();
+		ClusErrorList te_err = summary.getTestError();
 		if (te_err != null) {
 			m_Writer.println("Testing error");
 			m_Writer.println("-------------");

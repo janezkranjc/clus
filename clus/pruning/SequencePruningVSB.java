@@ -35,14 +35,14 @@ import clus.error.*;
 public class SequencePruningVSB extends PruneTree {
 
 	protected RowData m_VSB;
-	protected ClusErrorParent m_Error;
+	protected ClusErrorList m_Error;
 	protected ClusAttributeWeights m_Weights;
 	protected PruneTree m_SeqPruner;
 	protected boolean m_1SERule;
 	protected boolean m_HasMissing;
 	protected String m_Output;
 	
-	public SequencePruningVSB(RowData data, ClusErrorParent error, ClusAttributeWeights weights) {
+	public SequencePruningVSB(RowData data, ClusErrorList error, ClusAttributeWeights weights) {
 			m_VSB = data;
 			m_Error = error;
 			m_Weights = weights;

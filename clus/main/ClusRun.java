@@ -59,15 +59,15 @@ public class ClusRun extends CRParent {
 		return m_Summary;
 	}
 	
-	public ClusErrorParent getTrainError() {
+	public ClusErrorList getTrainError() {
 		return m_Summary.getTrainError();
 	}
 	
-	public ClusErrorParent getTestError() {
+	public ClusErrorList getTestError() {
 		return m_Summary.getTestError();
 	}
 	
-	public ClusErrorParent getValidationError() {
+	public ClusErrorList getValidationError() {
 		return m_Summary.getValidationError();
 	}			
 	
@@ -189,7 +189,7 @@ public class ClusRun extends CRParent {
  * Preparation
  ***************************************************************************/		
 				
-	public void changeTestError(ClusErrorParent par) {
+	public void changeTestError(ClusErrorList par) {
 		m_Summary.setTestError(par);
 		int nb_models = getNbModels();
 		for (int i = 0; i < nb_models; i++) {

@@ -643,8 +643,8 @@ public class ClusStatManager implements Serializable {
 		m_ChiSquareInvProb = table;
 	}
 
-	public ClusErrorParent createErrorMeasure(MultiScore score) {
-		ClusErrorParent parent = new ClusErrorParent(this);
+	public ClusErrorList createErrorMeasure(MultiScore score) {
+		ClusErrorList parent = new ClusErrorList(this);
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -674,8 +674,8 @@ public class ClusStatManager implements Serializable {
 		return parent;
 	}
 
-	public ClusErrorParent createEvalError() {
-		ClusErrorParent parent = new ClusErrorParent(this);
+	public ClusErrorList createEvalError() {
+		ClusErrorList parent = new ClusErrorList(this);
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -691,8 +691,8 @@ public class ClusStatManager implements Serializable {
 		return parent;
 	}
 
-	public ClusErrorParent createDefaultError() {
-		ClusErrorParent parent = new ClusErrorParent(this);
+	public ClusErrorList createDefaultError() {
+		ClusErrorList parent = new ClusErrorList(this);
 		NumericAttrType[] num = m_Schema
 				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] nom = m_Schema
@@ -712,8 +712,8 @@ public class ClusStatManager implements Serializable {
 	}
 
 	// additive and weighted targets
-	public ClusErrorParent createAdditiveError() {
-		ClusErrorParent parent = new ClusErrorParent(this);
+	public ClusErrorList createAdditiveError() {
+		ClusErrorList parent = new ClusErrorList(this);
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
@@ -735,8 +735,8 @@ public class ClusStatManager implements Serializable {
 		return parent;
 	}
 
-	public ClusErrorParent createTuneError() {
-		ClusErrorParent parent = new ClusErrorParent(this);
+	public ClusErrorList createTuneError() {
+		ClusErrorList parent = new ClusErrorList(this);
 		if (m_Mode == MODE_HIERARCHICAL) {
 			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
 			return parent;
@@ -755,8 +755,8 @@ public class ClusStatManager implements Serializable {
 		return parent;
 	}
 	
-	public ClusErrorParent createExtraError(int train_err) {
-		ClusErrorParent parent = new ClusErrorParent(this);
+	public ClusErrorList createExtraError(int train_err) {
+		ClusErrorList parent = new ClusErrorList(this);
 		if (m_Mode == MODE_TIME_SERIES) {
 			parent.addError(new SSPDICVError(parent, new QDMTimeSeriesStat()));
 		}
@@ -841,7 +841,7 @@ public class ClusStatManager implements Serializable {
 		if (pruneset != null) {
 			if (pm == Settings.PRUNING_METHOD_GAROFALAKIS_VSB
 					|| pm == Settings.PRUNING_METHOD_CART_VSB) {
-				ClusErrorParent parent = createAdditiveError();
+				ClusErrorList parent = createAdditiveError();
 				SequencePruningVSB pruner = new SequencePruningVSB(
 						(RowData) pruneset, parent, getClusteringWeights());
 				if (pm == Settings.PRUNING_METHOD_GAROFALAKIS_VSB) {
@@ -858,7 +858,7 @@ public class ClusStatManager implements Serializable {
 				return pruner;
 			} else if (pm == Settings.PRUNING_METHOD_REDERR_VSB
 					|| pm == Settings.PRUNING_METHOD_DEFAULT) {
-				ClusErrorParent parent = createEvalError();
+				ClusErrorList parent = createEvalError();
 				sett.setPruningMethod(Settings.PRUNING_METHOD_REDERR_VSB);
 				return new BottomUpPruningVSB(parent, (RowData) pruneset);
 			} else {

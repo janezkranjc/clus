@@ -28,7 +28,7 @@ public abstract class ClusTimeSeriesError extends ClusError {
 
 	protected TimeSeriesAttrType[] m_Attrs;
 	
-	public ClusTimeSeriesError(ClusErrorParent par, TimeSeriesAttrType[] ts) {
+	public ClusTimeSeriesError(ClusErrorList par, TimeSeriesAttrType[] ts) {
 		super(par, ts.length);
 		m_Attrs = ts;
 	}

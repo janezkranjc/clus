@@ -35,7 +35,7 @@ public class Accuracy extends ClusNominalError {
 
 	protected int[] m_NbCorrect;	
 
-	public Accuracy(ClusErrorParent par, NominalAttrType[] nom) {
+	public Accuracy(ClusErrorList par, NominalAttrType[] nom) {
 		super(par, nom);
 		m_NbCorrect = new int[m_Dim];
 	}
@@ -82,7 +82,7 @@ public class Accuracy extends ClusNominalError {
 		return "Accuracy";
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new Accuracy(par, m_Attrs);
 	}
 

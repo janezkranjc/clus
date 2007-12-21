@@ -40,7 +40,7 @@ public class WAHNDError extends ClusError {
 	protected double m_TreeErr;
 	protected double m_SumWeight;
 	
-	public WAHNDError(ClusErrorParent par, double weight) {
+	public WAHNDError(ClusErrorList par, double weight) {
 		super(par, 0);
 		m_Weight = weight;
 	}
@@ -82,7 +82,7 @@ public class WAHNDError extends ClusError {
 		return "WAHND RE with parameter "+ m_Weight;
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new WAHNDError(par, m_Weight);
 	}
 }

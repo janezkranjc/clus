@@ -44,15 +44,15 @@ public class MSError extends ClusNumericError {
 	protected ClusAttributeWeights m_Weights;
 	protected boolean m_PrintAllComps;
 	
-	public MSError(ClusErrorParent par, NumericAttrType[] num) {
+	public MSError(ClusErrorList par, NumericAttrType[] num) {
 		this(par, num, null, true);
 	}
 	
-	public MSError(ClusErrorParent par, NumericAttrType[] num, ClusAttributeWeights weights) {
+	public MSError(ClusErrorList par, NumericAttrType[] num, ClusAttributeWeights weights) {
 		this(par, num, weights, true);
 	}
 	
-	public MSError(ClusErrorParent par, NumericAttrType[] num, ClusAttributeWeights weights, boolean printall) {
+	public MSError(ClusErrorList par, NumericAttrType[] num, ClusAttributeWeights weights, boolean printall) {
 		super(par, num);
 		m_SumErr = new double[m_Dim];
 		m_SumSqErr = new double[m_Dim];
@@ -169,7 +169,7 @@ public class MSError extends ClusNumericError {
 		else return "Weighted mean squared error (MSE) ("+m_Weights.getName(m_Attrs)+")";
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new MSError(par, m_Attrs, m_Weights, m_PrintAllComps);
 	}
 }

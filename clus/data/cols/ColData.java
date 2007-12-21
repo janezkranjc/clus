@@ -158,7 +158,7 @@ public class ColData extends ClusData {
 		node.m_SplitAttr = getAttribute(tpe.getSpecialIndex());*/			
 	}	
 	
-	public void calcError(ClusNode node, ClusErrorParent par) {
+	public void calcError(ClusNode node, ClusErrorList par) {
 /*		node.attachData(this);
 		for (int i = 0; i < m_NbRows; i++) {
 			ClusNode pred = node.predict(i);

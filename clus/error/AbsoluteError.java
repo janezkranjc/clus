@@ -37,7 +37,7 @@ public class AbsoluteError extends ClusNumericError {
 	protected double[] m_AbsError; 
 	protected double[] m_AbsDefError;
 
-	public AbsoluteError(ClusErrorParent par, NumericAttrType[] num) {
+	public AbsoluteError(ClusErrorList par, NumericAttrType[] num) {
 		super(par, num);
 		m_AbsError = new double[m_Dim];
 		m_AbsDefError = new double[m_Dim];
@@ -112,7 +112,7 @@ public class AbsoluteError extends ClusNumericError {
 		return "Mean absolute error (MAE)";
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new AbsoluteError(par, m_Attrs);
 	}
 }

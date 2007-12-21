@@ -37,7 +37,7 @@ public class SSPDICVError extends ClusError {
 	protected double m_Value;
 	protected SSPDDistance m_Dist;
 	
-	public SSPDICVError(ClusErrorParent par, SSPDDistance dist) {
+	public SSPDICVError(ClusErrorList par, SSPDDistance dist) {
 		super(par);
 		m_Dist = dist;
 	}
@@ -70,7 +70,7 @@ public class SSPDICVError extends ClusError {
 		wrt.println("SSPD-ICV: "+m_Value);
 	}
 	
-	public ClusError getErrorClone(ClusErrorParent par) {
+	public ClusError getErrorClone(ClusErrorList par) {
 		return new SSPDICVError(getParent(), m_Dist);
 	}
 	
