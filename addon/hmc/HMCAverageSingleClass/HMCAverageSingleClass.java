@@ -40,6 +40,7 @@ import clus.main.*;
 import clus.util.*;
 import clus.statistic.*;
 import clus.data.type.*;
+import clus.model.*;
 import clus.model.modelio.*;
 import clus.ext.hierarchical.*;
 import clus.error.*;
@@ -80,7 +81,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				ClassHierarchy hier = getStatManager().getHier();
 				//initialize each HierClassWiseAccuracy object
 				for (int i=0;i<pruner.getNbResults();i++) {
-					for (int j = CRParent.TRAINSET; j <= CRParent.TESTSET; j++) {
+					for (int j = ClusModelInfoList.TRAINSET; j <= ClusModelInfoList.TESTSET; j++) {
 						m_EvalArray[j][i] = new ClusErrorList(getStatManager());
 						m_EvalArray[j][i].addError(new HierClassWiseAccuracy(m_EvalArray[j][i], hier));
 					}
@@ -100,19 +101,19 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				ClusStatistic stat = createTargetStat();
 				stat.calcMean();				
 				def.setTargetStat(stat);
-				cr.addModelInfo(ClusModels.DEFAULT).setModel(def);
-				cr.getModelInfo(ClusModels.DEFAULT).setName("Default");
+				cr.addModelInfo(ClusModel.DEFAULT).setModel(def);
+				cr.getModelInfo(ClusModel.DEFAULT).setName("Default");
 				m_Clus.calcError(cr, null); // Calc error				
 				// add model for each threshold to clusrun
 				for (int i = 0; i < pruner.getNbResults(); i++) {
-					ClusModelInfo pruned_info = cr.addModelInfo(ClusModels.PRUNED + i);
+					ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
 					pruned_info.setStatManager(getStatManager());
 					pruned_info.setName(pruner.getPrunedName(i));
-					for (int j = CRParent.TRAINSET; j <= CRParent.TESTSET; j++) {
+					for (int j = ClusModelInfoList.TRAINSET; j <= ClusModelInfoList.TESTSET; j++) {
 						m_EvalArray[j][i].setNbExamples(cr.getDataSet(j).getNbRows());
 					}
-					pruned_info.setTrainError(m_EvalArray[CRParent.TRAINSET][i]);
-					pruned_info.setTestError(m_EvalArray[CRParent.TESTSET][i]);
+					pruned_info.setTrainError(m_EvalArray[ClusModelInfoList.TRAINSET][i]);
+					pruned_info.setTestError(m_EvalArray[ClusModelInfoList.TESTSET][i]);
 					pruned_info.setModel(new ClusNode());
 				}
 				output.writeHeader();
@@ -182,7 +183,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			ClusModel model = loadModel(FileUtil.cmbPath(dir, files[i]));
 			int class_idx = getClassIndex(files[i]);
 			// voor iedere threshold 1
-			for (int j = CRParent.TRAINSET; j <= CRParent.TESTSET; j++) {
+			for (int j = ClusModelInfoList.TRAINSET; j <= ClusModelInfoList.TESTSET; j++) {
 				evaluateModelAndUpdateErrors(j, class_idx, model, cr);
 			}
 		}		
@@ -216,7 +217,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);		
 		for (int i = 0; i < pruner.getNbResults(); i++) {
 			ClusModel pruned = model.createWithThreshold(pruner.getThreshold(i));			
-			ClusModelInfo pruned_info = cr.addModelInfo(ClusModels.PRUNED + i);
+			ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
 			pruned_info.setModel(pruned);
 			pruned_info.setStatManager(getStatManager());
 			pruned_info.setName(pruner.getPrunedName(i));
@@ -225,7 +226,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		ClusStatistic stat = createTargetStat();
 		stat.calcMean();
 		def.setTargetStat(stat);
-		cr.getModelInfo(ClusModels.DEFAULT).setModel(def);
+		cr.getModelInfo(ClusModel.DEFAULT).setModel(def);
 		m_Clus.calcError(cr, null); // Calc error		
 		output.writeHeader();
 		output.writeOutput(cr, true, true);

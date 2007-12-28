@@ -33,13 +33,13 @@ import weka.classifiers.trees.j48.NoSplit;
 import weka.core.Utils;
 
 import clus.util.*;
-import clus.main.ClusModel;
-import clus.main.ClusModelInfo;
-import clus.main.ClusModelProcessor;
 import clus.main.ClusRun;
 import clus.main.ClusStatManager;
 import clus.main.Global;
 import clus.main.Settings;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
+import clus.model.processor.ClusModelProcessor;
 import clus.model.test.*;
 import clus.statistic.*;
 import clus.data.rows.*;

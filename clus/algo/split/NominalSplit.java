@@ -20,53 +20,29 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.data.cols.attribute;
+package clus.algo.split;
 
-import jeans.util.*;
-
-import clus.io.*;
 import clus.main.*;
 import clus.data.type.*;
-import clus.data.cols.*;
-import clus.selection.*;
+import clus.model.test.*;
+import clus.statistic.*;
 
-public abstract class ClusAttribute extends ClusSerializable {
+import java.util.*;
 
-	protected boolean m_Split;
+public abstract class NominalSplit {
 
-	public void resize(int rows) {
-	}
-	
-	public void setSplit(boolean split) {
-		m_Split = split;		
-	}
-	
-	public boolean isSplit() {
-		return m_Split;
+	public double[] createFreqList(double n_tot, ClusStatistic[] s_set, int nbvalues) {
+		double[] res = new double[nbvalues];
+		for (int i = 0; i < nbvalues; i++)
+			res[i] = s_set[i].m_SumWeight / n_tot;
+		return res;
 	}
 
-	public String getName() {
-		return getType().getName();
-	}
+	public abstract void initialize(ClusStatManager manager);
 	
-	public abstract ClusAttrType getType();
-	
-	public void prepare() {
-	}
-	
-	public void unprepare() {
-	}
-	
-	public void findBestTest(MyArray leaves, ColTarget target, ClusStatManager smanager) {
-	}
-	
-	public void split(ColTarget target) {		
-	}	
-
-	public ClusAttribute select(ClusSelection sel, int nbsel) {
-		return null;
-	}
-	
-	public void insert(ClusAttribute attr, ClusSelection sel, int nb_new) {
-	}
+	public abstract void setSDataSize(int size);
+		
+	public abstract void findSplit(TestSelector node, NominalAttrType type);
+  
+  public abstract void findRandomSplit(TestSelector node, NominalAttrType type, Random rn);
 }

@@ -20,15 +20,18 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.tdidt;
+package clus.algo.tdidt.tune;
 
 import java.io.*;
 import java.util.*;
 
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.util.*;
 import clus.selection.*;
 import clus.algo.ClusInductionAlgorithmType;
+import clus.algo.tdidt.ClusDecisionTree;
 import clus.data.ClusData;
 import clus.data.type.ClusAttrType;
 import clus.data.type.NominalAttrType;
@@ -96,13 +99,13 @@ public class CDTTuneFTest extends ClusDecisionTree {
 			XValSelection msel = new XValSelection(sel, i);
 			ClusRun cr = m_Clus.partitionDataBasic(trset, msel, pruneset, summ, i+1);
 			ClusModel pruned = m_Class.induceSingle(cr);			
-			cr.addModelInfo(ClusModels.PRUNED).setModel(pruned);
+			cr.addModelInfo(ClusModel.PRUNED).setModel(pruned);
 			m_Clus.calcError(cr, summ);
 /*			System.out.println();
 			System.out.println("Model:");
 			((ClusNode)pruned).printTree(); */
 		}
-		ClusModelInfo mi = summ.getModelInfo(ClusModels.PRUNED);
+		ClusModelInfo mi = summ.getModelInfo(ClusModel.PRUNED);
 		Settings.enableVerbose(prevVerb);
 		ClusError err = mi.getTestError().getFirstError();
 		System.out.println();

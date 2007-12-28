@@ -27,6 +27,7 @@ import java.io.IOException;
 import jeans.util.cmdline.CMDLineArgs;
 
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.util.ClusException;
 import clus.*;
 import clus.algo.*;
@@ -135,9 +136,9 @@ public class KNNClassifier extends ClusInductionAlgorithmType {
 
 
 
-		cr.getModelInfo(ClusModels.ORIGINAL).setModel(model);
+		cr.getModelInfo(ClusModel.ORIGINAL).setModel(model);
 		ClusModel defmodel = ClusDecisionTree.induceDefault(cr);
-		cr.getModelInfo(ClusModels.DEFAULT).setModel(defmodel);
+		cr.getModelInfo(ClusModel.DEFAULT).setModel(defmodel);
 	}
 
 	public void initializeSummary(ClusSummary summ) {

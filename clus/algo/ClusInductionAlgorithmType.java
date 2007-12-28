@@ -27,10 +27,10 @@ import java.io.IOException;
 import jeans.resource.ResourceInfo;
 import jeans.util.cmdline.*;
 import clus.*;
-import clus.main.ClusModel;
 import clus.main.ClusRun;
 import clus.main.ClusStatManager;
 import clus.main.Settings;
+import clus.model.ClusModel;
 import clus.util.*;
 import clus.data.type.*;
 

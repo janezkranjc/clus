@@ -29,8 +29,11 @@ import java.util.*;
 import java.text.DecimalFormat;
 
 import clus.algo.*;
+import clus.algo.split.TestSelector;
 import clus.algo.tdidt.*;
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.model.test.*;
 import clus.heuristic.*;
 import clus.selection.BaggingSelection;
@@ -1091,7 +1094,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		// cr.getModelInfo(ClusModels.ORIGINAL).setModel(model);
 		// ClusModel pruned = model.cloneModel();
 		ClusModel pruned = model;
-		ClusModelInfo pruned_model = cr.addModelInfo(ClusModels.PRUNED);
+		ClusModelInfo pruned_model = cr.addModelInfo(ClusModel.PRUNED);
 		pruned_model.setModel(pruned);
 		pruned_model.setName("Pruned");
 	}

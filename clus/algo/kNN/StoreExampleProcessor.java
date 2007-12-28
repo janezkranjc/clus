@@ -22,8 +22,8 @@
 
 package clus.algo.kNN;
 
-import clus.main.ClusModelProcessor;
-import clus.main.ClusModel;
+import clus.model.ClusModel;
+import clus.model.processor.ClusModelProcessor;
 import clus.data.type.*;
 import clus.data.rows.DataTuple;
 

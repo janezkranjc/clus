@@ -28,6 +28,7 @@ import java.io.*;
 import java.util.*;
 
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.util.*;
@@ -56,7 +57,6 @@ public class ClusSchema implements Serializable {
 	protected IntervalCollection m_Clustering = IntervalCollection.EMPTY;
 	protected IntervalCollection m_Descriptive = IntervalCollection.EMPTY;	
 	protected IntervalCollection m_Key = IntervalCollection.EMPTY;
-	protected TargetSchema m_TargetSchema;
 	
 	public ClusSchema(String name) {
 		m_Relation = name;
@@ -98,10 +98,6 @@ public class ClusSchema implements Serializable {
 
 	public final void setRelationName(String name) {
 		m_Relation = name;
-	}
-	
-	public final TargetSchema getTargetSchema() {
-		return m_TargetSchema;
 	}
 	
 	public final int getNbRows() {
@@ -415,7 +411,6 @@ public class ClusSchema implements Serializable {
 		} else {
 			addRowsIndex();
 		}
-		m_TargetSchema = makeTargetSchema();
 	}
 	
 	public final void showDebug() {
@@ -536,29 +531,12 @@ public class ClusSchema implements Serializable {
 		}
 	}	
 	
-	private TargetSchema makeTargetSchema() throws ClusException {
-		int idx[] = new int[ClusAttrType.NB_TYPES];
-		TargetSchema schema = new TargetSchema(getNbNominalTargetAttributes(), getNbNumericTargetAttributes());
-		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType at = (ClusAttrType)m_Attr.elementAt(j);
-			int mtype = at.getTypeIndex();
-			if (at.getStatus() == ClusAttrType.STATUS_TARGET &&
-			    (mtype == NominalAttrType.THIS_TYPE || mtype == NumericAttrType.THIS_TYPE)) {				
-				schema.setType(mtype, idx[mtype]++, at);
-			}
-		}
-		return schema;
-	}	
-	
 	private void addColsIndex() {
 		int idx = 0;	
 		for (int j = 0; j < m_NbAttrs; j++) {
 			ClusAttrType at = (ClusAttrType)m_Attr.elementAt(j);
 			if (at.getStatus() == ClusAttrType.STATUS_NORMAL) at.setArrayIndex(idx++);
 		}
-// FIXME: COLS mode currently disabled :-(		
-//		m_NbNum = calcNbXStatus(NumericAttrType.class, ClusAttrType.STATUS_NORMAL);
-//		m_NbNom = calcNbXStatus(NominalAttrType.class, ClusAttrType.STATUS_NORMAL);		
 	}
 		
 	public static ClusAttrType[] vectorToAttrArray(ArrayList list) {

@@ -27,6 +27,8 @@ import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.util.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.model.modelio.*;
 
 import java.io.*;
@@ -90,7 +92,7 @@ public abstract class ClusInductionAlgorithm {
 
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		ClusModel model = induceSingleUnpruned(cr);
-		ClusModelInfo model_info = cr.addModelInfo(ClusModels.ORIGINAL);
+		ClusModelInfo model_info = cr.addModelInfo(ClusModel.ORIGINAL);
 		model_info.setModel(model);		
 	}
 	

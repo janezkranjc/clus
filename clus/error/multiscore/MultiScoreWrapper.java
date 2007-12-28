@@ -46,17 +46,6 @@ public class MultiScoreWrapper extends ClusNumericError {
 		m_Child = child;		
 	}
 	
-	public static TargetSchema createTarSchema(TargetSchema schema) {
-		int nb = schema.getNbNum();
-		TargetSchema ntschema = new TargetSchema(nb, 0);
-		for (int j = 0; j < nb; j++) {
-			ClusAttrType at = schema.getNumType(j);
-			ClusAttrType ntype = new NominalAttrType(at.getName());
-			ntschema.setType(NominalAttrType.THIS_TYPE, j, ntype);
-		}
-		return ntschema;
-	}	
-
 	public boolean shouldBeLow() {
 		return m_Child.shouldBeLow();
 	}	

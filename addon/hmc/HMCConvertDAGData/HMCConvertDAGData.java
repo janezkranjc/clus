@@ -24,11 +24,10 @@ import jeans.util.*;
 import clus.*;
 import clus.main.*;
 import clus.statistic.ClusStatistic;
+import clus.data.io.*;
 import clus.data.rows.*;
-import clus.data.type.ClusAttrType;
 import clus.ext.hierarchical.ClassHierarchy;
 import clus.ext.hierarchical.WHTDStatistic;
-import clus.io.*;
 
 public class HMCConvertDAGData {
 

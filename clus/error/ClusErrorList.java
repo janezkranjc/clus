@@ -29,6 +29,8 @@ import java.util.*;
 import java.io.*;
 
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 import clus.util.*;
@@ -233,7 +235,7 @@ public class ClusErrorList implements Serializable {
 		}			
 	}
 	
-	public static boolean checkCoverage(CRParent models, int type, int nb) {
+	public static boolean checkCoverage(ClusModelInfoList models, int type, int nb) {
 		int nb_models = models.getNbModels();
 		for (int j = 0; j < nb_models; j++) {
 			ClusErrorList parent = models.getModelInfo(j).getError(type);
@@ -242,9 +244,9 @@ public class ClusErrorList implements Serializable {
 		return true;
 	}
 	
-	public void showError(CRParent models, int type, PrintWriter out) {
+	public void showError(ClusModelInfoList models, int type, PrintWriter out) {
 		int nb = m_Error.size();
-		ClusModelInfo definf = models.getModelInfo(ClusModels.DEFAULT);
+		ClusModelInfo definf = models.getModelInfo(ClusModel.DEFAULT);
 		ClusErrorList defpar = definf.getError(type);
 		out.println("Number of examples: "+defpar.getNbExamples());
 		int nb_models = models.getNbModels();
@@ -277,7 +279,7 @@ public class ClusErrorList implements Serializable {
 		}			
 	}
 	
-	public static void printExtraError(CRParent models, int type, PrintWriter out) {
+	public static void printExtraError(ClusModelInfoList models, int type, PrintWriter out) {
 		int ctr = 0;
 		int nb_models = models.getNbModels();		
 		for (int j = 0; j < nb_models; j++) {
@@ -296,7 +298,7 @@ public class ClusErrorList implements Serializable {
 		if (ctr != 0) out.println();
 	}		
 	
-	public void showErrorBrief(CRParent models, int type, PrintWriter out) {
+	public void showErrorBrief(ClusModelInfoList models, int type, PrintWriter out) {
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
 			ClusError err1 = getError(i);

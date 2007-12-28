@@ -20,53 +20,57 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.data.cols.attribute;
+package clus.algo.split;
 
-import jeans.util.*;
+import java.util.Random;
 
-import clus.io.*;
 import clus.main.*;
 import clus.data.type.*;
-import clus.data.cols.*;
-import clus.selection.*;
+import clus.model.test.*;
+import clus.statistic.*;
+import clus.util.ClusException;
+import clus.heuristic.*;
 
-public abstract class ClusAttribute extends ClusSerializable {
+public class NArySplit extends NominalSplit {
 
-	protected boolean m_Split;
+	ClusStatistic m_MStat;
 
-	public void resize(int rows) {
+	public void initialize(ClusStatManager manager) {
+		m_MStat = manager.createClusteringStat();	
 	}
 	
-	public void setSplit(boolean split) {
-		m_Split = split;		
-	}
-	
-	public boolean isSplit() {
-		return m_Split;
-	}
-
-	public String getName() {
-		return getType().getName();
-	}
-	
-	public abstract ClusAttrType getType();
-	
-	public void prepare() {
-	}
-	
-	public void unprepare() {
-	}
-	
-	public void findBestTest(MyArray leaves, ColTarget target, ClusStatManager smanager) {
-	}
-	
-	public void split(ColTarget target) {		
+	public void setSDataSize(int size) {
+		m_MStat.setSDataSize(size);
 	}	
-
-	public ClusAttribute select(ClusSelection sel, int nbsel) {
-		return null;
-	}
 	
-	public void insert(ClusAttribute attr, ClusSelection sel, int nb_new) {
+	public void findSplit(TestSelector node, NominalAttrType type) {
+		double unk_freq = 0.0;
+		int nbvalues = type.getNbValues();
+		// If has missing values?
+		if (type.hasMissing()) {
+			ClusStatistic unknown = node.m_TestStat[nbvalues];
+			m_MStat.copy(node.m_TotStat);
+			m_MStat.subtractFromThis(unknown);
+			unk_freq = unknown.m_SumWeight / node.getTotWeight();
+		} else {
+			m_MStat.copy(node.m_TotStat);		
+		}
+		// Calculate heuristic
+		double mheur = node.calcHeuristic(m_MStat, node.m_TestStat, nbvalues);
+		if (mheur > node.m_BestHeur + ClusHeuristic.DELTA) {
+			node.m_UnknownFreq = unk_freq;
+			node.m_BestHeur = mheur;
+			node.m_TestType = TestSelector.TYPE_TEST;
+			double[] freq = createFreqList(m_MStat.m_SumWeight, node.m_TestStat, nbvalues);
+			node.m_BestTest = new NominalTest(type, freq);
+		}
 	}
+
+  public void findRandomSplit(TestSelector node, NominalAttrType type, Random rn) {
+    try {
+      throw new ClusException("Not implemented yet!");
+    } catch (ClusException e) {
+      e.printStackTrace();
+    }
+  }
 }

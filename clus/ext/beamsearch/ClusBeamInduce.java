@@ -24,6 +24,7 @@ package clus.ext.beamsearch;
 
 import clus.Clus;
 import clus.algo.*;
+import clus.algo.split.NominalSplit;
 import clus.algo.tdidt.*;
 import clus.data.rows.RowData;
 import clus.data.type.*;
@@ -32,6 +33,8 @@ import clus.main.*;
 import clus.util.*;
 import clus.nominal.split.*;
 import clus.pruning.PruneTree;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.model.modelio.*;
 
 import java.io.*;
@@ -75,7 +78,7 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 	
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		m_Search.beamSearch(cr);
-		ClusModelInfo def_model = cr.addModelInfo(ClusModels.DEFAULT);
+		ClusModelInfo def_model = cr.addModelInfo(ClusModel.DEFAULT);
 		def_model.setModel(ClusDecisionTree.induceDefault(cr));
 		def_model.setName("Default");
 		ArrayList lst = m_Search.getBeam().toArray();

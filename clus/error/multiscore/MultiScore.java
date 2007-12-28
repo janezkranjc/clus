@@ -32,8 +32,7 @@ public class MultiScore {
 
 	protected double[] m_Thresholds;	
 	protected int m_NbValues;
-	protected TargetSchema m_TarSchema;
-
+	
 	public MultiScore(ClusSchema schema, Settings sett) throws ClusException {
 		String val = sett.getMultiScore();
 		int len = val.length();
@@ -51,30 +50,11 @@ public class MultiScore {
 				m_Thresholds = new double[m_NbValues = nb_wanted];
 				for (int i = 0; i < m_NbValues; i++) m_Thresholds[i] = thr;
 			}
-			m_TarSchema = createTarSchema(schema);			
 		} catch (NumberFormatException e) {
 			throw new ClusException("Parse error reading multi-score values");
 		}
 	}
-	
-	public TargetSchema createTarSchema(ClusSchema schema) {
-		int i = 0;
-		int nb = schema.getNbAttributes();		
-		TargetSchema ntschema = new TargetSchema(m_NbValues, 0);
-		for (int j = 0; j < nb; j++) {
-			ClusAttrType at = schema.getAttrType(j);
-			if (at.getStatus() == ClusAttrType.STATUS_TARGET && at.getTypeIndex() == NumericAttrType.THIS_TYPE) {
-				ClusAttrType ntype = new NominalAttrType(at.getName());
-				ntschema.setType(NominalAttrType.THIS_TYPE, i++, ntype);
-			}
-		}
-		return ntschema;
-	}
-	
-	public TargetSchema getTarSchema() {
-		return m_TarSchema;	
-	}
-	
+		
 	public int getNbTarget() {
 		return m_NbValues;
 	}

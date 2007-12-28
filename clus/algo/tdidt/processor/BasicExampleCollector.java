@@ -20,53 +20,46 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.data.cols.attribute;
+package clus.algo.tdidt.processor;
 
 import jeans.util.*;
 
-import clus.io.*;
-import clus.main.*;
+import clus.algo.tdidt.ClusNode;
+import clus.data.rows.*;
 import clus.data.type.*;
-import clus.data.cols.*;
-import clus.selection.*;
+import clus.model.ClusModel;
+import clus.model.processor.ClusModelProcessor;
 
-public abstract class ClusAttribute extends ClusSerializable {
+import java.io.*;
 
-	protected boolean m_Split;
+public class BasicExampleCollector extends ClusModelProcessor {
 
-	public void resize(int rows) {
+	public boolean needsModelUpdate() {
+		return true;
+	}
+        
+	public void initialize(ClusModel model, ClusSchema schema) {
+		ClusNode root = (ClusNode)model;
+		recursiveInitialize(root);
 	}
 	
-	public void setSplit(boolean split) {
-		m_Split = split;		
-	}
-	
-	public boolean isSplit() {
-		return m_Split;
+	public void terminate(ClusModel model) throws IOException {
 	}
 
-	public String getName() {
-		return getType().getName();
+	public void modelUpdate(DataTuple tuple, ClusModel model) {
+		ClusNode node = (ClusNode)model;
+		MyArray visitor = (MyArray)node.getVisitor();
+		visitor.addElement(tuple);
 	}
 	
-	public abstract ClusAttrType getType();
-	
-	public void prepare() {
-	}
-	
-	public void unprepare() {
-	}
-	
-	public void findBestTest(MyArray leaves, ColTarget target, ClusStatManager smanager) {
-	}
-	
-	public void split(ColTarget target) {		
-	}	
-
-	public ClusAttribute select(ClusSelection sel, int nbsel) {
-		return null;
-	}
-	
-	public void insert(ClusAttribute attr, ClusSelection sel, int nb_new) {
+	private void recursiveInitialize(ClusNode node) {
+		if (node.atBottomLevel()) {
+			node.setVisitor(new MyArray());
+		} else {
+			for (int i = 0; i < node.getNbChildren(); i++) {
+				ClusNode child = (ClusNode)node.getChild(i);
+				recursiveInitialize(child);
+			}
+		}
 	}
 }

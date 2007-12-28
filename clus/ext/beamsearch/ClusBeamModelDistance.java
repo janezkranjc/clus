@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.statistic.*;
 
 

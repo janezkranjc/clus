@@ -25,6 +25,8 @@ package clus.algo.tdidt;
 import java.io.IOException;
 
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.pruning.*;
 import clus.util.*;
 import clus.algo.*;
@@ -38,6 +40,9 @@ import jeans.util.cmdline.*;
 
 public class ClusDecisionTree extends ClusInductionAlgorithmType {
 
+	public final static int LEVEL_WISE = 0;
+	public final static int DEPTH_FIRST = 1;
+	
 	public ClusDecisionTree(Clus clus) {
 		super(clus);
 	}
@@ -88,7 +93,7 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 	}
 
 	public void pruneAll(ClusRun cr)	throws ClusException, IOException {
-		ClusNode orig = (ClusNode)cr.getModel(ClusModels.ORIGINAL);
+		ClusNode orig = (ClusNode)cr.getModel(ClusModel.ORIGINAL);
 		orig.numberTree();
 		PruneTree pruner = getStatManager().getTreePruner(cr.getPruneSet());
 		pruner.setTrainingData((RowData) cr.getTrainingSet());
@@ -97,7 +102,7 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 			ClusNode pruned = (ClusNode) orig.cloneTree();
 			pruner.prune(i, pruned);
 			pruned.numberTree();
-			ClusModelInfo pruned_info = cr.addModelInfo(ClusModels.PRUNED + i);
+			ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
 			pruned_info.setModel(pruned);
 			pruned_info.setName(pruner.getPrunedName(i));
 		}
@@ -112,19 +117,19 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 	}	
 	
 	public void postProcess(ClusRun cr) throws ClusException, IOException {
-		ClusNode orig = (ClusNode)cr.getModel(ClusModels.ORIGINAL);		
-		ClusModelInfo orig_info = cr.getModelInfo(ClusModels.ORIGINAL);
+		ClusNode orig = (ClusNode)cr.getModel(ClusModel.ORIGINAL);		
+		ClusModelInfo orig_info = cr.getModelInfo(ClusModel.ORIGINAL);
 		orig_info.setName("Original");
 		ClusNode defmod = pruneToRoot(orig);
-		ClusModelInfo def_info = cr.addModelInfo(ClusModels.DEFAULT);
+		ClusModelInfo def_info = cr.addModelInfo(ClusModel.DEFAULT);
 		def_info.setModel(defmod);
 		def_info.setName("Default");
 		if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_PRUNED) {
-			convertToRules(cr, ClusModels.PRUNED);
+			convertToRules(cr, ClusModel.PRUNED);
 		} else if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_ALL) {
 			int cr_nb = cr.getNbModels();
 			for (int i = 0; i < cr_nb; i++) {
-				if (i != ClusModels.DEFAULT) {
+				if (i != ClusModel.DEFAULT) {
 					convertToRules(cr, i);					
 				}
 			}

@@ -33,6 +33,8 @@ import clus.data.type.*;
 import clus.algo.*;
 import clus.algo.tdidt.*;
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.util.ClusException;
 
 public class ClusRuleClassifier extends ClusInductionAlgorithmType {
@@ -65,7 +67,7 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 	}
 	
 	public void postProcess(ClusRun cr) throws ClusException, IOException {
-		ClusModelInfo def_model = cr.addModelInfo(ClusModels.DEFAULT);
+		ClusModelInfo def_model = cr.addModelInfo(ClusModel.DEFAULT);
 		def_model.setModel(ClusDecisionTree.induceDefault(cr));
 		def_model.setName("Default");
 	}	

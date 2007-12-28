@@ -27,6 +27,7 @@ import java.io.IOException;
 import jeans.util.cmdline.CMDLineArgs;
 
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.Clus;
 import clus.algo.*;
 import clus.data.type.*;

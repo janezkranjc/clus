@@ -27,6 +27,7 @@ package clus.ext.beamsearch;
 
 import clus.algo.tdidt.ClusNode;
 import clus.main.*;
+import clus.model.ClusModel;
 
 import java.io.Serializable;
 import java.util.ArrayList;

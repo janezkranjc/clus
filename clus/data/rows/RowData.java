@@ -33,6 +33,7 @@ import clus.util.*;
 import clus.algo.tdidt.ClusNode;
 import clus.data.ClusData;
 import clus.data.io.ClusReader;
+import clus.data.io.ClusView;
 import clus.data.type.*;
 import clus.model.test.*;
 import clus.error.*;

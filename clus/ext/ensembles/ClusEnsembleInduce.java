@@ -28,6 +28,8 @@ import clus.Clus;
 import clus.algo.*;
 import clus.algo.tdidt.*;
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.data.type.*;
 import clus.selection.BaggingSelection;
 import clus.util.ClusException;
@@ -74,11 +76,11 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 
 	public void postProcessForest(ClusRun cr) throws ClusException{
 		
-		ClusModelInfo def_info = cr.addModelInfo(ClusModels.DEFAULT);
+		ClusModelInfo def_info = cr.addModelInfo(ClusModel.DEFAULT);
 		def_info.setModel(m_DForest);
 		def_info.setName("Default");
 		
-		ClusModelInfo orig_info = cr.addModelInfo(ClusModels.ORIGINAL);
+		ClusModelInfo orig_info = cr.addModelInfo(ClusModel.ORIGINAL);
 		orig_info.setModel(m_OForest);
 		orig_info.setName("Original");
 	
@@ -90,7 +92,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			m_DForest.setPrintModels(Settings.isPrintEnsembleModels());
 			if (thresholds != null){
 				for (int i = 0; i < thresholds.length; i++){
-					ClusModelInfo pruned_info = cr.addModelInfo(ClusModels.PRUNED + i);
+					ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
 					ClusForest new_forest = m_OForest.cloneForestWithThreshold(thresholds[i]);
 					new_forest.setPrintModels(Settings.isPrintEnsembleModels());
 					pruned_info.setModel(new_forest);
@@ -114,17 +116,17 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			ind.initialize();
 			crSingle.getStatManager().initClusteringWeights();
 			ClusModel model = ind.induceSingleUnpruned(crSingle);
-			ClusModelInfo model_info = crSingle.addModelInfo(ClusModels.ORIGINAL);
+			ClusModelInfo model_info = crSingle.addModelInfo(ClusModel.ORIGINAL);
 			model_info.setModel(model);	
 			model_info.setName("Original");
 
 			ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);		
-			ClusModelInfo def_info = crSingle.addModelInfo(ClusModels.DEFAULT);
+			ClusModelInfo def_info = crSingle.addModelInfo(ClusModel.DEFAULT);
 			def_info.setModel(defmod);
 			def_info.setName("Default");
 			
-			m_OForest.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
-			m_DForest.addModelToForest(crSingle.getModel(ClusModels.DEFAULT));
+			m_OForest.addModelToForest(crSingle.getModel(ClusModel.ORIGINAL));
+			m_DForest.addModelToForest(crSingle.getModel(ClusModel.DEFAULT));
 		}
 	}
 	
@@ -143,17 +145,17 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			ind.initialize();
 			crSingle.getStatManager().initClusteringWeights();
 			ClusModel model = ind.induceSingleUnpruned(crSingle);
-			ClusModelInfo model_info = crSingle.addModelInfo(ClusModels.ORIGINAL);
+			ClusModelInfo model_info = crSingle.addModelInfo(ClusModel.ORIGINAL);
 			model_info.setModel(model);	
 			model_info.setName("Original");
 
 			ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);		
-			ClusModelInfo def_info = crSingle.addModelInfo(ClusModels.DEFAULT);
+			ClusModelInfo def_info = crSingle.addModelInfo(ClusModel.DEFAULT);
 			def_info.setModel(defmod);
 			def_info.setName("Default");
 			
-			m_OForest.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
-			m_DForest.addModelToForest(crSingle.getModel(ClusModels.DEFAULT));
+			m_OForest.addModelToForest(crSingle.getModel(ClusModel.ORIGINAL));
+			m_DForest.addModelToForest(crSingle.getModel(ClusModel.DEFAULT));
 		}
 	}
 	
@@ -175,17 +177,17 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			crSingle.getStatManager().initClusteringWeights();
 			ind.initializeHeuristic();
 			ClusModel model = ind.induceSingleUnpruned(crSingle);
-			ClusModelInfo model_info = crSingle.addModelInfo(ClusModels.ORIGINAL);
+			ClusModelInfo model_info = crSingle.addModelInfo(ClusModel.ORIGINAL);
 			model_info.setModel(model);	
 			model_info.setName("Original");
 
 			ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);		
-			ClusModelInfo def_info = crSingle.addModelInfo(ClusModels.DEFAULT);
+			ClusModelInfo def_info = crSingle.addModelInfo(ClusModel.DEFAULT);
 			def_info.setModel(defmod);
 			def_info.setName("Default");
 			
-			m_OForest.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
-			m_DForest.addModelToForest(crSingle.getModel(ClusModels.DEFAULT));
+			m_OForest.addModelToForest(crSingle.getModel(ClusModel.ORIGINAL));
+			m_DForest.addModelToForest(crSingle.getModel(ClusModel.DEFAULT));
 		}
 	}
 	

@@ -30,6 +30,7 @@ import java.io.*;
 import clus.algo.tdidt.ClusNode;
 import clus.data.rows.RowData;
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.model.test.*;
 import clus.util.*;
 

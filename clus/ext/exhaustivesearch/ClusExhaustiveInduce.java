@@ -29,9 +29,13 @@ import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.nominal.split.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.model.modelio.*;
 import clus.ext.beamsearch.*;
 import java.io.*;
+
+import clus.algo.split.NominalSplit;
 import clus.algo.tdidt.*;
 
 import java.util.ArrayList;
@@ -69,7 +73,7 @@ public class ClusExhaustiveInduce extends ClusInductionAlgorithm {
 
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		m_Search.exhaustiveSearch(cr);
-		ClusModelInfo def_model = cr.addModelInfo(ClusModels.DEFAULT);
+		ClusModelInfo def_model = cr.addModelInfo(ClusModel.DEFAULT);
 		def_model.setModel(ClusDecisionTree.induceDefault(cr));
 		def_model.setName("Default");
 		ArrayList lst = m_Search.getBeam().toArray();

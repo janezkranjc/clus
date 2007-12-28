@@ -30,7 +30,6 @@ import clus.data.type.*;
 
 public class ColTarget {
 
-	public TargetSchema m_Schema;
 	public int m_NbNumeric, m_NbNominal, m_NbRows;
 	public double[][] m_Numeric;
 	public int[][] m_Nominal;
@@ -39,14 +38,7 @@ public class ColTarget {
 	public ColTarget(ClusSchema schema) {
 		// m_NbNumeric = schema.getNbTarNum();
 		// m_NbNominal = schema.getNbTarNom();
-		m_Schema = schema.getTargetSchema();
 	}
-	
-	public ColTarget(int nb_num, int nb_nom, TargetSchema schema) {
-		m_NbNumeric = nb_num;
-		m_NbNominal = nb_nom;
-		m_Schema = schema;
-	}	
 	
 	public ClusNode[] getNodes() {
 		return m_Node;
@@ -88,7 +80,7 @@ public class ColTarget {
 		double[][] numsubset = selectNumeric(sel, nbsel);
 		int[][] nomsubset = selectNominal(sel, nbsel);				
 		setNbRows(m_NbRows - nbsel);
-		ColTarget s_targ = new ColTarget(m_NbNumeric, m_NbNominal, m_Schema);
+		ColTarget s_targ = null;
 		s_targ.setData(numsubset, nomsubset, nbsel);
 		return s_targ;
 	}

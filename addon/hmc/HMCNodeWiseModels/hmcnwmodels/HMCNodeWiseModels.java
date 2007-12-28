@@ -20,7 +20,7 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-/*package hmcnwmodels;*/
+package hmcnwmodels;
 
 import java.io.*;
 import java.util.*;
@@ -29,14 +29,16 @@ import jeans.util.array.StringTable;
 import jeans.util.cmdline.*;
 
 import clus.Clus;
+import clus.algo.*;
 import clus.algo.tdidt.*;
 import clus.data.rows.*;
 import clus.data.type.*;
-import clus.error.ClusErrorParent;
+import clus.error.*;
 import clus.ext.hierarchical.*;
 import clus.main.*;
-import clus.model.modelio.ClusModelCollectionIO;
-import clus.statistic.ClusStatistic;
+import clus.model.*;
+import clus.model.modelio.*;
+import clus.statistic.*;
 import clus.util.*;
 
 public class HMCNodeWiseModels implements CMDLineArgsProvider {
@@ -128,7 +130,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			ClassesAttrType ctype = new ClassesAttrType(nodeName+"-"+childName);
 			ClusSchema cschema = createChildSchema(train.getSchema(), ctype, "REL-"+nodeName+"-"+childName);
 			RowData childData = createChildData(nodeData, ctype, child.getIndex());
-			ClusClassifier clss = new ClusDecisionTree(m_Clus);
+			ClusInductionAlgorithmType clss = new ClusDecisionTree(m_Clus);
 			m_Clus.recreateInduce(m_Cargs, clss, cschema, childData);
 			String name = m_Clus.getSettings().getAppName() + "-" + nodeName + "-" + childName;
 			ClusRun cr = new ClusRun(childData.cloneData(), m_Clus.getSummary());
@@ -143,7 +145,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			output.writeOutput(cr, true, true);
 			output.close();
 			ClusModelCollectionIO io = new ClusModelCollectionIO();
-			io.addModel(cr.addModelInfo(ClusModels.ORIGINAL));
+			io.addModel(cr.addModelInfo(ClusModel.ORIGINAL));
 			io.save("nodewise/model/" + name + ".model");
 		}
 	}

@@ -34,6 +34,8 @@ import clus.data.rows.*;
 import clus.data.type.*;
 import clus.error.ClusErrorList;
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.processor.ClusModelProcessor;
 import clus.statistic.*;
 import clus.util.*;
 

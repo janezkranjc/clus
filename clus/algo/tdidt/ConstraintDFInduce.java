@@ -35,6 +35,7 @@ import clus.main.*;
 import clus.util.*;
 import clus.statistic.*;
 import clus.ext.constraint.*;
+import clus.model.ClusModel;
 import clus.model.test.*;
 
 public class ConstraintDFInduce extends DepthFirstInduce {

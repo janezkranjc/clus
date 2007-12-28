@@ -23,6 +23,7 @@
 package clus.algo.kNN;
 
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.*;
 import clus.algo.*;
 import clus.algo.tdidt.*;
@@ -115,7 +116,7 @@ public class KNNTreeClassifier extends ClusInductionAlgorithmType {
 
 		// We store the original decision tree
 		// for easy comparison of results.
-		cr.getModelInfo(ClusModels.ORIGINAL).setModel(orig);
+		cr.getModelInfo(ClusModel.ORIGINAL).setModel(orig);
 
 
 		System.out.println("Calculating Statistical Measures...");
@@ -154,7 +155,7 @@ public class KNNTreeClassifier extends ClusInductionAlgorithmType {
 		storeDataInTree(trainData,tree);
 
 		// Store this new tree
-		cr.getModelInfo(ClusModels.ORIGINAL).setModel(tree);
+		cr.getModelInfo(ClusModel.ORIGINAL).setModel(tree);
 
 		//try to prune the tree
 		//(of course) first see if package clus.pruning is wanted
@@ -169,12 +170,12 @@ public class KNNTreeClassifier extends ClusInductionAlgorithmType {
 			//prune the cloned tree
 			pruner.prune(pruned);
 			//Store the pruned tree
-			cr.getModelInfo(ClusModels.PRUNED).setModel(pruned);
+			cr.getModelInfo(ClusModel.PRUNED).setModel(pruned);
 		}
 
 		// Also store a default prediction tree for comparison
 		ClusModel defmodel = ClusDecisionTree.induceDefault(cr);
-		cr.getModelInfo(ClusModels.DEFAULT).setModel(defmodel);
+		cr.getModelInfo(ClusModel.DEFAULT).setModel(defmodel);
 
 	}
 

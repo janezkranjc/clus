@@ -23,6 +23,7 @@
 package clus.algo.kNN;
 
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.data.rows.*;
 import clus.statistic.ClusStatistic;
 import clus.statistic.StatisticPrintInfo;

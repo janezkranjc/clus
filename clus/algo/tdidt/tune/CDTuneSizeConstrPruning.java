@@ -23,7 +23,7 @@
 /*
  * Created on May 11, 2005
  */
-package clus.algo.tdidt;
+package clus.algo.tdidt.tune;
 
 import java.io.*;
 import java.util.*;
@@ -32,11 +32,15 @@ import jeans.io.MyFile;
 import jeans.math.*;
 
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.selection.*;
 import clus.statistic.*;
 import clus.util.*;
 import clus.pruning.*;
 import clus.algo.ClusInductionAlgorithmType;
+import clus.algo.tdidt.ClusDecisionTree;
+import clus.algo.tdidt.ClusNode;
 import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.data.attweights.*;
@@ -298,7 +302,7 @@ public class CDTuneSizeConstrPruning extends ClusDecisionTree {
 		ClusErrorList errorpar = mgr.createDefaultError();
 		errorpar.setWeights(m_TargetWeights);
 		summ.setTestError(errorpar);
-		int model = ClusModels.ORIGINAL;
+		int model = ClusModel.ORIGINAL;
 		XValMainSelection sel = getXValSelection(getSettings(), trset.getNbRows());
 		int nbfolds = sel.getNbFolds();
 		ClusRun[] runs = new ClusRun[nbfolds];

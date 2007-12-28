@@ -28,6 +28,10 @@ import clus.gui.*;
 import clus.algo.ClusInductionAlgorithm;
 import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.tdidt.*;
+import clus.algo.tdidt.processor.NodeExampleCollector;
+import clus.algo.tdidt.processor.NodeIDWriter;
+import clus.algo.tdidt.tune.CDTTuneFTest;
+import clus.algo.tdidt.tune.CDTuneSizeConstrPruning;
 
 import jeans.io.*;
 import jeans.util.*;
@@ -44,6 +48,7 @@ import clus.data.ClusData;
 import clus.data.type.*;
 import clus.data.io.ARFFFile;
 import clus.data.io.ClusReader;
+import clus.data.io.ClusView;
 import clus.data.rows.*;
 import clus.error.*;
 import clus.error.multiscore.*;
@@ -56,6 +61,8 @@ import clus.ext.exhaustivesearch.*;
 import clus.ext.constraint.*;
 import clus.pruning.*;
 
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.model.processor.*;
 import clus.model.modelio.*;
 
@@ -343,10 +350,6 @@ public class Clus implements CMDLineArgsProvider {
 		return m_Schema;
 	}
 
-	public final TargetSchema getTargetSchema() {
-		return m_Schema.getTargetSchema();
-	}
-
 	public final Settings getSettings() {
 		return m_Sett;
 	}
@@ -494,7 +497,7 @@ public class Clus implements CMDLineArgsProvider {
 		if (writetest) {
 			if (m_Sett.isWriteModelIDPredictions()) {
 				String tname = FileUtil.getName(test_fname);
-				ClusModelInfo mi = cr.addModelInfo(ClusModels.PRUNED);
+				ClusModelInfo mi = cr.addModelInfo(ClusModel.PRUNED);
 				mi.addModelProcessor(ClusModelInfo.TEST_ERR, new NodeIDWriter(tname + ".id", hasMissing, m_Sett));
 			}
 			if (m_Sett.isWriteTestSetPredictions()) {
@@ -509,7 +512,7 @@ public class Clus implements CMDLineArgsProvider {
 			allmi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new PredictionWriter(tr_name, m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
 		}
 		if (m_Sett.isWriteModelIDPredictions()) {
-			ClusModelInfo mi = cr.addModelInfo(ClusModels.PRUNED);
+			ClusModelInfo mi = cr.addModelInfo(ClusModel.PRUNED);
 			String id_tr_name = m_Sett.getAppName() + ".train." + idx + ".id";
 			mi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new NodeExampleCollector(id_tr_name, hasMissing, m_Sett));
 		}	
@@ -911,7 +914,7 @@ public class Clus implements CMDLineArgsProvider {
 			// Write output to file and also store in .model file
 			output.writeOutput(cr, false);
 			if (!Settings.m_EnsembleMode){
-			ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
+			ClusModelInfo mi = cr.getModelInfo(ClusModel.PRUNED);
 			// Commented out because otherwise error: combining errors of different models
 			// mi.setName("Fold: " + (fold + 1));
 			io.addModel(mi);
@@ -955,7 +958,7 @@ public class Clus implements CMDLineArgsProvider {
 		for (int i = 0; i < nbsets; i++) {
 			BaggingSelection msel = new BaggingSelection(nbrows);
 			ClusRun cr = partitionData(msel, i + 1);
-			ClusModelInfo mi = cr.getModelInfo(ClusModels.PRUNED);
+			ClusModelInfo mi = cr.getModelInfo(ClusModel.PRUNED);
 			mi.addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
 			induce(cr, clss); // Induce tree
 			calcError(cr, m_Summary); // Calc error

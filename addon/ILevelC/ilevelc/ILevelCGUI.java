@@ -29,10 +29,10 @@ import javax.swing.*;
 import java.awt.event.*;
 
 import clus.main.*;
-import clus.io.*;
 import clus.util.ClusException;
 import clus.data.rows.*;
 import clus.data.type.*;
+import clus.data.io.*;
 import clus.ext.ilevelc.*;
 
 import jeans.util.*;

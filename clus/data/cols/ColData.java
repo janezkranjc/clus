@@ -35,6 +35,7 @@ import clus.error.*;
 import clus.selection.*;
 import clus.statistic.*;
 import clus.data.cols.attribute.*;
+import clus.data.io.ClusView;
 
 public class ColData extends ClusData {
 

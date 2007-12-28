@@ -33,6 +33,8 @@ import jeans.util.array.*;
 import clus.ext.hierarchical.*;
 import clus.data.rows.*;
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.ClusModel;
 import clus.statistic.*;
 import clus.util.ClusException;
 import clus.algo.tdidt.*;

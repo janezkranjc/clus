@@ -29,6 +29,7 @@ import clus.main.*;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 import clus.main.Settings;
+import clus.model.ClusModel;
 import clus.statistic.*;
 
 public abstract class ClusError implements Serializable {

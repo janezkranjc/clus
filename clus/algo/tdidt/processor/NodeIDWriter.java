@@ -20,44 +20,82 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-/*
- * Created on Jun 27, 2005
- */
-package clus.algo.rules;
+package clus.algo.tdidt.processor;
 
-import java.io.IOException;
+import jeans.util.*;
 
+import java.io.*;
+
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
-import clus.main.*;
+import clus.data.type.*;
+import clus.main.Settings;
 import clus.model.ClusModel;
 import clus.model.processor.ClusModelProcessor;
-import clus.error.*;
 
-public class ClusCalcRuleErrorProc extends ClusModelProcessor {
+public class NodeIDWriter extends ClusModelProcessor {
 
-	protected int m_Subset;
-	protected ClusErrorList m_Global;
+	protected boolean m_Missing;
+	protected String m_Fname;
+	protected PrintWriter m_Writer;
+	protected ClusSchema m_Schema;
+	protected MyArray m_Attrs;
+	protected boolean m_First;
+	protected Settings m_Sett;
 	
-	public ClusCalcRuleErrorProc(int subset, ClusErrorList global) {
-		m_Subset = subset;
-		m_Global = global;
+	public NodeIDWriter(String fname, boolean missing, Settings sett) {
+		m_Fname = fname;
+		m_Missing = missing;
+		m_Sett = sett;
 	}
-	
-	public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
-		ClusRule rule = (ClusRule)model;
-		ClusErrorList error = rule.getError(m_Subset);
-		error.addExample(tuple, rule.getTargetStat());
+
+	public void initialize(ClusModel model, ClusSchema schema) throws IOException {
+		m_Attrs = new MyArray();
+		int nb = schema.getNbAttributes();
+		for (int i = 0; i < nb; i++) {
+			ClusAttrType at = schema.getAttrType(i);
+			if (at.getStatus() == ClusAttrType.STATUS_KEY) m_Attrs.addElement(at);
+		}
+		if (m_Attrs.size() == 0) {
+			for (int i = 0; i < nb; i++) {
+				ClusAttrType at = schema.getAttrType(i);
+				if (at.getStatus() == ClusAttrType.STATUS_TARGET) m_Attrs.addElement(at);
+			}
+		}
+		m_First = true;
+		m_Writer = m_Sett.getFileAbsoluteWriter(m_Fname);
 	}
 	
 	public void terminate(ClusModel model) throws IOException {
-		ClusRuleSet set = (ClusRuleSet)model;
-		for (int i = 0; i < set.getModelSize(); i++) {
-			ClusRule rule = set.getRule(i);
-			rule.getError(m_Subset).updateFromGlobalMeasure(m_Global);
-		}
+		m_Writer.close();
 	}
-	
+
 	public boolean needsModelUpdate() {
 		return true;
 	}		
+
+	public void modelUpdate(DataTuple tuple, ClusModel model) {	
+		ClusNode node = (ClusNode)model;
+		if (m_First) {
+			m_Writer.print("pred(");
+			for (int j = 0; j < m_Attrs.size(); j++) {
+				ClusAttrType at = (ClusAttrType)m_Attrs.elementAt(j);					
+				m_Writer.print(at.getString(tuple));					
+			}
+			m_First = false;
+		}
+		m_Writer.print(",");
+		if (m_Missing) {
+			m_Writer.print("("+tuple.getWeight()+","+node.getID()+")");
+		} else {
+			m_Writer.print(node.getID());
+		}
+	}
+		
+	public void modelDone()	{
+		m_Writer.println(").");	
+		m_First = true;
+	}
 }
+
+

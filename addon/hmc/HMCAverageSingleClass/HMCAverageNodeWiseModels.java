@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.ClusModel;
 import clus.model.modelio.ClusModelCollectionIO;
 import clus.statistic.ClusStatistic;
 import clus.util.*;
@@ -66,7 +68,7 @@ public class HMCAverageNodeWiseModels {
 		// Initialize results array
 		// Cell with predicted probability for each example in the train and test sets 
 		m_PredProb = new double[2][hier.getTotal()][];
-		for (int i = CRParent.TRAINSET; i <= CRParent.TESTSET; i++) {
+		for (int i = ClusModelInfoList.TRAINSET; i <= ClusModelInfoList.TESTSET; i++) {
 			int size = cr.getDataSet(i).getNbRows();
 			for (int j = 0; j < hier.getTotal(); j++) {
 				m_PredProb[i][j] = new double[size];
@@ -98,7 +100,7 @@ public class HMCAverageNodeWiseModels {
 	public void updateErrorMeasures(ClusRun cr) throws ClusException, IOException {
 		ClassHierarchy hier = getStatManager().getHier();
 		HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
-		for (int traintest = CRParent.TRAINSET; traintest <= CRParent.TESTSET; traintest++) {
+		for (int traintest = ClusModelInfoList.TRAINSET; traintest <= ClusModelInfoList.TESTSET; traintest++) {
 			RowData data = cr.getDataSet(traintest);
 			for (int exid = 0; exid < data.getNbRows(); exid++) {
 				DataTuple tuple = data.getTuple(exid);
@@ -133,7 +135,7 @@ public class HMCAverageNodeWiseModels {
 			}
 			getClus().getSchema().attachModel(model);
 			// Make predictions with this model
-			for (int traintest = CRParent.TRAINSET; traintest <= CRParent.TESTSET; traintest++) {
+			for (int traintest = ClusModelInfoList.TRAINSET; traintest <= ClusModelInfoList.TESTSET; traintest++) {
 				RowData data = cr.getDataSet(traintest);
 				for (int exid = 0; exid < data.getNbRows(); exid++) {
 					updatePrediction(data, exid, traintest, model, parent, term);
@@ -142,7 +144,7 @@ public class HMCAverageNodeWiseModels {
 		}
 		// prediction(class) = avg(prediction(parent_i)*prediction(class|parent_i))
 		int child_idx = term.getIndex();
-		for (int traintest = CRParent.TRAINSET; traintest <= CRParent.TESTSET; traintest++) {
+		for (int traintest = ClusModelInfoList.TRAINSET; traintest <= ClusModelInfoList.TESTSET; traintest++) {
 			RowData data = cr.getDataSet(traintest);
 			for (int exid = 0; exid < data.getNbRows(); exid++) {
 				m_PredProb[traintest][child_idx][exid] /= term.getNbParents(); 

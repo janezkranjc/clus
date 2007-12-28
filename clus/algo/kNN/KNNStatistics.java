@@ -24,7 +24,6 @@ package clus.algo.kNN;
 
 import clus.data.rows.RowData;
 import clus.data.rows.DataTuple;
-import clus.main.TargetSchema;
 import clus.data.type.*;
 
 /**
@@ -46,9 +45,8 @@ public class KNNStatistics {
 
 		ClusSchema schema = data.getSchema();
 		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
-		TargetSchema target = schema.getTargetSchema();
 
-		$prototypes = new DataTuple[target.getNbNomValues(0)];
+		$prototypes = new DataTuple[1/*target.getNbNomValues(0)*/];
 		//Initialize the prototypes.
 		for (int i=0;i<$prototypes.length;i++){
 			$prototypes[i] = new DataTuple(schema);
@@ -234,9 +232,7 @@ public class KNNStatistics {
 		DataTuple t = $prototypes[idx];
 		ClusSchema schema = data.getSchema();
 		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
-		TargetSchema target = schema.getTargetSchema();
-
-		System.out.print("Prototype values for targetvalue "+target.getNomName(0)+"="+idx+" : (");
+		
 		for (int i = 0; i < attrs.length; i++){
 			if (attrs[i].getTypeIndex() == NominalAttrType.THIS_TYPE){
 				System.out.print(attrs[i].getNominal(t)+",");

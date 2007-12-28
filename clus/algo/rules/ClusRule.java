@@ -34,6 +34,7 @@ import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.main.*;
 import clus.statistic.*;
+import clus.model.ClusModel;
 import clus.model.test.*;
 import clus.util.*;
 import clus.data.type.*;

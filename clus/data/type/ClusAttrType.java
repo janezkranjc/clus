@@ -33,7 +33,7 @@ import clus.data.cols.attribute.*;
 
 import clus.algo.kNN.BasicDistance;
 
-public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
+public abstract class ClusAttrType implements Serializable {
 	
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
@@ -190,9 +190,6 @@ public abstract class ClusAttrType implements ClusAttrProxy, Serializable {
 
 	public ClusAttrType getType() {
 		return this;
-	}
-
-	public void setSplit(boolean split) {
 	}
 
 	public void setNbRows(int nbrows) {
