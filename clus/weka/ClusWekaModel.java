@@ -32,6 +32,7 @@ import jeans.io.*;
 import jeans.util.*;
 import clus.data.rows.*;
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.statistic.*;
 
 import weka.classifiers.*;

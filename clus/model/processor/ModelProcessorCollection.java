@@ -23,6 +23,7 @@
 package clus.model.processor;
 
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.statistic.*;

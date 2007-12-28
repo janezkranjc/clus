@@ -25,6 +25,8 @@
  */
 package clus.tools;
 
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.model.modelio.*;
 import clus.main.*;
 import clus.error.*;
@@ -66,10 +68,9 @@ public class ClusShowModelInfo {
 					test_error.showError(output);					
 					/* One can also get an individual error, or iterate over all error measures */
 					ClusError err = test_error.getErrorByName("Classification Error");
-					TargetSchema targets = model_info.getStatManager().getTargetSchema();
 					if (err != null) {
 						for (int j = 0; j < err.getDimension(); j++) {
-							output.println("Target: "+j+" ("+targets.getNomName(j)+") error: "+err.getModelErrorComponent(j));
+							output.println("Target: "+j+" error: "+err.getModelErrorComponent(j));
 						}
 					}					
 				} else {

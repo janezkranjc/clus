@@ -30,6 +30,7 @@ import clus.data.io.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.util.ClusException;
 
 public class MPCKMeansWrapper {

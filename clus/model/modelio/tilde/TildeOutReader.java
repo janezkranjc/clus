@@ -97,10 +97,9 @@ public class TildeOutReader {
 	
 	public void readTargetSchema(String fname) throws IOException {
 		MStreamTokenizer tokens = new MStreamTokenizer(fname);
-		TargetSchema target = m_Schema.getTargetSchema();
-		int nb = Math.min(target.getNbNom(), getDim());		
+		int nb = Math.min(1/*target.getNbNom()*/, getDim());		
 		for (int i = 0; i < nb; i++) {
-			NominalAttrType nom = target.getNomType(i);
+			NominalAttrType nom = null; /*target.getNomType(i);*/
 			nom.setName(tokens.readToken());
 			tokens.readChar('{');
 			for (int j = 0; j < nom.getNbValues(); j++) {

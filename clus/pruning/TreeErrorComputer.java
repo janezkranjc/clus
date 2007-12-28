@@ -32,6 +32,8 @@ import clus.data.rows.*;
 import clus.error.ClusError;
 import clus.error.ClusErrorList;
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.processor.ClusModelProcessor;
 import clus.statistic.ClusStatistic;
 
 public class TreeErrorComputer extends ClusModelProcessor {

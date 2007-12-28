@@ -32,6 +32,7 @@ import jeans.util.cmdline.*;
 import clus.*;
 import clus.algo.*;
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.util.*;
 import clus.data.rows.*;
 import clus.data.type.*;

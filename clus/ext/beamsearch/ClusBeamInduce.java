@@ -22,19 +22,17 @@
 
 package clus.ext.beamsearch;
 
-import clus.Clus;
+import clus.*;
 import clus.algo.*;
-import clus.algo.split.NominalSplit;
+import clus.algo.split.*;
 import clus.algo.tdidt.*;
-import clus.data.rows.RowData;
+import clus.data.rows.*;
 import clus.data.type.*;
-import clus.ext.ensembles.ClusForest;
+import clus.ext.ensembles.*;
 import clus.main.*;
 import clus.util.*;
-import clus.nominal.split.*;
-import clus.pruning.PruneTree;
-import clus.model.ClusModel;
-import clus.model.ClusModelInfo;
+import clus.pruning.*;
+import clus.model.*;
 import clus.model.modelio.*;
 
 import java.io.*;

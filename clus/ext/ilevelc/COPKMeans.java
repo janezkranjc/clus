@@ -32,6 +32,7 @@ import clus.data.type.*;
 import clus.data.attweights.ClusNormalizedAttributeWeights;
 import clus.data.rows.*;
 import clus.main.*;
+import clus.model.ClusModel;
 
 public class COPKMeans {
 

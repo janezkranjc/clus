@@ -23,9 +23,10 @@
 package clus.main;
 
 import clus.error.*;
+import clus.model.ClusModelInfo;
 import clus.util.ClusException;
 
-public class ClusSummary extends CRParent {
+public class ClusSummary extends ClusModelInfoList {
 	
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 

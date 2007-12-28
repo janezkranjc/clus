@@ -37,6 +37,7 @@ import jeans.graph.*;
 
 import clus.main.*;
 import clus.util.*;
+import clus.model.ClusModelInfo;
 import clus.model.modelio.*;
 import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.tdidt.ClusNode;

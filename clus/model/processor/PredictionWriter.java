@@ -28,6 +28,8 @@ import java.io.*;
 import java.util.*;
 
 import clus.main.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.util.*;
 import clus.data.io.*;
 import clus.data.rows.*;

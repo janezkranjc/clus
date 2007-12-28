@@ -86,7 +86,7 @@ public class TildeTreeReader {
 			}
 			stat.m_SumWeight = count;
 		} else {
-			int nb = mgr.getTargetSchema().getNbNomValues(0);
+			int nb = 1; /*mgr.getTargetSchema().getNbNomValues(0);*/
 			double weight = 0.0;
 			for (int i = 0; i < nb; i++) {
 				if (i > 0) tokens.readChar(',');

@@ -28,6 +28,7 @@ import clus.error.*;
 import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.main.*;
+import clus.model.ClusModel;
 import clus.model.test.*;
 
 public class SSPDICVError extends ClusError {

@@ -33,6 +33,7 @@ import clus.error.*;
 import clus.error.multiscore.*;
 import clus.heuristic.*;
 import clus.statistic.*;
+import clus.model.ClusModel;
 import clus.pruning.*;
 
 import clus.ext.hierarchical.*;
@@ -78,8 +79,6 @@ public class ClusStatManager implements Serializable {
 
 	protected transient ClusStatistic m_TargetStatistic, m_AllStatistic;
 
-	protected TargetSchema m_Target;
-
 	protected ClusSchema m_Schema;
 
 	protected boolean m_BeamSearch;
@@ -114,7 +113,6 @@ public class ClusStatManager implements Serializable {
 	public ClusStatManager(ClusSchema schema, Settings sett, boolean docheck)
 			throws ClusException, IOException {
 		m_Schema = schema;
-		m_Target = schema.getTargetSchema();
 		m_Settings = sett;
 		if (docheck) {
 			check();
@@ -136,10 +134,6 @@ public class ClusStatManager implements Serializable {
 
 	public final int getMode() {
 		return m_Mode;
-	}
-
-	public final TargetSchema getTargetSchema() {
-		return m_Target;
 	}
 
 	public final ClassHierarchy getHier() {
@@ -349,12 +343,8 @@ public class ClusStatManager implements Serializable {
 
 	public void check() throws ClusException {
 		int nb_types = 0;
-		int nb_nom = m_Schema
-				.getNbNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		int nb_num = m_Schema
-				.getNbNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		int nb_int = m_Target.getNbType(IntegerAttrType.THIS_TYPE);
-
+		int nb_nom = m_Schema.getNbNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		int nb_num = m_Schema.getNbNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		if (nb_nom > 0 && nb_num > 0) {
 			m_Mode = MODE_CLASSIFY_AND_REGRESSION;
 			nb_types++;
@@ -365,12 +355,13 @@ public class ClusStatManager implements Serializable {
 			m_Mode = MODE_REGRESSION;
 			nb_types++;
 		}
-		if (m_Schema.hasAttributeType(ClusAttrType.ATTR_USE_TARGET,
-				ClassesAttrType.THIS_TYPE)) {
+		if (m_Schema.hasAttributeType(ClusAttrType.ATTR_USE_TARGET, ClassesAttrType.THIS_TYPE)) {
 			m_Mode = MODE_HIERARCHICAL;
 			getSettings().setSectionHierarchicalEnabled(true);
 			nb_types++;
 		}
+		// FIXME: SSPD mode does not work anymore
+		int nb_int = 0;
 		if (nb_int > 0 || m_Settings.checkHeuristic("SSPD")) {
 			m_Mode = MODE_SSPD;
 			nb_types++;
@@ -386,8 +377,7 @@ public class ClusStatManager implements Serializable {
 			System.err.println("No target value defined");
 		}
 		if (nb_types > 1) {
-			throw new ClusException(
-					"Incompatible combination of clustering attribute types");
+			throw new ClusException("Incompatible combination of clustering attribute types");
 		}
 	}
 

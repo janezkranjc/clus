@@ -24,13 +24,14 @@ package clus.main;
 
 import java.io.*;
 
+import clus.model.ClusModelInfo;
 import clus.selection.*;
 import clus.error.*;
 import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.util.*;
 
-public class ClusRun extends CRParent {
+public class ClusRun extends ClusModelInfoList {
 	
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 

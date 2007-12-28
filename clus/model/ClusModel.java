@@ -20,13 +20,52 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.main;
+package clus.model;
 
-import clus.util.ClusException;
-import clus.data.type.*;
+import jeans.util.*;
 
-public interface ClusSchemaInitializer {
+import clus.main.ClusRun;
+import clus.statistic.*;
+import clus.data.rows.*;
+import clus.util.*;
 
-	public void initSchema(ClusSchema schema) throws ClusException;
+import java.io.*;
+import java.util.*;
 
+public interface ClusModel {
+	
+	public static int DEFAULT = 0;
+	public static int ORIGINAL = 1;
+	public static int PRUNED = 2;
+	
+	public static int PRUNE_INVALID = 0;
+  
+    public static int TRAIN = 0;
+    public static int TEST = 1;
+
+	public ClusStatistic predictWeighted(DataTuple tuple);
+	
+	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException;
+	
+	public int getModelSize();
+	
+	public String getModelInfo();
+	
+	public void printModel(PrintWriter wrt);
+	
+	public void printModel(PrintWriter wrt, StatisticPrintInfo info);	
+	
+	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples);
+
+	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem);
+	
+	public void printModelToPythonScript(PrintWriter wrt);
+	
+	public void attachModel(Hashtable table) throws ClusException;
+	
+	public void retrieveStatistics(ArrayList list);
+	
+	public ClusModel prune(int prunetype);
+	
+	public int getID();
 }

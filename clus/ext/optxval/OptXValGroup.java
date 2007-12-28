@@ -27,6 +27,7 @@ import jeans.util.list.*;
 import clus.ext.ootind.*;
 
 import clus.main.*;
+import clus.algo.split.TestSelector;
 import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.model.test.*;

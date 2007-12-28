@@ -24,19 +24,15 @@ package clus.algo.tdidt;
 
 import clus.main.*;
 import clus.util.*;
-import clus.algo.ClusInductionAlgorithm;
+import clus.algo.*;
 import clus.algo.rules.*;
-import clus.algo.split.NArySplit;
-import clus.algo.split.NominalSplit;
-import clus.algo.split.SubsetSplit;
-import clus.algo.split.TestSelector;
+import clus.algo.split.*;
 import clus.data.rows.*;
 import clus.data.type.*;
-import clus.model.ClusModel;
+import clus.model.*;
 import clus.model.test.*;
 import clus.statistic.*;
-import clus.nominal.split.*;
-import clus.ext.ensembles.ClusForest;
+import clus.ext.ensembles.*;
 
 import java.io.*;
 import java.util.*;

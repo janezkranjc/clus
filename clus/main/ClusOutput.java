@@ -29,6 +29,8 @@ import java.util.*;
 import jeans.resource.ResourceInfo;
 import jeans.util.*;
 
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.statistic.StatisticPrintInfo;
 import clus.util.*;
 import clus.data.type.*;
@@ -115,9 +117,9 @@ public class ClusOutput {
 	public boolean shouldShowModel(int model) {
 		Settings sett = getSettings();
 		boolean others = sett.getShowModel(Settings.SHOW_MODELS_OTHERS);
-		if (model == ClusModels.DEFAULT && sett.getShowModel(Settings.SHOW_MODELS_DEFAULT)) return true;
-		else if (model == ClusModels.ORIGINAL && sett.getShowModel(Settings.SHOW_MODELS_ORIGINAL)) return true;
-		else if (model == ClusModels.PRUNED && (sett.getShowModel(Settings.SHOW_MODELS_PRUNED) || others)) return true;
+		if (model == ClusModel.DEFAULT && sett.getShowModel(Settings.SHOW_MODELS_DEFAULT)) return true;
+		else if (model == ClusModel.ORIGINAL && sett.getShowModel(Settings.SHOW_MODELS_ORIGINAL)) return true;
+		else if (model == ClusModel.PRUNED && (sett.getShowModel(Settings.SHOW_MODELS_PRUNED) || others)) return true;
 		else if (others) return true;
 		return false;
 	}
@@ -259,11 +261,11 @@ public class ClusOutput {
 		
 		//Currently implemented ensemble methods don't have pruned models
 		int end_model;
-		if (!Settings.m_EnsembleMode)end_model = ClusModels.PRUNED;
-		else end_model = ClusModels.ORIGINAL;
+		if (!Settings.m_EnsembleMode)end_model = ClusModel.PRUNED;
+		else end_model = ClusModel.ORIGINAL;
 		
 //		for (int i = ClusModels.ORIGINAL; i <= ClusModels.PRUNED; i++) {
-		for (int i = ClusModels.ORIGINAL; i <= end_model; i++) {
+		for (int i = ClusModel.ORIGINAL; i <= end_model; i++) {
 			ClusModelInfo mi = summary.getModelInfo(i);
 			m_Writer.println("     "+mi.getName()+": "+getQuotient(mi.getModelSize(), runs));
 		}

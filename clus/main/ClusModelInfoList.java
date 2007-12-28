@@ -26,10 +26,12 @@ import java.io.*;
 import java.util.*;
 
 import clus.error.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.util.*;
 import clus.data.type.*;
 
-public abstract class CRParent implements Serializable {
+public abstract class ClusModelInfoList implements Serializable {
 
 	public final static int TRAINSET = 0;
 	public final static int TESTSET = 1;

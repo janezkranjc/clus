@@ -20,29 +20,58 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.nominal.split;
+package clus.model.processor;
 
-import clus.main.*;
+import clus.data.rows.*;
 import clus.data.type.*;
-import clus.model.test.*;
+import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
 import clus.statistic.*;
+import clus.util.*;
 
-import java.util.*;
+import java.io.*;
 
-public abstract class NominalSplit {
+public abstract class ClusModelProcessor {
 
-	public double[] createFreqList(double n_tot, ClusStatistic[] s_set, int nbvalues) {
-		double[] res = new double[nbvalues];
-		for (int i = 0; i < nbvalues; i++)
-			res[i] = s_set[i].m_SumWeight / n_tot;
-		return res;
+	public boolean shouldProcessModel(ClusModelInfo info) {
+		return true;
+	}
+	
+	public void addModelInfo(ClusModelInfo info) {		
+	}	
+	
+	public void initialize(ClusModel model, ClusSchema schema) throws IOException, ClusException {
+	}
+	
+	public void initializeAll(ClusSchema schema) throws IOException, ClusException {		
+	}
+	
+	public void terminate(ClusModel model) throws IOException {
+	}
+	
+	public void terminateAll() throws IOException {		
+	}	
+
+	public void exampleUpdate(DataTuple tuple) throws IOException {
+	}
+	
+	public void exampleDone() throws IOException {
+	}	
+	
+	public void exampleUpdate(DataTuple tuple, ClusStatistic distr) throws IOException {
 	}
 
-	public abstract void initialize(ClusStatManager manager);
+	public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
+	}
 	
-	public abstract void setSDataSize(int size);
-		
-	public abstract void findSplit(TestSelector node, NominalAttrType type);
-  
-  public abstract void findRandomSplit(TestSelector node, NominalAttrType type, Random rn);
+	public void modelDone() throws IOException {
+	}	
+	
+	public boolean needsModelUpdate() {
+		return false;
+	}		
+	
+	public boolean needsInternalNodes() {
+		return false;
+	}			
 }

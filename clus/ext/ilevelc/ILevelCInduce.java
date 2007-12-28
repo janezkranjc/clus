@@ -29,6 +29,7 @@ import clus.algo.tdidt.*;
 import clus.data.attweights.*;
 import clus.data.rows.*;
 import clus.data.type.*;
+import clus.model.ClusModel;
 import clus.model.test.*;
 import clus.main.*;
 import clus.util.*;
