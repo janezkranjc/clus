@@ -24,7 +24,6 @@ package clus.algo.split;
 
 import clus.main.*;
 import clus.data.type.*;
-import clus.model.test.*;
 import clus.statistic.*;
 
 import java.util.*;
@@ -42,7 +41,7 @@ public abstract class NominalSplit {
 	
 	public abstract void setSDataSize(int size);
 		
-	public abstract void findSplit(TestSelector node, NominalAttrType type);
+	public abstract void findSplit(CurrentBestTestAndHeuristic node, NominalAttrType type);
   
-  public abstract void findRandomSplit(TestSelector node, NominalAttrType type, Random rn);
+  public abstract void findRandomSplit(CurrentBestTestAndHeuristic node, NominalAttrType type, Random rn);
 }

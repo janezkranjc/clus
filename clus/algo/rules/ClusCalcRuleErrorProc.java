@@ -28,7 +28,6 @@ package clus.algo.rules;
 import java.io.IOException;
 
 import clus.data.rows.*;
-import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.processor.ClusModelProcessor;
 import clus.error.*;

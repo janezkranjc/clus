@@ -22,7 +22,6 @@
 
 package clus.data.cols;
 
-import clus.main.*;
 import clus.statistic.*;
 import clus.selection.*;
 import clus.algo.tdidt.ClusNode;

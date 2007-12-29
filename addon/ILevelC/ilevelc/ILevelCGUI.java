@@ -28,7 +28,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 
-import clus.main.*;
+import clus.main.Settings;
 import clus.util.ClusException;
 import clus.data.rows.*;
 import clus.data.type.*;
@@ -39,6 +39,7 @@ import jeans.util.*;
 
 public class ILevelCGUI extends JFrame {
 
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	public final static double LOGSIZE = 500;
 	
 	protected JComboBox m_Combo, m_Class;
@@ -101,6 +102,8 @@ public class ILevelCGUI extends JFrame {
 	}
 	
 	public class ILevelCComponent extends JComponent {
+		
+		public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 		
 		public int m_FirstIndex = -1;
 		public ArrayList m_Points = new ArrayList();

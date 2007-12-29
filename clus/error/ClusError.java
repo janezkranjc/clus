@@ -25,7 +25,6 @@ package clus.error;
 import java.io.*;
 import java.text.*;
 
-import clus.main.*;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 import clus.main.Settings;

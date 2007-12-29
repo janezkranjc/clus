@@ -469,8 +469,7 @@ public class ClusSchema implements Serializable {
 			if (attr.getStatus() != ClusAttrType.STATUS_DISABLED) attr.getPreprocs(pps, single);
 		}	
 	}	
-	
-	
+		
 	public final int getMaxNbStats() {
 		int max = 0;
 		ClusAttrType[] descr = getAllAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE);

@@ -40,7 +40,8 @@ import clus.model.test.*;
 import clus.model.modelio.*;
 import clus.Clus;
 import clus.algo.*;
-import clus.algo.split.TestSelector;
+import clus.algo.split.CurrentBestTestAndHeuristic;
+import clus.algo.split.FindBestTest;
 import clus.algo.tdidt.*;
 import clus.algo.tdidt.processor.BasicExampleCollector;
 import clus.ext.constraint.*;
@@ -119,7 +120,7 @@ public class ClusExhaustiveSearch extends ClusInductionAlgorithmType {
 		return m_Heuristic.estimateBeamMeasure(tree);
 	}
 	
-	public void initSelector(TestSelector sel) {
+	public void initSelector(CurrentBestTestAndHeuristic sel) {
 		if (hasAttrHeuristic()) {
 			sel.setHeuristic(m_AttrHeuristic);
 		}
@@ -139,7 +140,7 @@ public class ClusExhaustiveSearch extends ClusInductionAlgorithmType {
 		ClusStatistic stat = m_Induce.createTotalClusteringStat(train);
 		stat.calcMean();
 		m_Induce.initSelectorAndSplit(stat);
-		initSelector(m_Induce.getSelector());		
+		initSelector(m_Induce.getBestTest());		
 		System.out.println("Root statistic: "+stat);		
 		ClusNode root = null;
 		/* Has syntactic constraints? */
@@ -188,7 +189,8 @@ public class ClusExhaustiveSearch extends ClusInductionAlgorithmType {
 		return;
 		}
 		// init base value for heuristic
-		TestSelector sel = m_Induce.getSelector();
+		CurrentBestTestAndHeuristic sel = m_Induce.getBestTest();
+		FindBestTest find = m_Induce.getFindBestTest();
 		double base_value = root.getValue();		
 		double leaf_add = m_Heuristic.computeLeafAdd(leaf);
 		m_Heuristic.setTreeOffset(base_value - leaf_add);
@@ -202,12 +204,12 @@ public class ClusExhaustiveSearch extends ClusInductionAlgorithmType {
 			ClusAttrType at = attrs[i];
 			// System.out.println("Attribute: "+at.getName());
 			// look for the best avlue of the attribute the attribute
-			if (at instanceof NominalAttrType) m_Induce.findNominal((NominalAttrType)at, data);
-			else m_Induce.findNumeric((NumericAttrType)at, data);
+			if (at instanceof NominalAttrType) find.findNominal((NominalAttrType)at, data);
+			else find.findNumeric((NumericAttrType)at, data);
 			// found good test for attribute (the test type has been changed in the finnominal function)?
 			if (sel.hasBestTest()) {
 				ClusNode ref_leaf = (ClusNode)leaf.cloneNode();
-				sel.testToNode(ref_leaf);
+				ref_leaf.testToNode(sel);
 				// output best test
 				if (Settings.VERBOSE > 0) System.out.println("Test: "+ref_leaf.getTestString()+" -> "+sel.m_BestHeur+" ("+ref_leaf.getTest().getPosFreq()+")");	
 				// create child nodes

@@ -30,9 +30,7 @@ import java.util.*;
 
 import jeans.io.*;
 
-import clus.main.*;
-import clus.model.ClusModel;
-import clus.model.ClusModelInfo;
+import clus.model.*;
 
 public class ClusModelCollectionIO implements Serializable {
 	

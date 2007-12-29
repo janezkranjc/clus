@@ -29,14 +29,13 @@ import java.util.*;
 import java.text.DecimalFormat;
 
 import clus.algo.*;
-import clus.algo.split.TestSelector;
+import clus.algo.split.*;
 import clus.algo.tdidt.*;
 import clus.main.*;
-import clus.model.ClusModel;
-import clus.model.ClusModelInfo;
+import clus.model.*;
 import clus.model.test.*;
 import clus.heuristic.*;
-import clus.selection.BaggingSelection;
+import clus.selection.*;
 import clus.statistic.*;
 import clus.data.rows.*;
 import clus.data.type.*;
@@ -47,30 +46,22 @@ import clus.tools.optimization.de.*;
 public class ClusRuleInduce extends ClusInductionAlgorithm {
 	
 	protected boolean m_BeamChanged;
-	protected DepthFirstInduce m_Induce;
+	protected FindBestTestRules m_FindBestTest;
 	protected ClusHeuristic m_Heuristic;
 	
-	public ClusRuleInduce(DepthFirstInduce induce) {
-		super(induce);
-		m_Induce = induce;
+	public ClusRuleInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
+		super(schema, sett);
+		m_FindBestTest = new FindBestTestRules(getStatManager());
 	}
 	
 	void resetAll() {
 		m_BeamChanged = false;
 	}	
 	
-	public void initialize() throws ClusException, IOException {
-		m_Induce.initialize();
-	}
-	
 	public void setHeuristic(ClusHeuristic heur) {
 		m_Heuristic = heur;
 	}
-	
-	public Settings getSettings() {
-		return m_Induce.getSettings();
-	}
-	
+		
 	public double estimateBeamMeasure(ClusRule rule) {
 		return m_Heuristic.calcHeuristic(null, rule.getClusteringStat(), null);
 	}
@@ -86,8 +77,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	ClusBeam initializeBeam(RowData data) {
 		Settings sett = getSettings();
 		ClusBeam beam = new ClusBeam(sett.getBeamWidth(), sett.getBeamRemoveEqualHeur());
-		ClusStatistic stat = m_Induce.createTotalClusteringStat(data);
-		ClusRule rule = new ClusRule(m_Induce.getStatManager());
+		ClusStatistic stat = createTotalClusteringStat(data);
+		ClusRule rule = new ClusRule(getStatManager());
 		rule.setClusteringStat(stat);
 		rule.setVisitor(data);
 		double value = estimateBeamMeasure(rule);
@@ -98,12 +89,11 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	public void refineModel(ClusBeamModel model, ClusBeam beam, int model_idx) {
 		ClusRule rule = (ClusRule)model.getModel();
 		RowData data = (RowData)rule.getVisitor();
-		if (m_Induce.initSelectorAndStopCrit(rule.getClusteringStat(), data)) {
+		if (m_FindBestTest.initSelectorAndStopCrit(rule.getClusteringStat(), data)) {
 			model.setFinished(true);
 			return;			
 		}
-		TestSelector sel = m_Induce.getSelector();
-		// ClusStatManager mgr = m_Induce.getStatManager();		
+		CurrentBestTestAndHeuristic sel = m_FindBestTest.getBestTest();
 		ClusAttrType[] attrs = data.getSchema().getDescriptiveAttributes();
 		for (int i = 0; i < attrs.length; i++) {
 			// if (Settings.VERBOSE > 1) System.out.print("\n    Ref.Attribute: " + attrs[i].getName() + ": ");
@@ -111,8 +101,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			double beam_min_value = beam.getMinValue();
 			sel.setBestHeur(beam_min_value);
 			ClusAttrType at = attrs[i];
-			if (at instanceof NominalAttrType) m_Induce.findNominal((NominalAttrType)at, data);
-			else m_Induce.findNumeric((NumericAttrType)at, data);
+			if (at instanceof NominalAttrType) m_FindBestTest.findNominal((NominalAttrType)at, data);
+			else m_FindBestTest.findNumeric((NumericAttrType)at, data);
 			if (sel.hasBestTest()) {
 				NodeTest test = sel.updateTest();
 				if (Settings.VERBOSE > 0) System.out.println("  Test: "+test.getString()+" -> "+sel.m_BestHeur);
@@ -121,7 +111,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				ClusRule ref_rule = rule.cloneRule();
 				ref_rule.addTest(test);
 				ref_rule.setVisitor(subset);
-				ref_rule.setClusteringStat(m_Induce.createTotalClusteringStat(subset));
+				ref_rule.setClusteringStat(createTotalClusteringStat(subset));
 				// if (Settings.VERBOSE > 0) System.out.println("  Sanity.check.val: " + sel.m_BestHeur);
 				if (getSettings().isCompHeurRuleDist()) {
 					int[] subset_idx = new int[subset.getNbRows()];
@@ -184,13 +174,13 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		ClusRule result = (ClusRule)beam.getBestAndSmallestModel().getModel();
 		// Create target statistic for rule
 		RowData rule_data = (RowData)result.getVisitor();
-		result.setTargetStat(m_Induce.createTotalTargetStat(rule_data));
+		result.setTargetStat(createTotalTargetStat(rule_data));
 		result.setVisitor(null);
 		return result;
 	}
 	
 	public ClusRule learnEmptyRule(RowData data) {
-		ClusRule result = new ClusRule(m_Induce.getStatManager());
+		ClusRule result = new ClusRule(getStatManager());
 		// Create target statistic for rule
 		// RowData rule_data = (RowData)result.getVisitor();
 		// result.setTargetStat(m_Induce.createTotalTargetStat(rule_data));
@@ -235,7 +225,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			ClusRule rule = (ClusRule)((ClusBeamModel)beam_models.get(k)).getModel();
 			// Create target statistic for this rule
 			RowData rule_data = (RowData)rule.getVisitor();
-			rule.setTargetStat(m_Induce.createTotalTargetStat(rule_data));
+			rule.setTargetStat(createTotalTargetStat(rule_data));
 			rule.setVisitor(null);
 			rule.simplify();
 			result[j] = rule;
@@ -256,7 +246,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				data = rule.removeCovered(data);
 			}
 		}
-		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		ClusStatistic left_over = createTotalTargetStat(data);
 		left_over.calcMean();
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
@@ -301,7 +291,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				}
 			}
 		}
-		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		ClusStatistic left_over = createTotalTargetStat(data);
 		left_over.calcMean();
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
@@ -317,7 +307,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		int i = 0;
 		RowData data_copy = (RowData)data.deepCloneData();
 		ArrayList bit_vect_array = new ArrayList();
-		ClusStatistic left_over = m_Induce.createTotalTargetStat(data_copy);
+		ClusStatistic left_over = createTotalTargetStat(data_copy);
 		left_over.calcMean();
 		ClusStatistic new_left_over = left_over;
 		rset.setTargetStat(left_over);
@@ -332,7 +322,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				new_rset.add(rule);
 				data = rule.reweighCovered(data);
 				left_over = new_left_over;
-				new_left_over = m_Induce.createTotalTargetStat(data);
+				new_left_over = createTotalTargetStat(data);
 				new_left_over.calcMean();
 				new_rset.setTargetStat(new_left_over);
 				double new_err_score = new_rset.computeErrorScore(data_copy);
@@ -377,7 +367,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		int i = 0;
 		RowData data_copy = (RowData)data.deepCloneData();
 		ArrayList bit_vect_array = new ArrayList();
-		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		ClusStatistic left_over = createTotalTargetStat(data);
 		ClusStatistic new_left_over = left_over;
 		left_over.calcMean();
 		rset.setTargetStat(left_over);
@@ -407,7 +397,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 					new_rset.add(rules[j]);
 					RowData data_copy2 = (RowData)data_copy.deepCloneData();
 					data_copy2 = rules[j].reweighCovered(data_copy2);
-					ClusStatistic new_left_over2 = m_Induce.createTotalTargetStat(data_copy2);
+					ClusStatistic new_left_over2 = createTotalTargetStat(data_copy2);
 					new_left_over2.calcMean();
 					new_rset.setTargetStat(new_left_over2);
 					double new_err_score = new_rset.computeErrorScore(data);
@@ -517,7 +507,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				}
 			}
 		}
-		ClusStatistic left_over = m_Induce.createTotalTargetStat(data_not_covered);
+		ClusStatistic left_over = createTotalTargetStat(data_not_covered);
 		left_over.calcMean();
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
@@ -541,7 +531,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		int max_rules = getSettings().getMaxRulesNb();
 		int i = 0;
 		RowData data_copy = (RowData)data.deepCloneData();
-		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		ClusStatistic left_over = createTotalTargetStat(data);
 		ClusStatistic new_left_over = left_over;
 		left_over.calcMean();
 		rset.setTargetStat(left_over);
@@ -572,7 +562,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 					new_rset.add(rules[j]);
 					RowData data_copy2 = (RowData)data_copy.deepCloneData();
 					data_copy2 = rules[j].reweighCovered(data_copy2);
-					ClusStatistic new_left_over2 = m_Induce.createTotalTargetStat(data_copy2);
+					ClusStatistic new_left_over2 = createTotalTargetStat(data_copy2);
 					new_left_over2.calcMean();
 					new_rset.setTargetStat(new_left_over2);
 					double new_err_score = new_rset.computeErrorScore(data);
@@ -622,7 +612,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		int max_rules = getSettings().getMaxRulesNb();
 		int i = 0;
 		RowData data_copy = (RowData)data.deepCloneData();
-		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		ClusStatistic left_over = createTotalTargetStat(data);
 		// ClusStatistic new_left_over = left_over;
 		left_over.calcMean();
 		rset.setTargetStat(left_over);
@@ -744,9 +734,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		int method = getSettings().getCoveringMethod();
 		int add_method = getSettings().getRuleAddingMethod();
 		RowData data = (RowData)run.getTrainingSet();
-		ClusStatistic stat = m_Induce.createTotalClusteringStat(data);
-		m_Induce.initSelectorAndSplit(stat);
-		setHeuristic(m_Induce.getSelector().getHeuristic());
+		ClusStatistic stat = createTotalClusteringStat(data);
+		m_FindBestTest.initSelectorAndSplit(stat);
+		setHeuristic(m_FindBestTest.getBestTest().getHeuristic());
 		if (getSettings().isCompHeurRuleDist()) {
 			int[] data_idx = new int[data.getNbRows()];
 			for (int i = 0; i < data.getNbRows(); i++) {
@@ -756,7 +746,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			((ClusRuleHeuristicDispersion)m_Heuristic).setDataIndexes(data_idx);
 			((ClusRuleHeuristicDispersion)m_Heuristic).initCoveredBitVectArray(data.getNbRows());
 		}
-		ClusRuleSet rset = new ClusRuleSet(m_Induce.getStatManager());
+		ClusRuleSet rset = new ClusRuleSet(getStatManager());
 		if (method == Settings.COVERING_METHOD_STANDARD) {
 			separateAndConquor(rset, data);
 		} else if (method == Settings.COVERING_METHOD_BEAM_RULE_DEF_SET) { // Obsolete!
@@ -837,7 +827,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
 			}
 			wrt_pred.close();
-			deAlg = new DeAlg(m_Induce.getStatManager(), rule_pred, true_val);
+			deAlg = new DeAlg(getStatManager(), rule_pred, true_val);
 		} else { // regression
 			double[][] rule_pred = new double[nb_rows][nb_rules]; // [instance][rule]
 			double[] true_val = new double[nb_rows];
@@ -856,7 +846,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
 			}
 			wrt_pred.close();
-			deAlg = new DeAlg(m_Induce.getStatManager(), rule_pred, true_val);
+			deAlg = new DeAlg(getStatManager(), rule_pred, true_val);
 		}
 		ArrayList weights = deAlg.evolution();
 		for (int j = 0; j < nb_rules; j++) {
@@ -962,7 +952,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		for (int i = 0; i < rset.getModelSize(); i++) {
 			data = rset.getRule(i).removeCovered(data);
 		}
-		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		ClusStatistic left_over = createTotalTargetStat(data);
 		left_over.calcMean();
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
@@ -976,10 +966,10 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	public ClusModel induceRandomly(ClusRun run) throws ClusException, IOException {
 		int number = getSettings().nbRandomRules();
 		RowData data = (RowData)run.getTrainingSet();
-		ClusStatistic stat = m_Induce.createTotalClusteringStat(data);
-		m_Induce.initSelectorAndSplit(stat);
-		setHeuristic(m_Induce.getSelector().getHeuristic()); // ??? 
-		ClusRuleSet rset = new ClusRuleSet(m_Induce.getStatManager());
+		ClusStatistic stat = createTotalClusteringStat(data);
+		m_FindBestTest.initSelectorAndSplit(stat);
+		setHeuristic(m_FindBestTest.getBestTest().getHeuristic()); // ??? 
+		ClusRuleSet rset = new ClusRuleSet(getStatManager());
 		Random rn = new Random(42);
 		for (int i = 0; i < number; i++) {
 			ClusRule rule = generateOneRandomRule(data,rn);
@@ -990,7 +980,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				i--;
 			}
 		}
-		ClusStatistic left_over = m_Induce.createTotalTargetStat(data);
+		ClusStatistic left_over = createTotalTargetStat(data);
 		left_over.calcMean();
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
@@ -1019,7 +1009,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	private ClusRule generateOneRandomRule(RowData data, Random rn) {
 		// TODO: Remove/change the beam stuff!!! 
 		// Jans: Removed beam stuff (because was more difficult to debug)
-		ClusStatManager mgr = m_Induce.getStatManager();    
+		ClusStatManager mgr = getStatManager();    
 		ClusRule result = new ClusRule(mgr);
 		ClusAttrType[] attrs = data.getSchema().getDescriptiveAttributes();
 		// Pointer to the complete data set
@@ -1048,10 +1038,10 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				}
 			}
 		}
-		TestSelector sel = m_Induce.getSelector();
+		CurrentBestTestAndHeuristic sel = m_FindBestTest.getBestTest();
 		for (int i = 0; i < test_atts.length; i++) {
-			result.setClusteringStat(m_Induce.createTotalClusteringStat(data));
-			if (m_Induce.initSelectorAndStopCrit(result.getClusteringStat(), data)) {
+			result.setClusteringStat(createTotalClusteringStat(data));
+			if (m_FindBestTest.initSelectorAndStopCrit(result.getClusteringStat(), data)) {
 				// Do not add test if stop criterion succeeds (???)
 				break;			
 			}
@@ -1059,9 +1049,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			sel.setBestHeur(Double.NEGATIVE_INFINITY);
 			ClusAttrType at = attrs[test_atts[i]];
 			if (at instanceof NominalAttrType) {
-				m_Induce.findNominalRandom((NominalAttrType)at, data, rn);
+				m_FindBestTest.findNominalRandom((NominalAttrType)at, data, rn);
 			} else {
-				m_Induce.findNumericRandom((NumericAttrType)at, data, orig_data, rn);
+				m_FindBestTest.findNumericRandom((NumericAttrType)at, data, orig_data, rn);
 			}
 			if (sel.hasBestTest()) {
 				NodeTest test = sel.updateTest();
@@ -1072,8 +1062,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			}
 		}
 		// Create target and clustering statistic for rule
-		result.setTargetStat(m_Induce.createTotalTargetStat(data));
-		result.setClusteringStat(m_Induce.createTotalClusteringStat(data));
+		result.setTargetStat(createTotalTargetStat(data));
+		result.setClusteringStat(createTotalClusteringStat(data));
 		return result;
 	}
 	

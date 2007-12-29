@@ -44,10 +44,10 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 	}
 	
 	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
-		DepthFirstInduce induce = new DepthFirstInduce(schema, sett);
+		ClusRuleInduce induce = new ClusRuleInduce(schema, sett);
 		induce.getStatManager().setRuleInduce(true);
 		induce.getStatManager().initRuleSettings();
-		return new ClusRuleInduce(induce);
+		return induce;
 	}
 	
 	public void printInfo() {

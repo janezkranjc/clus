@@ -28,7 +28,6 @@ import java.util.*;
 import java.io.*;
 
 import clus.io.*;
-import clus.main.*;
 import clus.util.*;
 import clus.algo.tdidt.ClusNode;
 import clus.data.ClusData;

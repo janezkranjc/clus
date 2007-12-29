@@ -24,10 +24,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import clus.main.*;
-import clus.model.ClusModel;
-import clus.model.ClusModel;
-import clus.model.modelio.ClusModelCollectionIO;
-import clus.statistic.ClusStatistic;
+import clus.model.*;
+import clus.model.modelio.*;
+import clus.statistic.*;
 import clus.util.*;
 import clus.data.rows.*;
 import clus.ext.hierarchical.*;

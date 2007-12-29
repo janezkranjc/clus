@@ -26,6 +26,7 @@ import clus.main.*;
 import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.data.type.*;
+import clus.statistic.ClusStatistic;
 import clus.util.*;
 import clus.model.ClusModel;
 import clus.model.ClusModelInfo;
@@ -100,4 +101,20 @@ public abstract class ClusInductionAlgorithm {
 	
 	public void initializeHeuristic() {
 	}
+	
+	public ClusStatistic createTotalClusteringStat(RowData data) {
+		ClusStatistic stat = m_StatManager.createClusteringStat();
+		stat.setSDataSize(data.getNbRows());
+		data.calcTotalStat(stat);
+		stat.optimizePreCalc(data);
+		return stat;
+	}
+	
+	public ClusStatistic createTotalTargetStat(RowData data) {
+		ClusStatistic stat = m_StatManager.createTargetStat();
+		stat.setSDataSize(data.getNbRows());
+		data.calcTotalStat(stat);
+		stat.optimizePreCalc(data);
+		return stat;
+	}	
 }

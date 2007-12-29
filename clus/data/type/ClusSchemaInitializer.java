@@ -23,7 +23,6 @@
 package clus.data.type;
 
 import clus.util.ClusException;
-import clus.data.type.*;
 
 public interface ClusSchemaInitializer {
 

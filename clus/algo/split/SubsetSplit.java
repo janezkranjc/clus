@@ -68,7 +68,7 @@ public class SubsetSplit extends NominalSplit {
 		System.out.println("}: "+mheur);
 	}
 
-	public void findSplit(TestSelector node, NominalAttrType type) {
+	public void findSplit(CurrentBestTestAndHeuristic node, NominalAttrType type) {
 		double unk_freq = 0.0;		
 		int nbvalues = type.getNbValues();
 		boolean isin[] = new boolean[nbvalues];
@@ -142,12 +142,12 @@ public class SubsetSplit extends NominalSplit {
 		if (bheur > node.m_BestHeur + ClusHeuristic.DELTA) {
 			node.m_UnknownFreq = unk_freq;
 			node.m_BestHeur = bheur;
-			node.m_TestType = TestSelector.TYPE_TEST;
+			node.m_TestType = CurrentBestTestAndHeuristic.TYPE_TEST;
 			node.m_BestTest = new SubsetTest(type, card, isin, pos_freq);
 		}
 	}
 
-  public void findRandomSplit(TestSelector node, NominalAttrType type, Random rn) {
+  public void findRandomSplit(CurrentBestTestAndHeuristic node, NominalAttrType type, Random rn) {
     double unk_freq = 0.0;    
     int nbvalues = type.getNbValues();
     boolean isin[] = new boolean[nbvalues];
@@ -188,7 +188,7 @@ public class SubsetSplit extends NominalSplit {
     pos_freq = m_PStat.m_SumWeight / m_MStat.m_SumWeight;
     node.m_UnknownFreq = unk_freq;
     node.m_BestHeur = node.calcHeuristic(m_MStat, m_PStat);
-    node.m_TestType = TestSelector.TYPE_TEST;
+    node.m_TestType = CurrentBestTestAndHeuristic.TYPE_TEST;
     node.m_BestTest = new SubsetTest(type, card, isin, pos_freq);
   }
 }

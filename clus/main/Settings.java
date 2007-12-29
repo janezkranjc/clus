@@ -1164,7 +1164,7 @@ public class Settings implements Serializable {
 		m_RandomAttrSelected.setValue(value);
 	}
 	
-	public boolean getIsEnsembleMode(){
+	public boolean getIsEnsembleMode() {
 		return m_EnsembleMode;
 	}
 	

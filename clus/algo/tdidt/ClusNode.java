@@ -29,8 +29,8 @@ import jeans.util.compound.*;
 import java.util.*;
 import java.io.*;
 
-import weka.classifiers.trees.j48.NoSplit;
-import weka.core.Utils;
+// import weka.classifiers.trees.j48.NoSplit;
+// import weka.core.Utils;
 
 import clus.util.*;
 import clus.main.ClusRun;
@@ -42,6 +42,7 @@ import clus.model.ClusModelInfo;
 import clus.model.processor.ClusModelProcessor;
 import clus.model.test.*;
 import clus.statistic.*;
+import clus.algo.split.CurrentBestTestAndHeuristic;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 import clus.error.multiscore.*;
@@ -67,8 +68,7 @@ public class ClusNode extends MyNode implements ClusModel {
 		clone.m_ClusteringStat = m_ClusteringStat;
 		clone.m_TargetStat = m_TargetStat;
 		return clone;
-	}
-	
+	}	
 	
 	public ClusNode cloneNodeWithVisitor() {
 		ClusNode clone = (ClusNode)cloneNode();
@@ -213,6 +213,10 @@ public class ClusNode extends MyNode implements ClusModel {
 	public final String getTestString() {
 		return m_Test != null ? m_Test.getString() : "None";
 	}
+	
+	public final void testToNode(CurrentBestTestAndHeuristic best) {
+		setTest(best.updateTest());
+	}	
 	
 	public int getModelSize() {
 		return getNbNodes();

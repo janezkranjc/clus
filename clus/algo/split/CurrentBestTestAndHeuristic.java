@@ -22,12 +22,8 @@
 
 package clus.algo.split;
 
-import jeans.math.*;
-
 import clus.main.*;
-import clus.model.test.InverseNumericTest;
-import clus.model.test.NodeTest;
-import clus.model.test.NumericTest;
+import clus.model.test.*;
 import clus.util.*;
 import clus.statistic.*;
 import clus.heuristic.*;
@@ -36,7 +32,7 @@ import clus.data.rows.*;
 import clus.data.type.*;
 import clus.data.attweights.*;
 
-public class TestSelector {
+public class CurrentBestTestAndHeuristic {
 	
 	public final static int TYPE_NONE = -1;
 	public final static int TYPE_NUMERIC = 0;
@@ -98,10 +94,6 @@ public class TestSelector {
 		return m_BestTest;
 	}
 	
-	public final void testToNode(ClusNode node) {
-		node.setTest(updateTest());
-	}
-
 	public final void initTestSelector(ClusStatistic totstat, RowData subset) {
 		initTestSelector(totstat);
 		// Attach data set to heuristics and statistics
@@ -210,18 +202,7 @@ public class TestSelector {
  ***************************************************************************/	
 
 	public final boolean stopCrit() {
-		// Similar to J48, stop if num instances smaller than 2*MIN_WT
-		// or if subset if pure -> we test this based on the error
-		boolean stop = false;
-		if (m_TotStat.m_SumWeight < 2.0*Settings.MINIMAL_WEIGHT) stop = true;
-		if (m_TotStat.getError(m_ClusteringWeights, m_Subset) < MathUtil.C1E_9) stop = true;
-//		if (Settings.VERBOSE >= 2) {
-//			System.out.print("Stop criterion (weight = "+m_TotStat.m_SumWeight);
-//			System.out.print(", error = "+m_TotStat.getError(m_TargetWeights));
-//			System.out.println(") result: "+stop);
-//		}
-		
-		// Is it normal that the stopping criterion is completely handled by the heuristics?
+		// It is normal that the stopping criterion is completely handled by the heuristics
 		// I had a look in the cvs history and this appears to have been always the case
 		// Note: this is also how Clus is presented in most papers, so it might be ok
 		return false;
@@ -298,6 +279,10 @@ public class TestSelector {
 	
 	public final ClusHeuristic getHeuristic() {
 		return m_Heuristic;
+	}
+	
+	public final double getHeuristicValue() {
+		return m_BestHeur;
 	}
 
 /***************************************************************************

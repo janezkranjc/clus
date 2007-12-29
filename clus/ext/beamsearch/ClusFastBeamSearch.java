@@ -26,7 +26,8 @@
 package clus.ext.beamsearch;
 
 import clus.*;
-import clus.algo.split.TestSelector;
+import clus.algo.split.CurrentBestTestAndHeuristic;
+import clus.algo.split.FindBestTest;
 import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.data.type.*;
@@ -99,7 +100,7 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 		}
 	}
 	
-	public void computeGlobalHeuristic(NodeTest test, RowData data, TestSelector sel) {
+	public void computeGlobalHeuristic(NodeTest test, RowData data, CurrentBestTestAndHeuristic sel) {
 		sel.reset(2);
 		data.calcPosAndMissStat(test, ClusNode.YES, sel.getPosStat(), sel.getMissStat());
 		double global_heur = m_Heuristic.calcHeuristic(sel.getTotStat(), sel.getPosStat(), sel.getMissStat());
@@ -120,14 +121,15 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 				attrsel.setStopCrit(true);
 				return;
 			}
-			TestSelector sel = m_Induce.getSelector();
+			CurrentBestTestAndHeuristic sel = m_Induce.getBestTest();
+			FindBestTest find = m_Induce.getFindBestTest();
 			m_Heuristic.setTreeOffset(0.0);
 			attrsel.newEvaluations(attrs.length);
 			for (int i = 0; i < attrs.length; i++) {
 				sel.resetBestTest();
 				ClusAttrType at = attrs[i];
-				if (at instanceof NominalAttrType) m_Induce.findNominal((NominalAttrType)at, data);
-				else m_Induce.findNumeric((NumericAttrType)at, data);
+				if (at instanceof NominalAttrType) find.findNominal((NominalAttrType)at, data);
+				else find.findNumeric((NumericAttrType)at, data);
 				// found good test for attribute ?
 				if (sel.hasBestTest()) {
 					NodeTest test = sel.updateTest();

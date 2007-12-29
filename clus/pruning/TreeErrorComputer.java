@@ -27,14 +27,12 @@ package clus.pruning;
 
 import java.io.IOException;
 
-import clus.algo.tdidt.ClusNode;
+import clus.algo.tdidt.*;
 import clus.data.rows.*;
-import clus.error.ClusError;
-import clus.error.ClusErrorList;
-import clus.main.*;
-import clus.model.ClusModel;
-import clus.model.processor.ClusModelProcessor;
-import clus.statistic.ClusStatistic;
+import clus.error.*;
+import clus.model.*;
+import clus.model.processor.*;
+import clus.statistic.*;
 
 public class TreeErrorComputer extends ClusModelProcessor {
 

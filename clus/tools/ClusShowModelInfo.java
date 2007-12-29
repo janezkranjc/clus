@@ -25,10 +25,8 @@
  */
 package clus.tools;
 
-import clus.model.ClusModel;
-import clus.model.ClusModelInfo;
+import clus.model.*;
 import clus.model.modelio.*;
-import clus.main.*;
 import clus.error.*;
 
 import java.io.*;

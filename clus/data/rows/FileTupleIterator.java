@@ -24,7 +24,6 @@ package clus.data.rows;
 
 import java.io.*;
 
-import clus.main.*;
 import clus.util.*;
 import clus.data.io.*;
 import clus.data.type.*;

@@ -27,7 +27,7 @@ import jeans.util.list.*;
 import clus.ext.ootind.*;
 
 import clus.main.*;
-import clus.algo.split.TestSelector;
+import clus.algo.split.CurrentBestTestAndHeuristic;
 import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.model.test.*;
@@ -65,10 +65,10 @@ public class OptXValGroup extends MyList {
 	public final void preprocNodes(OptXValNode node, OptXValInduce induce) {
 		int nb = getNbFolds();
 		for (int i = 0; i < nb; i++) {
-			TestSelector sel = induce.getSelector(i);
+			CurrentBestTestAndHeuristic sel = induce.getSelector(i);
 			ClusNode fnode = getNode(i);
 			if (sel.hasBestTest()) {
-				sel.testToNode(fnode);
+				fnode.testToNode(sel);
 			} else {
 				fnode.makeLeaf();
 				cleanNode(i);
@@ -81,10 +81,10 @@ public class OptXValGroup extends MyList {
 	public final void preprocNodes2(OptXValNode node, OOTInduce induce) {
 		int nb = getNbFolds();
 		for (int i = 0; i < nb; i++) {
-			TestSelector sel = induce.getSelector(i);
+			CurrentBestTestAndHeuristic sel = induce.getSelector(i);
 			ClusNode fnode = getNode(i);
 			if (sel.hasBestTest()) {
-				sel.testToNode(fnode);
+				fnode.testToNode(sel);
 			} else {
 				fnode.makeLeaf();
 				cleanNode(i);

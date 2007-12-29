@@ -33,7 +33,6 @@ import clus.algo.*;
 import clus.algo.tdidt.*;
 import clus.data.rows.*;
 import clus.data.type.*;
-import clus.error.*;
 import clus.ext.hierarchical.*;
 import clus.main.*;
 import clus.model.*;

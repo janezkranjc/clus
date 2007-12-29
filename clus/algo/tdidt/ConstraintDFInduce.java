@@ -28,6 +28,7 @@ package clus.algo.tdidt;
 import java.io.*;
 
 import clus.algo.ClusInductionAlgorithm;
+import clus.algo.split.CurrentBestTestAndHeuristic;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.error.multiscore.MultiScore;
@@ -66,11 +67,12 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 				return;		
 			}
 			ClusAttrType at = test.getType();
-			if (at instanceof NominalAttrType) findNominal((NominalAttrType)at, data);
-			else findNumeric((NumericAttrType)at, data);
-			if (m_Selector.hasBestTest()) {
-				m_Selector.testToNode(node);
-				if (Settings.VERBOSE > 0) System.out.println("Fill in Test: "+node.getTestString()+" -> "+m_Selector.m_BestHeur);	
+			if (at instanceof NominalAttrType) getFindBestTest().findNominal((NominalAttrType)at, data);
+			else getFindBestTest().findNumeric((NumericAttrType)at, data);
+			CurrentBestTestAndHeuristic best = m_FindBestTest.getBestTest();
+			if (best.hasBestTest()) {
+				node.testToNode(best);
+				if (Settings.VERBOSE > 0) System.out.println("Fill in Test: "+node.getTestString()+" -> "+best.getHeuristicValue());	
 			} else {
 				node.makeLeaf();
 				return;

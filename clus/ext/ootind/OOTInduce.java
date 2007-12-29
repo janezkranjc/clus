@@ -35,16 +35,14 @@ import clus.data.ClusData;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.model.ClusModel;
-import clus.model.test.*;
 import clus.algo.*;
 import clus.algo.split.NArySplit;
 import clus.algo.split.NominalSplit;
 import clus.algo.split.SubsetSplit;
-import clus.algo.split.TestSelector;
+import clus.algo.split.CurrentBestTestAndHeuristic;
 import clus.algo.tdidt.*;
 import clus.statistic.*;
 import clus.heuristic.*;
-import clus.nominal.split.*;
 import clus.error.multiscore.*;
 
 public abstract class OOTInduce extends ClusInductionAlgorithm {
@@ -58,7 +56,7 @@ public abstract class OOTInduce extends ClusInductionAlgorithm {
 	protected int m_NbFolds;
 	protected int[] m_PrevCl;
 	protected double[] m_PrevVl;	
-	protected TestSelector[] m_Selector;
+	protected CurrentBestTestAndHeuristic[] m_Selector;
 	protected int m_MaxStats;
 	
 	public boolean SHOULD_OPTIMIZE = false;
@@ -256,7 +254,7 @@ if (Debug.debug == 1) {
 		}			
 	}
 	
-	public final TestSelector getSelector(int i) {
+	public final CurrentBestTestAndHeuristic getSelector(int i) {
 		return m_Selector[i];
 	}
 	
@@ -268,18 +266,18 @@ if (Debug.debug == 1) {
 		m_Heuristic = m_StatManager.getHeuristic();
 		m_PosStat = new ClusStatistic[m_NbFolds];
 		m_TestStat = new ClusStatistic[m_NbFolds][m_MaxStats];
-		m_Selector = new TestSelector[m_NbFolds];
+		m_Selector = new CurrentBestTestAndHeuristic[m_NbFolds];
 		for (int i = 0; i < m_NbFolds; i++) {
 			for (int j = 0; j < m_MaxStats; j++) {
 				m_TestStat[i][j] = m_StatManager.createClusteringStat();
 			}	
 			m_PosStat[i] = m_TestStat[i][0];
 			// Create test selectors for each fold :-)			
-			TestSelector sel = m_Selector[i] = new TestSelector();
+			CurrentBestTestAndHeuristic sel = m_Selector[i] = new CurrentBestTestAndHeuristic();
 			sel.m_Heuristic = m_Heuristic;
 		}
 		// Initialize test selector for depth first (1opt)
-		TestSelector sel = m_DFirst.getSelector();
+		CurrentBestTestAndHeuristic sel = m_DFirst.getBestTest();
 		sel.m_Heuristic = m_Heuristic;
 		sel.m_TestStat = m_TestStat[0];
 		sel.m_PosStat = m_PosStat[0];
@@ -289,7 +287,7 @@ if (Debug.debug == 1) {
 		int nb = grp.getNbFolds();
 		for (int i = 0; i < nb; i++) {
 			int fold = grp.getFold(i);
-			TestSelector sel = m_Selector[i];
+			CurrentBestTestAndHeuristic sel = m_Selector[i];
 			sel.m_TestStat = m_TestStat[fold];
 			sel.m_PosStat = m_PosStat[fold];
 			sel.initTestSelector(grp.getTotStat(fold));

@@ -43,7 +43,7 @@ public class NArySplit extends NominalSplit {
 		m_MStat.setSDataSize(size);
 	}	
 	
-	public void findSplit(TestSelector node, NominalAttrType type) {
+	public void findSplit(CurrentBestTestAndHeuristic node, NominalAttrType type) {
 		double unk_freq = 0.0;
 		int nbvalues = type.getNbValues();
 		// If has missing values?
@@ -60,13 +60,13 @@ public class NArySplit extends NominalSplit {
 		if (mheur > node.m_BestHeur + ClusHeuristic.DELTA) {
 			node.m_UnknownFreq = unk_freq;
 			node.m_BestHeur = mheur;
-			node.m_TestType = TestSelector.TYPE_TEST;
+			node.m_TestType = CurrentBestTestAndHeuristic.TYPE_TEST;
 			double[] freq = createFreqList(m_MStat.m_SumWeight, node.m_TestStat, nbvalues);
 			node.m_BestTest = new NominalTest(type, freq);
 		}
 	}
 
-  public void findRandomSplit(TestSelector node, NominalAttrType type, Random rn) {
+  public void findRandomSplit(CurrentBestTestAndHeuristic node, NominalAttrType type, Random rn) {
     try {
       throw new ClusException("Not implemented yet!");
     } catch (ClusException e) {
