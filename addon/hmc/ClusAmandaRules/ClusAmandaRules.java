@@ -37,6 +37,7 @@ import clus.main.*;
 import clus.util.*;
 import clus.statistic.*;
 import clus.data.type.*;
+import clus.model.*;
 import clus.model.test.*;
 import clus.ext.hierarchical.*;
 import clus.data.rows.*;
@@ -194,7 +195,7 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 	void evaluateRuleSet(ClusRun cr, ClusRuleSet rules) throws IOException, ClusException {
 		Settings sett = m_Clus.getSettings();
 		ClusOutput output = new ClusOutput(sett.getAppName() + ".rules.out", m_Clus.getSchema(), sett);
-		ClusModelInfo info = cr.addModelInfo(ClusModels.DEFAULT);
+		ClusModelInfo info = cr.addModelInfo(ClusModel.DEFAULT);
 		info.setStatManager(m_Clus.getStatManager());
 		info.setModel(rules);
 		info.setName("Rules");
