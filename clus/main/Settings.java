@@ -37,83 +37,171 @@ import clus.ext.hierarchical.*;
 
 public class Settings implements Serializable {
 	
-	public final static long serialVersionUID = 1L;
+	public final static long SERIAL_VERSION_ID = 1L;	
+	public final static long serialVersionUID = SERIAL_VERSION_ID;
+
+/***********************************************************************
+ * INI file structure                                                  *
+ ***********************************************************************/	
 	
-	public final static String[] COMPATIBILITY = { "Latest", "CMB05" };
+	protected INIFile m_Ini = new INIFile();	
 	
-	public final static int COMPATIBILITY_LATEST = 0;
+/***********************************************************************
+ * Simple constants                                                    *
+ ***********************************************************************/	
+
+	public final static String DEFAULT = "Default";
+	public final static String NONE = "None";
+	public final static String[] NONELIST = { "None" };		
+	public final static String[] EMPTY = {};	
+	public final static String[] INFINITY = { "Infinity" };	
+	public final static String INFINITY_STRING = "Infinity";
+	public final static int INFINITY_VALUE = 0;
+	public final static double[] FOUR_ONES = { 1.0, 1.0, 1.0, 1.0 };	
+
+/***********************************************************************
+ * Generic information                                                 *
+ ***********************************************************************/	
+
+	protected Date m_Date;	
+	protected String m_AppName;	
+	protected String m_DirName;
 	
-	public final static int COMPATIBILITY_CMB05 = 1;	
+	public static int VERBOSE = 1;	
+	public static boolean EXACT_TIME = false;			
 	
+/***********************************************************************
+ * Heuristic                                                           *
+ ***********************************************************************/	
+		
 	public final static String[] HEURISTICS = { "Default", "ReducedError",
 		"Gain", "SSPD", "MEstimate", "Morishita", "DispersionAdt", "DispersionMlt",
 		"WRDispersionAdt", "WRDispersionMlt"};
 	
-	public final static int HEURISTIC_DEFAULT = 0;
-	
-	public final static int HEURISTIC_REDUCED_ERROR = 1;
-	
-	public final static int HEURISTIC_GAIN = 2;
-	
+	public final static int HEURISTIC_DEFAULT = 0;	
+	public final static int HEURISTIC_REDUCED_ERROR = 1;	
+	public final static int HEURISTIC_GAIN = 2;	
 	public final static int HEURISTIC_SSPD = 3;
-
 	public final static int HEURISTIC_MESTIMATE = 4;
-
 	public final static int HEURISTIC_MORISHITA = 5;
-
 	public final static int HEURISTIC_DISPERSION_ADT = 6;
-
 	public final static int HEURISTIC_DISPERSION_MLT = 7;
-
 	public final static int HEURISTIC_WR_DISPERSION_ADT = 8;
-
 	public final static int HEURISTIC_WR_DISPERSION_MLT = 9;
 
-	public final static String[] WRITE_PRED = { "None", "Test", "Train" };
+	public static int FTEST_LEVEL;	
+	public static double FTEST_VALUE;	
+	public static boolean GAIN_RATIO;	
+	public static double MINIMAL_WEIGHT;	
+	public static boolean IS_MULTISCORE;
+	public static boolean ONE_NOMINAL = true;	
 	
-	public final static int[] WRITE_PRED_VALUES = {0};
-	
-	public final static int WRITE_PRED_NONE = 0;
-	
-	public final static int WRITE_PRED_TEST = 1;
-	
-	public final static int WRITE_PRED_TRAIN = 2;
+/***********************************************************************
+ * Normalization                                                       *
+ ***********************************************************************/	
 		
+	public final static String[] NORMALIZATIONS = { "Normalize" };	
+	public final static int NORMALIZATION_DEFAULT = 0;
+
+/***********************************************************************
+ * Target weights                                                      *
+ ***********************************************************************/	
+		
+	public final static String[] NUM_NOM_TAR_NTAR_WEIGHTS = { "TargetWeight",
+		"NonTargetWeight", "NumericWeight", "NominalWeight" };
+		
+	public final static int TARGET_WEIGHT = 0;	
+	public final static int NON_TARGET_WEIGHT = 1;	
+	public final static int NUMERIC_WEIGHT = 2;	
+	public final static int NOMINAL_WEIGHT = 3;
+	
+/***********************************************************************
+ * Pruning method                                                      *
+ ***********************************************************************/	
+	
 	public final static String[] PRUNING_METHODS = { "Default", "None", "C4.5",
-		"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB", "CartVSB", "CartMaxSize" };
+		"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB", 
+		"CartVSB", "CartMaxSize" };
 	
 	public final static int PRUNING_METHOD_DEFAULT = 0;
-	
 	public final static int PRUNING_METHOD_NONE = 1;
-	
 	public final static int PRUNING_METHOD_C45 = 2;
-	
 	public final static int PRUNING_METHOD_M5 = 3;
-	
 	public final static int PRUNING_METHOD_M5_MULTI = 4;	
-	
 	public final static int PRUNING_METHOD_REDERR_VSB = 5;
-	
 	public final static int PRUNING_METHOD_GAROFALAKIS = 6;
-	
 	public final static int PRUNING_METHOD_GAROFALAKIS_VSB = 7;
-	
 	public final static int PRUNING_METHOD_CART_VSB = 8;
-	
 	public final static int PRUNING_METHOD_CART_MAXSIZE = 9;	
+
+/***********************************************************************
+ * Compatibility mode                                                  *
+ ***********************************************************************/	
+			
+	public final static String[] COMPATIBILITY = { "Latest", "CMB05" };	
+	public final static int COMPATIBILITY_LATEST = 0;	
+	public final static int COMPATIBILITY_CMB05 = 1;	
+
+/***********************************************************************
+ * ResourceInfo loaded (= library for reporting CPU time / mem usage   *
+ ***********************************************************************/	
+		
+	public final static String[] RESOURCE_INFO_LOAD = {"Yes", "No", "Test"};	
+		
+	public final static int RESOURCE_INFO_LOAD_YES = 0;	
+	public final static int RESOURCE_INFO_LOAD_NO = 1;	
+	public final static int RESOURCE_INFO_LOAD_TEST = 2;	
+
+/***********************************************************************
+ * Show info in .out file                                              *
+ ***********************************************************************/		
+			
+	public final static String[] SHOW_MODELS = {"Default", "Original", "Pruned", "Others"};
+			
+	public final static int[] SHOW_MODELS_VALUES = {0,2,3};
+	public final static int SHOW_MODELS_DEFAULT = 0;	
+	public final static int SHOW_MODELS_ORIGINAL = 1;	
+	public final static int SHOW_MODELS_PRUNED = 2;	
+	public final static int SHOW_MODELS_OTHERS = 3;
+			
+	public final static String[] SHOW_INFO = {"Count", "Distribution", "Index", "NodePrototypes"};
+			
+	public final static int[] SHOW_INFO_VALUES = {0};	
+
+	public final static String[] CONVERT_RULES = { "No", "Pruned", "All" };
+		
+	public final static int CONVERT_RULES_NONE = 0;	
+	public final static int CONVERT_RULES_PRUNED = 1;	
+	public final static int CONVERT_RULES_ALL = 2;	
+
+	public static boolean SHOW_UNKNOWN_FREQ;	
+	public static boolean SHOW_BRANCH_FREQ;	
+	
+/***********************************************************************
+ * Write predictions to file                                           *
+ ***********************************************************************/	
+				
+	public final static String[] WRITE_PRED = { "None", "Test", "Train" };
+				
+	public final static int[] WRITE_PRED_VALUES = {0};
+	public final static int WRITE_PRED_NONE = 0;
+	public final static int WRITE_PRED_TEST = 1;
+	public final static int WRITE_PRED_TRAIN = 2;
+
+/***********************************************************************
+ * Rules                                                               *
+ ***********************************************************************/	
 	
 	public final static String[] COVERING_METHODS =	{"Standard", "WeightedMultiplicative",
 		"WeightedAdditive", "WeightedError", "Union", "BeamRuleDefSet",
 		"RandomRuleSet", "StandardBootstrap", "HeurOnly", "RulesFromTree"};
 	
 	// Standard covering: ordered rules (decision list)
-	public final static int COVERING_METHOD_STANDARD = 0;
+	public final static int COVERING_METHOD_STANDARD = 0;	
 	
 	// 'Weighted' coverings: unordered rules
-	public final static int COVERING_METHOD_WEIGHTED_MULTIPLICATIVE = 1;
-	
-	public final static int COVERING_METHOD_WEIGHTED_ADDITIVE = 2;
-	
+	public final static int COVERING_METHOD_WEIGHTED_MULTIPLICATIVE = 1;	
+	public final static int COVERING_METHOD_WEIGHTED_ADDITIVE = 2;	
 	public final static int COVERING_METHOD_WEIGHTED_ERROR = 3;
 	
 	// In multi-label classification: predicted set of classes is union
@@ -148,14 +236,10 @@ public class Settings implements Serializable {
 	public final static String[] RULE_PREDICTION_METHODS =
 	{"DecisionList", "CoverageWeighted", "CovAccWeighted", "Union", "Optimized"};
 	
-	public final static int RULE_PREDICTION_METHOD_DECISION_LIST = 0;
-	
-	public final static int RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED = 1;
-	
-	public final static int RULE_PREDICTION_METHOD_COV_ACC_WEIGHTED = 2;
-	
-	public final static int RULE_PREDICTION_METHOD_UNION = 3;
-	
+	public final static int RULE_PREDICTION_METHOD_DECISION_LIST = 0;	
+	public final static int RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED = 1;	
+	public final static int RULE_PREDICTION_METHOD_COV_ACC_WEIGHTED = 2;	
+	public final static int RULE_PREDICTION_METHOD_UNION = 3;	
 	public final static int RULE_PREDICTION_METHOD_OPTIMIZED = 4;
 
 	public final static String[] RULE_ADDING_METHODS =	{"Always", "IfBetter", "IfBetterBeam"};
@@ -169,90 +253,36 @@ public class Settings implements Serializable {
 	// Only adds a rule to the rule set if it improves the rule set performance.
 	// If not, it checks other rules in the beam
 	public final static int RULE_ADDING_METHOD_IF_BETTER_BEAM = 2;
+
+	public static boolean IS_RULE_SIG_TESTING = false;
 	
+/***********************************************************************
+ * Hierarchical multi-label classification                             *
+ ***********************************************************************/	
+		
 	// Hierarchical multi-classification now supports both trees and DAGS
 	// This was required because Gene Ontology terms are organized in a partial order
 	public final static String[] HIERTYPES = { "Tree", "DAG" };
 	
-	public final static int HIERTYPE_TREE = 0;
-	
+	public final static int HIERTYPE_TREE = 0;	
 	public final static int HIERTYPE_DAG = 1;
-	
-	public final static String[] NORMALIZATIONS = { "Normalize" };
-	
-	public final static int NORMALIZATION_DEFAULT = 0;
-	
-	public final static String[] INFINITY = { "Infinity" };
-	
-	public final static String INFINITY_STRING = "Infinity";	
-	
-	public final static String[] EMPTY = {};
-	
-	public final static String[] NUM_NOM_TAR_NTAR_WEIGHTS = { "TargetWeight",
-		"NonTargetWeight", "NumericWeight", "NominalWeight" };
-	
-	public final static int TARGET_WEIGHT = 0;
-	
-	public final static int NON_TARGET_WEIGHT = 1;
-	
-	public final static int NUMERIC_WEIGHT = 2;
-	
-	public final static int NOMINAL_WEIGHT = 3;
-	
-	public final static double[] FOUR_ONES = { 1.0, 1.0, 1.0, 1.0 };
-	
-	public final static int INFINITY_VALUE = 0;
-	
-	public final static long SERIAL_VERSION_ID = 1L;
-	
-	public final static String NONE = "None";
-	
-	public final static String[] NONELIST = { "None" };
-	
-	public final static String DEFAULT = "Default";
-	
-	public final static String[] RESOURCE_INFO_LOAD = {"Yes", "No", "Test"};
-	
-	public final static int RESOURCE_INFO_LOAD_YES = 0;
-	
-	public final static int RESOURCE_INFO_LOAD_NO = 1;
-	
-	public final static int RESOURCE_INFO_LOAD_TEST = 2;	
-	
-	public final static String[] SHOW_MODELS = {"Default", "Original", "Pruned", "Others"};
-	
-	public final static int[] SHOW_MODELS_VALUES = {0,2,3};
-	
-	public final static int SHOW_MODELS_DEFAULT = 0;
-	
-	public final static int SHOW_MODELS_ORIGINAL = 1;
-	
-	public final static int SHOW_MODELS_PRUNED = 2;
-	
-	public final static int SHOW_MODELS_OTHERS = 3;
-	
-	public final static String[] SHOW_INFO = {"Count", "Distribution", "Index", "NodePrototypes"};
-	
-	public final static int[] SHOW_INFO_VALUES = {0};
-	
-	public final static String[] CONVERT_RULES = { "No", "Pruned", "All" };
-	
-	public final static int CONVERT_RULES_NONE = 0;
-	
-	public final static int CONVERT_RULES_PRUNED = 1;
-	
-	public final static int CONVERT_RULES_ALL = 2;
-	
+
+/***********************************************************************
+ * Time series                                                         *
+ ***********************************************************************/		
+		
 	public final static String[] TIME_SERIES_DISTANCE_MEASURE={"DTW","QDM","TSC"};
 	
-	public final static String[] TIME_SERIES_PROTOTYPE_COMPLEXITY={"N2", "LOG", "LINEAR", "NPAIRS", "TEST"};
-	
-	public final static int TIME_SERIES_DISTANCE_MEASURE_DTW = 0;
-	
-	public final static int TIME_SERIES_DISTANCE_MEASURE_QDM = 1;
-	
+	public final static int TIME_SERIES_DISTANCE_MEASURE_DTW = 0;	
+	public final static int TIME_SERIES_DISTANCE_MEASURE_QDM = 1;	
 	public final static int TIME_SERIES_DISTANCE_MEASURE_TSC = 2;
 	
+	public final static String[] TIME_SERIES_PROTOTYPE_COMPLEXITY={"N2", "LOG", "LINEAR", "NPAIRS", "TEST"};
+
+/***********************************************************************
+ * Ensemble methods                                                    *
+ ***********************************************************************/		
+
 	public final static String[] ENSEMBLE_TYPE = {"Bagging", "RForest", "RSubspaces","BagSubspaces"};
 	
 	public final static int ENSEMBLE_BAGGING = 0;
@@ -264,207 +294,112 @@ public class Settings implements Serializable {
 
 	public final static int VOTING_TYPE_MAJORITY = 0;
 	public final static int VOTING_TYPE_PROBAB_DISTR = 1;
+			
+/***********************************************************************
+ * Beam search                                                         *
+ ***********************************************************************/		
 	
-		
-	/* Filename and date information */
-	protected Date m_Date;
-	
-	protected String m_AppName;
-	
-	protected String m_DirName;
-	
-	/* Static constants should be removed later on */
-	
-	public static int FTEST_LEVEL;
-	
-	public static double FTEST_VALUE;
-	
-	public static boolean GAIN_RATIO;
-	
-	public static double MINIMAL_WEIGHT;
-	
-	public static boolean IS_MULTISCORE;
-	
-	public static int BEAM_WIDTH;
-	
-	public static double SIZE_PENALTY;
-	
-	public static double BEAM_SIMILARITY;
-	
+	public static int BEAM_WIDTH;	
+	public static double SIZE_PENALTY;	
+	public static double BEAM_SIMILARITY;	
 	public static boolean BEAM_SYNT_DIST_CONSTR;
 	
-	public static boolean SHOW_UNKNOWN_FREQ;
+/***********************************************************************
+ * Cross-validaiton                                                    *
+ ***********************************************************************/		
 	
-	public static boolean SHOW_BRANCH_FREQ;
-	
-	public static boolean SHOW_XVAL_FOREST;
-	
+	public static boolean SHOW_XVAL_FOREST;	
 	public static boolean XVAL_OVERLAP = true;
-	
-	public static boolean ONE_NOMINAL = true;
-	
-	public static int VERBOSE = 1;
-	
-	public static boolean EXACT_TIME = false;
-	
-	public static boolean IS_RULE_SIG_TESTING = false;
-	
 	public static boolean IS_XVAL = false;
-	
-	/* The INI file structure */
-	protected INIFile m_Ini = new INIFile();
-	
+		
 	/* General */
-	protected INIFileInt m_Verbose;
-	
-	protected INIFileString m_RandomSeed;
-	
-	protected INIFileStringOrInt m_XValFolds;
-	
-	protected INIFileNominal m_ResourceInfoLoaded;
-	
+	protected INIFileInt m_Verbose;	
+	protected INIFileString m_RandomSeed;	
+	protected INIFileNominal m_ResourceInfoLoaded;	
 	protected INIFileNominal m_Compatibility;
+	protected INIFileStringOrInt m_XValFolds;	
 	
 	/* Data */
-	protected INIFileString m_DataFile;
-	
+	protected INIFileString m_DataFile;	
 	protected INIFileStringOrDouble m_TestSet;
-	
-	protected INIFileStringOrDouble m_PruneSet;
-	
+	protected INIFileStringOrDouble m_PruneSet;	
 	protected INIFileStringOrInt m_PruneSetMax;
 	
 	/* Attribute */
 	protected INIFileString m_Target;
-	
-	protected INIFileString m_Disabled;
-	
-	protected INIFileString m_Descriptive;
-	
-	protected INIFileString m_Clustering;
-	
-	protected INIFileString m_Key;
-	
-	protected INIFileNominalOrDoubleOrVector m_Weights;
-	
+	protected INIFileString m_Disabled;	
+	protected INIFileString m_Descriptive;	
+	protected INIFileString m_Clustering;	
+	protected INIFileString m_Key;	
+	protected INIFileNominalOrDoubleOrVector m_Weights;	
 	protected INIFileNominalOrDoubleOrVector m_ClusteringWeights;
 	
 	/* Numeric */
 	protected INIFileDouble m_FTest;
-	
 	protected INIFileString m_MultiScore;
 	
 	/* Nominal */
-	protected INIFileBool m_GainRatio;
-	
+	protected INIFileBool m_GainRatio;	
 	protected INIFileDouble m_MEstimate;
 	
 	/* Model */
-	protected INIFileDouble m_MinW;
-	
+	protected INIFileDouble m_MinW;	
 	protected INIFileString m_TuneFolds;
-	
-//	added by Leander 7-4-2006
 	protected INIFileNominalOrDoubleOrVector m_ClassWeight;
-	
-//	end added by Leander 7-4-2006
 
 	/* Tree */
 	protected INIFileNominal m_Heuristic;
-	
 	public static INIFileInt TREE_MAX_DEPTH;
-	
 	public static boolean BINARY_SPLIT;
-	
-	protected INIFileBool m_BinarySplit;
-	
-	protected INIFileNominal m_PruningMethod;
-	
-	protected INIFileBool m_1SERule;
-	
+	protected INIFileBool m_BinarySplit;	
 	protected INIFileNominal m_RulesFromTree;
-	
+	protected INIFileNominal m_PruningMethod;	
+	protected INIFileBool m_1SERule;	
 	protected INIFileDouble m_M5PruningMult;
 	
 	/* Rules */
 	protected INIFileNominal m_CoveringMethod;
-	
 	protected INIFileNominal m_PredictionMethod;
-	
 	protected INIFileNominal m_RuleAddingMethod;
-	
 	protected INIFileDouble m_CoveringWeight;
-
 	protected INIFileDouble m_InstCoveringWeightThreshold;
-	
 	protected INIFileInt m_MaxRulesNb;
-	
 	protected INIFileDouble m_HeurCoveragePar;
-	
 	protected INIFileDouble m_CompHeurRuleDistPar;
-	
 	protected INIFileDouble m_HeurPrototypeDistPar;
-	
 	protected INIFileDouble m_RuleSignificanceLevel;
-	
 	protected INIFileInt m_RuleNbSigAtts;
-	
 	protected INIFileBool m_ComputeCompactness;	
-	
 	protected INIFileDouble m_NumCompNormWeight;
-	
 	protected INIFileNominalOrDoubleOrVector m_CompactnessWeights;
-	
 	protected INIFileInt m_RandomRules;
-	
 	protected INIFileBool m_RuleWiseErrors;
-	
 	protected INIFileInt m_OptDEPopSize;
-	
 	protected INIFileInt m_OptDENumEval;
-	
 	protected INIFileDouble m_OptDECrossProb;
-	
 	protected INIFileDouble m_OptDEWeight;
-	
 	protected INIFileInt m_OptDESeed;
-
 	protected INIFileDouble m_OptRegPar;
-	
 	protected INIFileDouble m_OptRuleWeightThreshold;
 	
 	/* Constraints */
 	protected INIFileString m_SyntacticConstrFile;
-	
 	protected INIFileNominalOrIntOrVector m_MaxSizeConstr;
-	
 	protected INIFileNominalOrDoubleOrVector m_MaxErrorConstr;
 	
 	/* Output */
 	protected INIFileInt m_SetsData;
-	
 	protected INIFileBool m_OutFoldErr;
-	
 	protected INIFileBool m_OutFoldModels;
-	
 	protected INIFileBool m_OutTrainErr;
-	
 	protected INIFileBool m_ShowForest;
-	
 	protected INIFileBool m_ShowBrFreq;
-	
 	protected INIFileBool m_ShowUnknown;
-	
 	protected INIFileNominal m_ShowInfo;
-	
 	protected INIFileNominal m_ShowModels;
-	
 	protected INIFileBool m_PrintModelAndExamples;	
-	
 	protected INIFileNominal m_WritePredictions;
-	
 	protected INIFileBool m_ModelIDFiles;
-	
 	protected INIFileBool m_OutputPythonModel;	
 	protected INIFileBool m_OutputDatabaseQueries;	
 	
@@ -515,37 +450,24 @@ public class Settings implements Serializable {
 	protected INIFileBool m_ILevelCCOPKMeans;
 	protected INIFileBool m_ILevelCMPCKMeans;	
 	
-	INIFileSection m_SectionKNN;
-	
-	public static INIFileInt kNN_k;
-	
-	public static INIFileString kNN_vectDist;
-	
-	public static INIFileBool kNN_distWeighted;
-	
-	public static INIFileBool kNN_normalized;
-	
+	INIFileSection m_SectionKNN;	
+	public static INIFileInt kNN_k;	
+	public static INIFileString kNN_vectDist;	
+	public static INIFileBool kNN_distWeighted;	
+	public static INIFileBool kNN_normalized;	
 	public static INIFileBool kNN_attrWeighted;
 	
-	INIFileSection m_SectionKNNT;
-	
-	public static INIFileInt kNNT_k;
-	
-	public static INIFileString kNNT_vectDist;
-	
-	public static INIFileBool kNNT_distWeighted;
-	
-	public static INIFileBool kNNT_normalized;
-	
+	INIFileSection m_SectionKNNT;	
+	public static INIFileInt kNNT_k;	
+	public static INIFileString kNNT_vectDist;	
+	public static INIFileBool kNNT_distWeighted;	
+	public static INIFileBool kNNT_normalized;	
 	public static INIFileBool kNNT_attrWeighted;
 	
 	/*Time Series*/
 	INIFileSection timeSeries;
-
-	public static INIFileNominal timeSeriesDM;
-	
+	public static INIFileNominal timeSeriesDM;	
 	public static INIFileNominal timeSeriesProtoComlexity;
-
 	
 	/*Ensembles*/
 	INIFileSection m_SectionEnsembles;
