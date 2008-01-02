@@ -142,13 +142,6 @@ public class Clus implements CMDLineArgsProvider {
 		// If not rule induction, reset some settings just to be sure
 		if (!m_Induce.getStatManager().isRuleInduce())
 			m_Sett.disableRuleInduceParams();
-		// Multiscore?
-		if (Settings.IS_MULTISCORE) {
-			if (m_Schema.isRegression())
-				m_Score = new MultiScore(m_Schema, m_Sett);
-			else
-				m_Sett.disableMultiScore();
-		}
 		// Set XVal field in Settings
 		if (isxval) Settings.IS_XVAL = true;
 		// Preprocess() should become for m_Induce.initialize()
@@ -989,21 +982,10 @@ public class Clus implements CMDLineArgsProvider {
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_SSPD) {
 				schema.addAttrType(new IntegerAttrType("SSPD"));
 			}
-			if (Settings.HIER_FLAT.getValue()) {
-				ClusAttrType attr = schema
-						.getAttrType(schema.getNbAttributes() - 1);
-				ClusAttrType adda = new FlatClassesAttrType("FLAT",
-						(ClassesAttrType) attr);
-				adda.setStatus(ClusAttrType.STATUS_TARGET);
-				schema.addAttrType(adda);
-			}
 			schema.setTarget(new IntervalCollection(m_Sett.getTarget()));
 			schema.setDisabled(new IntervalCollection(m_Sett.getDisabled()));
-			schema
-					.setClustering(new IntervalCollection(m_Sett
-							.getClustering()));
-			schema.setDescriptive(new IntervalCollection(m_Sett
-					.getDescriptive()));
+			schema.setClustering(new IntervalCollection(m_Sett.getClustering()));
+			schema.setDescriptive(new IntervalCollection(m_Sett.getDescriptive()));
 			schema.setKey(new IntervalCollection(m_Sett.getKey()));
 			schema.updateAttributeUse();
 			schema.initializeFrom(m_Schema);
@@ -1127,12 +1109,14 @@ public class Clus implements CMDLineArgsProvider {
 				ClusInductionAlgorithmType clss = null;
 				if (cargs.hasOption("knn")) {
 					clus.getSettings().setSectionKNNEnabled(true);
+					clus.getSettings().setSectionTreeEnabled(false);
 					clss = new KNNClassifier(clus);
 				} else if (cargs.hasOption("knnTree")) { //new
 					clus.getSettings().setSectionKNNTEnabled(true);
 					clss = new KNNTreeClassifier(clus);
 				} else if (cargs.hasOption("rules")) {
 					clus.getSettings().setSectionBeamEnabled(true);
+					clus.getSettings().setSectionTreeEnabled(false);
 					clss = new ClusRuleClassifier(clus);
 				} else if (cargs.hasOption("weka")) {
 					// clss = new ClusWekaClassifier(clus, cargs.getOptionValue("weka"));

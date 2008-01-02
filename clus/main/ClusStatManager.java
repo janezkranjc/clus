@@ -455,7 +455,7 @@ public class ClusStatManager implements Serializable {
 			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx));
 			break;
 		case MODE_TIME_SERIES:
-			switch (Settings.timeSeriesDM.getValue()) {
+			switch (Settings.m_TimeSeriesDM.getValue()) {
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_DTW:
 				setClusteringStatistic(new DTWTimeSeriesStat());
 				setTargetStatistic(new DTWTimeSeriesStat());
@@ -480,7 +480,7 @@ public class ClusStatManager implements Serializable {
 	public ClusHeuristic createHeuristic(int type) {
 		switch (type) {
 		case Settings.HEURISTIC_GAIN:
-			return new GainHeuristic();
+			return new GainHeuristic(false);
 		default:
 			return null;
 		}
@@ -564,15 +564,18 @@ public class ClusStatManager implements Serializable {
 		if (m_Mode == MODE_HIERARCHICAL) {
 			String name = "Weighted Hierarchical Tree Distance";
 			m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights());
+			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 			return;
 		}
 		if (m_Mode == MODE_SSPD) {
 			m_Heuristic = new SSPDHeuristic(m_SSPDMtrx);
+			getSettings().setHeuristic(Settings.HEURISTIC_SSPD);
 			return;
 		}
 		if (m_Mode == MODE_TIME_SERIES) {
 			String name = "Time Series Intra-Cluster Variation Heuristic";
 			m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights());
+			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);			
 			return;
 		}
 		/* Set heuristic for trees */
@@ -586,6 +589,7 @@ public class ClusStatManager implements Serializable {
 				throw new ClusException("Only SS-Reduction (default) heuristic can be used for regression trees!");
 			}
 			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
+			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);			
 		} else if (nom.length > 0) {
 			if ((getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT)
 					&& (getSettings().getHeuristic() != Settings.HEURISTIC_REDUCED_ERROR)
@@ -594,8 +598,11 @@ public class ClusStatManager implements Serializable {
 			}
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
 				m_Heuristic = new ReducedErrorHeuristic(createClusteringStat());
+			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {
+				m_Heuristic = new GainHeuristic(true);				
 			} else {
-				m_Heuristic = new GainHeuristic();
+				m_Heuristic = new GainHeuristic(false);
+				getSettings().setHeuristic(Settings.HEURISTIC_GAIN);
 			}
 		}
 	}
@@ -801,9 +808,8 @@ public class ClusStatManager implements Serializable {
 		if (m_Mode == MODE_HIERARCHICAL && pruneset != null) {
 			PruneTree pruner = getTreePrunerNoVSB();
 			boolean bonf = sett.isUseBonferroni();
-			HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(
-					pruneset, pruner, bonf, m_Hier);
-			hierpruner.setSignificance(sett.isHierPruneInSig());
+			HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(pruneset, pruner, bonf, m_Hier);
+			hierpruner.setSignificance(sett.getHierPruneInSig());
 			hierpruner.setNoRootPreds(sett.isHierNoRootPreds());
 			sett.setPruningMethod(Settings.PRUNING_METHOD_DEFAULT);
 			return hierpruner;
@@ -946,17 +952,11 @@ public class ClusStatManager implements Serializable {
 			if (!type.isDisabled() && type instanceof ClassesAttrType) {
 				ClassesAttrType cltype = (ClassesAttrType) type;
 				System.out.println("Classes type: " + type.getName());
-				if (idx == 0)
-					m_HierN = cltype.getHier();
-				else
-					m_HierF = cltype.getHier();
+				m_HierN = cltype.getHier();
 				idx++;
 			}
 		}
-		if (Settings.HIER_FLAT.getValue())
-			m_Hier = m_HierF;
-		else
-			m_Hier = m_HierN;
+		m_Hier = m_HierN;
 	}
 
 	public void initHierarchySettings() throws ClusException, IOException {

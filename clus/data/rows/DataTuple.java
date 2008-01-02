@@ -32,6 +32,8 @@ public class DataTuple implements Serializable {
 	
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
+	protected ClusSchema m_Schema;
+	
 	// Attributes can have several base types
 	public int[] m_Ints;
 	public double[] m_Doubles;
@@ -57,6 +59,11 @@ public class DataTuple implements Serializable {
 		if (nb_obj > 0) m_Objects = new Object[nb_obj];
 		// Initialize weight
 		m_Weight = 1.0;
+		m_Schema = schema;
+	}
+	
+	public final ClusSchema getSchema() {
+		return m_Schema;
 	}
 	
 	public final DataTuple cloneTuple() {
@@ -66,7 +73,8 @@ public class DataTuple implements Serializable {
 		res.m_Objects = m_Objects;
 		res.m_Weight = m_Weight;
 		res.m_Index = m_Index;
-		res.m_Folds = m_Folds;	
+		res.m_Folds = m_Folds;
+		res.m_Schema = m_Schema;
 		return res;
 	}
 	
@@ -86,7 +94,8 @@ public class DataTuple implements Serializable {
 		}
 		res.m_Weight = m_Weight;
 		res.m_Index = m_Index;
-		res.m_Folds = m_Folds;	
+		res.m_Folds = m_Folds;
+		res.m_Schema = m_Schema;
 		return res;
 	}	
 	
@@ -149,31 +158,26 @@ public class DataTuple implements Serializable {
 	public final void setWeight(double weight) {
 		m_Weight = weight;
 	}
-
-	public String toString() {
-		StringBuffer buf = new StringBuffer();
-		for (int i = 0; i < m_Objects.length; i++) {
-			if (i != 0) buf.append(",");
-			buf.append(m_Objects[i].toString());				
-		}		
-/*		for (int i = 0; i < m_Doubles.length; i++) {
-			if (i != 0) buf.append(",");
-			buf.append(m_Doubles[i]);				
-		}*/
-		return buf.toString();
-	}
 	
-	public String toString(ClusSchema schema) {
+	public String toString() {
 		int aidx = 0;
 		StringBuffer buf = new StringBuffer();
-		for (int i = 0; i < schema.getNbAttributes(); i++) {
-			ClusAttrType type = schema.getAttrType(i);
-			if (!type.isDisabled()) {
-				if (aidx != 0) buf.append(",");
-				buf.append(type.getString(this));
-				aidx++;
-			}
+		ClusSchema schema = getSchema();
+		if (schema != null) {
+			for (int i = 0; i < schema.getNbAttributes(); i++) {
+				ClusAttrType type = schema.getAttrType(i);
+				if (!type.isDisabled()) {
+					if (aidx != 0) buf.append(",");
+					buf.append(type.getString(this));
+					aidx++;
+				}
+			}		
+		} else {
+			for (int i = 0; i < m_Objects.length; i++) {
+				if (i != 0) buf.append(",");
+				buf.append(m_Objects[i].toString());				
+			}		
 		}
-		return buf.toString();
+		return buf.toString();		
 	}
 }

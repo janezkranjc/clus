@@ -29,6 +29,16 @@ import jeans.math.*;
 
 public class GainHeuristic extends ClusHeuristic {
 
+	protected boolean m_GainRatio;
+	
+	public GainHeuristic(boolean gainratio) {
+		m_GainRatio = gainratio;
+	}
+	
+	public final boolean isGainRatio() {
+		return m_GainRatio;
+	}
+	
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
 		ClassificationStat tstat = (ClassificationStat)c_tstat;
 		ClassificationStat pstat = (ClassificationStat)c_pstat;
@@ -54,7 +64,7 @@ public class GainHeuristic extends ClusHeuristic {
 		// Gain?
 		double value = tot_ent - (n_pos*pos_ent + n_neg*neg_ent)/n_tot;
 		if (value < MathUtil.C1E_6) return Double.NEGATIVE_INFINITY;
-		if (Settings.GAIN_RATIO) {
+		if (m_GainRatio) {
 			double si = ClassificationStat.computeSplitInfo(n_tot, n_pos, n_neg);
 			if (si < MathUtil.C1E_6) return Double.NEGATIVE_INFINITY;
 			return value / si;
@@ -88,7 +98,7 @@ public class GainHeuristic extends ClusHeuristic {
 			value -= n_set*s_ent/n_tot;				
 		}
 		if (value < MathUtil.C1E_6) return Double.NEGATIVE_INFINITY;
-		if (Settings.GAIN_RATIO) {
+		if (m_GainRatio) {
 			// Compute split information
 			double si = 0;
 			for (int i = 0; i < nbsplit; i++) {
@@ -107,7 +117,7 @@ public class GainHeuristic extends ClusHeuristic {
 	}
 	
 	public String getName() {
-		return Settings.GAIN_RATIO ? "Gainratio" : "Gain";
+		return m_GainRatio ? "Gainratio" : "Gain";
 	}
 }
 

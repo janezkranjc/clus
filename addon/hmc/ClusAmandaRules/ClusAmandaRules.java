@@ -164,7 +164,7 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 		global.calcMean();
 		Settings sett = m_Clus.getSettings();
 		boolean useBonferroni = sett.isUseBonferroni();
-		double sigLevel = sett.isHierPruneInSig();
+		double sigLevel = sett.getHierPruneInSig();
 		if (sigLevel == 0.0) return;
 		for (int i = 0; i < rules.getModelSize(); i++) {
 				ClusRule rule = rules.getRule(i);

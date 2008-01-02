@@ -391,7 +391,7 @@ if (Debug.debug == 1) {
 	
 	public final void initialize(int folds) {
 		// Create nominal split
-		if (Settings.BINARY_SPLIT) m_Split = new SubsetSplit();
+		if (getSettings().isBinarySplit()) m_Split = new SubsetSplit();
 		else m_Split = new NArySplit();
 		// Create depth-first induce
 		m_DFirst = new DepthFirstInduce(this, m_Split);

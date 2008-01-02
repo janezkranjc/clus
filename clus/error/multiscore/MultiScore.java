@@ -34,7 +34,7 @@ public class MultiScore {
 	protected int m_NbValues;
 	
 	public MultiScore(ClusSchema schema, Settings sett) throws ClusException {
-		String val = sett.getMultiScore();
+		String val = "";/* = sett.getMultiScore(); */
 		int len = val.length();
 		int nb_wanted = 0; // schema.getNbTarNum();
 		try {

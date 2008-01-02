@@ -636,4 +636,18 @@ public class ClusSchema implements Serializable {
 			m_TimeSeriesAttrUse[attruse] = vectorToTimeSeriesAttrArray(collectAttributes(attruse, TimeSeriesAttrType.THIS_TYPE));
 		}
 	}
+	
+	public String toString() {
+		int aidx = 0;
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < getNbAttributes(); i++) {
+			ClusAttrType type = getAttrType(i);
+			if (!type.isDisabled()) {
+					if (aidx != 0) buf.append(",");
+					buf.append(type.getName());
+					aidx++;
+			}
+		}
+		return buf.toString();		
+	}
 }

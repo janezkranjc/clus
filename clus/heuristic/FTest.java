@@ -170,13 +170,7 @@ public class FTest {
 	
 	public static double transformHeur(double value, double n_tot, double n_pos, double n_neg) {
 		if (value < 1e-6) return Double.NEGATIVE_INFINITY;
-		if (Settings.GAIN_RATIO) {
-			double si = ClassificationStat.computeSplitInfo(n_tot, n_pos, n_neg);
-			if (si < MathUtil.C1E_6) return Double.NEGATIVE_INFINITY;
-			return value / si;
-		} else {
-			return value;
-		}
+		else return value;
 	}
 
 	public static double calcSSHeuristicRatio(double ss_tot, double sum_ss, double n_tot, double n_pos, double n_neg) {

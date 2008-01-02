@@ -284,7 +284,7 @@ public class ClassHierarchy implements Serializable {
 	
 	public final void calcWeights() {
 		HierNodeWeights ws = new HierNodeWeights();
-		double widec = Settings.HIER_W_PARAM.getValue();
+		double widec = getSettings().getHierWParam(); 
 		ws.initExponentialDepthWeights(this, widec);
 		m_Weights = ws.getWeights();
 	}

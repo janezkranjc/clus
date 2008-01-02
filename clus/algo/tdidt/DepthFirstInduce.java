@@ -67,7 +67,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 	}
 			
 	public boolean initSelectorAndStopCrit(ClusNode node, RowData data) {
-		int max = Settings.TREE_MAX_DEPTH.getValue();
+		int max = getSettings().getTreeMaxDepth();
 		if (max != -1 && node.getLevel() >= max) {
 			return true;		
 		}
@@ -77,7 +77,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 	public ClusAttrType[] getDescriptiveAttributes() {
 		ClusSchema schema = getSchema();
 		Settings sett = getSettings();
-		if (!sett.getIsEnsembleMode()) {
+		if (!sett.isEnsembleMode()) {
 			return schema.getDescriptiveAttributes();
 		} else {
 			switch (sett.getEnsembleMethod()) {

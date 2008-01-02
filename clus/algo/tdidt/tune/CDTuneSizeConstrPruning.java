@@ -139,7 +139,7 @@ public class CDTuneSizeConstrPruning extends ClusDecisionTree {
 				PruneTree pruner = new PruneTree();
 				boolean bonf = getSettings().isUseBonferroni();
 				HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(runs[i].getPruneSet(), pruner, bonf, getStatManager().getHier());
-				hierpruner.setSignificance(getSettings().isHierPruneInSig());
+				hierpruner.setSignificance(getSettings().getHierPruneInSig());
 				hierpruner.prune(tree);
 			}			
 			ClusError err = mi.getTestError().getFirstError();

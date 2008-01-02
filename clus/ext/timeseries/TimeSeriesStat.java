@@ -62,7 +62,7 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	
 	public void optimizePreCalc(RowData data) {
 		if (!m_Modified) return;
-		switch (Settings.timeSeriesProtoComlexity.getValue()){
+		switch (Settings.m_TimeSeriesProtoComlexity.getValue()){
 		case 1:
 			//System.out.println("Log");
 			optimizeLogPreCalc(data);

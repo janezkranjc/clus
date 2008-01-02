@@ -54,9 +54,9 @@ public class ClusRandom {
 	
 	public static void initialize(Settings sett) {
 		m_Random = new Random[NB_RANDOM];
-		if (sett.isPresetRandom()) {
+		if (sett.hasRandomSeed()) {
 			m_IsPreset = true;
-			m_Preset = sett.getPresetRandom();
+			m_Preset = sett.getRandomSeed();
 			for (int i = 0; i < NB_RANDOM; i++) {
 				m_Random[i] = new Random(m_Preset);
 			}

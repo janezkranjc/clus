@@ -276,7 +276,6 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	public final ClusNode postProc(MultiScore score) {
 		updateTree();
-		if (Settings.IS_MULTISCORE) multiScore(score);
 		safePrune();
 		return this;
 	}

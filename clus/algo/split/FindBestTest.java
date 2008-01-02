@@ -213,7 +213,7 @@ public class FindBestTest {
 	public void initSelectorAndSplit(ClusStatistic totstat) throws ClusException {
 		m_BestTest.create(m_StatManager, m_MaxStats);
 		m_BestTest.setRootStatistic(totstat);
-		if (Settings.BINARY_SPLIT) m_Split = new SubsetSplit();
+		if (getSettings().isBinarySplit()) m_Split = new SubsetSplit();
 		else m_Split = new NArySplit();
 		m_Split.initialize(m_StatManager);	
 	}
