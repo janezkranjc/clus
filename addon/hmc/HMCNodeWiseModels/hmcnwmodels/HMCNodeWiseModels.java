@@ -48,12 +48,23 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 	protected Clus m_Clus;
 	protected CMDLineArgs m_Cargs;
 	protected StringTable m_Table = new StringTable();
+	protected Hashtable m_Mappings;
 
 	public void run(String[] args) throws IOException, ClusException, ClassNotFoundException {
 			m_Clus = new Clus();
 			Settings sett = m_Clus.getSettings();
 			m_Cargs = new CMDLineArgs(this);
-			m_Cargs.process(args);
+			
+			String[] newargs = new String[args.length-1];
+			for (int i=0; i<newargs.length; i++)
+			{
+				newargs[i] = args[i];
+			}
+			readFtests(args[args.length-1]);
+			m_Cargs.process(newargs);			
+			
+//			m_Cargs.process(args);
+
 			if (m_Cargs.allOK()) {
 				(new File("nodewise")).mkdir();				
 				(new File("nodewise/out")).mkdir();
@@ -66,6 +77,27 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				doRun();
 			}
 	}
+	
+	private void readFtests(String filename) {
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(filename));
+			String s;
+			s = in.readLine();
+			String[] parts;
+			m_Mappings = new Hashtable();
+			while (s!=null) 
+			{
+				parts = s.split("\t");
+				m_Mappings.put(parts[0], parts[1]);
+				s = in.readLine();
+			}
+		}
+		catch (java.io.IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public RowData getNodeData(RowData train, int nodeid) {
 		ArrayList selected = new ArrayList();
@@ -118,7 +150,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 		return cschema;
 	}
 	
-	public void doOneNode(ClassTerm node, ClassHierarchy hier, RowData train) throws ClusException, IOException {
+	public void doOneNode(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid) throws ClusException, IOException {
 		// get data relevant to node
 		RowData nodeData = getNodeData(train, node.getIndex());
 		String nodeName = node.toPathString("=");
@@ -134,11 +166,29 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			String name = m_Clus.getSettings().getAppName() + "-" + nodeName + "-" + childName;
 			ClusRun cr = new ClusRun(childData.cloneData(), m_Clus.getSummary());
 			cr.createTrainIter();
+			
+			if (valid!=null) {
+				RowData validNodeData = getNodeData(valid, node.getIndex());
+				RowData validChildData = createChildData(validNodeData, ctype, child.getIndex());
+				TupleIterator iter = validChildData.getIterator();
+				cr.setTestSet(iter);			
+				m_Clus.initializeSummary(clss);
+			}
+			
+			String fstr = (String) m_Mappings.get(parentChildName);
+			if (fstr==null) {
+				System.out.println("geen ftest gevonden voor "+ parentChildName);
+			}
+			else {
+				System.out.println("fstr: "+ fstr);
+				float ft = Float.valueOf(fstr);
+				m_Clus.getSettings().setFTest(ft);	
+			}
 			ClusOutput output = new ClusOutput("nodewise/out/" + name + ".out", cschema, m_Clus.getSettings());
 			ClusStatistic tr_stat = m_Clus.getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
 			cr.getTrainingSet().calcTotalStat(tr_stat);
 			m_Clus.getStatManager().setTrainSetStat(tr_stat);				
-			m_Clus.induce(cr, clss); // Induce model
+			m_Clus.induce(cr, clss); // Induce model							
 			m_Clus.calcError(cr, null); // Calc error
 			output.writeHeader();
 			output.writeOutput(cr, true, true);
@@ -146,38 +196,40 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			ClusModelCollectionIO io = new ClusModelCollectionIO();
 			io.addModel(cr.addModelInfo(ClusModel.ORIGINAL));
 			io.save("nodewise/model/" + name + ".model");
+			
 		}
 	}
 
-	public void computeRecursive(ClassTerm node, ClassHierarchy hier, RowData train, boolean[] computed) throws ClusException, IOException {
+	public void computeRecursive(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid, boolean[] computed) throws ClusException, IOException {
 		if (!computed[node.getIndex()]) {
 			// remember that we did this one
 			computed[node.getIndex()] = true;
-			doOneNode(node, hier, train);
+			doOneNode(node, hier, train, valid);
 			// recursively do children
 			for (int i = 0; i < node.getNbChildren(); i++) {
 				ClassTerm child = (ClassTerm)node.getChild(i);
-				computeRecursive(child, hier, train, computed);
+				computeRecursive(child, hier, train, valid, computed);
 			}			
 		}
 	}
 	
-	public void computeRecursiveRoot(ClassTerm node, ClassHierarchy hier, RowData train, boolean[] computed) throws ClusException, IOException {
-		doOneNode(node, hier, train);
+	public void computeRecursiveRoot(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid, boolean[] computed) throws ClusException, IOException {
+		doOneNode(node, hier, train, valid);
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			ClassTerm child = (ClassTerm)node.getChild(i);
-			computeRecursive(child, hier, train, computed);
+			computeRecursive(child, hier, train, valid, computed);
 		}			
 	}	
 	
 	public void doRun() throws IOException, ClusException, ClassNotFoundException {
 		ClusRun cr = m_Clus.partitionData();
 		RowData train = (RowData)cr.getTrainingSet();
+		RowData valid = (RowData)cr.getTestSet();
 		ClusStatManager mgr = m_Clus.getStatManager();
 		ClassHierarchy hier = mgr.getHier();
 		ClassTerm root = hier.getRoot();
 		boolean[] computed = new boolean[hier.getTotal()];
-		computeRecursiveRoot(root, hier, train, computed);
+		computeRecursiveRoot(root, hier, train, valid, computed);
 	}
 		
 	public String[] getOptionArgs() {

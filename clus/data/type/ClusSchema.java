@@ -604,23 +604,42 @@ public class ClusSchema implements Serializable {
 			}
 		}
 		return result;
-	}
+	}	
 	
 	protected void addRowsIndex() {
 		// Allocate attributes to arrays m_Ints, m_Doubles, m_Objects
 		int[] nbvt = new int[ClusAttrType.NB_VALUE_TYPES];
-		for (int i = ClusAttrType.STATUS_TARGET; i <= ClusAttrType.STATUS_KEY; i++) {
-			for (int j = 0; j < m_NbAttrs; j++) {
-				ClusAttrType at = (ClusAttrType)m_Attr.elementAt(j);				
-				if (at.getStatus() == i) {
-					int vtype = at.getValueType();
-					int sidx = nbvt[vtype]++;
-					at.setArrayIndex(sidx);	
-					// System.out.println("A"+at.getName()+" = "+sidx+" ("+at.getTypeIndex()+", "+at.getStatus()+")");
+		int bitPosition = 0; // for BitwiseNominalAttrType
+		int nbBitwise = 0;
+		for (int j = 0; j < m_NbAttrs; j++) {
+			ClusAttrType at = (ClusAttrType)m_Attr.elementAt(j);				
+			int vtype = at.getValueType();
+			if (at.getStatus() != ClusAttrType.STATUS_DISABLED && vtype != ClusAttrType.VALUE_TYPE_BITWISEINT) {					
+				int sidx = nbvt[vtype]++;
+				at.setArrayIndex(sidx);	
+			}	
+			else if (at.getStatus() != ClusAttrType.STATUS_DISABLED) { //vtype == ClusAttrType.VALUE_TYPE_BITWISEINT
+				nbBitwise++;
+				int nextBitPosition = bitPosition + ((BitwiseNominalAttrType)at).getNbBits();
+				if (nextBitPosition > Integer.SIZE) {
+					// too many bits needed to fit in current int
+					nbvt[vtype]++;
+					int sidx = nbvt[vtype];
+					((BitwiseNominalAttrType)at).setArrayIndex(sidx);	
+					((BitwiseNominalAttrType)at).setBitPosition(0);
+					bitPosition = ((BitwiseNominalAttrType)at).getNbBits();
 				}
+				else {
+					int sidx = nbvt[vtype];
+					((BitwiseNominalAttrType)at).setArrayIndex(sidx);	
+					((BitwiseNominalAttrType)at).setBitPosition(bitPosition);
+					bitPosition = nextBitPosition;
+				}			
 			}
 		}
-		m_NbInts = nbvt[ClusAttrType.VALUE_TYPE_INT];
+		if (nbBitwise>0) nbvt[ClusAttrType.VALUE_TYPE_BITWISEINT]++;
+		m_NbInts = Math.max(nbvt[ClusAttrType.VALUE_TYPE_INT], nbvt[ClusAttrType.VALUE_TYPE_BITWISEINT]); // only one of them will be different from 0
+		System.out.println("real ints needed: " + nbvt[ClusAttrType.VALUE_TYPE_INT] + " or " + nbvt[ClusAttrType.VALUE_TYPE_BITWISEINT]);
 		m_NbDoubles = nbvt[ClusAttrType.VALUE_TYPE_DOUBLE];
 		m_NbObjects = nbvt[ClusAttrType.VALUE_TYPE_OBJECT];
 		// Collect attributes into arrays m_Allattruse, m_Nominalattruse, m_Numericattruse

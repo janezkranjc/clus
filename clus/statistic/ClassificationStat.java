@@ -62,6 +62,15 @@ public class ClassificationStat extends ClusStatistic {
 		m_Attrs = nomAtts;
 	} 
 	
+/*	public ClassificationStat(BitwiseNominalAttrType[] nomAtts) {
+		m_NbTarget = nomAtts.length;
+		m_ClassCounts = new double[m_NbTarget][];
+		for (int i = 0; i < m_NbTarget; i++) {
+			m_ClassCounts[i] = new double[nomAtts[i].getNbValues()];
+		}
+		m_Attrs = nomAtts;
+	}*/
+	
 	public int getNbNominalAttributes() {
 		return m_NbTarget;
 	}
@@ -203,6 +212,7 @@ public class ClassificationStat extends ClusStatistic {
 		m_SumWeight += weight;		
 		for (int i = 0; i < m_NbTarget; i++) {
 			int val = m_Attrs[i].getNominal(tuple);
+//			System.out.println("val: "+ val);
 			if (val != m_Attrs[i].getNbValues()) {				
 				m_ClassCounts[i][val] += weight;
 			}
@@ -452,7 +462,8 @@ public class ClassificationStat extends ClusStatistic {
 	}	
 	
 	public String getPredictedClassName(int idx) {
-		return m_Attrs[idx].getValue(m_MajorityClasses[idx]);
+		//return m_Attrs[idx].getValue(m_MajorityClasses[idx]);
+		return m_Attrs[idx].getValue(getMajorityClass(idx));
 	} 
 	
 	public String getClassName(int idx, int cls) {

@@ -802,6 +802,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		}
 		// TODO: more target atts
 		if (classification) {
+			ClusSchema schema = data.getSchema();
+			NominalAttrType[] target = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			int nb_values = ((ClassificationStat)rset.m_TargetStat).getAttribute(0).getNbValues(); 
 			double[][][] rule_pred = new double[nb_rows][nb_rules][nb_values]; // [instance][rule][class_value]
 			double[] true_val = new double[nb_rows];
@@ -823,7 +825,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 					}
 					wrt_pred.print("]");
 				}
-				true_val[i] = (double)tuple.getIntVal(0); // TODO: 
+				//true_val[i] = (double)tuple.getIntVal(0); // TODO: 
+				true_val[i] = target[0].getNominal(tuple);
 				wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
 			}
 			wrt_pred.close();

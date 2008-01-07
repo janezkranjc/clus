@@ -140,7 +140,7 @@ public class SubsetTest extends NodeTest {
 	}	
 	
 	public int predictWeighted(DataTuple tuple) {
-		int val = tuple.m_Ints[m_Type.getArrayIndex()];
+		int val = m_Type.getNominal(tuple);
 		return nominalPredictWeighted(val);
 	}	
 	

@@ -91,7 +91,7 @@ public class COPKMeans {
 			}
 			/* copy class attribute */
 			DataTuple elem = (DataTuple)crcomp.get(0);
-			tuple.setIntVal(elem.getIntVal(classtype.getArrayIndex()), classtype.getArrayIndex());
+			classtype.setNominal(tuple,classtype.getNominal(elem));
 			new_data.setTuple(tuple, i);
 		}
 		new_data.addIndices();
@@ -236,11 +236,11 @@ public class COPKMeans {
 		NominalAttrType classtype = (NominalAttrType)schema.getAttrType(schema.getNbAttributes()-1);
 		for (int i = 0; i < nbex; i++) {
 			DataTuple ti = m_OrigData.getTuple(i);
-			int cia = ti.getIntVal(classtype.getArrayIndex());
+			int cia = classtype.getNominal(ti);
 			int cib = assign[m_Data.getTuple(ti.getIndex()).getIndex()];
 			for (int j = i+1; j < nbex; j++) {
 				DataTuple tj = m_OrigData.getTuple(j);
-				int cja = tj.getIntVal(classtype.getArrayIndex());
+				int cja = classtype.getNominal(tj);
 				int cjb = assign[m_Data.getTuple(tj.getIndex()).getIndex()];
 				if (cia == cja && cib == cjb) a++;
 				if (cia != cja && cib != cjb) b++;

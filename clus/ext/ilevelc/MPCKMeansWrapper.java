@@ -62,11 +62,11 @@ public class MPCKMeansWrapper {
 		NominalAttrType classtype = (NominalAttrType)schema.getAttrType(schema.getNbAttributes()-1);
 		for (int i = 0; i < nbex; i++) {
 			DataTuple ti = data.getTuple(i);
-			int cia = ti.getIntVal(classtype.getArrayIndex());
+			int cia = classtype.getNominal(ti);
 			int cib = assign[ti.getIndex()];
 			for (int j = i+1; j < nbex; j++) {
 				DataTuple tj = data.getTuple(j);
-				int cja = tj.getIntVal(classtype.getArrayIndex());
+				int cja = classtype.getNominal(tj);
 				int cjb = assign[tj.getIndex()];
 				if (cia == cja && cib == cjb) a++;
 				if (cia != cja && cib != cjb) b++;

@@ -61,12 +61,14 @@ public class ClusNode extends MyNode implements ClusModel {
 	public ClusStatistic m_TargetStat;
 	public transient Object m_Visitor;	
 	public long m_Time;	
+	public String[] m_Alternatives;
 	
 	public MyNode cloneNode() {
 		ClusNode clone = new ClusNode();
 		clone.m_Test = m_Test;
 		clone.m_ClusteringStat = m_ClusteringStat;
 		clone.m_TargetStat = m_TargetStat;
+		clone.m_Alternatives = m_Alternatives;
 		return clone;
 	}	
 	
@@ -103,6 +105,7 @@ public class ClusNode extends MyNode implements ClusModel {
 		}		
 		return clone;
 	}
+
 	
 	public void inverseTests() {		
 		if (getNbChildren() == 2) {
@@ -230,6 +233,10 @@ public class ClusNode extends MyNode implements ClusModel {
 		return m_Test.hasUnknownBranch();
 	}
 	
+	public String[] getAlternatives() {
+		return m_Alternatives;
+	}
+	
 	/***************************************************************************
 	 * Insprectors concenring statistics
 	 ***************************************************************************/
@@ -299,6 +306,13 @@ public class ClusNode extends MyNode implements ClusModel {
 			ClusNode info = (ClusNode)getChild(i);
 			info.updateTree();
 		}
+	}
+	
+	public void setAlternatives(Vector alt) {
+		m_Alternatives = new String[alt.size()];
+		for (int i=0; i<alt.size(); i++) {
+			m_Alternatives[i] = alt.elementAt(i).toString();
+		}	
 	}
 	
 	/***************************************************************************
@@ -708,6 +722,9 @@ public class ClusNode extends MyNode implements ClusModel {
 			int delta = hasUnknownBranch() ? 1 : 0;
 			if (arity - delta == 2) {
 				writer.print(m_Test.getTestString());
+				for (int i=0; i<m_Alternatives.length; i++) {
+					writer.print(" and " + m_Alternatives[i]);
+				}	
 				writeDistributionForInternalNode(writer, info);
 				writer.print(prefix + "+--yes: ");
 				((ClusNode)getChild(YES)).printTree(writer, info, prefix+"|       ");

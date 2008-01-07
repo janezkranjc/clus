@@ -59,7 +59,7 @@ public class HierNodeWeights {
 		return true;
 	}
 	
-	public void initExponentialDepthWeightsDAG(ClassHierarchy hier, double w0) {
+	public void initExponentialDepthWeightsDAG(ClassHierarchy hier, int wtype, double w0) {
 		boolean[] weight_computed = new boolean[hier.getTotal()];
 		ArrayList todo = new ArrayList();
 		for (int i = 0; i < hier.getTotal(); i++) {
@@ -71,19 +71,46 @@ public class HierNodeWeights {
 			for (int i = todo.size()-1; i >= 0; i--) {
 				ClassTerm term = (ClassTerm)todo.get(i);
 				if (allParentsOk(term, weight_computed)) {
-					double sum_wi = 0.0;
 					int maxDepth = 0;					
 					int minDepth = Integer.MAX_VALUE;
 					for (int j = 0; j < term.getNbParents(); j++) {
 						ClassTerm parent = term.getParent(j);
-						if (parent.getIndex() == -1) sum_wi += 1.0;
-						else sum_wi += m_Weights[parent.getIndex()];
 						maxDepth = Math.max(maxDepth, parent.getMaxDepth()+1);
 						minDepth = Math.min(minDepth, parent.getMinDepth()+1);
 					}
 					term.setMinDepth(minDepth);
 					term.setMaxDepth(maxDepth);
-					m_Weights[term.getIndex()] = w0*sum_wi; /*/term.getNbParents();*/
+					double agg_wi;
+					if (wtype==2) {
+						agg_wi = Double.MAX_VALUE;
+						for (int j = 0; j < term.getNbParents(); j++) {
+							ClassTerm parent = term.getParent(j);
+							if (parent.getIndex() == -1) agg_wi = Math.min(agg_wi, 1.0);					
+							else agg_wi = Math.min(agg_wi, m_Weights[parent.getIndex()]);
+						}
+					}
+					else {
+						if (wtype==3) {
+							agg_wi = Double.MIN_VALUE;
+							for (int j = 0; j < term.getNbParents(); j++) {
+								ClassTerm parent = term.getParent(j);
+								if (parent.getIndex() == -1) agg_wi = Math.max(agg_wi, 1.0);					
+								else agg_wi = Math.max(agg_wi, m_Weights[parent.getIndex()]);
+							}
+						}
+						else {
+							agg_wi = 0.0;
+							for (int j = 0; j < term.getNbParents(); j++) {
+								ClassTerm parent = term.getParent(j);							
+								if (parent.getIndex() == -1) agg_wi += 1.0;
+								else agg_wi += m_Weights[parent.getIndex()];
+							}
+							if (wtype==1) {
+								agg_wi = agg_wi / term.getNbParents();
+							}
+						}
+					}
+					m_Weights[term.getIndex()] = w0*agg_wi;
 					weight_computed[term.getIndex()] = true;
 					todo.remove(i);
 					nb_done++;
@@ -101,18 +128,56 @@ public class HierNodeWeights {
 			initExponentialDepthWeightsRec(child, depth+1, w0);
 		}
 	}
+
 	
-	public void initExponentialDepthWeights(ClassHierarchy hier, double w0) {
+	public void initNoWeights(ClassHierarchy hier) {
+		boolean[] weight_computed = new boolean[hier.getTotal()];
+		ArrayList todo = new ArrayList();
+		for (int i = 0; i < hier.getTotal(); i++) {
+			ClassTerm term = hier.getTermAt(i);
+			todo.add(term);
+		}
+		int nb_done = 0;
+		while (nb_done < hier.getTotal()) {
+			for (int i = todo.size()-1; i >= 0; i--) {
+				ClassTerm term = (ClassTerm)todo.get(i);
+				if (allParentsOk(term, weight_computed)) {
+					int maxDepth = 0;					
+					int minDepth = Integer.MAX_VALUE;
+					for (int j = 0; j < term.getNbParents(); j++) {
+						ClassTerm parent = term.getParent(j);
+						maxDepth = Math.max(maxDepth, parent.getMaxDepth()+1);
+						minDepth = Math.min(minDepth, parent.getMinDepth()+1);
+					}
+					term.setMinDepth(minDepth);
+					term.setMaxDepth(maxDepth);
+					m_Weights[term.getIndex()] = 1.0;
+					weight_computed[term.getIndex()] = true;
+					todo.remove(i);
+					nb_done++;
+				}
+			}
+		}		
+	}
+	
+	
+	
+	public void initExponentialDepthWeights(ClassHierarchy hier, int wtype, double w0) {
 		m_Weights = new double[hier.getTotal()];
-		ClassTerm root = hier.getRoot();
-		if (hier.isTree()) {
-			initExponentialDepthWeightsRec(root, 0, w0);
-			m_Name = "Exponential depth weights (tree) "+w0;
-		} else {
-			root.setMinDepth(-1);
-			root.setMaxDepth(-1);
-			initExponentialDepthWeightsDAG(hier, w0);
-			m_Name = "Exponential depth weights (DAG) "+w0;
+		if (wtype==4) {
+			initNoWeights(hier);
+		}
+		else {
+			ClassTerm root = hier.getRoot();
+			if (hier.isTree()) {
+				initExponentialDepthWeightsRec(root, 0, w0);
+				m_Name = "Exponential depth weights (tree) "+w0;
+			} else {
+				root.setMinDepth(-1);
+				root.setMaxDepth(-1);
+				initExponentialDepthWeightsDAG(hier, wtype, w0);
+				m_Name = "Exponential depth weights (DAG) "+w0;
+			}
 		}
 	}
 	

@@ -98,7 +98,7 @@ public class ILevelCRandIndex extends ClusError {
 		m_IsComputed = false;
 		int[] store = new int[2];
 		ILevelCStatistic ilstat = (ILevelCStatistic)pred;
-		store[0] = tuple.getIntVal(m_Attr.getArrayIndex());		
+		store[0] = m_Attr.getNominal(tuple);		
 		store[1] = ilstat.getClusterID();
 		m_Exs.add(store);
 	}

@@ -263,7 +263,7 @@ public class ClusRule implements ClusModel, Serializable {
 							newweight = oldweight * coeff * gamma;
 						} else {
 							int prediction = predictions[0];
-							int true_value = tuple.getClassification(); 
+							int true_value = target[0].getNominal(tuple); 
 							if (prediction == true_value) {
 								newweight = oldweight * gamma;
 							} else {

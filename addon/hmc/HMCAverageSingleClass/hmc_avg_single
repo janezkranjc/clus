@@ -3,4 +3,4 @@ export WEKA_DIR=$HOME/weka-3-4-10
 export CLUS_DIR=/localhost/tmp/jans/Clus
 export HMC_AVG_SINGLE_DIR=$CLUS_DIR/addon/hmc/HMCAverageSingleClass
 echo $HMC_AVG_SINGLE_DIR
-java -Xmx2000000000 -cp "$HMC_AVG_SINGLE_DIR/bin:$CLUS_DIR/bin:$WEKA_DIR/weka.jar:$CLUS_DIR/commons-math-1.0.jar" HMCAverageSingleClass $*
+java -Xmx1700000000 -cp "$HMC_AVG_SINGLE_DIR/bin:$CLUS_DIR/bin:$WEKA_DIR/weka.jar:$CLUS_DIR/commons-math-1.0.jar" HMCAverageSingleClass $*

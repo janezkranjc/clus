@@ -31,6 +31,7 @@ import clus.algo.tdidt.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.data.attweights.*;
+import java.util.Vector;
 
 public class CurrentBestTestAndHeuristic {
 	
@@ -56,6 +57,7 @@ public class CurrentBestTestAndHeuristic {
 	public double m_BestHeur;
 	public double m_UnknownFreq;
 	public ClusAttrType m_SplitAttr;
+	public Vector m_AlternativeBest = new Vector();
 			
 	// Cache for numeric attributes
 	public double m_BestSplit;
@@ -115,9 +117,18 @@ public class CurrentBestTestAndHeuristic {
 		m_TestType = TYPE_NONE;
 		m_BestHeur = Double.NEGATIVE_INFINITY;
 		m_UnknownFreq = 0.0;
-		m_SplitAttr = null;		
+		m_SplitAttr = null;
+		resetAlternativeBest();
 	}
 
+	public final void resetAlternativeBest() {
+		m_AlternativeBest.removeAllElements();
+	}
+	
+	public final void addAlternativeBest(NodeTest nt) {
+		m_AlternativeBest.addElement(nt);
+	}
+	
 	public final void setBestHeur(double value) {
 		m_BestHeur = value;
 	}
@@ -196,6 +207,10 @@ public class CurrentBestTestAndHeuristic {
 	public final ClusStatistic getTotStat() {
 		return m_TotStat;
 	}	
+	
+	public final Vector getAlternativeBest() {
+		return m_AlternativeBest;
+	}
 	
 /***************************************************************************
  * Stopping criterion

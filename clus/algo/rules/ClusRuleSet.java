@@ -406,6 +406,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	// TODO: finish
 	public double computeErrorScore(RowData data) {
 		ClusStatistic tar_stat = m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET); 
+		NominalAttrType[] target = data.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		// Average error rate over all target attributes
 		if (tar_stat instanceof ClassificationStat) {
 			double result = 0;
@@ -418,7 +419,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				int true_value;
 				for (int j = 0; j < nb_tar; j++) {
 					// Target attributes are first in m_Ints[]
-					true_value = tuple.getIntVal(j);
+					true_value = target[j].getNominal(tuple);
 					if (predictions[j] == true_value) {
 						nb_right[j]++;
 					}

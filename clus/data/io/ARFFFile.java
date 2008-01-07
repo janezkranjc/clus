@@ -101,6 +101,7 @@ public class ARFFFile {
 	}	
 		
 	protected void addAttribute(ClusSchema schema, String aname, String atype) throws IOException, ClusException {
+		Settings sett = schema.getSettings();
 		String uptype = atype.toUpperCase();
 		if (uptype.equals("NUMERIC") || uptype.equals("REAL") || uptype.equals("INTEGER")) {
 			schema.addAttrType(new NumericAttrType(aname));
@@ -126,7 +127,8 @@ public class ARFFFile {
 			if (uptype.equals("BINARY")) atype = "{1,0}";
 			int tlen = atype.length();
 			if (tlen > 2 && atype.charAt(0) == '{' && atype.charAt(tlen-1) == '}') {
-				schema.addAttrType(new NominalAttrType(aname, atype));
+				if (sett.getReduceMemoryNominalAttrs() == true) schema.addAttrType(new BitwiseNominalAttrType(aname, atype));
+				else schema.addAttrType(new NominalAttrType(aname, atype));
 			} else {
 				throw new IOException("Attribute '"+aname+"' has unknown type '"+atype+"'");
 			}				

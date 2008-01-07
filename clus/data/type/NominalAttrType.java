@@ -146,21 +146,25 @@ public class NominalAttrType extends ClusAttrType {
 	}
 
 	public String getString(DataTuple tuple) {
-		int idx = tuple.m_Ints[m_ArrayIndex];
+		int idx = this.getNominal(tuple);
 		return idx >= m_NbValues ? "?" : m_Values[idx];
 	}
 	
 	public boolean isMissing(DataTuple tuple) {
-		return tuple.m_Ints[m_ArrayIndex] >= m_NbValues;
+		return this.getNominal(tuple) >= m_NbValues;
 	}	
 
 	public int getNominal(DataTuple tuple) {
 		return tuple.getIntVal(m_ArrayIndex);
 	}
+	
+	public void setNominal(DataTuple tuple, int intvalue) {
+		tuple.setIntVal(intvalue,getArrayIndex());
+	}
 
 	public int compareValue(DataTuple t1, DataTuple t2) {
-		int i1 = t1.m_Ints[m_ArrayIndex];
-		int i2 = t2.m_Ints[m_ArrayIndex];
+		int i1 = this.getNominal(t1);
+		int i2 = this.getNominal(t2);
 		return i1 == i2 ? 0 : 1;
 	}
 
@@ -186,12 +190,12 @@ public class NominalAttrType extends ClusAttrType {
 			String value = data.readString();
 			if (value.equals("?")) {
 				incNbMissing();
-				tuple.setIntVal(getNbValues(), getArrayIndex());
+				setNominal(tuple,getNbValues());
 				return;
 			}
 			Integer i = (Integer)getValueIndex(value);
 			if (i != null) {
-				tuple.setIntVal(i.intValue(), getArrayIndex());
+				setNominal(tuple, i.intValue());
 			} else {
 				throw new IOException("Illegal value '"+value+"' for attribute "+getName()+" at row "+(data.getRow()+1));
 			}

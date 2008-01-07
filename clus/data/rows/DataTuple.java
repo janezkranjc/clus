@@ -35,7 +35,7 @@ public class DataTuple implements Serializable {
 	protected ClusSchema m_Schema;
 	
 	// Attributes can have several base types
-	public int[] m_Ints;
+	public int[] m_Ints; // nominal attributes
 	public double[] m_Doubles;
 	public Object[] m_Objects;
 		
@@ -111,8 +111,8 @@ public class DataTuple implements Serializable {
 		return res;
 	}		
 	
-	public final int getClassification() {
-		return m_Ints[0];
+	public final int getClassification() { // should not be used
+		return -1;
 	}
 	
 	public final boolean hasNumMissing(int idx) {

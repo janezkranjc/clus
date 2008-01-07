@@ -497,7 +497,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 				int t2i = ClusRandom.nextInt(ClusRandom.RANDOM_ALGO_INTERNAL, nbRows);
 				DataTuple t1 = data.getTuple(t1i);
 				DataTuple t2 = data.getTuple(t2i);
-				if (t1.getIntVal(cls.getArrayIndex()) == t2.getIntVal(cls.getArrayIndex())) {
+				if (cls.getNominal(t1) == cls.getNominal(t2)) {
 					constr.add(new ILevelConstraint(t1, t2, ILevelConstraint.ILevelCMustLink));
 				} else {
 					constr.add(new ILevelConstraint(t1, t2, ILevelConstraint.ILevelCCannotLink));

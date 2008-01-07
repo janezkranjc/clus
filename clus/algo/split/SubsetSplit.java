@@ -144,6 +144,13 @@ public class SubsetSplit extends NominalSplit {
 			node.m_BestHeur = bheur;
 			node.m_TestType = CurrentBestTestAndHeuristic.TYPE_TEST;
 			node.m_BestTest = new SubsetTest(type, card, isin, pos_freq);
+			node.resetAlternativeBest();
+//			System.out.println("attr: " + type + "  best test: " + node.m_BestTest.getString());
+		}
+		else if (getStatManager().getSettings().showAlternativeSplits() && (bheur > node.m_BestHeur - ClusHeuristic.DELTA) && (bheur < node.m_BestHeur + ClusHeuristic.DELTA)) {
+			// if same heuristic: add to altnernatives (list will later be pruned to remove those tests that do
+			// not give rise to exactly the same subsets)
+			node.addAlternativeBest(new SubsetTest(type, card, isin, pos_freq));		
 		}
 	}
 

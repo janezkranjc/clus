@@ -36,9 +36,10 @@ import clus.data.type.*;
 import clus.ext.hierarchical.*;
 
 public class Settings implements Serializable {
-	
+
 	public final static long SERIAL_VERSION_ID = 1L;	
 	public final static long serialVersionUID = SERIAL_VERSION_ID;
+
 
 /***********************************************************************
  * INI file structure                                                  *
@@ -220,6 +221,7 @@ public class Settings implements Serializable {
 	protected INIFileString m_Disabled;	
 	protected INIFileNominalOrDoubleOrVector m_Weights;	
 	protected INIFileNominalOrDoubleOrVector m_ClusteringWeights;
+	protected INIFileBool m_ReduceMemoryNominal;
 
 	public String getTarget() {
 		return m_Target.getValue();
@@ -269,6 +271,7 @@ public class Settings implements Serializable {
 		return m_Weights;
 	}
 	
+
 	public boolean hasNonTrivialWeights() {
 		for (int i = 0; i < m_Weights.getVectorLength(); i++) {
 			if (m_Weights.isNominal(i))
@@ -282,6 +285,11 @@ public class Settings implements Serializable {
 	public INIFileNominalOrDoubleOrVector getClusteringWeights() {
 		return m_ClusteringWeights;
 	}	
+	
+	public boolean getReduceMemoryNominalAttrs() {
+		return m_ReduceMemoryNominal.getValue();
+	}
+
 	
 /***********************************************************************
  * Section: Attribute - Normalization                                  *
@@ -534,6 +542,7 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_Heuristic;
 	protected INIFileInt m_TreeMaxDepth;
 	protected INIFileBool m_BinarySplit;
+	protected INIFileBool m_AlternativeSplits;
 	protected INIFileDouble m_FTest;	
 	protected INIFileNominal m_PruningMethod;	
 	protected INIFileBool m_1SERule;	
@@ -563,7 +572,11 @@ public class Settings implements Serializable {
 	public boolean isBinarySplit() {
 		return m_BinarySplit.getValue();
 	}
-		
+
+	public boolean showAlternativeSplits() {
+		return m_AlternativeSplits.getValue();
+	}
+	
 	public double getFTest() {
 		return m_FTest.getValue();
 	}
@@ -604,7 +617,7 @@ public class Settings implements Serializable {
 		
 	public final static String[] HEURISTICS = { "Default", "ReducedError",
 		"Gain", "GAIN_RATIO", "SSPD", "SSReduction", "MEstimate", "Morishita", "DispersionAdt", "DispersionMlt",
-		"WRDispersionAdt", "WRDispersionMlt"};
+		"WRDispersionAdt", "WRDispersionMlt", "GeneticDistance"};
 	
 	public final static int HEURISTIC_DEFAULT = 0;	
 	public final static int HEURISTIC_REDUCED_ERROR = 1;	
@@ -618,6 +631,7 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_DISPERSION_MLT = 9;
 	public final static int HEURISTIC_WR_DISPERSION_ADT = 10;
 	public final static int HEURISTIC_WR_DISPERSION_MLT = 11;
+	public final static int HEURISTIC_GENETIC_DISTANCE = 12;
 
 	public static int FTEST_LEVEL;	
 	public static double FTEST_VALUE;	
@@ -710,6 +724,7 @@ public class Settings implements Serializable {
 	public final static int RULE_ADDING_METHOD_IF_BETTER_BEAM = 2;
 
 	public static boolean IS_RULE_SIG_TESTING = false;
+
 
 	protected INIFileNominal m_CoveringMethod;
 	protected INIFileNominal m_PredictionMethod;
@@ -891,9 +906,19 @@ public class Settings implements Serializable {
 	
 	public final static int HIERTYPE_TREE = 0;	
 	public final static int HIERTYPE_DAG = 1;
+
+    public final static String[] HIERWEIGHT = { "ExpSumParentWeight", "ExpAvgParentWeight", "ExpMinParentWeight", "ExpMaxParentWeight", "NoWeight" };
+
+    public final static int HIERWEIGHT_EXP_SUM_PARENT_WEIGHT = 0;
+    public final static int HIERWEIGHT_EXP_AVG_PARENT_WEIGHT = 1;
+    public final static int HIERWEIGHT_EXP_MIN_PARENT_WEIGHT = 2;
+    public final static int HIERWEIGHT_EXP_MAX_PARENT_WEIGHT = 3;
+    public final static int HIERWEIGHT_NO_WEIGHT = 4;
+		
 	
 	INIFileSection m_SectionHierarchical;
 	protected INIFileNominal m_HierType;	
+	protected INIFileNominal m_HierWType;	
 	protected INIFileDouble m_HierWParam;
 	protected INIFileString m_HierSep;
 	protected INIFileString m_HierEmptySetIndicator;
@@ -910,6 +935,10 @@ public class Settings implements Serializable {
 	
 	public int getHierType() {
 		return m_HierType.getValue();
+	}
+	
+	public int getHierWType() {
+		return m_HierWType.getValue();
 	}
 	
 	public double getHierWParam() {
@@ -1239,7 +1268,8 @@ public class Settings implements Serializable {
 		m_Weights.setNominal(NORMALIZATION_DEFAULT);
 		attrs.addNode(m_ClusteringWeights = new INIFileNominalOrDoubleOrVector("ClusteringWeights", EMPTY));
 		m_ClusteringWeights.setDouble(1.0);
-		m_ClusteringWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);				
+		m_ClusteringWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);
+		attrs.addNode(m_ReduceMemoryNominal = new INIFileBool("ReduceMemoryNominalAttrs", false));
 
     	INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic",	NONE));
@@ -1279,6 +1309,7 @@ public class Settings implements Serializable {
 		m_SectionTree.addNode(m_1SERule = new INIFileBool("1-SE-Rule", false));
 		m_SectionTree.addNode(m_M5PruningMult = new INIFileDouble("M5PruningMult", 2.0));
 		m_SectionTree.addNode(m_RulesFromTree = new INIFileNominal("ConvertToRules", CONVERT_RULES, 0));
+		m_SectionTree.addNode(m_AlternativeSplits = new INIFileBool("AlternativeSplits", false));
 
 		INIFileSection rules = new INIFileSection("Rules");
 		rules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));
@@ -1310,7 +1341,8 @@ public class Settings implements Serializable {
 		rules.setEnabled(false);
 		
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
-		m_SectionHierarchical.addNode(m_HierType = new INIFileNominal("Type", HIERTYPES, 0));		
+		m_SectionHierarchical.addNode(m_HierType = new INIFileNominal("Type", HIERTYPES, 0));	
+		m_SectionHierarchical.addNode(m_HierWType = new INIFileNominal("WType", HIERWEIGHT, 0));
 		m_SectionHierarchical.addNode(m_HierWParam = new INIFileDouble("WParam", 0.75));
 		m_SectionHierarchical.addNode(m_HierSep = new INIFileString("HSeparator", "."));
 		m_SectionHierarchical.addNode(m_HierEmptySetIndicator = new INIFileString("EmptySetIndicator", "n"));

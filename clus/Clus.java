@@ -101,7 +101,6 @@ public class Clus implements CMDLineArgsProvider {
 		// Load resource info (this measures among others CPU time on Linux)
 		boolean test = m_Sett.getResourceInfoLoaded() == Settings.RESOURCE_INFO_LOAD_TEST;
 		ResourceInfo.loadLibrary(test);
-		ClusStat.m_InitialMemory = ResourceInfo.getMemory();
 		// Load settings file
 		ARFFFile arff = null;
 		System.out.println("Loading '" + m_Sett.getAppName() + "'");
@@ -132,11 +131,17 @@ public class Clus implements CMDLineArgsProvider {
 		// Create induce
 		m_Induce = clss.createInduce(m_Schema, m_Sett, cargs);		
 		// Load data from file
+		if (ResourceInfo.isLibLoaded()) {
+			ClusStat.m_InitialMemory = ResourceInfo.getMemory();
+		}
 		m_Data = (RowData)m_Induce.createData();		
 		m_Data.resize(m_Schema.getNbRows());
 		ClusView view = m_Data.createNormalView(m_Schema);
 		view.readData(reader, m_Schema);
 		reader.close();
+		if (ResourceInfo.isLibLoaded()) {
+			ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
+		}
 		// Preprocess and initialize induce
 		m_Sett.update(m_Schema);
 		// If not rule induction, reset some settings just to be sure
@@ -160,8 +165,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		System.out.println("Has missing values: " + m_Schema.hasMissing());		
 		if (ResourceInfo.isLibLoaded()) {
-			ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
-			System.out.println("Memory usage: "+ClusStat.m_InitialMemory+" kB (initial), "+ClusStat.m_LoadedMemory+" kB (data loaded)");
+			System.out.println("Memory usage: loading data took " + (ClusStat.m_LoadedMemory - ClusStat.m_InitialMemory) +" kB");
 		}
 	}
 
@@ -365,14 +369,14 @@ public class Clus implements CMDLineArgsProvider {
 		data.calcTotalStat(allStat);
 		ClusStatistic[] stats = new ClusStatistic[1];
 		stats[0] = allStat;
-		if (!m_Sett.isNullTestFile()) {
+		/*if (!m_Sett.isNullTestFile()) {
 			System.out.println("Loading: " + m_Sett.getTestFile());
 			updateStatistic(m_Sett.getTestFile(), stats);
 		}
 		if (!m_Sett.isNullPruneFile()) {
 			System.out.println("Loading: " + m_Sett.getPruneFile());
 			updateStatistic(m_Sett.getPruneFile(), stats);
-		}
+		}*/
 		mgr.initNormalizationWeights(allStat);
 		mgr.initClusteringWeights();
 		mgr.initCompactnessWeights();

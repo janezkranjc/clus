@@ -56,7 +56,8 @@ public abstract class ClusAttrType implements Serializable {
 	public final static int VALUE_TYPE_INT = 0;
 	public final static int VALUE_TYPE_DOUBLE = 1;
 	public final static int VALUE_TYPE_OBJECT = 2;
-	public final static int NB_VALUE_TYPES = 3;
+	public final static int VALUE_TYPE_BITWISEINT = 3;
+	public final static int NB_VALUE_TYPES = 4;
 
 	public final static int NB_TYPES = 5;
 	public final static int THIS_TYPE = -1;

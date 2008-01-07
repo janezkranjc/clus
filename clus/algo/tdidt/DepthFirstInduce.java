@@ -34,6 +34,7 @@ import clus.statistic.*;
 import clus.ext.ensembles.*;
 
 import java.io.*;
+import java.util.Vector;
 
 public class DepthFirstInduce extends ClusInductionAlgorithm {
 	
@@ -118,14 +119,61 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			// Create children
 			int arity = node.updateArity();
 			NodeTest test = node.getTest();
+			
+			
+			RowData[] subsets = new RowData[arity];
+			for (int j = 0; j < arity; j++) {			
+				subsets[j] = data.applyWeighted(test, j);				
+			}
+			
+			Vector v = best.getAlternativeBest(); // alternatives: all tests that result in same heuristic value
+			for (int k=0; k<v.size(); k++) {
+				NodeTest nt = (NodeTest) v.elementAt(k);
+				int altarity = nt.updateArity();
+				// remove alternatives that have different arity than besttest
+				if (altarity != arity) {
+					v.removeElementAt(k);
+					k--;
+				}
+				else {
+					boolean okay = true;
+					for (int l=0; l<altarity; l++) {
+						if (okay) {
+							RowData altrd = data.applyWeighted(nt, l);
+							// remove alternatives that result in subsets with different nb of tuples than besttest
+							if (subsets[l].getNbTuples()!=altrd.getNbTuples()) {
+								v.removeElementAt(k);
+								k--;
+								okay = false;
+							}
+							else {
+								for (int m=0; m<subsets[l].getNbTuples(); m++) {
+									if (okay) {
+										// remove alternatives that result in subsets with different tuples than besttest
+										if (!subsets[l].getTuple(m).equals(altrd.getTuple(m))) {
+											v.removeElementAt(k);
+											k--;
+											okay = false;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			node.setAlternatives(v);
+
+
 			for (int j = 0; j < arity; j++) {
 				ClusNode child = new ClusNode();
 				node.setChild(child, j);				
-				RowData subset = data.applyWeighted(test, j);				
-				child.initClusteringStat(m_StatManager, subset);								
-				child.initTargetStat(m_StatManager, subset);
-				induce(child, subset);
+				//RowData subset = data.applyWeighted(test, j);				
+				child.initClusteringStat(m_StatManager, subsets[j]);								
+				child.initTargetStat(m_StatManager, subsets[j]);
+				induce(child, subsets[j]);
 			}
+			
 		} else {
 			node.makeLeaf();
 		}

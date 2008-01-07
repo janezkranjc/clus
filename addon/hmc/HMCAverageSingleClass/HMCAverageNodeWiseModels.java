@@ -71,6 +71,9 @@ public class HMCAverageNodeWiseModels {
 			int size = cr.getDataSet(i).getNbRows();
 			for (int j = 0; j < hier.getTotal(); j++) {
 				m_PredProb[i][j] = new double[size];
+				for (int k=0; k<size; k++) {
+					m_PredProb[i][j][k] = Double.MAX_VALUE;
+				}
 			}
 		}		
 		// All classes still need to be done
@@ -159,6 +162,9 @@ public class HMCAverageNodeWiseModels {
 		int parent_idx = parent.getIndex();
 		int child_idx = term.getIndex();
 		double parent_prob = parent_idx == -1 ? 1.0 : m_PredProb[traintest][parent_idx][exid];
-		m_PredProb[traintest][child_idx][exid] += parent_prob * predicted_prob;  
+		double child_prob = parent_prob * predicted_prob;
+		if (child_prob < m_PredProb[traintest][child_idx][exid]) {	
+			m_PredProb[traintest][child_idx][exid] = child_prob;
+		}
 	}
 }
