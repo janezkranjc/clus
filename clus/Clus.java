@@ -81,10 +81,10 @@ public class Clus implements CMDLineArgsProvider {
 			"tuneftest", "load", "soxval", "bag", "obag", "show", "knn",
 			"knnTree", "beam", "gui", "fillin", "rules", "weka", "corrmatrix",
 			"tunesize", "out2model", "test", "normalize", "tseries", "writetargets", "fold", "forest",
-			"copying"};
+			"copying","sit"};
 
 	public final static int[] OPTION_ARITIES = {0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
-			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0};
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0,0};
 
 	protected Settings m_Sett = new Settings();
 	protected ClusSummary m_Summary = new ClusSummary();
@@ -1137,6 +1137,11 @@ public class Clus implements CMDLineArgsProvider {
 					// new part added by elisa 1/08/2006
 					clus.getSettings().setSectionExhaustiveEnabled(true);
 					clss = new ClusExhaustiveDFSearch(clus);
+				} else if (cargs.hasOption("sit")) {
+					//new part by beau 
+					clss = new ClusDecisionTree(clus);
+					clss = new ClusSITDecisionTree(clss);
+					
 				} else if (cargs.hasOption("forest")) {
 					sett.setEnsembleMode(true);
 					clss = new ClusEnsembleClassifier(clus);
