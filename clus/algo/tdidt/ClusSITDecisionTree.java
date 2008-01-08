@@ -122,7 +122,7 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		ClusError err = doParamXVal(trset, pruneset);
 		ClusStatManager mgr = getStatManager();
 		//variables for holding the current best found weights/err
-		double[] best_weights = weights.clone();
+		double[] best_weights = (double[]) weights.clone();
 		
 		
 		//1 dimensionaal?????
@@ -135,7 +135,7 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		System.out.println();
 		
 		for(int i = support_range[0];i<=support_range[1];i++){
-			mgr.getClusteringWeights().m_Weights = weights.clone();
+			mgr.getClusteringWeights().m_Weights = (double[]) weights.clone();
 			mgr.getClusteringWeights().m_Weights[i] = 1;
 		
 		
@@ -150,7 +150,7 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 			System.out.println("Correlation: "+err.getModelErrorComponent(emc));
 			if(err.getModelErrorComponent(emc)>best_err){
 				best_err =  err.getModelErrorComponent(emc);
-				best_weights = mgr.getClusteringWeights().m_Weights.clone();
+				best_weights = (double[]) mgr.getClusteringWeights().m_Weights.clone();
 			}
 			System.out.println();
 		}
@@ -189,17 +189,17 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		//set all weights to 0, except the main_target		
 		resetWeights(main_target);
 		double[] weights = mgr.getClusteringWeights().m_Weights;
-		double best_err = findBestSupportTasks(weights.clone(),emc,support_range,trset,pruneset);
+		double best_err = findBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
 		
 		if(recursive){
 			
 			System.out.println("\n---recursive sit---");
 			weights = mgr.getClusteringWeights().m_Weights;
-			double new_err = findBestSupportTasks(weights.clone(),emc,support_range,trset,pruneset); 
+			double new_err = findBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset); 
 			while(new_err > best_err){
 				best_err = new_err;
 				weights = mgr.getClusteringWeights().m_Weights;
-				new_err = findBestSupportTasks(weights.clone(),emc,support_range,trset,pruneset); 
+				new_err = findBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset); 
 			}
 			
 			
