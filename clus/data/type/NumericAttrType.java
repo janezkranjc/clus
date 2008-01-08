@@ -93,7 +93,7 @@ public class NumericAttrType extends ClusAttrType {
 		if (getStatus() == STATUS_KEY) {
 			return String.valueOf((int)val);
 		} else {
-			return val == MISSING ? "?" : ClusFormat.SIX_AFTER_DOT.format(val);
+			return val == MISSING ? "?" : String.valueOf(val);
 		}
 	}
 	
