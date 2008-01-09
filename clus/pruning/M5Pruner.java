@@ -36,17 +36,17 @@ public class M5Pruner extends PruneTree {
 	
 	double m_PruningMult = 2;
 	double m_GlobalDeviation;
-	ClusAttributeWeights m_TargetWeights;
+	ClusAttributeWeights m_ClusteringWeights;
 	RowData m_TrainingData;
 	
 	public M5Pruner(ClusAttributeWeights prod, double mult) {
-		m_TargetWeights = prod;
+		m_ClusteringWeights = prod;
 		m_PruningMult = mult;
 	}
 	
 	public void prune(ClusNode node) {
 		RegressionStat stat = (RegressionStat)node.getClusteringStat();
-		m_GlobalDeviation = Math.sqrt(stat.getSS(m_TargetWeights)/stat.getTotalWeight());
+		m_GlobalDeviation = Math.sqrt(stat.getSS(m_ClusteringWeights)/stat.getTotalWeight());
 		pruneRecursive(node);
 		// System.out.println("Performing test of M5 pruning");
 		// TestM5PruningRuleNode.performTest(orig, node, m_GlobalDeviation, m_TargetWeights, m_TrainingData);
@@ -69,9 +69,9 @@ public class M5Pruner extends PruneTree {
 			pruneRecursive(child);
 		}
 		RegressionStat stat = (RegressionStat)node.getClusteringStat();
-		double rmsLeaf = stat.getRMSE(m_TargetWeights);
+		double rmsLeaf = stat.getRMSE(m_ClusteringWeights);
 		double adjustedErrorLeaf = rmsLeaf * pruningFactor(stat.getTotalWeight(), 1);		
-		double rmsSubTree = Math.sqrt(node.estimateSS(m_TargetWeights)/stat.getTotalWeight());
+		double rmsSubTree = Math.sqrt(node.estimateSS(m_ClusteringWeights)/stat.getTotalWeight());
 		double adjustedErrorTree = rmsSubTree * pruningFactor(stat.getTotalWeight(), node.getModelSize());
 		// System.out.println("C mode: "+rmsModel+" tree: "+rmsSubTree);
 		// System.out.println("C modeadj: "+adjustedErrorModel +" treeadj: "+adjustedErrorNode);
