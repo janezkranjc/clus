@@ -728,8 +728,13 @@ public class ClusNode extends MyNode implements ClusModel {
 			int delta = hasUnknownBranch() ? 1 : 0;
 			if (arity - delta == 2) {
 				writer.print(m_Test.getTestString());
-				RowData examples0 = examples.apply(m_Test, 0);
-				RowData examples1 = examples.apply(m_Test, 1);	
+
+				RowData examples0 = null;
+				RowData examples1 = null;	
+				if (examples!=null){
+					examples0 = examples.apply(m_Test, 0);
+					examples1 = examples.apply(m_Test, 1);	
+				}
 
 				for (int i=0; i<m_Alternatives.length; i++) {
 					writer.print(" and " + m_Alternatives[i]);
@@ -750,7 +755,10 @@ public class ClusNode extends MyNode implements ClusModel {
 				for (int i = 0; i < arity; i++) {
 					ClusNode child = (ClusNode)getChild(i);
 					String branchlabel = m_Test.getBranchLabel(i);
-					RowData examplesi = examples.apply(m_Test, i);
+					RowData examplesi = null;
+					if (examples!=null){
+						examples.apply(m_Test, i);
+					}
 					writer.print(prefix + "+--" + branchlabel + ": ");
 					String suffix = StringUtils.makeString(' ', branchlabel.length()+4);
 					if (i != arity-1) {
@@ -768,8 +776,7 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 			if (getID() != 0 && info.SHOW_INDEX) writer.println(" ("+getID()+")");
 			else writer.println();
-			if (examples!=null){
-				
+			if (examples!=null && examples.getNbTuples()>0){
 				writer.println(examples.toString(prefix));
 				writer.println(prefix+"Summary:");
 				writer.println(examples.getSummary(prefix));

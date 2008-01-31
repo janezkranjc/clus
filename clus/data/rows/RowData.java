@@ -115,7 +115,12 @@ public class RowData extends ClusData implements MSortable {
 		for (int i=0;i<nda;i++){
 			avg[i]/=nbrows;
 			stddev[i]=(stddev[i]-nbrows*avg[i]*avg[i])/nbrows;
+			min[i]=Math.round(min[i]*100)/100;
+			max[i]=Math.round(max[i]*100)/100;
+			avg[i]=Math.round(avg[i]*100)/100;
+			stddev[i]=Math.round(stddev[i]*100)/100;
 		}
+		
 		sb.append(prefix+"Min: "+Arrays.toString(min)+"\n");
 		sb.append(prefix+"Max: "+Arrays.toString(max)+"\n");
 		sb.append(prefix+"Avg: "+Arrays.toString(avg)+"\n");
