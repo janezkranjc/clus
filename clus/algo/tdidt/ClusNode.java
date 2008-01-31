@@ -643,8 +643,10 @@ public class ClusNode extends MyNode implements ClusModel {
 	}	
 	
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
-		printModel(wrt, info);
+		printTree(wrt, info, "", examples);
 	}		
+	
+
 	
 	public void printModelToPythonScript(PrintWriter wrt){
 		printTreeToPythonScript(wrt, "\t");
@@ -717,36 +719,44 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 	
 	public final void printTree(PrintWriter writer, StatisticPrintInfo info, String prefix) {
+		printTree( writer,  info,  prefix, null);
+	}
+	
+	public final void printTree(PrintWriter writer, StatisticPrintInfo info, String prefix, RowData examples) {
 		int arity = getNbChildren();
 		if (arity > 0) {
 			int delta = hasUnknownBranch() ? 1 : 0;
 			if (arity - delta == 2) {
 				writer.print(m_Test.getTestString());
+				RowData examples0 = examples.apply(m_Test, 0);
+				RowData examples1 = examples.apply(m_Test, 1);	
+
 				for (int i=0; i<m_Alternatives.length; i++) {
 					writer.print(" and " + m_Alternatives[i]);
 				}	
 				writeDistributionForInternalNode(writer, info);
 				writer.print(prefix + "+--yes: ");
-				((ClusNode)getChild(YES)).printTree(writer, info, prefix+"|       ");
+				((ClusNode)getChild(YES)).printTree(writer, info, prefix+"|       ",examples0);
 				writer.print(prefix + "+--no:  ");
 				if (hasUnknownBranch()) {
-					((ClusNode)getChild(NO)).printTree(writer, info, prefix+"|       ");
+					((ClusNode)getChild(NO)).printTree(writer, info, prefix+"|       ",examples1);
 					writer.print(prefix + "+--unk: ");
-					((ClusNode)getChild(UNK)).printTree(writer, info, prefix+"        ");
+					((ClusNode)getChild(UNK)).printTree(writer, info, prefix+"        ",examples0);
 				} else {
-					((ClusNode)getChild(NO)).printTree(writer, info, prefix+"        ");
+					((ClusNode)getChild(NO)).printTree(writer, info, prefix+"        ",examples1);
 				}
 			} else {//on the leaves
 				writer.println(m_Test.getTestString());				
 				for (int i = 0; i < arity; i++) {
 					ClusNode child = (ClusNode)getChild(i);
 					String branchlabel = m_Test.getBranchLabel(i);
+					RowData examplesi = examples.apply(m_Test, i);
 					writer.print(prefix + "+--" + branchlabel + ": ");
 					String suffix = StringUtils.makeString(' ', branchlabel.length()+4);
 					if (i != arity-1) {
-						child.printTree(writer, info, prefix+"|"+suffix);						
+						child.printTree(writer, info, prefix+"|"+suffix,examplesi);						
 					} else {
-						child.printTree(writer, info, prefix+" "+suffix);
+						child.printTree(writer, info, prefix+" "+suffix,examplesi);
 					}
 				}
 			}
@@ -758,6 +768,13 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 			if (getID() != 0 && info.SHOW_INDEX) writer.println(" ("+getID()+")");
 			else writer.println();
+			if (examples!=null){
+				
+				writer.println(examples.toString(prefix));
+				writer.println(prefix+"Summary:");
+				writer.println(examples.getSummary(prefix));
+			}
+			
 		}
 	}
 	

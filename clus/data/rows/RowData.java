@@ -69,6 +69,60 @@ public class RowData extends ClusData implements MSortable {
 		setNbRows(list.size());
 	}
 	
+	public String toString(){
+		return toString("");
+	}
+	
+	public String toString(String prefix){
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < getNbRows(); i++) {
+			sb.append(prefix);
+			sb.append(getTuple(i).toString()+"\n");
+		}		
+		return sb.toString();
+	}
+	
+	public String getSummary(){
+		return getSummary("");
+	}	
+	
+	public String getSummary(String prefix){
+		StringBuffer sb = new StringBuffer();
+		double[] avg,min,max,stddev;
+		DataTuple temp = getTuple(0);
+		int nda= temp.getSchema().getNbNumericDescriptiveAttributes();
+		avg = new double[nda];
+		min = new double[nda];
+		max = new double[nda];
+		stddev = new double[nda];
+		int nbrows = getNbRows();
+		for (int i = 0; i < nbrows ; i++) {
+			temp = getTuple(i);
+			ClusSchema schema = temp.getSchema();	
+			for (int j = 0; j < schema.getNbNumericDescriptiveAttributes(); j++) {
+				ClusAttrType type = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE)[j];
+				double tmpvalue = type.getNumeric(temp);
+				if (tmpvalue>max[j]){
+					max[j]=tmpvalue;
+				}
+				if (tmpvalue<min[j]){
+					min[j]=tmpvalue;
+				}
+				avg[j]+=tmpvalue;
+				stddev[j]+=tmpvalue*tmpvalue;
+			}
+		}
+		for (int i=0;i<nda;i++){
+			avg[i]/=nbrows;
+			stddev[i]=(stddev[i]-nbrows*avg[i]*avg[i])/nbrows;
+		}
+		sb.append(prefix+"Min: "+Arrays.toString(min)+"\n");
+		sb.append(prefix+"Max: "+Arrays.toString(max)+"\n");
+		sb.append(prefix+"Avg: "+Arrays.toString(avg)+"\n");
+		sb.append(prefix+"StdDev: "+Arrays.toString(stddev)+"\n");
+		return sb.toString();
+	}
+	
 	public ArrayList toArray() {
 		ArrayList array = new ArrayList();
 		addTo(array);
