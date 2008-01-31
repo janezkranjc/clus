@@ -95,6 +95,10 @@ public class RowData extends ClusData implements MSortable {
 		min = new double[nda];
 		max = new double[nda];
 		stddev = new double[nda];
+		Arrays.fill(avg, 0);
+		Arrays.fill(stddev, 0);
+		Arrays.fill(min, Double.MAX_VALUE);
+		Arrays.fill(max, Double.MIN_VALUE);
 		int nbrows = getNbRows();
 		for (int i = 0; i < nbrows ; i++) {
 			temp = getTuple(i);
@@ -115,6 +119,7 @@ public class RowData extends ClusData implements MSortable {
 		for (int i=0;i<nda;i++){
 			avg[i]/=nbrows;
 			stddev[i]=(stddev[i]-nbrows*avg[i]*avg[i])/nbrows;
+			stddev[i] = Math.sqrt(stddev[i]);
 			min[i]=Math.round(min[i]*100)/100.0;
 			max[i]=Math.round(max[i]*100)/100.0;
 			avg[i]=Math.round(avg[i]*100)/100.0;
