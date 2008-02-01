@@ -193,11 +193,11 @@ public class ClusBeam {
 		
 		if (m_CrWidth < m_MaxWidth) {	
 			m_CrWidth += addIfNotIn(candidate); 
-			String info = "BEAM SIZE = "+getCrWidth();
+//			String info = "BEAM SIZE = "+getCrWidth();
 //			printBeamTrees(info);
 			return 1;
 		}
-		String info = "BEAM SIZE = "+getCrWidth();
+//		String info = "BEAM SIZE = "+getCrWidth();
 //		printBeamTrees(info);
 //		NumberFormat form = ClusFormat.makeNAfterDot(8);
 //		double candidateSimilarity = Double.parseDouble(form.format(1 - candidate.getDistanceToBeam()/getCrWidth()));
