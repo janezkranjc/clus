@@ -1166,7 +1166,7 @@ public class Settings implements Serializable {
 	public final static int VOTING_TYPE_PROBAB_DISTR = 1;
 
 	INIFileSection m_SectionEnsembles;
-	protected INIFileInt m_NbBags;
+	protected INIFileNominalOrIntOrVector m_NbBags;
 	public static INIFileNominal m_EnsembleMethod;
 	public static INIFileNominal m_ClassificationVoteType;
 	protected INIFileInt m_RandomAttrSelected;
@@ -1185,8 +1185,8 @@ public class Settings implements Serializable {
 		return m_EnsembleMethod.getValue();
 	}
 
-	public int getNbBaggingSets() {
-		return m_NbBags.getValue();
+	public INIFileNominalOrIntOrVector getNbBaggingSets(){
+		return m_NbBags;
 	}	
 	
 	public int getNbRandomAttrSelected() {
@@ -1391,7 +1391,7 @@ public class Settings implements Serializable {
 		m_SectionTimeSeries.setEnabled(false);
 		
 		m_SectionEnsembles = new INIFileSection("Ensemble");
-		m_SectionEnsembles.addNode(m_NbBags = new INIFileInt("Iterations", 25));
+		m_SectionEnsembles.addNode(m_NbBags = new INIFileNominalOrIntOrVector("Iterations", NONELIST));
 		m_SectionEnsembles.addNode(m_EnsembleMethod =new INIFileNominal("EnsembleMethod", ENSEMBLE_TYPE,0));
 		m_SectionEnsembles.addNode(m_ClassificationVoteType =new INIFileNominal("VotingType", VOTING_TYPE,0));
 		m_SectionEnsembles.addNode(m_RandomAttrSelected = new INIFileInt("SelectRandomSubspaces", 1));

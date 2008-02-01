@@ -780,11 +780,22 @@ public class Clus implements CMDLineArgsProvider {
 		m_Summary.setTotalRuns(1);
 		ClusRun run = singleRunMain(clss, null);
 		saveModels(run, io);
-		io.save(getSettings().getFileAbsolute(m_Sett.getAppName() + ".model"));
+//		io.save(getSettings().getFileAbsolute(m_Sett.getAppName() + ".model"));
+		if (ClusEnsembleInduce.isOptimized()&&(m_Sett.getNbBaggingSets().getVectorLength() > 1))
+			io.save(getSettings().getFileAbsolute(m_Sett.getAppName()+"_"+ ClusEnsembleInduce.getMaxNbBags()+"_.model"));
+		else 
+			io.save(getSettings().getFileAbsolute(m_Sett.getAppName() + ".model"));
+		
 	}
 
 	public final ClusRun singleRunMain(ClusInductionAlgorithmType clss, ClusSummary summ)	throws IOException, ClusException {
-		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".out", m_Schema, m_Sett);
+//		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".out", m_Schema, m_Sett);
+		ClusOutput output;
+		if (ClusEnsembleInduce.isOptimized() && (m_Sett.getNbBaggingSets().getVectorLength() > 1))
+			output = new ClusOutput(m_Sett.getAppName() +"_"+ClusEnsembleInduce.getMaxNbBags()+"_.out", m_Schema, m_Sett);
+		else 
+			output = new ClusOutput(m_Sett.getAppName() + ".out", m_Schema, m_Sett);
+		
 		ClusRun cr = partitionData();
 		// Compute statistic on training data
 		ClusStatistic tr_stat = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);

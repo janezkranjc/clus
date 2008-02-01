@@ -44,7 +44,6 @@ public class ClusForest implements ClusModel, Serializable{
 
 	ArrayList m_Forest;
 	ClusStatistic m_Stat;
-	static ClusAttrType[] m_RandomSubspaces;
 	boolean m_PrintModels;
 	
 	public ClusForest(){
@@ -54,10 +53,6 @@ public class ClusForest implements ClusModel, Serializable{
 	
 	public ClusForest(ClusStatManager statmgr){
 		m_Forest = new ArrayList();
-		initForest(statmgr);
-	}
-	
-	public void initForest(ClusStatManager statmgr){
 		if (statmgr.getMode() == ClusStatManager.MODE_CLASSIFY){
 			m_Stat = new ClassificationStat(statmgr.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET));
 		}else if (statmgr.getMode() == ClusStatManager.MODE_REGRESSION){
@@ -106,7 +101,11 @@ public class ClusForest implements ClusModel, Serializable{
 	}
 
 	public ClusStatistic predictWeighted(DataTuple tuple) {
-		ClusModel model;
+		
+		if (! ClusEnsembleInduce.m_OptMode) return predictWeightedStandard(tuple);
+		else return predictWeightedOpt(tuple);
+
+/*		ClusModel model;
 		ArrayList votes = new ArrayList();
 		for (int i = 0; i < m_Forest.size(); i++){
 			model = (ClusModel)m_Forest.get(i);
@@ -114,6 +113,30 @@ public class ClusForest implements ClusModel, Serializable{
 			if (tuple.getWeight() != 1.0) System.out.println("Tuple "+tuple.getIndex()+" = "+tuple.getWeight());
 		}
 		m_Stat.vote(votes);
+		return m_Stat;*/
+	}
+	
+	public ClusStatistic predictWeightedStandard(DataTuple tuple) {
+		ClusModel model;
+		ArrayList votes = new ArrayList();
+		for (int i = 0; i < m_Forest.size(); i++){
+			model = (ClusModel)m_Forest.get(i);
+			votes.add(model.predictWeighted(tuple));
+//			if (tuple.getWeight() != 1.0) System.out.println("Tuple "+tuple.getIndex()+" = "+tuple.getWeight());
+		}
+		m_Stat.vote(votes);
+		return m_Stat;
+	}
+	
+	public ClusStatistic predictWeightedOpt(DataTuple tuple) {
+		int position = ClusEnsembleInduce.locateTuple(tuple);
+		int predlength = ClusEnsembleInduce.m_AvgPredictions[position].length;
+		m_Stat.reset();
+		((WHTDStatistic)m_Stat).m_Means = new double[predlength];
+		for (int j = 0; j < predlength; j++){
+			((WHTDStatistic)m_Stat).m_Means[j] = ClusEnsembleInduce.m_AvgPredictions[position][j];
+		}
+		m_Stat.computePrediction();
 		return m_Stat;
 	}
 
@@ -206,68 +229,6 @@ public class ClusForest implements ClusModel, Serializable{
 		return m_Forest.size();
 	}
 	
-	public static ClusAttrType[] selectAttributesForRandomForest(ClusAttrType[] attrs, int select){
-		int origsize = attrs.length;
-		int[] samples = new int [origsize];
-		int rnd;
-		boolean randomize = true;
-		int i = 0;
-		while (randomize) {
-			rnd = ClusRandom.nextInt(ClusRandom.RANDOM_SELECTION, origsize);
-			if (samples[rnd] == 0) {
-				samples[rnd]++;
-				i++;
-			}
-			if ( i == select)
-				randomize = false;
-		}
-		ClusAttrType[] result = new ClusAttrType[select];
-		int res = 0;
-		for (int k = 0; k < origsize; k++){
-			if (samples[k] !=0){
-				result[res] = attrs[k];
-				res++;
-			}
-		}
-//		System.out.println(java.util.Arrays.toString(samples));
-		return result;
-	}
-	
-	public static void selectRandomSubspaces(ClusAttrType[] attrs, int select){
-		int origsize = attrs.length;
-		int[] samples = new int [origsize];
-		int rnd;
-		boolean randomize = true;
-		int i = 0;
-		while (randomize) {
-			rnd = ClusRandom.nextInt(ClusRandom.RANDOM_SELECTION, origsize);
-			if (samples[rnd] == 0) {
-				samples[rnd]++;
-				i++;
-			}
-			if ( i == select)
-				randomize = false;
-		}
-		ClusAttrType[] result = new ClusAttrType[select];
-		int res = 0;
-		for (int k = 0; k < origsize; k++){
-			if (samples[k] !=0){
-				result[res] = attrs[k];
-				res++;
-			}
-		}
-//		System.out.println(java.util.Arrays.toString(samples));
-		setRandomSubspaces(result);
-	}
-	
-	public static ClusAttrType[] getRandomSubspaces(){
-		return m_RandomSubspaces;
-	}
-	
-	public static void setRandomSubspaces(ClusAttrType[] attrs){
-		m_RandomSubspaces = attrs;
-	}
-	
 	public ClusStatistic getStat(){
 		return m_Stat;
 	}
@@ -281,7 +242,7 @@ public class ClusForest implements ClusModel, Serializable{
 			HierClassTresholdPruner pruner = new HierClassTresholdPruner(null);
 			pruner.pruneRecursive((ClusNode)getModel(model_nb), threshold);
 		} catch (ClusException e) {
-			System.err.println(getClass().getName()+" thrsholdToModel(): Error while applying threshold "+threshold+" to model "+model_nb);
+			System.err.println(getClass().getName()+" thresholdToModel(): Error while applying threshold "+threshold+" to model "+model_nb);
 			e.printStackTrace();
 		}
 	}
@@ -296,8 +257,8 @@ public class ClusForest implements ClusModel, Serializable{
 	
 	public ClusForest cloneForestSimple(){
 		ClusForest clone = new ClusForest();
-		clone.setModels(m_Forest);
-		clone.setStat(m_Stat);
+		clone.setModels((ArrayList)m_Forest.clone());
+		clone.setStat(m_Stat.cloneStat());
 		return clone;
 	}
 	
@@ -322,5 +283,9 @@ public class ClusForest implements ClusModel, Serializable{
 	
 	public double getThreshold(){
 		return ((WHTDStatistic)getStat()).getThreshold();
+	}
+	
+	public void removeModels(){
+		m_Forest.clear();
 	}
 }

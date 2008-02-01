@@ -86,11 +86,11 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 				return schema.getDescriptiveAttributes();
 			case Settings.ENSEMBLE_RFOREST:
 				ClusAttrType[] attrsAll = schema.getDescriptiveAttributes();
-				return ClusForest.selectAttributesForRandomForest(attrsAll, schema.getSettings().getNbRandomAttrSelected());				
+				return ClusEnsembleInduce.selectAttributesForRandomForest(attrsAll, schema.getSettings().getNbRandomAttrSelected());				
 			case Settings.ENSEMBLE_RSUBSPACES:
-				return ClusForest.getRandomSubspaces();
+				return ClusEnsembleInduce.getRandomSubspaces();
 			case Settings.ENSEMBLE_BAGSUBSPACES:
-				return ClusForest.getRandomSubspaces();
+				return ClusEnsembleInduce.getRandomSubspaces();
 			default:
 				return schema.getDescriptiveAttributes();
 			}
