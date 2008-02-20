@@ -110,6 +110,10 @@ public class NominalAttrType extends ClusAttrType {
 		return m_Values[idx];
 	}
 
+	public String getValueOrMissing(int idx) {
+		return idx < m_Values.length ? m_Values[idx] : "?";
+	}	
+	
 	public Integer getValueIndex(String value) {
 		return (Integer)m_Hash.get(value);
 	}

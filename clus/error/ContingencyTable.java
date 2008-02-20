@@ -44,6 +44,10 @@ public class ContingencyTable extends ClusNominalError {
 		m_ContTable = new int[m_Dim][][];
 		for (int i = 0; i < m_Dim; i++) {
 			int size = m_Attrs[i].getNbValues();
+			if (m_Attrs[i].hasMissing()) {
+				// also add a column for "?" for the semi-supervised setting
+				size++;
+			}
 			m_ContTable[i] = new int[size][size];
 		}
 	}
@@ -165,16 +169,20 @@ public class ContingencyTable extends ClusNominalError {
 	public void showContTable(PrintWriter out, int i) {
 		int[][] table = m_ContTable[i];
 		int size = m_Attrs[i].getNbValues();
+		if (m_Attrs[i].hasMissing()) {
+			// also add a column for "?" for the semi-supervised setting
+			size++;
+		}		
 		// Calculate sizes
 		int[] wds = new int[size+2];
 		// First column
 		wds[0] = REAL_PRED.length();
 		for (int j = 0; j < size; j++) {
-			wds[j+1] = m_Attrs[i].getValue(j).length()+1;
+			wds[j+1] = m_Attrs[i].getValueOrMissing(j).length()+1;
 		}
 		// Middle columns
 		for (int j = 0; j < size; j++) {
-			wds[0] = Math.max(wds[0], m_Attrs[i].getValue(j).length());
+			wds[0] = Math.max(wds[0], m_Attrs[i].getValueOrMissing(j).length());
 			for (int k = 0; k < size; k++) {
 				String str = String.valueOf(table[j][k]);
 				wds[k+1] = Math.max(wds[k+1], str.length()+1);
@@ -198,7 +206,7 @@ public class ContingencyTable extends ClusNominalError {
 		printString(out, wds[0], REAL_PRED);
 		out.print(" |");
 		for (int j = 0; j < size; j++) {
-			printString(out, wds[j+1], m_Attrs[i].getValue(j));
+			printString(out, wds[j+1], m_Attrs[i].getValueOrMissing(j));
 			out.print(" |");
 		}
 		out.println();
@@ -206,7 +214,7 @@ public class ContingencyTable extends ClusNominalError {
 		// Data rows
 		for (int j = 0; j < size; j++) {
 			out.print(getPrefix()+"  ");
-			printString(out, wds[0], m_Attrs[i].getValue(j));	
+			printString(out, wds[0], m_Attrs[i].getValueOrMissing(j));	
 			out.print(" |");			
 			for (int k = 0; k < size; k++) {
 				printString(out, wds[k+1], String.valueOf(table[j][k]));
