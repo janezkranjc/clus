@@ -825,7 +825,9 @@ public class Clus implements CMDLineArgsProvider {
 	}
 
 	public final XValMainSelection getXValSelection() throws IOException, ClusException {
-		if (m_Sett.isNullXValFile()) {
+		if (m_Sett.isLOOXVal()) {
+			return new XValRandomSelection(m_Data.getNbRows(), m_Data.getNbRows());
+		} else if (m_Sett.isNullXValFile()) {
 			return m_Schema.getXValSelection(m_Data);
 		} else {
 			return XValDataSelection.readFoldsFile(m_Sett.getXValFile(), m_Data.getNbRows());

@@ -1,4 +1,7 @@
 
+%[Data]
+%XVal = LOO
+
 [Attributes]
 Target = 5
 Clustering = 1-4

@@ -197,6 +197,10 @@ public class Settings implements Serializable {
 	public boolean isNullXValFile() {
 		return m_XValFolds.isIntOrNull(NONE);
 	}
+	
+	public boolean isLOOXVal() {
+		return m_XValFolds.isString("LOO");
+	}	
 
 	public String getXValFile() {
 		return m_XValFolds.getValue();

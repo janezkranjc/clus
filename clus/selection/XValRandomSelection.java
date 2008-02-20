@@ -45,6 +45,31 @@ public class XValRandomSelection extends XValMainSelection {
 
 	public XValRandomSelection(int nbtot, int folds, Random random) throws ClusException {
 		super(folds, nbtot);
+		if (folds == nbtot) {
+			createLeaveOneOutXVAL(nbtot);
+		} else {
+			createRegularXVAL(nbtot, folds, random);
+		}
+	}
+	
+	public int getFold(int row) {
+		return m_Selection[row];
+	}	
+	
+	public void printDebug() {
+		System.out.println("XVAL: "+MyIntArray.print(m_Selection));
+	}
+	
+	public void createLeaveOneOutXVAL(int nbtot) {
+		System.out.println("Performing Leave-One-Out XVAL");
+		m_Selection = new int[nbtot];
+		for (int i = 0; i < nbtot; i++) {
+			m_Selection[i] = i;
+		}		
+	}	
+	
+	// TODO: - put in (stratified) cross-validation partition code from "csvconvert.exe"
+	public void createRegularXVAL(int nbtot, int folds, Random random) throws ClusException {
 		m_Random = random;
 		int max = nbtot/folds;		
 		XValGroup[] grps = new XValGroup[folds];
@@ -61,11 +86,7 @@ public class XValRandomSelection extends XValMainSelection {
 				m_Selection[gr.getElement(j)] = i;
 			}
 		}		
-	}
-		
-	public void printDebug() {
-		System.out.println("XVAL: "+MyIntArray.print(m_Selection));
-	}
+	} 
 	
 	public int devide2(XValGroup[] grps, int from, int till, int max) {
 		while (from < till) {
@@ -90,9 +111,4 @@ public class XValRandomSelection extends XValMainSelection {
 		}
 		return false;
 	}
-
-	public int getFold(int row) {
-		return m_Selection[row];
-	}
 }
-
