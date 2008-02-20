@@ -50,10 +50,15 @@ public class NominalAttrType extends ClusAttrType {
 		super(name);
 		int len = type.length();
 		StringTokenizer tokens = new StringTokenizer(type.substring(1,len-1), ",");
-		m_NbValues = tokens.countTokens();
+		ArrayList values = new ArrayList();
+		while (tokens.hasMoreTokens()) {
+			String value = tokens.nextToken().trim();
+			if (!value.equals("?")) values.add(value);
+		}
+		m_NbValues = values.size();
 		m_Values = new String[m_NbValues];
 		for (int i = 0; i < m_NbValues; i++) {
-			m_Values[i] = tokens.nextToken().trim();
+			m_Values[i] = (String)values.get(i);
 		}
 		createHash();
 	}
