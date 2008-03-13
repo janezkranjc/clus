@@ -128,7 +128,7 @@ public class ILevelCGUI extends JFrame {
 				String fname = getFileOpen().getSelectedFile().getAbsolutePath();				
 				try {					
 					RowData data = ARFFFile.readArff(fname);
-					m_Points = data.toArray();
+					m_Points = data.toArrayList();
 					indexPoints();
 					m_Constraints.clear();
 					String mname = FileUtil.getName(fname)+".ilevelc";

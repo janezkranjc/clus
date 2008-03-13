@@ -45,11 +45,9 @@ public class ClusErrorList implements Serializable {
 	protected int m_NbTotal;
 	protected int m_NbExamples;
 	protected int m_NbCover;
-	protected ClusStatManager m_StatManager;
 	protected Vector m_Error = new Vector();	
 		
-	public ClusErrorList(ClusStatManager smanager) {
-		m_StatManager = smanager;
+	public ClusErrorList() {
 		m_NbTotal = -1;
 	}
 			
@@ -97,7 +95,7 @@ public class ClusErrorList implements Serializable {
 	}
 	
 	public ClusErrorList getErrorClone() {	
-		ClusErrorList res = new ClusErrorList(m_StatManager);
+		ClusErrorList res = new ClusErrorList();
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
 			ClusError err = (ClusError)m_Error.elementAt(i);
@@ -167,6 +165,15 @@ public class ClusErrorList implements Serializable {
 			}
 		}
 	}
+	public void addExample(DataTuple real, DataTuple pred) {
+		m_NbExamples++;
+		int nb = m_Error.size();		
+		for (int i = 0; i < nb; i++) {
+			ClusError err = (ClusError)m_Error.elementAt(i);
+			err.addExample(real,pred);
+		}
+	}
+	
 	
 	public void addExample() {
 		m_NbExamples++;

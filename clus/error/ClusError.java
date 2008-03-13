@@ -99,6 +99,10 @@ public abstract class ClusError implements Serializable {
 		System.err.println(getClass().getName()+": addExample() not implemented!");
 	}
 	
+	public void addExample(DataTuple real, DataTuple pred) {
+		System.err.println(getClass().getName()+": addExample() not implemented!");
+	}
+	
 	public void addInvalid(DataTuple tuple) {
 		System.err.println(getClass().getName()+": addInvalid() not implemented!");
 	}

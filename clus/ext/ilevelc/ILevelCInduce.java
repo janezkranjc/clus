@@ -525,7 +525,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 		data.addIndices();
 		m_NbTrain = data.getNbRows();
 		m_MinLeafWeight = getSettings().getMinimalWeight();
-		ArrayList points = data.toArray();
+		ArrayList points = data.toArrayList();
 		/* load constraints from file */
 		if (getSettings().hasILevelCFile()) {
 			String fname = getSettings().getILevelCFile();

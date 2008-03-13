@@ -22,6 +22,8 @@
 
 package clus.selection;
 
+import java.util.Random;
+
 import clus.util.*;
 
 public class RandomSelection extends ClusSelection {
@@ -50,9 +52,11 @@ public class RandomSelection extends ClusSelection {
 	private final void makeSelection(int nbrows, int nbsel) {
 		m_NbSelected = nbsel;
 		m_Selection = new boolean[nbrows];
+		Random rnd = new Random(0);
 		for (int i = 0; i < m_NbSelected; i++) {
 			int j = 0;
-			int p = ClusRandom.nextInt(ClusRandom.RANDOM_SELECTION, nbrows-i)+1; // Select one of the remaining positions
+			int p = rnd.nextInt(nbrows-i)+1; // Select one of the remaining positions
+			
 			while (p > 0 && j < nbrows) {
 				if (!m_Selection[j]) {
 					p--;

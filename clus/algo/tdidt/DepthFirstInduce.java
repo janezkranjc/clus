@@ -141,13 +141,13 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 						if (okay) {
 							RowData altrd = data.applyWeighted(nt, l);
 							// remove alternatives that result in subsets with different nb of tuples than besttest
-							if (subsets[l].getNbTuples()!=altrd.getNbTuples()) {
+							if (subsets[l].getNbRows()!=altrd.getNbRows()) {
 								v.removeElementAt(k);
 								k--;
 								okay = false;
 							}
 							else {
-								for (int m=0; m<subsets[l].getNbTuples(); m++) {
+								for (int m=0; m<subsets[l].getNbRows(); m++) {
 									if (okay) {
 										// remove alternatives that result in subsets with different tuples than besttest
 										if (!subsets[l].getTuple(m).equals(altrd.getTuple(m))) {

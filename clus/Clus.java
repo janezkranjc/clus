@@ -96,6 +96,7 @@ public class Clus implements CMDLineArgsProvider {
 	protected Date m_StartDate = new Date();
 	protected boolean isxval = false;
 
+	
 	public final void initialize(CMDLineArgs cargs, ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		m_Classifier = clss;
 		// Load resource info (this measures among others CPU time on Linux)
@@ -538,6 +539,7 @@ public class Clus implements CMDLineArgsProvider {
 			int nbsel = (int)Math.round((double)vsb*nbtot);
 			if (nbsel > pruning_max) nbsel = pruning_max;
 			RandomSelection prunesel = new RandomSelection(nbtot, nbsel);
+			
 			cr.setPruneSet(train.select(prunesel), prunesel);
 			if (Settings.VERBOSE > 0)	System.out.println("Selecting pruning set: " + nbsel);
 		}
@@ -567,7 +569,7 @@ public class Clus implements CMDLineArgsProvider {
 	public final static double calcModelError(ClusStatManager mgr, RowData data, ClusModel model) throws ClusException, IOException {
 		ClusSchema schema = data.getSchema();
 		/* create error measure */
-		ClusErrorList error = new ClusErrorList(mgr);
+		ClusErrorList error = new ClusErrorList();
 		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] nom = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		TimeSeriesAttrType[] ts = schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -890,7 +892,7 @@ public class Clus implements CMDLineArgsProvider {
 			XValMainSelection sel = getXValSelection();
 			ClusModelCollectionIO io = new ClusModelCollectionIO();
 			m_Summary.setTotalRuns(sel.getNbFolds());
-			ClusRun cr = doOneFold(fold, clss, sel, io, wrt, output);
+			ClusRun cr = doOneFold(fold, clss, sel, io, wrt, output,null);
 			wrt.close();
 			output.close();
 			// Write summary of this run to a file
@@ -904,7 +906,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
-	public final ClusRun doOneFold(int fold, ClusInductionAlgorithmType clss, XValMainSelection sel, ClusModelCollectionIO io, PredictionWriter wrt, ClusOutput output) throws IOException, ClusException {
+	public final ClusRun doOneFold(int fold, ClusInductionAlgorithmType clss, XValMainSelection sel, ClusModelCollectionIO io, PredictionWriter wrt, ClusOutput output,ClusErrorOutput errOutput) throws IOException, ClusException {
 		wrt.println("! Fold = " + fold);
 		XValSelection msel = new XValSelection(sel, fold);
 		ClusRun cr = partitionData(msel, fold + 1);
@@ -920,6 +922,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		// Calc error
 		calcError(cr, m_Summary);
+		errOutput.writeOutput(cr,false,false,getStatManager().getClusteringWeights().m_Weights);
 		if (m_Sett.isOutputFoldModels())	{
 			// Write output to file and also store in .model file
 			output.writeOutput(cr, false);
@@ -938,14 +941,21 @@ public class Clus implements CMDLineArgsProvider {
 	public final void xvalRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".xval", m_Schema, m_Sett);
 		output.writeHeader();
+		
+		
+		
+		ClusErrorOutput errOutput = new ClusErrorOutput(m_Sett.getAppName() + ".err", m_Schema,m_Sett);
+		errOutput.writeHeader();
+		
 		ClusStatistic target = getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
 		PredictionWriter wrt = new PredictionWriter(m_Sett.getAppName()	+ ".test.pred", m_Sett, target);
 		wrt.globalInitialize(m_Schema);
 		XValMainSelection sel = getXValSelection();
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
-		m_Summary.setTotalRuns(sel.getNbFolds());
+		
+		System.out.println("nr folds:" +sel.getNbFolds());
 		for (int fold = 0; fold < sel.getNbFolds(); fold++) {
-			doOneFold(fold, clss, sel, io, wrt, output);
+			doOneFold(fold, clss, sel, io, wrt, output,errOutput);
 		}
 		wrt.close();
 		output.writeSummary(m_Summary);

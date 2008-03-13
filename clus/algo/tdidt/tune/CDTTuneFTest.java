@@ -67,7 +67,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 	}
 	
 	public ClusErrorList createTuneError(ClusStatManager mgr) {
-		ClusErrorList parent = new ClusErrorList(mgr);
+		ClusErrorList parent = new ClusErrorList();
 		if (mgr.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
 			parent.addError(new HierClassWiseAccuracy(parent, mgr.getHier()));
 			return parent;

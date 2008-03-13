@@ -33,7 +33,7 @@ import clus.data.cols.attribute.*;
 
 import clus.algo.kNN.BasicDistance;
 
-public abstract class ClusAttrType implements Serializable {
+public abstract class ClusAttrType implements Serializable,Comparable {
 	
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
@@ -260,5 +260,19 @@ public abstract class ClusAttrType implements Serializable {
 	public void setBasicDistance(BasicDistance dist){
 		$dist = dist;
 	}
+	
+	
+	/**
+	 * Compares to ClusAttrTypes based on index, allowing them to be sorted.
+	 */
+	public int compareTo(Object o) {
+		ClusAttrType c = (ClusAttrType) o;
+		
+		if(c.m_Index > this.m_Index)
+			return 1;
+		if(c.m_Index < this.m_Index)
+			return -1;
+		return 0;
+	}	
 }
 

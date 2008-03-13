@@ -133,7 +133,7 @@ public class RowData extends ClusData implements MSortable {
 		return sb.toString();
 	}
 	
-	public ArrayList toArray() {
+	public ArrayList toArrayList() {
 		ArrayList array = new ArrayList();
 		addTo(array);
 		return array;
@@ -411,9 +411,7 @@ public class RowData extends ClusData implements MSortable {
 		m_Data[i] = tuple;
 	}	
 	
-	public final int getNbTuples(){
-		return m_NbRows;
-	}
+	
 
 	public final RowData applyWeighted(NodeTest test, int branch) {
 		int nb = 0;

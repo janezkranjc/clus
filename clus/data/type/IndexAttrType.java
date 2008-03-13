@@ -126,5 +126,7 @@ public class IndexAttrType extends ClusAttrType {
 		public void read(ClusReader data, DataTuple tuple) throws IOException {
 			m_CrValue = readValue(data);
 		}
-	}	
+	}
+
+	
 }

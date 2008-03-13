@@ -81,12 +81,23 @@ public class MSError extends ClusNumericError {
 	public double getModelError() {
 		double ss_tree = 0.0;
 		int nb = getNbExamples();
-		for (int i = 0; i < m_Dim; i++) {
-			if (m_Weights != null) ss_tree += m_SumErr[i]*m_Weights.getWeight(getAttr(i));			
-			else ss_tree += m_SumErr[i];
+		if (m_Weights != null) {
+			double sum = 0;
+			for (int i = 0; i < m_Dim; i++) {
+				double ww = m_Weights.getWeight(getAttr(i));	 
+				ss_tree += m_SumErr[i]*ww;
+				sum +=ww;
+			}
+			return nb != 0.0 ? ss_tree/nb/sum : 0.0;
+		} else{
+			for (int i = 0; i < m_Dim; i++) {
+				ss_tree += m_SumErr[i];
+			}
+			return nb != 0.0 ? ss_tree/nb/m_Dim : 0.0;
 		}
-		return nb != 0.0 ? ss_tree/nb/m_Dim : 0.0;
 	}
+	
+	
 	
 	public double getModelErrorStandardError() {
 		double sum_err = 0.0;

@@ -69,15 +69,15 @@ public class TreeErrorComputer extends ClusModelProcessor {
 	}	
 	
 	public static void computeErrorOptimized(ClusNode tree, RowData test, ClusError error, boolean miss) {
-		if (miss) {
+//		if (miss) {
 			computeErrorStandard(tree, test, error);
-		} else {
-			computeErrorSimple(tree, error);
-			// Debug?
-			// ClusError clone = error.getErrorClone();
-			// computeErrorStandard(tree, test, clone);
-			// System.out.println("Simple = "+error.getModelError()+" standard = "+clone.getModelError());
-		}
+//		} else {
+//			computeErrorSimple(tree, error);
+//			// Debug?
+//			// ClusError clone = error.getErrorClone();
+//			// computeErrorStandard(tree, test, clone);
+//			// System.out.println("Simple = "+error.getModelError()+" standard = "+clone.getModelError());
+//		}
 	}
 	
 	public static void computeErrorStandard(ClusNode tree, RowData test, ClusError error) {

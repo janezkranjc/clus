@@ -40,7 +40,7 @@ public class CorrelationMatrixComputer {
 		m_Matrix = new PearsonCorrelation[nb_num][nb_num];
 		NumericAttrType[] crtype = new NumericAttrType[1];
 		crtype[0] = new NumericAttrType("corr");
-		ClusErrorList par = new ClusErrorList(null);
+		ClusErrorList par = new ClusErrorList();
 		for (int i = 0; i < nb_num; i++) {
 			for (int j = 0; j < nb_num; j++) {				
 				m_Matrix[i][j] = new PearsonCorrelation(par, crtype);

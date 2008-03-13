@@ -598,9 +598,9 @@ public class ClusStatManager implements Serializable {
 			}
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
 				m_Heuristic = new ReducedErrorHeuristic(createClusteringStat());
-			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GENETIC_DISTANCE) {
+			} /*else if (getSettings().getHeuristic() == Settings.HEURISTIC_GENETIC_DISTANCE) {
 				m_Heuristic = new GeneticDistanceHeuristic();
-			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {
+			}*/ else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {
 				m_Heuristic = new GainHeuristic(true);				
 			} else {
 				m_Heuristic = new GainHeuristic(false);
@@ -643,7 +643,7 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public ClusErrorList createErrorMeasure(MultiScore score) {
-		ClusErrorList parent = new ClusErrorList(this);
+		ClusErrorList parent = new ClusErrorList();
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -674,7 +674,7 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public ClusErrorList createEvalError() {
-		ClusErrorList parent = new ClusErrorList(this);
+		ClusErrorList parent = new ClusErrorList();
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -691,7 +691,7 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public ClusErrorList createDefaultError() {
-		ClusErrorList parent = new ClusErrorList(this);
+		ClusErrorList parent = new ClusErrorList();
 		NumericAttrType[] num = m_Schema
 				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] nom = m_Schema
@@ -712,14 +712,14 @@ public class ClusStatManager implements Serializable {
 
 	// additive and weighted targets
 	public ClusErrorList createAdditiveError() {
-		ClusErrorList parent = new ClusErrorList(this);
+		ClusErrorList parent = new ClusErrorList();
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			parent.addError(new MisclassificationError(parent, nom));
 		}
 		if (num.length != 0) {
-			parent.addError(new MSError(parent, num));
+			parent.addError(new MSError(parent, num,getClusteringWeights()));
 		}
 		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
@@ -735,7 +735,7 @@ public class ClusStatManager implements Serializable {
 	}
 	
 	public ClusErrorList createExtraError(int train_err) {
-		ClusErrorList parent = new ClusErrorList(this);
+		ClusErrorList parent = new ClusErrorList();
 		if (m_Mode == MODE_TIME_SERIES) {
 			parent.addError(new SSPDICVError(parent, new QDMTimeSeriesStat()));
 		}

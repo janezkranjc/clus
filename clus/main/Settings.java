@@ -112,6 +112,7 @@ public class Settings implements Serializable {
 	}
 	
 	public boolean hasRandomSeed() {
+		//System.out.println(m_RandomSeed.getValue());
 		return !StringUtils.unCaseCompare(m_RandomSeed.getValue(), NONE);
 	}
 
@@ -293,7 +294,40 @@ public class Settings implements Serializable {
 	public boolean getReduceMemoryNominalAttrs() {
 		return m_ReduceMemoryNominal.getValue();
 	}
+	
+/***********************************************************************
+ * Section: Selective inductive transfer                               *
+ ***********************************************************************/	
+	protected INIFileSection m_SectionSIT;
+	protected INIFileString m_MainTarget;
+	protected INIFileString m_VariantName;
+	protected INIFileBool m_Recursive;
+	
+	public String getMainTarget() {
+		return m_MainTarget.getValue();
+	}
+	
+	public String getVariantName() {
+		return m_VariantName.getValue();
+	}
+	
+	
+	
+	public boolean getRecursive() {
+		return m_Recursive.getValue();
+	}
+	
+	public void setRecursive(boolean b) {
+		m_Recursive.setValue(b);
+	}
 
+	public void setVariantName(String b) {
+		m_VariantName.setValue(b);
+	}
+	
+	public void setMainTarget(String str) {
+		m_MainTarget.setValue(str);
+	}
 	
 /***********************************************************************
  * Section: Attribute - Normalization                                  *
@@ -1274,6 +1308,11 @@ public class Settings implements Serializable {
 		m_ClusteringWeights.setDouble(1.0);
 		m_ClusteringWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);
 		attrs.addNode(m_ReduceMemoryNominal = new INIFileBool("ReduceMemoryNominalAttrs", false));
+		
+		m_SectionSIT = new INIFileSection("SIT");
+		m_SectionSIT.addNode(m_MainTarget = new INIFileString("Main_target", DEFAULT));
+		m_SectionSIT.addNode(m_Recursive = new INIFileBool("Recursive",false));
+		m_SectionSIT.addNode(m_VariantName = new INIFileString("Variant", DEFAULT));
 
     	INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic",	NONE));
@@ -1441,6 +1480,7 @@ public class Settings implements Serializable {
 		m_Ini.addNode(m_SectionKNN);
 		m_Ini.addNode(m_SectionKNNT);
 		m_Ini.addNode(exper);
+		m_Ini.addNode(m_SectionSIT);
 	}
 
 	public void initNamedValues() {

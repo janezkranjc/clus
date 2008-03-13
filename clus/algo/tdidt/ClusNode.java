@@ -776,7 +776,7 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 			if (getID() != 0 && info.SHOW_INDEX) writer.println(" ("+getID()+")");
 			else writer.println();
-			if (examples!=null && examples.getNbTuples()>0){
+			if (examples!=null && examples.getNbRows()>0){
 				writer.println(examples.toString(prefix));
 				writer.println(prefix+"Summary:");
 				writer.println(examples.getSummary(prefix));

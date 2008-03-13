@@ -82,7 +82,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				//initialize each HierClassWiseAccuracy object
 				for (int i=0;i<pruner.getNbResults();i++) {
 					for (int j = ClusModelInfoList.TRAINSET; j <= ClusModelInfoList.TESTSET; j++) {
-						m_EvalArray[j][i] = new ClusErrorList(getStatManager());
+						m_EvalArray[j][i] = new ClusErrorList();
 						m_EvalArray[j][i].addError(new HierClassWiseAccuracy(m_EvalArray[j][i], hier));
 					}
 				}

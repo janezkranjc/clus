@@ -60,7 +60,7 @@ public class COPKMeans {
 		/* create initial clusters */
 		m_Clusters = new COPKMeansCluster[m_K];
 		/* perform ML optimization */
-		ArrayList points = data.toArray();
+		ArrayList points = data.toArrayList();
 		DerivedConstraintsComputer comp = new DerivedConstraintsComputer(points, constr);
 		comp.indexPoints();
 		DisjointSetForest dsf = comp.createDSFWithMustLinks();
