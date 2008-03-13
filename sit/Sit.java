@@ -119,7 +119,6 @@ public class Sit implements CMDLineArgsProvider{
 	 * Initialize the MTLearner with the current data and settings.
 	 */
 	private void InitLearner() {
-		//this.m_Learner = new AvgLearner();
 		this.m_Learner = new AvgLearner();
 		this.m_Learner.init(this.m_Data,this.m_Sett);
 		
@@ -128,8 +127,8 @@ public class Sit implements CMDLineArgsProvider{
 	 * Initialize the SearchAlgorithm
 	 */
 	private void InitSearchAlgorithm() {
-		this.m_Search = new GeneticSearch();
-		//this.m_Search = new AllTargets();
+		//this.m_Search = new GeneticSearch();
+		this.m_Search = new AllTargets();
 		this.m_Search.setMTLearner(this.m_Learner);
 		
 	}

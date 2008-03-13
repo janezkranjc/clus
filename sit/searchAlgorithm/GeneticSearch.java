@@ -35,6 +35,9 @@ public class GeneticSearch implements SearchAlgorithm{
 			conf.setSampleChromosome( sampleChromosome );
 			conf.setPopulationSize( 100 );
 			conf.setFitnessFunction(SITFitness);
+			conf.setPreservFittestIndividual(true);
+		    conf.setKeepPopulationSizeConstant(false);
+			
 			
 			//lets create a population
 			population = Genotype.randomInitialGenotype( conf );
