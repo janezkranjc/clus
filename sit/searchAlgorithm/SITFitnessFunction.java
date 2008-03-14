@@ -39,7 +39,6 @@ public class SITFitnessFunction extends FitnessFunction{
 	protected double evaluate(IChromosome chromyTheChromoson) {
 		TargetSet tset = GeneticSearch.getTargetSet(this.candidates, (Chromosome) chromyTheChromoson);
 		
-		System.out.println(tset.size());
 		
 		//predict a few folds
 		int nbFolds = 5;
