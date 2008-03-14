@@ -1,6 +1,7 @@
 package sit.searchAlgorithm;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.jgap.*;
 import org.jgap.impl.*;
@@ -8,10 +9,11 @@ import org.jgap.impl.*;
 import sit.TargetSet;
 import sit.mtLearner.MTLearner;
 import clus.data.type.ClusAttrType;
+import examples.simpleBoolean.MaxFunction;
 
 public class GeneticSearch implements SearchAlgorithm{
 	protected MTLearner learner;
-	final protected int MAX_ALLOWED_EVOLUTIONS = 500; 
+	final protected int MAX_ALLOWED_EVOLUTIONS = 50; 
 	
 	public TargetSet search(ClusAttrType mainTarget, TargetSet candidates) {
 		//create the configuration, nothing fancy for now
@@ -26,19 +28,26 @@ public class GeneticSearch implements SearchAlgorithm{
 			//create the sampleChromosone
 			//the chromosone consists of boolean genes
 			//one for each candidate in the targetset
-			Gene[] sampleGenes = new Gene[candidates.size()];
-			for(int i =0;i<candidates.size();i++){
-				sampleGenes[i] = new BooleanGene(conf);
-			}
-			Chromosome sampleChromosome = new Chromosome(conf);
-			sampleChromosome.setGenes(sampleGenes);
-			conf.setSampleChromosome( sampleChromosome );
-			conf.setPopulationSize( 100 );
+			
+			
+	      IChromosome sampleChromosome = new Chromosome(conf,
+	          new BooleanGene(conf),candidates.size());
+	      conf.setSampleChromosome(sampleChromosome);
+	      conf.setPopulationSize(20);
+			      
+			      
+	     
 			conf.setFitnessFunction(SITFitness);
 			conf.setPreservFittestIndividual(true);
 		    conf.setKeepPopulationSizeConstant(false);
 			
-			
+		    
+		    List operators = conf.getGeneticOperators();
+		    for(int i=0;i<operators.size();i++){
+		    	System.out.println(operators.get(i).getClass());
+		    }
+		   
+		 
 			//lets create a population
 			population = Genotype.randomInitialGenotype( conf );
 		} catch (InvalidConfigurationException e) {
@@ -52,6 +61,7 @@ public class GeneticSearch implements SearchAlgorithm{
 		    population.evolve();
 		    bestSolutionSoFar = (Chromosome) population.getFittestChromosome();
 		    System.out.println("Best fitness so far:"+bestSolutionSoFar.getFitnessValue());
+		    System.out.println(population.getChromosomes()[0]);
 		}
 		
 		

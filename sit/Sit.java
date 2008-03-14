@@ -127,8 +127,8 @@ public class Sit implements CMDLineArgsProvider{
 	 * Initialize the SearchAlgorithm
 	 */
 	private void InitSearchAlgorithm() {
-		//this.m_Search = new GeneticSearch();
-		this.m_Search = new AllTargets();
+		this.m_Search = new GeneticSearch();
+		//this.m_Search = new AllTargets();
 		this.m_Search.setMTLearner(this.m_Learner);
 		
 	}

@@ -39,6 +39,8 @@ public class SITFitnessFunction extends FitnessFunction{
 	protected double evaluate(IChromosome chromyTheChromoson) {
 		TargetSet tset = GeneticSearch.getTargetSet(this.candidates, (Chromosome) chromyTheChromoson);
 		
+		System.out.println(tset.size());
+		
 		//predict a few folds
 		int nbFolds = 5;
 		learner.initXVal(5);
@@ -47,7 +49,8 @@ public class SITFitnessFunction extends FitnessFunction{
 		for(int f = 0;f<nbFolds;f++){
 			folds.add(learner.LearnModel(tset,f));
 		}
-		return calcError(folds,this.mainTarget);
+		return 1.0/tset.size();
+		//return calcError(folds,this.mainTarget);
 	}
 	
 	private double calcError(ArrayList<RowData[]> folds,ClusAttrType mt){
