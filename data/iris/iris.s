@@ -1,13 +1,11 @@
+[Data]
+File = ..
+TestSet = ..
 
-%[Data]
-%XVal = LOO
-
-[Attributes]
-Target = 5
-Clustering = 1-4
-Descriptive = 1-4
-
-% [Tree]
-% PruningMethod = None
+[Tree]
+PruningMethod = C4.5
 
 % csvconvert -samplerows 80 iris-fold0-train.arff iris-fold0-train-samp80.arff iris-fold0-train-rem80.arff
+
+[Model]
+MinimalWeight = 1.0
