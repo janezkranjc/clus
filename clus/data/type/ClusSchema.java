@@ -350,6 +350,16 @@ public class ClusSchema implements Serializable {
 		setClustering(m_Clustering, true);
 	}
 	
+	public void clearAttributeStatus() {
+		setStatusAll(ClusAttrType.STATUS_NORMAL);
+		setClusteringAll(false);
+	}
+	
+	public void initDescriptiveAttributes() {
+		setDescriptiveAll(false);
+		setDescriptive(m_Descriptive, true);
+	}
+	
 	public final void checkRange(IntervalCollection coll, String type) throws ClusException {
 		if (coll.getMinIndex() < 0) throw new ClusException("Range for "+type+" attributes goes below zero: '"+coll+"'");
 		if (coll.getMaxIndex() > getNbAttributes()) throw new ClusException("Range for "+type+" attributes: '"+coll+"' out of range (there are only "+getNbAttributes()+" attributes)");		

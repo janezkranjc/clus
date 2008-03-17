@@ -63,7 +63,7 @@ public abstract class ClusInductionAlgorithmType {
 	}
 	
 	public abstract ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException;
-	
+		
 	public void printInfo() {
 		System.out.println("Classifier: "+getClass().getName());
 	}	

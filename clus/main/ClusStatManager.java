@@ -585,7 +585,8 @@ public class ClusStatManager implements Serializable {
 			throw new ClusException("Combined heuristic not yet implemented for trees!");
 		} else if (num.length > 0) {
 			// TODO: Is this true?
-			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT) {
+			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT &&
+				getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
 				throw new ClusException("Only SS-Reduction (default) heuristic can be used for regression trees!");
 			}
 			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));

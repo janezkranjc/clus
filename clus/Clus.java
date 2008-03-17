@@ -95,7 +95,6 @@ public class Clus implements CMDLineArgsProvider {
 	protected RowData m_Data;
 	protected Date m_StartDate = new Date();
 	protected boolean isxval = false;
-
 	
 	public final void initialize(CMDLineArgs cargs, ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		m_Classifier = clss;
@@ -152,7 +151,6 @@ public class Clus implements CMDLineArgsProvider {
 		if (isxval) Settings.IS_XVAL = true;
 		// Preprocess() should become for m_Induce.initialize()
 		// -> e.g., for hierarchical multi-classification
-		preprocess();
 		m_Induce.initialize();
 		initializeAttributeWeights(m_Data);
 		m_Induce.initializeHeuristic();
@@ -170,6 +168,15 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
+	public void initialize(RowData data, Settings sett, ClusInductionAlgorithmType clss) throws IOException, ClusException {
+		m_Data = data;
+		m_Sett = sett;
+		m_Classifier = clss;
+		m_Schema = data.getSchema();
+		m_Induce = clss.createInduce(m_Schema, m_Sett, new CMDLineArgs(this));		
+		m_Sett.update(m_Schema);
+	}
+	
 	/***
 	 * Method for recreating ClusInduce and most other instance variables
 	 * Useful for running Clus on different data sets with a similar schema 
@@ -363,8 +370,7 @@ public class Clus implements CMDLineArgsProvider {
 		return pps;
 	}
 
-	public final void initializeAttributeWeights(ClusData data)
-			throws IOException, ClusException {
+	public final void initializeAttributeWeights(ClusData data)	throws IOException, ClusException {
 		ClusStatManager mgr = getInduce().getStatManager();
 		ClusStatistic allStat = mgr.createStatistic(ClusAttrType.ATTR_USE_ALL);
 		data.calcTotalStat(allStat);
@@ -517,11 +523,16 @@ public class Clus implements CMDLineArgsProvider {
 		return cr;
 	}
 
-	public final ClusRun partitionDataBasic(ClusData data, ClusSelection sel,	ClusSummary summary, int idx) throws IOException, ClusException {
+	public final ClusRun partitionDataBasic(RowData train) throws IOException, ClusException {
+		ClusSummary summary = new ClusSummary();
+		return partitionDataBasic(train, null, null, summary, 1);
+	}
+	
+	public final ClusRun partitionDataBasic(ClusData data, ClusSelection sel, ClusSummary summary, int idx) throws IOException, ClusException {
 		return partitionDataBasic(data, sel, null, summary, idx);
 	}
 
-	public final ClusRun partitionDataBasic(ClusData data, ClusSelection sel,	ClusData prunefile, ClusSummary summary, int idx)	throws IOException, ClusException {
+	public final ClusRun partitionDataBasic(ClusData data, ClusSelection sel, ClusData prunefile, ClusSummary summary, int idx) throws IOException, ClusException {
 		ClusRun cr = new ClusRun(data.cloneData(), summary);
 		if (sel != null) {
 			if (sel.changesDistribution()) {
@@ -777,6 +788,19 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
+	public ClusRun train(RowData train) throws ClusException, IOException {
+		ClusRun cr = partitionDataBasic(train);
+		ClusInductionAlgorithm induce = getInduce();		
+		induce.initialize();
+		initializeAttributeWeights(m_Data);
+		induce.initializeHeuristic();
+		ClusStatistic tr_stat = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
+		cr.getTrainingSet().calcTotalStat(tr_stat);
+		getStatManager().setTrainSetStat(tr_stat);				
+		induce(cr, getClassifier());
+		return cr;
+	}
+	
 	public final void singleRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
 		m_Summary.setTotalRuns(1);
