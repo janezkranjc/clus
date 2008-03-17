@@ -9,7 +9,6 @@ import org.jgap.impl.*;
 import sit.TargetSet;
 import sit.mtLearner.MTLearner;
 import clus.data.type.ClusAttrType;
-import examples.simpleBoolean.MaxFunction;
 
 public class GeneticSearch implements SearchAlgorithm{
 	protected MTLearner learner;
