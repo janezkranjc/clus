@@ -14,6 +14,7 @@ public abstract class MTLearnerImpl implements MTLearner {
 	protected RowData m_Test = null;
 	protected Settings m_Sett;
 	protected XValMainSelection m_XValSel;
+	protected ResultsCache m_Cache;
 	
 	/**************************
 	 * Interface functions
@@ -25,7 +26,7 @@ public abstract class MTLearnerImpl implements MTLearner {
 	public void init(RowData data, Settings sett) {
 		this.m_Data = data;
 		this.m_Sett = sett;
-			
+		this.m_Cache = new ResultsCache();
 	}
 	/**
 	 * @see MTLearner
@@ -34,7 +35,15 @@ public abstract class MTLearnerImpl implements MTLearner {
 		if(m_Test == null){
 			throw new Exception();
 		}
-		return LearnModel(targets, this.m_Data, this.m_Test);
+		
+		
+		RowData[] result = m_Cache.getResult(targets, this.m_Test);
+		if(result != null){
+			return result;
+		}
+		result = LearnModel(targets, this.m_Data, this.m_Test);
+		m_Cache.addResult(targets, result);		
+		return result;
 	}
 	/**
 	 * @see MTLearner
@@ -74,7 +83,14 @@ public abstract class MTLearnerImpl implements MTLearner {
 		XValSelection msel = new XValSelection(m_XValSel, foldNr);
 		RowData train = (RowData) m_Data.cloneData();
 		RowData test = (RowData) train.select(msel);
-		return LearnModel(targets, train, test);
+		
+		RowData[] result = m_Cache.getResult(targets, test);
+		if(result != null){
+			return result;
+		}
+		result = LearnModel(targets, train, test);
+		m_Cache.addResult(targets, result);		
+		return result;
 	}
 	/**
 	 * Sets the testdata to test

@@ -12,7 +12,7 @@ import clus.data.type.ClusAttrType;
 
 public class GeneticSearch implements SearchAlgorithm{
 	protected MTLearner learner;
-	final protected int MAX_ALLOWED_EVOLUTIONS = 50; 
+	final protected int MAX_ALLOWED_EVOLUTIONS = 500; 
 
 	public TargetSet search(ClusAttrType mainTarget, TargetSet candidates) {
 		//create the configuration, nothing fancy for now

@@ -33,8 +33,6 @@ public class AllTargets implements SearchAlgorithm {
 			folds.add(m_MTLearner.LearnModel(candidates,f));
 		}
 		
-		
-		
 		calcError(folds);
 		/*
 		 * By design returns back the full candidates set

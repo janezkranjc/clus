@@ -45,6 +45,22 @@ public class RowData extends ClusData implements MSortable {
 	public ClusSchema m_Schema;	
 	public DataTuple[] m_Data;
 
+	public boolean equals(RowData d){
+		if(d.m_Data.length != this.m_Data.length){
+			return false;
+		}
+		if(m_Schema.equals(m_Schema)){
+			boolean result = true;
+			for(int i=0;i<this.m_Data.length;i++){
+				if(!d.m_Data[i].equals(this.m_Data[i])){
+					result = false;
+				}
+			}
+			return result;
+		}
+		return false;
+	}
+	
 	public RowData(ClusSchema schema) {
 		m_Schema = schema;
 	}
