@@ -1,3 +1,1 @@
 
-[General]
-XVal = 2

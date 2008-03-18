@@ -1550,6 +1550,10 @@ public class Settings implements Serializable {
 		BEAM_SYNT_DIST_CONSTR = hasBeamConstraintFile();
 		VERBOSE = m_Verbose.getValue();
 	}
+	
+	public int getVerbose() {
+		return m_Verbose.getValue();
+	}
 
 	public void updateDisabledSettings() {
 		int pruning = getPruningMethod();

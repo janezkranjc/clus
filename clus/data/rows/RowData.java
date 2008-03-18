@@ -70,6 +70,11 @@ public class RowData extends ClusData implements MSortable {
 		resizeEmpty(size);
 	}
 	
+	public RowData(RowData data) {
+		this(data.m_Data, data.getNbRows());
+		m_Schema = data.m_Schema;
+	}
+	
 	public RowData(Object[] data, int size) {
 		m_Data = new DataTuple[size];
 		System.arraycopy(data, 0, m_Data, 0, size);

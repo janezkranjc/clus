@@ -95,8 +95,10 @@ public class Clus implements CMDLineArgsProvider {
 	protected RowData m_Data;
 	protected Date m_StartDate = new Date();
 	protected boolean isxval = false;
+	protected CMDLineArgs m_CmdLine;
 	
 	public final void initialize(CMDLineArgs cargs, ClusInductionAlgorithmType clss) throws IOException, ClusException {
+		m_CmdLine = cargs;
 		m_Classifier = clss;
 		// Load resource info (this measures among others CPU time on Linux)
 		boolean test = m_Sett.getResourceInfoLoaded() == Settings.RESOURCE_INFO_LOAD_TEST;
@@ -168,13 +170,12 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
-	public void initialize(RowData data, Settings sett, ClusInductionAlgorithmType clss) throws IOException, ClusException {
+	public void initialize(RowData data, ClusSchema schema, Settings sett, ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		m_Data = data;
 		m_Sett = sett;
 		m_Classifier = clss;
-		m_Schema = data.getSchema();
-		m_Induce = clss.createInduce(m_Schema, m_Sett, new CMDLineArgs(this));		
-		m_Sett.update(m_Schema);
+		m_Schema = schema;
+		m_CmdLine = new CMDLineArgs(this);
 	}
 	
 	/***
@@ -789,11 +790,11 @@ public class Clus implements CMDLineArgsProvider {
 	}
 
 	public ClusRun train(RowData train) throws ClusException, IOException {
-		ClusRun cr = partitionDataBasic(train);
-		ClusInductionAlgorithm induce = getInduce();		
-		induce.initialize();
+		m_Induce = getClassifier().createInduce(train.getSchema(), m_Sett, m_CmdLine);
+		ClusRun cr = partitionDataBasic(train);		
+		m_Induce.initialize();
 		initializeAttributeWeights(m_Data);
-		induce.initializeHeuristic();
+		m_Induce.initializeHeuristic();
 		ClusStatistic tr_stat = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
 		cr.getTrainingSet().calcTotalStat(tr_stat);
 		getStatManager().setTrainSetStat(tr_stat);				

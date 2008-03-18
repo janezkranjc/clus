@@ -242,7 +242,7 @@ public abstract class NodeTest implements Serializable {
 		if (ntype == null) throw new ClusException("Attribute "+type.getName()+" not in dataset");
 		ClusAttrType ctype = type.cloneType();
 		// Clone type to avoid overwriting original type
-		ctype.copyIndices(ntype);
+		ctype.copyArrayIndex(ntype);
 		setType(ctype);
 	}	
 	

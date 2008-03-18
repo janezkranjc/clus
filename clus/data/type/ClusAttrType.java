@@ -92,12 +92,13 @@ public abstract class ClusAttrType implements Serializable,Comparable {
 
 	public void cloneType(ClusAttrType type) {
 		type.m_NbMissing = m_NbMissing;
+		type.m_Status = m_Status;
+		type.m_IsDescriptive = m_IsDescriptive;
+		type.m_IsClustering = m_IsClustering;
 	}
 
-	public void copyIndices(ClusAttrType type) {
-		m_Index = type.m_Index;
+	public void copyArrayIndex(ClusAttrType type) {
 		m_ArrayIndex = type.m_ArrayIndex;
-		m_Status = type.m_Status;
 	}
 
 	public abstract int getTypeIndex();

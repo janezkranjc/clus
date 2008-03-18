@@ -141,6 +141,7 @@ public class PredictionWriter extends ClusModelProcessor {
 		if (distr == null) {
 			m_Writer.print("???");
 		} else {
+			// TODO: do this as a function of predictTuple
 			m_Writer.print(distr.getPredictWriterString(tuple));
 		}
 		m_Writer.print(",\""+m_ModelParts+"\"");

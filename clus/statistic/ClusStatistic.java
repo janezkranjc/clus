@@ -257,7 +257,11 @@ public abstract class ClusStatistic implements Serializable {
 	
 	public String getPredictWriterString(DataTuple tuple) {
 		return getPredictWriterString();
-	}	
+	}
+	
+	public void predictTuple(DataTuple prediction) {
+		System.err.println(getClass().getName()+" does not implement predictTuple()");
+	}
 	
 	// In multi-label classification: predicted set of classes is union of 
 	//                                predictions of individual rules	
@@ -270,6 +274,5 @@ public abstract class ClusStatistic implements Serializable {
 	public void union(ClusStatistic other) {
 	}
 	
-	public abstract void vote(ArrayList votes);
-	
+	public abstract void vote(ArrayList votes);	
 }

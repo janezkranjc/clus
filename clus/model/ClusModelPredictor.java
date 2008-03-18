@@ -15,8 +15,8 @@ public class ClusModelPredictor {
 		for (int i = 0; i < test.getNbRows(); i++) {
 			DataTuple prediction = new DataTuple(schema);
 			ClusStatistic stat = model.predictWeighted(test.getTuple(i));
-			//stat.predict
-			//predictions.setTuple(prediction, i);
+			stat.predictTuple(prediction);
+			predictions.setTuple(prediction, i);
 		}
 		return predictions;
 	}

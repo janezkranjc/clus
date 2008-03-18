@@ -179,14 +179,15 @@ public class ClusStatManager implements Serializable {
 		if (winfo.hasArrayIndexNames()) {
 			// Weights given for target, non-target, numeric and nominal
 			double target_weight = winfo.getDouble(Settings.TARGET_WEIGHT);
-			double non_target_weight = winfo
-					.getDouble(Settings.NON_TARGET_WEIGHT);
+			double non_target_weight = winfo.getDouble(Settings.NON_TARGET_WEIGHT);
 			double num_weight = winfo.getDouble(Settings.NUMERIC_WEIGHT);
 			double nom_weight = winfo.getDouble(Settings.NOMINAL_WEIGHT);
-			System.out.println("  Target weight     = " + target_weight);
-			System.out.println("  Non target weight = " + non_target_weight);
-			System.out.println("  Numeric weight    = " + num_weight);
-			System.out.println("  Nominal weight    = " + nom_weight);
+			if (getSettings().getVerbose() >= 2) {
+				System.out.println("  Target weight     = " + target_weight);
+				System.out.println("  Non target weight = " + non_target_weight);
+				System.out.println("  Numeric weight    = " + num_weight);
+				System.out.println("  Nominal weight    = " + nom_weight);
+			}
 			for (int i = 0; i < num.length; i++) {
 				NumericAttrType cr_num = num[i];
 				double tw = cr_num.getStatus() == ClusAttrType.STATUS_TARGET ? target_weight
@@ -242,22 +243,18 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public void initCompactnessWeights() throws ClusException {
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
-		initWeights(m_CompactnessWeights, num, nom, getSettings()
-				.getCompactnessWeights());
-		System.out.println("Compactness:   "
-				+ m_CompactnessWeights.getName(m_Schema
-						.getAllAttrUse(ClusAttrType.ATTR_USE_ALL)));
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+		initWeights(m_CompactnessWeights, num, nom, getSettings().getCompactnessWeights());
+		if (getSettings().getVerbose() >= 1 && isRuleInduce()) {
+			System.out.println("Compactness:   " + m_CompactnessWeights.getName(m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_ALL)));
+		}
 	}
 
 	public void initClusteringWeights() throws ClusException {
 		if (getMode() == MODE_HIERARCHICAL) {
 			int nb_attrs = m_Schema.getNbAttributes();
-			m_ClusteringWeights = new ClusAttributeWeights(nb_attrs
-					+ m_Hier.getTotal());
+			m_ClusteringWeights = new ClusAttributeWeights(nb_attrs	+ m_Hier.getTotal());
 			double[] weights = m_Hier.getWeights();
 			NumericAttrType[] dummy = m_Hier.getDummyAttrs();
 			for (int i = 0; i < weights.length; i++) {
@@ -265,15 +262,12 @@ public class ClusStatManager implements Serializable {
 			}
 			return;
 		}
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		initWeights((ClusNormalizedAttributeWeights) m_ClusteringWeights, num,
-				nom, getSettings().getClusteringWeights());
-		System.out.println("Clustering: "
-				+ m_ClusteringWeights.getName(m_Schema
-						.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING)));
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		initWeights((ClusNormalizedAttributeWeights) m_ClusteringWeights, num, nom, getSettings().getClusteringWeights());
+		if (getSettings().getVerbose() >= 1) {
+			System.out.println("Clustering: " + m_ClusteringWeights.getName(m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING)));
+		}
 	}
 
 	public void initNormalizationWeights(ClusStatistic stat)
@@ -317,10 +311,8 @@ public class ClusStatManager implements Serializable {
 		int nbattr = m_Schema.getNbAttributes();
 		m_NormalizationWeights = new ClusAttributeWeights(nbattr);
 		m_NormalizationWeights.setAllWeights(1.0);
-		m_ClusteringWeights = new ClusNormalizedAttributeWeights(
-				m_NormalizationWeights);
-		m_CompactnessWeights = new ClusNormalizedAttributeWeights(
-				m_NormalizationWeights);
+		m_ClusteringWeights = new ClusNormalizedAttributeWeights(m_NormalizationWeights);
+		m_CompactnessWeights = new ClusNormalizedAttributeWeights(m_NormalizationWeights);
 	}
 
 	public ClusStatistic getGlobalStat() {

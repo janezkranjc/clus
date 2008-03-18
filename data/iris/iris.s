@@ -1,6 +1,3 @@
-[Data]
-File = ..
-TestSet = ..
 
 [Tree]
 PruningMethod = C4.5

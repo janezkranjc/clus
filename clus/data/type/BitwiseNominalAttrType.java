@@ -58,7 +58,7 @@ public class BitwiseNominalAttrType extends NominalAttrType {
 		return at;
 	}
 	
-	public void copyIndices(ClusAttrType type) {
+	public void copyArrayIndex(ClusAttrType type) {
 		m_Index = type.m_Index;
 		m_ArrayIndex = type.m_ArrayIndex;
 		m_Status = type.m_Status;

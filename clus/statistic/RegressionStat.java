@@ -432,7 +432,14 @@ public class RegressionStat extends ClusStatistic {
 			}			
 		}
 		return buf.toString();
-	}	
+	}
+	
+	public void predictTuple(DataTuple prediction) {
+		for (int i = 0; i < m_NbAttrs; i++) {
+			NumericAttrType type = m_Attrs[i];
+			type.setNumeric(prediction, m_Means[i]);
+		}
+	}
 	
 	public void vote(ArrayList votes) {
 		reset();

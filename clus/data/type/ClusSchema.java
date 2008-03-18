@@ -45,7 +45,7 @@ public class ClusSchema implements Serializable {
 	protected int m_NbAttrs;
 	protected int m_NbRows;
 	protected int m_NbInts, m_NbDoubles, m_NbObjects;
-	protected MyArray m_Attr = new MyArray();	
+	protected ArrayList m_Attr = new ArrayList();	
 	protected ClusAttrType[][] m_AllAttrUse;
 	protected NominalAttrType[][] m_NominalAttrUse;
 	protected NumericAttrType[][] m_NumericAttrUse;
@@ -66,7 +66,7 @@ public class ClusSchema implements Serializable {
 		m_Relation = name;
 		addFromString(descr);
 	}
-	
+		
 	public void setSettings(Settings sett) {
 		m_Settings = sett;
 	}
@@ -107,9 +107,20 @@ public class ClusSchema implements Serializable {
 	public final void setNbRows(int nb) {
 		m_NbRows = nb;
 		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType attr = (ClusAttrType)m_Attr.elementAt(j);
+			ClusAttrType attr = (ClusAttrType)m_Attr.get(j);
 			attr.setNbRows(nb);
 		}	
+	}
+	
+	public ClusSchema cloneSchema() {
+		ClusSchema result = new ClusSchema(getRelationName());
+		result.setSettings(getSettings());
+		for (int i = 0; i < getNbAttributes(); i++) {
+			ClusAttrType attr = getAttrType(i);
+			ClusAttrType copy = attr.cloneType();
+			result.addAttrType(copy);			
+		}
+		return result;
 	}
 		
 /***********************************************************************
@@ -121,12 +132,12 @@ public class ClusSchema implements Serializable {
 	}	
 	
 	public final ClusAttrType getAttrType(int idx) {
-		return (ClusAttrType)m_Attr.elementAt(idx);
+		return (ClusAttrType)m_Attr.get(idx);
 	}
 	
 	public final ClusAttrType getAttrType(String name) {
 		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType attr = (ClusAttrType)m_Attr.elementAt(j);
+			ClusAttrType attr = (ClusAttrType)m_Attr.get(j);
 			if (name.equals(attr.getName())) return attr;
 		}	
 		return null;
@@ -213,13 +224,13 @@ public class ClusSchema implements Serializable {
  ***********************************************************************/		
 	
 	public final void addAttrType(ClusAttrType attr) {
-		m_Attr.addElement(attr);
+		m_Attr.add(attr);
 		attr.setIndex(m_NbAttrs++);
 		attr.setSchema(this);
 	}	
 	
 	public final void setAttrType(ClusAttrType attr, int idx) {
-		m_Attr.setElementAt(attr, idx);
+		m_Attr.set(idx, attr);
 		attr.setIndex(idx);
 		attr.setSchema(this);
 	}
@@ -241,7 +252,7 @@ public class ClusSchema implements Serializable {
 	
 	public final boolean hasMissing() {		
 		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType attr = (ClusAttrType)m_Attr.elementAt(j);
+			ClusAttrType attr = (ClusAttrType)m_Attr.get(j);
 			if (attr.hasMissing()) return true;
 		}
 		return false;
@@ -350,8 +361,13 @@ public class ClusSchema implements Serializable {
 		setClustering(m_Clustering, true);
 	}
 	
-	public void clearAttributeStatus() {
-		setStatusAll(ClusAttrType.STATUS_NORMAL);
+	public void clearAttributeStatusClusteringAndTarget() {
+		for (int i = 0; i < getNbAttributes(); i++) {
+			ClusAttrType at = getAttrType(i);
+			if (at.getStatus() != ClusAttrType.STATUS_DISABLED && at.getStatus() != ClusAttrType.STATUS_KEY) {
+				at.setStatus(ClusAttrType.STATUS_NORMAL);
+			}
+		}
 		setClusteringAll(false);
 	}
 	
@@ -429,7 +445,7 @@ public class ClusSchema implements Serializable {
 		System.out.println("Nb obj: "+getNbObjects());		
 		System.out.println("Idx   Name                          Descr Status    Ref   Type");
 		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType at = (ClusAttrType)m_Attr.elementAt(j);
+			ClusAttrType at = (ClusAttrType)m_Attr.get(j);
 			System.out.print(StringUtils.printInt(j+1, 6));
 			System.out.print(StringUtils.printStr(at.getName(), 30));
 			if (at.isDescriptive()) System.out.print("Yes   ");
@@ -468,14 +484,14 @@ public class ClusSchema implements Serializable {
 	
 	public final void setReader(boolean start_stop) {	
 		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType attr = (ClusAttrType)m_Attr.elementAt(j);
+			ClusAttrType attr = (ClusAttrType)m_Attr.get(j);
 			if (attr.getStatus() != ClusAttrType.STATUS_DISABLED) attr.setReader(start_stop);
 		}
 	}
 	
 	public final void getPreprocs(DataPreprocs pps, boolean single) {
 		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType attr = (ClusAttrType)m_Attr.elementAt(j);
+			ClusAttrType attr = (ClusAttrType)m_Attr.get(j);
 			if (attr.getStatus() != ClusAttrType.STATUS_DISABLED) attr.getPreprocs(pps, single);
 		}	
 	}	
@@ -484,7 +500,7 @@ public class ClusSchema implements Serializable {
 		int max = 0;
 		ClusAttrType[] descr = getAllAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE);
 		for (int i = 0; i < descr.length; i++) {
-				max = Math.max(descr[i].getMaxNbStats(), max);
+			max = Math.max(descr[i].getMaxNbStats(), max);
 		}	
 		return max;
 	}
@@ -500,8 +516,8 @@ public class ClusSchema implements Serializable {
 	public final void setTestSet(int id) {
 		if (id != -1) {
 			System.out.println("Setting test set ID: "+id);			
-			ClusAttrType type = (ClusAttrType)m_Attr.elementAt(id);
-			m_Attr.setElementAt(m_TSAttr = new IndexAttrType(type.getName()), id);
+			ClusAttrType type = (ClusAttrType)m_Attr.get(id);
+			m_Attr.set(id, m_TSAttr = new IndexAttrType(type.getName()));
 		}		
 	}
 	
@@ -513,7 +529,7 @@ public class ClusSchema implements Serializable {
 	public final Hashtable buildAttributeHash() {
 		Hashtable hash = new Hashtable();
 		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType at = (ClusAttrType)m_Attr.elementAt(j);
+			ClusAttrType at = (ClusAttrType)m_Attr.get(j);
 			hash.put(at.getName(), at);
 		}
 		return hash;
@@ -543,7 +559,7 @@ public class ClusSchema implements Serializable {
 	private void addColsIndex() {
 		int idx = 0;	
 		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType at = (ClusAttrType)m_Attr.elementAt(j);
+			ClusAttrType at = (ClusAttrType)m_Attr.get(j);
 			if (at.getStatus() == ClusAttrType.STATUS_NORMAL) at.setArrayIndex(idx++);
 		}
 	}
@@ -622,7 +638,7 @@ public class ClusSchema implements Serializable {
 		int bitPosition = 0; // for BitwiseNominalAttrType
 		int nbBitwise = 0;
 		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType at = (ClusAttrType)m_Attr.elementAt(j);				
+			ClusAttrType at = (ClusAttrType)m_Attr.get(j);				
 			int vtype = at.getValueType();
 			if (at.getStatus() != ClusAttrType.STATUS_DISABLED && vtype != ClusAttrType.VALUE_TYPE_BITWISEINT) {					
 				int sidx = nbvt[vtype]++;
@@ -649,7 +665,9 @@ public class ClusSchema implements Serializable {
 		}
 		if (nbBitwise>0) nbvt[ClusAttrType.VALUE_TYPE_BITWISEINT]++;
 		m_NbInts = Math.max(nbvt[ClusAttrType.VALUE_TYPE_INT], nbvt[ClusAttrType.VALUE_TYPE_BITWISEINT]); // only one of them will be different from 0
-		System.out.println("real ints needed: " + nbvt[ClusAttrType.VALUE_TYPE_INT] + " or " + nbvt[ClusAttrType.VALUE_TYPE_BITWISEINT]);
+		if (getSettings().getVerbose() >= 1) {
+			System.out.println("Space required by nominal attributes: " + nbvt[ClusAttrType.VALUE_TYPE_INT]*4 + " bytes/tuple regular, " + nbvt[ClusAttrType.VALUE_TYPE_BITWISEINT]*4+" bytes/tuple bitwise");
+		}
 		m_NbDoubles = nbvt[ClusAttrType.VALUE_TYPE_DOUBLE];
 		m_NbObjects = nbvt[ClusAttrType.VALUE_TYPE_OBJECT];
 		// Collect attributes into arrays m_Allattruse, m_Nominalattruse, m_Numericattruse
