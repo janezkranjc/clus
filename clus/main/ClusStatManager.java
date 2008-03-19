@@ -41,6 +41,7 @@ import clus.ext.sspd.*;
 import clus.ext.timeseries.*;
 import clus.ext.beamsearch.*;
 import clus.ext.ilevelc.*;
+import clus.ext.semisupervised.*;
 
 import clus.algo.rules.*;
 
@@ -589,7 +590,9 @@ public class ClusStatManager implements Serializable {
 					&& (getSettings().getHeuristic() != Settings.HEURISTIC_GAIN)) {
 				throw new ClusException("Only Gain (default) or Reduced Error heuristic can be used for classification trees!");
 			}
-			if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
+			if (getSettings().getHeuristic() == Settings.HEURISTIC_SEMI_SUPERVISED) {
+				m_Heuristic = new ModifiedGainHeuristic(createClusteringStat());
+			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
 				m_Heuristic = new ReducedErrorHeuristic(createClusteringStat());
 			} /*else if (getSettings().getHeuristic() == Settings.HEURISTIC_GENETIC_DISTANCE) {
 				m_Heuristic = new GeneticDistanceHeuristic();
