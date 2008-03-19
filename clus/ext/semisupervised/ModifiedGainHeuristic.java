@@ -36,7 +36,9 @@ public class ModifiedGainHeuristic extends ClusHeuristicImpl {
 			tot_ent += tstat.entropy(i, n_tot);
 		}
 		// Gain?
-		return tot_ent - (n_pos*pos_ent + n_neg*neg_ent)/n_tot;
+		double gain = tot_ent - (n_pos*pos_ent + n_neg*neg_ent)/n_tot;
+		if (gain < MathUtil.C1E_6) return Double.NEGATIVE_INFINITY;
+		return gain;
 	}
 		
 	public String getName() {

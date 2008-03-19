@@ -585,11 +585,6 @@ public class ClusStatManager implements Serializable {
 			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);			
 		} else if (nom.length > 0) {
-			if ((getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT)
-					&& (getSettings().getHeuristic() != Settings.HEURISTIC_REDUCED_ERROR)
-					&& (getSettings().getHeuristic() != Settings.HEURISTIC_GAIN)) {
-				throw new ClusException("Only Gain (default) or Reduced Error heuristic can be used for classification trees!");
-			}
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_SEMI_SUPERVISED) {
 				m_Heuristic = new ModifiedGainHeuristic(createClusteringStat());
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
@@ -599,6 +594,10 @@ public class ClusStatManager implements Serializable {
 			}*/ else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {
 				m_Heuristic = new GainHeuristic(true);				
 			} else {
+				if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && 
+				    getSettings().getHeuristic() != Settings.HEURISTIC_GAIN) {
+						throw new ClusException("Only Gain (default) or Reduced Error heuristic can be used for classification trees!");
+				}				
 				m_Heuristic = new GainHeuristic(false);
 				getSettings().setHeuristic(Settings.HEURISTIC_GAIN);
 			}
