@@ -151,8 +151,7 @@ public class Clus implements CMDLineArgsProvider {
 			m_Sett.disableRuleInduceParams();
 		// Set XVal field in Settings
 		if (isxval) Settings.IS_XVAL = true;
-		// Preprocess() should become for m_Induce.initialize()
-		// -> e.g., for hierarchical multi-classification
+		preprocess(); // necessary in order to link the labels to the class hierarchy in HMC (needs to be before m_Induce.initialize()) 		
 		m_Induce.initialize();
 		initializeAttributeWeights(m_Data);
 		m_Induce.initializeHeuristic();
@@ -766,6 +765,7 @@ public class Clus implements CMDLineArgsProvider {
 		out.writeOutput(cr, true, true);
 		out.close();
 	}
+
 	
 	public final void showModel(String fname) throws IOException,	ClusException, ClassNotFoundException {
 		ClusModelCollectionIO io = ClusModelCollectionIO.load(fname);
