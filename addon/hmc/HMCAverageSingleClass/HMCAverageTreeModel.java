@@ -133,9 +133,6 @@ public class HMCAverageTreeModel implements ClusModel {
 	public void retrieveStatistics(ArrayList stats) {
 	}
 
-	public void printModelToQuery(PrintWriter wrt, ClusRun cr) {
-	}
-	
-	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int a, int b) {
+	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int a, int b,boolean ex) {
 	}
 }

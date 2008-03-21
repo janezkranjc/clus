@@ -461,9 +461,10 @@ public class ClassificationStat extends ClusStatistic {
 		return m_ClassCounts[idx][cls];
 	}	
 	
+	//changed elisa 13/06/2007
 	public String getPredictedClassName(int idx) {
-		//return m_Attrs[idx].getValue(m_MajorityClasses[idx]);
-		return m_Attrs[idx].getValue(getMajorityClass(idx));
+		return m_Attrs[idx].getName()+" = "+m_Attrs[idx].getValue(m_MajorityClasses[idx]);
+		// return m_Attrs[idx].getValue(getMajorityClass(idx));
 	} 
 	
 	public String getClassName(int idx, int cls) {
@@ -497,7 +498,7 @@ public class ClassificationStat extends ClusStatistic {
 	}
 		
 	public double getErrorRel() {
-		// System.out.println("ClassificationStat nb error is "+result);
+		//System.out.println("ClassificationStat getErrorRel");
 		// System.out.println("ClassificationStat nb example in the leaf "+m_SumWeight);
 		return getError() / getTotalWeight();
 	}

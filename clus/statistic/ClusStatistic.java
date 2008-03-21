@@ -40,7 +40,7 @@ public abstract class ClusStatistic implements Serializable {
 	public double m_SumWeight; // the weighted sum of all example
 	
 	public abstract ClusStatistic cloneStat();
-		
+	
 	public ClusStatistic cloneSimple() {
 		// Statistic with only memory allocated for storing mean
 		// not variance, see e.g. RegressionStat.java
@@ -194,6 +194,7 @@ public abstract class ClusStatistic implements Serializable {
 	}
 	
 	public double getError(ClusAttributeWeights scale) {
+		//System.out.println("ClusStatistic :getError");
 		System.err.println(getClass().getName()+": getError(): Not yet implemented");
 		return Double.POSITIVE_INFINITY;
 	}

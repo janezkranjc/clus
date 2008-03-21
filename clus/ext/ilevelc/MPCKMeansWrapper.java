@@ -132,6 +132,7 @@ public class MPCKMeansWrapper {
 				}
 			}
 			rdr.close();
+			System.out.println("--------the file"+cons+"is not deleted !!!");
 			// Make sure files don't exist
 			//FileUtil.delete(datf);
 			//FileUtil.delete(cons);

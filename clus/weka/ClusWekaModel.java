@@ -91,7 +91,7 @@ public class ClusWekaModel implements ClusModel {
 	public void printModelToPythonScript(PrintWriter wrt) {
 	}
 	
-	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem) {
+	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem, boolean ex) {
 	}
 	public void saveModel(ObjectSaveStream strm) throws IOException {
 	}

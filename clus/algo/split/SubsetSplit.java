@@ -134,6 +134,9 @@ public class SubsetSplit extends NominalSplit {
 					isin[bvalue] = true;
 					m_PStat.add(node.m_TestStat[bvalue]);
 				}
+//				Elisa 19/06/2007
+				//System.out.println("SubsetSplit : try to avoid the subset split");
+				if((getStatManager().getSettings()).isExhaustiveSearch()){break;}
 			}
 		}
 		// Found better test :-)

@@ -235,9 +235,10 @@ public class ClusOutput {
 			// use the following lines for creating a SQL file that will put the tree into a database
 			String out_database_name =  m_Sett2.getAppName()+".txt";
 			PrintWriter database_writer = m_Sett2.getFileAbsoluteWriter(out_database_name);
-			root.printModelToQuery(database_writer,cr,starttree,startitem);
+			root.printModelToQuery(database_writer,cr,starttree,startitem,getSettings().isExhaustiveSearch());
+			
 			database_writer.close();
-			System.out.println("the queries are in "+out_database_name);
+			System.out.println("The queries are in "+out_database_name);
 		}
 		
 		m_Writer.flush();

@@ -251,9 +251,12 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 		incCTree();
 		//System.out.println("Clus ExhausDF MaxError is "+m_MaxError);
 		//System.out.println("Clus ExhausDF error of the tree is "+(ClusNode.estimateErrorRecursive(tree)/m_TotalWeight));
+		//if (size == 1) {System.out.println("Clus ExhausDF error (before testing the constraint) of the tree of size 1 is" +(tree.m_ClusteringStat).getErrorRel());}
+
 		boolean tree_ok = true;
 		if (m_MaxTreeSize > 0 && size > m_MaxTreeSize) tree_ok = false;
-		if (m_MaxError > 0 && ClusNode.estimateErrorRecursive(tree)/m_TotalWeight > m_MaxError) tree_ok = false;
+		if ((size > 1) && (m_MaxError > 0 && ClusNode.estimateErrorRecursive(tree)/m_TotalWeight > m_MaxError)) tree_ok = false;
+		if ((size == 1) && (m_MaxError > 0 && (tree.m_ClusteringStat).getErrorRel() > m_MaxError)) {tree_ok = false;}
 		if (tree_ok) {
 			//System.out.println("model "+getCTree()+" must be added");
 			beam.addModel(model);	
@@ -285,8 +288,8 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 				double minerrorrel = minerror/m_TotalWeight;
 				//System.out.println("the minimum relative error is : "+minerrorrel);
 				if(minerrorrel > m_MaxError){
-					tree.printTree();
-					System.out.println("PRUNE WITH ERROR");
+					//tree.printTree();
+					//System.out.println("PRUNE WITH ERROR");
 					return;
 				}
 			}
@@ -318,8 +321,7 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 		refineModel(current, beam, run);
 		setBeam(beam);
 		ArrayList arraybeamresult = beam.toArray();
-		System.out.println("exhaustive depth search : ");
-		System.out.println(" the number of resulting model is "+arraybeamresult.size());
+		System.out.println("The number of resulting model is "+arraybeamresult.size());
 		/*for (int j = 0; j < arraybeamresult.size(); j++) {
 			System.out.println("model"+j+": ");
 			ClusBeamModel m = (ClusBeamModel)arraybeamresult.get(j);

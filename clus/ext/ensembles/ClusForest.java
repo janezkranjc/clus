@@ -192,12 +192,12 @@ public class ClusForest implements ClusModel, Serializable{
 		}
 	}
 
-	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem) {
+	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem, boolean ex) {
 		// TODO Auto-generated method stub
 		ClusModel model;
 		for (int i = 0; i < m_Forest.size(); i++){
 			model = (ClusModel)m_Forest.get(i);
-			model.printModelToQuery(wrt, cr, starttree, startitem);
+			model.printModelToQuery(wrt, cr, starttree, startitem,ex);
 		}
 	}
 

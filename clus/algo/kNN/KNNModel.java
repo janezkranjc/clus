@@ -115,7 +115,7 @@ public class KNNModel implements ClusModel {
 	public void printModelToPythonScript(PrintWriter wrt) {
 	}
 	
-	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem) {
+	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem, boolean ex) {
 	}
 	public void attachModel(Hashtable table) {
 		System.err.println(getClass().getName()+"attachModel() not implemented");

@@ -686,6 +686,7 @@ double dis3 = comp;
   
   // TODO: This error asessement should be changed, I guess.
   public double getError(ClusAttributeWeights scale) {
+	  System.out.println("CombStat :getError");
     switch (m_StatManager.getMode()) {
     case ClusStatManager.MODE_CLASSIFY:
       return m_ClassStat.getError(scale);
