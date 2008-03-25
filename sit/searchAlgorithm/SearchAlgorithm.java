@@ -11,4 +11,6 @@ public interface SearchAlgorithm {
 	
 	public void setMTLearner(MTLearner learner);
 	
+	public String getName();
+	
 }

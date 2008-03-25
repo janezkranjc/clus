@@ -37,4 +37,31 @@ public class TargetSet extends java.util.TreeSet{
 			this.add(schema.getAttrType(targets.nextInt()-1));//"the interval counts from 1"
 		}
 	}
+	
+	public int getIndex(ClusAttrType target){
+		Object[] set = this.toArray();
+		for(int i =0;i<set.length;i++){
+			if(set[i].equals(target)){
+				return i;
+			}
+		}
+		return -1;
+		
+	}
+	
+	public String toString(){
+		Iterator targets = this.iterator();
+		
+		String result = "";
+		while(targets.hasNext()){
+			ClusAttrType target = (ClusAttrType) targets.next();
+			int idx = target.getIndex();
+			result = result.concat(" ");
+			result = result.concat(Integer.toString(idx+1));
+		}
+		
+		
+		return result;
+		
+	}
 }

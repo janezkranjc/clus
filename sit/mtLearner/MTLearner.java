@@ -1,6 +1,7 @@
 package sit.mtLearner;
 import sit.TargetSet;
 import clus.data.rows.RowData;
+import clus.data.type.ClusAttrType;
 import clus.main.Settings;
 
 public interface MTLearner {
@@ -11,6 +12,13 @@ public interface MTLearner {
 	 * @param sett The settings file
 	 */
 	public void init(RowData data,Settings sett);
+	
+	
+	/**
+	 * Some model can return predictions for targets that are not included in the targetset.
+	 * This function allows to define the main target for which predictions should be included. 
+	 */
+	public void setMainTarget(ClusAttrType target);
 	
 	
 	/**
@@ -33,6 +41,8 @@ public interface MTLearner {
 	public void setTestData(RowData test);
 	
 	public void initXVal(int nrFolds);
+	
+	public String getName();
 	
 	/**
 	 * 

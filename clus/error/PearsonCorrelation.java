@@ -62,11 +62,12 @@ public class PearsonCorrelation extends ClusNumericError {
 	}
 
 	public double getCorrelation(int i) {
+		
 		int nb = getNbExamples();		
 		
 		double Pi_ss = m_SumSPi[i]-m_SumPi[i]*m_SumPi[i]/nb;
 		double Ai_ss = m_SumSAi[i]-m_SumAi[i]*m_SumAi[i]/nb;
-		
+
 		double root = Math.sqrt(Pi_ss*Ai_ss);
 		double above = m_SumPiAi[i] - m_SumPi[i]*m_SumAi[i]/nb;
 		
@@ -122,10 +123,9 @@ public class PearsonCorrelation extends ClusNumericError {
 		for (int i = 0; i < m_Dim; i++) {
 				double real_i = getAttr(i).getNumeric(real);
 				double predicted_i = getAttr(i).getNumeric(pred);
+				
 				// Predicted
 				m_SumPi[i] += predicted_i;
-				
-				
 				m_SumSPi[i] += predicted_i * predicted_i;
 				// Real
 				m_SumAi[i] += real_i;

@@ -1,5 +1,7 @@
 package sit.mtLearner;
 
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.*;
 
 import sit.TargetSet;
@@ -44,9 +46,16 @@ public class ClusLearner extends MTLearnerImpl {
 				clusAttr.setStatus(ClusAttrType.STATUS_TARGET);
 				clusAttr.setClustering(true);
 			}
+			
+			
 			schema.addIndices(ClusSchema.ROWS);
 			ClusRun cr = m_Clus.train(train);
 			ClusModel pruned = cr.getModel(ClusModel.PRUNED);
+			/*
+			PrintWriter p = new PrintWriter(new OutputStreamWriter(System.out));
+			pruned.printModel(p);
+			p.flush();
+			*/
 			RowData predictions = ClusModelPredictor.predict(pruned, test);
 			RowData[] final_result = {test, predictions};
 			return final_result;
@@ -54,6 +63,10 @@ public class ClusLearner extends MTLearnerImpl {
 			e1.printStackTrace();
 		}
 		return null;
+	}
+
+	public String getName() {
+		return "ClusLearner";
 	}
 }
 

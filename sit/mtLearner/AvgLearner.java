@@ -66,5 +66,9 @@ public class AvgLearner extends MTLearnerImpl {
 		RowData[] final_result ={test,predictions};
 		return final_result;
 	}
+
+	public String getName() {
+		return "AvgLearner";
+	}
 	
 }

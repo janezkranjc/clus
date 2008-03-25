@@ -2,11 +2,13 @@ package sit.mtLearner;
 
 import sit.TargetSet;
 import clus.data.rows.RowData;
+import clus.data.type.ClusAttrType;
 import clus.main.Settings;
 import clus.selection.XValMainSelection;
 import clus.selection.XValRandomSelection;
 import clus.selection.XValSelection;
 import clus.util.ClusException;
+import clus.util.ClusRandom;
 
 public abstract class MTLearnerImpl implements MTLearner {
 	
@@ -15,6 +17,7 @@ public abstract class MTLearnerImpl implements MTLearner {
 	protected Settings m_Sett;
 	protected XValMainSelection m_XValSel;
 	protected ResultsCache m_Cache;
+	protected ClusAttrType m_MainTarget;
 	
 	/**************************
 	 * Interface functions
@@ -56,6 +59,7 @@ public abstract class MTLearnerImpl implements MTLearner {
 	 */
 	public void initXVal(int nrFolds) {
 		try {
+			ClusRandom.initialize(m_Sett);//use the same random seed!
 			m_XValSel = new XValRandomSelection(m_Data.getNbRows(),nrFolds);
 		} catch (ClusException e) {
 			e.printStackTrace();
@@ -68,6 +72,7 @@ public abstract class MTLearnerImpl implements MTLearner {
 	 */
 	public int initLOOXVal() {
 		try {
+			ClusRandom.initialize(m_Sett);//use same random seed
 			m_XValSel = new XValRandomSelection(m_Data.getNbRows(),m_Data.getNbRows());
 		} catch (ClusException e) {
 			e.printStackTrace();
@@ -98,6 +103,10 @@ public abstract class MTLearnerImpl implements MTLearner {
 	 */
 	public void setTestData(RowData test) {
 		this.m_Test = test;		
+	}
+	
+	public void setMainTarget(ClusAttrType target){
+		this.m_MainTarget = target;
 	}
 	
 	protected abstract RowData[] LearnModel(TargetSet targets, RowData train, RowData test);	

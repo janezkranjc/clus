@@ -1,5 +1,6 @@
 package sit.searchAlgorithm;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,18 +11,15 @@ import sit.TargetSet;
 import sit.mtLearner.MTLearner;
 import clus.data.type.ClusAttrType;
 
-public class GeneticSearch implements SearchAlgorithm{
+public class GeneticSearch extends SearchAlgorithmImpl{
 	protected MTLearner learner;
-	final protected int MAX_ALLOWED_EVOLUTIONS = 500; 
+	final protected int MAX_ALLOWED_EVOLUTIONS = 150; 
 
 	public TargetSet search(ClusAttrType mainTarget, TargetSet candidates) {
 		//create the configuration, nothing fancy for now
+		Configuration.reset();
 		Configuration conf = new DefaultConfiguration();
-
-
 		FitnessFunction SITFitness = new SITFitnessFunction(mainTarget, learner, candidates);
-
-
 		Genotype population = null;
 		try {
 			//create the sampleChromosone
@@ -30,16 +28,18 @@ public class GeneticSearch implements SearchAlgorithm{
 			IChromosome sampleChromosome = new Chromosome(conf,
 					new BooleanGene(conf),candidates.size());
 			conf.setSampleChromosome(sampleChromosome);
-			conf.setPopulationSize(20);
+			conf.setPopulationSize(50);
 			conf.setFitnessFunction(SITFitness);
 			conf.setPreservFittestIndividual(true);
 			conf.setKeepPopulationSizeConstant(false);
-			List operators = conf.getGeneticOperators();
-			for(int i=0;i<operators.size();i++){
-				System.out.println(operators.get(i).getClass());
+			List l = conf.getGeneticOperators();
+			Iterator i = l.iterator();
+			while(i.hasNext()){
+				GeneticOperator o = (GeneticOperator) i.next();
+				if(o instanceof MutationOperator){
+					((MutationOperator)o).setMutationRate(1);
+				}
 			}
-
-
 			//lets create a population
 			population = Genotype.randomInitialGenotype( conf );
 		} catch (InvalidConfigurationException e) {
@@ -52,20 +52,17 @@ public class GeneticSearch implements SearchAlgorithm{
 		{
 			population.evolve();
 			bestSolutionSoFar = (Chromosome) population.getFittestChromosome();
-			System.out.println("Best fitness so far:"+bestSolutionSoFar.getFitnessValue());
+			System.out.print("Best fitness so far:"+bestSolutionSoFar.getFitnessValue());
+			System.out.println(" Best support set:"+getTargetSet(candidates,bestSolutionSoFar));
+			
 		}
-
-
-
 		return getTargetSet(candidates, bestSolutionSoFar);
 	}
 
-	public void setMTLearner(MTLearner learner) {
-		this.learner = learner;		
-	}
+	
 
 	final static protected TargetSet getTargetSet(TargetSet t,Chromosome c){
-
+		
 		Object[] targets =  t.toArray();
 		TargetSet result = new TargetSet();
 		Gene[] genes =  c.getGenes();
@@ -74,8 +71,12 @@ public class GeneticSearch implements SearchAlgorithm{
 				result.add(targets[i]);
 			}
 		}
+		
 		return result;
 
+	}
+	public String getName() {
+		return "GeneticSearch";
 	}
 
 }
