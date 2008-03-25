@@ -45,6 +45,8 @@ public class ClusForest implements ClusModel, Serializable{
 	ArrayList m_Forest;
 	ClusStatistic m_Stat;
 	boolean m_PrintModels;
+	String m_AttributeList;
+	String m_AppName;
 	
 	public ClusForest(){
 		m_Forest = new ArrayList();
@@ -62,6 +64,11 @@ public class ClusForest implements ClusModel, Serializable{
 		}else{
 			System.err.println(getClass().getName() + "initForest(): Error initializing the statistic");
 		}
+		m_AppName = statmgr.getSettings().getFileAbsolute(statmgr.getSettings().getAppName());
+		m_AttributeList = "";
+		ClusAttrType[] cat = ClusSchema.vectorToAttrArray(statmgr.getSchema().collectAttributes(ClusAttrType.ATTR_USE_DESCRIPTIVE, ClusAttrType.THIS_TYPE));
+		for (int ii=0;ii<cat.length-1;ii++) m_AttributeList = m_AttributeList.concat(cat[ii].getName()+", ");
+		m_AttributeList = m_AttributeList.concat(cat[cat.length-1].getName());
 	}
 	
 	public void addModelToForest(ClusModel model){
@@ -102,6 +109,9 @@ public class ClusForest implements ClusModel, Serializable{
 
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 		
+		if (ClusEnsembleInduce.m_OOBCalculation)
+			return predictWeightedOOB(tuple);
+		
 		if (! ClusEnsembleInduce.m_OptMode) return predictWeightedStandard(tuple);
 		else return predictWeightedOpt(tuple);
 
@@ -128,6 +138,23 @@ public class ClusForest implements ClusModel, Serializable{
 		return m_Stat;
 	}
 	
+	public ClusStatistic predictWeightedOOB(DataTuple tuple) {
+		double[] predictions = null;
+		if (ClusEnsembleInduce.m_OOBPredictions.containsKey(tuple.hashCode()))
+			predictions = (double[])ClusEnsembleInduce.m_OOBPredictions.get(tuple.hashCode());
+		else{
+			System.err.println(this.getClass().getName()+".predictWeightedOOB(DataTuple) - Missing Prediction For Tuple");
+			System.err.println("Tuple Hash = "+tuple.hashCode());
+		}
+		m_Stat.reset();
+		((WHTDStatistic)m_Stat).m_Means = new double[predictions.length];
+		for (int j = 0; j < predictions.length; j++){
+			((WHTDStatistic)m_Stat).m_Means[j] = predictions[j];
+		}
+		m_Stat.computePrediction();
+		return m_Stat;
+	}
+	
 	public ClusStatistic predictWeightedOpt(DataTuple tuple) {
 		int position = ClusEnsembleInduce.locateTuple(tuple);
 		int predlength = ClusEnsembleInduce.m_AvgPredictions[position].length;
@@ -142,7 +169,6 @@ public class ClusForest implements ClusModel, Serializable{
 
 	public void printModel(PrintWriter wrt) {
 		// This could be better organized
-		
 		if (Settings.isPrintEnsembleModels()){
 			ClusModel model;
 			for (int i = 0; i < m_Forest.size(); i++){
@@ -153,9 +179,8 @@ public class ClusForest implements ClusModel, Serializable{
 				model.printModel(wrt);
 				wrt.write("\n");
 			}
-		}else{
-			wrt.write("Forest with "+getNbModels()+" models\n");
-		}
+		}else	wrt.write("Forest with "+getNbModels()+" models\n");
+		
 	}
 
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
@@ -171,9 +196,8 @@ public class ClusForest implements ClusModel, Serializable{
 				model.printModel(wrt);
 				wrt.write("\n");
 			}
-		}else{
-			wrt.write("Forest with "+getNbModels()+" models\n");
-		}
+		}else	wrt.write("Forest with "+getNbModels()+" models\n");
+		
 	}
 
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
@@ -185,10 +209,29 @@ public class ClusForest implements ClusModel, Serializable{
 	}
 
 	public void printModelToPythonScript(PrintWriter wrt) {
-		ClusModel model;
-		for (int i = 0; i < m_Forest.size(); i++){
-			model = (ClusModel)m_Forest.get(i);
-			model.printModelToPythonScript(wrt);
+		printForestToPython();
+	}
+
+	public void printForestToPython(){
+		//create a separate .py file
+		try{
+			File pyscript = new File(m_AppName+"_models.py");
+			PrintWriter wrtr = new PrintWriter(new FileOutputStream(pyscript));
+			wrtr.println("# Python code of the trees in the ensemble");
+			wrtr.println();
+			for (int i = 0; i < m_Forest.size(); i++){
+				ClusModel model = (ClusModel) m_Forest.get(i);
+				wrtr.println("#Model "+(i+1));
+				wrtr.println("def clus_tree_"+(i+1)+"( "+m_AttributeList+" ):");
+				model.printModelToPythonScript(wrtr);
+				wrtr.println();
+			}
+			wrtr.flush();
+			wrtr.close();
+			System.out.println("Model to Python Code written to: "+pyscript.getName());
+		}catch (IOException e) {
+			System.err.println(this.getClass().getName()+".printForestToPython(): Error while writing models to python script");
+			e.printStackTrace();
 		}
 	}
 
@@ -236,7 +279,7 @@ public class ClusForest implements ClusModel, Serializable{
 	public void setStat(ClusStatistic stat){
 		m_Stat = stat;
 	}
-	
+
 	public void thresholdToModel(int model_nb, double threshold){
 		try {
 			HierClassTresholdPruner pruner = new HierClassTresholdPruner(null);
@@ -253,13 +296,6 @@ public class ClusForest implements ClusModel, Serializable{
 	
 	public void setModels(ArrayList models){
 		m_Forest = models;
-	}
-	
-	public ClusForest cloneForestSimple(){
-		ClusForest clone = new ClusForest();
-		clone.setModels((ArrayList)m_Forest.clone());
-		clone.setStat(m_Stat.cloneStat());
-		return clone;
 	}
 	
 	//this is only for Hierarchical ML Classification
