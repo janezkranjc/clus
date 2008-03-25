@@ -1211,6 +1211,9 @@ public class Settings implements Serializable {
 	protected INIFileInt m_RandomAttrSelected;
 	public static INIFileBool m_PrintAllModels;
 	public static boolean m_EnsembleMode = false;
+	public static INIFileBool m_EnsembleShouldOpt;
+	public static INIFileBool m_EnsembleOOBestimate;
+	
 	
 	public boolean isEnsembleMode() {
 		return m_EnsembleMode;
@@ -1225,6 +1228,7 @@ public class Settings implements Serializable {
 	}
 
 	public INIFileNominalOrIntOrVector getNbBaggingSets(){
+		if (!m_NbBags.isVector()&&(m_NbBags.getInt() == 0))m_NbBags.setInt(10);
 		return m_NbBags;
 	}	
 	
@@ -1239,6 +1243,15 @@ public class Settings implements Serializable {
 	public static boolean isPrintEnsembleModels( ){
 		return m_PrintAllModels.getValue();
 	}	
+	
+	public static boolean shouldOptimizeEnsemble( ){
+		return m_EnsembleShouldOpt.getValue();
+	}	
+	
+	public static boolean shouldEstimateOOB( ){
+		return m_EnsembleOOBestimate.getValue();
+	}	
+	
 	
 /***********************************************************************
  * Section: KNN                                                        *
@@ -1440,6 +1453,8 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_ClassificationVoteType =new INIFileNominal("VotingType", VOTING_TYPE,0));
 		m_SectionEnsembles.addNode(m_RandomAttrSelected = new INIFileInt("SelectRandomSubspaces", 1));
 		m_SectionEnsembles.addNode(m_PrintAllModels = new INIFileBool("PrintAllModels", false));
+		m_SectionEnsembles.addNode(m_EnsembleShouldOpt = new INIFileBool("Optimize", false));
+		m_SectionEnsembles.addNode(m_EnsembleOOBestimate = new INIFileBool("OOBestimate", false));
 		m_SectionEnsembles.setEnabled(false);
 		
 		m_SectionKNN = new INIFileSection("kNN");
