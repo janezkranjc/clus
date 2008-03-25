@@ -35,6 +35,7 @@ import clus.statistic.StatisticPrintInfo;
 import clus.util.*;
 import clus.data.type.*;
 import clus.error.*;
+import clus.ext.ensembles.ClusEnsembleInduce;
 import clus.data.rows.*;
 
 public class ClusOutput {
@@ -169,7 +170,9 @@ public class ClusOutput {
 			if (outputtrain) {
 				ClusErrorList tr_err = cr.getTrainError();
 				if (tr_err != null) {
-					m_Writer.println("Training error");
+					if (ClusEnsembleInduce.isCalcOOB())
+						m_Writer.println("Out-Of-Bag Estimate of Error");
+					else m_Writer.println("Training error");
 					m_Writer.println("--------------");
 					m_Writer.println();
 					tr_err.showError(cr, ClusModelInfo.TRAIN_ERR, m_Writer);
@@ -214,15 +217,20 @@ public class ClusOutput {
 					}
 					m_Writer.println();
 					if (getSettings().isOutputPythonModel()) {
-						// use following lines for getting tree as Python function 
-						m_Writer.print("def clus_tree( ");
-						ClusAttrType[] cat = ClusSchema.vectorToAttrArray(m_Schema.collectAttributes(ClusAttrType.ATTR_USE_DESCRIPTIVE, ClusAttrType.THIS_TYPE));
-						for (int ii=0;ii<cat.length-1;ii++){
-							m_Writer.print(cat[ii].getName()+",");
+						if (getSettings().isEnsembleMode() && (i == ClusModel.ORIGINAL)){
+							root.printModelToPythonScript(m_Writer);//root is a forest
 						}
-						m_Writer.println(cat[cat.length-1].getName()+" ):");
-						root.printModelToPythonScript(m_Writer);
-						m_Writer.println();
+						else {
+							// use following lines for getting tree as Python function 
+							m_Writer.print("def clus_tree( ");
+							ClusAttrType[] cat = ClusSchema.vectorToAttrArray(m_Schema.collectAttributes(ClusAttrType.ATTR_USE_DESCRIPTIVE, ClusAttrType.THIS_TYPE));
+							for (int ii=0;ii<cat.length-1;ii++){
+								m_Writer.print(cat[ii].getName()+",");
+							}
+							m_Writer.println(cat[cat.length-1].getName()+" ):");
+							root.printModelToPythonScript(m_Writer);
+							m_Writer.println();
+						}
 					}
 					
 				}//end if (root != null)				
