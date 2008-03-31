@@ -1,68 +1,24 @@
 #!/bin/sh
-export JPATH="/home/jan/cache/j2sdk1.4.0/bin"
-#export JAVAC="$JPATH/javac"
-#export JAR="$JPATH/jar"
-export JAVAC="javac"
-export JAR="jar"
-echo "Java compiler: $JAVAC"
-RELEASE=1.2
-echo "Copy .java files"
-rm -rf release/src 2>/dev/null
-mkdir release 2>/dev/null
-mkdir release/src 2>/dev/null
-cp manifest release/src
-cp -r clus release/src
-cp -r cols release/src
-cp -r error release/src
-cp -r ext release/src
-cp -r heuristic release/src
-cp -r induce release/src
-cp -r io release/src
-cp -r jeans release/src
-cp -r main release/src
-cp -r nominal release/src
-cp -r rows release/src
-cp -r selection release/src
-cp -r statistic release/src
-cp -r test release/src
-cp -r type release/src
-cp -r util release/src
-cp -r kNN release/src
-cp -r ext release/src
-cp -r pruning release/src
-cp -r debug release/src
-cp -r model release/src
-cp -r Jama release/src
-cp deljava.pl release/src
-cd release/src
-rm -rf jeans/graph/trayicon
-echo "Delete .class files"
-find . -name "*.class" -exec rm {} \;
-find . | grep CVS | xargs rm -rf
-echo "Compile stuff"
-$JAVAC clus/Clus.java
-$JAVAC clus/gui/*.java
-echo "Make .jar"
-cd ..
-mkdir root 2>/dev/null
-cp -r src/* root
-cd root
-find . -name "*.java" -exec rm {} \;
-rm *.pl
-$JAR -cvmf manifest Clus.jar *
-cd ..
-mv root/Clus.jar .
-rm -rf root
-cd src
-find jeans -name "*.java" -exec ./deljava.pl {} \;
-find . -name "*.class" -exec rm {} \;
-rm *.pl
+VERS="1.3"
+rm -rf release
+mkdir -p release
+mkdir -p release/Clus-$VERS
+mkdir -p release/Clus-$VERS/bin
+cp addon/script/compile.sh release/Clus-$VERS/
+cp addon/script/clus.sh release/Clus-$VERS/
+cp -r clus addon data docs jars jeans sit LICENSE.txt README.txt release/Clus-$VERS/
+rm -rf release/Clus-$VERS/jeans/graph/trayicon
+find release/Clus-$VERS/ -name "CVS" -exec rm -rf {} \;
+find release/Clus-$VERS/ -name ".svn" -exec rm -rf {} \;
+find release/Clus-$VERS/ -name ".cvsignore" -exec rm -f {} \;
+cd release/Clus-$VERS/
+. compile.sh
+cd bin
+jar xvf ../jars/commons-math-1.0.jar
+jar xvf ../jars/jgap.jar
+jar cvfm ../Clus.jar ../../../addon/script/manifest *
 cd ../../
-rm -rf clus-$RELEASE 2>/dev/null
-mv release clus-$RELEASE
-tar -cvf clus-$RELEASE.tar clus-$RELEASE
-rm clus-$RELEASE.tar.gz 2>/dev/null
-gzip clus-$RELEASE.tar
-rm -rf clus-$RELEASE/src
-mv clus-$RELEASE release
-
+rm -rf Clus-$VERS/bin
+zip -r Clus-$VERS.zip Clus-$VERS
+cd ..
+ls -al release
