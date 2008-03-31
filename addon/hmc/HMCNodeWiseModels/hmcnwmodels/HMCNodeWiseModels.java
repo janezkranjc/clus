@@ -175,7 +175,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				m_Clus.initializeSummary(clss);
 			}
 			
-			String fstr = (String) m_Mappings.get(parentChildName);
+/*			String fstr = (String) m_Mappings.get(parentChildName);
 			if (fstr==null) {
 				System.out.println("geen ftest gevonden voor "+ parentChildName);
 			}
@@ -184,6 +184,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				float ft = Float.valueOf(fstr);
 				m_Clus.getSettings().setFTest(ft);	
 			}
+*/			
 			ClusOutput output = new ClusOutput("nodewise/out/" + name + ".out", cschema, m_Clus.getSettings());
 			ClusStatistic tr_stat = m_Clus.getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
 			cr.getTrainingSet().calcTotalStat(tr_stat);

@@ -1,8 +1,0 @@
-size 10 10
-
-begin graph
-   data beamstats.dat
-   d1 line color red
-   d3 line color blue
-   d4 line color blue
-end graph

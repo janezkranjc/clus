@@ -25,7 +25,7 @@ Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.
 Running Clus
 ------------
 
-Clus is based on Java from <http://java.sun.com>. You will need Java 2 version 1.4.x or above to run Clus. Clus is a command line application and should be started from a command prompt (Windows) or X-Terminal (Unix).
+Clus is based on Java from <http://java.sun.com>. You will need Java 2 version 1.5.x or above to run Clus. Clus is a command line application and should be started from a command prompt (Windows) or X-Terminal (Unix).
 
 To start Clus, enter the command:
 
@@ -49,12 +49,44 @@ Compiling Clus
 (Windows)
 
 cd C:\Clus\src
-javac -cp ".;commons-math-1.0.jar" clus/Clus.java
+javac -cp ".;jars\commons-math-1.0.jar;jars\jgap.jar" clus/Clus.java
 
 (Unix)
 
 cd /home/john/Clus
-javac -cp ".:commons-math-1.0.jar" clus/Clus.java
+javac -cp ".:jars/commons-math-1.0.jar:jars/jgap.jar" clus/Clus.java
+
+Alternatively, use the "./compile.sh" script provided in the Clus main directory.
+
+Compiling Clus with Eclipse
+---------------------------
+
+In Eclips, create a new project for Clus as follows:
+
+Choose File | New | Project.
+
+Select "Java Project" in the dialog box.
+
+In the "New Java Project" dialog box:
+   * Enter "Clus" in the field "Project Name".
+   * Choose "Create project from existing source" and browse to the location where you unzipped Clus.
+     E.g., /home/jan/Clus-1.3 or C:\Clus-1.3.
+   * Click "Next".
+   * Select the "Libraries" tab of the build settings dialog box.
+     Click "Add external jars" and add in this way these three jars:
+        Clus-1.3/jars/commons-math-1.0.jar
+        Clus-1.3/jars/jgap.jar
+        Clus-1.3/jars/weka.jar
+   * Select the "Source" tab and exclude the directory "addon" from the build path.
+     That is, exclude "addon/**" from the source code.
+   * Click "Finish".
+
+Now Clus should be automatically compiled by Eclipse.
+
+To run Clus from Eclipse:
+   * Set as main class "clus.Clus".
+   * Set as arguments the name of your settings file (.s).
+   * Set as working directory, the directory on the file system where your data set is.
 
 Running Clus (if you compiled from the source code)
 ---------------------------------------------------
@@ -62,12 +94,12 @@ Running Clus (if you compiled from the source code)
 (Windows)
 
 cd path\to\appfile.s
-java -cp "C:\Clus;C:\Clus\commons-math-1.0.jar;." clus.Clus appfile
+java -cp "C:\Clus;C:\Clus\jars\commons-math-1.0.jar;C:\Clus\jars\jgap.jar" clus.Clus appfile
 
 (Unix)
 
 cd path/to/appfile.s
-java -cp "/home/john/Clus:/home/john/Clus/commons-math-1.0.jar:." clus.Clus appfile
+java -cp "$HOME/Clus:$HOME/Clus/jars/commons-math-1.0.jar:$HOME/Clus/jars/jgap.jar" clus.Clus appfile
 
 
 Settings overview

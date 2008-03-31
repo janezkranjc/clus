@@ -8,9 +8,13 @@ cp addon/script/compile.sh release/Clus-$VERS/
 cp addon/script/clus.sh release/Clus-$VERS/
 cp -r clus addon data docs jars jeans sit LICENSE.txt README.txt release/Clus-$VERS/
 rm -rf release/Clus-$VERS/jeans/graph/trayicon
+rm -rf release/Clus-$VERS/data/test_m5_prune
 find release/Clus-$VERS/ -name "CVS" -exec rm -rf {} \;
 find release/Clus-$VERS/ -name ".svn" -exec rm -rf {} \;
 find release/Clus-$VERS/ -name ".cvsignore" -exec rm -f {} \;
+find release/Clus-$VERS/data -name "debug.txt" -exec rm -f {} \;
+find release/Clus-$VERS/data -name "*.model" -exec rm -f {} \;
+find release/Clus-$VERS/data -name "*.xval" -exec rm -f {} \;
 cd release/Clus-$VERS/
 . compile.sh
 cd bin
