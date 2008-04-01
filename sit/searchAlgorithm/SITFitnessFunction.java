@@ -49,8 +49,8 @@ public class SITFitnessFunction extends FitnessFunction{
 		
 		
 		//predict a few folds
-		int nbFolds = 20;
-		learner.initXVal(20);
+		int nbFolds = 25;
+		learner.initXVal(25);
 		//learn a model for each fold
 		ArrayList<RowData[]> folds = new ArrayList<RowData[]>();
 		for(int f = 0;f<nbFolds;f++){
@@ -58,9 +58,10 @@ public class SITFitnessFunction extends FitnessFunction{
 		}
 		//return 1.0/tset.size();
 		//tset.add(mainTarget);
-		double error = Evaluator.getPearsonCorrelation(folds,mainTarget.getIndex())+1;
+		double error = 10-Evaluator.getRelativeError(folds,mainTarget.getIndex());
+		
 		//System.out.println(tset);
-		//System.out.println(error);
+		//System.out.println(10-error);
 		return error;
 	}
 	

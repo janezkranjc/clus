@@ -1,6 +1,7 @@
 package sit.searchAlgorithm;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -12,8 +13,8 @@ import sit.mtLearner.MTLearner;
 import clus.data.type.ClusAttrType;
 
 public class GeneticSearch extends SearchAlgorithmImpl{
-	protected MTLearner learner;
-	final protected int MAX_ALLOWED_EVOLUTIONS = 150; 
+	
+	final protected int MAX_ALLOWED_EVOLUTIONS = 50; 
 
 	public TargetSet search(ClusAttrType mainTarget, TargetSet candidates) {
 		//create the configuration, nothing fancy for now
@@ -28,12 +29,14 @@ public class GeneticSearch extends SearchAlgorithmImpl{
 			IChromosome sampleChromosome = new Chromosome(conf,
 					new BooleanGene(conf),candidates.size());
 			conf.setSampleChromosome(sampleChromosome);
-			conf.setPopulationSize(50);
+			conf.setPopulationSize(20);
 			conf.setFitnessFunction(SITFitness);
 			conf.setPreservFittestIndividual(true);
 			conf.setKeepPopulationSizeConstant(false);
 			List l = conf.getGeneticOperators();
 			Iterator i = l.iterator();
+			//binary genes have 1/2 chance of ending up the same after a mutation
+			//---> set a high mutation rate
 			while(i.hasNext()){
 				GeneticOperator o = (GeneticOperator) i.next();
 				if(o instanceof MutationOperator){
@@ -48,12 +51,19 @@ public class GeneticSearch extends SearchAlgorithmImpl{
 
 		//let the evolution commence!
 		Chromosome bestSolutionSoFar = null;
+		Long d = (new Date()).getTime();
 		for( int i = 0; i < MAX_ALLOWED_EVOLUTIONS; i++ )
 		{
 			population.evolve();
 			bestSolutionSoFar = (Chromosome) population.getFittestChromosome();
-			System.out.print("Best fitness so far:"+bestSolutionSoFar.getFitnessValue());
-			System.out.println(" Best support set:"+getTargetSet(candidates,bestSolutionSoFar));
+			
+			Long new_d = (new Date()).getTime();
+			Long dif = new_d - d;
+			d = new_d;
+			
+			System.out.println("Evolution "+(i+1)+" completed in "+dif/1000+" sec.");
+			System.out.print("Best fitness so far:"+(10-bestSolutionSoFar.getFitnessValue()));
+			System.out.println("Best support set:"+getTargetSet(candidates,bestSolutionSoFar));
 			
 		}
 		return getTargetSet(candidates, bestSolutionSoFar);

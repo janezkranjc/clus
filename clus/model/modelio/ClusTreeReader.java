@@ -90,10 +90,27 @@ public class ClusTreeReader {
 		/* Read tree */
 		ClusNode root = null;
 		if (line != null) {
+			
 			root = readTree(line, rdr);
 		}
 		line = getFirstNonEmptyLine(rdr);
 		m_LineAfterTree = line;
+		rdr.close();
+		return root;
+	}		
+	
+	public ClusNode loadTreeTree(String fname, ClusSchema schema) throws IOException {
+		m_FName = fname;
+		m_Schema = schema;
+		m_NoPartialTree = true;
+		System.out.println("Loading .tree file: "+fname);
+		LineNumberReader rdr = new LineNumberReader(new InputStreamReader(new FileInputStream(fname)));
+		String line = rdr.readLine();
+		
+		/* Read tree */
+		ClusNode root = null;
+		root = readTree(line, rdr);
+		
 		rdr.close();
 		return root;
 	}		
@@ -107,7 +124,7 @@ public class ClusTreeReader {
 	
 	public ClusNode readTree(String line) throws IOException {
 		String trim = line.trim();
-		// System.out.println("Reading: '"+line+"'");
+		System.out.println("Reading: '"+line+"'");
 		ClusNode result = new ClusNode();		
 		if (!trim.equals("?")) {
 			int arity = 2;

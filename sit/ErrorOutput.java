@@ -1,0 +1,46 @@
+package sit;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import clus.main.Settings;
+
+public class ErrorOutput {
+	protected PrintWriter m_Writer;
+	protected Settings m_Sett;
+	
+	public ErrorOutput(Settings sett){
+		this.m_Sett=sett;
+		try {
+			m_Writer = m_Sett.getFileAbsoluteWriter(m_Sett.getAppName()+".err");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void writeHeader() throws IOException {
+		m_Writer.println("@relation experiment");
+		m_Writer.println("@attribute Dataset {"+m_Sett.getDataFile()+"}");
+		m_Writer.println("@attribute Run numeric");
+		m_Writer.println("@attribute Fold numeric");//TODO automaticly adjust to nr of folds, 10 is the default
+		m_Writer.println("@attribute Learner string");
+		m_Writer.println("@attribute Search string");
+		m_Writer.println("@attribute MainTarget numeric");
+		//the errors
+		m_Writer.println("@attribute PearsonCorrelation numeric");
+		//support targets
+		m_Writer.println("@attribute SupportTargets string");
+		m_Writer.println("@data");
+
+		m_Writer.flush();
+	}
+	
+	public void addFold(int run,int fold, String learner,String search,String mt, double correlation, String sts, double dt, double dp){
+		m_Writer.println(m_Sett.getDataFile()+","+run+","+fold+","+learner+","+search+","+mt+","+correlation+","+sts+","+dt+","+dp);
+		m_Writer.flush();
+	}
+	
+}

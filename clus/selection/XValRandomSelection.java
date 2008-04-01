@@ -62,7 +62,6 @@ public class XValRandomSelection extends XValMainSelection {
 	}
 	
 	public void createLeaveOneOutXVAL(int nbtot) {
-		System.out.println("Performing Leave-One-Out XVAL");
 		m_Selection = new int[nbtot];
 		for (int i = 0; i < nbtot; i++) {
 			m_Selection[i] = i;

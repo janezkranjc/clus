@@ -73,6 +73,7 @@ public class MSError extends ClusNumericError {
 	
 	public double getModelErrorComponent(int i) {
 		int nb = getNbExamples();
+	//	System.out.println(m_SumErr[i]);
 		double err = nb != 0.0 ? m_SumErr[i]/nb : 0.0;
 		if (m_Weights != null) err *= m_Weights.getWeight(getAttr(i));
 		return err;
@@ -140,6 +141,17 @@ public class MSError extends ClusNumericError {
 			m_SumSqErr[i] += sqr(err);
 		}		
 	}
+	
+	public void addExample(DataTuple real, DataTuple pred) {
+		for (int i = 0; i < m_Dim; i++) {
+				double real_i = getAttr(i).getNumeric(real);
+				double predicted_i = getAttr(i).getNumeric(pred);
+				double err = real_i - predicted_i;
+				m_SumErr[i] += err;
+				m_SumSqErr[i] += sqr(err);
+			
+		}		
+	}	
 	
 	public void addInvalid(DataTuple tuple) {
 	}

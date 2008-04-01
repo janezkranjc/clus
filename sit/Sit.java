@@ -6,6 +6,7 @@ import java.util.Date;
 
 import sit.mtLearner.AvgLearner;
 import sit.mtLearner.ClusLearner;
+import sit.mtLearner.KNNLearner;
 import sit.mtLearner.MTLearner;
 import sit.searchAlgorithm.AllTargets;
 import sit.searchAlgorithm.GeneticSearch;
@@ -129,7 +130,8 @@ public class Sit implements CMDLineArgsProvider{
 	 * Initialize the MTLearner with the current data and settings.
 	 */
 	private void InitLearner() {
-		this.m_Learner = new ClusLearner();
+		//this.m_Learner = new ClusLearner();
+		this.m_Learner = new KNNLearner();
 		//this.m_Learner = new AvgLearner();
 		this.m_Learner.init(this.m_Data,this.m_Sett);
 		int mt = new Integer(m_Sett.getMainTarget())-1;
@@ -142,8 +144,9 @@ public class Sit implements CMDLineArgsProvider{
 	 * Initialize the MTLearner with partial data for XVAL.
 	 */
 	private void InitLearner(RowData data) {
-		this.m_Learner = new ClusLearner();
+		//this.m_Learner = new ClusLearner();
 		//this.m_Learner = new AvgLearner();
+		this.m_Learner =  new KNNLearner();
 		this.m_Learner.init(data,this.m_Sett);
 		int mt = new Integer(m_Sett.getMainTarget())-1;
 		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
@@ -154,8 +157,8 @@ public class Sit implements CMDLineArgsProvider{
 	 * Initialize the SearchAlgorithm
 	 */
 	private void InitSearchAlgorithm() {
-		//this.m_Search = new GeneticSearch();
-		this.m_Search = new GreedySIT();
+		this.m_Search = new GeneticSearch();
+		//this.m_Search = new GreedySIT();
 		//this.m_Search = new AllTargets();
 		//this.m_Search = new OneTarget();
 		//this.m_Search = new GivenTargets();
@@ -231,7 +234,7 @@ public class Sit implements CMDLineArgsProvider{
 				
 		double finalerror = Evaluator.getPearsonCorrelation(folds,errorIdx);
 		
-		errOut.addFold(0,0,m_Learner.getName(),m_Search.getName(),Integer.toString(mt),finalerror,"["+trgset.toString()+"]");
+		//errOut.addFold(0,0,m_Learner.getName(),m_Search.getName(),Integer.toString(mt+1),finalerror,"["+trgset.toString()+"]");
 		
 		
 	}
@@ -243,7 +246,7 @@ public class Sit implements CMDLineArgsProvider{
 		System.out.println("Starting XVal run");
 		
 		XValRandomSelection m_XValSel = null;
-		int nrFolds = 10;
+		int nrFolds = 26;
 		try {
 			
 			m_XValSel = new XValRandomSelection(m_Data.getNbRows(),nrFolds);
@@ -271,8 +274,16 @@ public class Sit implements CMDLineArgsProvider{
 			m_Learner.setTestData(test);
 			RowData[] predictions = m_Learner.LearnModel(searchResult);
 			
-			double error = Evaluator.getPearsonCorrelation(predictions, errorIdx);
-			errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt),error,"\""+searchResult.toString()+" \"");
+			
+			RowData t = predictions[0];
+			DataTuple tt = t.getTuple(0);
+			double dt = mainTarget.getNumeric(tt);
+			RowData p = predictions[1];
+			DataTuple tp = p.getTuple(0);
+			double dp = mainTarget.getNumeric(tp);
+			
+			double error = Evaluator.getRelativeError(predictions, errorIdx);
+			errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt),error,"\""+searchResult.toString()+" \"",dt,dp);
 		}
 		
 		
