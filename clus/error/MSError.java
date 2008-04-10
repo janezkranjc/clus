@@ -97,9 +97,7 @@ public class MSError extends ClusNumericError {
 			return nb != 0.0 ? ss_tree/nb/m_Dim : 0.0;
 		}
 	}
-	
-	
-	
+		
 	public double getModelErrorStandardError() {
 		double sum_err = 0.0;
 		double sum_sq_err = 0.0;
@@ -144,12 +142,11 @@ public class MSError extends ClusNumericError {
 	
 	public void addExample(DataTuple real, DataTuple pred) {
 		for (int i = 0; i < m_Dim; i++) {
-				double real_i = getAttr(i).getNumeric(real);
-				double predicted_i = getAttr(i).getNumeric(pred);
-				double err = real_i - predicted_i;
-				m_SumErr[i] += err;
-				m_SumSqErr[i] += sqr(err);
-			
+			double real_i = getAttr(i).getNumeric(real);
+			double predicted_i = getAttr(i).getNumeric(pred);
+			double err = sqr(real_i - predicted_i);
+			m_SumErr[i] += err;
+			m_SumSqErr[i] += sqr(err);			
 		}		
 	}	
 	

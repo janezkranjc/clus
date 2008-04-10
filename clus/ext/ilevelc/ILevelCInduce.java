@@ -393,7 +393,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 	}		
 			
 	public void iLevelCInduce(ClusNode root) throws ClusException {
-		double ss = root.estimateSS(m_Scale);		
+		double ss = root.estimateClusteringSS(m_Scale);		
 		int[] clusters = assignAllInstances(root);
 		int violated = countViolatedConstaints(clusters);
 		computeHeuristic(violated, ss);
@@ -412,7 +412,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 				enterBestTest(root, root, clusters);
 				System.out.println("Tree:");
 				root.printTree();
-				ss = root.estimateSS(m_Scale);		
+				ss = root.estimateClusteringSS(m_Scale);		
 				clusters = assignAllInstances(root);
 				violated = countViolatedConstaints(clusters);
 				double heur = computeHeuristic(violated, ss);

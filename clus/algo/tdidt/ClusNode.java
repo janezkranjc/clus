@@ -561,18 +561,18 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 
 	public double estimateError(ClusAttributeWeights scale) {
-		return estimateErrorRecursive(this, scale) / getClusteringStat().getTotalWeight();
+		return estimateErrorRecursive(this, scale) / getTargetStat().getTotalWeight();
 	}
 	
-	public double estimateSS(ClusAttributeWeights scale) {
-		return estimateSSRecursive(this, scale);
+	public double estimateClusteringSS(ClusAttributeWeights scale) {
+		return estimateClusteringSSRecursive(this, scale);
 	}
 	
-	public double estimateVariance(ClusAttributeWeights scale) {
-		return estimateSSRecursive(this, scale) / getClusteringStat().getTotalWeight();
+	public double estimateClusteringVariance(ClusAttributeWeights scale) {
+		return estimateClusteringSSRecursive(this, scale) / getClusteringStat().getTotalWeight();
 	}	
 	
-	public static double estimateSSRecursive(ClusNode tree, ClusAttributeWeights scale) {
+	public static double estimateClusteringSSRecursive(ClusNode tree, ClusAttributeWeights scale) {
 		if (tree.atBottomLevel()) {
 			ClusStatistic total = tree.getClusteringStat();
 			return total.getSS(scale);
@@ -580,7 +580,7 @@ public class ClusNode extends MyNode implements ClusModel {
 			double result = 0.0;
 			for (int i = 0; i < tree.getNbChildren(); i++) {
 				ClusNode child = (ClusNode)tree.getChild(i);
-				result += estimateSSRecursive(child, scale);
+				result += estimateClusteringSSRecursive(child, scale);
 			}
 			return result;
 		}
@@ -606,8 +606,7 @@ public class ClusNode extends MyNode implements ClusModel {
 		if (tree.atBottomLevel()) {
 			ClusStatistic total = tree.getTargetStat();
 			//System.out.println("CLUSNODE error at leaf is "+total.getErrorRel());
-			return total.getError();
-			
+			return total.getError();			
 		} else {
 			double result = 0.0;
 			for (int i = 0; i < tree.getNbChildren(); i++) {

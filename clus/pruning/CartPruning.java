@@ -89,7 +89,7 @@ public class CartPruning extends PruneTree {
 	public void initU(ClusNode node) {
 		CartVisitor cart = (CartVisitor)node.getVisitor();
 		m_U1 = 1 + cart.delta_u1;
-		m_U2 = node.getTargetStat().getError(m_Weights) + cart.delta_u2;		
+		m_U2 = node.getClusteringStat().getSS(m_Weights) + cart.delta_u2;		
 		// System.out.println("Leaves: "+m_U1+" error: "+m_U2);
 	}
 	
@@ -170,28 +170,12 @@ public class CartPruning extends PruneTree {
 			cart.lambda_min = Double.POSITIVE_INFINITY;
 		} else {
 			cart.delta_u1 = node.getNbLeaves() - 1;
-			double leaf_err = node.getTargetStat().getError(m_Weights);
-			double tree_err = node.estimateErrorAbsolute(m_Weights);
+			double leaf_err = node.getClusteringStat().getSS(m_Weights);
+			double tree_err = node.estimateClusteringSS(m_Weights);
 			cart.delta_u2 = tree_err - leaf_err;
 			updateLambda(node);
 			updateLambdaMin(node);
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

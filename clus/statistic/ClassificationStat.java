@@ -290,8 +290,8 @@ public class ClassificationStat extends ClusStatistic {
 	public void calcMean() {
 		m_MajorityClasses = new int[m_NbTarget];
 		for (int i = 0; i < m_NbTarget; i++) {
-      m_MajorityClasses[i] = getMajorityClass(i); 
-    }
+			m_MajorityClasses[i] = getMajorityClass(i); 
+		}
 	}
 
   /**
@@ -603,7 +603,4 @@ public class ClassificationStat extends ClusStatistic {
 			for (int j = 0; j < my.length; j++) my[j] += your[j]/total;
 		}
 	}
-	
-	
-	
 }

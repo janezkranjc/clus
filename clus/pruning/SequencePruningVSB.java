@@ -106,7 +106,7 @@ public class SequencePruningVSB extends PruneTree {
 				resize(vsb_errors, max_idx+1); resize(train_errors, max_idx+1); resize(sizes, max_idx+1);
 				ClusError vsb_err = TreeErrorComputer.computeErrorOptimized(pruned, m_VSB, m_Error, m_HasMissing);
 				vsb_errors.set(max_idx, vsb_err);	
-				train_errors.set(max_idx, new Double(pruned.estimateError(m_Weights)));	
+				train_errors.set(max_idx, new Double(pruned.estimateClusteringSS(m_Weights)));	
 				sizes.set(max_idx, new Integer(pruned.getNbNodes()));	
 			}
 		}

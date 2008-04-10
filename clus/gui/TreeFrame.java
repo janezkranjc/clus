@@ -324,7 +324,7 @@ public class TreeFrame extends JFrame {
 		String relerr = ClusFormat.SIX_AFTER_DOT.format(root.estimateError(scale));
 		String abserr = ""+root.estimateErrorAbsolute(scale);
 		buf.append("Examples: "+root.getClusteringStat().m_SumWeight+"\n");		
-		buf.append("Error: "+relerr+" ("+abserr+") ss = "+root.estimateSS(scale)+" ("+scale.getName()+")\n");
+		buf.append("Error: "+relerr+" ("+abserr+") ss = "+root.estimateClusteringSS(scale)+" ("+scale.getName()+")\n");
 		buf.append("Statistic: "+root.getClusteringStat());
 		m_TextArea.setText(buf.toString());
 	}			

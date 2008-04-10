@@ -71,7 +71,7 @@ public class M5Pruner extends PruneTree {
 		RegressionStat stat = (RegressionStat)node.getClusteringStat();
 		double rmsLeaf = stat.getRMSE(m_ClusteringWeights);
 		double adjustedErrorLeaf = rmsLeaf * pruningFactor(stat.getTotalWeight(), 1);		
-		double rmsSubTree = Math.sqrt(node.estimateSS(m_ClusteringWeights)/stat.getTotalWeight());
+		double rmsSubTree = Math.sqrt(node.estimateClusteringSS(m_ClusteringWeights)/stat.getTotalWeight());
 		double adjustedErrorTree = rmsSubTree * pruningFactor(stat.getTotalWeight(), node.getModelSize());
 		// System.out.println("C mode: "+rmsModel+" tree: "+rmsSubTree);
 		// System.out.println("C modeadj: "+adjustedErrorModel +" treeadj: "+adjustedErrorNode);
