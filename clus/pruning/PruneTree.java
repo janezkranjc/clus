@@ -23,7 +23,9 @@
 package clus.pruning;
 
 import clus.algo.tdidt.*;
+import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.*;
+import clus.error.ClusErrorList;
 import clus.util.*;
 
 public class PruneTree {
@@ -65,6 +67,10 @@ public class PruneTree {
 	}
 	
 	public void sequenceToElemK(ClusNode node, int k) {
+	}
+	
+	public ClusErrorList createErrorMeasure(RowData data, ClusAttributeWeights weights) {
+		return null;
 	}
 	
 	public ClusNode getCurrentTree() {

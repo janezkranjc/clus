@@ -42,15 +42,15 @@ public class SequencePruningVSB extends PruneTree {
 	protected boolean m_HasMissing;
 	protected String m_Output;
 	
-	public SequencePruningVSB(RowData data, ClusErrorList error, ClusAttributeWeights weights) {
+	public SequencePruningVSB(RowData data, ClusAttributeWeights weights) {
 			m_VSB = data;
-			m_Error = error;
 			m_Weights = weights;
 			m_HasMissing = true;
 	}
 
 	public void setSequencePruner(PruneTree pruner) {
 		m_SeqPruner = pruner;
+		m_Error = pruner.createErrorMeasure(m_VSB, m_Weights);
 	}
 	
 	public PruneTree getSequencePruner() {
@@ -104,7 +104,7 @@ public class SequencePruningVSB extends PruneTree {
 			} else {
 				max_idx++;
 				resize(vsb_errors, max_idx+1); resize(train_errors, max_idx+1); resize(sizes, max_idx+1);
-				ClusError vsb_err = TreeErrorComputer.computeErrorOptimized(pruned, m_VSB, m_Error, m_HasMissing);
+				ClusError vsb_err = TreeErrorComputer.computeClusteringErrorStandard(pruned, m_VSB, m_Error);
 				vsb_errors.set(max_idx, vsb_err);	
 				train_errors.set(max_idx, new Double(pruned.estimateClusteringSS(m_Weights)));	
 				sizes.set(max_idx, new Integer(pruned.getNbNodes()));	

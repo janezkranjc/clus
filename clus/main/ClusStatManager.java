@@ -410,31 +410,21 @@ public class ClusStatManager implements Serializable {
 	public void initStatistic() throws ClusException {
 		m_StatisticAttrUse = new ClusStatistic[ClusAttrType.NB_ATTR_USE];
 		// Statistic over all attributes
-		NumericAttrType[] num1 = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
-		NominalAttrType[] nom1 = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
-		m_StatisticAttrUse[ClusAttrType.ATTR_USE_ALL] = new CombStat(this,
-				num1, nom1);
+		NumericAttrType[] num1 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+		NominalAttrType[] nom1 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+		m_StatisticAttrUse[ClusAttrType.ATTR_USE_ALL] = new CombStat(this, num1, nom1);
 		// Statistic over all target attributes
-		NumericAttrType[] num2 = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom2 = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = createSuitableStat(
-				num2, nom2);
+		NumericAttrType[] num2 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom2 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = createSuitableStat(num2, nom2);
 		// Statistic over clustering attributes
-		NumericAttrType[] num3 = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		NominalAttrType[] nom3 = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NumericAttrType[] num3 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NominalAttrType[] nom3 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		if (num3.length != 0 || nom3.length != 0) {
 			if (heuristicNeedsCombStat()) {
-				m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = new CombStat(
-						this, num3, nom3);
+				m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = new CombStat(this, num3, nom3);
 			} else {
-				m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = createSuitableStat(
-						num3, nom3);
+				m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = createSuitableStat(num3, nom3);
 			}
 		}
 		switch (m_Mode) {
@@ -576,7 +566,6 @@ public class ClusStatManager implements Serializable {
 		if (num.length > 0 && nom.length > 0) {
 			throw new ClusException("Combined heuristic not yet implemented for trees!");
 		} else if (num.length > 0) {
-			// TODO: Is this true?
 			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT &&
 				getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
 				throw new ClusException("Only SS-Reduction (default) heuristic can be used for regression trees!");
@@ -590,8 +579,11 @@ public class ClusStatManager implements Serializable {
 				m_Heuristic = new ReducedErrorHeuristic(createClusteringStat());
 			} /*else if (getSettings().getHeuristic() == Settings.HEURISTIC_GENETIC_DISTANCE) {
 				m_Heuristic = new GeneticDistanceHeuristic();
-			}*/ else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {
-				m_Heuristic = new GainHeuristic(true);				
+			}*/ 
+			else if (getSettings().getHeuristic() == Settings.HEURISTIC_SS_REDUCTION) {
+				m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
+			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {
+				m_Heuristic = new GainHeuristic(true);
 			} else {
 				if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && 
 				    getSettings().getHeuristic() != Settings.HEURISTIC_GAIN) {
@@ -686,10 +678,8 @@ public class ClusStatManager implements Serializable {
 
 	public ClusErrorList createDefaultError() {
 		ClusErrorList parent = new ClusErrorList();
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			parent.addError(new MisclassificationError(parent, nom));
 		}
@@ -713,7 +703,7 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new MisclassificationError(parent, nom));
 		}
 		if (num.length != 0) {
-			parent.addError(new MSError(parent, num,getClusteringWeights()));
+			parent.addError(new MSError(parent, num, getClusteringWeights()));
 		}
 		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
@@ -811,18 +801,13 @@ public class ClusStatManager implements Serializable {
 			return hierpruner;
 		}
 		if (pruneset != null) {
-			if (pm == Settings.PRUNING_METHOD_GAROFALAKIS_VSB
-					|| pm == Settings.PRUNING_METHOD_CART_VSB) {
-				ClusErrorList parent = createAdditiveError();
-				SequencePruningVSB pruner = new SequencePruningVSB(
-						(RowData) pruneset, parent, getClusteringWeights());
+			if (pm == Settings.PRUNING_METHOD_GAROFALAKIS_VSB || pm == Settings.PRUNING_METHOD_CART_VSB) {
+				SequencePruningVSB pruner = new SequencePruningVSB((RowData) pruneset, getClusteringWeights());
 				if (pm == Settings.PRUNING_METHOD_GAROFALAKIS_VSB) {
 					int maxsize = sett.getMaxSize();
-					pruner.setSequencePruner(new SizeConstraintPruning(maxsize,
-							getClusteringWeights()));
+					pruner.setSequencePruner(new SizeConstraintPruning(maxsize,	getClusteringWeights()));
 				} else {
-					pruner.setSequencePruner(new CartPruning(
-							getClusteringWeights()));
+					pruner.setSequencePruner(new CartPruning(getClusteringWeights()));
 				}
 				pruner.setOutputFile(sett.getFileAbsolute("prune.dat"));
 				pruner.set1SERule(sett.get1SERule());

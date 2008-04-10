@@ -444,6 +444,28 @@ public class ClusNode extends MyNode implements ClusModel {
 		}
 	}
 	
+	public ClusStatistic clusterWeighted(DataTuple tuple) {
+		if (atBottomLevel()) {
+			return getClusteringStat();
+		} else {
+			int n_idx = m_Test.predictWeighted(tuple);
+			if (n_idx != -1) {
+				ClusNode info = (ClusNode)getChild(n_idx);
+				return info.clusterWeighted(tuple);
+			} else {
+				int nb_c = getNbChildren();
+				ClusStatistic stat = getClusteringStat().cloneSimple();
+				for (int i = 0; i < nb_c; i++) {
+					ClusNode node = (ClusNode)getChild(i);
+					ClusStatistic nodes = node.clusterWeighted(tuple);
+					stat.addPrediction(nodes, m_Test.getProportion(i));
+				}
+				stat.computePrediction();
+				return stat;
+			}
+		}
+	}	
+	
 	public final void applyModelProcessor(DataTuple tuple, ClusModelProcessor proc) throws IOException {
 		int nb_c = getNbChildren();
 		if (nb_c == 0 || proc.needsInternalNodes()) proc.modelUpdate(tuple, this);

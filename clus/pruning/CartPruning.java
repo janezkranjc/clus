@@ -24,6 +24,17 @@ package clus.pruning;
 
 import clus.algo.tdidt.*;
 import clus.data.attweights.*;
+import clus.data.rows.RowData;
+import clus.data.type.ClusAttrType;
+import clus.data.type.ClusSchema;
+import clus.data.type.NominalAttrType;
+import clus.data.type.NumericAttrType;
+import clus.data.type.TimeSeriesAttrType;
+import clus.error.ClusErrorList;
+import clus.error.MSError;
+import clus.error.MisclassificationError;
+import clus.error.QDMRMSError;
+import clus.ext.hierarchical.HierClassWiseAccuracy;
 import clus.util.*;
 
 public class CartPruning extends PruneTree {
@@ -54,6 +65,21 @@ public class CartPruning extends PruneTree {
 		}
 	}
 
+	public ClusErrorList createErrorMeasure(RowData data, ClusAttributeWeights weights) {
+		ClusSchema schema = data.getSchema();
+		ClusErrorList parent = new ClusErrorList();
+		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NominalAttrType[] nom = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		if (nom.length != 0) {
+			parent.addError(new MisclassificationError(parent, nom));
+		}
+		if (num.length != 0) {
+			parent.addError(new MSError(parent, num, weights));
+		}
+		parent.setWeights(weights);
+		return parent;
+	}
+	
 	public void sequenceInitialize(ClusNode node) {
 		TreeErrorComputer.recursiveInitialize(node, new CartVisitor());
 		setOriginalTree(node);		

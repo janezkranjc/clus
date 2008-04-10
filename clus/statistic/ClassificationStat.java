@@ -273,6 +273,36 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		return -acc/MathUtil.M_LN2;
 	}	
+
+	public double gini(int attr) {
+		if (m_SumWeight == 0) {
+			return 0.0;
+		} else {
+			double sum = 0.0;
+			double[] clcts = m_ClassCounts[attr];
+			for (int i = 0; i < clcts.length; i++) {
+				double prob = clcts[i]/m_SumWeight;
+				sum += prob*prob;
+			}
+			return 1.0 - sum;
+		}
+	}
+	
+	public double giniDifference(int attr, ClassificationStat other) {
+		double wDiff = m_SumWeight - other.m_SumWeight;
+		if (wDiff == 0) {
+			return 0.0;
+		} else {
+			double sum = 0.0;
+			double[] clcts = m_ClassCounts[attr];
+			double[] otcts = other.m_ClassCounts[attr];
+			for (int i = 0; i < clcts.length; i++) {
+				double diff = clcts[i] - otcts[i];
+				sum += (diff/wDiff)*(diff/wDiff);
+			}
+			return 1.0 - sum;
+		}
+	}	
 	
 	public static double computeSplitInfo(double sum_tot, double sum_pos, double sum_neg) {
 		if (sum_pos == 0.0)
@@ -519,7 +549,7 @@ public class ClassificationStat extends ClusStatistic {
 		double result = 0.0;
 		double sum = m_SumWeight;
 		for (int i = 0; i < m_NbTarget; i++) {
-			result += entropy(i, sum) * sum; 
+			result += gini(i) * sum; 
 		}
 		return result / m_NbTarget;
 	}
@@ -529,7 +559,7 @@ public class ClassificationStat extends ClusStatistic {
 		double sum = m_SumWeight - other.m_SumWeight;
 		ClassificationStat cother = (ClassificationStat)other;
 		for (int i = 0; i < m_NbTarget; i++) {
-			result += entropyDifference(i, cother, sum) * sum; 
+			result += giniDifference(i, cother) * sum; 
 		}
 		return result / m_NbTarget;		
 	}

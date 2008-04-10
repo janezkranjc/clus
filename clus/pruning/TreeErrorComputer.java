@@ -80,6 +80,22 @@ public class TreeErrorComputer extends ClusModelProcessor {
 //		}
 	}
 	
+	public static ClusError computeClusteringErrorStandard(ClusNode tree, RowData test, ClusErrorList error) {
+		error.reset();
+		error.setNbExamples(test.getNbRows());
+		ClusError child_err = error.getFirstError().getErrorClone();
+		TreeErrorComputer.computeClusteringErrorStandard(tree, test, child_err);
+		return child_err;
+	}
+
+	public static void computeClusteringErrorStandard(ClusNode tree, RowData test, ClusError error) {
+		for (int i = 0; i < test.getNbRows(); i++) {
+			DataTuple tuple = test.getTuple(i);
+			ClusStatistic pred = tree.clusterWeighted(tuple);			
+			error.addExample(tuple, pred);
+		}
+	}
+	
 	public static void computeErrorStandard(ClusNode tree, RowData test, ClusError error) {
 		for (int i = 0; i < test.getNbRows(); i++) {
 			DataTuple tuple = test.getTuple(i);

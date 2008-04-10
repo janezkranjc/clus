@@ -77,7 +77,7 @@ public class NumericTest extends NodeTest {
 	}
 	
 	public String getString() {
-		String value = m_Bound != Double.NEGATIVE_INFINITY ? NumberFormat.getInstance().format(m_Bound) : "?"; 
+		String value = m_Bound != Double.NEGATIVE_INFINITY ? String.valueOf(m_Bound) : "?"; 
 		return m_Type.getName() + " > " + value;
 	}
 	
