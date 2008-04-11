@@ -300,29 +300,20 @@ public class Settings implements Serializable {
  ***********************************************************************/	
 	protected INIFileSection m_SectionSIT;
 	protected INIFileString m_MainTarget;
-	protected INIFileString m_VariantName;
+	protected INIFileString m_Search;
+	protected INIFileString m_Learner;
 	protected INIFileBool m_Recursive;
 	
 	public String getMainTarget() {
 		return m_MainTarget.getValue();
 	}
 	
-	public String getVariantName() {
-		return m_VariantName.getValue();
+	public String getSearchName() {
+		return m_Search.getValue();
 	}
 	
-	
-	
-	public boolean getRecursive() {
-		return m_Recursive.getValue();
-	}
-	
-	public void setRecursive(boolean b) {
-		m_Recursive.setValue(b);
-	}
-
-	public void setVariantName(String b) {
-		m_VariantName.setValue(b);
+	public void setSearch(String b) {
+		m_Search.setValue(b);
 	}
 	
 	public void setMainTarget(String str) {
@@ -1326,7 +1317,8 @@ public class Settings implements Serializable {
 		m_SectionSIT = new INIFileSection("SIT");
 		m_SectionSIT.addNode(m_MainTarget = new INIFileString("Main_target", DEFAULT));
 		m_SectionSIT.addNode(m_Recursive = new INIFileBool("Recursive",false));
-		m_SectionSIT.addNode(m_VariantName = new INIFileString("Variant", DEFAULT));
+		m_SectionSIT.addNode(m_Search = new INIFileString("Search","OneTarget"));
+		m_SectionSIT.addNode(m_Learner = new INIFileString("Learner","ClusLearner"));
 
     	INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic",	NONE));

@@ -4,14 +4,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.jgap.Chromosome;
+
 import sit.mtLearner.AvgLearner;
 import sit.mtLearner.ClusLearner;
 import sit.mtLearner.KNNLearner;
 import sit.mtLearner.MTLearner;
 import sit.searchAlgorithm.AllTargets;
 import sit.searchAlgorithm.GeneticSearch;
-import sit.searchAlgorithm.GivenTargets;
 import sit.searchAlgorithm.GreedySIT;
+import sit.searchAlgorithm.NoStopSearch;
+import sit.searchAlgorithm.OneMax;
 import sit.searchAlgorithm.OneTarget;
 import sit.searchAlgorithm.SearchAlgorithm;
 
@@ -130,8 +133,8 @@ public class Sit implements CMDLineArgsProvider{
 	 * Initialize the MTLearner with the current data and settings.
 	 */
 	private void InitLearner() {
-		//this.m_Learner = new ClusLearner();
-		this.m_Learner = new KNNLearner();
+		this.m_Learner = new ClusLearner();
+		//this.m_Learner = new KNNLearner();
 		//this.m_Learner = new AvgLearner();
 		this.m_Learner.init(this.m_Data,this.m_Sett);
 		int mt = new Integer(m_Sett.getMainTarget())-1;
@@ -144,9 +147,9 @@ public class Sit implements CMDLineArgsProvider{
 	 * Initialize the MTLearner with partial data for XVAL.
 	 */
 	private void InitLearner(RowData data) {
-		//this.m_Learner = new ClusLearner();
+		this.m_Learner = new ClusLearner();
 		//this.m_Learner = new AvgLearner();
-		this.m_Learner =  new KNNLearner();
+		//this.m_Learner =  new KNNLearner();
 		this.m_Learner.init(data,this.m_Sett);
 		int mt = new Integer(m_Sett.getMainTarget())-1;
 		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
@@ -157,11 +160,32 @@ public class Sit implements CMDLineArgsProvider{
 	 * Initialize the SearchAlgorithm
 	 */
 	private void InitSearchAlgorithm() {
-		this.m_Search = new GeneticSearch();
-		//this.m_Search = new GreedySIT();
-		//this.m_Search = new AllTargets();
-		//this.m_Search = new OneTarget();
-		//this.m_Search = new GivenTargets();
+		String search = m_Sett.getSearchName();
+		if(search.equals("OneTarget")){
+			this.m_Search = new OneTarget();
+			System.out.println("Search = single target");
+		}
+		else if(search.equals("AllTargets")){
+			this.m_Search = new AllTargets();
+			System.out.println("Search = full multi target");
+		}
+		else if(search.equals("GeneticSearch")){
+			this.m_Search = new GeneticSearch();
+			System.out.println("Search = Genetic search strategy");
+		}
+		else if(search.equals("SIT")){
+			this.m_Search = new GreedySIT();
+			System.out.println("Search = SIT, with stop criterion");
+		}
+		else if(search.equals("NoStop")){
+			this.m_Search = new NoStopSearch();
+			System.out.println("Search = SIT, no stop criterion");
+		}
+		else{
+			System.err.println("Search strategy unknown!");
+		}
+		
+		
 		this.m_Search.setMTLearner(this.m_Learner);
 		
 			
@@ -222,7 +246,7 @@ public class Sit implements CMDLineArgsProvider{
 		//compute the error of the final set
 		int mt = new Integer(m_Sett.getMainTarget())-1;
 		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
-		int	errorIdx = mainTarget.getIndex();
+		int	errorIdx = mainTarget.getArrayIndex();
 		//predict a few folds
 		int nbFolds = 20;
 		this.m_Learner.initXVal(nbFolds);
@@ -246,7 +270,7 @@ public class Sit implements CMDLineArgsProvider{
 		System.out.println("Starting XVal run");
 		
 		XValRandomSelection m_XValSel = null;
-		int nrFolds = 26;
+		int nrFolds = 10;
 		try {
 			
 			m_XValSel = new XValRandomSelection(m_Data.getNbRows(),nrFolds);
@@ -256,7 +280,7 @@ public class Sit implements CMDLineArgsProvider{
 		
 		int mt = new Integer(m_Sett.getMainTarget())-1;
 		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
-		int errorIdx = mainTarget.getIndex();
+		int errorIdx = mainTarget.getArrayIndex();
 		
 		for(int i=0;i<nrFolds;i++){
 			System.out.println("Outer XVAL fold "+(i+1));
@@ -267,23 +291,32 @@ public class Sit implements CMDLineArgsProvider{
 			InitLearner(train);
 			/* Init the Search algorithm */
 			InitSearchAlgorithm();
-			TargetSet searchResult = search();
 			
+			
+			Long d = (new Date()).getTime();
+			TargetSet searchResult = search();
 			
 			//find the error
 			m_Learner.setTestData(test);
 			RowData[] predictions = m_Learner.LearnModel(searchResult);
 			
-			
+			/*
 			RowData t = predictions[0];
 			DataTuple tt = t.getTuple(0);
 			double dt = mainTarget.getNumeric(tt);
 			RowData p = predictions[1];
 			DataTuple tp = p.getTuple(0);
 			double dp = mainTarget.getNumeric(tp);
+			*/
+			Long new_d = (new Date()).getTime();
+			Long dif = new_d - d;
 			
-			double error = Evaluator.getRelativeError(predictions, errorIdx);
-			errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt),error,"\""+searchResult.toString()+" \"",dt,dp);
+			
+			double error = Evaluator.getPearsonCorrelation(predictions, errorIdx);
+			double error2 = Evaluator.getMSE(predictions, errorIdx);
+			//errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt),error,"\""+searchResult.toString()+" \"",dt,dp);
+			errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt+1),error,error2,"\""+searchResult.toString()+" \"",dif);
+			
 		}
 		
 		
@@ -327,14 +360,9 @@ public class Sit implements CMDLineArgsProvider{
 		
 		
 		/* Search for the optimal subset */
-			sit.m_SearchSelection = 1;
-			sit.XValRun();
-			
-		
+		sit.m_SearchSelection = 1;
+		sit.XValRun();
+				
 		System.out.println("Finished");
-		
-		
 	}
-
-	
 }

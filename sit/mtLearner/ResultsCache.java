@@ -27,9 +27,11 @@ public class ResultsCache {
 	}
 	
 	public void addResult(TargetSet targetset, RowData[] testpred ){
+		/* Running out of heapspace on the large datasets...
 		m_TargetSets.add(targetset);
 		m_TestData.add(testpred[0]);
 		m_Predictions.add(testpred[1]);
+		*/
 	}
 	
 	

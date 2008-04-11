@@ -66,6 +66,11 @@ public class PearsonCorrelation extends ClusNumericError {
 		int nb = getNbExamples();		
 		
 		double Pi_ss = m_SumSPi[i]-m_SumPi[i]*m_SumPi[i]/nb;
+		
+		if(Pi_ss == 0){
+			//constant prediction case
+			return 0;
+		}
 		double Ai_ss = m_SumSAi[i]-m_SumAi[i]*m_SumAi[i]/nb;
 
 		double root = Math.sqrt(Pi_ss*Ai_ss);

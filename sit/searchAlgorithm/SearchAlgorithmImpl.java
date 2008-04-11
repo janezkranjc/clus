@@ -31,7 +31,7 @@ public abstract class SearchAlgorithmImpl implements SearchAlgorithm{
 		for(int f = 0;f<nbFolds;f++){
 			folds.add(learner.LearnModel(tset,f));
 		}
-		return Evaluator.getPearsonCorrelation(folds,mainTarget.getIndex());
+		return Evaluator.getPearsonCorrelation(folds,mainTarget.getArrayIndex());
 	}
 	
 	

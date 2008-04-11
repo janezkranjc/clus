@@ -133,5 +133,25 @@ public final class Evaluator {
 		
 	}
 	
+	public final static double getRMSE(RowData[] data, final int errorIdx){
+		if(errorIdx==-1){
+			return 0;
+		}
+		ClusSchema schema = data[0].getSchema();
+		ClusErrorList parent = new ClusErrorList();
+		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+		RMSError error = new RMSError(parent, num);
+		parent.addError(error);
+		for(int t=0;t<data[0].getNbRows();t++){
+			DataTuple tuple_real = data[0].getTuple(t);
+			DataTuple tuple_prediction = data[1].getTuple(t);
+			parent.addExample(tuple_real, tuple_prediction);
+				
+		}
+		double err = error.getModelErrorComponent(errorIdx); 
+		return err;
+		
+	}
+	
 
 }
