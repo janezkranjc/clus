@@ -350,14 +350,8 @@ public class Sit implements CMDLineArgsProvider{
 		
 		}else{
 			System.err.println("Arguments not ok?!");
-			
 		}
 		sit.initialize();
-		
-		
-		
-		
-		
 		
 		/* Search for the optimal subset */
 		sit.m_SearchSelection = 1;
