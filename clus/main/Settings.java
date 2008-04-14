@@ -303,6 +303,16 @@ public class Settings implements Serializable {
 	protected INIFileString m_Search;
 	protected INIFileString m_Learner;
 	protected INIFileBool m_Recursive;
+	protected INIFileString m_Error;
+	
+	public String getError(){
+		return m_Error.getValue();
+	}
+		
+	//@deprecated
+	public boolean getRecursive(){
+		return m_Recursive.getValue();
+	}
 	
 	public String getMainTarget() {
 		return m_MainTarget.getValue();
@@ -1319,6 +1329,7 @@ public class Settings implements Serializable {
 		m_SectionSIT.addNode(m_Recursive = new INIFileBool("Recursive",false));
 		m_SectionSIT.addNode(m_Search = new INIFileString("Search","OneTarget"));
 		m_SectionSIT.addNode(m_Learner = new INIFileString("Learner","ClusLearner"));
+		m_SectionSIT.addNode(m_Error = new INIFileString("Error","MSE"));
 
     	INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic",	NONE));

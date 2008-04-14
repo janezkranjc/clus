@@ -95,13 +95,7 @@ public class ClusErrorOutput extends ClusOutput {
 		int nrTargets = targets.getMinIndex() - targets.getMaxIndex() + 1;
 		
 		
-		m_Writer.print(m_Sett.getVariantName()+",");
-		//m_Writer.println("@attribute AlgoOptions string");
-		if(m_Sett.getRecursive()){
-			m_Writer.print("recursive,");
-		}else{
-			m_Writer.print("none,");
-		}
+		
 		//m_Writer.println("@attribute PruningMethod string");
 		m_Writer.print(m_Sett.getPruningMethodName()+",");
 		//m_Writer.println("@attribute Targets string");

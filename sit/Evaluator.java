@@ -6,9 +6,11 @@ import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
 import clus.data.type.ClusAttrType;
 import clus.data.type.ClusSchema;
+import clus.data.type.NominalAttrType;
 import clus.data.type.NumericAttrType;
 import clus.error.ClusErrorList;
 import clus.error.MSError;
+import clus.error.MisclassificationError;
 import clus.error.PearsonCorrelation;
 import clus.error.RMSError;
 import clus.error.RelativeError;
@@ -87,7 +89,54 @@ public final class Evaluator {
 		return err;
 		
 	}
-	
+	public final static double getMSE(final ArrayList<RowData[]> folds, final int errorIdx){
+		RowData[] temp = (RowData[]) folds.get(0);
+		ClusSchema schema = temp[0].getSchema();
+		ClusErrorList parent = new ClusErrorList();
+		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+		MSError error = new MSError(parent, num);
+		parent.addError(error);
+		for(int f=0;f<folds.size();f++){
+			RowData[] fold = folds.get(f);
+			
+			for(int t=0;t<fold[0].getNbRows();t++){
+				DataTuple tuple_real = fold[0].getTuple(t);
+				DataTuple tuple_prediction = fold[1].getTuple(t);
+				parent.addExample(tuple_real, tuple_prediction);
+				
+			}
+		}
+		if(errorIdx==-1){
+			//System.out.println("main target not in targetset");
+			return 0;
+		}
+		return error.getModelErrorComponent(errorIdx);
+		
+	}
+	public final static double getMisclassificationError(final ArrayList<RowData[]> folds, final int errorIdx){
+		RowData[] temp = (RowData[]) folds.get(0);
+		ClusSchema schema = temp[0].getSchema();
+		ClusErrorList parent = new ClusErrorList();
+		NominalAttrType[] nom = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+		MisclassificationError error = new MisclassificationError(parent, nom);
+		parent.addError(error);
+		for(int f=0;f<folds.size();f++){
+			RowData[] fold = folds.get(f);
+			
+			for(int t=0;t<fold[0].getNbRows();t++){
+				DataTuple tuple_real = fold[0].getTuple(t);
+				DataTuple tuple_prediction = fold[1].getTuple(t);
+				parent.addExample(tuple_real, tuple_prediction);
+				
+			}
+		}
+		if(errorIdx==-1){
+			//System.out.println("main target not in targetset");
+			return 0;
+		}
+		return error.getModelErrorComponent(errorIdx);
+		
+	}
 	public final static double getRelativeError(final ArrayList<RowData[]> folds, final int errorIdx){
 		RowData[] temp = (RowData[]) folds.get(0);
 		ClusSchema schema = temp[0].getSchema();

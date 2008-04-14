@@ -3,6 +3,7 @@ package sit.searchAlgorithm;
 import sit.TargetSet;
 import sit.mtLearner.MTLearner;
 import clus.data.type.ClusAttrType;
+import clus.main.Settings;
 
 
 /**
@@ -22,6 +23,10 @@ public class OneTarget implements SearchAlgorithm{
 
 	public String getName() {
 		return "OneTarget";
+	}
+
+	public void setSettings(Settings s) {
+		
 	}
 
 }

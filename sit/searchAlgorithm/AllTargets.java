@@ -15,6 +15,7 @@ import clus.error.ClusErrorList;
 import clus.error.PearsonCorrelation;
 import clus.error.RMSError;
 import clus.error.SpearmanRankCorrelation;
+import clus.main.Settings;
 
 public class AllTargets implements SearchAlgorithm {
 
@@ -36,5 +37,8 @@ public class AllTargets implements SearchAlgorithm {
 
 	public String getName() {
 		return "AllTargets";
+	}
+
+	public void setSettings(Settings s) {
 	}
 }

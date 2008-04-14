@@ -534,24 +534,7 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 
 
 
-		if(settings.getVariantName().equals("SS")){
-			superSit(cr.getTrainingSet(), cr.getPruneSet());
-		}else if(settings.getVariantName().equals("Sweep")){
-			sweepSit(cr.getTrainingSet(), cr.getPruneSet());
-		}else if(settings.getVariantName().equals("2S")){
-			twoSidedSit(cr.getTrainingSet(), cr.getPruneSet());
-		}else if(settings.getVariantName().equals("SIT")){
-			findBestSupportTasks(cr.getTrainingSet(), cr.getPruneSet());
-		}else if(settings.getVariantName().equals("SORT")){
-			int main_target = new Integer(settings.getMainTarget())-1;
-			resetWeights(main_target);
-		}else if(settings.getVariantName().equals("MORT")){
-			for(int j = 0;j<mgr.getClusteringWeights().m_Weights.length;j++){
-				mgr.getClusteringWeights().m_Weights[j] = 1;
-			}
-		}else if(settings.getVariantName().equals("Exhaustive")){
-			exhaustiveSearch(cr);
-		}
+		
 
 
 

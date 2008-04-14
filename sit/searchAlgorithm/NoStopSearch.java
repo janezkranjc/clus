@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import sit.TargetSet;
 import clus.data.type.ClusAttrType;
+import clus.main.Settings;
 
 public class NoStopSearch extends SearchAlgorithmImpl{
 
@@ -67,5 +68,7 @@ public class NoStopSearch extends SearchAlgorithmImpl{
 		
 		return overal_best_set;
 	}
+
+	
 
 }

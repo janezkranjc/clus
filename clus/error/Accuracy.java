@@ -93,6 +93,12 @@ public class Accuracy extends ClusNominalError {
 		}		
 	}
 	
+	public void addExample(DataTuple tuple, DataTuple pred) {
+		for (int i = 0; i < m_Dim; i++) {
+			if (getAttr(i).getNominal(tuple) == getAttr(i).getNominal(pred)) m_NbCorrect[i]++; 
+		}		
+	}
+	
 	public void addInvalid(DataTuple tuple) {
 	}	
 }

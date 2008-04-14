@@ -187,7 +187,7 @@ public class Sit implements CMDLineArgsProvider{
 		
 		
 		this.m_Search.setMTLearner(this.m_Learner);
-		
+		this.m_Search.setSettings(this.m_Sett);
 			
 	}
 	
@@ -268,6 +268,7 @@ public class Sit implements CMDLineArgsProvider{
 		ErrorOutput errOut = new ErrorOutput(this.m_Sett);
 		errOut.writeHeader();
 		System.out.println("Starting XVal run");
+		
 		
 		XValRandomSelection m_XValSel = null;
 		int nrFolds = 10;
@@ -352,6 +353,9 @@ public class Sit implements CMDLineArgsProvider{
 			System.err.println("Arguments not ok?!");
 		}
 		sit.initialize();
+		
+		
+		
 		
 		/* Search for the optimal subset */
 		sit.m_SearchSelection = 1;
