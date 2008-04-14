@@ -198,7 +198,6 @@ public class RegressionStat extends ClusStatistic {
 	}
 	
 	public double getVariance(int i) {
-		// TODO: Jan, is it always ok to return 0, if m_SumWeight=0?
 		return m_SumWeight != 0.0 ? getSS(i) / m_SumWeight : 0.0;
 	}
 	

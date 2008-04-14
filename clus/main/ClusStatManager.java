@@ -302,8 +302,9 @@ public class ClusStatManager implements Serializable {
 		if (hasBitEqualToOne(shouldNormalize)) {
 			CombStat cmb = (CombStat) stat;
 			RegressionStat rstat = cmb.getRegressionStat();
-			rstat.initNormalizationWeights(m_NormalizationWeights,
-					shouldNormalize);
+			rstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
+			ClassificationStat cstat = cmb.getClassificationStat();
+			cstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
 		}
 	}
 

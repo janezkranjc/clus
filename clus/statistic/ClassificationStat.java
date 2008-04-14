@@ -549,7 +549,7 @@ public class ClassificationStat extends ClusStatistic {
 		double result = 0.0;
 		double sum = m_SumWeight;
 		for (int i = 0; i < m_NbTarget; i++) {
-			result += gini(i) * sum; 
+			result += gini(i) * scale.getWeight(m_Attrs[i]) * sum; 
 		}
 		return result / m_NbTarget;
 	}
@@ -559,11 +559,23 @@ public class ClassificationStat extends ClusStatistic {
 		double sum = m_SumWeight - other.m_SumWeight;
 		ClassificationStat cother = (ClassificationStat)other;
 		for (int i = 0; i < m_NbTarget; i++) {
-			result += giniDifference(i, cother) * sum; 
+			result += giniDifference(i, cother) * scale.getWeight(m_Attrs[i]) * sum; 
 		}
 		return result / m_NbTarget;		
 	}
 	
+	public void initNormalizationWeights(ClusAttributeWeights weights, boolean[] shouldNormalize) {
+		for (int i = 0; i < m_NbTarget; i++) {
+			int idx = m_Attrs[i].getIndex();
+			if (shouldNormalize[idx]) {
+				double var = gini(i);
+				double norm = var > 0 ? 1/var : 1; // No normalization if variance = 0;
+				if (m_NbTarget < 15) System.out.println("  Normalization for: "+m_Attrs[i].getName()+" = "+norm);
+				weights.setWeight(m_Attrs[i], norm);
+			}
+		}
+	}	
+		
 	public double[] getClassCounts(int i) {
 		return m_ClassCounts[i];
 	}

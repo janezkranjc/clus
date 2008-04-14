@@ -76,6 +76,10 @@ public class CombStat extends ClusStatistic {
     return m_RegStat;
   }
   
+  public ClassificationStat getClassificationStat() {
+	    return m_ClassStat;
+  }  
+  
   public void updateWeighted(DataTuple tuple, double weight) {
     m_RegStat.updateWeighted(tuple, weight);
     m_ClassStat.updateWeighted(tuple, weight);
