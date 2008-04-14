@@ -588,6 +588,13 @@ public class ClassificationStat extends ClusStatistic {
 		}
 	}	
 	
+	public void predictTuple(DataTuple prediction) {
+		for (int i = 0; i < m_NbTarget; i++) {
+			NominalAttrType type = m_Attrs[i];
+			type.setNominal(prediction, m_MajorityClasses[i]);
+		}
+	}	
+	
 	public void vote(ArrayList votes) {
 		switch (Settings.m_ClassificationVoteType.getValue()){
 			case 0: voteMajority(votes);break;
