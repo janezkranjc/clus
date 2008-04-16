@@ -13,7 +13,18 @@ public class ClusSumError extends ClusError {
 	public ClusSumError(ClusErrorList par) {
 		super(par);
 	}
-
+	
+	public double getModelError() {
+		int dim = 0;
+		double result = 0.0;
+		for (int i = 0; i < m_Errors.size(); i++) {
+			ClusError err = (ClusError)m_Errors.get(i);
+			result += err.getModelError() + err.getDimension();
+			dim += err.getDimension();
+		}
+		return result / dim;
+	}
+	
 	public void reset() {
 		for (int i = 0; i < m_Errors.size(); i++) {
 			ClusError err = (ClusError)m_Errors.get(i);

@@ -452,4 +452,8 @@ public class RegressionStat extends ClusStatistic {
 			}
 		}
 	}
+	
+	public RegressionStat getRegressionStat() {
+		return this;
+	}
 }

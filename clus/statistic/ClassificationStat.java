@@ -660,4 +660,8 @@ public class ClassificationStat extends ClusStatistic {
 			for (int j = 0; j < my.length; j++) my[j] += your[j]/total;
 		}
 	}
+			  
+	public ClassificationStat getClassificationStat() {
+		return this;
+	}	
 }

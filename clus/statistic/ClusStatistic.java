@@ -264,6 +264,14 @@ public abstract class ClusStatistic implements Serializable {
 		System.err.println(getClass().getName()+" does not implement predictTuple()");
 	}
 	
+	public RegressionStat getRegressionStat() {
+		return null;
+	}
+		  
+	public ClassificationStat getClassificationStat() {
+		return null;
+	}	
+	
 	// In multi-label classification: predicted set of classes is union of 
 	//                                predictions of individual rules	
 	public void unionInit() {

@@ -641,9 +641,11 @@ public class ClusStatManager implements Serializable {
 		TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			parent.addError(new ContingencyTable(parent, nom));
+			parent.addError(new MSNominalError(parent, nom, m_NormalizationWeights));
 		}
 		if (num.length != 0) {
 			parent.addError(new AbsoluteError(parent, num));
+			parent.addError(new MSError(parent, num));
 			parent.addError(new RMSError(parent, num));
 			if (getSettings().hasNonTrivialWeights()) {
 				parent.addError(new RMSError(parent, num, m_NormalizationWeights));
