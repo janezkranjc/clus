@@ -605,11 +605,24 @@ double dis3 = comp;
 		return buf.toString();
 	}	
   
-
 	public String getArrayOfStatistic(){
 	    return null;
 	}
-
+	
+	public double getSS(ClusAttributeWeights scale) {
+		int nbTargetNom = m_ClassStat.getNbNominalAttributes();
+		int nbTargetNum = m_RegStat.getNbNumericAttributes();
+		return (m_ClassStat.getSS(scale)*nbTargetNom + m_RegStat.getSS(scale)*nbTargetNum) / (nbTargetNom+nbTargetNum);
+	}
+	
+	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other) {
+		int nbTargetNom = m_ClassStat.getNbNominalAttributes();
+		int nbTargetNum = m_RegStat.getNbNumericAttributes();
+		ClassificationStat ocls = ((CombStat)other).getClassificationStat();
+		RegressionStat oreg = ((CombStat)other).getRegressionStat();
+		return (m_ClassStat.getSSDiff(scale, ocls)*nbTargetNom + m_RegStat.getSSDiff(scale, oreg)*nbTargetNum) / (nbTargetNom+nbTargetNum);
+	}
+	
   public void reset() {
     m_RegStat.reset();
     m_ClassStat.reset();

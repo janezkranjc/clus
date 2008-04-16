@@ -37,6 +37,7 @@ import clus.model.ClusModel;
 import clus.pruning.*;
 
 import clus.ext.hierarchical.*;
+import clus.ext.semisupervised.ModifiedGainHeuristic;
 import clus.ext.sspd.*;
 import clus.ext.timeseries.*;
 import clus.ext.beamsearch.*;
@@ -386,8 +387,7 @@ public class ClusStatManager implements Serializable {
 		}
 	}
 
-	public ClusStatistic createSuitableStat(NumericAttrType[] num,
-			NominalAttrType[] nom) {
+	public ClusStatistic createSuitableStat(NumericAttrType[] num, NominalAttrType[] nom) {
 		if (num.length == 0) {
 			return new ClassificationStat(nom);
 		} else if (nom.length == 0) {
@@ -565,17 +565,22 @@ public class ClusStatManager implements Serializable {
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);		
 		if (num.length > 0 && nom.length > 0) {
-			throw new ClusException("Combined heuristic not yet implemented for trees!");
+			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT &&
+				getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
+				throw new ClusException("Only SS-Reduction heuristic can be used for combined classification/regression trees!");
+			}
+			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
+			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);			
 		} else if (num.length > 0) {
 			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT &&
 				getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
-				throw new ClusException("Only SS-Reduction (default) heuristic can be used for regression trees!");
+				throw new ClusException("Only SS-Reduction heuristic can be used for regression trees!");
 			}
 			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);			
 		} else if (nom.length > 0) {
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_SEMI_SUPERVISED) {
-				//m_Heuristic = new ModifiedGainHeuristic(createClusteringStat());
+				m_Heuristic = new ModifiedGainHeuristic(createClusteringStat());
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
 				m_Heuristic = new ReducedErrorHeuristic(createClusteringStat());
 			} /*else if (getSettings().getHeuristic() == Settings.HEURISTIC_GENETIC_DISTANCE) {
@@ -588,7 +593,7 @@ public class ClusStatManager implements Serializable {
 			} else {
 				if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && 
 				    getSettings().getHeuristic() != Settings.HEURISTIC_GAIN) {
-						throw new ClusException("Only Gain (default) or Reduced Error heuristic can be used for classification trees!");
+						throw new ClusException("Given heuristic not supported for classification trees!");
 				}				
 				m_Heuristic = new GainHeuristic(false);
 				getSettings().setHeuristic(Settings.HEURISTIC_GAIN);
@@ -808,7 +813,7 @@ public class ClusStatManager implements Serializable {
 					int maxsize = sett.getMaxSize();
 					pruner.setSequencePruner(new SizeConstraintPruning(maxsize,	getClusteringWeights()));
 				} else {
-					pruner.setSequencePruner(new CartPruning(getClusteringWeights()));
+					pruner.setSequencePruner(new CartPruning(getClusteringWeights(), sett.isMSENominal()));
 				}
 				pruner.setOutputFile(sett.getFileAbsolute("prune.dat"));
 				pruner.set1SERule(sett.get1SERule());

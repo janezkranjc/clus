@@ -30,7 +30,9 @@ import clus.data.type.ClusSchema;
 import clus.data.type.NominalAttrType;
 import clus.data.type.NumericAttrType;
 import clus.error.ClusErrorList;
+import clus.error.ClusSumError;
 import clus.error.MSError;
+import clus.error.MSNominalError;
 import clus.error.MisclassificationError;
 import clus.util.*;
 
@@ -39,9 +41,11 @@ public class CartPruning extends PruneTree {
 	protected int[] m_MaxSize;
 	protected ClusAttributeWeights m_Weights;
 	protected double m_U1, m_U2;
+	protected boolean m_IsMSENominal;
 	
-	public CartPruning(ClusAttributeWeights weights) {
+	public CartPruning(ClusAttributeWeights weights, boolean isMSENominal) {
 		m_Weights = weights;
+		m_IsMSENominal = isMSENominal;
 	}
 
 	public CartPruning(int[] maxsize, ClusAttributeWeights weights) {
@@ -67,11 +71,21 @@ public class CartPruning extends PruneTree {
 		ClusErrorList parent = new ClusErrorList();
 		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		NominalAttrType[] nom = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		if (nom.length != 0) {
-			parent.addError(new MisclassificationError(parent, nom));
-		}
-		if (num.length != 0) {
-			parent.addError(new MSError(parent, num, weights));
+		if (nom.length != 0 && num.length != 0) {			
+			MSError numErr = new MSError(parent, num, weights);
+			MSNominalError nomErr = new MSNominalError(parent, nom, weights);
+			ClusSumError error = new ClusSumError(parent);
+			error.addComponent(numErr);
+			error.addComponent(nomErr);
+			parent.addError(error);
+		} else {
+			if (nom.length != 0) {
+				if (m_IsMSENominal) parent.addError(new MSNominalError(parent, nom, weights));
+				else parent.addError(new MisclassificationError(parent, nom));
+			}
+			if (num.length != 0) {
+				parent.addError(new MSError(parent, num, weights));
+			}
 		}
 		parent.setWeights(weights);
 		return parent;

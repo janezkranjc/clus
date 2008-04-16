@@ -545,11 +545,19 @@ public class ClassificationStat extends ClusStatistic {
 		return result / m_NbTarget;
 	}
 	
+	public int getNbPseudoTargets() {
+		int nbTarget = 0;
+		for (int i = 0; i < m_NbTarget; i++) {
+			nbTarget += m_Attrs[i].getNbValues();
+		}
+		return nbTarget;
+	}
+	
 	public double getSS(ClusAttributeWeights scale) {
 		double result = 0.0;
 		double sum = m_SumWeight;
 		for (int i = 0; i < m_NbTarget; i++) {
-			result += gini(i) * scale.getWeight(m_Attrs[i]) * sum; 
+			result += gini(i) * scale.getWeight(m_Attrs[i]) * sum;
 		}
 		return result / m_NbTarget;
 	}
@@ -559,7 +567,7 @@ public class ClassificationStat extends ClusStatistic {
 		double sum = m_SumWeight - other.m_SumWeight;
 		ClassificationStat cother = (ClassificationStat)other;
 		for (int i = 0; i < m_NbTarget; i++) {
-			result += giniDifference(i, cother) * scale.getWeight(m_Attrs[i]) * sum; 
+			result += giniDifference(i, cother) * scale.getWeight(m_Attrs[i]) * sum;
 		}
 		return result / m_NbTarget;		
 	}

@@ -584,7 +584,8 @@ public class Settings implements Serializable {
 	protected INIFileBool m_AlternativeSplits;
 	protected INIFileDouble m_FTest;	
 	protected INIFileNominal m_PruningMethod;	
-	protected INIFileBool m_1SERule;	
+	protected INIFileBool m_1SERule;
+	protected INIFileBool m_MSENominal;
 	protected INIFileDouble m_M5PruningMult;
 	protected INIFileNominal m_RulesFromTree;
 
@@ -640,6 +641,10 @@ public class Settings implements Serializable {
 	
 	public boolean get1SERule() {
 		return m_1SERule.getValue();
+	}
+	
+	public boolean isMSENominal() {
+		return m_MSENominal.getValue();
 	}
 	
 	public double getM5PruningMult() {
@@ -1367,6 +1372,7 @@ public class Settings implements Serializable {
 		m_SectionTree.addNode(m_BinarySplit = new INIFileBool("BinarySplit", true));
 		m_SectionTree.addNode(m_PruningMethod = new INIFileNominal("PruningMethod", PRUNING_METHODS, 0));
 		m_SectionTree.addNode(m_1SERule = new INIFileBool("1-SE-Rule", false));
+		m_SectionTree.addNode(m_MSENominal = new INIFileBool("MSENominal", false));
 		m_SectionTree.addNode(m_M5PruningMult = new INIFileDouble("M5PruningMult", 2.0));
 		m_SectionTree.addNode(m_RulesFromTree = new INIFileNominal("ConvertToRules", CONVERT_RULES, 0));
 		m_SectionTree.addNode(m_AlternativeSplits = new INIFileBool("AlternativeSplits", false));
