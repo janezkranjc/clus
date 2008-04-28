@@ -19,7 +19,7 @@ public class ClusSumError extends ClusError {
 		double result = 0.0;
 		for (int i = 0; i < m_Errors.size(); i++) {
 			ClusError err = (ClusError)m_Errors.get(i);
-			result += err.getModelError() + err.getDimension();
+			result += err.getModelError() * err.getDimension();
 			dim += err.getDimension();
 		}
 		return result / dim;
@@ -46,6 +46,12 @@ public class ClusSumError extends ClusError {
 		getComponent(0).addExample(tuple, stat.getRegressionStat());
 		getComponent(1).addExample(tuple, stat.getClassificationStat());
 	}
+	
+	public double computeLeafError(ClusStatistic stat) {
+		CombStat cstat = (CombStat)stat;
+		return getComponent(0).computeLeafError(cstat.getRegressionStat()) + 
+			   getComponent(1).computeLeafError(cstat.getClassificationStat());
+	}	
 	
 	public void addExample(DataTuple real, DataTuple pred) {
 		for (int i = 0; i < m_Errors.size(); i++) {

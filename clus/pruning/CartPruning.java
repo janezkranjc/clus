@@ -29,6 +29,7 @@ import clus.data.type.ClusAttrType;
 import clus.data.type.ClusSchema;
 import clus.data.type.NominalAttrType;
 import clus.data.type.NumericAttrType;
+import clus.error.ClusError;
 import clus.error.ClusErrorList;
 import clus.error.ClusSumError;
 import clus.error.MSError;
@@ -42,6 +43,7 @@ public class CartPruning extends PruneTree {
 	protected ClusAttributeWeights m_Weights;
 	protected double m_U1, m_U2;
 	protected boolean m_IsMSENominal;
+	protected ClusError m_ErrorMeasure;
 	
 	public CartPruning(ClusAttributeWeights weights, boolean isMSENominal) {
 		m_Weights = weights;
@@ -77,14 +79,14 @@ public class CartPruning extends PruneTree {
 			ClusSumError error = new ClusSumError(parent);
 			error.addComponent(numErr);
 			error.addComponent(nomErr);
-			parent.addError(error);
+			parent.addError(m_ErrorMeasure = error);
 		} else {
 			if (nom.length != 0) {
-				if (m_IsMSENominal) parent.addError(new MSNominalError(parent, nom, weights));
-				else parent.addError(new MisclassificationError(parent, nom));
+				if (m_IsMSENominal) parent.addError(m_ErrorMeasure = new MSNominalError(parent, nom, weights));
+				else parent.addError(m_ErrorMeasure = new MisclassificationError(parent, nom));
 			}
 			if (num.length != 0) {
-				parent.addError(new MSError(parent, num, weights));
+				parent.addError(m_ErrorMeasure = new MSError(parent, num, weights));
 			}
 		}
 		parent.setWeights(weights);
@@ -126,7 +128,7 @@ public class CartPruning extends PruneTree {
 	public void initU(ClusNode node) {
 		CartVisitor cart = (CartVisitor)node.getVisitor();
 		m_U1 = 1 + cart.delta_u1;
-		m_U2 = node.getClusteringStat().getError(m_Weights) + cart.delta_u2;		
+		m_U2 = m_ErrorMeasure.computeLeafError(node.getClusteringStat()) + cart.delta_u2;		
 		// System.out.println("Leaves: "+m_U1+" error: "+m_U2);
 	}
 	
@@ -207,8 +209,8 @@ public class CartPruning extends PruneTree {
 			cart.lambda_min = Double.POSITIVE_INFINITY;
 		} else {
 			cart.delta_u1 = node.getNbLeaves() - 1;
-			double leaf_err = node.getClusteringStat().getError(m_Weights);
-			double tree_err = node.estimateErrorAbsolute(m_Weights);
+			double leaf_err = m_ErrorMeasure.computeLeafError(node.getClusteringStat());
+			double tree_err = m_ErrorMeasure.computeTreeErrorClusteringAbsolute(node);
 			cart.delta_u2 = tree_err - leaf_err;
 			updateLambda(node);
 			updateLambdaMin(node);

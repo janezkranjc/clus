@@ -8,6 +8,7 @@ import clus.data.rows.DataTuple;
 import clus.data.type.NominalAttrType;
 import clus.statistic.ClassificationStat;
 import clus.statistic.ClusStatistic;
+import clus.statistic.RegressionStat;
 
 public class MSNominalError extends ClusNominalError {
 
@@ -134,4 +135,9 @@ public class MSNominalError extends ClusNominalError {
 		NumberFormat fr = getFormat();
 		out.println(getPrefix() + "Mean over components MSE: "+fr.format(getModelError()));
 	}
+	
+	public double computeLeafError(ClusStatistic stat) {
+		ClassificationStat cstat = (ClassificationStat)stat;
+		return cstat.getSS(m_Weights) * cstat.getNbAttributes();
+	}		
 }

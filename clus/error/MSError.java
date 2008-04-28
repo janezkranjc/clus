@@ -32,6 +32,8 @@ import clus.data.rows.DataTuple;
 import clus.data.type.*;
 import clus.main.Settings;
 import clus.statistic.ClusStatistic;
+import clus.statistic.CombStat;
+import clus.statistic.RegressionStat;
 
 // import jeans.util.array.*;
 
@@ -189,4 +191,9 @@ public class MSError extends ClusNumericError {
 	public ClusError getErrorClone(ClusErrorList par) {
 		return new MSError(par, m_Attrs, m_Weights, m_PrintAllComps);
 	}
+	
+	public double computeLeafError(ClusStatistic stat) {
+		RegressionStat rstat = (RegressionStat)stat;
+		return rstat.getSS(m_Weights) * rstat.getNbAttributes();
+	}	
 }

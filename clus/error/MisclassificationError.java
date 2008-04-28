@@ -27,6 +27,8 @@ package clus.error;
 
 import clus.data.type.*;
 import clus.main.Settings;
+import clus.statistic.ClassificationStat;
+import clus.statistic.ClusStatistic;
 
 public class MisclassificationError extends Accuracy {
 	
@@ -51,4 +53,9 @@ public class MisclassificationError extends Accuracy {
 	public ClusError getErrorClone(ClusErrorList par) {
 		return new MisclassificationError(par, m_Attrs);
 	}
+	
+	public double computeLeafError(ClusStatistic stat) {
+		ClassificationStat cstat = (ClassificationStat)stat;
+		return cstat.getError(null) * cstat.getNbAttributes();
+	}		
 }

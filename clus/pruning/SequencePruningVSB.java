@@ -83,12 +83,12 @@ public class SequencePruningVSB extends PruneTree {
 		PruneTree pruner = getSequencePruner();
 		pruner.sequenceInitialize(node);
 		// Optimization if data set has missing values
-		if (!m_HasMissing) {
-			try {
-				ClusError err = m_Error.getFirstError();
-				TreeErrorComputer.initializeTestErrorsData(node, m_VSB, err);
-			} catch (IOException e) { /* Can never occur */ }
-		}
+		// if (!m_HasMissing) {
+		//	try {
+		//		ClusError err = m_Error.getFirstError();
+		//		TreeErrorComputer.initializeTestErrorsData(node, m_VSB, err);
+		//	} catch (IOException e) { /* Can never occur */ }
+		//}
 		// Create list of error measures
 		ArrayList vsb_errors = new ArrayList();
 		ArrayList train_errors = new ArrayList();

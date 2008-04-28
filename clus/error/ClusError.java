@@ -25,6 +25,7 @@ package clus.error;
 import java.io.*;
 import java.text.*;
 
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 import clus.main.Settings;
@@ -266,6 +267,24 @@ public abstract class ClusError implements Serializable {
 		}
 		buf.append("]");		
 		return buf.toString();		
+	}
+
+	public double computeLeafError(ClusStatistic stat) {
+		System.out.println(getClass().getName()+"::computeLeafError() not yet implemented");
+		return 0;
+	}
+
+	public double computeTreeErrorClusteringAbsolute(ClusNode tree) {
+		if (tree.atBottomLevel()) {
+			return computeLeafError(tree.getClusteringStat());
+		} else {
+			double result = 0.0;
+			for (int i = 0; i < tree.getNbChildren(); i++) {
+				ClusNode child = (ClusNode)tree.getChild(i);
+				result += computeTreeErrorClusteringAbsolute(child);
+			}
+			return result;
+		}
 	}	
 			
 //	public abstract void addExample(ClusData data, int idx, ClusStatistic pred);
