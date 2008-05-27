@@ -137,6 +137,26 @@ public final class Evaluator {
 		return error.getModelErrorComponent(errorIdx);
 		
 	}
+	public final static double getMisclassificationError(RowData[] data, final int errorIdx){
+		if(errorIdx==-1){
+			return 0;
+		}
+		ClusSchema schema = data[0].getSchema();
+		ClusErrorList parent = new ClusErrorList();
+		NominalAttrType[] nom = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+		MisclassificationError error = new MisclassificationError(parent, nom);
+		parent.addError(error);
+		for(int t=0;t<data[0].getNbRows();t++){
+			DataTuple tuple_real = data[0].getTuple(t);
+			DataTuple tuple_prediction = data[1].getTuple(t);
+			parent.addExample(tuple_real, tuple_prediction);
+				
+		}
+		double err = error.getModelErrorComponent(errorIdx); 
+		return err;
+		
+	}
+	
 	public final static double getRelativeError(final ArrayList<RowData[]> folds, final int errorIdx){
 		RowData[] temp = (RowData[]) folds.get(0);
 		ClusSchema schema = temp[0].getSchema();

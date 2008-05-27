@@ -32,8 +32,11 @@ public class ErrorOutput {
 		m_Writer.println("@attribute Search string");
 		m_Writer.println("@attribute MainTarget numeric");
 		//the errors
-		m_Writer.println("@attribute PearsonCorrelation numeric");
-		m_Writer.println("@attribute RMSE numeric");
+		
+		m_Writer.print("@attribute ");
+		String errName = m_Sett.getError();		
+		m_Writer.print(errName+" numeric\n");
+		
 		//support targets
 		m_Writer.println("@attribute SupportTargets string");
 		m_Writer.println("@attribute Runtime numeric");
@@ -42,8 +45,8 @@ public class ErrorOutput {
 		m_Writer.flush();
 	}
 	
-	public void addFold(int run,int fold, String learner,String search,String mt, double correlation, double rmse, String sts, Long dif){
-		m_Writer.println(m_Sett.getDataFile()+","+run+","+fold+","+learner+","+search+","+mt+","+correlation+","+rmse+","+sts+","+dif/1000.0);
+	public void addFold(int run,int fold, String learner,String search,String mt, double error,String sts, Long dif){
+		m_Writer.println(m_Sett.getDataFile()+","+run+","+fold+","+learner+","+search+","+mt+","+error+","+sts+","+dif/1000.0);
 		m_Writer.flush();
 	}
 	

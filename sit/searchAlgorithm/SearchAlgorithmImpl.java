@@ -31,8 +31,9 @@ public abstract class SearchAlgorithmImpl implements SearchAlgorithm{
 	
 	protected double eval(TargetSet tset, ClusAttrType mainTarget){
 		//create a few folds
-		int nbFolds = 10;
-		learner.initXVal(nbFolds);
+		//int nbFolds = 23;
+		int nbFolds = learner.initLOOXVal();
+			
 		//learn a model for each fold
 		ArrayList<RowData[]> folds = new ArrayList<RowData[]>();
 		for(int f = 0;f<nbFolds;f++){
@@ -41,7 +42,7 @@ public abstract class SearchAlgorithmImpl implements SearchAlgorithm{
 		
 			String error = m_Sett.getError();
 			if(error.equals("MSE")){
-				System.out.println("using mse");
+				//System.out.println("using mse");
 				return 1-Evaluator.getMSE(folds,mainTarget.getArrayIndex());
 			}
 			if(error.equals("MisclassificationError")){

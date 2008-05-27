@@ -6,10 +6,10 @@ import java.util.Iterator;
 import sit.TargetSet;
 import clus.data.type.ClusAttrType;
 
-public class OneMax extends SearchAlgorithmImpl{
+public class TC extends SearchAlgorithmImpl{
 
 	public String getName() {
-		return "OneMax";
+		return "TC";
 	}
 
 	public TargetSet search(ClusAttrType mainTarget, TargetSet candidates) {

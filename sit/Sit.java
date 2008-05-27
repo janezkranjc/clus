@@ -14,7 +14,7 @@ import sit.searchAlgorithm.AllTargets;
 import sit.searchAlgorithm.GeneticSearch;
 import sit.searchAlgorithm.GreedySIT;
 import sit.searchAlgorithm.NoStopSearch;
-import sit.searchAlgorithm.OneMax;
+import sit.searchAlgorithm.TC;
 import sit.searchAlgorithm.OneTarget;
 import sit.searchAlgorithm.SearchAlgorithm;
 
@@ -133,8 +133,15 @@ public class Sit implements CMDLineArgsProvider{
 	 * Initialize the MTLearner with the current data and settings.
 	 */
 	private void InitLearner() {
-		this.m_Learner = new ClusLearner();
-		//this.m_Learner = new KNNLearner();
+		
+		if(this.m_Sett.getLearnerName().equals("KNN")){
+			System.out.println("Using KNN Learner");
+			this.m_Learner = new KNNLearner();
+		}else{
+			System.out.println("Using Clus Learner");
+			this.m_Learner = new ClusLearner();
+			
+		}
 		//this.m_Learner = new AvgLearner();
 		this.m_Learner.init(this.m_Data,this.m_Sett);
 		int mt = new Integer(m_Sett.getMainTarget())-1;
@@ -147,9 +154,16 @@ public class Sit implements CMDLineArgsProvider{
 	 * Initialize the MTLearner with partial data for XVAL.
 	 */
 	private void InitLearner(RowData data) {
-		this.m_Learner = new ClusLearner();
+		if(this.m_Sett.getLearnerName().equals("KNN")){
+			System.out.println("Using KNN Learner");
+			this.m_Learner = new KNNLearner();
+		}else{
+			System.out.println("Using Clus Learner");
+			this.m_Learner = new ClusLearner();
+			
+		}
 		//this.m_Learner = new AvgLearner();
-		//this.m_Learner =  new KNNLearner();
+		
 		this.m_Learner.init(data,this.m_Sett);
 		int mt = new Integer(m_Sett.getMainTarget())-1;
 		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
@@ -180,6 +194,10 @@ public class Sit implements CMDLineArgsProvider{
 		else if(search.equals("NoStop")){
 			this.m_Search = new NoStopSearch();
 			System.out.println("Search = SIT, no stop criterion");
+		}
+		else if(search.equals("TC")){
+			this.m_Search = new TC();
+			System.out.println("Search = TC");
 		}
 		else{
 			System.err.println("Search strategy unknown!");
@@ -271,7 +289,7 @@ public class Sit implements CMDLineArgsProvider{
 		
 		
 		XValRandomSelection m_XValSel = null;
-		int nrFolds = 10;
+		int nrFolds = 26;
 		try {
 			
 			m_XValSel = new XValRandomSelection(m_Data.getNbRows(),nrFolds);
@@ -288,6 +306,11 @@ public class Sit implements CMDLineArgsProvider{
 			XValSelection msel = new XValSelection(m_XValSel,i);
 			RowData train = (RowData) m_Data.cloneData();
 			RowData test = (RowData) train.select(msel);
+			
+			System.out.println(test.getNbRows());
+			
+			
+			
 			/* Init the Learner */
 			InitLearner(train);
 			/* Init the Search algorithm */
@@ -299,6 +322,8 @@ public class Sit implements CMDLineArgsProvider{
 			
 			//find the error
 			m_Learner.setTestData(test);
+			
+			
 			RowData[] predictions = m_Learner.LearnModel(searchResult);
 			
 			/*
@@ -312,11 +337,23 @@ public class Sit implements CMDLineArgsProvider{
 			Long new_d = (new Date()).getTime();
 			Long dif = new_d - d;
 			
+			double error = 0;
+			String errorName = m_Sett.getError();
+			if(errorName.equals("MSE")){
+				error = Evaluator.getMSE(predictions,errorIdx);
+			}
+			else if(errorName.equals("MisclassificationError")){
+				error = Evaluator.getMisclassificationError(predictions,errorIdx);
+			}else{
+				
+				error = Evaluator.getPearsonCorrelation(predictions,errorIdx);
+			}
 			
-			double error = Evaluator.getPearsonCorrelation(predictions, errorIdx);
-			double error2 = Evaluator.getMSE(predictions, errorIdx);
+		
+	
+			
 			//errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt),error,"\""+searchResult.toString()+" \"",dt,dp);
-			errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt+1),error,error2,"\""+searchResult.toString()+" \"",dif);
+			errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt+1),error,"\""+searchResult.toString()+" \"",dif);
 			
 		}
 		

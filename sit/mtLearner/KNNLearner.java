@@ -24,9 +24,11 @@ public class KNNLearner extends MTLearnerImpl {
 
 	@Override
 	protected RowData[] LearnModel(TargetSet targets, RowData train,RowData test) {
-
+		
 		writeCSV("train.csv",targets,train);
 		writeCSV("test.csv",targets,test);
+		
+		//System.out.println(test.getNbRows());
 		
 		
 		NumericAttrType[] descriptive = test.m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE);
@@ -36,21 +38,29 @@ public class KNNLearner extends MTLearnerImpl {
 		try {
 			///ga_basic_SIT <config file> <fold size> <# features> <# targets> <training data> <test data> <output file name>
 
-			int benchmk_cnt = (test.getNbRows()+train.getNbRows());
-			
-			String[] commands = new String[]{"/home/beau/svn_gent/emml/tools/GA-knn_tool_SIT_27-03-08/ga_basic_SIT","config.txt",
+			int benchmk_cnt = (train.getNbRows());
+			///home/beau/SIT_evaluation/gent/top40/
+			String[] commands = new String[]{"/home/beau/SIT_evaluation/gent/top40/ga_basic_SIT","config.txt",
 					 test.getNbRows()+"",nrFeatures+"",nrTargets+"","train.csv","test.csv","result.csv",benchmk_cnt+""};
 			
-			Process child = Runtime.getRuntime().exec(commands);
-			
-			InputStream output = child.getInputStream();
-			InputStreamReader isr = new InputStreamReader(output);
-			BufferedReader rdr = new BufferedReader(isr);
-			String line = rdr.readLine();
-			while (line != null){
-				//System.out.println(line);
-				line = rdr.readLine();
+			for(int i = 0;i<commands.length;i++){
+		//		System.out.print(commands[i]+" ");
 			}
+	//		System.out.println();
+			
+			//commands = new String[]{"/home/beau/SIT_evaluation/gent/top40/ga_basic_SIT"};
+			
+			Process child = Runtime.getRuntime().exec(commands);
+			String line;
+			BufferedReader input =
+		        new BufferedReader
+		          (new InputStreamReader(child.getInputStream()));
+		      while ((line = input.readLine()) != null) {
+		  //      System.out.println(line);
+		      }
+
+			
+						
 			child.waitFor();
 			
 
@@ -61,6 +71,8 @@ public class KNNLearner extends MTLearnerImpl {
 		}
 
 		RowData predictions = new RowData(test.m_Schema,test.getNbRows());
+		
+		
 		readResult(targets,predictions);
 		RowData[] result = {test,predictions};
 
@@ -77,6 +89,7 @@ public class KNNLearner extends MTLearnerImpl {
 			FileReader input = new FileReader("result.csv");
 			BufferedReader bufRead = new BufferedReader(input);
 			String line = bufRead.readLine();
+			
 			int count = 0;
 			while (line != null){
 				DataTuple t = parseLine(line,targets,result.m_Schema);
@@ -110,7 +123,9 @@ public class KNNLearner extends MTLearnerImpl {
 		
 		for(int i=0;i<values.length;i++){
 			doubles[i] = Double.parseDouble(values[i]);
+			
 		}
+		
 		int count = 0;
 		while(trgts.hasNext()){
 			NumericAttrType atr = (NumericAttrType) trgts.next();
