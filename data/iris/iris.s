@@ -1,14 +1,13 @@
 
-[Attributes]
-Target = 5
-Clustering = 1-4
-Descriptive = 1-4
+[Model]
+MinimalWeight = 2.0
 
-[Data]
-PruneSet = 0.3
-PruneSetMax = 1000
+[Constraints]
+MaxSize = Infinity
+MaxError = 0.0
 
-[Tree]
-PruningMethod = CartVSB
-MSENominal = TRUE
-
+[Beam]
+BeamWidth = 10
+SizePenalty = 0.1
+MaxSize = 5
+FastSearch = Yes

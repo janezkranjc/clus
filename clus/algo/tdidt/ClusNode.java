@@ -308,10 +308,10 @@ public class ClusNode extends MyNode implements ClusModel {
 		}
 	}
 	
-	public void setAlternatives(Vector alt) {
+	public void setAlternatives(ArrayList alt) {
 		m_Alternatives = new String[alt.size()];
 		for (int i=0; i<alt.size(); i++) {
-			m_Alternatives[i] = alt.elementAt(i).toString();
+			m_Alternatives[i] = alt.get(i).toString();
 		}	
 	}
 	
@@ -750,10 +750,7 @@ public class ClusNode extends MyNode implements ClusModel {
 					examples0 = examples.apply(m_Test, 0);
 					examples1 = examples.apply(m_Test, 1);	
 				}
-
-				for (int i=0; i<m_Alternatives.length; i++) {
-					writer.print(" and " + m_Alternatives[i]);
-				}	
+				showAlternatives(writer);
 				writeDistributionForInternalNode(writer, info);
 				writer.print(prefix + "+--yes: ");
 				((ClusNode)getChild(YES)).printTree(writer, info, prefix+"|       ",examples0);
@@ -799,6 +796,7 @@ public class ClusNode extends MyNode implements ClusModel {
 			
 		}
 	}
+	
 	/*to print the tree directly into an IDB : Elisa Fromont 13/06/2007*/
 	public final void printTreeInDatabase(PrintWriter writer, String tabitem[], int tabexist[], int cpt, String typetree) {
 		int arity = getNbChildren();
@@ -859,10 +857,10 @@ public class ClusNode extends MyNode implements ClusModel {
 				
 		}
 
-		public String printTestNode(String a, int pres){
-			if(pres == 1) {return a;}
-			else {return ("not("+a+")");}	
-		}
+	public String printTestNode(String a, int pres){
+		if(pres == 1) {return a;}
+		else {return ("not("+a+")");}	
+	}
 
 	public final void printTreeToPythonScript(PrintWriter writer, String prefix) {
 		int arity = getNbChildren();
@@ -886,6 +884,13 @@ public class ClusNode extends MyNode implements ClusModel {
 				System.out.println(m_TargetStat.getClass());
 			}
 		}
+	}
+	
+	public final void showAlternatives(PrintWriter writer) {
+		if (m_Alternatives == null) return;
+		for (int i = 0; i < m_Alternatives.length; i++) {
+			writer.print(" and " + m_Alternatives[i]);
+		}	
 	}
 	
 	public String toString() {

@@ -31,7 +31,8 @@ import clus.algo.tdidt.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.data.attweights.*;
-import java.util.Vector;
+
+import java.util.*;
 
 public class CurrentBestTestAndHeuristic {
 	
@@ -57,7 +58,7 @@ public class CurrentBestTestAndHeuristic {
 	public double m_BestHeur;
 	public double m_UnknownFreq;
 	public ClusAttrType m_SplitAttr;
-	public Vector m_AlternativeBest = new Vector();
+	public ArrayList m_AlternativeBest = new ArrayList();
 			
 	// Cache for numeric attributes
 	public double m_BestSplit;
@@ -122,11 +123,11 @@ public class CurrentBestTestAndHeuristic {
 	}
 
 	public final void resetAlternativeBest() {
-		m_AlternativeBest.removeAllElements();
+		m_AlternativeBest.clear();
 	}
 	
 	public final void addAlternativeBest(NodeTest nt) {
-		m_AlternativeBest.addElement(nt);
+		m_AlternativeBest.add(nt);
 	}
 	
 	public final void setBestHeur(double value) {
@@ -208,7 +209,7 @@ public class CurrentBestTestAndHeuristic {
 		return m_TotStat;
 	}	
 	
-	public final Vector getAlternativeBest() {
+	public final ArrayList getAlternativeBest() {
 		return m_AlternativeBest;
 	}
 	

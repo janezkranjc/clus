@@ -210,28 +210,4 @@ public class ClusRun extends ClusModelInfoList {
 		deleteData();
 		deleteModels();
 	}
-
-	public void adjustInstanceWeights() throws IOException, ClusException {
-		RowData test =  this.getTestSet();
-		
-		
-		RowData train = (RowData) this.getTrainingSet();
-		for(int i = 0; i<train.getNbRows();i++){
-			DataTuple tr = train.getTuple(i);
-			
-			
-			tr.setWeight(0);
-			for(int j= 0;j <test.getNbRows();j++){
-				DataTuple te = test.getTuple(j);
-				tr.setWeight(tr.getWeight()+1.0/(1+Math.pow(te.euclDistance(tr),1)));
-			}
-			
-			tr.setWeight(tr.getWeight()/test.getNbRows());
-			tr.setWeight(1);
-			//System.out.println(tr.getWeight());
-			
-		}
-		
-		
-	}
 }
