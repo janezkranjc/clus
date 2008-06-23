@@ -10,4 +10,4 @@ MaxError = 0.0
 BeamWidth = 10
 SizePenalty = 0.1
 MaxSize = 5
-FastSearch = Yes
+FastSearch = No
