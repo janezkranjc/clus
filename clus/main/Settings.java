@@ -309,6 +309,10 @@ public class Settings implements Serializable {
 		return m_Error.getValue();
 	}
 		
+	public String getLearnerName(){
+		return m_Learner.getValue();
+	}
+	
 	//@deprecated
 	public boolean getRecursive(){
 		return m_Recursive.getValue();
