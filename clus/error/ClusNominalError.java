@@ -49,5 +49,5 @@ public abstract class ClusNominalError extends ClusError {
 	
 	public void setDefault(ClusStatistic pred) {
 		m_Default = ((ClassificationStat)pred).m_MajorityClasses;
-	}	
+	}
 }

@@ -79,11 +79,6 @@ public class ClusErrorOutput extends ClusOutput {
 
 
 	public void writeOutput(ClusRun cr, boolean detail, boolean outputtrain, double[] clusteringWeights) throws IOException, ClusException {
-
-
-
-
-
 		//m_Writer.println("@attribute Dataset {"+m_Sett.getAppName()+"}");
 		m_Writer.print(m_Sett.getDataFile()+",");
 		//m_Writer.println("@attribute Run numeric");
@@ -93,9 +88,6 @@ public class ClusErrorOutput extends ClusOutput {
 		//m_Writer.println("@attribute Algo string");
 		IntervalCollection targets = new IntervalCollection(m_Sett.getTarget());
 		int nrTargets = targets.getMinIndex() - targets.getMaxIndex() + 1;
-		
-		
-		
 		//m_Writer.println("@attribute PruningMethod string");
 		m_Writer.print(m_Sett.getPruningMethodName()+",");
 		//m_Writer.println("@attribute Targets string");
@@ -105,6 +97,10 @@ public class ClusErrorOutput extends ClusOutput {
 		//m_Writer.println("@attribute MainTarget numeric");
 		m_Writer.print(m_Sett.getMainTarget());
 		//m_Writer.println("@attribute PrunedModelSize numeric");
+		if (m_Sett.getMainTarget().equals("Default")) {
+			// part below caused number parsing error during cross-validation
+			return;
+		}
 		int mt =new Integer(m_Sett.getMainTarget());
 		//IntervalCollection targets = new IntervalCollection(m_Sett.getTarget());
 		int mt_idx = mt-targets.getMinIndex();

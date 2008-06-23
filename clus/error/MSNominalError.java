@@ -106,7 +106,7 @@ public class MSNominalError extends ClusNominalError {
 	}
 	
 	public void add(ClusError other) {
-		MSError oe = (MSError)other;
+		MSNominalError oe = (MSNominalError)other;
 		for (int i = 0; i < m_Dim; i++) {
 			m_SumErr[i] += oe.m_SumErr[i];
 			m_SumSqErr[i] += oe.m_SumSqErr[i];
@@ -139,5 +139,5 @@ public class MSNominalError extends ClusNominalError {
 	public double computeLeafError(ClusStatistic stat) {
 		ClassificationStat cstat = (ClassificationStat)stat;
 		return cstat.getSS(m_Weights) * cstat.getNbAttributes();
-	}		
+	}
 }

@@ -947,15 +947,15 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		// Calc error
 		calcError(cr, m_Summary);
-		errOutput.writeOutput(cr,false,false,getStatManager().getClusteringWeights().m_Weights);
-		if (m_Sett.isOutputFoldModels())	{
+		errOutput.writeOutput(cr, false, false, getStatManager().getClusteringWeights().m_Weights);
+		if (m_Sett.isOutputFoldModels()) {
 			// Write output to file and also store in .model file
 			output.writeOutput(cr, false);
-			if (!Settings.m_EnsembleMode){
-			ClusModelInfo mi = cr.getModelInfo(ClusModel.PRUNED);
-			// Commented out because otherwise error: combining errors of different models
-			// mi.setName("Fold: " + (fold + 1));
-			io.addModel(mi);
+			if (!Settings.m_EnsembleMode) {
+				ClusModelInfo mi = cr.getModelInfo(ClusModel.PRUNED);
+				// Commented out because otherwise error: combining errors of different models
+				// mi.setName("Fold: " + (fold + 1));
+				io.addModel(mi);
 			}
 		} else {
 			output.writeBrief(cr);
@@ -966,19 +966,13 @@ public class Clus implements CMDLineArgsProvider {
 	public final void xvalRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".xval", m_Schema, m_Sett);
 		output.writeHeader();
-		
-		
-		
 		ClusErrorOutput errOutput = new ClusErrorOutput(m_Sett.getAppName() + ".err", m_Schema,m_Sett);
-		errOutput.writeHeader();
-		
+		errOutput.writeHeader();		
 		ClusStatistic target = getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
 		PredictionWriter wrt = new PredictionWriter(m_Sett.getAppName()	+ ".test.pred", m_Sett, target);
 		wrt.globalInitialize(m_Schema);
 		XValMainSelection sel = getXValSelection();
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
-		
-		System.out.println("nr folds:" +sel.getNbFolds());
 		for (int fold = 0; fold < sel.getNbFolds(); fold++) {
 			doOneFold(fold, clss, sel, io, wrt, output,errOutput);
 		}
@@ -1094,11 +1088,9 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
-	public void updateStatistic(String fname, ClusStatistic[] stats)
-			throws ClusException, IOException {
+	public void updateStatistic(String fname, ClusStatistic[] stats) throws ClusException, IOException {
 		MyClusInitializer init = new MyClusInitializer();
-		TupleIterator iter = new DiskTupleIterator(fname, init,
-				getPreprocs(true), m_Sett);
+		TupleIterator iter = new DiskTupleIterator(fname, init,	getPreprocs(true), m_Sett);
 		iter.init();
 		DataTuple tuple = iter.readTuple();
 		while (tuple != null) {
