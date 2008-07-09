@@ -18,11 +18,8 @@ public class NoStopSearch extends SearchAlgorithmImpl{
 		TargetSet best_set = new TargetSet(mainTarget);
 		double best_err = eval(best_set,mainTarget);
 		
-		
-		
-		
-		
 		System.out.println("Best set = "+best_set+" MSE "+(best_err-1)*-1);
+
 		
 		TargetSet overal_best_set = new TargetSet(mainTarget);
 		double overal_best_err = eval(best_set,mainTarget);

@@ -8,6 +8,7 @@ import sit.TargetSet;
 import clus.Clus;
 import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.tdidt.ClusDecisionTree;
+import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
 import clus.data.type.ClusAttrType;
 import clus.data.type.ClusSchema;
@@ -49,6 +50,25 @@ public class ClusLearner extends MTLearnerImpl {
 			
 			
 			schema.addIndices(ClusSchema.ROWS);
+			
+			
+			for(int i = 0; i<train.getNbRows();i++){
+				DataTuple tr = train.getTuple(i);
+				
+				
+				tr.setWeight(0);
+				for(int j= 0;j <test.getNbRows();j++){
+					DataTuple te = test.getTuple(j);
+					tr.setWeight(tr.getWeight()+1.0/(1+Math.pow(te.euclDistance(tr),1)));
+				}
+				
+				tr.setWeight(tr.getWeight()/test.getNbRows());
+				//tr.setWeight(1);
+				//System.out.println(tr.getWeight());
+				
+			}
+			
+			
 			ClusRun cr = m_Clus.train(train);
 			ClusModel pruned = cr.getModel(ClusModel.PRUNED);
 			/*

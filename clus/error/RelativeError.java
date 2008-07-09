@@ -50,6 +50,9 @@ public class RelativeError extends ClusNumericError{
 				double real_i = getAttr(i).getNumeric(real);
 				double predicted_i = getAttr(i).getNumeric(pred);
 				double err = Math.abs(real_i - predicted_i)/real_i;
+				System.out.println(real_i);	
+				
+				
 				m_SumRelErr[i] += err;
 			
 		}		
@@ -65,6 +68,8 @@ public class RelativeError extends ClusNumericError{
 		int nb = getNbExamples();
 	//	System.out.println(m_SumRelErr[i]);
 		double err = nb != 0.0 ? m_SumRelErr[i]/nb : 0.0;
+		System.out.println(err);
+		
 		return err;
 	}
 	

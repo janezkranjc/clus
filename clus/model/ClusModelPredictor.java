@@ -20,5 +20,15 @@ public class ClusModelPredictor {
 		}
 		return predictions;
 	}
+	
+	public static DataTuple predict(ClusModel model, DataTuple test) throws ClusException {
+		ClusSchema schema = test.getSchema();
+		schema.attachModel(model);
+		DataTuple prediction = new DataTuple(schema);
+		ClusStatistic stat = model.predictWeighted(test);
+		stat.predictTuple(prediction);
+		return prediction;
+	}
+
 
 }

@@ -326,6 +326,9 @@ public class Sit implements CMDLineArgsProvider{
 			
 			RowData[] predictions = m_Learner.LearnModel(searchResult);
 			
+			
+			
+			
 			/*
 			RowData t = predictions[0];
 			DataTuple tt = t.getTuple(0);
@@ -340,6 +343,113 @@ public class Sit implements CMDLineArgsProvider{
 			double error = 0;
 			String errorName = m_Sett.getError();
 			if(errorName.equals("MSE")){
+				error = Evaluator.getMSE(predictions,errorIdx);
+			}
+			else if(errorName.equals("MisclassificationError")){
+				error = Evaluator.getMisclassificationError(predictions,errorIdx);
+			}else{
+				
+				error = Evaluator.getPearsonCorrelation(predictions,errorIdx);
+			}
+			
+		
+	
+			
+			//errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt),error,"\""+searchResult.toString()+" \"",dt,dp);
+			errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt+1),error,"\""+searchResult.toString()+" \"",dif);
+			
+		}
+		
+		
+		
+		
+	}
+	
+	public void YATSXValRun() throws Exception{
+		ErrorOutput errOut = new ErrorOutput(this.m_Sett);
+		errOut.writeHeader();
+		System.out.println("Starting XVal run");
+		
+		
+		XValRandomSelection m_XValSel = null;
+		int nrFolds = 500;
+		try {
+			
+			m_XValSel = new XValRandomSelection(m_Data.getNbRows(),nrFolds);
+		} catch (ClusException e) {
+			e.printStackTrace();
+		}
+		
+		int mt = new Integer(m_Sett.getMainTarget())-1;
+		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
+		int errorIdx = mainTarget.getArrayIndex();
+		
+		for(int i=0;i<nrFolds;i++){
+			System.out.println("Outer XVAL fold "+(i+1));
+			XValSelection msel = new XValSelection(m_XValSel,i);
+			RowData train = (RowData) m_Data.cloneData();
+			RowData test = (RowData) train.select(msel);
+			
+			//System.out.println(test.getNbRows());
+			
+			/* Init the Learner */
+			InitLearner(train);
+			/* Init the Search algorithm */
+			InitSearchAlgorithm();
+						
+			Long d = (new Date()).getTime();
+			TargetSet searchResult = search();
+			
+			//find the error
+			m_Learner.setTestData(test);
+						
+			RowData[] predictions = m_Learner.LearnModel(searchResult);
+			
+			
+			//add new data to training		
+			
+			
+
+			
+			RowData pred = predictions[1];
+			RowData xtr_train = (RowData) test.deepCloneData();
+			for(int t=0;t<pred.getNbRows();t++){
+				DataTuple tp = pred.getTuple(t);
+				double dp = mainTarget.getNumeric(tp);
+			    DataTuple clone = xtr_train.getTuple(t);
+			    ((NumericAttrType) mainTarget).setNumeric(clone, dp);
+			
+			}
+			
+			
+			RowData new_train = new RowData(train.getSchema(),train.getNbRows()+xtr_train.getNbRows());
+			
+			for(int j=0;j<train.getNbRows();j++){
+				new_train.setTuple(train.getTuple(j),j);
+			}
+			for(int j=train.getNbRows();j<train.getNbRows()+xtr_train.getNbRows();j++){
+				new_train.setTuple(xtr_train.getTuple(j-train.getNbRows()),j);
+			}
+			
+			InitLearner(xtr_train);
+			m_Learner.setTestData(test);
+			
+			//predictions = m_Learner.LearnModel(searchResult);
+			
+			
+			
+			
+			Long new_d = (new Date()).getTime();
+			Long dif = new_d - d;
+			
+			double error = 0;
+			String errorName = m_Sett.getError();
+			
+			if(errorName.equals("RME")){
+				error = Evaluator.getRelativeError(predictions,errorIdx);
+				System.out.println(error);
+			}
+			else if(errorName.equals("MSE")){
 				error = Evaluator.getMSE(predictions,errorIdx);
 			}
 			else if(errorName.equals("MisclassificationError")){
@@ -397,6 +507,8 @@ public class Sit implements CMDLineArgsProvider{
 		/* Search for the optimal subset */
 		sit.m_SearchSelection = 1;
 		sit.XValRun();
+		
+		//sit.YATSXValRun();
 				
 		System.out.println("Finished");
 	}

@@ -25,11 +25,15 @@ public class KNNLearner extends MTLearnerImpl {
 	@Override
 	protected RowData[] LearnModel(TargetSet targets, RowData train,RowData test) {
 		
-		writeCSV("train.csv",targets,train);
-		writeCSV("test.csv",targets,test);
+		String appName = m_Sett.getAppName();
 		
-		//System.out.println(test.getNbRows());
+		writeCSV("train.csv"+appName,targets,train);
+		writeCSV("test.csv"+appName,targets,test);
 		
+		/*
+		System.out.println(train.getNbRows());
+		System.out.println(test.getNbRows());
+		*/
 		
 		NumericAttrType[] descriptive = test.m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE);
 		int nrFeatures = descriptive.length;
@@ -39,12 +43,14 @@ public class KNNLearner extends MTLearnerImpl {
 			///ga_basic_SIT <config file> <fold size> <# features> <# targets> <training data> <test data> <output file name>
 
 			int benchmk_cnt = (train.getNbRows());
-			///home/beau/SIT_evaluation/gent/top40/
+			// /data/home/u0051096/top40/
 			String[] commands = new String[]{"/home/beau/SIT_evaluation/gent/top40/ga_basic_SIT","config.txt",
-					 test.getNbRows()+"",nrFeatures+"",nrTargets+"","train.csv","test.csv","result.csv",benchmk_cnt+""};
+					 test.getNbRows()+"",nrFeatures+"",nrTargets+"","train.csv"+appName,"test.csv"+appName,"result.csv"+appName,benchmk_cnt+""};
 			
+			
+
 			for(int i = 0;i<commands.length;i++){
-		//		System.out.print(commands[i]+" ");
+				System.out.print(commands[i]+" ");
 			}
 	//		System.out.println();
 			
@@ -56,7 +62,7 @@ public class KNNLearner extends MTLearnerImpl {
 		        new BufferedReader
 		          (new InputStreamReader(child.getInputStream()));
 		      while ((line = input.readLine()) != null) {
-		  //      System.out.println(line);
+		     //   System.out.println(line);
 		      }
 
 			
@@ -86,7 +92,7 @@ public class KNNLearner extends MTLearnerImpl {
 	private RowData readResult(TargetSet targets,RowData result){
 		
 		try {
-			FileReader input = new FileReader("result.csv");
+			FileReader input = new FileReader("result.csv"+m_Sett.getAppName());
 			BufferedReader bufRead = new BufferedReader(input);
 			String line = bufRead.readLine();
 			

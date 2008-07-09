@@ -38,13 +38,23 @@ public class SSReductionHeuristic extends ClusHeuristic {
 	}
 	
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
-		double n_tot = tstat.m_SumWeight; 
+		double n_tot = tstat.m_SumWeight;
+		
 		double n_pos = pstat.m_SumWeight; 
 		double n_neg = n_tot - n_pos;
+		
+		
+		
 		// Acceptable?
+		/*
 		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
 			return Double.NEGATIVE_INFINITY;
 		}
+		*/
+		if(pstat.m_nbEx <= 2 || (tstat.m_nbEx - pstat.m_nbEx) <= 2){
+			return Double.NEGATIVE_INFINITY;
+		}
+		
 		// Compute SS
 		double s_ss_tot = tstat.getSS(m_TargetWeights);		
 		double s_ss_pos = pstat.getSS(m_TargetWeights);

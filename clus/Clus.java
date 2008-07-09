@@ -81,10 +81,10 @@ public class Clus implements CMDLineArgsProvider {
 			"tuneftest", "load", "soxval", "bag", "obag", "show", "knn",
 			"knnTree", "beam", "gui", "fillin", "rules", "weka", "corrmatrix",
 			"tunesize", "out2model", "test", "normalize", "tseries", "writetargets", "fold", "forest",
-			"copying","sit"};
+			"copying","sit","tc"};
 
 	public final static int[] OPTION_ARITIES = {0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0,
-			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0,0};
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0,0,0};
 
 	protected Settings m_Sett = new Settings();
 	protected ClusSummary m_Summary = new ClusSummary();
@@ -802,6 +802,9 @@ public class Clus implements CMDLineArgsProvider {
 		return cr;
 	}
 	
+	
+	
+	
 	public final void singleRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
 		m_Summary.setTotalRuns(1);
@@ -962,6 +965,43 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		return cr;
 	}
+	
+	public final ClusRun doTransOneFold(int fold, ClusInductionAlgorithmType clss, XValMainSelection sel, ClusModelCollectionIO io, PredictionWriter wrt, ClusOutput output,ClusErrorOutput errOutput) throws IOException, ClusException {
+		System.out.println("TC");
+		
+		wrt.println("! Fold = " + fold);
+		
+		XValSelection msel = new XValSelection(sel, fold);
+		ClusRun cr = partitionData(msel, fold + 1);
+		cr.adjustInstanceWeights();
+		
+		// Create statistic for the training set
+		getStatManager().computeTrainSetStat((RowData)cr.getTrainingSet());		
+		cr.getAllModelsMI().addModelProcessor(ClusModelInfo.TEST_ERR, wrt);		
+		// ARFFFile.writeCN2Data("test-"+i+".exs", cr.getTestSet());
+		// ARFFFile.writeCN2Data("train-"+i+".exs", (RowData)cr.getTrainingSet());
+		// Induce tree
+		induce(cr, clss);
+		if (m_Sett.isRuleWiseErrors()) {
+			addModelErrorMeasures(cr);
+		}
+		// Calc error
+		calcError(cr, m_Summary);
+		errOutput.writeOutput(cr,false,false,getStatManager().getClusteringWeights().m_Weights);
+		if (m_Sett.isOutputFoldModels())	{
+			// Write output to file and also store in .model file
+			output.writeOutput(cr, false);
+			if (!Settings.m_EnsembleMode){
+			ClusModelInfo mi = cr.getModelInfo(ClusModel.PRUNED);
+			// Commented out because otherwise error: combining errors of different models
+			// mi.setName("Fold: " + (fold + 1));
+			io.addModel(mi);
+			}
+		} else {
+			output.writeBrief(cr);
+		}
+		return cr;
+	}
 
 	public final void xvalRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".xval", m_Schema, m_Sett);
@@ -975,6 +1015,35 @@ public class Clus implements CMDLineArgsProvider {
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
 		for (int fold = 0; fold < sel.getNbFolds(); fold++) {
 			doOneFold(fold, clss, sel, io, wrt, output,errOutput);
+		}
+		wrt.close();
+		output.writeSummary(m_Summary);
+		output.close();
+		/* Cross-validation now includes a single run */
+		ClusRandom.initialize(m_Sett);
+		ClusRun run = singleRunMain(clss, m_Summary);
+		saveModels(run, io);
+		io.save(getSettings().getFileAbsolute(m_Sett.getAppName() + ".model"));
+	}
+	
+	public final void tcRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
+		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".xval", m_Schema, m_Sett);
+		output.writeHeader();
+		
+		
+		
+		ClusErrorOutput errOutput = new ClusErrorOutput(m_Sett.getAppName() + ".err", m_Schema,m_Sett);
+		errOutput.writeHeader();
+		
+		ClusStatistic target = getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
+		PredictionWriter wrt = new PredictionWriter(m_Sett.getAppName()	+ ".test.pred", m_Sett, target);
+		wrt.globalInitialize(m_Schema);
+		XValMainSelection sel = getXValSelection();
+		ClusModelCollectionIO io = new ClusModelCollectionIO();
+		
+		System.out.println("nr folds:" +sel.getNbFolds());
+		for (int fold = 0; fold < sel.getNbFolds(); fold++) {
+			doTransOneFold(fold, clss, sel, io, wrt, output,errOutput);
 		}
 		wrt.close();
 		output.writeSummary(m_Summary);
@@ -1215,6 +1284,10 @@ public class Clus implements CMDLineArgsProvider {
 					clus.isxval = true;
 					clus.initialize(cargs, clss);
 					clus.xvalRun(clss);
+				} else if (cargs.hasOption("tc")) {
+					clus.isxval = true;
+					clus.initialize(cargs, clss);
+					clus.tcRun(clss);
 				} else if (cargs.hasOption("fold")) {
 					clus.isxval = true;
 					clus.initialize(cargs, clss);

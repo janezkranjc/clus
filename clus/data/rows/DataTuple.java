@@ -78,6 +78,18 @@ public class DataTuple implements Serializable {
 		return res;
 	}
 	
+	
+	public double euclDistance(DataTuple other)
+	{
+		double result = 0;
+		for(int i =0;i<m_Doubles.length;i++)
+		{
+			double t = this.getDoubleVal(i) -other.getDoubleVal(i);
+			t = t*t;
+			result += t;
+		}
+		return Math.sqrt(result);
+	}
 	public final DataTuple deepCloneTuple() {
 		DataTuple res = new DataTuple();
 		if (m_Ints != null) {

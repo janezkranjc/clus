@@ -45,28 +45,27 @@ public class ClusErrorOutput extends ClusOutput {
 		m_Writer.println("@attribute Run numeric");
 		m_Writer.println("@attribute Fold {01,02,03,04,05,06,07,08,09,10}");//TODO automaticly adjust to nr of folds, 10 is the default
 		m_Writer.println("@attribute Algo string");
-		m_Writer.println("@attribute AlgoOptions string");
-		m_Writer.println("@attribute PruningMethod string");
+
 		m_Writer.println("@attribute Targets string");
 		m_Writer.println("@attribute Descriptive string");
 		m_Writer.println("@attribute MainTarget numeric");
 		
 		
 		//the errors
+		m_Writer.println("@attribute RMSE_Default numeric");
+		m_Writer.println("@attribute RMSE_Original numeric");
+		m_Writer.println("@attribute RMSE_Pruned numeric");
+
 		m_Writer.println("@attribute WRMSE_Default numeric");
 		m_Writer.println("@attribute WRMSE_Original numeric");
 		m_Writer.println("@attribute WRMSE_Pruned numeric");
-
-		m_Writer.println("@attribute PearsonCorrelation_Default numeric");
-		m_Writer.println("@attribute PearsonCorrelation_Original numeric");
-		m_Writer.println("@attribute PearsonCorrelation_Pruned numeric");
 
 		//the modelsizes
 		m_Writer.println("@attribute OriginalModelSize numeric");
 		m_Writer.println("@attribute PrunedModelSize numeric");
 		
 		//support targets
-		m_Writer.println("@attribute SupportTargets string");
+//		m_Writer.println("@attribute SupportTargets string");
 		m_Writer.println("@attribute nrSupportTargets numeric");
 		m_Writer.println("@attribute inductionTime numeric");
 		
@@ -119,6 +118,8 @@ public class ClusErrorOutput extends ClusOutput {
 					ClusErrorList parent = inf.getError(ClusModelInfo.TEST_ERR);
 					
 					ClusError err2 = parent.getError(i);
+					//System.out.print(inf.getName()+": ");
+					//System.out.println(err2.getName());
 					m_Writer.print(","+err2.getModelErrorComponent(mt_idx));
 				}
 			}
@@ -130,14 +131,14 @@ public class ClusErrorOutput extends ClusOutput {
 		//m_Writer.println("@attribute SupportTargets string");
 		
 		int supportTargetCounter = -1;
-		m_Writer.print(",[");
+	//	m_Writer.print(",[");
 		for(int j = 0;j<clusteringWeights.length;j++){
 			if(clusteringWeights[j] == 1){
-			m_Writer.print((j+1)+"_");
+		//	m_Writer.print((j+1)+"_");
 			supportTargetCounter++;
 			}
 		}
-		m_Writer.print("]");
+	//	m_Writer.print("]");
 		//m_Writer.println("@attribute nrSupportTargets numeric");
 		m_Writer.print(","+supportTargetCounter);
 		//induction time

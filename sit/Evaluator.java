@@ -46,6 +46,7 @@ public final class Evaluator {
 			//System.out.println("main target not in targetset");
 			return 0;
 		}
+		
 		return error.getModelErrorComponent(errorIdx);
 		
 	}
@@ -86,6 +87,7 @@ public final class Evaluator {
 				
 		}
 		double err = error.getModelErrorComponent(errorIdx); 
+		
 		return err;
 		
 	}

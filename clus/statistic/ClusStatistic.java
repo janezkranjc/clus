@@ -39,6 +39,9 @@ public abstract class ClusStatistic implements Serializable {
   
 	public double m_SumWeight; // the weighted sum of all example
 	
+	public int m_nbEx;
+	
+	
 	public abstract ClusStatistic cloneStat();
 	
 	public ClusStatistic cloneSimple() {
@@ -67,6 +70,7 @@ public abstract class ClusStatistic implements Serializable {
   }
 
 	public void setSDataSize(int nbex) {
+		m_nbEx = nbex;
 	}
 	
 	public void optimizePreCalc(RowData data) {
