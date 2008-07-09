@@ -115,7 +115,7 @@ public class HMCAverageTreeModel implements ClusModel {
 	public void printModelToPythonScript(PrintWriter wrt) {
 	}
 		
-	public void attachModel(Hashtable table) throws ClusException {
+	public void attachModel(HashMap table) throws ClusException {
 		for (int i = 0; i < m_Models.size(); i++) {
 			ClusModel model = (ClusModel)m_Models.get(i);
 			model.attachModel(table);

@@ -247,7 +247,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 						beam.addModel(new_model);
 						setBeamChanged(true);
 						// Uncomment the following to print each model that is added to the beam
-						((ClusNode)new_model.getModel()).printTree();
+						// ((ClusNode)new_model.getModel()).printTree();
 					}
 				}
 			}
@@ -267,9 +267,6 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 	}
 	
 	public void refineModel(ClusBeamModel model, ClusBeam beam, ClusRun run) throws IOException {
-		System.out.println();
-		System.out.println("Refine model");
-		System.out.println("************");
 		ClusNode tree = (ClusNode)model.getModel();
 		/* Compute size */
 		if (m_MaxTreeSize >= 0) {
@@ -412,11 +409,8 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 		//MyFile beamlog = new MyFile("beam.log", true);
 		//tryLogBeam(beamlog, beam, "Initial beam:");
 		int i = 0;
-		System.out.print("Step: ");
 		while (true) {
-			if (i != 0) System.out.print(",");
-			System.out.print(i);
-			System.out.flush();
+			System.out.println("Step: "+i);
 			refineBeam(beam, run);
 			if (isBeamChanged()) {
 				//tryLogBeam(beamlog, beam, "Step:"+i);
@@ -426,7 +420,6 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 			}
 			i++;
 		}
-		System.out.println();
 		setBeam(beam);	
 		double best = beam.getBestModel().getValue();
 		double worst = beam.getWorstModel().getValue();

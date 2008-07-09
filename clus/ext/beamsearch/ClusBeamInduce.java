@@ -40,7 +40,6 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 
-
 public class ClusBeamInduce extends ClusInductionAlgorithm {
 	
 	protected NominalSplit m_Split;

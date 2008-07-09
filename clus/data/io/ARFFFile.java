@@ -68,7 +68,7 @@ public class ARFFFile {
 				int idx = atype.indexOf('%');
 				if (idx != -1) atype = atype.substring(0,idx-1);				
 				atype = atype.trim();
-				addAttribute(schema, aname, atype);
+				addAttribute(schema, aname, atype, attrMap);
 				expected = 2;
 			} else if (token.equals(TAG_NAME[2])) {
 				if (expected != 2) throw new IOException(TAG_NAME[expected]+TAG_ERROR+token+"'");
@@ -102,9 +102,15 @@ public class ARFFFile {
 		}
 	}	
 		
-	protected void addAttribute(ClusSchema schema, String aname, String atype) throws IOException, ClusException {
+	protected void addAttribute(ClusSchema schema, String aname, String atype, HashMap attrMap) throws IOException, ClusException {
 		Settings sett = schema.getSettings();
 		String uptype = atype.toUpperCase();
+		while (attrMap.containsKey(aname)) {
+			int[] cnt = (int[])attrMap.get(aname);
+			int idx = ++cnt[0];
+			aname = aname + "-" + idx;			
+		}
+		attrMap.put(aname, new int [1]);
 		if (uptype.equals("NUMERIC") || uptype.equals("REAL") || uptype.equals("INTEGER")) {
 			schema.addAttrType(new NumericAttrType(aname));
 		} else if (uptype.equals("CLASSES")) {

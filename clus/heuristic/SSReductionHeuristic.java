@@ -55,7 +55,7 @@ public class SSReductionHeuristic extends ClusHeuristic {
 		double ss_tot = tstat.getSS(m_TargetWeights);		
 		double ss_pos = pstat.getSS(m_TargetWeights);
 		double ss_neg = tstat.getSSDiff(m_TargetWeights, pstat);
-		printInfo(ss_tot, ss_pos, ss_neg, pstat);		
+		// printInfo(ss_tot, ss_pos, ss_neg, pstat);		
 		return FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos, ss_neg);
 	}
 		
