@@ -118,7 +118,9 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 		for (int i=0; i<arr.size();i++){
 			    PruneTree pruner = getStatManager().getTreePruner(null);
 			    pruner.setTrainingData((RowData)cr.getTrainingSet());
-			    pruner.prune((ClusNode)((ClusBeamModel)arr.get(i)).getModel());
+			    ClusNode tree = (ClusNode)((ClusBeamModel)arr.get(i)).getModel();
+			    tree.updateTree();
+			    pruner.prune(tree);
 		}
 	}
 

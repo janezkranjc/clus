@@ -274,7 +274,7 @@ public class ClusNode extends MyNode implements ClusModel {
 		if (getClusteringStat() != null) getClusteringStat().calcMean();
 		if (getTargetStat() != null) getTargetStat().calcMean();
 	}
-	
+		
 	public final int updateArity() {
 		int arity = m_Test.updateArity();
 		setNbChildren(arity);
