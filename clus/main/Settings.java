@@ -664,7 +664,7 @@ public class Settings implements Serializable {
  ***********************************************************************/	
 		
 	public final static String[] HEURISTICS = { "Default", "ReducedError",
-		"Gain", "GAIN_RATIO", "SSPD", "SSReduction", "MEstimate", "Morishita", "DispersionAdt", "DispersionMlt",
+		"Gain", "GainRatio", "SSPD", "SSReduction", "MEstimate", "Morishita", "DispersionAdt", "DispersionMlt",
 		"WRDispersionAdt", "WRDispersionMlt", "GeneticDistance", "SemiSupervised"};
 	
 	public final static int HEURISTIC_DEFAULT = 0;	
