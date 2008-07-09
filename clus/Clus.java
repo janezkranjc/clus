@@ -1221,10 +1221,6 @@ public class Clus implements CMDLineArgsProvider {
 					clus.isxval = true;
 					clus.initialize(cargs, clss);
 					clus.xvalRun(clss);
-				} else if (cargs.hasOption("tc")) {
-					clus.isxval = true;
-					clus.initialize(cargs, clss);
-					clus.tcRun(clss);
 				} else if (cargs.hasOption("fold")) {
 					clus.isxval = true;
 					clus.initialize(cargs, clss);
