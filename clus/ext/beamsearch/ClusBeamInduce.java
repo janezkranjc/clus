@@ -73,32 +73,31 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 		root.updateTree();
 		return root;
 	}
-	
+
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		m_Search.beamSearch(cr);
 		ClusModelInfo def_model = cr.addModelInfo(ClusModel.DEFAULT);
 		def_model.setModel(ClusDecisionTree.induceDefault(cr));
 		def_model.setName("Default");
 		ArrayList lst = m_Search.getBeam().toArray();
+		updateAllPredictions(lst);
 		
 		//the pruning is ON for all setings! This could be turned off when needed!
-		if (cr.getStatManager().getSettings().getBeamTreeMaxSize() <= -1) postPruneBeamModels(cr, lst);
-		
-		if (cr.getStatManager().getSettings().getBeamSortOnTrainParameter())sortModels(cr, lst);
-		if (!cr.getStatManager().getSettings().isFastBS())writeSimilarityFile(lst, cr);
-
+		if (getSettings().getBeamTreeMaxSize() <= -1) postPruneBeamModels(cr, lst);
+		if (getSettings().getBeamSortOnTrainParameter()) sortModels(cr, lst);
+		if (!getSettings().isFastBS()) writeSimilarityFile(lst, cr);
+	
 		boolean toForest = cr.getStatManager().getSettings().isBeamToForest();
 		ClusForest bForest = new ClusForest(getStatManager());
 		
 		for (int i = 0; i < lst.size(); i++) {
 			ClusBeamModel mdl = (ClusBeamModel)lst.get(lst.size()-i-1);
-			ClusNode tree = (ClusNode)mdl.getModel();			
-			tree.updateTree();
 			ClusModelInfo model_info = cr.addModelInfo(i+1);
+			ClusNode tree = (ClusNode)mdl.getModel();			
 			model_info.setModel(tree);
 			model_info.setName("Beam "+(i+1));
 			model_info.clearAll();
-			if (toForest)bForest.addModelToForest((ClusModel)tree);
+			if (toForest) bForest.addModelToForest((ClusModel)tree);
 		}
 		if (toForest){
 			ClusModelInfo forest_info = cr.addModelInfo(lst.size()+1);
@@ -115,15 +114,22 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 	 * @throws ClusException
 	 */
 	public void postPruneBeamModels(ClusRun cr, ArrayList arr) throws ClusException{
-		for (int i=0; i<arr.size();i++){
+		updateAllPredictions(arr);
+		for (int i = 0; i < arr.size(); i++) {
 			    PruneTree pruner = getStatManager().getTreePruner(null);
 			    pruner.setTrainingData((RowData)cr.getTrainingSet());
 			    ClusNode tree = (ClusNode)((ClusBeamModel)arr.get(i)).getModel();
-			    tree.updateTree();
 			    pruner.prune(tree);
 		}
 	}
 
+	public void updateAllPredictions(ArrayList arr) {
+		for (int i = 0; i < arr.size(); i++) {
+		    ClusNode tree = (ClusNode)((ClusBeamModel)arr.get(i)).getModel();
+		    tree.updateTree();
+		}
+	}
+	
 	/**Dragi, JSI
 	 * Sorts the beam according to train accuracy/correlation in descending order
 	 * In case of equal train accuracy/correlation 

@@ -52,13 +52,20 @@ public class SSReductionHeuristic extends ClusHeuristic {
 		}
 */
 		// Compute SS
-		double s_ss_tot = tstat.getSS(m_TargetWeights);		
-		double s_ss_pos = pstat.getSS(m_TargetWeights);
-		double s_ss_neg = tstat.getSSDiff(m_TargetWeights, pstat);
-		return FTest.calcSSHeuristic(n_tot, s_ss_tot, s_ss_pos, s_ss_neg);
+		double ss_tot = tstat.getSS(m_TargetWeights);		
+		double ss_pos = pstat.getSS(m_TargetWeights);
+		double ss_neg = tstat.getSSDiff(m_TargetWeights, pstat);
+		printInfo(ss_tot, ss_pos, ss_neg, pstat);		
+		return FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos, ss_neg);
 	}
-	
+		
 	public String getName() {
 		return "SS-Reduction (ftest: "+Settings.FTEST_VALUE+", "+m_TargetWeights.getName(m_Attrs)+")";
 	}
+	
+	public void printInfo(double ss_tot, double ss_pos, double ss_neg, ClusStatistic pstat) {
+		pstat.calcMean();
+		System.out.println("C-pos: "+pstat);
+		System.out.println("SS-pos: "+ss_pos+" SS-neg: "+ss_neg+" -> "+(ss_tot-(ss_pos+ss_neg)));
+	}	
 }

@@ -409,7 +409,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	 * Code to attach another dataset to the tree
 	 ***************************************************************************/
 	
-	public final void attachModel(Hashtable table) throws ClusException {
+	public final void attachModel(HashMap table) throws ClusException {
 		int nb_c = getNbChildren();
 		if (nb_c > 0) m_Test.attachModel(table);
 		for (int i = 0; i < nb_c; i++) {

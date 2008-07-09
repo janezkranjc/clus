@@ -23,7 +23,7 @@
 package clus.model.test;
 
 import java.io.Serializable;
-import java.util.Hashtable;
+import java.util.*;
 
 import clus.util.*;
 import clus.main.*;
@@ -236,7 +236,7 @@ public abstract class NodeTest implements Serializable {
 		return m_HeuristicValue;
 	}
 
-	public final void attachModel(Hashtable table) throws ClusException {
+	public final void attachModel(HashMap table) throws ClusException {
 		ClusAttrType type = getType();
 		ClusAttrType ntype = (ClusAttrType)table.get(type.getName());
 		if (ntype == null) throw new ClusException("Attribute "+type.getName()+" not in dataset");

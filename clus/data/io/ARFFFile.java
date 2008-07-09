@@ -24,6 +24,7 @@ package clus.data.io;
 
 import jeans.util.*;
 import java.io.*;
+import java.util.*;
 
 import clus.main.*;
 import clus.data.rows.*;
@@ -51,6 +52,7 @@ public class ARFFFile {
 		schema.setSettings(sett);
 		MStreamTokenizer tokens = m_Reader.getTokens();
 		String token = tokens.getToken().toUpperCase();
+		HashMap attrMap = new HashMap();
 		while (expected < 3) {
 			if (token == null) {
 				throw new IOException("End of ARFF file before "+TAG_NAME[expected]+" tag");

@@ -61,7 +61,7 @@ public interface ClusModel {
 	
 	public void printModelToPythonScript(PrintWriter wrt);
 	
-	public void attachModel(Hashtable table) throws ClusException;
+	public void attachModel(HashMap table) throws ClusException;
 	
 	public void retrieveStatistics(ArrayList list);
 	

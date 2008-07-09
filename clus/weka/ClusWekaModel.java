@@ -96,7 +96,7 @@ public class ClusWekaModel implements ClusModel {
 	public void saveModel(ObjectSaveStream strm) throws IOException {
 	}
 	
-	public void attachModel(Hashtable table) {
+	public void attachModel(HashMap table) {
 		System.err.println(getClass().getName()+"attachModel() not implemented");
 	}
 	

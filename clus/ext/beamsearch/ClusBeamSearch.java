@@ -99,11 +99,11 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 		System.out.println("BeamSearch : the maximal size of the trees is "+m_MaxTreeSize);
 		m_BeamPostPruning = sett.isBeamPostPrune();
 		m_Heuristic = (ClusBeamHeuristic)smanager.getHeuristic();
-    		int attr_heur = sett.getBeamAttrHeuristic();
-    		if (attr_heur != Settings.HEURISTIC_DEFAULT) {
-    			m_AttrHeuristic = smanager.createHeuristic(attr_heur);
-    			m_Heuristic.setAttrHeuristic(m_AttrHeuristic);    			
-    		}		
+   		int attr_heur = sett.getBeamAttrHeuristic();
+   		if (attr_heur != Settings.HEURISTIC_DEFAULT) {
+   			m_AttrHeuristic = smanager.createHeuristic(attr_heur);
+   			m_Heuristic.setAttrHeuristic(m_AttrHeuristic);    			
+   		}		
 	}
 	
 	public final boolean isBeamPostPrune() {
@@ -247,7 +247,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 						beam.addModel(new_model);
 						setBeamChanged(true);
 						// Uncomment the following to print each model that is added to the beam
-	//					((ClusNode)new_model.getModel()).printTree();
+						((ClusNode)new_model.getModel()).printTree();
 					}
 				}
 			}
@@ -267,6 +267,9 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 	}
 	
 	public void refineModel(ClusBeamModel model, ClusBeam beam, ClusRun run) throws IOException {
+		System.out.println();
+		System.out.println("Refine model");
+		System.out.println("************");
 		ClusNode tree = (ClusNode)model.getModel();
 		/* Compute size */
 		if (m_MaxTreeSize >= 0) {

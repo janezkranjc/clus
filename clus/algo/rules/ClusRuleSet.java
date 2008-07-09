@@ -226,7 +226,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 	}
 	
-	public void attachModel(Hashtable table) throws ClusException {
+	public void attachModel(HashMap table) throws ClusException {
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
 			rule.attachModel(table);

@@ -522,15 +522,19 @@ public class ClusSchema implements Serializable {
 	}
 	
 	public final void attachModel(ClusModel model) throws ClusException {
-		Hashtable table = buildAttributeHash();
+		HashMap table = buildAttributeHash();
 		model.attachModel(table);
 	}
 	
-	public final Hashtable buildAttributeHash() {
-		Hashtable hash = new Hashtable();
+	public final HashMap buildAttributeHash() throws ClusException {
+		HashMap hash = new HashMap();
 		for (int j = 0; j < m_NbAttrs; j++) {
 			ClusAttrType at = (ClusAttrType)m_Attr.get(j);
-			hash.put(at.getName(), at);
+			if (hash.containsKey(at.getName())) {
+				throw new ClusException("Duplicate attribute name: '"+at.getName()+"'");
+			} else {
+				hash.put(at.getName(), at);
+			}
 		}
 		return hash;
 	}

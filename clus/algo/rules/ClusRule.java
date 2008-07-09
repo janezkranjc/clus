@@ -446,7 +446,7 @@ public class ClusRule implements ClusModel, Serializable {
 	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException {
 	}
 	
-	public void attachModel(Hashtable table) throws ClusException {
+	public void attachModel(HashMap table) throws ClusException {
 		for (int i = 0; i < m_Tests.size(); i++) {
 			NodeTest test = (NodeTest)m_Tests.get(i);
 			test.attachModel(table);

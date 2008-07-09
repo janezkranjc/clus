@@ -83,7 +83,7 @@ public class ClusForest implements ClusModel, Serializable{
 		}
 	}
 
-	public void attachModel(Hashtable table) throws ClusException {
+	public void attachModel(HashMap table) throws ClusException {
 		ClusModel model;
 		for (int i = 0; i < m_Forest.size(); i++){
 			model = (ClusModel)m_Forest.get(i);
