@@ -44,15 +44,10 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 	
 	protected NominalSplit m_Split;
 	protected ClusBeamSearch m_Search;
-	protected ArrayList m_BeamSimTrain;
-	protected ArrayList m_BeamSimTest;
-	static boolean isHeaderWritten = false;
 	
 	public ClusBeamInduce(ClusSchema schema, Settings sett, ClusBeamSearch search) throws ClusException, IOException {
 		super(schema, sett);
 		m_Search = search;
-		m_BeamSimTrain = new ArrayList();
-		m_BeamSimTest = new ArrayList();
 	}
 	
 	public void initializeHeuristic() {
@@ -84,8 +79,9 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 		//the pruning is ON for all setings! This could be turned off when needed!
 		if (getSettings().getBeamTreeMaxSize() <= -1) postPruneBeamModels(cr, lst);
 		if (getSettings().getBeamSortOnTrainParameter()) sortModels(cr, lst);
-		if (!getSettings().isFastBS()) writeSimilarityFile(lst, cr);
-	
+//		if (!getSettings().isFastBS()) writeSimilarityFile(lst, cr);
+		ClusBeamSimilarityOutput bsimout = new ClusBeamSimilarityOutput(getSettings());
+		bsimout.appendToFile(lst, cr);
 		boolean toForest = cr.getStatManager().getSettings().isBeamToForest();
 		ClusForest bForest = new ClusForest(getStatManager());
 		
@@ -185,58 +181,4 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 		for (int m = 0; m < size; m++)arr.add(models[m]);
 	}
 	
-	public void writeSimilarityFile(ArrayList beam, ClusRun run) throws IOException, ClusException{
-		String str = run.getStatManager().getSettings().getFileAbsolute(run.getStatManager().getSettings().getAppName())+".bsim";
-		File output = new File(str);
-		if (!isHeaderWritten)writeHeader(output, run.getStatManager().getSettings());
-		FileWriter wrtr = new FileWriter(output, true);
-		double[]sim = new double [2];
-		//sim[0] - training
-		//sim[1] - testing
-		NumberFormat outF = ClusFormat.FOUR_AFTER_DOT;
-		if ((run.getStatManager().getMode()!=1)&&(run.getStatManager().getMode()!=0)){
-			System.err.println(getClass().getName()+"writeSimilarityFile(): Unhandled Type of Target Attribute");
-			throw new ClusException("Unhandled Type of Target Attribute");
-		}
-		boolean isNum = (run.getStatManager().getMode()==1);
-		sim[0] = ClusBeamModelDistance.calcBeamSimilarity(beam, (RowData)run.getTrainingSet(), isNum);
-		m_BeamSimTrain.add(Double.valueOf(sim[0]));
-		try {
-		sim[1] = ClusBeamModelDistance.calcBeamSimilarity(beam, run.getTestSet(), isNum);
-		m_BeamSimTest.add(Double.valueOf(sim[1]));	
-			if (Settings.IS_XVAL){
-				wrtr.write("Fold "+run.getIndexString()+":\t"+outF.format(sim[0])+"\t\t"+outF.format(sim[1])+"\n");
-				if (run.getIndex() == run.getStatManager().getSettings().getXValFolds()){
-					//we reached the last fold, so we write a summary
-					wrtr.write("---------------------------------------\n");
-					wrtr.write("Summary:\t"+outF.format(getAverage(m_BeamSimTrain))+"\t\t"+outF.format(getAverage(m_BeamSimTest))+"\n");
-				}
-			}else wrtr.append("\t\t"+outF.format(sim[0])+"\t\t"+outF.format(sim[1])+"\n");
-		}catch(NullPointerException e){
-			if (!Settings.IS_XVAL) wrtr.append("Summary:\t"+outF.format(sim[0])+"\t\t"+"N/A"+"\n");
-		}
-		wrtr.flush();
-	}
-	
-	public void writeHeader(File output, Settings sett) throws IOException{
-		FileWriter wrtr = new FileWriter(output);
-		wrtr.write("Clus Beam-Search run\n");
-		wrtr.write("----------------------\n");
-		wrtr.write("Date:\t"+DateFormat.getInstance().format(sett.getDate())+"\n");
-		wrtr.write("File:\t"+output+"\n");
-		wrtr.write("\n");
-		wrtr.write("Beam Similarity Output\n");
-		wrtr.write("----------------------\n");
-		wrtr.write("\t\tTraining\tTesting\n");
-		wrtr.write("---------------------------------------\n");
-		wrtr.flush();
-		isHeaderWritten = true;
-	}
-	
-	public static double getAverage(ArrayList arr){
-	double result = 0.0;
-	for (int i = 0; i < arr.size(); i++)
-		result += ((Double)arr.get(i)).doubleValue();
-	return result / arr.size();
-	}
 }
