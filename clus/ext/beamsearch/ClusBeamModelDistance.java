@@ -26,7 +26,6 @@ package clus.ext.beamsearch;
 import java.util.ArrayList;
 
 import clus.data.rows.*;
-import clus.data.type.*;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.statistic.*;
@@ -45,35 +44,25 @@ public class ClusBeamModelDistance{
 	public ClusBeamModelDistance(ClusRun run, ClusBeam beam){
 		m_Data = (RowData)run.getTrainingSet();
 		if (m_Data == null){
-			System.err.println(getClass().getName()+": ClusBeamTreeDistance(): Error while reading the Data");
+			System.err.println(getClass().getName()+": ClusBeamTreeDistance(): Error while reading the train data");
 			System.exit(1);
 		}
 		m_NbRows = m_Data.getNbRows();
-		setStatType(run);
+		setStatType(run.getStatManager());
 		fillBeamWithPredictions(beam);
 	}
 	
-	public void setStatType(ClusRun run){
-			NumericAttrType[] num = run.getStatManager().getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			NominalAttrType[] nom = run.getStatManager().getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			if (num.length != 0) {
-				isNumeric = true;
-				m_NbTarget = num.length;
-			}
-			 else if (nom.length != 0){
-				 isNominal = true;
-				 m_NbTarget = nom.length;
-			 }
-			if (isNumeric && isNominal){
-				System.err.println(getClass().getName()+": initializeStat(): Combined Heuristic not yet implemented");
-				System.exit(1);
-			}
-			if (!isNumeric && !isNominal){
-				System.err.println(getClass().getName()+": initializeStat(): Unsupported Target Variable");
-				System.exit(1);
-			}
-			isStatInitialized = true;
+	public void setStatType(ClusStatManager mngr){
+		if (mngr.getMode() == ClusStatManager.MODE_CLASSIFY)
+			isNominal = true;
+		else if (mngr.getMode() == ClusStatManager.MODE_REGRESSION)
+			isNumeric = true;
+		else {
+			System.err.println(getClass().getName()+": initializeStat(): Unsupported Target Variables");
+			System.exit(1);			
 		}
+		isStatInitialized = true;
+	}
 	
 	public void fillBeamWithPredictions(ClusBeam beam){
 		ArrayList arr = beam.toArray();
@@ -108,7 +97,8 @@ public class ClusBeamModelDistance{
 		DataTuple tuple;
 		ArrayList predictions = new ArrayList();
 		double[] predictattr;// = new double[m_NbRows];
-		for (int k = 0; k < m_NbTarget; k++){
+		int nb_target = train.getSchema().getNbNumericTargetAttributes() + train.getSchema().getNbNominalTargetAttributes();
+		for (int k = 0; k < nb_target; k++){
 			predictattr = new double[train.getNbRows()];
 			for (int i = 0; i < (train.getNbRows()); i++){
 				tuple = train.getTuple(i);
@@ -385,12 +375,17 @@ public class ClusBeamModelDistance{
 	 */
 	public static double calcBeamSimilarity(ArrayList beam, RowData data, boolean isNum) {
 		ArrayList predictions = new ArrayList();
-		ClusBeamModel model;
+//		ClusBeamModel model;
 		double result = 0.0;
 		double dist;
 		for (int i = 0; i < beam.size(); i++){
-			model = (ClusBeamModel)beam.get(i);
-			predictions.add(getPredictionsDataSet(model.getModel(), data, isNum));
+			try{
+				ClusBeamModel model = (ClusBeamModel)beam.get(i);
+				predictions.add(getPredictionsDataSet(model.getModel(), data, isNum));
+			}catch(ClassCastException e){
+				ClusModel model = (ClusModel)beam.get(i);
+				predictions.add(getPredictionsDataSet(model, data, isNum));
+			}
 		}
 //		System.out.println("\tHeur\t\t\tSimilarity");
 		for (int m = 0; m < predictions.size(); m++){
