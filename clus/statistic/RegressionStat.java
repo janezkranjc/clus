@@ -121,6 +121,17 @@ public class RegressionStat extends ClusStatistic {
 		}
 	}	
 	
+	public void addScaled(double scale, ClusStatistic other) {
+		RegressionStat or = (RegressionStat)other;
+		m_SumWeight += scale * or.m_SumWeight;
+		m_nbEx += or.m_nbEx;
+		for (int i = 0; i < m_NbAttrs; i++) {
+			m_SumWeights[i] += scale * or.m_SumWeights[i];
+			m_SumValues[i] += scale * or.m_SumValues[i];
+			m_SumSqValues[i] += scale * or.m_SumSqValues[i];
+		}
+	}	
+	
 	public void subtractFromThis(ClusStatistic other) {
 		RegressionStat or = (RegressionStat)other;
 		m_SumWeight -= or.m_SumWeight;
