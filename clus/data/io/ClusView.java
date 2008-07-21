@@ -27,62 +27,87 @@ import java.io.*;
 import java.util.*;
 
 import clus.io.*;
+import clus.util.ClusException;
 import clus.data.rows.*;
 import clus.data.type.*;
 
 public class ClusView {
 
-	protected MyArray m_Attr = new MyArray();
+	protected ArrayList m_Attr = new ArrayList();
 
 	public int getNbAttributes() {
 		return m_Attr.size();
 	}
 	
 	public ClusSerializable getAttribute(int idx) {
-		return (ClusSerializable)m_Attr.elementAt(idx);
+		return (ClusSerializable)m_Attr.get(idx);
 	}
 
 	public void addAttribute(ClusSerializable attr) {
-		m_Attr.addElement(attr);
+		m_Attr.add(attr);
 	}
-	
-	public RowData readData(ClusReader reader, ClusSchema schema) throws IOException {
+		
+	public RowData readData(ClusReader reader, ClusSchema schema) throws IOException, ClusException {
 		schema.setReader(true);
 		ArrayList items = new ArrayList();
-		DataTuple tuple = readDataTuple(reader, schema);
+		DataTuple tuple = readDataTupleFirst(reader, schema);
 		while (tuple != null) {
 			items.add(tuple);
-			tuple = readDataTuple(reader, schema);
+			tuple = readDataTupleNext(reader, schema);
 		}
 		for (int j = 0; j < m_Attr.size(); j++) {
-			ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(j);
+			ClusSerializable attr = (ClusSerializable)m_Attr.get(j);
 			attr.term(schema);
 		}
 		schema.setReader(false);
 		return new RowData(items, schema);
+	}
+	
+	public DataTuple readDataTupleFirst(ClusReader reader, ClusSchema schema) throws IOException, ClusException {
+		if (!reader.hasMoreTokens()) return null;
+		boolean sparse = reader.isNextChar('{');
+		if (sparse) {
+			m_Attr.clear();
+			schema.ensureSparse();
+			schema.createNormalView(this);
+		}		
+		return readDataTuple(reader, schema, sparse);
+	}
+	
+	public DataTuple readDataTupleNext(ClusReader reader, ClusSchema schema) throws IOException {
+		if (!reader.hasMoreTokens()) return null;
+		boolean sparse = reader.isNextChar('{');
+		if (sparse && !schema.isSparse()) {
+			throw new IOException("Sparse tuple found in a non-sparse data set (at row "+(reader.getRow()+1)+")");
+		}		
+		return readDataTuple(reader, schema, sparse);
 	}	
 	
 	public DataTuple readDataTuple(ClusReader reader, ClusSchema schema) throws IOException {
 		if (!reader.hasMoreTokens()) return null;
-		DataTuple tuple = schema.createTuple();	
-		boolean sparse = reader.isNextChar('{'); 
-		if (sparse) {
+		boolean sparse = reader.isNextChar('{');
+		return readDataTuple(reader, schema, sparse);
+	}
+	
+	public DataTuple readDataTuple(ClusReader reader, ClusSchema schema, boolean sparse) throws IOException {
+		DataTuple tuple = schema.createTuple();		
+		if (sparse) {			
 			while (!reader.isNextChar('}')) {
 				int idx = reader.readIntIndex();
 				if (idx < 1 || idx > m_Attr.size()) {
 					throw new IOException("Error attribute index '"+idx+"' out of range [1,"+m_Attr.size()+"] at row "+(reader.getRow()+1));
 				}
-				ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(idx-1);
+				ClusSerializable attr = (ClusSerializable)m_Attr.get(idx-1);
 				if (!attr.read(reader, tuple)) {
 					throw new IOException("Error reading attirbute "+m_Attr+" at row "+(reader.getRow()+1));
 				}
 			}
 		} else {
 			if (m_Attr.size() > 0) {			
-				ClusSerializable attr_0 = (ClusSerializable)m_Attr.elementAt(0);
+				ClusSerializable attr_0 = (ClusSerializable)m_Attr.get(0);
 				if (!attr_0.read(reader, tuple)) return null;
 				for (int j = 1; j < m_Attr.size(); j++) {
-					ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(j);
+					ClusSerializable attr = (ClusSerializable)m_Attr.get(j);
 					if (!attr.read(reader, tuple)) {
 						throw new IOException("Error reading attirbute "+m_Attr+" at row "+(reader.getRow()+1));
 					}

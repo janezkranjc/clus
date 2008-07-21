@@ -119,15 +119,15 @@ public class NumericAttrType extends ClusAttrType {
 	public ClusAttribute createTargetAttr(ColTarget target) {
 		return new NumericTarget(target, this, getArrayIndex());
 	}
-
-	public ClusSerializable createRowSerializable() throws ClusException {
-		return new MySerializable();
-	}
 	
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
 		wrt.print("numeric");
 	}
 
+	public ClusSerializable createRowSerializable() throws ClusException {
+		return new MySerializable();
+	}
+	
 	public class MySerializable extends ClusSerializable {
 
 		public int m_NbZero, m_NbTotal;

@@ -176,7 +176,7 @@ public class RegressionStat extends ClusStatistic {
 		m_nbEx += 1;
 		m_SumWeight += weight;
 		for (int i = 0; i < m_NbAttrs; i++) {
-			double val = tuple.m_Doubles[m_Attrs[i].getArrayIndex()];
+			double val = m_Attrs[i].getNumeric(tuple);
 			if (val != Double.POSITIVE_INFINITY) {
 				m_SumWeights[i] += weight;
 				m_SumValues[i] += weight*val;

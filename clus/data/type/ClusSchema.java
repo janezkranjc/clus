@@ -43,10 +43,11 @@ public class ClusSchema implements Serializable {
 	public final static int ROWS = 0;
 	public final static int COLS = 1;
 
+	protected boolean m_IsSparse;
 	protected String m_Relation;
 	protected int m_NbAttrs;
 	protected int m_NbInts, m_NbDoubles, m_NbObjects;
-	protected ArrayList m_Attr = new ArrayList();	
+	protected ArrayList m_Attr = new ArrayList();
 	protected ClusAttrType[][] m_AllAttrUse;
 	protected NominalAttrType[][] m_NominalAttrUse;
 	protected NumericAttrType[][] m_NumericAttrUse;
@@ -58,6 +59,7 @@ public class ClusSchema implements Serializable {
 	protected IntervalCollection m_Clustering = IntervalCollection.EMPTY;
 	protected IntervalCollection m_Descriptive = IntervalCollection.EMPTY;	
 	protected IntervalCollection m_Key = IntervalCollection.EMPTY;
+	protected int[] m_NbVt;
 	
 	public ClusSchema(String name) {
 		m_Relation = name;
@@ -623,46 +625,74 @@ public class ClusSchema implements Serializable {
 			}
 		}
 		return result;
-	}	
+	}
+	
+	public boolean isSparse() {
+		return m_IsSparse;
+	}
+	
+	public void ensureSparse() {		
+		if (!m_IsSparse) {
+			int nbSparse = 0;
+			for (int i = 0; i < getNbAttributes(); i++) {
+				ClusAttrType type = getAttrType(i);
+				if (type.isDescriptive() && type.getTypeIndex() == NumericAttrType.THIS_TYPE) {
+					SparseNumericAttrType nt = new SparseNumericAttrType((NumericAttrType)type);
+					nt.setDescriptive(true);
+					setAttrType(nt, i);
+					nbSparse++;
+				}
+			}			
+			System.out.println("Number of sparse attributes: "+nbSparse);
+			addRowsIndex();
+			m_IsSparse = true;
+		}
+	}
+
+	public void printInfo() { 
+		if (getSettings().getVerbose() >= 1) {
+			System.out.println("Space required by nominal attributes: " + m_NbVt[ClusAttrType.VALUE_TYPE_INT]*4 + " bytes/tuple regular, " + m_NbVt[ClusAttrType.VALUE_TYPE_BITWISEINT]*4+" bytes/tuple bitwise");
+		}
+	}
 	
 	protected void addRowsIndex() {
 		// Allocate attributes to arrays m_Ints, m_Doubles, m_Objects
-		int[] nbvt = new int[ClusAttrType.NB_VALUE_TYPES];
+		m_NbVt = new int[ClusAttrType.NB_VALUE_TYPES];
 		int bitPosition = 0; // for BitwiseNominalAttrType
 		int nbBitwise = 0;
 		for (int j = 0; j < m_NbAttrs; j++) {
 			ClusAttrType at = (ClusAttrType)m_Attr.get(j);				
 			int vtype = at.getValueType();
-			if (at.getStatus() != ClusAttrType.STATUS_DISABLED && vtype != ClusAttrType.VALUE_TYPE_BITWISEINT) {					
-				int sidx = nbvt[vtype]++;
-				at.setArrayIndex(sidx);	
-			}	
-			else if (at.getStatus() != ClusAttrType.STATUS_DISABLED) { //vtype == ClusAttrType.VALUE_TYPE_BITWISEINT
-				nbBitwise++;
-				int nextBitPosition = bitPosition + ((BitwiseNominalAttrType)at).getNbBits();
-				if (nextBitPosition > Integer.SIZE) {
-					// too many bits needed to fit in current int
-					nbvt[vtype]++;
-					int sidx = nbvt[vtype];
-					((BitwiseNominalAttrType)at).setArrayIndex(sidx);	
-					((BitwiseNominalAttrType)at).setBitPosition(0);
-					bitPosition = ((BitwiseNominalAttrType)at).getNbBits();
+			if (vtype == ClusAttrType.VALUE_TYPE_NONE || at.getStatus() == ClusAttrType.STATUS_DISABLED) {
+				at.setArrayIndex(-1);
+			} else {
+				if (vtype != ClusAttrType.VALUE_TYPE_BITWISEINT) {					
+					int sidx = m_NbVt[vtype]++;
+					at.setArrayIndex(sidx);	
+				} else { //vtype == ClusAttrType.VALUE_TYPE_BITWISEINT
+					nbBitwise++;
+					BitwiseNominalAttrType bat = (BitwiseNominalAttrType)at;
+					int nextBitPosition = bitPosition + bat.getNbBits();
+					if (nextBitPosition > Integer.SIZE) {
+						// too many bits needed to fit in current int
+						m_NbVt[vtype]++;
+						int sidx = m_NbVt[vtype];
+						bat.setArrayIndex(sidx);	
+						bat.setBitPosition(0);
+						bitPosition = bat.getNbBits();
+					} else {
+						int sidx = m_NbVt[vtype];
+						bat.setArrayIndex(sidx);	
+						bat.setBitPosition(bitPosition);
+						bitPosition = nextBitPosition;
+					}
 				}
-				else {
-					int sidx = nbvt[vtype];
-					((BitwiseNominalAttrType)at).setArrayIndex(sidx);	
-					((BitwiseNominalAttrType)at).setBitPosition(bitPosition);
-					bitPosition = nextBitPosition;
-				}			
 			}
 		}
-		if (nbBitwise>0) nbvt[ClusAttrType.VALUE_TYPE_BITWISEINT]++;
-		m_NbInts = Math.max(nbvt[ClusAttrType.VALUE_TYPE_INT], nbvt[ClusAttrType.VALUE_TYPE_BITWISEINT]); // only one of them will be different from 0
-		if (getSettings().getVerbose() >= 1) {
-			System.out.println("Space required by nominal attributes: " + nbvt[ClusAttrType.VALUE_TYPE_INT]*4 + " bytes/tuple regular, " + nbvt[ClusAttrType.VALUE_TYPE_BITWISEINT]*4+" bytes/tuple bitwise");
-		}
-		m_NbDoubles = nbvt[ClusAttrType.VALUE_TYPE_DOUBLE];
-		m_NbObjects = nbvt[ClusAttrType.VALUE_TYPE_OBJECT];
+		if (nbBitwise>0) m_NbVt[ClusAttrType.VALUE_TYPE_BITWISEINT]++;
+		m_NbInts = Math.max(m_NbVt[ClusAttrType.VALUE_TYPE_INT], m_NbVt[ClusAttrType.VALUE_TYPE_BITWISEINT]); // only one of them will be different from 0
+		m_NbDoubles = m_NbVt[ClusAttrType.VALUE_TYPE_DOUBLE];
+		m_NbObjects = m_NbVt[ClusAttrType.VALUE_TYPE_OBJECT];
 		// Collect attributes into arrays m_Allattruse, m_Nominalattruse, m_Numericattruse
 		// Sorted in order that they occur in the .arff file (to be consistent with weight vector order)
 		m_AllAttrUse = new ClusAttrType[ClusAttrType.NB_ATTR_USE][];
@@ -678,11 +708,16 @@ public class ClusSchema implements Serializable {
 	}
 	
 	public DataTuple createTuple() {
-		return new DataTuple(this);
+		return m_IsSparse ? new SparseDataTuple(this) : new DataTuple(this);
 	}
 	
 	public ClusView createNormalView() throws ClusException {
 		ClusView view = new ClusView();
+		createNormalView(view);
+		return view;
+	}
+	
+	public void createNormalView(ClusView view) throws ClusException {
 		int nb = getNbAttributes();
 		for (int j = 0; j < nb; j++) {
 			ClusAttrType at = getAttrType(j);
@@ -693,9 +728,8 @@ public class ClusSchema implements Serializable {
 				view.addAttribute(at.createRowSerializable());
 			}
 		}
-		return view;
 	}	
-	
+		
 	public String toString() {
 		int aidx = 0;
 		StringBuffer buf = new StringBuffer();

@@ -136,6 +136,7 @@ public class Clus implements CMDLineArgsProvider {
 		m_Data = view.readData(reader, m_Schema);
 		reader.close();
 		System.out.println("Found " + m_Data.getNbRows() + " rows");
+		m_Schema.printInfo();
 		if (ResourceInfo.isLibLoaded()) {
 			ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
 		}
