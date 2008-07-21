@@ -39,8 +39,8 @@ public class TimeSeriesTarget extends TimeSeriesAttrBase {
 		m_Index = index;
 	}
 	
-	public void read(ClusReader data, int row) throws IOException {
+	public boolean read(ClusReader data, int row) throws IOException {
 //		m_Target.setTimeSeries(m_Index, row, new TimeSeries(data.readTimeSeries()));
+		return true;
 	}
-
 }

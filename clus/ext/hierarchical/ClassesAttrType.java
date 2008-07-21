@@ -85,8 +85,8 @@ public class ClassesAttrType extends ClusAttrType {
 		return ct.toStringData(m_Hier);
 	}
 	
-	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
-		return new MySerializable(data);
+	public ClusSerializable createRowSerializable() throws ClusException {
+		return new MySerializable();
 	}
 	
 	public void getPreprocs(DataPreprocs pps, boolean single) {
@@ -145,23 +145,20 @@ public class ClassesAttrType extends ClusAttrType {
 		}
 	}	
 	
-	public class MySerializable extends RowSerializable {
+	public class MySerializable extends ClusSerializable {
 		
-		public MySerializable(RowData data) {
-			super(data);
-		}
-		
-		public void read(ClusReader data, DataTuple tuple) throws IOException {
+		public boolean read(ClusReader data, DataTuple tuple) throws IOException {
 			String val = data.readString();
+			if (val == null) return false;
 			ClassesTuple ct;
 			try {
 				ct = new ClassesTuple(val, m_Table);
 				ct.setAllIntermediate(false);
 				tuple.setObjectVal(ct, getArrayIndex());
-			}
-			catch (ClusException e) {
+			} catch (ClusException e) {
 				throw new IOException("Error parsing attribute "+getName()+" '"+val+"' at row: "+(data.getRow()+1));
 			}
+			return true;
 		}
 	}
 }

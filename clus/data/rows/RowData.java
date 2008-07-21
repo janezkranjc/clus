@@ -44,22 +44,6 @@ public class RowData extends ClusData implements MSortable {
 	public int m_Index;
 	public ClusSchema m_Schema;	
 	public DataTuple[] m_Data;
-
-	public boolean equals(RowData d){
-		if(d.m_Data.length != this.m_Data.length){
-			return false;
-		}
-		if(m_Schema.equals(m_Schema)){
-			boolean result = true;
-			for(int i=0;i<this.m_Data.length;i++){
-				if(!d.m_Data[i].equals(this.m_Data[i])){
-					result = false;
-				}
-			}
-			return result;
-		}
-		return false;
-	}
 	
 	public RowData(ClusSchema schema) {
 		m_Schema = schema;
@@ -172,12 +156,8 @@ public class RowData extends ClusData implements MSortable {
 	
 	public static RowData readData(String fname, ClusSchema schema) throws ClusException, IOException {
 		schema.addIndices(ClusSchema.ROWS);
-		RowData data = new RowData(schema);
 		ClusReader reader = new ClusReader(fname, schema.getSettings());		
-		int nbrows = reader.countRows(); 
-		data.resize(nbrows);
-		schema.setNbRows(nbrows);
-		data.createNormalView(schema).readData(reader, schema);
+		RowData data = schema.createNormalView().readData(reader, schema);
 		reader.close();				
 		return data;
 	}
@@ -493,23 +473,7 @@ public class RowData extends ClusData implements MSortable {
 			idx = test.softPredict2(res, m_Data[i], idx, branch);
 		return res;
 	}	
-		
-	public ClusView createNormalView(ClusSchema schema) throws ClusException {
-		ClusView view = new ClusView();
-		int nb = schema.getNbAttributes();
-		for (int j = 0; j < nb; j++) {
-			ClusAttrType at = schema.getAttrType(j);
-			int status = at.getStatus();
-			if (status == ClusAttrType.STATUS_DISABLED) {
-				view.addAttribute(new DummySerializable());
-			} else {				
-//				boolean target = (status == ClusAttrType.STATUS_TARGET);				
-				view.addAttribute(at.createRowSerializable(this));
-			}
-		}
-		return view;
-	}
-		
+				
 	public void resize(int nbrows) {
 		m_Data = new DataTuple[nbrows];
 		for (int i = 0; i < nbrows; i++) m_Data[i] = new DataTuple(m_Schema);
@@ -645,6 +609,19 @@ public class RowData extends ClusData implements MSortable {
 		for (int i = 0; i < m_NbRows; i++) {
 			m_Data[i].setIndex(i);
 		}
+	}
+	
+	public boolean equals(RowData d){
+		if (d.getNbRows() != getNbRows()) {
+			return false;
+		}
+		if (!m_Schema.equals(m_Schema)) {
+			return false;
+		}
+		for (int i = 0; i < getNbRows(); i++) {
+			if (!d.getTuple(i).equals(getTuple(i))) return false;
+		}
+		return false;
 	}
 	
 	public class MySortableArray implements MSortable {

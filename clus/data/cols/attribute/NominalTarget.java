@@ -39,13 +39,15 @@ public class NominalTarget extends NominalAttrBase {
 		m_Index = index;
 	}
 
-	public void read(ClusReader data, int row) throws IOException {
+	public boolean read(ClusReader data, int row) throws IOException {
 		String value = data.readString();
+		if (value == null) return false;
 		Integer i = (Integer)getNominalType().getValueIndex(value);
 		if (i != null) {
 			m_Target.setNominal(m_Index, row, i.intValue()); 
 		} else {
 			throw new IOException("Illegal value '"+value+"' for target "+getName()+" at row "+(row+1));
 		}
+		return true;
 	}
 }

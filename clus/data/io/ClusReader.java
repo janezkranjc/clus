@@ -156,7 +156,7 @@ public class ClusReader {
 		if (ch != found) {
 			throw new IOException("Character '"+(char)ch+"' expected on row "+m_Row+", not '"+(char)found+"'");
 		}
-	}
+	}	
 		
 	public void readEol() throws IOException {
 		boolean allowall = false;
@@ -214,11 +214,11 @@ public class ClusReader {
 			m_Attr++;			
 			return result;
 		} else {
-			throw new IOException("Error reading attirbute "+m_Attr+" at row "+(m_Row+1));
+			return null;
 		}
 	}
 	
-	public void readScratchNoSpace() throws IOException {
+	public boolean readNoSpace() throws IOException {
 		int nb = 0;		
 		Reader reader = m_Token.getReader();
 		m_Scratch.setLength(0);
@@ -236,10 +236,10 @@ public class ClusReader {
 			ch = reader.read();
 		}
 		if (ch == '}') setLastChar(ch);
+		return m_Scratch.length() > 0;
 	}
 	
-	public double readFloat() throws IOException {
-		readScratchNoSpace();
+	public double getFloat() throws IOException {
 		if (m_Scratch.length() > 0) {
 			m_Attr++;
 			String value = m_Scratch.toString();			
@@ -253,9 +253,14 @@ public class ClusReader {
 			throw new IOException("Error reading numeric attirbute "+m_Attr+" at row "+(m_Row+1));
 		}
 	}
+	
+	public double readFloat() throws IOException {
+		readNoSpace();
+		return getFloat();
+	}
 
 	public int readIntIndex() throws IOException {		
-		readScratchNoSpace();
+		readNoSpace();
 		if (m_Scratch.length() > 0) {
 			String value = m_Scratch.toString();			
 			try {	
@@ -295,13 +300,13 @@ public class ClusReader {
 			m_Attr++;			
 			return result;
 		} else {
-			throw new IOException("Error reading attirbute "+m_Attr+" at row "+(m_Row+1));
+			return null;
 		}
 	}	
 	
 	//--This is the new method which skips the whole time serie(when TimeSeries attribute is disabled) and the reference character is '['
 
-	public void skipTillComma() throws IOException {		
+	public boolean skipTillComma() throws IOException {		
 			int nb = 0;
 			boolean is_ts=false;
 			Reader reader = m_Token.getReader();
@@ -330,6 +335,7 @@ public class ClusReader {
 				prev=ch;
 				ch = reader.read();
 			}
+			return ch != -1;
 	}
 	
 	public int countRows2() throws IOException {

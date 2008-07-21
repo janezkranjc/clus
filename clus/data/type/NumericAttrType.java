@@ -120,24 +120,21 @@ public class NumericAttrType extends ClusAttrType {
 		return new NumericTarget(target, this, getArrayIndex());
 	}
 
-	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
-		return new MySerializable(data);
+	public ClusSerializable createRowSerializable() throws ClusException {
+		return new MySerializable();
 	}
 	
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
 		wrt.print("numeric");
 	}
 
-	public class MySerializable extends RowSerializable {
+	public class MySerializable extends ClusSerializable {
 
-		public int m_NbZero;
+		public int m_NbZero, m_NbTotal;
 		
-		public MySerializable(RowData data) {
-			super(data);
-		}
-
-		public void read(ClusReader data, DataTuple tuple) throws IOException {
-			double val = data.readFloat();
+		public boolean read(ClusReader data, DataTuple tuple) throws IOException {
+			if (!data.readNoSpace()) return false;
+			double val = data.getFloat();
 			tuple.setDoubleVal(val, getArrayIndex());
 			if (val == MISSING) {
 				incNbMissing();
@@ -146,10 +143,12 @@ public class NumericAttrType extends ClusAttrType {
 			if (val == 0.0) {
 				m_NbZero++;
 			}
+			m_NbTotal++;
+			return true;
 		}
 		
 		public void term(ClusSchema schema) {
-			if (m_NbZero > schema.getNbRows()*75/100) {
+			if (m_NbZero > m_NbTotal*75/100) {
 				setSparse(true);
 			}
 		}

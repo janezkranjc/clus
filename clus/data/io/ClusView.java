@@ -24,6 +24,7 @@ package clus.data.io;
 
 import jeans.util.*;
 import java.io.*;
+import java.util.*;
 
 import clus.io.*;
 import clus.data.rows.*;
@@ -45,51 +46,47 @@ public class ClusView {
 		m_Attr.addElement(attr);
 	}
 	
-	public void readData(ClusReader reader, ClusSchema schema) throws IOException {
+	public RowData readData(ClusReader reader, ClusSchema schema) throws IOException {
 		schema.setReader(true);
-		int nb = m_Attr.size();
-		int rows = schema.getNbRows();		
-		for (int i = 0; i < rows; i++) {
-			boolean sparse = reader.isNextChar('{'); 
-			if (sparse) {
-				while (!reader.isNextChar('}')) {
-					int idx = reader.readIntIndex();
-					if (idx < 1 || idx > m_Attr.size()) {
-						throw new IOException("Error attribute index '"+idx+"' out of range [1,"+m_Attr.size()+"] at row "+(reader.getRow()+1));
-					}
-					ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(idx-1);
-					attr.read(reader, i);
-				}
-			} else {
-				for (int j = 0; j < nb; j++) {
-					ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(j);
-					attr.read(reader, i);
-				}
-			}
-			reader.readEol();
-		}		
-		for (int j = 0; j < nb; j++) {
+		ArrayList items = new ArrayList();
+		DataTuple tuple = readDataTuple(reader, schema);
+		while (tuple != null) {
+			items.add(tuple);
+			tuple = readDataTuple(reader, schema);
+		}
+		for (int j = 0; j < m_Attr.size(); j++) {
 			ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(j);
 			attr.term(schema);
 		}
 		schema.setReader(false);
+		return new RowData(items, schema);
 	}	
 	
-	public DataTuple readDataTuple(ClusReader reader, RowData data) throws IOException {
+	public DataTuple readDataTuple(ClusReader reader, ClusSchema schema) throws IOException {
 		if (!reader.hasMoreTokens()) return null;
-		DataTuple tuple = data.createTuple();	
-		int nb = m_Attr.size();
-		if (nb > 0) {
-			try {
-				ClusSerializable attr_0 = (ClusSerializable)m_Attr.elementAt(0);
-				attr_0.read(reader, tuple);
-			} catch (IOException e) {
-				if (reader.ensureAtEnd()) return null;
-				else throw e;
+		DataTuple tuple = schema.createTuple();	
+		boolean sparse = reader.isNextChar('{'); 
+		if (sparse) {
+			while (!reader.isNextChar('}')) {
+				int idx = reader.readIntIndex();
+				if (idx < 1 || idx > m_Attr.size()) {
+					throw new IOException("Error attribute index '"+idx+"' out of range [1,"+m_Attr.size()+"] at row "+(reader.getRow()+1));
+				}
+				ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(idx-1);
+				if (!attr.read(reader, tuple)) {
+					throw new IOException("Error reading attirbute "+m_Attr+" at row "+(reader.getRow()+1));
+				}
 			}
-			for (int j = 1; j < nb; j++) {
-				ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(j);
-				attr.read(reader, tuple);
+		} else {
+			if (m_Attr.size() > 0) {			
+				ClusSerializable attr_0 = (ClusSerializable)m_Attr.elementAt(0);
+				if (!attr_0.read(reader, tuple)) return null;
+				for (int j = 1; j < m_Attr.size(); j++) {
+					ClusSerializable attr = (ClusSerializable)m_Attr.elementAt(j);
+					if (!attr.read(reader, tuple)) {
+						throw new IOException("Error reading attirbute "+m_Attr+" at row "+(reader.getRow()+1));
+					}
+				}
 			}
 		}
 		reader.readEol();

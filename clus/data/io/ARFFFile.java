@@ -163,18 +163,14 @@ public class ARFFFile {
 	}
 	
 	public static RowData readArff(String fname) throws IOException, ClusException {
-			ClusReader reader = new ClusReader(fname, null);
-			ARFFFile arff = new ARFFFile(reader);
-			ClusSchema schema = arff.read(null);
-			schema.setNbRows(reader.countRows());
-			schema.initialize();
-			arff.skipTillData();
-			RowData data = new RowData(schema);
-			data.resize(schema.getNbRows());
-			ClusView view = data.createNormalView(schema);
-			view.readData(reader, schema);
-			reader.close();
-			return data;
+		ClusReader reader = new ClusReader(fname, null);
+		ARFFFile arff = new ARFFFile(reader);
+		ClusSchema schema = arff.read(null);
+		schema.initialize();
+		ClusView view = schema.createNormalView();
+		RowData data = view.readData(reader, schema);
+		reader.close();
+		return data;
 	}
 
 	public static void writeArff(String fname, RowData data) throws IOException, ClusException {

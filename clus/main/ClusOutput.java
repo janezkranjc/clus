@@ -88,7 +88,6 @@ public class ClusOutput {
 		int a_out = m_Schema.getNbTargetAttributes();
 		m_Writer.println("Attributes: "+a_tot+" (input: "+a_in+", output: "+a_out+")");
 		m_Writer.println("Missing values: "+(m_Schema.hasMissing() ? "Yes" : "No"));
-		m_Writer.println("Rows: "+m_Schema.getNbRows());
 		if (ResourceInfo.isLibLoaded()) {
 			m_Writer.println("Memory usage: "+ClusStat.m_InitialMemory+" kB (initial), "+ClusStat.m_LoadedMemory+" kB (data loaded)");
 		}

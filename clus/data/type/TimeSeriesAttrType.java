@@ -28,7 +28,6 @@ import java.io.PrintWriter;
 import clus.data.io.ClusReader;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
-import clus.data.rows.RowSerializable;
 import clus.io.ClusSerializable;
 import clus.main.Settings;
 import clus.util.ClusException;
@@ -75,16 +74,11 @@ public class TimeSeriesAttrType extends ClusAttrType {
 		return ts_data.toString();
 	}	
 	
-	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
-		return new MySerializable(data);
+	public ClusSerializable createRowSerializable() throws ClusException {
+		return new MySerializable();
 	}
 	
-	public class MySerializable extends RowSerializable {
-
-
-		public MySerializable(RowData data) {
-			super(data);
-		}
+	public class MySerializable extends ClusSerializable {
 
 		public String getString(DataTuple tuple){
 			TimeSeries ts_data=(TimeSeries)tuple.getObjVal(0);
@@ -98,9 +92,12 @@ public class TimeSeriesAttrType extends ClusAttrType {
 			return str;
 		}
 		
-		public void read(ClusReader data, DataTuple tuple) throws IOException {
-			TimeSeries value=new TimeSeries(data.readTimeSeries());
+		public boolean read(ClusReader data, DataTuple tuple) throws IOException {
+			String str = data.readTimeSeries();
+			if (str == null) return false;
+			TimeSeries value = new TimeSeries(str);
 			tuple.setObjectVal(value, 0);
+			return true;
 		}
 	}
 

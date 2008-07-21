@@ -107,8 +107,7 @@ public class IndexAttrType extends ClusAttrType {
 	
 	public class MyReader extends ClusSerializable {
 	
-		public int readValue(ClusReader data) throws IOException {
-			String value = data.readString();
+		public int getValue(ClusReader data, String value) throws IOException {
 			try {
 				int ival = Integer.parseInt(value);
 				if (ival > m_Max) m_Max = ival;
@@ -119,14 +118,18 @@ public class IndexAttrType extends ClusAttrType {
 			}				
 		}
 				
-		public void read(ClusReader data, int row) throws IOException {
-			m_Index[row] = readValue(data);
+		public boolean read(ClusReader data, int row) throws IOException {
+			String value = data.readString();
+			if (value == null) return false;
+			m_Index[row] = getValue(data, value);
+			return true;
 		}
 		
-		public void read(ClusReader data, DataTuple tuple) throws IOException {
-			m_CrValue = readValue(data);
+		public boolean read(ClusReader data, DataTuple tuple) throws IOException {
+			String value = data.readString();
+			if (value == null) return false;
+			m_CrValue = getValue(data, value);
+			return true;
 		}
-	}
-
-	
+	}	
 }

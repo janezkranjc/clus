@@ -162,9 +162,11 @@ public class NumericAttribute extends NumericAttrBase {
 		}
 	}
 
-	public void read(ClusReader data, int row) throws IOException {
-		double val = m_Data[row] = data.readFloat();
+	public boolean read(ClusReader data, int row) throws IOException {
+		if (!data.readNoSpace()) return false;
+		double val = m_Data[row] = data.getFloat();
 		if (val == Double.POSITIVE_INFINITY) m_Type.incNbMissing();
+		return true;
 	}
 }
 

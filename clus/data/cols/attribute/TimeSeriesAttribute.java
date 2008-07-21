@@ -35,11 +35,8 @@ public class TimeSeriesAttribute extends TimeSeriesAttrBase{
 		super(type);
 	}
 
-
-	public void read(ClusReader data, int row) throws IOException {
+	public boolean read(ClusReader data, int row) throws IOException {
 		System.err.println("TimeSerriesAttribute:read(ClusReader,int) - not implemented");
+		return true;
 	}
-
-	
-	
 }

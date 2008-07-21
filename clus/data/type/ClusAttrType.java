@@ -220,7 +220,7 @@ public abstract class ClusAttrType implements Serializable,Comparable {
 	public void getPreprocs(DataPreprocs pps, boolean single) {
 	}
 
-	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
+	public ClusSerializable createRowSerializable() throws ClusException {
 		throw new ClusException("Attribute "+getName()+" does not support row data");
 	}
 

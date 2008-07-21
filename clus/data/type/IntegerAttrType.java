@@ -69,8 +69,8 @@ public class IntegerAttrType extends ClusAttrType {
 		return s1 == s2 ? 0 : 1;
 	}
 		
-	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
-		return new MySerializable(data);
+	public ClusSerializable createRowSerializable() throws ClusException {
+		return new MySerializable();
 	}	
 	
 	// FIXME make serializable on level of superclass
@@ -80,16 +80,13 @@ public class IntegerAttrType extends ClusAttrType {
 	//
 	// -> makes it possible to make derived attributes.
 	
-	public class MySerializable extends RowSerializable {
+	public class MySerializable extends ClusSerializable {
 
 		protected int m_Index;
 
-		public MySerializable(RowData data) {
-			super(data);
-		}
-
-		public void read(ClusReader data, DataTuple tuple) throws IOException {
+		public boolean read(ClusReader data, DataTuple tuple) throws IOException {
 			tuple.setIntVal(m_Index++, getArrayIndex());
+			return true;
 		}
 	}
 }

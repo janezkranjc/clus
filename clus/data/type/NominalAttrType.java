@@ -181,33 +181,31 @@ public class NominalAttrType extends ClusAttrType {
 		return new NominalTarget(target, this, getArrayIndex());
 	}
 
-	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
-		return new MySerializable(data);
+	public ClusSerializable createRowSerializable() throws ClusException {
+		return new MySerializable();
 	}
 	
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
 		wrt.print(getTypeString());
 	}
 
-	public class MySerializable extends RowSerializable {
+	public class MySerializable extends ClusSerializable {
 
-		public MySerializable(RowData data) {
-			super(data);
-		}
-
-		public void read(ClusReader data, DataTuple tuple) throws IOException {
+		public boolean read(ClusReader data, DataTuple tuple) throws IOException {
 			String value = data.readString();
+			if (value == null) return false;
 			if (value.equals("?")) {
 				incNbMissing();
 				setNominal(tuple,getNbValues());
-				return;
-			}
-			Integer i = (Integer)getValueIndex(value);
-			if (i != null) {
-				setNominal(tuple, i.intValue());
 			} else {
-				throw new IOException("Illegal value '"+value+"' for attribute "+getName()+" at row "+(data.getRow()+1));
+				Integer i = (Integer)getValueIndex(value);
+				if (i != null) {
+					setNominal(tuple, i.intValue());
+				} else {
+					throw new IOException("Illegal value '"+value+"' for attribute "+getName()+" at row "+(data.getRow()+1));
+				}
 			}
+			return true;
 		}
 	}
 

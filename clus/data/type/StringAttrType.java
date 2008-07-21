@@ -73,19 +73,17 @@ public class StringAttrType extends ClusAttrType {
 		wrt.print("string");
 	}	
 	
-	public ClusSerializable createRowSerializable(RowData data) throws ClusException {
-		return new MySerializable(data);
+	public ClusSerializable createRowSerializable() throws ClusException {
+		return new MySerializable();
 	}	
 	
-	public class MySerializable extends RowSerializable {
+	public class MySerializable extends ClusSerializable {
 
-		public MySerializable(RowData data) {
-			super(data);
-		}
-
-		public void read(ClusReader data, DataTuple tuple) throws IOException {
+		public boolean read(ClusReader data, DataTuple tuple) throws IOException {
 			String value = data.readString();
+			if (value == null) return false;
 			tuple.setObjectVal(value, getArrayIndex());
+			return true;
 		}
 	}
 }

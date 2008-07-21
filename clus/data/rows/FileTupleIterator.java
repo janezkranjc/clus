@@ -55,12 +55,12 @@ public class FileTupleIterator extends TupleIterator {
 	
 	public void init() throws IOException, ClusException {
 		ClusSchema schema = getSchema();
-		m_View = m_Data.createNormalView(schema);
+		m_View = schema.createNormalView();
 		schema.setReader(true);	
 	}		
 	
 	public final DataTuple readTuple() throws IOException, ClusException {
-		DataTuple tuple = m_View.readDataTuple(m_Reader, m_Data);
+		DataTuple tuple = m_View.readDataTuple(m_Reader, m_Data.getSchema());
 		preprocTuple(tuple);
 		return tuple;
 	}

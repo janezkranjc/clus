@@ -53,8 +53,6 @@ public abstract class ClusData {
 	
 	public abstract void insert(ClusData other, ClusSelection sel);
 	
-	public abstract ClusView createNormalView(ClusSchema schema) throws ClusException;
-	
 	public abstract void resize(int nbrows);
 	
 	public abstract void attach(ClusNode node);

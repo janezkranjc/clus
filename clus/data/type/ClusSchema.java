@@ -27,9 +27,11 @@ import jeans.util.*;
 import java.io.*;
 import java.util.*;
 
+import clus.io.DummySerializable;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.data.ClusData;
+import clus.data.io.ClusView;
 import clus.data.rows.*;
 import clus.util.*;
 import clus.selection.*;
@@ -43,7 +45,6 @@ public class ClusSchema implements Serializable {
 
 	protected String m_Relation;
 	protected int m_NbAttrs;
-	protected int m_NbRows;
 	protected int m_NbInts, m_NbDoubles, m_NbObjects;
 	protected ArrayList m_Attr = new ArrayList();	
 	protected ClusAttrType[][] m_AllAttrUse;
@@ -98,18 +99,6 @@ public class ClusSchema implements Serializable {
 
 	public final void setRelationName(String name) {
 		m_Relation = name;
-	}
-	
-	public final int getNbRows() {
-		return m_NbRows;
-	}	
-		
-	public final void setNbRows(int nb) {
-		m_NbRows = nb;
-		for (int j = 0; j < m_NbAttrs; j++) {
-			ClusAttrType attr = (ClusAttrType)m_Attr.get(j);
-			attr.setNbRows(nb);
-		}	
 	}
 	
 	public ClusSchema cloneSchema() {
@@ -687,6 +676,25 @@ public class ClusSchema implements Serializable {
 			m_TimeSeriesAttrUse[attruse] = vectorToTimeSeriesAttrArray(collectAttributes(attruse, TimeSeriesAttrType.THIS_TYPE));
 		}
 	}
+	
+	public DataTuple createTuple() {
+		return new DataTuple(this);
+	}
+	
+	public ClusView createNormalView() throws ClusException {
+		ClusView view = new ClusView();
+		int nb = getNbAttributes();
+		for (int j = 0; j < nb; j++) {
+			ClusAttrType at = getAttrType(j);
+			int status = at.getStatus();
+			if (status == ClusAttrType.STATUS_DISABLED) {
+				view.addAttribute(new DummySerializable());
+			} else {				
+				view.addAttribute(at.createRowSerializable());
+			}
+		}
+		return view;
+	}	
 	
 	public String toString() {
 		int aidx = 0;

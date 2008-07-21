@@ -39,7 +39,9 @@ public class NumericTarget extends NumericAttrBase {
 		m_Index = index;
 	}
 
-	public void read(ClusReader data, int row) throws IOException {
-		m_Target.setNumeric(m_Index, row, data.readFloat()); 
+	public boolean read(ClusReader data, int row) throws IOException {
+		if (!data.readNoSpace()) return false;
+		m_Target.setNumeric(m_Index, row, data.getFloat());
+		return true;
 	}
 }

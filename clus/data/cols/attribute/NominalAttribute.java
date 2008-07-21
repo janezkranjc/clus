@@ -127,19 +127,21 @@ public class NominalAttribute extends NominalAttrBase {
 		}*/
 	}
 
-	public void read(ClusReader data, int row) throws IOException {
+	public boolean read(ClusReader data, int row) throws IOException {
 		String value = data.readString();
+		if (value == null) return false;
 		if (value.equals("?")) {
 			m_Type.incNbMissing();
 			m_Data[row] = m_Type.getNbValues();
-			return;
-		}
-		Integer i = (Integer)m_Type.getValueIndex(value);
-		if (i != null) {
-			m_Data[row] = i.intValue();
 		} else {
-			throw new IOException("Illegal value '"+value+"' for attribute "+getName()+" at row "+(row+1));
+			Integer i = (Integer)m_Type.getValueIndex(value);
+			if (i != null) {
+				m_Data[row] = i.intValue();
+			} else {
+				throw new IOException("Illegal value '"+value+"' for attribute "+getName()+" at row "+(row+1));
+			}
 		}
+		return true;
 	}
 }
 

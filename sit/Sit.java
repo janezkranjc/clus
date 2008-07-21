@@ -85,10 +85,6 @@ public class Sit implements CMDLineArgsProvider{
 		// Count rows and move to data segment
 		System.out.println();
 		System.out.println("Reading CSV Data");
-		m_Schema.setNbRows(reader.countRows());
-		System.out.println("Found " + m_Schema.getNbRows() + " rows");
-		if (arff != null)
-			arff.skipTillData();
 		// Updata schema based on settings
 		m_Sett.updateTarget(m_Schema);
 		m_Schema.initializeSettings(m_Sett);
@@ -100,10 +96,8 @@ public class Sit implements CMDLineArgsProvider{
 		if (ResourceInfo.isLibLoaded()) {
 			ClusStat.m_InitialMemory = ResourceInfo.getMemory();
 		}
-		m_Data = new RowData(m_Schema);
-		m_Data.resize(m_Schema.getNbRows());
-		ClusView view = m_Data.createNormalView(m_Schema);
-		view.readData(reader, m_Schema);
+		ClusView view = m_Schema.createNormalView();
+		m_Data = view.readData(reader, m_Schema);
 		reader.close();
 		// Preprocess and initialize induce
 		m_Sett.update(m_Schema);

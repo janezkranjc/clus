@@ -119,10 +119,6 @@ public class Clus implements CMDLineArgsProvider {
 		// Count rows and move to data segment
 		System.out.println();
 		System.out.println("Reading CSV Data");
-		m_Schema.setNbRows(reader.countRows());
-		System.out.println("Found " + m_Schema.getNbRows() + " rows");
-		if (arff != null)
-			arff.skipTillData();
 		// Updata schema based on settings
 		m_Sett.updateTarget(m_Schema);
 		m_Schema.initializeSettings(m_Sett);
@@ -136,11 +132,10 @@ public class Clus implements CMDLineArgsProvider {
 		if (ResourceInfo.isLibLoaded()) {
 			ClusStat.m_InitialMemory = ResourceInfo.getMemory();
 		}
-		m_Data = (RowData)m_Induce.createData();		
-		m_Data.resize(m_Schema.getNbRows());
-		ClusView view = m_Data.createNormalView(m_Schema);
-		view.readData(reader, m_Schema);
+		ClusView view = m_Schema.createNormalView();
+		m_Data = view.readData(reader, m_Schema);
 		reader.close();
+		System.out.println("Found " + m_Data.getNbRows() + " rows");
 		if (ResourceInfo.isLibLoaded()) {
 			ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
 		}
@@ -188,7 +183,6 @@ public class Clus implements CMDLineArgsProvider {
 		m_Data = data;
 		m_Classifier = clss;
 		data.setSchema(schema);
-		schema.setNbRows(data.getNbRows());
 		m_Induce.initialize();
 		initializeAttributeWeights(data);
 		m_Induce.initializeHeuristic();
@@ -272,7 +266,6 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		m_Data = (RowData)m_Data.selectFrom(sel);
 		int nb_sel = m_Data.getNbRows();
-		m_Schema.setNbRows(nb_sel);
 		System.out.println("Sample (" + svalue + ") " + nb_rows + " -> " + nb_sel);
 		System.out.println();
 	}
@@ -320,7 +313,7 @@ public class Clus implements CMDLineArgsProvider {
 	}
 
 	public final int getNbRows() {
-		return m_Schema.getNbRows();
+		return m_Data.getNbRows();
 	}
 
 	public final ClusData getData() {
@@ -447,19 +440,12 @@ public class Clus implements CMDLineArgsProvider {
 		ARFFFile arff = new ARFFFile(reader);
 		// FIXME - test if schema equal
 		arff.read(m_Sett); // Read schema, but ignore :-)
-		int nbrows = reader.countRows();
-		if (Settings.VERBOSE > 0)
-			System.out.println("Found " + nbrows + " rows");
-		arff.skipTillData();
-		RowData data = (RowData) m_Induce.createData();
-		data.resize(nbrows);
 		// FIXME - hack with number of rows
-		int oldrows = m_Schema.getNbRows();
-		m_Schema.setNbRows(nbrows);
-		ClusView view = data.createNormalView(m_Schema);
-		view.readData(reader, m_Schema);
+		ClusView view = m_Schema.createNormalView();
+		RowData data = view.readData(reader, m_Schema);
 		reader.close();
-		m_Schema.setNbRows(oldrows);
+		if (Settings.VERBOSE > 0)
+			System.out.println("Found " + data.getNbRows() + " rows");
 		preprocSingle(data);
 		return data;
 	}
