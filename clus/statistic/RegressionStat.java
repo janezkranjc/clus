@@ -193,7 +193,7 @@ public class RegressionStat extends ClusStatistic {
 		if (m_Means == null) m_Means = new double[m_NbAttrs];
 		for (int i = 0; i < m_NbAttrs; i++) {
 			m_Means[i] = m_SumWeights[i] != 0.0 ? m_SumValues[i] / m_SumWeights[i] : 0.0;
-""		}
+		}
 	}
 	
 	public double getMean(int i) {
