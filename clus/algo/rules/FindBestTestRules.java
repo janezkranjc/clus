@@ -28,29 +28,29 @@ import clus.data.type.*;
 import clus.main.*;
 
 public class FindBestTestRules extends FindBestTest {
-	
+
 	public FindBestTestRules(ClusStatManager mgr) {
 		super(mgr);
-	}	
-		
+	}
+
 	public FindBestTestRules(ClusStatManager mgr, NominalSplit split) {
 		super(mgr, split);
 	}
-	
+
 	public void findNominal(NominalAttrType at, RowData data) {
 		// Reset positive statistic
 		int nbvalues = at.getNbValues();
 		m_BestTest.reset(nbvalues + 1);
 		int nb_rows = data.getNbRows();
 		if (!getSettings().isCompHeurRuleDist()) {
-			// For each attribute value   
+			// For each attribute value
 			for (int i = 0; i < nb_rows; i++) {
 				DataTuple tuple = data.getTuple(i);
-				int value = at.getNominal(tuple);     
-				m_BestTest.m_TestStat[value].updateWeighted(tuple, i);      
+				int value = at.getNominal(tuple);
+				m_BestTest.m_TestStat[value].updateWeighted(tuple, i);
 			}
 		} else {
-			// TODO: Perhaps ListArray[nbvalues] instead of int[nbvalues][nb_rows] would be better? 
+			// TODO: Perhaps ListArray[nbvalues] instead of int[nbvalues][nb_rows] would be better?
 			int[][] data_idx_per_val = new int[nbvalues][nb_rows];
 			for (int j = 0; j < nbvalues; j++) {
 				for (int i = 0; i < nb_rows; i++) {
@@ -61,7 +61,7 @@ public class FindBestTestRules extends FindBestTest {
 			int[] counts = new int[nbvalues];
 			for (int i = 0; i < nb_rows; i++) {
 				DataTuple tuple = data.getTuple(i);
-				int value = at.getNominal(tuple);     
+				int value = at.getNominal(tuple);
 				m_BestTest.m_TestStat[value].updateWeighted(tuple, i);
 				if (value < nbvalues) {  // Skip missing values, will this be a problem somewhere?
 					data_idx_per_val[value][i] = tuple.getIndex();
@@ -85,8 +85,8 @@ public class FindBestTestRules extends FindBestTest {
 		// Find best split
 		m_Split.findSplit(m_BestTest, at);
 	}
-  
-	public void findNumeric(NumericAttrType at, RowData data) { 
+
+	public void findNumeric(NumericAttrType at, RowData data) {
 		DataTuple tuple;
 		int idx = at.getArrayIndex();
 		if (at.isSparse()) {
@@ -94,9 +94,9 @@ public class FindBestTestRules extends FindBestTest {
 		} else {
 			data.sort(at);
 		}
-		m_BestTest.reset(2);    
+		m_BestTest.reset(2);
 		// Missing values
-		int first = 0;        
+		int first = 0;
 		int nb_rows = data.getNbRows();
 		// Copy total statistic into corrected total
 		m_BestTest.copyTotal();
@@ -107,7 +107,7 @@ public class FindBestTestRules extends FindBestTest {
 				first++;
 			}
 			m_BestTest.subtractMissing();
-		}   
+		}
 		double prev = Double.NaN;
 		int[] data_idx = new int[nb_rows]; // TODO: Skip missing ones?!
 		if (getSettings().isCompHeurRuleDist()) {
@@ -129,7 +129,7 @@ public class FindBestTestRules extends FindBestTest {
 					m_BestTest.updateNumeric(value, at);
 				}
 				prev = value;
-			}       
+			}
 			m_BestTest.m_PosStat.updateWeighted(tuple, i);
 		}
 		// For rules check inverse splits also

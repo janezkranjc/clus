@@ -29,14 +29,14 @@ import clus.data.type.*;
 import clus.data.rows.*;
 
 public class SubsetTest extends NodeTest {
-	
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
+
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int[] m_Values;
 	protected NominalAttrType m_Type;
 	protected double m_PosFreq;
 	protected int m_MissIndex;
-	
+
 	public SubsetTest(NominalAttrType attr, int nb, boolean[] isin, double posfreq) {
 		m_Type = attr;
 		setArity(2);
@@ -47,15 +47,15 @@ public class SubsetTest extends NodeTest {
 
 	// This constructor does not initialize posfreq !
 	public SubsetTest(NominalAttrType attr, int nb) {
-		setArity(2);		
+		setArity(2);
 		m_Type = attr;
-		m_Values = new int[nb];		
+		m_Values = new int[nb];
 		m_MissIndex = attr.getNbValues();
 	}
-	
+
 	public ClusAttrType getType() {
 		return m_Type;
-	}		
+	}
 
 	public void setType(ClusAttrType type) {
 		m_Type = (NominalAttrType)type;
@@ -80,15 +80,15 @@ public class SubsetTest extends NodeTest {
 			return buffer.toString();
 		}
 	}
-	
+
 	public boolean hasConstants() {
 		return m_Values.length > 0;
 	}
-	
+
 	public int getNbValues() {
 		return m_Values.length;
 	}
-	
+
 	public int getValue(int i) {
 		return m_Values[i];
 	}
@@ -96,7 +96,7 @@ public class SubsetTest extends NodeTest {
 	public void setValue(int idx, int val) {
 		m_Values[idx] = val;
 	}
-	
+
 	public boolean equals(NodeTest test) {
 		// Other test is of different type
 		if (m_Type != test.getType()) return false;
@@ -106,11 +106,11 @@ public class SubsetTest extends NodeTest {
 		int[] ovalues = ntest.m_Values;
 		if (nb != ovalues.length) return false;
 		for (int i = 0; i < nb; i++) {
-			if (m_Values[i] != ovalues[i]) return false;		
+			if (m_Values[i] != ovalues[i]) return false;
 		}
 		return true;
-	}	
-	
+	}
+
 	public int hashCode() {
 		int code = m_Type.getIndex()*1000;
 		for (int i = 0; i < m_Values.length; i++) {
@@ -118,18 +118,18 @@ public class SubsetTest extends NodeTest {
 		}
 		return code + m_Values.length;
 	}
-	
+
 	public int nominalPredict(int value) {
 		// Missing value
-		if (value == m_MissIndex) 
-			return ClusRandom.nextDouble(ClusRandom.RANDOM_TEST_DIR) < m_PosFreq ? 
+		if (value == m_MissIndex)
+			return ClusRandom.nextDouble(ClusRandom.RANDOM_TEST_DIR) < m_PosFreq ?
 			       ClusNode.YES : ClusNode.NO;
 		// Regular value
 		for (int i = 0; i < m_Values.length; i++)
 			if (m_Values[i] == value) return ClusNode.YES;
 		return ClusNode.NO;
 	}
-	
+
 	public int nominalPredictWeighted(int value) {
 		// Missing value
 		if (value == m_MissIndex) return hasUnknownBranch() ? ClusNode.UNK : UNKNOWN;
@@ -137,13 +137,13 @@ public class SubsetTest extends NodeTest {
 		for (int i = 0; i < m_Values.length; i++)
 			if (m_Values[i] == value) return ClusNode.YES;
 		return ClusNode.NO;
-	}	
-	
+	}
+
 	public int predictWeighted(DataTuple tuple) {
 		int val = m_Type.getNominal(tuple);
 		return nominalPredictWeighted(val);
-	}	
-	
+	}
+
 	public NodeTest getBranchTest(int i) {
 		if (i == ClusNode.YES) {
 			return this;
@@ -161,7 +161,7 @@ public class SubsetTest extends NodeTest {
 			return test;
 		}
 	}
-	
+
 	public NodeTest simplifyConjunction(NodeTest other) {
 		if (getType() != other.getType()) {
 			return null;
@@ -186,7 +186,7 @@ public class SubsetTest extends NodeTest {
 			}
 		}
 	}
-	
+
 	public boolean[] getIsInArray() {
 		boolean[] res = new boolean[m_Type.getNbValues()];
 		for (int i = 0; i < getNbValues(); i++) {
@@ -197,10 +197,10 @@ public class SubsetTest extends NodeTest {
 
 /*	public int predict(ClusAttribute attr, int idx) {
 		return nominalPredict(((NominalAttribute)attr).m_Data[idx]);
-	}	
-*/	
+	}
+*/
 	private int[] initValues(int nb, boolean[] isin) {
-		int i = 0;		
+		int i = 0;
 		int[] values = new int[nb];
 		for (int j = 0; j < isin.length; j++) if (isin[j]) values[i++] = j;
 		return values;

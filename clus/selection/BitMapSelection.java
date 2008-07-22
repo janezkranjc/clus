@@ -35,7 +35,7 @@ public class BitMapSelection extends ClusSelection {
 	public int getNbSelected() {
 		return m_NbSelected;
 	}
-	
+
 	public boolean isSelected(int row) {
 		return m_Selection[row];
 	}
@@ -45,5 +45,5 @@ public class BitMapSelection extends ClusSelection {
 			m_Selection[row] = true;
 			m_NbSelected++;
 		}
-	}	
+	}
 }

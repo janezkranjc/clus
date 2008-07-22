@@ -34,15 +34,15 @@ import clus.model.test.*;
 public class SSPDICVError extends ClusError {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 	protected double m_Value;
 	protected SSPDDistance m_Dist;
-	
+
 	public SSPDICVError(ClusErrorList par, SSPDDistance dist) {
 		super(par);
 		m_Dist = dist;
 	}
-	
+
 	public void computeRecursive(ClusNode node, RowData data) {
 		int nb = node.getNbChildren();
 		if (nb == 0) {
@@ -58,7 +58,7 @@ public class SSPDICVError extends ClusError {
 			}
 		}
 	}
-	
+
 	public void compute(RowData data, ClusModel model) {
 		if (model instanceof ClusNode) {
 			ClusNode tree = (ClusNode)model;
@@ -66,16 +66,16 @@ public class SSPDICVError extends ClusError {
 			m_Value /= data.getSumWeights();
 		}
 	}
-	
+
 	public void showModelError(PrintWriter wrt, int detail) {
 		wrt.println("SSPD-ICV: "+m_Value);
 	}
-	
+
 	public ClusError getErrorClone(ClusErrorList par) {
 		return new SSPDICVError(getParent(), m_Dist);
 	}
-	
+
 	public String getName() {
-		return "SSPDICV";		
+		return "SSPDICV";
 	}
 }

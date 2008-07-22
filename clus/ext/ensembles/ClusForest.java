@@ -47,12 +47,12 @@ public class ClusForest implements ClusModel, Serializable{
 	boolean m_PrintModels;
 	String m_AttributeList;
 	String m_AppName;
-	
+
 	public ClusForest(){
 		m_Forest = new ArrayList();
 //		m_PrintModels = false;
 	}
-	
+
 	public ClusForest(ClusStatManager statmgr){
 		m_Forest = new ArrayList();
 		if (statmgr.getMode() == ClusStatManager.MODE_CLASSIFY){
@@ -70,11 +70,11 @@ public class ClusForest implements ClusModel, Serializable{
 		for (int ii=0;ii<cat.length-1;ii++) m_AttributeList = m_AttributeList.concat(cat[ii].getName()+", ");
 		m_AttributeList = m_AttributeList.concat(cat[cat.length-1].getName());
 	}
-	
+
 	public void addModelToForest(ClusModel model){
 		m_Forest.add(model);
 	}
-	
+
 	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException {
 		ClusModel model;
 		for (int i = 0; i < m_Forest.size(); i++){
@@ -108,10 +108,10 @@ public class ClusForest implements ClusModel, Serializable{
 	}
 
 	public ClusStatistic predictWeighted(DataTuple tuple) {
-		
+
 		if (ClusEnsembleInduce.m_OOBCalculation)
 			return predictWeightedOOB(tuple);
-		
+
 		if (! ClusEnsembleInduce.m_OptMode) return predictWeightedStandard(tuple);
 		else return predictWeightedOpt(tuple);
 
@@ -125,7 +125,7 @@ public class ClusForest implements ClusModel, Serializable{
 		m_Stat.vote(votes);
 		return m_Stat;*/
 	}
-	
+
 	public ClusStatistic predictWeightedStandard(DataTuple tuple) {
 		ClusModel model;
 		ArrayList votes = new ArrayList();
@@ -137,7 +137,7 @@ public class ClusForest implements ClusModel, Serializable{
 		m_Stat.vote(votes);
 		return m_Stat;
 	}
-	
+
 	public ClusStatistic predictWeightedOOB(DataTuple tuple) {
 		double[] predictions = null;
 		if (ClusEnsembleInduce.m_OOBPredictions.containsKey(tuple.hashCode()))
@@ -154,7 +154,7 @@ public class ClusForest implements ClusModel, Serializable{
 		m_Stat.computePrediction();
 		return m_Stat;
 	}
-	
+
 	public ClusStatistic predictWeightedOpt(DataTuple tuple) {
 		int position = ClusEnsembleInduce.locateTuple(tuple);
 		int predlength = ClusEnsembleInduce.m_AvgPredictions[position].length;
@@ -180,12 +180,12 @@ public class ClusForest implements ClusModel, Serializable{
 				wrt.write("\n");
 			}
 		}else	wrt.write("Forest with "+getNbModels()+" models\n");
-		
+
 	}
 
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 		// This could be better organized
-		
+
 		if (Settings.isPrintEnsembleModels()){
 			ClusModel model;
 			for (int i = 0; i < m_Forest.size(); i++){
@@ -197,7 +197,7 @@ public class ClusForest implements ClusModel, Serializable{
 				wrt.write("\n");
 			}
 		}else	wrt.write("Forest with "+getNbModels()+" models\n");
-		
+
 	}
 
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
@@ -266,16 +266,16 @@ public class ClusForest implements ClusModel, Serializable{
 	public ClusModel getModel(int idx){
 		return (ClusModel)m_Forest.get(idx);
 	}
-	
+
 	public int getNbModels(){
 		//for now same as getModelSize();
 		return m_Forest.size();
 	}
-	
+
 	public ClusStatistic getStat(){
 		return m_Stat;
 	}
-	
+
 	public void setStat(ClusStatistic stat){
 		m_Stat = stat;
 	}
@@ -289,15 +289,15 @@ public class ClusForest implements ClusModel, Serializable{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public ArrayList getModels(){
 		return m_Forest;
 	}
-	
+
 	public void setModels(ArrayList models){
 		m_Forest = models;
 	}
-	
+
 	//this is only for Hierarchical ML Classification
 	public ClusForest cloneForestWithThreshold(double threshold){
 		ClusForest clone = new ClusForest();
@@ -308,19 +308,19 @@ public class ClusForest implements ClusModel, Serializable{
 		clone.setStat(stat);
 		return clone;
 	}
-	
+
 	public void setPrintModels(boolean print){
 		m_PrintModels = print;
 	}
-	
+
 	public boolean isPrintModels(){
 		return m_PrintModels;
 	}
-	
+
 	public double getThreshold(){
 		return ((WHTDStatistic)getStat()).getThreshold();
 	}
-	
+
 	public void removeModels(){
 		m_Forest.clear();
 	}

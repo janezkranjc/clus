@@ -41,27 +41,27 @@ public class ClusBeamAttrSelector {
 	public final NodeTest[] getBestTests() {
 		return besttests;
 	}
-	
+
 	public final void setData(RowData data) {
 		this.data = data;
 	}
-	
+
 	public final RowData getData() {
 		return data;
 	}
-	
+
 	public final void setStopCrit(boolean stopcrit) {
 		this.stopcrit = stopcrit;
 	}
-	
+
 	public final boolean isStopCrit() {
 		return stopcrit;
 	}
-	
+
 	public final void newEvaluations(int nb) {
 		besttests = new NodeTest[nb];
 	}
-	
+
 	public final void setBestTest(int i, NodeTest test) {
 		besttests[i] = test;
 	}

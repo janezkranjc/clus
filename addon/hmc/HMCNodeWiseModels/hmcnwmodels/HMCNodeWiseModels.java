@@ -41,10 +41,10 @@ import clus.statistic.*;
 import clus.util.*;
 
 public class HMCNodeWiseModels implements CMDLineArgsProvider {
-	
+
 	private static String[] g_Options = {};
 	private static int[] g_OptionArities = {};
-	
+
 	protected Clus m_Clus;
 	protected CMDLineArgs m_Cargs;
 	protected StringTable m_Table = new StringTable();
@@ -54,19 +54,19 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			m_Clus = new Clus();
 			Settings sett = m_Clus.getSettings();
 			m_Cargs = new CMDLineArgs(this);
-			
+
 			String[] newargs = new String[args.length-1];
 			for (int i=0; i<newargs.length; i++)
 			{
 				newargs[i] = args[i];
 			}
 			readFtests(args[args.length-1]);
-			m_Cargs.process(newargs);			
-			
+			m_Cargs.process(newargs);
+
 //			m_Cargs.process(args);
 
 			if (m_Cargs.allOK()) {
-				(new File("nodewise")).mkdir();				
+				(new File("nodewise")).mkdir();
 				(new File("nodewise/out")).mkdir();
 				(new File("nodewise/model")).mkdir();
 				sett.setDate(new Date());
@@ -77,7 +77,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				doRun();
 			}
 	}
-	
+
 	private void readFtests(String filename) {
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(filename));
@@ -85,7 +85,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			s = in.readLine();
 			String[] parts;
 			m_Mappings = new Hashtable();
-			while (s!=null) 
+			while (s!=null)
 			{
 				parts = s.split("\t");
 				m_Mappings.put(parts[0], parts[1]);
@@ -97,8 +97,8 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	public RowData getNodeData(RowData train, int nodeid) {
 		ArrayList selected = new ArrayList();
 		for (int i = 0; i < train.getNbRows(); i++) {
@@ -108,9 +108,9 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				selected.add(tuple);
 			}
 		}
-		return new RowData(selected, train.getSchema());			
+		return new RowData(selected, train.getSchema());
 	}
-	
+
 	public RowData createChildData(RowData nodeData, ClassesAttrType ctype, int childid) throws ClusException {
 		// Create hierarchy with just one class
 		ClassHierarchy chier = ctype.getHier();
@@ -134,7 +134,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			childData.setTuple(new_tuple, j);
 		}
 		return childData;
-	}	
+	}
 
 	public ClusSchema createChildSchema(ClusSchema oschema, ClassesAttrType ctype, String name) throws ClusException {
 		ClusSchema cschema = new ClusSchema(name);
@@ -149,7 +149,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 		cschema.initializeSettings(m_Clus.getSettings());
 		return cschema;
 	}
-	
+
 	public void doOneNode(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid) throws ClusException, IOException {
 		// get data relevant to node
 		RowData nodeData = getNodeData(train, node.getIndex());
@@ -166,15 +166,15 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			String name = m_Clus.getSettings().getAppName() + "-" + nodeName + "-" + childName;
 			ClusRun cr = new ClusRun(childData.cloneData(), m_Clus.getSummary());
 			cr.createTrainIter();
-			
+
 			if (valid!=null) {
 				RowData validNodeData = getNodeData(valid, node.getIndex());
 				RowData validChildData = createChildData(validNodeData, ctype, child.getIndex());
 				TupleIterator iter = validChildData.getIterator();
-				cr.setTestSet(iter);			
+				cr.setTestSet(iter);
 				m_Clus.initializeSummary(clss);
 			}
-			
+
 /*			String fstr = (String) m_Mappings.get(parentChildName);
 			if (fstr==null) {
 				System.out.println("geen ftest gevonden voor "+ parentChildName);
@@ -182,14 +182,14 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			else {
 				System.out.println("fstr: "+ fstr);
 				float ft = Float.valueOf(fstr);
-				m_Clus.getSettings().setFTest(ft);	
+				m_Clus.getSettings().setFTest(ft);
 			}
-*/			
+*/
 			ClusOutput output = new ClusOutput("nodewise/out/" + name + ".out", cschema, m_Clus.getSettings());
 			ClusStatistic tr_stat = m_Clus.getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
 			cr.getTrainingSet().calcTotalStat(tr_stat);
-			m_Clus.getStatManager().setTrainSetStat(tr_stat);				
-			m_Clus.induce(cr, clss); // Induce model							
+			m_Clus.getStatManager().setTrainSetStat(tr_stat);
+			m_Clus.induce(cr, clss); // Induce model
 			m_Clus.calcError(cr, null); // Calc error
 			output.writeHeader();
 			output.writeOutput(cr, true, true);
@@ -197,7 +197,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			ClusModelCollectionIO io = new ClusModelCollectionIO();
 			io.addModel(cr.addModelInfo(ClusModel.ORIGINAL));
 			io.save("nodewise/model/" + name + ".model");
-			
+
 		}
 	}
 
@@ -210,18 +210,18 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			for (int i = 0; i < node.getNbChildren(); i++) {
 				ClassTerm child = (ClassTerm)node.getChild(i);
 				computeRecursive(child, hier, train, valid, computed);
-			}			
+			}
 		}
 	}
-	
+
 	public void computeRecursiveRoot(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid, boolean[] computed) throws ClusException, IOException {
 		doOneNode(node, hier, train, valid);
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			ClassTerm child = (ClassTerm)node.getChild(i);
 			computeRecursive(child, hier, train, valid, computed);
-		}			
-	}	
-	
+		}
+	}
+
 	public void doRun() throws IOException, ClusException, ClassNotFoundException {
 		ClusRun cr = m_Clus.partitionData();
 		RowData train = (RowData)cr.getTrainingSet();
@@ -232,22 +232,22 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 		boolean[] computed = new boolean[hier.getTotal()];
 		computeRecursiveRoot(root, hier, train, valid, computed);
 	}
-		
+
 	public String[] getOptionArgs() {
 		return g_Options;
 	}
-	
+
 	public int[] getOptionArgArities() {
 		return g_OptionArities;
 	}
-	
+
 	public int getNbMainArgs() {
 		return 1;
 	}
 
 	public void showHelp() {
 	}
-		
+
 	public static void main(String[] args) {
 		try {
 			HMCNodeWiseModels m = new HMCNodeWiseModels();
@@ -260,5 +260,5 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			System.out.println("Error: "+cn.getMessage());
 		}
 	}
-	
+
 }

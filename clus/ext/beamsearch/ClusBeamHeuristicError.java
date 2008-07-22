@@ -31,7 +31,7 @@ import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
 public class ClusBeamHeuristicError extends ClusBeamHeuristic {
-	
+
 	public ClusBeamHeuristicError(ClusStatistic stat) {
 		super(stat);
 	}
@@ -53,14 +53,14 @@ public class ClusBeamHeuristicError extends ClusBeamHeuristic {
 			m_Pos.copy(c_pstat);
 			m_Neg.copy(c_tstat);
 			m_Neg.subtractFromThis(c_pstat);
-			m_Pos.addScaled(pos_freq, missing);			
+			m_Pos.addScaled(pos_freq, missing);
 			m_Neg.addScaled(1.0-pos_freq, missing);
 			double pos_error = m_Pos.getError();
 			double neg_error = m_Neg.getError();
-			return m_TreeOffset - (pos_error + neg_error)/m_NbTrain - 2*Settings.SIZE_PENALTY;			
-		}		
+			return m_TreeOffset - (pos_error + neg_error)/m_NbTrain - 2*Settings.SIZE_PENALTY;
+		}
 	}
-	
+
 	public double estimateBeamMeasure(ClusNode tree) {
 		if (tree.atBottomLevel()) {
 			ClusStatistic total = tree.getClusteringStat();
@@ -73,12 +73,12 @@ public class ClusBeamHeuristicError extends ClusBeamHeuristic {
 			}
 			return result - Settings.SIZE_PENALTY;
 		}
-	}	
-	
+	}
+
 	public double computeLeafAdd(ClusNode leaf) {
-		return -leaf.getClusteringStat().getError()/m_NbTrain;		
-	}	
-	
+		return -leaf.getClusteringStat().getError()/m_NbTrain;
+	}
+
 	public String getName() {
 		return "Beam Heuristic (Reduced Error)"+getAttrHeuristicString();
 	}

@@ -38,10 +38,10 @@ public abstract class NominalSplit {
 	}
 
 	public abstract void initialize(ClusStatManager manager);
-	
+
 	public abstract void setSDataSize(int size);
-		
+
 	public abstract void findSplit(CurrentBestTestAndHeuristic node, NominalAttrType type);
-  
+
   public abstract void findRandomSplit(CurrentBestTestAndHeuristic node, NominalAttrType type, Random rn);
 }

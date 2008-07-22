@@ -36,11 +36,11 @@ public abstract class ClusAttribute extends ClusSerializable {
 
 	public void resize(int rows) {
 	}
-	
+
 	public void setSplit(boolean split) {
-		m_Split = split;		
+		m_Split = split;
 	}
-	
+
 	public boolean isSplit() {
 		return m_Split;
 	}
@@ -48,25 +48,25 @@ public abstract class ClusAttribute extends ClusSerializable {
 	public String getName() {
 		return getType().getName();
 	}
-	
+
 	public abstract ClusAttrType getType();
-	
+
 	public void prepare() {
 	}
-	
+
 	public void unprepare() {
 	}
-	
+
 	public void findBestTest(MyArray leaves, ColTarget target, ClusStatManager smanager) {
 	}
-	
-	public void split(ColTarget target) {		
-	}	
+
+	public void split(ColTarget target) {
+	}
 
 	public ClusAttribute select(ClusSelection sel, int nbsel) {
 		return null;
 	}
-	
+
 	public void insert(ClusAttribute attr, ClusSelection sel, int nb_new) {
 	}
 }

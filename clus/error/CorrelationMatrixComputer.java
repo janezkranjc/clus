@@ -32,7 +32,7 @@ import clus.util.*;
 public class CorrelationMatrixComputer {
 
 	PearsonCorrelation[][] m_Matrix;
-	
+
 	public void compute(RowData data) {
 		ClusSchema schema = data.getSchema();
 		NumericAttrType[] attrs = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -42,25 +42,25 @@ public class CorrelationMatrixComputer {
 		crtype[0] = new NumericAttrType("corr");
 		ClusErrorList par = new ClusErrorList();
 		for (int i = 0; i < nb_num; i++) {
-			for (int j = 0; j < nb_num; j++) {				
+			for (int j = 0; j < nb_num; j++) {
 				m_Matrix[i][j] = new PearsonCorrelation(par, crtype);
 			}
 		}
 		double[] a1 = new double[1];
-		double[] a2 = new double[1];		
+		double[] a2 = new double[1];
 		par.setNbExamples(data.getNbRows());
 		for (int i = 0; i < data.getNbRows(); i++) {
-			DataTuple tuple = data.getTuple(i);			
+			DataTuple tuple = data.getTuple(i);
 			for (int j = 0; j < nb_num; j++) {
 				for (int k = 0; k < nb_num; k++) {
 					a1[0] = attrs[j].getNumeric(tuple);
 					a2[0] = attrs[k].getNumeric(tuple);
 					m_Matrix[j][k].addExample(a1, a2);
 				}
-			}				
+			}
 		}
 	}
-	
+
 	public void printMatrixTeX() {
 		int nb_num = m_Matrix.length;
 		System.out.println("Number of numeric: "+nb_num);
@@ -91,5 +91,5 @@ public class CorrelationMatrixComputer {
 		}
 		System.out.println("\\end{tabular}");
 	}
-	
+
 }

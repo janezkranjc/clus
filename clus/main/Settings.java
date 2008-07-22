@@ -37,44 +37,44 @@ import clus.ext.hierarchical.*;
 
 public class Settings implements Serializable {
 
-	public final static long SERIAL_VERSION_ID = 1L;	
+	public final static long SERIAL_VERSION_ID = 1L;
 	public final static long serialVersionUID = SERIAL_VERSION_ID;
 
 
 /***********************************************************************
  * INI file structure                                                  *
- ***********************************************************************/	
-	
-	protected INIFile m_Ini = new INIFile();	
-	
+ ***********************************************************************/
+
+	protected INIFile m_Ini = new INIFile();
+
 /***********************************************************************
  * Simple constants                                                    *
- ***********************************************************************/	
+ ***********************************************************************/
 
 	public final static String DEFAULT = "Default";
 	public final static String NONE = "None";
-	public final static String[] NONELIST = { "None" };		
-	public final static String[] EMPTY = {};	
-	public final static String[] INFINITY = { "Infinity" };	
+	public final static String[] NONELIST = { "None" };
+	public final static String[] EMPTY = {};
+	public final static String[] INFINITY = { "Infinity" };
 	public final static String INFINITY_STRING = "Infinity";
 	public final static int INFINITY_VALUE = 0;
-	public final static double[] FOUR_ONES = { 1.0, 1.0, 1.0, 1.0 };	
+	public final static double[] FOUR_ONES = { 1.0, 1.0, 1.0, 1.0 };
 
 /***********************************************************************
  * Generic information                                                 *
- ***********************************************************************/	
+ ***********************************************************************/
 
-	protected Date m_Date;	
-	protected String m_AppName;	
+	protected Date m_Date;
+	protected String m_AppName;
 	protected String m_DirName;
-	
-	public static int VERBOSE = 1;	
-	public static boolean EXACT_TIME = false;			
+
+	public static int VERBOSE = 1;
+	public static boolean EXACT_TIME = false;
 
 	public Date getDate() {
 		return m_Date;
-	}	
-	
+	}
+
 	public void setDate(Date date) {
 		m_Date = date;
 	}
@@ -82,7 +82,7 @@ public class Settings implements Serializable {
 	public String getAppName() {
 		return m_AppName;
 	}
-	
+
 	public void setAppName(String file) {
 		file = StringUtils.removeSuffix(file, ".gz");
 		file = StringUtils.removeSuffix(file, ".arff");
@@ -91,26 +91,26 @@ public class Settings implements Serializable {
 		m_AppName = FileUtil.removePath(file);
 		m_DirName = FileUtil.getPath(file);
 	}
-		
+
 /***********************************************************************
  * Section: General                                                    *
- ***********************************************************************/	
-	
+ ***********************************************************************/
+
 	protected INIFileInt m_Verbose;
 	protected INIFileNominal m_Compatibility;
-	protected INIFileString m_RandomSeed;	
-	protected INIFileNominal m_ResourceInfoLoaded;	
+	protected INIFileString m_RandomSeed;
+	protected INIFileNominal m_ResourceInfoLoaded;
 
 	public static int enableVerbose(int talk) {
 		int prev = VERBOSE;
 		VERBOSE = talk;
 		return prev;
-	}	
-	
+	}
+
 	public int getCompatibility() {
 		return m_Compatibility.getValue();
 	}
-	
+
 	public boolean hasRandomSeed() {
 		//System.out.println(m_RandomSeed.getValue());
 		return !StringUtils.unCaseCompare(m_RandomSeed.getValue(), NONE);
@@ -119,63 +119,63 @@ public class Settings implements Serializable {
 	public int getRandomSeed() {
 		return Integer.parseInt(m_RandomSeed.getValue());
 	}
-	
+
 	public int getResourceInfoLoaded() {
 		return m_ResourceInfoLoaded.getValue();
 	}
-	
+
 /***********************************************************************
  * Section: General - Compatibility mode                               *
- ***********************************************************************/	
-				
-	public final static String[] COMPATIBILITY = { "Latest", "CMB05" };	
-	public final static int COMPATIBILITY_LATEST = 0;	
-	public final static int COMPATIBILITY_CMB05 = 1;	
+ ***********************************************************************/
+
+	public final static String[] COMPATIBILITY = { "Latest", "CMB05" };
+	public final static int COMPATIBILITY_LATEST = 0;
+	public final static int COMPATIBILITY_CMB05 = 1;
 
 /***********************************************************************
  * Section: General - ResourceInfo loaded                              *
- ***********************************************************************/	
-			
-	public final static String[] RESOURCE_INFO_LOAD = {"Yes", "No", "Test"};	
-		
-	public final static int RESOURCE_INFO_LOAD_YES = 0;	
-	public final static int RESOURCE_INFO_LOAD_NO = 1;	
-	public final static int RESOURCE_INFO_LOAD_TEST = 2;	
+ ***********************************************************************/
+
+	public final static String[] RESOURCE_INFO_LOAD = {"Yes", "No", "Test"};
+
+	public final static int RESOURCE_INFO_LOAD_YES = 0;
+	public final static int RESOURCE_INFO_LOAD_NO = 1;
+	public final static int RESOURCE_INFO_LOAD_TEST = 2;
 
 /***********************************************************************
  * Section: Data                                                       *
- ***********************************************************************/	
-	
-	protected INIFileString m_DataFile;	
+ ***********************************************************************/
+
+	protected INIFileString m_DataFile;
 	protected INIFileStringOrDouble m_TestSet;
-	protected INIFileStringOrDouble m_PruneSet;	
+	protected INIFileStringOrDouble m_PruneSet;
 	protected INIFileStringOrInt m_PruneSetMax;
 	protected INIFileStringOrInt m_XValFolds;
 
 	public String getDataFile() {
 		return m_DataFile.getValue();
 	}
-	
+
 	public boolean isNullFile() {
 		return StringUtils.unCaseCompare(m_DataFile.getValue(), NONE);
-	}	
-	
+	}
+
 	public void updateDataFile(String fname) {
 		if (isNullFile()) m_DataFile.setValue(fname);
 	}
-	
+
 	public String getTestFile() {
 		return m_TestSet.getValue();
 	}
-	
+
 	public boolean isNullTestFile() {
 		return m_TestSet.isDoubleOrNull(NONE);
-	}	
+	}
 
 	public String getPruneFile() {
 		return m_PruneSet.getValue();
 	}
-	
+
 	public boolean isNullPruneFile() {
 		return m_PruneSet.isDoubleOrNull(NONE);
 	}
@@ -189,7 +189,7 @@ public class Settings implements Serializable {
 		if (!m_PruneSet.isDouble())	return 0.0;
 		return m_PruneSet.getDoubleValue();
 	}
-	
+
 	public int getPruneSetMax() {
 		if (m_PruneSetMax.isString(INFINITY_STRING)) return Integer.MAX_VALUE;
 		else return m_PruneSetMax.getIntValue();
@@ -198,10 +198,10 @@ public class Settings implements Serializable {
 	public boolean isNullXValFile() {
 		return m_XValFolds.isIntOrNull(NONE);
 	}
-	
+
 	public boolean isLOOXVal() {
 		return m_XValFolds.isString("LOO");
-	}	
+	}
 
 	public String getXValFile() {
 		return m_XValFolds.getValue();
@@ -213,18 +213,18 @@ public class Settings implements Serializable {
 
 	public void setXValFolds(int folds) {
 		m_XValFolds.setIntValue(folds);
-	}	
-	
+	}
+
 /***********************************************************************
  * Section: Attribute                                                  *
- ***********************************************************************/	
+ ***********************************************************************/
 
 	protected INIFileString m_Target;
 	protected INIFileString m_Clustering;
 	protected INIFileString m_Descriptive;
-	protected INIFileString m_Key;	
-	protected INIFileString m_Disabled;	
-	protected INIFileNominalOrDoubleOrVector m_Weights;	
+	protected INIFileString m_Key;
+	protected INIFileString m_Disabled;
+	protected INIFileNominalOrDoubleOrVector m_Weights;
 	protected INIFileNominalOrDoubleOrVector m_ClusteringWeights;
 	protected INIFileBool m_ReduceMemoryNominal;
 
@@ -235,22 +235,22 @@ public class Settings implements Serializable {
 	public void setTarget(String str) {
 		m_Target.setValue(str);
 	}
-	
+
 	public boolean isNullTarget() {
 		return StringUtils.unCaseCompare(m_Target.getValue(), NONE);
 	}
-	
+
 	public boolean isDefaultTarget() {
 		return StringUtils.unCaseCompare(m_Target.getValue(), DEFAULT);
-	}	
-	
+	}
+
 	public String getClustering() {
 		return m_Clustering.getValue();
 	}
 
 	public void setClustering(String str) {
 		m_Clustering.setValue(str);
-	}	
+	}
 
 	public String getDescriptive() {
 		return m_Descriptive.getValue();
@@ -258,24 +258,24 @@ public class Settings implements Serializable {
 
 	public void setDescriptive(String str) {
 		m_Descriptive.setValue(str);
-	}	
-	
+	}
+
 	public String getKey() {
 		return m_Key.getValue();
 	}
-	
+
 	public String getDisabled() {
 		return m_Disabled.getValue();
 	}
-	
+
 	public void setDisabled(String str) {
 		m_Disabled.setValue(str);
 	}
-	
+
 	public INIFileNominalOrDoubleOrVector getNormalizationWeights() {
 		return m_Weights;
 	}
-	
+
 
 	public boolean hasNonTrivialWeights() {
 		for (int i = 0; i < m_Weights.getVectorLength(); i++) {
@@ -289,107 +289,107 @@ public class Settings implements Serializable {
 
 	public INIFileNominalOrDoubleOrVector getClusteringWeights() {
 		return m_ClusteringWeights;
-	}	
-	
+	}
+
 	public boolean getReduceMemoryNominalAttrs() {
 		return m_ReduceMemoryNominal.getValue();
 	}
-	
+
 /***********************************************************************
  * Section: Selective inductive transfer                               *
- ***********************************************************************/	
+ ***********************************************************************/
 	protected INIFileSection m_SectionSIT;
 	protected INIFileString m_MainTarget;
 	protected INIFileString m_Search;
 	protected INIFileString m_Learner;
 	protected INIFileBool m_Recursive;
 	protected INIFileString m_Error;
-	
+
 	public String getError(){
 		return m_Error.getValue();
 	}
-		
+
 	public String getLearnerName(){
 		return m_Learner.getValue();
 	}
-	
+
 	//@deprecated
 	public boolean getRecursive(){
 		return m_Recursive.getValue();
 	}
-	
+
 	public String getMainTarget() {
 		return m_MainTarget.getValue();
 	}
-	
+
 	public String getSearchName() {
 		return m_Search.getValue();
 	}
-	
+
 	public void setSearch(String b) {
 		m_Search.setValue(b);
 	}
-	
+
 	public void setMainTarget(String str) {
 		m_MainTarget.setValue(str);
 	}
-	
+
 /***********************************************************************
  * Section: Attribute - Normalization                                  *
- ***********************************************************************/	
-			
-	public final static String[] NORMALIZATIONS = { "Normalize" };	
+ ***********************************************************************/
+
+	public final static String[] NORMALIZATIONS = { "Normalize" };
 	public final static int NORMALIZATION_DEFAULT = 0;
 
 /***********************************************************************
  * Section: Attribute - Target weights                                 *
- ***********************************************************************/	
-			
+ ***********************************************************************/
+
 	public final static String[] NUM_NOM_TAR_NTAR_WEIGHTS = { "TargetWeight",
 		"NonTargetWeight", "NumericWeight", "NominalWeight" };
-			
-	public final static int TARGET_WEIGHT = 0;	
-	public final static int NON_TARGET_WEIGHT = 1;	
-	public final static int NUMERIC_WEIGHT = 2;	
+
+	public final static int TARGET_WEIGHT = 0;
+	public final static int NON_TARGET_WEIGHT = 1;
+	public final static int NUMERIC_WEIGHT = 2;
 	public final static int NOMINAL_WEIGHT = 3;
-		
+
 /***********************************************************************
  * Section: Nominal - Should move?                                     *
- ***********************************************************************/	
+ ***********************************************************************/
 
 	protected INIFileDouble m_MEstimate;
-	
+
 	public double getMEstimate() {
 		return m_MEstimate.getValue();
 	}
-	
+
 /***********************************************************************
  * Section: Model                                                      *
- ***********************************************************************/	
+ ***********************************************************************/
 
-	protected INIFileDouble m_MinW;	
+	protected INIFileDouble m_MinW;
 	protected INIFileString m_TuneFolds;
 	protected INIFileNominalOrDoubleOrVector m_ClassWeight;
 
 	public double getMinimalWeight() {
 		return m_MinW.getValue();
 	}
-	
+
 	public void setMinimalWeight(double val) {
 		m_MinW.setValue(val);
 	}
-	
+
 	public String getTuneFolds() {
 		return m_TuneFolds.getValue();
 	}
-	
+
 	public double[] getClassWeight() {
 		return m_ClassWeight.getDoubleVector();
-	}	
-	
+	}
+
 /***********************************************************************
  * Section: Constraints                                                *
- ***********************************************************************/	
+ ***********************************************************************/
 
 	protected INIFileString m_SyntacticConstrFile;
 	protected INIFileNominalOrIntOrVector m_MaxSizeConstr;
@@ -402,11 +402,11 @@ public class Settings implements Serializable {
 	public String getConstraintFile() {
 		return m_SyntacticConstrFile.getValue();
 	}
-	
+
 	public int getMaxSize() {
 		return getSizeConstraintPruning(0);
 	}
-	
+
 	public int getSizeConstraintPruning(int idx) {
 		if (m_MaxSizeConstr.isNominal(idx)) {
 			return -1;
@@ -429,11 +429,11 @@ public class Settings implements Serializable {
 		}
 		return sizes;
 	}
-	
+
 	public void setSizeConstraintPruning(int size) {
 		m_MaxSizeConstr.setInt(size);
 	}
-	
+
 	public double getMaxErrorConstraint(int idx) {
 		if (m_MaxErrorConstr.isNominal(idx)) {
 			return Double.POSITIVE_INFINITY;
@@ -447,7 +447,7 @@ public class Settings implements Serializable {
 		if (len == 1 && m_MaxErrorConstr.getDouble(0) == 0.0) return 0;
 		else return len;
 	}
-	
+
 	public double[] getMaxErrorConstraintVector() {
 		int error_nb = getMaxErrorConstraintNumber();
 		double[] max_error = new double[error_nb];
@@ -456,11 +456,11 @@ public class Settings implements Serializable {
 		}
 		return max_error;
 	}
-		
+
 /***********************************************************************
  * Section: Output                                                     *
- ***********************************************************************/	
-	
+ ***********************************************************************/
+
 	protected INIFileInt m_SetsData;
 	protected INIFileBool m_OutFoldErr;
 	protected INIFileBool m_OutFoldModels;
@@ -470,24 +470,24 @@ public class Settings implements Serializable {
 	protected INIFileBool m_ShowUnknown;
 	protected INIFileNominal m_ShowInfo;
 	protected INIFileNominal m_ShowModels;
-	protected INIFileBool m_PrintModelAndExamples;	
+	protected INIFileBool m_PrintModelAndExamples;
 	protected INIFileNominal m_WritePredictions;
 	protected INIFileBool m_ModelIDFiles;
-	protected INIFileBool m_OutputPythonModel;	
-	protected INIFileBool m_OutputDatabaseQueries;	
+	protected INIFileBool m_OutputPythonModel;
+	protected INIFileBool m_OutputDatabaseQueries;
 
 	public boolean isOutTrainError() {
 		return m_OutTrainErr.getValue();
 	}
-	
+
 	public boolean isShowBranchFreq() {
 		return m_ShowBrFreq.getValue();
 	}
-	
+
 	public boolean isShowUnknown() {
 		return m_ShowUnknown.getValue();
 	}
-	
+
 	public boolean isPrintModelAndExamples() {
 		return m_PrintModelAndExamples.getValue();
 	}
@@ -498,96 +498,96 @@ public class Settings implements Serializable {
 
 	public boolean isOutputFoldModels() {
 		return m_OutFoldModels.getValue();
-	}	
+	}
 
 	public boolean isWriteTestSetPredictions() {
 		return m_WritePredictions.contains(WRITE_PRED_TEST);
 	}
-	
+
 	public boolean isWriteTrainSetPredictions() {
 		return m_WritePredictions.contains(WRITE_PRED_TRAIN);
-	}	
+	}
 
 	public boolean isWriteModelIDPredictions() {
 		return m_ModelIDFiles.getValue();
 	}
-	
+
 	public boolean isOutputPythonModel() {
 		return m_OutputPythonModel.getValue();
 	}
-	
+
 	public boolean isOutputDatabaseQueries() {
 		return m_OutputDatabaseQueries.getValue();
 	}
-	
+
 	public boolean isShowXValForest() {
 		return m_ShowForest.getValue();
 	}
-	
+
 	public boolean getShowModel(int i) {
-		return m_ShowModels.contains(i);  
+		return m_ShowModels.contains(i);
 	}
-	
+
 	public StatisticPrintInfo getStatisticPrintInfo() {
 		StatisticPrintInfo info = new StatisticPrintInfo();
-		info.SHOW_EXAMPLE_COUNT = m_ShowInfo.contains(0);  
+		info.SHOW_EXAMPLE_COUNT = m_ShowInfo.contains(0);
 		info.SHOW_DISTRIBUTION = m_ShowInfo.contains(1);
 		info.SHOW_INDEX = m_ShowInfo.contains(2);
 		info.INTERNAL_DISTR = m_ShowInfo.contains(3);
 		return info;
 	}
-	
+
 	public int getBaggingSets() {
 		return m_SetsData.getValue();
 	}
-			
+
 /***********************************************************************
  * Section: Output - Show info in .out file                            *
- ***********************************************************************/		
-				
+ ***********************************************************************/
+
 	public final static String[] SHOW_MODELS = {"Default", "Original", "Pruned", "Others"};
-				
+
 	public final static int[] SHOW_MODELS_VALUES = {0,2,3};
-	public final static int SHOW_MODELS_DEFAULT = 0;	
-	public final static int SHOW_MODELS_ORIGINAL = 1;	
-	public final static int SHOW_MODELS_PRUNED = 2;	
+	public final static int SHOW_MODELS_DEFAULT = 0;
+	public final static int SHOW_MODELS_ORIGINAL = 1;
+	public final static int SHOW_MODELS_PRUNED = 2;
 	public final static int SHOW_MODELS_OTHERS = 3;
-				
+
 	public final static String[] SHOW_INFO = {"Count", "Distribution", "Index", "NodePrototypes"};
-			
-	public final static int[] SHOW_INFO_VALUES = {0};	
+
+	public final static int[] SHOW_INFO_VALUES = {0};
 
 	public final static String[] CONVERT_RULES = { "No", "Pruned", "All" };
-			
-	public final static int CONVERT_RULES_NONE = 0;	
-	public final static int CONVERT_RULES_PRUNED = 1;	
-	public final static int CONVERT_RULES_ALL = 2;	
 
-	public static boolean SHOW_UNKNOWN_FREQ;	
-	public static boolean SHOW_BRANCH_FREQ;	
-		
+	public final static int CONVERT_RULES_NONE = 0;
+	public final static int CONVERT_RULES_PRUNED = 1;
+	public final static int CONVERT_RULES_ALL = 2;
+
+	public static boolean SHOW_UNKNOWN_FREQ;
+	public static boolean SHOW_BRANCH_FREQ;
+
 /***********************************************************************
  * Section: Output - Write predictions to file                         *
- ***********************************************************************/	
-					
+ ***********************************************************************/
+
 	public final static String[] WRITE_PRED = { "None", "Test", "Train" };
-					
+
 	public final static int[] WRITE_PRED_VALUES = {0};
 	public final static int WRITE_PRED_NONE = 0;
 	public final static int WRITE_PRED_TEST = 1;
 	public final static int WRITE_PRED_TRAIN = 2;
-		
+
 /***********************************************************************
  * Section: Tree                                                       *
- ***********************************************************************/	
+ ***********************************************************************/
 
 	protected INIFileSection m_SectionTree;
 	protected INIFileNominal m_Heuristic;
 	protected INIFileInt m_TreeMaxDepth;
 	protected INIFileBool m_BinarySplit;
 	protected INIFileBool m_AlternativeSplits;
-	protected INIFileDouble m_FTest;	
-	protected INIFileNominal m_PruningMethod;	
+	protected INIFileDouble m_FTest;
+	protected INIFileNominal m_PruningMethod;
 	protected INIFileBool m_1SERule;
 	protected INIFileBool m_MSENominal;
 	protected INIFileDouble m_M5PruningMult;
@@ -596,23 +596,23 @@ public class Settings implements Serializable {
 	public void setSectionTreeEnabled(boolean enable) {
 		m_SectionTree.setEnabled(enable);
 	}
-	
+
 	public int getHeuristic() {
 		return m_Heuristic.getValue();
 	}
-	
+
 	public void setHeuristic(int value) {
 		m_Heuristic.setSingleValue(value);
 	}
-	
+
 	public boolean checkHeuristic(String value) {
 		return m_Heuristic.getStringSingle().equals(value);
 	}
-	
+
 	public int getTreeMaxDepth() {
 		return m_TreeMaxDepth.getValue();
 	}
-	
+
 	public boolean isBinarySplit() {
 		return m_BinarySplit.getValue();
 	}
@@ -620,57 +620,57 @@ public class Settings implements Serializable {
 	public boolean showAlternativeSplits() {
 		return m_AlternativeSplits.getValue();
 	}
-	
+
 	public double getFTest() {
 		return m_FTest.getValue();
 	}
-	
+
 	public void setFTest(double ftest) {
 		FTEST_VALUE = ftest;
 		FTEST_LEVEL = FTest.getLevelAndComputeArray(ftest);
 		m_FTest.setValue(ftest);
 	}
-	
+
 	public int getPruningMethod() {
 		return m_PruningMethod.getValue();
 	}
-	
+
 	public void setPruningMethod(int method) {
 		m_PruningMethod.setSingleValue(method);
 	}
 
 	public String getPruningMethodName() {
 		return m_PruningMethod.getStringValue();
-	}	
-	
+	}
+
 	public boolean get1SERule() {
 		return m_1SERule.getValue();
 	}
-	
+
 	public boolean isMSENominal() {
 		return m_MSENominal.getValue();
 	}
-	
+
 	public double getM5PruningMult() {
 		return m_M5PruningMult.getValue();
-	}	
-	
+	}
+
 	public int rulesFromTree() {
 		return m_RulesFromTree.getValue();
 	}
-		
+
 /***********************************************************************
  * Section: Tree - Heuristic                                           *
- ***********************************************************************/	
-		
+ ***********************************************************************/
+
 	public final static String[] HEURISTICS = { "Default", "ReducedError",
 		"Gain", "GainRatio", "SSPD", "SSReduction", "MEstimate", "Morishita", "DispersionAdt", "DispersionMlt",
 		"WRDispersionAdt", "WRDispersionMlt", "GeneticDistance", "SemiSupervised"};
-	
-	public final static int HEURISTIC_DEFAULT = 0;	
-	public final static int HEURISTIC_REDUCED_ERROR = 1;	
-	public final static int HEURISTIC_GAIN = 2;	
-	public final static int HEURISTIC_GAIN_RATIO = 3;	
+
+	public final static int HEURISTIC_DEFAULT = 0;
+	public final static int HEURISTIC_REDUCED_ERROR = 1;
+	public final static int HEURISTIC_GAIN = 2;
+	public final static int HEURISTIC_GAIN_RATIO = 3;
 	public final static int HEURISTIC_SSPD = 4;
 	public final static int HEURISTIC_SS_REDUCTION = 5;
 	public final static int HEURISTIC_MESTIMATE = 6;
@@ -682,50 +682,50 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_GENETIC_DISTANCE = 12;
 	public final static int HEURISTIC_SEMI_SUPERVISED = 13;
 
-	public static int FTEST_LEVEL;	
-	public static double FTEST_VALUE;	
-	public static double MINIMAL_WEIGHT;	
-	public static boolean ONE_NOMINAL = true;	
-		
+	public static int FTEST_LEVEL;
+	public static double FTEST_VALUE;
+	public static double MINIMAL_WEIGHT;
+	public static boolean ONE_NOMINAL = true;
+
 /***********************************************************************
  * Section: Tree - Pruning method                                      *
- ***********************************************************************/	
-	
+ ***********************************************************************/
+
 	public final static String[] PRUNING_METHODS = { "Default", "None", "C4.5",
-		"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB", 
+		"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB",
 		"CartVSB", "CartMaxSize" };
-	
+
 	public final static int PRUNING_METHOD_DEFAULT = 0;
 	public final static int PRUNING_METHOD_NONE = 1;
 	public final static int PRUNING_METHOD_C45 = 2;
 	public final static int PRUNING_METHOD_M5 = 3;
-	public final static int PRUNING_METHOD_M5_MULTI = 4;	
+	public final static int PRUNING_METHOD_M5_MULTI = 4;
 	public final static int PRUNING_METHOD_REDERR_VSB = 5;
 	public final static int PRUNING_METHOD_GAROFALAKIS = 6;
 	public final static int PRUNING_METHOD_GAROFALAKIS_VSB = 7;
 	public final static int PRUNING_METHOD_CART_VSB = 8;
-	public final static int PRUNING_METHOD_CART_MAXSIZE = 9;	
+	public final static int PRUNING_METHOD_CART_MAXSIZE = 9;
 
 /***********************************************************************
  * Section: Rules                                                      *
- ***********************************************************************/	
-	
+ ***********************************************************************/
+
 	public final static String[] COVERING_METHODS =	{"Standard", "WeightedMultiplicative",
 		"WeightedAdditive", "WeightedError", "Union", "BeamRuleDefSet",
 		"RandomRuleSet", "StandardBootstrap", "HeurOnly", "RulesFromTree"};
-	
+
 	// Standard covering: ordered rules (decision list)
-	public final static int COVERING_METHOD_STANDARD = 0;	
-	
+	public final static int COVERING_METHOD_STANDARD = 0;
+
 	// 'Weighted' coverings: unordered rules
-	public final static int COVERING_METHOD_WEIGHTED_MULTIPLICATIVE = 1;	
-	public final static int COVERING_METHOD_WEIGHTED_ADDITIVE = 2;	
+	public final static int COVERING_METHOD_WEIGHTED_MULTIPLICATIVE = 1;
+	public final static int COVERING_METHOD_WEIGHTED_ADDITIVE = 2;
 	public final static int COVERING_METHOD_WEIGHTED_ERROR = 3;
-	
+
 	// In multi-label classification: predicted set of classes is union
-	// of predictions of individual rules 
+	// of predictions of individual rules
 	public final static int COVERING_METHOD_UNION = 4;
-	
+
 	// Evaluates rules in the context of complete rule set: unordered rules
 	// public final static int COVERING_METHOD_RULE_SET = 5;
 
@@ -736,7 +736,7 @@ public class Settings implements Serializable {
 	// Evaluates rules in the context of complete rule set, builds default
 	// rule first, checks all rules in the beam: unordered rules
 	// Obsolete - should be deleted!
-	public final static int COVERING_METHOD_BEAM_RULE_DEF_SET = 5; 
+	public final static int COVERING_METHOD_BEAM_RULE_DEF_SET = 5;
 
 	// Evaluates rules in the context of complete rule set, separate rules
 	// are constructed randomly: unordered rules
@@ -744,25 +744,25 @@ public class Settings implements Serializable {
 
 	// Repeated standard covering on bootstraped data
 	public final static int COVERING_METHOD_STANDARD_BOOTSTRAP = 7;
-	
+
 	// No covering, only heuristic
 	public final static int COVERING_METHOD_HEURISTIC_ONLY = 8;
-	
+
 	// No covering, rules transcribed from tree
 	public final static int COVERING_METHOD_RULES_FROM_TREE = 9;
-	
+
 	public final static String[] RULE_PREDICTION_METHODS =
 	{"DecisionList", "CoverageWeighted", "CovAccWeighted", "Union", "Optimized"};
-	
-	public final static int RULE_PREDICTION_METHOD_DECISION_LIST = 0;	
-	public final static int RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED = 1;	
-	public final static int RULE_PREDICTION_METHOD_COV_ACC_WEIGHTED = 2;	
-	public final static int RULE_PREDICTION_METHOD_UNION = 3;	
+
+	public final static int RULE_PREDICTION_METHOD_DECISION_LIST = 0;
+	public final static int RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED = 1;
+	public final static int RULE_PREDICTION_METHOD_COV_ACC_WEIGHTED = 2;
+	public final static int RULE_PREDICTION_METHOD_UNION = 3;
 	public final static int RULE_PREDICTION_METHOD_OPTIMIZED = 4;
 
 	public final static String[] RULE_ADDING_METHODS =	{"Always", "IfBetter", "IfBetterBeam"};
 
-	// Always adds a rule to the rule set 
+	// Always adds a rule to the rule set
 	public final static int RULE_ADDING_METHOD_ALWAYS = 0;
 
 	// Only adds a rule to the rule set if it improves the rule set performance
@@ -786,7 +786,7 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_HeurPrototypeDistPar;
 	protected INIFileDouble m_RuleSignificanceLevel;
 	protected INIFileInt m_RuleNbSigAtts;
-	protected INIFileBool m_ComputeCompactness;	
+	protected INIFileBool m_ComputeCompactness;
 	protected INIFileDouble m_NumCompNormWeight;
 	protected INIFileNominalOrDoubleOrVector m_CompactnessWeights;
 	protected INIFileInt m_RandomRules;
@@ -802,15 +802,15 @@ public class Settings implements Serializable {
 	public INIFileNominalOrDoubleOrVector getCompactnessWeights() {
 		return m_CompactnessWeights;
 	}
-	
+
 	public boolean isRandomRules() {
 	    return (m_RandomRules.getValue() > 0);
 	}
-	  
+
 	public int nbRandomRules() {
 	    return m_RandomRules.getValue();
 	}
-	  
+
 	public boolean isRuleWiseErrors() {
 	  	return m_RuleWiseErrors.getValue();
 	}
@@ -818,7 +818,7 @@ public class Settings implements Serializable {
 	public int getCoveringMethod() {
 	    return m_CoveringMethod.getValue();
 	}
-	  
+
 	public void setCoveringMethod(int method) {
 	    m_CoveringMethod.setSingleValue(method);
 	}
@@ -826,7 +826,7 @@ public class Settings implements Serializable {
 	public int getRulePredictionMethod() {
 	    return m_PredictionMethod.getValue();
 	}
-	  
+
 	public void setRulePredictionMethod(int method) {
 	    m_PredictionMethod.setSingleValue(method);
 	}
@@ -834,11 +834,11 @@ public class Settings implements Serializable {
 	public int getRuleAddingMethod() {
 	    return m_RuleAddingMethod.getValue();
 	}
-	  
+
 	public void setRuleAddingMethod(int method) {
 	    m_RuleAddingMethod.setSingleValue(method);
 	}
-	  
+
 	public double getCoveringWeight() {
 	    return m_CoveringWeight.getValue();
 	}
@@ -846,7 +846,7 @@ public class Settings implements Serializable {
 	public void setCoveringWeight(double weight) {
 	    m_CoveringWeight.setValue(weight);
 	}
-	 
+
 	public double getInstCoveringWeightThreshold() {
 	    return m_InstCoveringWeightThreshold.getValue();
 	}
@@ -854,15 +854,15 @@ public class Settings implements Serializable {
 	public void setInstCoveringWeightThreshold(double thresh) {
 	  	m_InstCoveringWeightThreshold.setValue(thresh);
 	}
-	  
+
 	public int getMaxRulesNb() {
 	    return m_MaxRulesNb.getValue();
 	}
-	  
+
 	public void setMaxRulesNb(int nb) {
 	    m_MaxRulesNb.setValue(nb);
 	}
-	  
+
 	public double getRuleSignificanceLevel() {
 	    return m_RuleSignificanceLevel.getValue();
 	}
@@ -878,15 +878,15 @@ public class Settings implements Serializable {
 	public double getHeurCoveragePar() {
 	    return m_HeurCoveragePar.getValue();
 	}
-	 
+
 	public double getCompHeurRuleDistPar() {
 	    return m_CompHeurRuleDistPar.getValue();
 	}
-	  
+
 	public void setCompHeurRuleDistPar(double value) {
 	    m_CompHeurRuleDistPar.setValue(value);
 	}
-	  
+
 	public boolean isCompHeurRuleDist() {
 	    return m_CompHeurRuleDistPar.getValue() > 0;
 	}
@@ -898,7 +898,7 @@ public class Settings implements Serializable {
   	public void setHeurPrototypeDistPar(double value) {
 		m_HeurPrototypeDistPar.setValue(value);
 	}
-	  
+
 	public boolean isHeurPrototypeDistPar() {
 	 	return m_HeurPrototypeDistPar.getValue() > 0;
 	}
@@ -912,11 +912,11 @@ public class Settings implements Serializable {
 	public boolean computeCompactness() {
 		return m_ComputeCompactness.getValue();
   	}
-		
+
   	public double getNumCompNormWeight() {
   		return m_NumCompNormWeight.getValue();
   	}
-	  
+
 	public double getOptDECrossProb() {
 		return m_OptDECrossProb.getValue();
 	}
@@ -940,20 +940,20 @@ public class Settings implements Serializable {
 	public double getOptRegPar() {
 		return m_OptRegPar.getValue();
 	}
-		
+
 	public double getOptRuleWeightThreshold() {
 		return m_OptRegPar.getValue();
-	}	
-	
+	}
+
 /***********************************************************************
  * Section: Hierarchical multi-label classification                    *
- ***********************************************************************/	
-		
+ ***********************************************************************/
+
 	// Hierarchical multi-classification now supports both trees and DAGS
 	// This was required because Gene Ontology terms are organized in a partial order
 	public final static String[] HIERTYPES = { "Tree", "DAG" };
-	
-	public final static int HIERTYPE_TREE = 0;	
+
+	public final static int HIERTYPE_TREE = 0;
 	public final static int HIERTYPE_DAG = 1;
 
     public final static String[] HIERWEIGHT = { "ExpSumParentWeight", "ExpAvgParentWeight", "ExpMinParentWeight", "ExpMaxParentWeight", "NoWeight" };
@@ -963,120 +963,120 @@ public class Settings implements Serializable {
     public final static int HIERWEIGHT_EXP_MIN_PARENT_WEIGHT = 2;
     public final static int HIERWEIGHT_EXP_MAX_PARENT_WEIGHT = 3;
     public final static int HIERWEIGHT_NO_WEIGHT = 4;
-		
-	
+
+
 	INIFileSection m_SectionHierarchical;
-	protected INIFileNominal m_HierType;	
-	protected INIFileNominal m_HierWType;	
+	protected INIFileNominal m_HierType;
+	protected INIFileNominal m_HierWType;
 	protected INIFileDouble m_HierWParam;
 	protected INIFileString m_HierSep;
 	protected INIFileString m_HierEmptySetIndicator;
-	protected INIFileString m_DefinitionFile;	
-	protected INIFileBool m_HierNoRootPreds;	
-	protected INIFileDouble m_HierPruneInSig;	
-	protected INIFileBool m_HierUseBonferroni;	
-	protected INIFileNominalOrDoubleOrVector m_HierClassThreshold;	
+	protected INIFileString m_DefinitionFile;
+	protected INIFileBool m_HierNoRootPreds;
+	protected INIFileDouble m_HierPruneInSig;
+	protected INIFileBool m_HierUseBonferroni;
+	protected INIFileNominalOrDoubleOrVector m_HierClassThreshold;
 	protected INIFileString m_HierEvalClasses;
 
 	public void setSectionHierarchicalEnabled(boolean enable) {
 		m_SectionHierarchical.setEnabled(enable);
 	}
-	
+
 	public int getHierType() {
 		return m_HierType.getValue();
 	}
-	
+
 	public int getHierWType() {
 		return m_HierWType.getValue();
 	}
-	
+
 	public double getHierWParam() {
 		return m_HierWParam.getValue();
 	}
-	
+
 	public INIFileNominalOrDoubleOrVector getClassificationThresholds() {
 		return m_HierClassThreshold;
 	}
-	
+
 	public boolean isHierNoRootPreds() {
 		return m_HierNoRootPreds.getValue();
 	}
-	
+
 	public boolean isUseBonferroni() {
 		return m_HierUseBonferroni.getValue();
 	}
-	
+
 	public double getHierPruneInSig() {
 		return m_HierPruneInSig.getValue();
 	}
-	
+
 	public boolean hasHierEvalClasses() {
 		return !StringUtils.unCaseCompare(m_HierEvalClasses.getValue(), NONE);
-	}	
-	
+	}
+
 	public String getHierEvalClasses() {
 		return m_HierEvalClasses.getValue();
 	}
-	
+
 	public boolean hasDefinitionFile() {
 		return !StringUtils.unCaseCompare(m_DefinitionFile.getValue(), NONE);
 	}
-	
+
 	public String getDefinitionFile() {
 		return m_DefinitionFile.getValue();
 	}
-	
+
 	public void initHierarchical() {
 		ClassesValue.setHSeparator(m_HierSep.getValue());
 		ClassesValue.setEmptySetIndicator(m_HierEmptySetIndicator.getValue());
-	}	
-			
+	}
+
 /***********************************************************************
  * Section: Instance level constraints                                 *
- ***********************************************************************/		
+ ***********************************************************************/
 
 	protected INIFileSection m_SectionILevelC;
 	protected INIFileString m_ILevelCFile;
 	protected INIFileDouble m_ILevelCAlpha;
 	protected INIFileInt m_ILevelNbRandomConstr;
 	protected INIFileBool m_ILevelCCOPKMeans;
-	protected INIFileBool m_ILevelCMPCKMeans;	
+	protected INIFileBool m_ILevelCMPCKMeans;
 
 	public boolean isSectionILevelCEnabled() {
 		return m_SectionILevelC.isEnabled();
 	}
-	
+
 	public boolean hasILevelCFile() {
 		return !StringUtils.unCaseCompare(m_ILevelCFile.getValue(), NONE);
 	}
-	
+
 	public String getILevelCFile() {
 		return m_ILevelCFile.getValue();
-	}	
-	
+	}
+
 	public double getILevelCAlpha() {
 		return m_ILevelCAlpha.getValue();
 	}
-	
+
 	public int getILevelCNbRandomConstraints() {
 		return m_ILevelNbRandomConstr.getValue();
 	}
-	
+
 	public boolean isILevelCCOPKMeans() {
 		return m_ILevelCCOPKMeans.getValue();
-	}	
-	
+	}
+
 	public boolean isILevelCMPCKMeans() {
 		return m_ILevelCMPCKMeans.getValue();
 	}
-	
+
 /***********************************************************************
  * Section: Beam search                                                *
- ***********************************************************************/		
-	
-	public static int BEAM_WIDTH;	
-	public static double SIZE_PENALTY;	
-	public static double BEAM_SIMILARITY;	
+ ***********************************************************************/
+
+	public static int BEAM_WIDTH;
+	public static double SIZE_PENALTY;
+	public static double BEAM_SIMILARITY;
 	public static boolean BEAM_SYNT_DIST_CONSTR;
 
 	protected INIFileSection m_SectionBeam;
@@ -1104,7 +1104,7 @@ public class Settings implements Serializable {
 	public double getSizePenalty() {
 		return m_SizePenalty.getValue();
 	}
-	
+
 	public int getBeamBestN() {
 		return m_BeamBestN.getValue();
 	}
@@ -1120,11 +1120,11 @@ public class Settings implements Serializable {
 	public boolean getBeamSortOnTrainParameter() {
 		return m_BSortTrainParameter.getValue();
 	}
-	
+
 	public double getBeamSimilarity(){
 		return m_BeamSimilarity.getValue();
 	}
-	
+
 	public boolean isBeamPostPrune() {
 		return m_BeamPostPrune.getValue();
 	}
@@ -1132,27 +1132,27 @@ public class Settings implements Serializable {
 	public int getBeamAttrHeuristic() {
 		return m_BeamAttrHeuristic.getValue();
 	}
-	
+
 	public boolean hasBeamConstraintFile() {
 		return !StringUtils.unCaseCompare(m_BeamSyntacticConstrFile.getValue(),	NONE);
 	}
 
 	public String getBeamConstraintFile() {
 		return m_BeamSyntacticConstrFile.getValue();
-	}	
-		
+	}
+
 	public boolean isBeamToForest(){
 		return m_BeamToForest.getValue();
 	}
-	
+
 	public boolean isFastBS() {
 		return m_FastBS.getValue();
 	}
-			
+
 /***********************************************************************
  * Section: Exhaustive search                                          *
- ***********************************************************************/		
-	
+ ***********************************************************************/
+
 	protected INIFileSection m_SectionExhaustive;
 	protected INIFileBool m_Exhaustive;
 	protected INIFileInt m_StartTreeCpt;
@@ -1161,54 +1161,54 @@ public class Settings implements Serializable {
 	public void setSectionExhaustiveEnabled(boolean enable) {
 		m_SectionExhaustive.setEnabled(enable);
 	}
-	
+
 	public boolean isExhaustiveSearch() {
 		return m_Exhaustive.getValue();
 	}
-	
+
 	public int getStartTreeCpt() {
 		return m_StartTreeCpt.getValue();
 	}
-	
+
 	public int getStartItemCpt() {
 		return m_StartItemCpt.getValue();
 	}
-	
+
 /***********************************************************************
  * Section: Time series                                                *
- ***********************************************************************/		
-			
+ ***********************************************************************/
+
 	public final static String[] TIME_SERIES_DISTANCE_MEASURE={"DTW","QDM","TSC"};
-	
-	public final static int TIME_SERIES_DISTANCE_MEASURE_DTW = 0;	
-	public final static int TIME_SERIES_DISTANCE_MEASURE_QDM = 1;	
+
+	public final static int TIME_SERIES_DISTANCE_MEASURE_DTW = 0;
+	public final static int TIME_SERIES_DISTANCE_MEASURE_QDM = 1;
 	public final static int TIME_SERIES_DISTANCE_MEASURE_TSC = 2;
-	
+
 	public final static String[] TIME_SERIES_PROTOTYPE_COMPLEXITY={"N2", "LOG", "LINEAR", "NPAIRS", "TEST"};
 
 	INIFileSection m_SectionTimeSeries;
-	public static INIFileNominal m_TimeSeriesDM;	
+	public static INIFileNominal m_TimeSeriesDM;
 	public static INIFileNominal m_TimeSeriesProtoComlexity;
-	
+
 	public boolean isSectionTimeSeriesEnabled() {
 		return m_SectionTimeSeries.isEnabled();
 	}
-	
+
 	public void setSectionTimeSeriesEnabled(boolean enable) {
 		m_SectionTimeSeries.setEnabled(enable);
-	}	
-	
+	}
+
 /***********************************************************************
  * Section: Ensemble methods                                           *
- ***********************************************************************/		
+ ***********************************************************************/
 
 	public final static String[] ENSEMBLE_TYPE = {"Bagging", "RForest", "RSubspaces","BagSubspaces"};
-		
+
 	public final static int ENSEMBLE_BAGGING = 0;
 	public final static int ENSEMBLE_RFOREST = 1;
 	public final static int ENSEMBLE_RSUBSPACES = 2;
 	public final static int ENSEMBLE_BAGSUBSPACES = 3;
-		
+
 	public final static String[] VOTING_TYPE={"Majority","ProbabilityDistribution"};
 
 	public final static int VOTING_TYPE_MAJORITY = 0;
@@ -1223,16 +1223,16 @@ public class Settings implements Serializable {
 	public static boolean m_EnsembleMode = false;
 	public static INIFileBool m_EnsembleShouldOpt;
 	public static INIFileBool m_EnsembleOOBestimate;
-	
-	
+
+
 	public boolean isEnsembleMode() {
 		return m_EnsembleMode;
 	}
-	
+
 	public void setEnsembleMode(boolean value) {
 		m_EnsembleMode = value;
-	}	
-	
+	}
+
 	public int getEnsembleMethod() {
 		return m_EnsembleMethod.getValue();
 	}
@@ -1240,71 +1240,71 @@ public class Settings implements Serializable {
 	public INIFileNominalOrIntOrVector getNbBaggingSets(){
 		if (!m_NbBags.isVector()&&(m_NbBags.getInt() == 0))m_NbBags.setInt(10);
 		return m_NbBags;
-	}	
-	
+	}
+
 	public int getNbRandomAttrSelected() {
 		return m_RandomAttrSelected.getValue();
 	}
-	
+
 	public void setNbRandomAttrSelected(int value) {
 		m_RandomAttrSelected.setValue(value);
 	}
-		
+
 	public static boolean isPrintEnsembleModels( ){
 		return m_PrintAllModels.getValue();
-	}	
-	
+	}
+
 	public static boolean shouldOptimizeEnsemble( ){
 		return m_EnsembleShouldOpt.getValue();
-	}	
-	
+	}
+
 	public static boolean shouldEstimateOOB( ){
 		return m_EnsembleOOBestimate.getValue();
-	}	
-	
-	
+	}
+
+
 /***********************************************************************
  * Section: KNN                                                        *
- ***********************************************************************/		
-	
-	INIFileSection m_SectionKNN;	
-	public static INIFileInt kNN_k;	
-	public static INIFileString kNN_vectDist;	
-	public static INIFileBool kNN_distWeighted;	
-	public static INIFileBool kNN_normalized;	
+ ***********************************************************************/
+
+	INIFileSection m_SectionKNN;
+	public static INIFileInt kNN_k;
+	public static INIFileString kNN_vectDist;
+	public static INIFileBool kNN_distWeighted;
+	public static INIFileBool kNN_normalized;
 	public static INIFileBool kNN_attrWeighted;
 
 	public void setSectionKNNEnabled(boolean enable) {
 		m_SectionKNN.setEnabled(enable);
-	}	
-	
+	}
+
 /***********************************************************************
  * Section: KNN Trees                                                  *
- ***********************************************************************/		
-	
-	INIFileSection m_SectionKNNT;	
-	public static INIFileInt kNNT_k;	
-	public static INIFileString kNNT_vectDist;	
-	public static INIFileBool kNNT_distWeighted;	
-	public static INIFileBool kNNT_normalized;	
-	public static INIFileBool kNNT_attrWeighted;	
+ ***********************************************************************/
+
+	INIFileSection m_SectionKNNT;
+	public static INIFileInt kNNT_k;
+	public static INIFileString kNNT_vectDist;
+	public static INIFileBool kNNT_distWeighted;
+	public static INIFileBool kNNT_normalized;
+	public static INIFileBool kNNT_attrWeighted;
 
 	public void setSectionKNNTEnabled(boolean enable) {
 		m_SectionKNNT.setEnabled(enable);
 	}
-		
+
 /***********************************************************************
  * Cross-validaiton                                                    *
- ***********************************************************************/		
-	
-	public static boolean SHOW_XVAL_FOREST;	
+ ***********************************************************************/
+
+	public static boolean SHOW_XVAL_FOREST;
 	public static boolean XVAL_OVERLAP = true;
 	public static boolean IS_XVAL = false;
 
 /***********************************************************************
  * Create the settings structure                                       *
- ***********************************************************************/		
-	
+ ***********************************************************************/
+
 	public void create() {
 		INIFileSection settings = new INIFileSection("General");
 		settings.addNode(m_Verbose = new INIFileInt("Verbose", 1));
@@ -1318,7 +1318,7 @@ public class Settings implements Serializable {
 		data.addNode(m_PruneSet = new INIFileStringOrDouble("PruneSet", NONE));
 		data.addNode(m_PruneSetMax = new INIFileStringOrInt("PruneSetMax", INFINITY_STRING));
 		data.addNode(m_XValFolds = new INIFileStringOrInt("XVal"));
-		m_XValFolds.setIntValue(10);		
+		m_XValFolds.setIntValue(10);
 
 		INIFileSection attrs = new INIFileSection("Attributes");
 		attrs.addNode(m_Target = new INIFileString("Target", DEFAULT));
@@ -1332,7 +1332,7 @@ public class Settings implements Serializable {
 		m_ClusteringWeights.setDouble(1.0);
 		m_ClusteringWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);
 		attrs.addNode(m_ReduceMemoryNominal = new INIFileBool("ReduceMemoryNominalAttrs", false));
-		
+
 		m_SectionSIT = new INIFileSection("SIT");
 		m_SectionSIT.addNode(m_MainTarget = new INIFileString("Main_target", DEFAULT));
 		m_SectionSIT.addNode(m_Recursive = new INIFileBool("Recursive",false));
@@ -1346,9 +1346,9 @@ public class Settings implements Serializable {
 		constr.addNode(m_MaxErrorConstr = new INIFileNominalOrDoubleOrVector("MaxError", INFINITY));
 		m_MaxSizeConstr.setNominal(0);
 		m_MaxErrorConstr.setDouble(0);
-		
+
 		INIFileSection output = new INIFileSection("Output");
-		output.addNode(m_ShowModels = new INIFileNominal("ShowModels", SHOW_MODELS, SHOW_MODELS_VALUES));		
+		output.addNode(m_ShowModels = new INIFileNominal("ShowModels", SHOW_MODELS, SHOW_MODELS_VALUES));
 		output.addNode(m_OutTrainErr = new INIFileBool("TrainErrors", true));
 		output.addNode(m_OutFoldModels = new INIFileBool("AllFoldModels", true));
 		output.addNode(m_OutFoldErr = new INIFileBool("AllFoldErrors", false));
@@ -1357,10 +1357,10 @@ public class Settings implements Serializable {
 		output.addNode(m_ShowInfo = new INIFileNominal("ShowInfo", SHOW_INFO, SHOW_INFO_VALUES));
 		output.addNode(m_PrintModelAndExamples = new INIFileBool("PrintModelAndExamples", false));
 		output.addNode(m_WritePredictions = new INIFileNominal("WritePredictions", WRITE_PRED, WRITE_PRED_VALUES));
-		output.addNode(m_ModelIDFiles = new INIFileBool("ModelIDFiles", false));		
+		output.addNode(m_ModelIDFiles = new INIFileBool("ModelIDFiles", false));
 		output.addNode(m_OutputPythonModel = new INIFileBool("OutputPythonModel", false));
 		output.addNode(m_OutputDatabaseQueries = new INIFileBool("OutputDatabaseQueries", false));
-				
+
 		INIFileSection nominal = new INIFileSection("Nominal");
 		nominal.addNode(m_MEstimate = new INIFileDouble("MEstimate", 1.0));
 
@@ -1409,20 +1409,20 @@ public class Settings implements Serializable {
 		rules.addNode(m_OptRegPar = new INIFileDouble("OptRegPar", 0.0));
 		rules.addNode(m_OptRuleWeightThreshold = new INIFileDouble("OptRuleWeightThreshold", 0.1));
 		rules.setEnabled(false);
-		
+
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
-		m_SectionHierarchical.addNode(m_HierType = new INIFileNominal("Type", HIERTYPES, 0));	
+		m_SectionHierarchical.addNode(m_HierType = new INIFileNominal("Type", HIERTYPES, 0));
 		m_SectionHierarchical.addNode(m_HierWType = new INIFileNominal("WType", HIERWEIGHT, 0));
 		m_SectionHierarchical.addNode(m_HierWParam = new INIFileDouble("WParam", 0.75));
 		m_SectionHierarchical.addNode(m_HierSep = new INIFileString("HSeparator", "."));
 		m_SectionHierarchical.addNode(m_HierEmptySetIndicator = new INIFileString("EmptySetIndicator", "n"));
-		m_SectionHierarchical.addNode(m_DefinitionFile = new INIFileString("DefinitionFile", NONE)); 
+		m_SectionHierarchical.addNode(m_DefinitionFile = new INIFileString("DefinitionFile", NONE));
 		m_SectionHierarchical.addNode(m_HierNoRootPreds = new INIFileBool("NoRootPredictions", false));
 		m_SectionHierarchical.addNode(m_HierPruneInSig = new INIFileDouble("PruneInSig", 0.0));
 		m_SectionHierarchical.addNode(m_HierUseBonferroni = new INIFileBool("Bonferroni", false));
-		m_SectionHierarchical.addNode(m_HierClassThreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold", NONELIST));		
+		m_SectionHierarchical.addNode(m_HierClassThreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold", NONELIST));
 		m_HierClassThreshold.setNominal(0);
-		m_SectionHierarchical.addNode(m_HierEvalClasses = new INIFileString("EvalClasses", NONE));		
+		m_SectionHierarchical.addNode(m_HierEvalClasses = new INIFileString("EvalClasses", NONE));
 		m_SectionHierarchical.setEnabled(false);
 
 		m_SectionILevelC = new INIFileSection("ILevelC");
@@ -1431,8 +1431,8 @@ public class Settings implements Serializable {
 		m_SectionILevelC.addNode(m_ILevelNbRandomConstr = new INIFileInt("NbRandomConstraints", 0));
 		m_SectionILevelC.addNode(m_ILevelCCOPKMeans = new INIFileBool("RunCOPKMeans", false));
 		m_SectionILevelC.addNode(m_ILevelCMPCKMeans = new INIFileBool("RunMPCKMeans", false));
-		m_SectionILevelC.setEnabled(false);		
-		
+		m_SectionILevelC.setEnabled(false);
+
 		m_SectionBeam = new INIFileSection("Beam");
 		m_SectionBeam.addNode(m_SizePenalty = new INIFileDouble("SizePenalty", 0.1));
 		m_SectionBeam.addNode(m_BeamWidth = new INIFileInt("BeamWidth", 10));
@@ -1447,19 +1447,19 @@ public class Settings implements Serializable {
 		m_SectionBeam.addNode(m_BeamSyntacticConstrFile = new INIFileString("DistSyntacticConstr",NONE));
 		m_SectionBeam.addNode(m_BeamToForest = new INIFileBool("BeamToForest", false));
 		m_SectionBeam.setEnabled(false);
-		
+
 		//added by elisa 1/08/2006
 		m_SectionExhaustive = new INIFileSection("Exhaustive");
 		m_SectionExhaustive.addNode(m_Exhaustive = new INIFileBool("Exhaustive", true));
 		m_SectionExhaustive.addNode(m_StartTreeCpt = new INIFileInt("StartTreeCpt", 0));
 		m_SectionExhaustive.addNode(m_StartItemCpt = new INIFileInt("StartItemCpt", 0));
 		m_SectionExhaustive.setEnabled(false);
-		
+
 		m_SectionTimeSeries = new INIFileSection("TimeSeries");
 		m_SectionTimeSeries.addNode(m_TimeSeriesDM=new INIFileNominal("DistanceMeasure", TIME_SERIES_DISTANCE_MEASURE,0));
 		m_SectionTimeSeries.addNode(m_TimeSeriesProtoComlexity=new INIFileNominal("PrototypeComlexity", TIME_SERIES_PROTOTYPE_COMPLEXITY,0));
 		m_SectionTimeSeries.setEnabled(false);
-		
+
 		m_SectionEnsembles = new INIFileSection("Ensemble");
 		m_SectionEnsembles.addNode(m_NbBags = new INIFileNominalOrIntOrVector("Iterations", NONELIST));
 		m_SectionEnsembles.addNode(m_EnsembleMethod =new INIFileNominal("EnsembleMethod", ENSEMBLE_TYPE,0));
@@ -1469,7 +1469,7 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_EnsembleShouldOpt = new INIFileBool("Optimize", false));
 		m_SectionEnsembles.addNode(m_EnsembleOOBestimate = new INIFileBool("OOBestimate", false));
 		m_SectionEnsembles.setEnabled(false);
-		
+
 		m_SectionKNN = new INIFileSection("kNN");
 		m_SectionKNN.addNode(kNN_k = new INIFileInt("k", 3));
 		m_SectionKNN.addNode(kNN_vectDist = new INIFileString("VectorDistance", "Euclidian"));
@@ -1484,8 +1484,8 @@ public class Settings implements Serializable {
 		m_SectionKNNT.addNode(kNNT_distWeighted = new INIFileBool("DistanceWeighted", false));
 		m_SectionKNNT.addNode(kNNT_normalized = new INIFileBool("Normalizing", true));
 		m_SectionKNNT.addNode(kNNT_attrWeighted = new INIFileBool("AttributeWeighted", false));
-		m_SectionKNNT.setEnabled(false);		
-		
+		m_SectionKNNT.setEnabled(false);
+
 		INIFileSection exper = new INIFileSection("Experimental");
 		exper.addNode(m_SetsData = new INIFileInt("NumberBags", 25));
 		exper.addNode(m_ShowForest = new INIFileBool("XValForest", false));
@@ -1515,12 +1515,12 @@ public class Settings implements Serializable {
 	public void initNamedValues() {
 		m_TreeMaxDepth.setNamedValue(-1, "Infinity");
 		m_TreeMaxSize.setNamedValue(-1, "Infinity");
-	}			
-    
+	}
+
 	public void updateTarget(ClusSchema schema) {
 		if (checkHeuristic("SSPD")) {
 			schema.addAttrType(new IntegerAttrType("SSPD"));
-			int nb = schema.getNbAttributes();			
+			int nb = schema.getNbAttributes();
 			m_Target.setValue(String.valueOf(nb));
 		}
 	}
@@ -1579,7 +1579,7 @@ public class Settings implements Serializable {
 		BEAM_SYNT_DIST_CONSTR = hasBeamConstraintFile();
 		VERBOSE = m_Verbose.getValue();
 	}
-	
+
 	public int getVerbose() {
 		return m_Verbose.getValue();
 	}
@@ -1599,7 +1599,7 @@ public class Settings implements Serializable {
 		updateDisabledSettings();
 		m_Ini.save(where);
 	}
-	
+
 	public String getFileAbsolute(String fname) {
 		// System.out.println("Dir name: '"+m_DirName+"'");
 		// System.out.println("File name: '"+fname+"'");

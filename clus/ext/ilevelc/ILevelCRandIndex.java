@@ -32,7 +32,7 @@ import clus.main.Settings;
 import clus.statistic.*;
 
 public class ILevelCRandIndex extends ClusError {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double m_RandIndex;
@@ -41,12 +41,12 @@ public class ILevelCRandIndex extends ClusError {
 	protected NominalAttrType m_Attr;
 	protected ArrayList m_Exs = new ArrayList();
 	protected int m_Count;
-	
+
 	public ILevelCRandIndex(ClusErrorList par, NominalAttrType nom) {
 		super(par, 1);
 		m_Attr = nom;
 	}
-	
+
 	public double computeRandIndex() {
 		int a = 0;
 		int b = 0;
@@ -64,24 +64,24 @@ public class ILevelCRandIndex extends ClusError {
 		System.out.println("Rand = "+rand+" (nbex = "+nbex+")");
 		return rand;
 	}
-	
+
 	public boolean isInvalid() {
 		return m_Invalid;
 	}
-	
+
 	public double getRandIndex() {
 		if (!m_IsComputed) {
 			m_RandIndex = computeRandIndex();
 			m_IsComputed = true;
 		}
-		return m_RandIndex;		
-	}	
-	
+		return m_RandIndex;
+	}
+
 	public void reset() {
 		m_IsComputed = false;
 		m_Exs.clear();
 	}
-		
+
 	public void add(ClusError other) {
 		ILevelCRandIndex ri = (ILevelCRandIndex)other;
 		if (!ri.isInvalid()) {
@@ -89,27 +89,27 @@ public class ILevelCRandIndex extends ClusError {
 			m_Count++;
 		}
 	}
-	
+
 	public void addInvalid(DataTuple tuple) {
 		m_Invalid = true;
 	}
-	
+
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		m_IsComputed = false;
 		int[] store = new int[2];
 		ILevelCStatistic ilstat = (ILevelCStatistic)pred;
-		store[0] = m_Attr.getNominal(tuple);		
+		store[0] = m_Attr.getNominal(tuple);
 		store[1] = ilstat.getClusterID();
 		m_Exs.add(store);
 	}
-		
+
 	public double getModelErrorComponent(int i) {
 		if (m_Count > 0) {
 			return m_RandIndex / m_Count;
 		}
 		return getRandIndex();
 	}
-	
+
 	public void showModelError(PrintWriter out, int detail) {
 		if (isInvalid()) {
 			out.println("?");
@@ -118,11 +118,11 @@ public class ILevelCRandIndex extends ClusError {
 		} else {
 			out.println(getRandIndex());
 		}
-	}	
+	}
 
 	public ClusError getErrorClone(ClusErrorList par) {
 		return new ILevelCRandIndex(getParent(), m_Attr);
-	}	
+	}
 
 	public String getName() {
 		return "Rand index";

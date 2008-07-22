@@ -25,22 +25,22 @@ package clus.ext.hierarchical;
 import java.util.*;
 
 public class HierNodeWeights {
-	
+
 	double[] m_Weights;
 	String m_Name;
-	
+
 	public final double getWeight(int nodeidx) {
 		return m_Weights[nodeidx];
 	}
-	
+
 	public final double[] getWeights() {
 		return m_Weights;
 	}
-	
+
 	public final String getName() {
 		return m_Name;
 	}
-	
+
 /*
  * The key issue is assigning weights. I suggest the following procedure.
  * For the root, a weight of 1 is assigned.
@@ -48,17 +48,17 @@ public class HierNodeWeights {
  * w * Sum( weight (X) ) where X is a parent of Y.
  * This is equivalent to flattening the lattice into a tree
  * (by copying the subtrees that have multiple parents).
- * 
+ *
  * */
-	
+
 	public boolean allParentsOk(ClassTerm term, boolean[] computed) {
 		for (int j = 0; j < term.getNbParents(); j++) {
 			ClassTerm parent = term.getParent(j);
-			if (parent.getIndex() != -1 && !computed[parent.getIndex()]) return false;			
+			if (parent.getIndex() != -1 && !computed[parent.getIndex()]) return false;
 		}
 		return true;
 	}
-	
+
 	public void initExponentialDepthWeightsDAG(ClassHierarchy hier, int wtype, double w0) {
 		boolean[] weight_computed = new boolean[hier.getTotal()];
 		ArrayList todo = new ArrayList();
@@ -71,7 +71,7 @@ public class HierNodeWeights {
 			for (int i = todo.size()-1; i >= 0; i--) {
 				ClassTerm term = (ClassTerm)todo.get(i);
 				if (allParentsOk(term, weight_computed)) {
-					int maxDepth = 0;					
+					int maxDepth = 0;
 					int minDepth = Integer.MAX_VALUE;
 					for (int j = 0; j < term.getNbParents(); j++) {
 						ClassTerm parent = term.getParent(j);
@@ -85,7 +85,7 @@ public class HierNodeWeights {
 						agg_wi = Double.MAX_VALUE;
 						for (int j = 0; j < term.getNbParents(); j++) {
 							ClassTerm parent = term.getParent(j);
-							if (parent.getIndex() == -1) agg_wi = Math.min(agg_wi, 1.0);					
+							if (parent.getIndex() == -1) agg_wi = Math.min(agg_wi, 1.0);
 							else agg_wi = Math.min(agg_wi, m_Weights[parent.getIndex()]);
 						}
 					}
@@ -94,14 +94,14 @@ public class HierNodeWeights {
 							agg_wi = Double.MIN_VALUE;
 							for (int j = 0; j < term.getNbParents(); j++) {
 								ClassTerm parent = term.getParent(j);
-								if (parent.getIndex() == -1) agg_wi = Math.max(agg_wi, 1.0);					
+								if (parent.getIndex() == -1) agg_wi = Math.max(agg_wi, 1.0);
 								else agg_wi = Math.max(agg_wi, m_Weights[parent.getIndex()]);
 							}
 						}
 						else {
 							agg_wi = 0.0;
 							for (int j = 0; j < term.getNbParents(); j++) {
-								ClassTerm parent = term.getParent(j);							
+								ClassTerm parent = term.getParent(j);
 								if (parent.getIndex() == -1) agg_wi += 1.0;
 								else agg_wi += m_Weights[parent.getIndex()];
 							}
@@ -116,9 +116,9 @@ public class HierNodeWeights {
 					nb_done++;
 				}
 			}
-		}		
+		}
 	}
-	
+
 	public void initExponentialDepthWeightsRec(ClassTerm node, int depth, double w0) {
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			ClassTerm child = (ClassTerm)node.getChild(i);
@@ -129,7 +129,7 @@ public class HierNodeWeights {
 		}
 	}
 
-	
+
 	public void initNoWeights(ClassHierarchy hier) {
 		boolean[] weight_computed = new boolean[hier.getTotal()];
 		ArrayList todo = new ArrayList();
@@ -142,7 +142,7 @@ public class HierNodeWeights {
 			for (int i = todo.size()-1; i >= 0; i--) {
 				ClassTerm term = (ClassTerm)todo.get(i);
 				if (allParentsOk(term, weight_computed)) {
-					int maxDepth = 0;					
+					int maxDepth = 0;
 					int minDepth = Integer.MAX_VALUE;
 					for (int j = 0; j < term.getNbParents(); j++) {
 						ClassTerm parent = term.getParent(j);
@@ -157,11 +157,11 @@ public class HierNodeWeights {
 					nb_done++;
 				}
 			}
-		}		
+		}
 	}
-	
-	
-	
+
+
+
 	public void initExponentialDepthWeights(ClassHierarchy hier, int wtype, double w0) {
 		m_Weights = new double[hier.getTotal()];
 		if (wtype==4) {
@@ -180,8 +180,8 @@ public class HierNodeWeights {
 			}
 		}
 	}
-	
+
 	private final static double calcExponentialDepthWeight(int depth, double w0) {
 		return Math.pow(w0, (double)depth);
-	}	
+	}
 }

@@ -115,7 +115,7 @@ public class ClusNodePainter extends MyNodePainter implements ActionListener {
 				if (!m_Node.atBottomLevel()) {
 					pop.add(makeZoomMenu("Zoom subtree", true));
 					JMenuItem item = new JMenuItem("Expand subtree");
-					item.addActionListener(new MyExpandListener());				
+					item.addActionListener(new MyExpandListener());
 					pop.add(item);
 					item = new JMenuItem("Prune subtree");
 					item.addActionListener(new MyPruneListener());
@@ -298,20 +298,20 @@ public class ClusNodePainter extends MyNodePainter implements ActionListener {
 	private class MyPruneListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent evt) {
-			TreePanel panel = (TreePanel)m_Node.getPaintSettings().getDocument();			
+			TreePanel panel = (TreePanel)m_Node.getPaintSettings().getDocument();
 			String str = JOptionPane.showInputDialog(panel, "Enter subtree size");
 			try {
-				int nodes = Integer.parseInt(str);				
+				int nodes = Integer.parseInt(str);
 				ClusNode node = (ClusNode)m_Node.getVisitor(0);
 				panel.pruneTree(node, nodes);
 			} catch (NumberFormatException e) {
 				System.err.println("Number expected, got: "+str);
 			} catch (ClusException e) {
 				System.err.println("Clus error: "+e.getMessage());
-			}			
+			}
 		}
 	}
-	
+
 	private class MyExpandListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent evt) {

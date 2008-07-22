@@ -42,25 +42,25 @@ public class ClusExhaustiveInduce extends ClusInductionAlgorithm {
 
 		protected NominalSplit m_Split;
 		protected ClusExhaustiveSearch m_Search;
-		
+
 	public ClusExhaustiveInduce(ClusSchema schema, Settings sett, ClusExhaustiveSearch search) throws ClusException, IOException {
 			super(schema, sett);
 			m_Search = search;
 	}
-		
+
 	public void initializeHeuristic() {
 			m_Search.initializeHeuristic();
 	}
-		
-	
+
+
 	public ClusData createData() {
 		return new RowData(m_Schema);
-	}	
-	
+	}
+
 	public boolean isModelWriter() {
 		return true;
 	}
-	
+
 	public void writeModel(ClusModelCollectionIO strm) throws IOException {
 		m_Search.writeModel(strm);
 	}
@@ -89,4 +89,4 @@ public class ClusExhaustiveInduce extends ClusInductionAlgorithm {
 	}
 }
 
-	
+

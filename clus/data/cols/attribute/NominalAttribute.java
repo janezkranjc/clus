@@ -41,12 +41,12 @@ public class NominalAttribute extends NominalAttrBase {
 	public NominalAttribute(NominalAttrType type) {
 		super(type);
 	}
-	
+
 	public void resize(int rows) {
 		m_NbRows = rows;
 		m_Data = new int[rows];
-	}	
-	
+	}
+
 	public ClusAttribute select(ClusSelection sel, int nbsel) {
 		int s_data = 0;
 		int s_subset = 0;
@@ -62,21 +62,21 @@ public class NominalAttribute extends NominalAttrBase {
 		s_attr.m_Data = subset;
 		s_attr.m_NbRows = nbsel;
 		return s_attr;
-	}		
-	
+	}
+
 	public void insert(ClusAttribute attr, ClusSelection sel, int nb_new) {
 		int s_data = 0;
-		int s_subset = 0;	
+		int s_subset = 0;
 		int[] data = m_Data;
 		m_Data = new int[nb_new];
 		int[] subset = ((NominalAttribute)attr).m_Data;
-		for (int i = 0; i < nb_new; i++) {		
+		for (int i = 0; i < nb_new; i++) {
 			if (sel.isSelected(i)) m_Data[i] = subset[s_subset++];
 			else m_Data[i] = data[s_data++];
 		}
 		m_NbRows = nb_new;
-	}	
-	
+	}
+
 	public void findBestTest(MyArray leaves, ColTarget target, ClusStatManager smanager) {
 		// Reset positive statistic
 		int nb = leaves.size();
@@ -97,10 +97,10 @@ public class NominalAttribute extends NominalAttrBase {
 		// Find best split
 		findSplit(leaves, smanager);
 	}
-	
+
 	public void findSplit(MyArray leaves, ClusStatManager smanager) {
-/*		NominalSplit split;	
-		int nb = leaves.size();		
+/*		NominalSplit split;
+		int nb = leaves.size();
 		if (Settings.BINARY_SPLIT) split = new SubsetSplit();
 		else split = new NArySplit();
 		split.initialize(smanager.getStatistic());
@@ -152,11 +152,11 @@ public class NominalAttribute extends NominalAttrBase {
 								if (isin[k] || k == j) {
 									if (first) first = false;
 									else System.out.print(",");
-									System.out.print(m_Type.getValue(k));									
+									System.out.print(m_Type.getValue(k));
 								}
 							}
 							System.out.println("} = "+mheur+" t="+mstat.m_SumWeight+" p="+cstat.m_SumWeight);
 						}
-*/						
+*/
 
 

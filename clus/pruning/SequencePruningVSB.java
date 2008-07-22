@@ -41,7 +41,7 @@ public class SequencePruningVSB extends PruneTree {
 	protected boolean m_1SERule;
 	protected boolean m_HasMissing;
 	protected String m_Output;
-	
+
 	public SequencePruningVSB(RowData data, ClusAttributeWeights weights) {
 			m_VSB = data;
 			m_Weights = weights;
@@ -52,11 +52,11 @@ public class SequencePruningVSB extends PruneTree {
 		m_SeqPruner = pruner;
 		m_Error = pruner.createErrorMeasure(m_VSB, m_Weights);
 	}
-	
+
 	public PruneTree getSequencePruner() {
 		return m_SeqPruner;
 	}
-	
+
 	public static void resize(ArrayList list, int size) {
 		if (size > list.size()) {
 			list.ensureCapacity(size);
@@ -66,19 +66,19 @@ public class SequencePruningVSB extends PruneTree {
 			}
 		}
 	}
-	
+
 	public void setOutputFile(String output) {
 		m_Output = output;
 	}
-	
+
 	public void set1SERule(boolean enable) {
 		m_1SERule = enable;
 	}
-	
+
 	public void setHasMissing(boolean missing) {
 		m_HasMissing = missing;
 	}
-		
+
 	public void prune(ClusNode node) {
 		PruneTree pruner = getSequencePruner();
 		pruner.sequenceInitialize(node);
@@ -105,9 +105,9 @@ public class SequencePruningVSB extends PruneTree {
 				max_idx++;
 				resize(vsb_errors, max_idx+1); resize(train_errors, max_idx+1); resize(sizes, max_idx+1);
 				ClusError vsb_err = TreeErrorComputer.computeClusteringErrorStandard(pruned, m_VSB, m_Error);
-				vsb_errors.set(max_idx, vsb_err);	
-				train_errors.set(max_idx, new Double(pruned.estimateClusteringSS(m_Weights)));	
-				sizes.set(max_idx, new Integer(pruned.getNbNodes()));	
+				vsb_errors.set(max_idx, vsb_err);
+				train_errors.set(max_idx, new Double(pruned.estimateClusteringSS(m_Weights)));
+				sizes.set(max_idx, new Integer(pruned.getNbNodes()));
 			}
 		}
 		// Find the size corresponding to the smallest error
@@ -150,7 +150,7 @@ public class SequencePruningVSB extends PruneTree {
 		if (m_1SERule) {
 			pruner.sequenceToElemK(node, se1_idx);
 		} else {
-			pruner.sequenceToElemK(node, best_idx);			
+			pruner.sequenceToElemK(node, best_idx);
 		}
 	}
 }

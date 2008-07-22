@@ -37,18 +37,18 @@ public class NumericAttribute extends NumericAttrBase {
 	public int DEBUG = 0;
 
 	public double[] m_Data;
-	public int[] m_Index;		
+	public int[] m_Index;
 	protected int m_NbRows;
 
 	public NumericAttribute(NumericAttrType type) {
 		super(type);
 	}
-	
+
 	public void resize(int rows) {
 		m_NbRows = rows;
 		m_Data = new double[rows];
 	}
-	
+
 	public ClusAttribute select(ClusSelection sel, int nbsel) {
 		int s_data = 0;
 		int s_subset = 0;
@@ -65,20 +65,20 @@ public class NumericAttribute extends NumericAttrBase {
 		s_attr.m_NbRows = nbsel;
 		return s_attr;
 	}
-	
+
 	public void insert(ClusAttribute attr, ClusSelection sel, int nb_new) {
 		int s_data = 0;
-		int s_subset = 0;	
+		int s_subset = 0;
 		double[] data = m_Data;
 		m_Data = new double[nb_new];
 		double[] subset = ((NumericAttribute)attr).m_Data;
-		for (int i = 0; i < nb_new; i++) {		
+		for (int i = 0; i < nb_new; i++) {
 			if (sel.isSelected(i)) m_Data[i] = subset[s_subset++];
 			else m_Data[i] = data[s_data++];
 		}
 		m_NbRows = nb_new;
-	}		
-	
+	}
+
 	// Sort this attribute
 	public void prepare() {
 		DoubleIndexSorter sorter = DoubleIndexSorter.getInstance();
@@ -93,13 +93,13 @@ public class NumericAttribute extends NumericAttrBase {
 			} catch (IOException e) {}
 		}
 	}
-	
+
 	// Unsort this attribute
 	public void unprepare() {
 		m_Data = DoubleIndexSorter.unsort(m_Data, m_Index);
 		m_Index = null;
 	}
-	
+
 	public void findBestTest(MyArray leaves, ColTarget target, ClusStatManager smanager) {
 		// Reset positive statistic
 		int nb = leaves.size();
@@ -116,8 +116,8 @@ public class NumericAttribute extends NumericAttrBase {
 			while (first < m_NbRows && m_Data[first] == Double.POSITIVE_INFINITY) {
 //				int idx = m_Index[first];
 //				ClusNode inf = infos[idx];
-//				if (!inf.m_Finished) inf.m_TestStat[1].update(target, idx);	
-				first++;			
+//				if (!inf.m_Finished) inf.m_TestStat[1].update(target, idx);
+				first++;
 			}
 			for (int i = 0; i < nb; i++) {
 //				ClusNode inf = (ClusNode)leaves.elementAt(i);
@@ -128,21 +128,21 @@ public class NumericAttribute extends NumericAttrBase {
 //				ClusNode inf = (ClusNode)leaves.elementAt(i);
 //				inf.copyTotal();
 			}
-		}		
+		}
 		// Only if different from previous
 		for (int i = first; i < m_NbRows; i++) {
 /*			ClusNode inf = infos[m_Index[i]];
 			if (!inf.m_Finished) {
 				double prev = inf.m_PrevDouble;
-				if (m_Data[i] != prev) {			
+				if (m_Data[i] != prev) {
 					if (prev != Double.NaN) inf.updateNumeric(m_Data[i], this);
-					inf.m_PrevDouble = m_Data[i];				
+					inf.m_PrevDouble = m_Data[i];
 				}
 				// Updata positive statistic
 				inf.m_PosStat.update(target, m_Index[i]);
 			}*/
 		}
-	}	
+	}
 
 	public void split(ColTarget target) {
 		// For each attribute value

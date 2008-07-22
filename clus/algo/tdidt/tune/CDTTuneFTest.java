@@ -59,13 +59,13 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		System.out.println("TDIDT (Tuning F-Test)");
 		System.out.println("Heuristic: "+getStatManager().getHeuristicName());
 	}
-	
+
 	private final void showFold(int i) {
 		if (i != 0) System.out.print(" ");
 		System.out.print(String.valueOf(i+1));
-		System.out.flush();	
+		System.out.flush();
 	}
-	
+
 	public ClusErrorList createTuneError(ClusStatManager mgr) {
 		ClusErrorList parent = new ClusErrorList();
 		if (mgr.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
@@ -83,22 +83,22 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		}
 		return parent;
 	}
-	
+
 	public double doParamXVal(ClusData trset, ClusData pruneset) throws ClusException, IOException {
 		int prevVerb = Settings.enableVerbose(0);
 		ClusStatManager mgr = getStatManager();
 		ClusSummary summ = new ClusSummary();
-		summ.setTestError(createTuneError(mgr));		
-//      Next does not always use same partition!		
+		summ.setTestError(createTuneError(mgr));
+//      Next does not always use same partition!
 //		Random random = ClusRandom.getRandom(ClusRandom.RANDOM_PARAM_TUNE);
 		Random random = new Random(0);
 		int nbfolds = Integer.parseInt(getSettings().getTuneFolds());
 		XValMainSelection sel = new XValRandomSelection(trset.getNbRows(), nbfolds, random);
 		for (int i = 0; i < nbfolds; i++) {
-			showFold(i);			
+			showFold(i);
 			XValSelection msel = new XValSelection(sel, i);
 			ClusRun cr = m_Clus.partitionDataBasic(trset, msel, pruneset, summ, i+1);
-			ClusModel pruned = m_Class.induceSingle(cr);			
+			ClusModel pruned = m_Class.induceSingle(cr);
 			cr.addModelInfo(ClusModel.PRUNED).setModel(pruned);
 			m_Clus.calcError(cr, summ);
 /*			System.out.println();
@@ -111,12 +111,12 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		System.out.println();
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(System.out));
 		// wrt.print("Error:"); err.showModelError(wrt, 1);
-		wrt.flush();		
+		wrt.flush();
 		return err.getModelError();
 	}
-	
-//	public final static double[] FTEST_SIG = {1.0, 0.1, 0.05, 0.01, 0.005, 0.001};	
-	
+
+//	public final static double[] FTEST_SIG = {1.0, 0.1, 0.05, 0.01, 0.005, 0.001};
+
 	public void findBestFTest(ClusData trset, ClusData pruneset) throws ClusException, IOException {
 		int best_value = 0;
 		boolean low = createTuneError(getStatManager()).getFirstError().shouldBeLow();
@@ -134,7 +134,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 					System.out.println(" *");
 				} else {
 					System.out.println();
-				}				
+				}
 			} else {
 				if (err >= best_error) {
 					best_error = err;
@@ -142,7 +142,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 					System.out.println(" *");
 				} else {
 					System.out.println();
-				}				
+				}
 			}
 		}
 		double best_f = FTest.FTEST_SIG[best_value];
@@ -150,7 +150,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		System.out.println("Best was: "+best_f);
 	}
 
-	
+
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		try {
 			// Find optimal F-test value

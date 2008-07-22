@@ -33,7 +33,7 @@ public class ClusBeamTreeElemOld {
 	protected TreeMap m_Others;
 	protected Collection m_OthersList;
 	protected int m_Count;
-	
+
 	public ClusBeamTreeElemOld(ClusBeamModel model) {
 		m_Object = model;
 		m_Count = 1;
@@ -42,29 +42,29 @@ public class ClusBeamTreeElemOld {
 	public boolean hasList() {
 		return m_Others != null;
 	}
-	
+
 	public int getCount() {
 		return m_Count;
 	}
-	
+
 	public Object getObject() {
 		return m_Object;
 	}
-	
+
 	public Iterator getOthersIterator() {
 		return m_OthersList.iterator();
 	}
-	
+
 	public Object getAnObject() {
 		if (m_Others == null) {
 			return m_Object;
 		} else {
 			Integer key = (Integer)m_Others.firstKey();
 			ArrayList list = (ArrayList)m_Others.get(key);
-			return list.get(0);			
+			return list.get(0);
 		}
 	}
-	
+
 	public void addAll(Collection lst) {
 		if (m_Others == null) {
 			lst.add(m_Object);
@@ -78,7 +78,7 @@ public class ClusBeamTreeElemOld {
 			}
 		}
 	}
-	
+
 	public void looseOthers() {
 		Integer key = (Integer)m_Others.firstKey();
 		ArrayList list = (ArrayList)m_Others.get(key);
@@ -87,9 +87,9 @@ public class ClusBeamTreeElemOld {
 		}
 		m_Object = (Comparable)list.get(0);
 		m_Others = null;
-		m_OthersList = null;		
+		m_OthersList = null;
 	}
-	
+
 	public void addModelToSet(Comparable cmp) {
 		Integer key = new Integer(cmp.hashCode());
 		ArrayList list = (ArrayList)m_Others.get(key);
@@ -99,9 +99,9 @@ public class ClusBeamTreeElemOld {
 			m_Others.put(key, nlist);
 		} else {
 			list.add(cmp);
-		}	
+		}
 	}
-	
+
 	public void removeFirst() {
 		Integer key = (Integer)m_Others.firstKey();
 		ArrayList list = (ArrayList)m_Others.get(key);
@@ -114,7 +114,7 @@ public class ClusBeamTreeElemOld {
 		m_Count--;
 		if (m_Count == 1) looseOthers();
 	}
-	
+
 	public int addIfNotIn(Comparable cmp) {
 		if (m_Others == null) {
 			if (cmp.equals(m_Object)) {
@@ -127,7 +127,7 @@ public class ClusBeamTreeElemOld {
 				m_Object = null;
 				m_Count++;
 				return 1;
-			}		
+			}
 		} else {
 			Integer key = new Integer(cmp.hashCode());
 			ArrayList list = (ArrayList)m_Others.get(key);

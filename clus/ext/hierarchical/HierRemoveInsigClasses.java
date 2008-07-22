@@ -38,24 +38,24 @@ public class HierRemoveInsigClasses extends PruneTree {
 	ClassHierarchy m_Hier;
 	boolean m_NoRoot;
 	boolean m_UseBonferroni;
-	double m_SigLevel;	
+	double m_SigLevel;
 	int m_Bonferroni;
-	
+
 	public HierRemoveInsigClasses(ClusData pruneset, PruneTree other, boolean bonf, ClassHierarchy hier) {
 		m_Pruner = other;
 		m_PruneSet = pruneset;
 		m_Hier = hier;
 		m_UseBonferroni = bonf;
 	}
-	
+
 	public void setNoRootPreds(boolean noroot) {
 		m_NoRoot = noroot;
 	}
-		
+
 	public void setSignificance(double siglevel) {
 		m_SigLevel = siglevel;
 	}
-	
+
 	public void prune(ClusNode node) throws ClusException {
 		m_Pruner.prune(node);
 		if (m_SigLevel != 0.0 && m_PruneSet.getNbRows() != 0) {
@@ -63,23 +63,23 @@ public class HierRemoveInsigClasses extends PruneTree {
 			WHTDStatistic global = (WHTDStatistic)node.getTargetStat().cloneStat();
 			m_PruneSet.calcTotalStat(global);
 			global.calcMean();
-			m_Bonferroni = computeNRecursive(node);			
+			m_Bonferroni = computeNRecursive(node);
 			executeRecursive(node, global, (RowData)m_PruneSet);
 		}
 	}
-	
+
 	public int computeNRecursive(ClusNode node) {
 		int result = 0;
 		if (node.atBottomLevel()) {
 			WHTDStatistic stat = (WHTDStatistic)node.getTargetStat();
 			result += stat.getNbPredictedClasses();
-		}		
+		}
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			result += computeNRecursive((ClusNode)node.getChild(i));
 		}
 		return result;
 	}
-	
+
 	public void executeRecursive(ClusNode node, WHTDStatistic global, RowData data) {
 		int arity = node.getNbChildren();
 		for (int i = 0; i < arity; i++) {
@@ -100,9 +100,9 @@ public class HierRemoveInsigClasses extends PruneTree {
 		if (m_UseBonferroni) {
 			pred.setSigLevel(m_SigLevel/m_Bonferroni);
 		} else {
-			pred.setSigLevel(m_SigLevel);				
+			pred.setSigLevel(m_SigLevel);
 		}
 		pred.calcMean();
 		node.setTargetStat(pred);
-	}	
+	}
 }

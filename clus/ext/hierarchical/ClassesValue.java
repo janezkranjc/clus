@@ -31,25 +31,25 @@ import clus.util.*;
 import clus.main.*;
 
 public class ClassesValue implements Serializable {
-	
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
+
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public static String HIERARCY_SEPARATOR = "/";
 	public static String ABUNDANCE_SEPARATOR = ":";
 	public static String EMPTY_SET_INDICATOR = "?";
-	
+
 	public final static int NO_ABUNDANCE = 0;
 	public final static int PATH_ABUNDANCE = 1;
-	public final static int NODE_ABUNDANCE = 2;	
+	public final static int NODE_ABUNDANCE = 2;
 
 	protected String[] m_Path;
-	protected boolean m_Intermediate;	
+	protected boolean m_Intermediate;
 	protected double m_Abundance = 1.0;
 	protected ClassTerm m_ClassTerm;
 
 	public ClassesValue(String constr, StringTable table) throws ClusException {
 		StringTokenizer tokens = new StringTokenizer(constr, HIERARCY_SEPARATOR + ABUNDANCE_SEPARATOR);
-		int plen = tokens.countTokens();		
+		int plen = tokens.countTokens();
 		m_Path = new String[plen];
 		if (plen == 0)
 			throw new ClusException("Path length should be >= 1");
@@ -71,54 +71,54 @@ public class ClassesValue implements Serializable {
 			idx++;
 		}
 	}
-	
+
 	public ClassesValue(ClassTerm term) {
 		m_ClassTerm = term;
 	}
-	
+
 	public ClassesValue(ClassTerm term, double abundance) {
 		m_Abundance = abundance;
 		m_ClassTerm = term;
-	}	
+	}
 
 	public ClassesValue(int len) {
 		m_Path = new String[len];
 	}
-	
+
 	public boolean isRoot() {
 		return getTerm().getIndex() == -1;
 	}
-	
+
 	public ClassTerm getTerm() {
 		return m_ClassTerm;
 	}
-	
+
 	public void setClassTerm(ClassTerm term) {
 		m_ClassTerm = term;
 	}
-	
+
 	public final int getIndex() {
 		return m_ClassTerm.getIndex();
 	}
-	
+
 	public ClassesValue toFlat(StringTable table) {
 		ClassesValue val = new ClassesValue(1);
 		val.setPath(table.get(toPathString()), 0);
 		return val;
 	}
-	
+
 	public double getAbundance() {
 		return m_Abundance;
 	}
-	
+
 	public void setAbundance(double abundance) {
 		m_Abundance = abundance;
-	}	
-		
+	}
+
 	public void setIntermediate(boolean inter) {
 		m_Intermediate = inter;
 	}
-	
+
 	public boolean isIntermediate() {
 		return m_Intermediate;
 	}
@@ -126,7 +126,7 @@ public class ClassesValue implements Serializable {
 	public static void setHSeparator(String hsep) {
 		HIERARCY_SEPARATOR = hsep;
 	}
-	
+
 	public static void setEmptySetIndicator(String empty) {
 		EMPTY_SET_INDICATOR = empty;
 	}
@@ -142,7 +142,7 @@ public class ClassesValue implements Serializable {
 	public String getMostSpecificClass() {
 		return m_Path[m_Path.length-1];
 	}
-	
+
 	public String getClassID(int level) {
 		return m_Path[level];
 	}
@@ -150,16 +150,16 @@ public class ClassesValue implements Serializable {
 	public int getNbLevels() {
 		return m_Path.length;
 	}
-	
+
 	public void setPath(String strg, int i) {
 		m_Path[i] = strg;
 	}
-	
+
 	public final void addHierarchyIndices(ClassHierarchy hier) throws ClusException {
 		ClassTerm term = hier.getClassTerm(this);
 		setClassTerm(term);
     }
-	
+
 	public String toPathString() {
 		ClassTerm term = getTerm();
 		if (term != null) {
@@ -173,7 +173,7 @@ public class ClassesValue implements Serializable {
 			return buf.toString();
 		}
 	}
-	
+
 	public String toStringData(ClassHierarchy hier) {
 		if (hier != null && hier.isDAG()) {
 			return getTerm().getID();
@@ -181,7 +181,7 @@ public class ClassesValue implements Serializable {
 			return toPathString();
 		}
 	}
-	
+
 	public String toStringWithDepths(ClassHierarchy hier) {
 		if (hier != null && hier.isDAG()) {
 			ClassTerm term = getTerm();

@@ -36,7 +36,7 @@ import clus.main.*;
 public class ClassTerm extends IndexedItem implements Node, Comparable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 	protected String m_ID;
 	protected HashMap m_Hash = new HashMap();
 	protected ArrayList m_SubTerms = new ArrayList();
@@ -47,30 +47,30 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 	public ClassTerm() {
 		m_ID = "root";
 	}
-	
+
 	public ClassTerm(String id) {
 		m_ID = id;
 	}
-	
+
 	public void addParent(ClassTerm term) {
 		m_Parents.add(term);
 	}
-	
+
 	public int getNbParents() {
 		return m_Parents.size();
 	}
-	
+
 	public ClassTerm getParent(int i) {
 		return (ClassTerm)m_Parents.get(i);
 	}
-	
+
 	public boolean isNumeric() {
 		for (int i = 0; i < m_ID.length(); i++) {
 			if (m_ID.charAt(i) < '0' || m_ID.charAt(i) > '9') return false;
 		}
 		return true;
 	}
-	
+
 	public int compareTo(Object o) {
 		ClassTerm other = (ClassTerm)o;
 		String s1 = getID();
@@ -85,9 +85,9 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 			} else {
 				return s1.compareTo(s2);
 			}
-		}		
+		}
 	}
-	
+
 	public void addClass(ClassesValue val, int level, ClassHierarchy hier) {
 		String cl_idx = val.getClassID(level);
 		if (!cl_idx.equals("0")) {
@@ -97,24 +97,24 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 				if (is_dag) {
 					// class may already occur in a different place in the hierarchy
 					found = hier.getClassTermByNameAddIfNotIn(cl_idx);
-				} else {				
+				} else {
 					found = new ClassTerm(cl_idx);
 				}
 				// addParent() can be called at most once, because after that
 				// found will will be a child of this class
-				found.addParent(this);				
+				found.addParent(this);
 				m_Hash.put(cl_idx, found);
 				m_SubTerms.add(found);
 			}
 			level++;
 			if (level < val.getNbLevels()) found.addClass(val, level, hier);
 		}
-	}	
-	
+	}
+
 	public void sortChildrenByID() {
 		Collections.sort(m_SubTerms);
 	}
-	
+
 	public void getMeanBranch(boolean[] enabled, SingleStat stat) {
 		int nb_branch = 0;
 		for (int i = 0; i < getNbChildren(); i++) {
@@ -128,7 +128,7 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 			stat.addFloat(nb_branch);
 		}
 	}
-		
+
 	public boolean hasChildrenIn(boolean[] enable) {
 		for (int i = 0; i < getNbChildren(); i++) {
 			ClassTerm child = (ClassTerm)getChild(i);
@@ -136,7 +136,7 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 		}
 		return false;
 	}
-	
+
 	public Node getParent() {
 		return null;
 	}
@@ -154,31 +154,31 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 	}
 
 	public boolean atBottomLevel() {
-		return m_SubTerms.size() == 0;	
+		return m_SubTerms.size() == 0;
 	}
-	
+
 	public void setParent(Node parent) {
 	}
-		
+
 	public final String getID() {
 		return m_ID;
-	}	
-	
+	}
+
 	public final void setID(String id) {
 		m_ID = id;
-	}		
-	
+	}
+
 	public final ClassTerm getByName(String name) {
 		return (ClassTerm)m_Hash.get(name);
 	}
 
 	public final ClassTerm getCTParent() {
-		return null;		
+		return null;
 	}
-		
+
 	public final void print(int tabs, PrintWriter wrt, double[] counts, double[] weights) {
 		for (int i = 0; i < m_SubTerms.size(); i++) {
-			ClassTerm subterm = (ClassTerm)m_SubTerms.get(i);		
+			ClassTerm subterm = (ClassTerm)m_SubTerms.get(i);
 			wrt.print(StringUtils.makeString(' ', tabs)+subterm.getID());
 			int nb_par = subterm.getNbParents();
 			if (nb_par > 1) {
@@ -223,8 +223,8 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 				getParent(i).fillVectorNodeAndAncestors(array);
 			}
 		}
-	}	
-	
+	}
+
 	public void fillBoolArrayNodeAndAncestors(boolean[] array) {
 		int idx = getIndex();
 		if (idx != -1 && !array[idx]) {
@@ -234,7 +234,7 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 			}
 		}
 	}
-	
+
 	public int getNbLeaves() {
 		int nbc = m_SubTerms.size();
 		if (nbc == 0) {
@@ -242,39 +242,39 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 		} else {
 			int total = 0;
 			for (int i = 0; i < m_SubTerms.size(); i++) {
-				ClassTerm subterm = (ClassTerm)m_SubTerms.get(i);		
+				ClassTerm subterm = (ClassTerm)m_SubTerms.get(i);
 				total += subterm.getNbLeaves();
 			}
 			return total;
 		}
-	}	
-		
+	}
+
 	public void addChild(Node node) {
 		String id = ((ClassTerm)node).getID();
-		m_Hash.put(id, node);	
+		m_Hash.put(id, node);
 		m_SubTerms.add(node);
 	}
-	
+
 	public void addChildCheckAndParent(ClassTerm node) {
 		String id = node.getID();
-		if (!m_Hash.containsKey(id)) { 
-			m_Hash.put(id, node);	
+		if (!m_Hash.containsKey(id)) {
+			m_Hash.put(id, node);
 			m_SubTerms.add(node);
 			node.addParent(this);
 		}
 	}
-	
+
 	public void removeChild(int idx) {
 		// used by artificial data generator only
 		ClassTerm child = (ClassTerm)getChild(idx);
 		m_Hash.remove(child.getID());
 		m_SubTerms.remove(idx);
 	}
-	
+
 	public void numberChildren() {
 		m_Hash.clear();
 		for (int i = 0; i < m_SubTerms.size(); i++) {
-			ClassTerm subterm = (ClassTerm)m_SubTerms.get(i);	
+			ClassTerm subterm = (ClassTerm)m_SubTerms.get(i);
 			String key = String.valueOf(i+1);
 			subterm.setID(key);
 			m_Hash.put(key, subterm);
@@ -284,9 +284,9 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 	public void removeChild(Node node) {
 			ClassTerm child = (ClassTerm)node;
 			m_Hash.remove(child.getID());
-			m_SubTerms.remove(child);			
+			m_SubTerms.remove(child);
 	}
-	
+
 	public int getLevel() {
 		int depth = 0;
 		ClassTerm parent = getCTParent();
@@ -295,28 +295,28 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 			depth++;
 		}
 		return depth;
-	}	
-	
+	}
+
 	public int getMaxDepth() {
 		return m_MaxDepth;
 	}
-	
+
 	public int getMinDepth() {
 		return m_MinDepth;
-	}	
-	
+	}
+
 	public void setMinDepth(int depth) {
 		m_MinDepth = depth;
 	}
-	
+
 	public void setMaxDepth(int depth) {
 		m_MaxDepth = depth;
-	}	
-	
+	}
+
 	public String toPathString() {
 		return toPathString("/");
 	}
-	
+
 	public String toPathString(String sep) {
 		if (getIndex() == -1) {
 			return "R";
@@ -334,16 +334,16 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 			}
 		}
 	}
-		
+
 	public String toString() {
 		return toStringHuman(null);
 	}
-	
+
 	public String toStringHuman(ClassHierarchy hier) {
 		if (hier != null && hier.isDAG()) {
 			return getID();
 		} else {
 			return toPathString();
-		}		
+		}
 	}
 }

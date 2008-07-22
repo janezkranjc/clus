@@ -27,7 +27,7 @@ import clus.model.ClusModelInfo;
 import clus.util.ClusException;
 
 public class ClusSummary extends ClusModelInfoList {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int m_Runs;
@@ -41,11 +41,11 @@ public class ClusSummary extends ClusModelInfoList {
 		m_Models.clear();
 		m_IndTime = 0; m_PrepTime = 0; m_PruneTime = 0;
 	}
-	
+
 	public void setStatManager(ClusStatManager mgr) {
 		m_StatMgr = mgr;
 	}
-	
+
 	public ClusStatManager getStatManager() {
 		return m_StatMgr;
 	}
@@ -53,54 +53,54 @@ public class ClusSummary extends ClusModelInfoList {
 	public ClusErrorList getTrainError() {
 		return m_TrainErr;
 	}
-	
+
 	public ClusErrorList getTestError() {
 		return m_TestErr;
 	}
-	
+
 	public ClusErrorList getValidationError() {
 		return m_ValidErr;
-	}		
-	
+	}
+
 	public boolean hasTestError() {
 		return m_TestErr != null;
-	}		
-	
+	}
+
 	public void setTrainError(ClusErrorList err) {
 		m_TrainErr = err;
 	}
-	
+
 	public void setTestError(ClusErrorList err) {
 		m_TestErr = err;
 	}
-	
+
 	public void setValidationError(ClusErrorList err) {
 		m_ValidErr = err;
-	}		
-				
+	}
+
 	public int getNbRuns() {
 		return m_Runs;
 	}
-	
+
 	public int getTotalRuns() {
 		return m_TotalRuns;
 	}
-	
+
 	public void setTotalRuns(int tot) {
 		m_TotalRuns = tot;
 	}
-		
+
 	public ClusSummary getSummaryClone() {
 		ClusSummary summ = new ClusSummary();
 		summ.setModels(cloneModels());
 		return summ;
 	}
-			
-	public void addSummary(ClusRun cr) throws ClusException {	
-		m_Runs++;	
+
+	public void addSummary(ClusRun cr) throws ClusException {
+		m_Runs++;
 		m_IndTime += cr.getInductionTime();
 		m_PruneTime += cr.getPruneTime();
-		m_PrepTime += cr.getPrepareTime();				
+		m_PrepTime += cr.getPrepareTime();
 		int nb_models = cr.getNbModels();
 		for (int i = 0; i < nb_models; i++) {
 			ClusModelInfo my = addModelInfo(i);

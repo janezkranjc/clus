@@ -38,7 +38,7 @@ public class ClusBeamSyntacticConstraint {
 
 	ClusNode m_Constraint;
 	ArrayList m_ConstraintPredictions;
-	
+
 	public ClusBeamSyntacticConstraint(ClusRun run) throws ClusException, IOException{
 			initializeConstraint(run);
 			ClusStatManager mgr = run.getStatManager();
@@ -47,8 +47,8 @@ public class ClusBeamSyntacticConstraint {
 			setConstraintPredictions(getPredictions(run));
 //			m_Constraint.printTree();
 	}
-	
-	
+
+
 	public void initializeConstraint(ClusRun run) throws IOException{
 		ClusStatManager csm = run.getStatManager();
 		ClusTreeReader rdr = new ClusTreeReader();
@@ -58,7 +58,7 @@ public class ClusBeamSyntacticConstraint {
 		m_Constraint.setClusteringStat(csm.createClusteringStat());
 		m_Constraint.setTargetStat(csm.createTargetStat());
 	}
-		
+
 	public void createConstrStat(ClusNode node, ClusStatManager mgr, RowData data){
 		if (node.getTest() == null) node.makeLeaf();
 			else{
@@ -70,13 +70,13 @@ public class ClusBeamSyntacticConstraint {
 					child.getTargetStat().calcMean();
 					createConstrStat(child, mgr, subset);
 				}
-			}	
+			}
 	}
-	
+
 	/**Dragi
 	 * we call this method always after the ClusBeamModelDistance is initialized
 	 * so we can use the static variable from there
-	 * 
+	 *
 	 * @param run
 	 * @return predictions
 	 */
@@ -95,7 +95,7 @@ public class ClusBeamSyntacticConstraint {
 				if (isNum)	singleattr[i] = stat.getNumericPred()[k];
 				else	singleattr[i] = stat.getNominalPred()[k];
 			}
-		predictions.add(singleattr);	
+		predictions.add(singleattr);
 		}
 		return predictions;
 	}
@@ -103,9 +103,9 @@ public class ClusBeamSyntacticConstraint {
 	public ArrayList getConstraintPredictions(){
 		return m_ConstraintPredictions;
 	}
-	
+
 	public void setConstraintPredictions(ArrayList predictions){
 		m_ConstraintPredictions = predictions;
 	}
-	
+
 }

@@ -13,8 +13,8 @@ import sit.mtLearner.MTLearner;
 import clus.data.type.ClusAttrType;
 
 public class GeneticSearch extends SearchAlgorithmImpl{
-	
-	final protected int MAX_ALLOWED_EVOLUTIONS = 50; 
+
+	final protected int MAX_ALLOWED_EVOLUTIONS = 50;
 
 	public TargetSet search(ClusAttrType mainTarget, TargetSet candidates) {
 		//create the configuration, nothing fancy for now
@@ -56,23 +56,23 @@ public class GeneticSearch extends SearchAlgorithmImpl{
 		{
 			population.evolve();
 			bestSolutionSoFar = (Chromosome) population.getFittestChromosome();
-			
+
 			Long new_d = (new Date()).getTime();
 			Long dif = new_d - d;
 			d = new_d;
-			
+
 			System.out.println("Evolution "+(i+1)+" completed in "+dif/1000+" sec.");
 			System.out.print("Best fitness so far:"+(10-bestSolutionSoFar.getFitnessValue()));
 			System.out.println("Best support set:"+getTargetSet(candidates,bestSolutionSoFar));
-			
+
 		}
 		return getTargetSet(candidates, bestSolutionSoFar);
 	}
 
-	
+
 
 	final static protected TargetSet getTargetSet(TargetSet t,Chromosome c){
-		
+
 		Object[] targets =  t.toArray();
 		TargetSet result = new TargetSet();
 		Gene[] genes =  c.getGenes();
@@ -81,7 +81,7 @@ public class GeneticSearch extends SearchAlgorithmImpl{
 				result.add(targets[i]);
 			}
 		}
-		
+
 		return result;
 
 	}

@@ -31,7 +31,7 @@ import clus.data.type.*;
 import java.io.*;
 
 public class MultiScoreWrapper extends ClusNumericError {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected ClusNominalError m_Child;
@@ -43,21 +43,21 @@ public class MultiScoreWrapper extends ClusNumericError {
 		int dim = getDimension();
 		m_Real = new byte[dim];
 		m_Pred = new int[dim];
-		m_Child = child;		
+		m_Child = child;
 	}
-	
+
 	public boolean shouldBeLow() {
 		return m_Child.shouldBeLow();
-	}	
+	}
 
 	public void reset() {
 		m_Child.reset();
 	}
-	
+
 	public double getModelError() {
 		return m_Child.getModelError();
-	}	
-	
+	}
+
 	public void addExample(double[] real, double[] predicted) {
 		for (int i = 0; i < m_Real.length; i++) {
 			m_Real[i] = (byte)(real[i] > 0.5 ? 0 : 1);
@@ -65,35 +65,35 @@ public class MultiScoreWrapper extends ClusNumericError {
 		}
 		// m_Child.addExample(m_Real, m_Pred);
 	}
-	
+
 	public void addInvalid(DataTuple tuple) {
 	}
-	
+
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		// double[] predicted = pred.getNumericPred();
 		for (int i = 0; i < m_Dim; i++) {
 			// double err = m_Attrs[i].getNumeric(tuple) - predicted[i];
-			// m_AbsError[i] += Math.abs(err);		 
+			// m_AbsError[i] += Math.abs(err);
 		}
-	}		
-	
+	}
+
 	public void add(ClusError other) {
 		MultiScoreWrapper oe = (MultiScoreWrapper)other;
 		m_Child.add(oe.m_Child);
 	}
-	
+
 	public void showModelError(PrintWriter out, int detail) {
 		m_Child.showModelError(out, detail);
 	}
-		
+
 //	public boolean hasSummary() {
 //		m_Child.hasSummary();
-//	}	
-	
+//	}
+
 	public String getName() {
 		return m_Child.getName();
 	}
-	
+
 	public ClusError getErrorClone(ClusErrorList par) {
 		return new MultiScoreWrapper((ClusNominalError)m_Child.getErrorClone(par), m_Attrs);
 	}

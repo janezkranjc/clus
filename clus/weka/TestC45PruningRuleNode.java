@@ -30,17 +30,17 @@ import weka.core.*;
 import weka.classifiers.trees.j48.*;
 
 public class TestC45PruningRuleNode extends C45PruneableClassifierTree {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public TestC45PruningRuleNode(Instances all) throws Exception {
-		 super(new BinC45ModelSelection(2, all), true, 0.25f, false, true);		
+		 super(new BinC45ModelSelection(2, all), true, 0.25f, false, true);
 	}
-	
+
 	public TestC45PruningRuleNode(ModelSelection sel) throws Exception {
-		 super(sel, true, 0.25f, false, true);		
-	}	
-	
+		 super(sel, true, 0.25f, false, true);
+	}
+
 	public static void createC45RuleNodeRecursive(TestC45PruningRuleNode result, ClusNode node, RowData data, ClusToWekaData cnv) throws Exception {
 		result.m_train = cnv.convertData(data);
 		result.m_isEmpty = data.getNbRows() == 0;
@@ -56,7 +56,7 @@ public class TestC45PruningRuleNode extends C45PruneableClassifierTree {
 		} else {
 			distr = new Distribution(result.m_train);
 		}
-		split.setDistribution(distr);		
+		split.setDistribution(distr);
 		if (node.getNbChildren() != 0) {
 			result.m_sons = new ClassifierTree[2];
 			for (int i = 0; i < 2; i++) {
@@ -72,14 +72,14 @@ public class TestC45PruningRuleNode extends C45PruneableClassifierTree {
 			}
 		}
 	}
-		
+
 	public static TestC45PruningRuleNode createC45RuleNode(ClusNode node, RowData data, ClusToWekaData cnv) throws Exception {
 		Instances all = cnv.convertData(data);
-		TestC45PruningRuleNode result = new TestC45PruningRuleNode(all);		
+		TestC45PruningRuleNode result = new TestC45PruningRuleNode(all);
 		createC45RuleNodeRecursive(result, node, data, cnv);
 		return result;
 	}
-	
+
 	public static void performTest(ClusNode original, ClusNode pruned, RowData data) {
 		ClusToWekaData cnv = new ClusToWekaData(data.getSchema());
 		try {
@@ -97,19 +97,19 @@ public class TestC45PruningRuleNode extends C45PruneableClassifierTree {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static class MyBinC45Split extends BinC45Split {
-		
+
 			public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 			public MyBinC45Split(int attIndex,int minNoObj,double sumOfWeights) {
 				super(attIndex, minNoObj, sumOfWeights);
 			}
-			
+
 			public void setDistribution(Distribution d) {
 				m_distribution = d;
 			}
-			
+
 			public void setSplitPoint(double v) {
 				// m_splitPoint = v;
 			}

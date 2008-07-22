@@ -32,7 +32,7 @@ public abstract class TimeSeriesAttrBase extends ClusAttribute{
 	public TimeSeriesAttrBase(TimeSeriesAttrType type) {
 		m_Type = type;
 	}
-	
+
 	public ClusAttrType getType() {
 		return m_Type;
 	}

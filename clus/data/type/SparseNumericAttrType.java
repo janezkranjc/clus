@@ -13,41 +13,41 @@ public class SparseNumericAttrType extends NumericAttrType {
 
 	public SparseNumericAttrType(String name) {
 		super(name);
-		setSparse(true);		
-	}
-	
-	public SparseNumericAttrType(NumericAttrType type) {
-		super(type.getName());
-		setIndex(type.getIndex());		
 		setSparse(true);
 	}
-	
+
+	public SparseNumericAttrType(NumericAttrType type) {
+		super(type.getName());
+		setIndex(type.getIndex());
+		setSparse(true);
+	}
+
 	public SparseNumericAttrType cloneType() {
 		SparseNumericAttrType at = new SparseNumericAttrType(m_Name);
 		cloneType(at);
 		return at;
 	}
-	
+
 	public int getValueType() {
 		return VALUE_TYPE_NONE;
 	}
-	
+
 	public double getNumeric(DataTuple tuple) {
 		return ((SparseDataTuple)tuple).getDoubleValueSparse(getIndex());
 	}
-	
+
 	public boolean isMissing(DataTuple tuple) {
 		return ((SparseDataTuple)tuple).getDoubleValueSparse(getIndex()) == MISSING;
 	}
-	
+
 	public void setNumeric(DataTuple tuple, double value) {
 		((SparseDataTuple)tuple).setDoubleValueSparse(value, getIndex());
-	}	
+	}
 
 	public ClusSerializable createRowSerializable() throws ClusException {
 		return new MySerializable();
 	}
-	
+
 	public class MySerializable extends ClusSerializable {
 
 		public boolean read(ClusReader data, DataTuple tuple) throws IOException {

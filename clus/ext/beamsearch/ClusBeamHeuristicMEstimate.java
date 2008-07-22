@@ -31,9 +31,9 @@ import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
 public class ClusBeamHeuristicMEstimate extends ClusBeamHeuristic {
-	
+
 	protected double m_Prior, m_MValue;
-	
+
 	public ClusBeamHeuristicMEstimate(ClusStatistic stat, double mvalue) {
 		super(stat);
 		m_MValue = mvalue;
@@ -56,14 +56,14 @@ public class ClusBeamHeuristicMEstimate extends ClusBeamHeuristic {
 			m_Pos.copy(c_pstat);
 			m_Neg.copy(c_tstat);
 			m_Neg.subtractFromThis(c_pstat);
-			m_Pos.addScaled(pos_freq, missing);			
+			m_Pos.addScaled(pos_freq, missing);
 			m_Neg.addScaled(1.0-pos_freq, missing);
 			double pos_error = m_Pos.getError();
 			double neg_error = m_Neg.getError();
-			return m_TreeOffset - (pos_error + neg_error)/m_NbTrain - 2*Settings.SIZE_PENALTY;			
-		}		
+			return m_TreeOffset - (pos_error + neg_error)/m_NbTrain - 2*Settings.SIZE_PENALTY;
+		}
 	}
-	
+
 	public double estimateBeamMeasure(ClusNode tree) {
 		if (tree.atBottomLevel()) {
 			ClusStatistic total = tree.getClusteringStat();
@@ -76,17 +76,17 @@ public class ClusBeamHeuristicMEstimate extends ClusBeamHeuristic {
 			}
 			return result - Settings.SIZE_PENALTY;
 		}
-	}	
-	
+	}
+
 	public double computeLeafAdd(ClusNode leaf) {
-		return -leaf.getClusteringStat().getError()/m_NbTrain;		
-	}	
-	
-	public void setRootStatistic(ClusStatistic stat) {		
+		return -leaf.getClusteringStat().getError()/m_NbTrain;
+	}
+
+	public void setRootStatistic(ClusStatistic stat) {
 		m_Prior = (stat.getTotalWeight()-stat.getError()) / stat.getTotalWeight();
 		System.out.println("Setting prior: "+m_Prior);
-	}	
-	
+	}
+
 	public String getName() {
 		return "Beam Heuristic (MEstimate = "+m_MValue+")"+getAttrHeuristicString();
 	}

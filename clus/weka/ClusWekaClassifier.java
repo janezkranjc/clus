@@ -47,7 +47,7 @@ public class ClusWekaClassifier extends ClusInductionAlgorithmType {
 	protected Classifier m_Classifier;
 	protected ClusToWekaData m_Data;
 	protected ClusStatManager m_Manager;
-	
+
 	public ClusWekaClassifier(Clus clus, String opts) throws ClusException {
 		super(clus);
 		m_Options = opts;
@@ -64,21 +64,21 @@ public class ClusWekaClassifier extends ClusInductionAlgorithmType {
 
 	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		return new ClusWekaInduce(schema, sett);
-	}	
-	
+	}
+
 	public void printInfo() {
 		System.out.println("Weka Classifier: "+m_Options);
 	}
-	
+
 	public void initializeInduce(ClusInductionAlgorithm induce, CMDLineArgs cargs) {
 		m_Data = new ClusToWekaData(induce.getSchema());
 		m_Manager = induce.getStatManager();
 	}
-	
+
 	public ClusStatistic createStatistic() {
 		return m_Manager.createClusteringStat();
 	}
-	
+
 	public Instances getDummyData() {
 		return m_Data.getDummyData();
 	}
@@ -96,22 +96,22 @@ public class ClusWekaClassifier extends ClusInductionAlgorithmType {
 			throw new ClusException("Weka Error: "+e.getClass().getName()+": "+e.getMessage());
 		}
 	}
-	
+
 	public void pruneAll(ClusRun cr) throws ClusException, IOException {
 	}
-	 
+
 	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
 		return model;
 	}
-	
+
 	public class ClusWekaInduce extends ClusInductionAlgorithm {
-		
+
 		public ClusWekaInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 			super(schema, sett);
 		}
-		
+
 		public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
-			return induceSingle(cr); 			
+			return induceSingle(cr);
 		}
 	}
 }

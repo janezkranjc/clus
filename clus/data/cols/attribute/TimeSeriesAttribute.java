@@ -30,7 +30,7 @@ import clus.data.type.TimeSeriesAttrType;
 public class TimeSeriesAttribute extends TimeSeriesAttrBase{
 
 	public double[][] m_Data;
-	
+
 	public TimeSeriesAttribute(TimeSeriesAttrType type) {
 		super(type);
 	}

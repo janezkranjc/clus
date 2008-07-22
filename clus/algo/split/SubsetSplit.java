@@ -42,17 +42,17 @@ public class SubsetSplit extends NominalSplit {
 		m_MStat = m_PStat.cloneStat();
 		m_StatManager = manager;
 	}
-	
+
 	public void setSDataSize(int size) {
 		m_PStat.setSDataSize(size);
 		m_CStat.setSDataSize(size);
-		m_MStat.setSDataSize(size);		
+		m_MStat.setSDataSize(size);
 	}
-	
+
 	public ClusStatManager getStatManager() {
 		return m_StatManager;
 	}
-	
+
 	public void showTest(NominalAttrType type, boolean[] isin, int add, double mheur, ClusStatistic tot, ClusStatistic pos) {
 		int count = 0;
 		System.out.print(type.getName()+ " in {");
@@ -69,7 +69,7 @@ public class SubsetSplit extends NominalSplit {
 	}
 
 	public void findSplit(CurrentBestTestAndHeuristic node, NominalAttrType type) {
-		double unk_freq = 0.0;		
+		double unk_freq = 0.0;
 		int nbvalues = type.getNbValues();
 		boolean isin[] = new boolean[nbvalues];
 		// If has missing values?
@@ -88,16 +88,16 @@ public class SubsetSplit extends NominalSplit {
 		if (nbvalues == 2 && !getStatManager().isRuleInduce()) {
 			// Handle binary splits efficiently
 			card = 1;
-			isin[0] = true;			
+			isin[0] = true;
 			ClusStatistic CStat = node.m_TestStat[0];
 			bheur = node.calcHeuristic(m_MStat, CStat);
-			// showTest(type, isin, -1, bheur, m_MStat, m_CStat);			
+			// showTest(type, isin, -1, bheur, m_MStat, m_CStat);
 			pos_freq = CStat.m_SumWeight / m_MStat.m_SumWeight;
 		} else {
 			// Try to add values to subsets
 			// Each iteration the cardinality increases by at most one
-			m_PStat.reset();			
-			int bvalue = 0;	
+			m_PStat.reset();
+			int bvalue = 0;
 			if ((m_PStat instanceof CombStat) &&
 					((CombStat)m_PStat).getSettings().isCompHeurRuleDist()) {
 				((ClusRuleHeuristicDispersion)node.m_Heuristic).setDataIndexes(new int[0]);
@@ -152,12 +152,12 @@ public class SubsetSplit extends NominalSplit {
 		} else if (getStatManager().getSettings().showAlternativeSplits() && (bheur > node.m_BestHeur - ClusHeuristic.DELTA) && (bheur < node.m_BestHeur + ClusHeuristic.DELTA)) {
 			// if same heuristic: add to altnernatives (list will later be pruned to remove those tests that do
 			// not give rise to exactly the same subsets)
-			node.addAlternativeBest(new SubsetTest(type, card, isin, pos_freq));		
+			node.addAlternativeBest(new SubsetTest(type, card, isin, pos_freq));
 		}
 	}
 
   public void findRandomSplit(CurrentBestTestAndHeuristic node, NominalAttrType type, Random rn) {
-    double unk_freq = 0.0;    
+    double unk_freq = 0.0;
     int nbvalues = type.getNbValues();
     boolean isin[] = new boolean[nbvalues];
     // If has missing values?

@@ -38,11 +38,11 @@ public class ClusRulesRandom {
 
 /**
   * Constructs the random rules.
-  * 
+  *
   * @param cr ClusRun
   * @return rule set
-  * @throws ClusException 
-  * @throws IOException 
+  * @throws ClusException
+  * @throws IOException
   */
   public ClusRuleSet constructRules(ClusRun run) throws IOException, ClusException {
  /*   RowData data = (RowData)run.getTrainingSet();
@@ -57,9 +57,9 @@ public class ClusRulesRandom {
     }
     rset.postProc();
 
-   */ 
-   /* 
-    
+   */
+   /*
+
     ClusRuleSet rset = new ClusRuleSet(cr.getStatManager());
     // ClusRule init = new ClusRule(cr.getStatManager());
     // constructRandomly(init, rset);
@@ -82,7 +82,7 @@ public class ClusRulesRandom {
     return new ClusRuleSet(run.getStatManager());
   }
 
-  
+
   public void constructRandomly(ClusRuleSet rset, RowData data) {
 
 
@@ -105,7 +105,7 @@ public class ClusRulesRandom {
       rset.setTargetStat(left_over);
     }
 */
-    
+
     /*		if (node.atBottomLevel()) {
 			rule.setDefaultStat(node.getTotalStat());
 			set.add(rule);
@@ -119,6 +119,6 @@ public class ClusRulesRandom {
 				constructRecursive(child, child_rule, set);
 			}
 		}	*/
-	}	
+	}
 }
 

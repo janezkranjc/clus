@@ -31,7 +31,7 @@ import clus.data.io.ClusReader;
 import clus.data.rows.*;
 
 public class FlatClassesAttrType extends ClassesAttrType {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected ClassesAttrType m_Mimic;
@@ -40,11 +40,11 @@ public class FlatClassesAttrType extends ClassesAttrType {
 		super(name);
 		m_Mimic = mimic;
 	}
-	
+
 	public ClusSerializable createRowSerializable() throws ClusException {
 		return new MySerializable();
 	}
-	
+
 	public class MySerializable extends ClusSerializable {
 
 		public boolean read(ClusReader data, DataTuple tuple) throws IOException {

@@ -30,7 +30,7 @@ import clus.data.type.*;
 public class XValDataSelection extends XValMainSelection {
 
 	protected IndexAttrType m_Attr;
-	
+
 	public XValDataSelection(IndexAttrType type) {
 		super(type.getMaxValue(), type.getNbRows());
 		m_Attr = type;
@@ -58,14 +58,14 @@ public class XValDataSelection extends XValMainSelection {
 					try {
 						int exid = Integer.parseInt(tokens[j]);
 						if (attr.getValue(exid) != -1) {
-							throw new ClusException("Example id "+exid+" occurs twice in folds file: "+fname);						
+							throw new ClusException("Example id "+exid+" occurs twice in folds file: "+fname);
 						} else {
 							attr.setValue(exid, fold);
 						}
 					} catch (NumberFormatException e) {
 						throw new ClusException("Illegal number: "+tokens[j]+" in folds file: "+fname);
-					}				
-				}				
+					}
+				}
 			}
 			line = rdr.readLine();
 		}

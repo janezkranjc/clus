@@ -36,7 +36,7 @@ package Jama;
    */
 
 public class LUDecomposition implements java.io.Serializable {
-	
+
 	public final static long serialVersionUID = 1;
 
 /* ------------------------
@@ -53,7 +53,7 @@ public class LUDecomposition implements java.io.Serializable {
    @serial row dimension.
    @serial pivot sign.
    */
-   private int m, n, pivsign; 
+   private int m, n, pivsign;
 
    /** Internal storage of pivot vector.
    @serial pivot vector.
@@ -109,7 +109,7 @@ public class LUDecomposition implements java.io.Serializable {
 
             LUrowi[j] = LUcolj[i] -= s;
          }
-   
+
          // Find pivot and exchange if necessary.
 
          int p = j;
@@ -127,7 +127,7 @@ public class LUDecomposition implements java.io.Serializable {
          }
 
          // Compute multipliers.
-         
+
          if (j < m & LU[j][j] != 0.0) {
             for (int i = j+1; i < m; i++) {
                LU[i][j] /= LU[j][j];

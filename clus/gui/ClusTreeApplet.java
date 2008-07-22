@@ -32,7 +32,7 @@ import javax.swing.border.*;
 import clus.main.Settings;
 
 public class ClusTreeApplet extends JApplet {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected JFrame m_Frame;
@@ -42,14 +42,14 @@ public class ClusTreeApplet extends JApplet {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.setBorder(new EtchedBorder());
-		String name = getParameter("Label");		
+		String name = getParameter("Label");
 		panel.add(m_Launch = new JButton(name == null ? "Show" : name));
 		m_Launch.addActionListener(new MyClick());
 		setContentPane(panel);
 	}
-	
+
 	private class MyClick implements ActionListener {
-	
+
 		public void actionPerformed(ActionEvent evt) {
 			if (m_Frame == null) {
 				m_Launch.setText("Loading Tree...");
@@ -61,17 +61,17 @@ public class ClusTreeApplet extends JApplet {
 			}
 		}
 	}
-	
+
 	private class MyWindowListener extends WindowAdapter {
-	
+
 		public void windowClosing(WindowEvent e) {
 			m_Frame.setVisible(false);
 			m_Launch.setEnabled(true);
-			String name = getParameter("Label");		
-			m_Launch.setText(name == null ? "Show" : name);			
-		}	
+			String name = getParameter("Label");
+			m_Launch.setText(name == null ? "Show" : name);
+		}
 	}
-	
+
 	private class MyThread extends Thread {
 
 		public void run() {
@@ -84,7 +84,7 @@ public class ClusTreeApplet extends JApplet {
 //					m_Frame = TreeFrame.loadTree(url.openStream());
 //				}
 				m_Frame.addWindowListener(new MyWindowListener());
-				m_Frame.setVisible(true);				
+				m_Frame.setVisible(true);
 				m_Launch.setText("Done !");
 			} catch (MalformedURLException e) {
 				m_Launch.setText("URL Error: "+e.getMessage());

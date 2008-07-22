@@ -38,22 +38,22 @@ import clus.statistic.RegressionStat;
 // import jeans.util.array.*;
 
 public class MSError extends ClusNumericError {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 	protected double[] m_SumErr;
 	protected double[] m_SumSqErr;
 	protected ClusAttributeWeights m_Weights;
 	protected boolean m_PrintAllComps;
-	
+
 	public MSError(ClusErrorList par, NumericAttrType[] num) {
 		this(par, num, null, true);
 	}
-	
+
 	public MSError(ClusErrorList par, NumericAttrType[] num, ClusAttributeWeights weights) {
 		this(par, num, weights, true);
 	}
-	
+
 	public MSError(ClusErrorList par, NumericAttrType[] num, ClusAttributeWeights weights, boolean printall) {
 		super(par, num);
 		m_SumErr = new double[m_Dim];
@@ -61,29 +61,29 @@ public class MSError extends ClusNumericError {
 		m_Weights = weights;
 		m_PrintAllComps = printall;
 	}
-	
+
 	public void reset() {
 		for (int i = 0; i < m_Dim; i++) {
 			m_SumErr[i] = 0.0;
 			m_SumSqErr[i] = 0.0;
-		}				
+		}
 	}
-	
+
 	public void setWeights(ClusAttributeWeights weights) {
 		m_Weights = weights;
 	}
-	
+
 	public double getModelErrorComponent(int i) {
-		
+
 		int nb = getNbExamples();
 		//System.out.println(m_SumErr[i]);
 		double err = nb != 0.0 ? m_SumErr[i]/nb : 0.0;
 		System.out.println(err);
 		if (m_Weights != null) err *= m_Weights.getWeight(getAttr(i));
-		
+
 		return err;
 	}
-		
+
 	public double getModelError() {
 		double ss_tree = 0.0;
 		int nb = getNbExamples();
@@ -99,7 +99,7 @@ public class MSError extends ClusNumericError {
 			return nb != 0.0 ? ss_tree/nb/m_Dim : 0.0;
 		}
 	}
-		
+
 	public double getModelErrorStandardError() {
 		double sum_err = 0.0;
 		double sum_sq_err = 0.0;
@@ -120,28 +120,28 @@ public class MSError extends ClusNumericError {
 			return Math.sqrt(ss_x / n);
 		}
 	}
-	
+
 	public final static double sqr(double value) {
 		return value*value;
 	}
-	
+
 	public void addExample(double[] real, double[] predicted) {
 		for (int i = 0; i < m_Dim; i++) {
-			double err = sqr(real[i] - predicted[i]);			
+			double err = sqr(real[i] - predicted[i]);
 			m_SumErr[i] += err;
 			m_SumSqErr[i] += sqr(err);
 		}
 	}
-	
+
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		double[] predicted = pred.getNumericPred();
 		for (int i = 0; i < m_Dim; i++) {
-			double err = sqr(getAttr(i).getNumeric(tuple) - predicted[i]);			
+			double err = sqr(getAttr(i).getNumeric(tuple) - predicted[i]);
 			m_SumErr[i] += err;
 			m_SumSqErr[i] += sqr(err);
-		}		
+		}
 	}
-	
+
 	public void addExample(DataTuple real, DataTuple pred) {
 		for (int i = 0; i < m_Dim; i++) {
 				double real_i = getAttr(i).getNumeric(real);
@@ -149,24 +149,24 @@ public class MSError extends ClusNumericError {
 				double err = sqr(real_i - predicted_i);
 				m_SumErr[i] += err;
 				m_SumSqErr[i] += sqr(err);
-			
-				
-				
 
-		}		
-	}	
-	
+
+
+
+		}
+	}
+
 	public void addInvalid(DataTuple tuple) {
 	}
-	
+
 	public void add(ClusError other) {
 		MSError oe = (MSError)other;
 		for (int i = 0; i < m_Dim; i++) {
 			m_SumErr[i] += oe.m_SumErr[i];
 			m_SumSqErr[i] += oe.m_SumSqErr[i];
-		}		
-	}	
-	
+		}
+	}
+
 	public void showModelError(PrintWriter out, int detail) {
 		NumberFormat fr = getFormat();
 		StringBuffer buf = new StringBuffer();
@@ -180,27 +180,27 @@ public class MSError extends ClusNumericError {
 			else buf.append("]");
 		}
 		if (m_Dim > 1 || !m_PrintAllComps) {
-			buf.append(fr.format(getModelError()));		
+			buf.append(fr.format(getModelError()));
 		}
 		out.println(buf.toString());
 	}
-	
+
 	public void showSummaryError(PrintWriter out, boolean detail) {
 		NumberFormat fr = getFormat();
 		out.println(getPrefix() + "Mean over components MSE: "+fr.format(getModelError()));
 	}
-	
+
 	public String getName() {
 		if (m_Weights == null) return "Mean squared error (MSE)";
 		else return "Weighted mean squared error (MSE) ("+m_Weights.getName(m_Attrs)+")";
 	}
-	
+
 	public ClusError getErrorClone(ClusErrorList par) {
 		return new MSError(par, m_Attrs, m_Weights, m_PrintAllComps);
 	}
-	
+
 	public double computeLeafError(ClusStatistic stat) {
 		RegressionStat rstat = (RegressionStat)stat;
 		return rstat.getSS(m_Weights) * rstat.getNbAttributes();
-	}	
+	}
 }

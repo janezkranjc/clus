@@ -34,19 +34,19 @@ public abstract class ClusNominalError extends ClusError {
 		super(par, nom.length);
 		m_Attrs = nom;
 	}
-	
+
 	public NominalAttrType getAttr(int i) {
 		return m_Attrs[i];
 	}
-	
+
 	public ClusNominalError(ClusErrorList par, int nb_nominal) {
 		super(par, nb_nominal);
-	}	
-	
+	}
+
 	public void setDefault(int[] value) {
 		m_Default = value;
 	}
-	
+
 	public void setDefault(ClusStatistic pred) {
 		m_Default = ((ClassificationStat)pred).m_MajorityClasses;
 	}

@@ -51,30 +51,30 @@ public abstract class OOTInduce extends ClusInductionAlgorithm {
 	protected DepthFirstInduce m_DFirst;
 	protected NominalSplit m_Split;
 	protected ClusStatistic[] m_PosStat;
-	protected ClusStatistic[][] m_TestStat;	
+	protected ClusStatistic[][] m_TestStat;
 	protected ClusStatistic m_Scratch;
 	protected int m_NbFolds;
 	protected int[] m_PrevCl;
-	protected double[] m_PrevVl;	
+	protected double[] m_PrevVl;
 	protected CurrentBestTestAndHeuristic[] m_Selector;
 	protected int m_MaxStats;
-	
+
 	public boolean SHOULD_OPTIMIZE = false;
-	
+
 	public OOTInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		super(schema, sett);
 	}
-	
+
 	public final void findNominal(NominalAttrType at, OptXValGroup grp) {
 		// Reset positive statistic
 		int nbvalues = at.getNbValues();
 		int statsize = nbvalues + at.intHasMissing();
-		reset(statsize);				
+		reset(statsize);
 if (Debug.debug == 1) {
 		ClusStat.deltaSplit();
 }
 
-		// For each attribute value		
+		// For each attribute value
 		RowData data = grp.getData();
 		int nb_rows = data.getNbRows();
 		for (int i = 0; i < nb_rows; i++) {
@@ -104,7 +104,7 @@ if (Debug.debug == 1) {
 
 		}
 	}
-	
+
 	public final void findNumeric(NumericAttrType at, OptXValGroup grp) {
 		// Sort data
 		DataTuple tuple;
@@ -123,14 +123,14 @@ if (Debug.debug == 1) {
 		ClusStat.deltaSort();
 }
 
-		reset(2);		
+		reset(2);
 		// Missing values
-		int first = 0;		
-		int nb_rows = data.getNbRows();		
-/*		if (at.hasMissing()) {			
+		int first = 0;
+		int nb_rows = data.getNbRows();
+/*		if (at.hasMissing()) {
 			while (first < nb_rows && (tuple = data.getTuple(first)).hasNumMissing(idx)) {
 				m_TestStat[tuple.m_Index][1].updateWeighted(tuple, first);
-				first++;			
+				first++;
 			}
 			subtractMissing(grp);
 		} else {*/
@@ -146,14 +146,14 @@ if (Debug.debug == 1) {
 			m_PrevVl[i] = Double.NaN;
 		}
 //		ClusStatistic sum = m_PosStat[0];
-		if (Settings.ONE_NOMINAL) {		
+		if (Settings.ONE_NOMINAL) {
 			for (int i = first; i < nb_rows; i++) {
 				tuple = data.getTuple(i);
 				int crcl = tuple.getClassification();
 				double value = tuple.getDoubleVal(idx);
 				for (int j = 0; j < folds.length; j++) {
-					int cr_fold = folds[j];			
-					int count = tuple.m_Folds[cr_fold];					
+					int cr_fold = folds[j];
+					int count = tuple.m_Folds[cr_fold];
 					if (count != 0)	{
 						if (m_PrevCl[j] == -1 && value != m_PrevVl[j] && m_PrevVl[j] != Double.NaN) {
 if (Debug.debug == 1) {
@@ -162,7 +162,7 @@ if (Debug.debug == 1) {
 
 							m_Selector[j].updateNumeric(value, m_PosStat[cr_fold], at);
 if (Debug.debug == 1) {
-							ClusStat.deltaHeur();							
+							ClusStat.deltaHeur();
 }
 
 							m_PrevCl[j] = crcl;
@@ -171,10 +171,10 @@ if (Debug.debug == 1) {
 						}
 						m_PrevVl[j] = value;
 if (Debug.debug == 1) {
-						ClusStat.deltaTest();												
+						ClusStat.deltaTest();
 }
 
-						m_PosStat[cr_fold].updateWeighted(tuple, tuple.getWeight()*count);					
+						m_PosStat[cr_fold].updateWeighted(tuple, tuple.getWeight()*count);
 if (Debug.debug == 1) {
 						ClusStat.deltaStat();
 }
@@ -185,9 +185,9 @@ if (Debug.debug == 1) {
 		} else {
 			for (int i = first; i < nb_rows; i++) {
 				tuple = data.getTuple(i);
-				double value = tuple.getDoubleVal(idx);			
+				double value = tuple.getDoubleVal(idx);
 				for (int j = 0; j < folds.length; j++) {
-					int cr_fold = folds[j];			
+					int cr_fold = folds[j];
 					int count = tuple.m_Folds[cr_fold];
 					if (count != 0)	{
 						if (value != m_PrevVl[j] && m_PrevVl[j] != Double.NaN) {
@@ -201,29 +201,29 @@ if (Debug.debug == 1) {
 }
 
 						}
-						m_PrevVl[j] = value;						
+						m_PrevVl[j] = value;
 if (Debug.debug == 1) {
-						ClusStat.deltaTest();						
+						ClusStat.deltaTest();
 }
 
 						m_PosStat[cr_fold].updateWeighted(tuple, tuple.getWeight()*count);
 if (Debug.debug == 1) {
-						ClusStat.deltaStat();						
+						ClusStat.deltaStat();
 }
 
 					}
 				}
-			}		
-		}		
-	}	
-	
+			}
+		}
+	}
+
 
 	public abstract OptXValNode xvalInduce(OptXValGroup mgrp);
 
 	public ClusData createData() {
 		return new RowData(m_Schema);
 	}
-	
+
 	public final void reset(int nb) {
 		for (int i = 0; i < m_NbFolds; i++) {
 			for (int j = 0; j < nb; j++) {
@@ -231,19 +231,19 @@ if (Debug.debug == 1) {
 			}
 		}
 	}
-	
-	public final void copyTotal(OptXValGroup grp) {	
-		ClusStatistic stot[] = grp.m_TotStat;		
-		for (int i = 0; i < m_NbFolds; i++) {	
-			m_TestStat[i][1].copy(stot[i]);						
+
+	public final void copyTotal(OptXValGroup grp) {
+		ClusStatistic stot[] = grp.m_TotStat;
+		for (int i = 0; i < m_NbFolds; i++) {
+			m_TestStat[i][1].copy(stot[i]);
 		}
-	}	
-		
+	}
+
 	public final void findBestTest(OptXValGroup mgrp) {
 		// First make nodes
 		mgrp.makeNodes();
 		// For each attribute
-		RowData data = mgrp.getData();				
+		RowData data = mgrp.getData();
 		ClusSchema schema = data.getSchema();
 		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
 		int nb_normal = attrs.length;
@@ -251,13 +251,13 @@ if (Debug.debug == 1) {
 			ClusAttrType at = attrs[i];
 			if (at instanceof NominalAttrType) findNominal((NominalAttrType)at, mgrp);
 			else findNumeric((NumericAttrType)at, mgrp);
-		}			
+		}
 	}
-	
+
 	public final CurrentBestTestAndHeuristic getSelector(int i) {
 		return m_Selector[i];
 	}
-	
+
 	public final void cleanSplit() {
 		m_Split = null;
 	}
@@ -270,9 +270,9 @@ if (Debug.debug == 1) {
 		for (int i = 0; i < m_NbFolds; i++) {
 			for (int j = 0; j < m_MaxStats; j++) {
 				m_TestStat[i][j] = m_StatManager.createClusteringStat();
-			}	
+			}
 			m_PosStat[i] = m_TestStat[i][0];
-			// Create test selectors for each fold :-)			
+			// Create test selectors for each fold :-)
 			CurrentBestTestAndHeuristic sel = m_Selector[i] = new CurrentBestTestAndHeuristic();
 			sel.m_Heuristic = m_Heuristic;
 		}
@@ -282,7 +282,7 @@ if (Debug.debug == 1) {
 		sel.m_TestStat = m_TestStat[0];
 		sel.m_PosStat = m_PosStat[0];
 	}
-		
+
 	public final void initTestSelectors(OptXValGroup grp) {
 		int nb = grp.getNbFolds();
 		for (int i = 0; i < nb; i++) {
@@ -293,13 +293,13 @@ if (Debug.debug == 1) {
 			sel.initTestSelector(grp.getTotStat(fold));
 		}
 	}
-		
+
 	public final void setNbFolds(int folds) {
-		m_NbFolds = folds;	
+		m_NbFolds = folds;
 		m_PrevCl = new int[folds];
 		m_PrevVl = new double[folds];
 	}
-	
+
 	public final void initialize(int folds) {
 		// Create nominal split
 		if (getSettings().isBinarySplit()) m_Split = new SubsetSplit();
@@ -333,8 +333,8 @@ if (Debug.debug == 1) {
 	public ClusNode induce(ClusRun cr, MultiScore score) {
 		return null;
 	}
-	
+
 	public ClusModel induceSingleUnpruned(ClusRun cr) {
 		return null;
-	}	
+	}
 }

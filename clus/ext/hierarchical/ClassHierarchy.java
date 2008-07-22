@@ -36,95 +36,95 @@ import clus.data.rows.RowData;
 import clus.data.type.*;
 
 public class ClassHierarchy implements Serializable {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 	public final static int TEST = 0;
 	public final static int ERROR = 1;
-	
-	public final static int TREE = 0;	
+
+	public final static int TREE = 0;
 	public final static int DAG = 1;
-	
+
 	protected int m_MaxDepth = 0;
 	protected int m_HierType = TREE;
 	protected ClassesTuple m_Eval;
 	protected ArrayList m_ClassList = new ArrayList();
 	protected HashMap m_ClassMap = new HashMap();
-	protected ClassTerm m_Root;	
+	protected ClassTerm m_Root;
 	protected NumericAttrType[] m_DummyTypes;
 	protected boolean m_IsLocked;
 	protected transient double[] m_Weights;
 	protected transient Hashtable m_ErrorWeights = new Hashtable();
 	protected transient ClassesAttrType m_Type;
-	
-	public ClassHierarchy() {		
+
+	public ClassHierarchy() {
 	}
-	
+
 	public ClassHierarchy(ClassesAttrType type) {
 		this(new ClassTerm());
 		setType(type);
 	}
-	
+
 	public ClassHierarchy(ClassTerm root) {
 		m_Root = root;
-	} 
-	
+	}
+
 	public Settings getSettings() {
 		return m_Type.getSettings();
 	}
-	
+
 	public final void setType(ClassesAttrType type) {
 		m_Type = type;
 	}
-	
+
 	public final ClassesAttrType getType() {
 		return m_Type;
 	}
-	
+
 	public final void addClass(ClassesValue val) {
 		if (!isLocked()) m_Root.addClass(val, 0, this);
 	}
-	
+
 	public final void print(PrintWriter wrt) {
 		m_Root.print(0, wrt, null, null);
 	}
 
 	public final void print(PrintWriter wrt, double[] counts, double[] weights) {
 		m_Root.print(0, wrt, counts, weights);
-	}	
-	
+	}
+
 	public final void print(PrintWriter wrt, double[] counts) {
 		m_Root.print(0, wrt, counts, m_Weights);
 	}
-	
+
 	public final int getMaxDepth() {
 		return m_Root.getMaxDepth();
 	}
-	
+
 	public final ClassTerm getRoot() {
 		return m_Root;
 	}
-	
+
 	public final void initClassListRecursiveTree(ClassTerm term) {
 		m_ClassList.add(term);
 		term.sortChildrenByID();
 		for (int i = 0; i < term.getNbChildren(); i++) {
-			initClassListRecursiveTree((ClassTerm)term.getChild(i));			
+			initClassListRecursiveTree((ClassTerm)term.getChild(i));
 		}
 	}
-	
+
 	public final void initClassListRecursiveDAG(ClassTerm term, HashSet set) {
 		if (!set.contains(term.getID())) {
 			// This is the first time we see this term
 			m_ClassList.add(term);
 			term.sortChildrenByID();
 			for (int i = 0; i < term.getNbChildren(); i++) {
-				initClassListRecursiveDAG((ClassTerm)term.getChild(i), set);			
+				initClassListRecursiveDAG((ClassTerm)term.getChild(i), set);
 			}
 			set.add(term.getID());
-		}		
+		}
 	}
-	
+
 	public final void numberHierarchy() {
 		m_Root.setIndex(-1);
 		m_Root.sortChildrenByID();
@@ -133,18 +133,18 @@ public class ClassHierarchy implements Serializable {
 			// make sure each ID only appears once!
 			HashSet set = new HashSet();
 			for (int i = 0; i < m_Root.getNbChildren(); i++) {
-				initClassListRecursiveDAG((ClassTerm)m_Root.getChild(i), set);			
+				initClassListRecursiveDAG((ClassTerm)m_Root.getChild(i), set);
 			}
 		} else {
 			for (int i = 0; i < m_Root.getNbChildren(); i++) {
-				initClassListRecursiveTree((ClassTerm)m_Root.getChild(i));			
-			}		
+				initClassListRecursiveTree((ClassTerm)m_Root.getChild(i));
+			}
 		}
 		for (int i = 0; i < getTotal(); i++) {
 			ClassTerm term = getTermAt(i);
 			term.setIndex(i);
 		}
-		System.out.println("Hierarchy initialized: "+getTotal()+" nodes");	
+		System.out.println("Hierarchy initialized: "+getTotal()+" nodes");
 		// after this, the hierarchy must not change anymore
 		setLocked(true);
 	}
@@ -157,17 +157,17 @@ public class ClassHierarchy implements Serializable {
 				// If visited, then all tuples for subtree below child are already included
 				visited[child.getIndex()] = true;
 				getAllParentChildTuplesRecursive(child, visited, parentchilds);
-			}			
+			}
 		}
-	}	
-	
+	}
+
 	public ArrayList getAllParentChildTuples() {
 		ArrayList parentchilds = new ArrayList();
 		boolean[] visited = new boolean[getTotal()];
 		getAllParentChildTuplesRecursive(m_Root, visited, parentchilds);
 		return parentchilds;
 	}
-	
+
 	void getAllPathsRecursive(ClassTerm node, String crpath, boolean[] visited, ArrayList paths) {
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			ClassTerm child = (ClassTerm)node.getChild(i);
@@ -178,17 +178,17 @@ public class ClassHierarchy implements Serializable {
 				// If visited, then all paths for subtree below child are already included
 				visited[child.getIndex()] = true;
 				getAllPathsRecursive(child, new_path, visited, paths);
-			}			
+			}
 		}
 	}
-	
+
 	public ArrayList getAllPaths() {
 		ArrayList paths = new ArrayList();
 		boolean[] visited = new boolean[getTotal()];
 		getAllPathsRecursive(m_Root, "", visited, paths);
 		return paths;
 	}
-		
+
 	public void addAllClasses(ClassesTuple tuple, boolean[] matrix) {
 		int idx = 0;
 		tuple.setSize(countOnes(matrix));
@@ -196,14 +196,14 @@ public class ClassHierarchy implements Serializable {
 			if (matrix[i]) tuple.setItemAt(new ClassesValue(getTermAt(i), 1.0), idx++);
 		}
 	}
-		
+
 	public void fillBooleanMatrixMaj(double[] mean, boolean[] matrix, double treshold) {
 		for (int i = 0; i < getTotal(); i++) {
 			ClassTerm term = getTermAt(i);
 			if (mean[term.getIndex()] >= treshold/100.0) matrix[term.getIndex()] = true;
 		}
 	}
-		
+
 	public static void removeParentNodesRec(ClassTerm node, boolean[] matrix) {
 		if (matrix[node.getIndex()]) {
 			ClassTerm parent = node.getCTParent();
@@ -216,13 +216,13 @@ public class ClassHierarchy implements Serializable {
 			removeParentNodesRec((ClassTerm)node.getChild(i), matrix);
 		}
 	}
-	
+
 	public static void removeParentNodes(ClassTerm node, boolean[] matrix) {
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			removeParentNodesRec((ClassTerm)node.getChild(i), matrix);
 		}
 	}
-	
+
 	public void removeParentNodesRecursive(ClassTerm term, boolean[] array) {
 		for (int i = 0; i < term.getNbParents(); i++) {
 			ClassTerm par = term.getParent(i);
@@ -232,7 +232,7 @@ public class ClassHierarchy implements Serializable {
 			}
 		}
 	}
-	
+
 	public void removeParentNodes(boolean[] array) {
 		for (int i = 0; i < getTotal(); i++) {
 			ClassTerm term = getTermAt(i);
@@ -241,7 +241,7 @@ public class ClassHierarchy implements Serializable {
 			}
 		}
 	}
-	
+
 	public static int countOnes(boolean[] matrix) {
 		int count = 0;
 		for (int i = 0; i < matrix.length; i++) {
@@ -249,7 +249,7 @@ public class ClassHierarchy implements Serializable {
 		}
 		return count;
 	}
-		
+
 	// Currently not used
 	public ClassesTuple getBestTupleMajNoParents(double[] mean, double treshold) {
 		boolean[] classes = new boolean[getTotal()];
@@ -259,37 +259,37 @@ public class ClassHierarchy implements Serializable {
 		addAllClasses(tuple, classes);
 		return tuple;
 	}
-	
+
 	public ClassesTuple getBestTupleMaj(double[] mean, double treshold) {
 		boolean[] classes = new boolean[getTotal()];
 		fillBooleanMatrixMaj(mean, classes, treshold);
 		ClassesTuple tuple = new ClassesTuple();
 		addAllClasses(tuple, classes);
 		return tuple;
-	}		
-		
+	}
+
 	public final CompleteTreeIterator getNoRootIter() {
 		CompleteTreeIterator iter = new CompleteTreeIterator(m_Root);
 		if (iter.hasMoreNodes()) iter.getNextNode();
 		return iter;
 	}
-	
+
 	public final CompleteTreeIterator getRootIter() {
 		return new CompleteTreeIterator(m_Root);
 	}
-	
+
 	public final double[] getWeights() {
 		return m_Weights;
 	}
-	
+
 	public final void calcWeights() {
 		HierNodeWeights ws = new HierNodeWeights();
-		int wtype = getSettings().getHierWType(); 
-		double widec = getSettings().getHierWParam(); 
+		int wtype = getSettings().getHierWType();
+		double widec = getSettings().getHierWParam();
 		ws.initExponentialDepthWeights(this, wtype, widec);
 		m_Weights = ws.getWeights();
 	}
-	
+
 	public final void calcMaxDepth() {
 		m_MaxDepth = 0;
 		for (int i = 0; i < getTotal(); i++) {
@@ -297,34 +297,34 @@ public class ClassHierarchy implements Serializable {
 			m_MaxDepth = Math.max(m_MaxDepth, term.getMaxDepth());
 		}
 	}
-	
+
 	public final SingleStat getMeanBranch(boolean[] enabled) {
 		SingleStat stat = new SingleStat();
 		m_Root.getMeanBranch(enabled, stat);
 		return stat;
 	}
-	
+
 	public final int getTotal() {
 		return m_ClassList.size();
 	}
-	
+
 	public final int getDepth() {
 		return m_MaxDepth;
 	}
-	
+
 	public final int[] getClassesByLevel() {
 		int[] res = new int[getDepth()+2];
 		countClassesRecursive(m_Root, 0, res);
 		return res;
 	}
-	
+
 	public final void countClassesRecursive(ClassTerm root, int depth, int[] cls) {
 		cls[depth]++;
 		for (int i = 0; i < root.getNbChildren(); i++) {
 			countClassesRecursive((ClassTerm)root.getChild(i), depth+1, cls);
-		}		
-	}	
-	
+		}
+	}
+
 	public final void initialize() {
 		numberHierarchy();
 		calcWeights();
@@ -339,7 +339,7 @@ public class ClassHierarchy implements Serializable {
 			m_DummyTypes[i] = type;
 		}
 	}
-	
+
 	public void removeZeroClasses(WHTDStatistic stat) {
 		ArrayList new_cls = new ArrayList();
 		for (int i = 0; i < getTotal(); i++) {
@@ -361,11 +361,11 @@ public class ClassHierarchy implements Serializable {
 		}
 		initialize();
 	}
-	
+
 	public final NumericAttrType[] getDummyAttrs() {
 		return m_DummyTypes;
 	}
-	
+
 	public final void showSummary() {
 		int leaves = 0;
 		int depth = getMaxDepth();
@@ -381,7 +381,7 @@ public class ClassHierarchy implements Serializable {
 		}
 		System.out.println("Leaves: "+leaves);
 	}
-	
+
 	public final ClassTerm getClassTermTree(ClassesValue vl) throws ClusException {
 		int pos = 0;
 		int nb_level = vl.getNbLevels();
@@ -395,18 +395,18 @@ public class ClassHierarchy implements Serializable {
 				ClassTerm found = subterm.getByName(lookup);
 				if (found == null) throw new ClusException("Classes value not in tree hierarchy: "+vl.toPathString());
 				subterm = found;
-			}			
+			}
 			pos++;
 		}
 	}
-	
+
 	public final ClassTerm getClassTermDAG(ClassesValue vl) throws ClusException {
 		//System.out.println("Meest specifieke klasse: "+vl.getMostSpecificClass());
 		ClassTerm term = getClassTermByName(vl.getMostSpecificClass());
 		if (term == null) throw new ClusException("Classes value not in DAG hierarchy: "+vl.toPathString());
 		return term;
 	}
-	
+
 	public final ClassTerm getClassTerm(ClassesValue vl) throws ClusException {
 		if (isTree()) {
 			return getClassTermTree(vl);
@@ -414,23 +414,23 @@ public class ClassHierarchy implements Serializable {
 			return getClassTermDAG(vl);
 		}
 	}
-		
+
 	public final int getClassIndex(ClassesValue vl) throws ClusException {
 		return getClassTerm(vl).getIndex();
 	}
-	
+
 	public final double getWeight(int idx) {
 		return m_Weights[idx];
 	}
-		
+
 	public final void setEvalClasses(ClassesTuple eval) {
 		m_Eval = eval;
 	}
-	
+
 	public final ClassesTuple getEvalClasses() {
 		return m_Eval;
 	}
-	
+
 	public final boolean[] getEvalClassesVector() {
 		if (m_Eval == null) {
 			boolean[] res = new boolean[getTotal()];
@@ -440,7 +440,7 @@ public class ClassHierarchy implements Serializable {
 			return m_Eval.getVectorBoolean(this);
 		}
 	}
-	
+
 	public void addChildrenToRoot() {
 		// terms without parents are children of the root
 		Iterator iter = m_ClassMap.values().iterator();
@@ -451,7 +451,7 @@ public class ClassHierarchy implements Serializable {
 			}
 		}
 	}
-	
+
 	public void addParentChildTuple(String parent, String child) throws ClusException {
 		ClassTerm parent_t = getClassTermByNameAddIfNotIn(parent);
 		ClassTerm child_t  = getClassTermByNameAddIfNotIn(child);
@@ -460,7 +460,7 @@ public class ClassHierarchy implements Serializable {
 		}
 		parent_t.addChildCheckAndParent(child_t);
 	}
-	
+
 	public void loadDAG(String[] cls) throws IOException, ClusException {
 		addClassTerm("root", getRoot());
 		for (int i = 0; i < cls.length; i++) {
@@ -474,7 +474,7 @@ public class ClassHierarchy implements Serializable {
 		}
 		addChildrenToRoot();
 	}
-	
+
 	public void loadDAG(String fname) throws IOException, ClusException {
 		String line = null;
 		LineNumberReader rdr = new LineNumberReader(new FileReader(fname));
@@ -493,33 +493,33 @@ public class ClassHierarchy implements Serializable {
 		rdr.close();
 		addChildrenToRoot();
 	}
-	
+
 	public final static char DFS_WHITE = 0;
 	public final static char DFS_GRAY = 1;
 	public final static char DFS_BLACK = 2;
-	
+
 	public void findCycleRecursive(ClassTerm term, char[] visited, ClassTerm[] pi, boolean[] hasCycle) {
 		visited[term.getIndex()] = DFS_GRAY;
 		for (int i = 0; i < term.getNbChildren(); i++) {
 			ClassTerm child = (ClassTerm)term.getChild(i);
 			if (visited[child.getIndex()] == DFS_WHITE) {
 				pi[child.getIndex()] = term;
-				findCycleRecursive(child, visited, pi, hasCycle);			
+				findCycleRecursive(child, visited, pi, hasCycle);
 			} else if (visited[child.getIndex()] == DFS_GRAY) {
 				System.out.println("Cycle: ");
 				System.out.print("("+term.getID()+","+child.getID()+")");
 				ClassTerm w = term;
-				do {					
+				do {
 					System.out.print("; ("+w.getID()+","+pi[w.getIndex()].getID()+")");
 					w = pi[w.getIndex()];
 				} while (w != child);
 				System.out.println();
 				hasCycle[0] = true;
-			}			
+			}
 		}
 		visited[term.getIndex()] = DFS_BLACK;
 	}
-		
+
 	public void findCycle() {
 		char[] visited = new char[getTotal()];
 		ClassTerm[] pi = new ClassTerm[getTotal()];
@@ -533,14 +533,14 @@ public class ClassHierarchy implements Serializable {
 		}
 		if (hasCycle[0]) System.exit(-1);
 	}
-	
+
 	public void writeTargets(RowData data, ClusSchema schema, String name) throws ClusException, IOException {
 		double[] wis = getWeights();
-		PrintWriter wrt = new PrintWriter(new FileWriter(name + ".weights"));	
+		PrintWriter wrt = new PrintWriter(new FileWriter(name + ".weights"));
 		wrt.print("weights(X) :- X = [");
 		for (int i = 0; i < wis.length; i++) {
 			if (i != 0) wrt.print(",");
-			wrt.print(wis[i]);				
+			wrt.print(wis[i]);
 		}
 		wrt.println("].");
 		wrt.println();
@@ -552,7 +552,7 @@ public class ClassHierarchy implements Serializable {
 		}
 		for (int i = 0; i < wis.length; i++) {
 			wrt.print("% class "+terms[i]+": ");
-			wrt.println(wis[i]);				
+			wrt.println(wis[i]);
 		}
 		wrt.close();
 		ClusAttrType[] keys = schema.getAllAttrUse(ClusAttrType.ATTR_USE_KEY);
@@ -573,32 +573,32 @@ public class ClassHierarchy implements Serializable {
 			wrt.print(",[");
 			for (int j = 0; j < vec.length; j++) {
 				if (j != 0) wrt.print(",");
-				wrt.print(vec[j]);				
+				wrt.print(vec[j]);
 			}
-			wrt.println("]");			
-		}		
+			wrt.println("]");
+		}
 		wrt.close();
 	}
-	
+
 	public void setLocked(boolean lock) {
 		m_IsLocked = lock;
 	}
-	
+
 	public boolean isLocked() {
 		return m_IsLocked;
 	}
-	
+
 	public void setHierType(int type) {
 		m_HierType = type;
 	}
-	
+
 	public boolean isTree() {
 		return m_HierType == TREE;
 	}
-	
+
 	public boolean isDAG() {
 		return m_HierType == DAG;
-	}	
+	}
 
 	public ClassTerm getClassTermByNameAddIfNotIn(String id) {
 		ClassTerm found = getClassTermByName(id);
@@ -612,15 +612,15 @@ public class ClassHierarchy implements Serializable {
 	public ClassTerm getClassTermByName(String id) {
 		return (ClassTerm)m_ClassMap.get(id);
 	}
-	
+
 	public void addClassTerm(String id, ClassTerm term) {
 		m_ClassMap.put(id, term);
 	}
-	
+
 	public void addClassTerm(ClassTerm term) {
 		m_ClassList.add(term);
 	}
-	
+
 	public ClassTerm getTermAt(int i) {
 		return (ClassTerm)m_ClassList.get(i);
 	}

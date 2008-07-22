@@ -34,13 +34,13 @@ import clus.data.cols.attribute.*;
 import clus.algo.kNN.BasicDistance;
 
 public abstract class ClusAttrType implements Serializable,Comparable {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	// Attributes are sorted in arrays in same order as this: TARGET, OTHER CLUSTER, NORMAL, KEY
 	public final static int STATUS_DISABLED = 0;
 	public final static int STATUS_TARGET = 1;
-	public final static int STATUS_CLUSTER_NO_TARGET = 2;		
+	public final static int STATUS_CLUSTER_NO_TARGET = 2;
 	public final static int STATUS_NORMAL = 3;
 	public final static int STATUS_KEY = 4;
 	public final static int NB_STATUS = 5;
@@ -49,9 +49,9 @@ public abstract class ClusAttrType implements Serializable,Comparable {
 	public final static int ATTR_USE_DESCRIPTIVE = 1;
 	public final static int ATTR_USE_CLUSTERING = 2;
 	public final static int ATTR_USE_TARGET = 3;
-	public final static int ATTR_USE_KEY = 4;	
+	public final static int ATTR_USE_KEY = 4;
 	public final static int NB_ATTR_USE = 5;
-  
+
 	public final static int VALUE_TYPE_NONE = -1;
 	public final static int VALUE_TYPE_INT = 0;
 	public final static int VALUE_TYPE_DOUBLE = 1;
@@ -79,15 +79,15 @@ public abstract class ClusAttrType implements Serializable,Comparable {
 	public void setSchema(ClusSchema schema) {
 		m_Schema = schema;
 	}
-	
+
 	public ClusSchema getSchema() {
 		return m_Schema;
 	}
-	
+
 	public Settings getSettings() {
 		return m_Schema.getSettings();
 	}
-	
+
 	public abstract ClusAttrType cloneType();
 
 	public void cloneType(ClusAttrType type) {
@@ -154,7 +154,7 @@ public abstract class ClusAttrType implements Serializable,Comparable {
 	public void setStatus(int status) {
 		m_Status = status;
 	}
-	
+
 	public boolean isTarget() {
 		return m_Status == ClusAttrType.STATUS_TARGET;
 	}
@@ -162,11 +162,11 @@ public abstract class ClusAttrType implements Serializable,Comparable {
 	public boolean isDisabled() {
 		return m_Status == ClusAttrType.STATUS_DISABLED;
 	}
-	
+
 	public boolean isKey() {
 		return m_Status == ClusAttrType.STATUS_KEY;
 	}
-	
+
 	public boolean isClustering() {
 		return m_IsClustering;
 	}
@@ -174,15 +174,15 @@ public abstract class ClusAttrType implements Serializable,Comparable {
 	public void setClustering(boolean clust) {
 		m_IsClustering = clust;
 	}
-	
+
 	public void setDescriptive(boolean descr) {
 		m_IsDescriptive = descr;
-	}	
+	}
 
 	public boolean isDescriptive() {
 		return m_IsDescriptive;
-	}	
-	
+	}
+
 	public int getMaxNbStats() {
 		return 0;
 	}
@@ -204,10 +204,10 @@ public abstract class ClusAttrType implements Serializable,Comparable {
 	public double getNumeric(DataTuple tuple) {
 		return Double.POSITIVE_INFINITY;
 	}
-	
+
 	public boolean isMissing(DataTuple tuple) {
 		return true;
-	}	
+	}
 
 	public String getString(DataTuple tuple) {
 		return "err";
@@ -231,19 +231,19 @@ public abstract class ClusAttrType implements Serializable,Comparable {
 	public String toString() {
 		return getName();
 	}
-	
+
 	public void initializeFrom(ClusAttrType other_type) {
 		// Currently does nothing, but could copy status etc.
-	}	
-	
+	}
+
 	// Some attributes initialize differently based on some user settings
 	public void initSettings(Settings sett) {
 	}
-	
+
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
 		throw new ClusException("Type: "+getClass().getName()+" can't be written to a .arff file");
 	}
-	
+
 //--------------------------------New-------------------------------------
 
 	private BasicDistance $dist;
@@ -261,19 +261,19 @@ public abstract class ClusAttrType implements Serializable,Comparable {
 	public void setBasicDistance(BasicDistance dist){
 		$dist = dist;
 	}
-	
-	
+
+
 	/**
 	 * Compares to ClusAttrTypes based on index, allowing them to be sorted.
 	 */
 	public int compareTo(Object o) {
 		ClusAttrType c = (ClusAttrType) o;
-		
+
 		if(c.m_Index > this.m_Index)
 			return 1;
 		if(c.m_Index < this.m_Index)
 			return -1;
 		return 0;
-	}	
+	}
 }
 

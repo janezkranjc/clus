@@ -33,19 +33,19 @@ import clus.util.*;
 public class ClassHierarchyIO {
 
 	protected StringTable m_Table = new StringTable();
-		
-	public ClassHierarchy loadHierarchy(String fname) throws ClusException, IOException {		
+
+	public ClassHierarchy loadHierarchy(String fname) throws ClusException, IOException {
 		ClassHierarchy hier = new ClassHierarchy((ClassTerm)null);
 		loadHierarchy(fname, hier);
 		return hier;
 	}
-	
+
 	public ClassHierarchy loadHierarchy(String fname, ClassesAttrType type) throws ClusException, IOException {
 		ClassHierarchy hier = new ClassHierarchy(type);
 		loadHierarchy(fname, hier);
 		return hier;
 	}
-		
+
 	public void loadHierarchy(String fname, ClassHierarchy hier) throws ClusException, IOException {
 		MStreamTokenizer tokens = new MStreamTokenizer(fname);
 		String token = tokens.getToken();
@@ -53,11 +53,11 @@ public class ClassHierarchyIO {
 			ClassesTuple tuple = new ClassesTuple(token, m_Table);
 			tuple.addToHierarchy(hier);
 			token = tokens.getToken();
-		    
+
 		    }
 		tokens.close();
 	}
-	
+
 	public void saveHierarchy(String fname, ClassHierarchy hier) throws IOException {
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
 		CompleteTreeIterator iter = hier.getNoRootIter();
@@ -66,8 +66,8 @@ public class ClassHierarchyIO {
 			wrt.println(node.toString());
 		}
 		wrt.close();
-	}	
-	
+	}
+
 	public StringTable getStringTable() {
 		return m_Table;
 	}

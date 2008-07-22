@@ -33,19 +33,19 @@ import clus.statistic.*;
 
 /**
  * Class representing the optimization problem.
- * 
+ *
  * @author Tea Tusar
  */
 public class DeProbl {
-	
+
 	private int m_NumVar;							// Number of variables to optimize
 	private ArrayList m_VarMin;				// Min value of each variable
 	private ArrayList m_VarMax;				// Max value of each variable
 	private double[][][] m_RulePred;	// Rule predictions [instance][rule][class_value] or [0][instance][rule]
 	private double[] m_TrueVal;				// True values
 	private ClusStatManager m_StatMgr;
-	private boolean m_ClssTask; 
-	
+	private boolean m_ClssTask;
+
 	/**
 	 * Testing constructor
 	 * @param num_var
@@ -61,7 +61,7 @@ public class DeProbl {
 			m_VarMax.add(new Double(1));
 		}
 	}
-	
+
 	public DeProbl(ClusStatManager stat_mgr, double[][][] rule_pred, double[] true_val) {
 		m_NumVar = (rule_pred[0]).length;
 		m_VarMin = new ArrayList(m_NumVar);
@@ -75,7 +75,7 @@ public class DeProbl {
 			m_VarMax.add(new Double(1));
 		}
 	}
-	
+
 	public DeProbl(ClusStatManager stat_mgr, double[][] rule_pred, double[] true_val) {
 		m_NumVar = (rule_pred[0]).length;
 		m_VarMin = new ArrayList(m_NumVar);
@@ -90,34 +90,34 @@ public class DeProbl {
 			m_VarMax.add(new Double(1));
 		}
 	}
-	
+
 	/**
 	 * Generates a random solution.
 	 */
 	public ArrayList getRandVector(Random rand)	{
 		ArrayList result = new ArrayList(m_NumVar);
-		for (int i = 0; i < m_NumVar; i++) {			
+		for (int i = 0; i < m_NumVar; i++) {
 			result.add(new Double(
-			  ((Double)m_VarMin.get(i)).doubleValue() + 
-			  (((Double)m_VarMax.get(i)).doubleValue() - 
-			   ((Double)m_VarMin.get(i)).doubleValue()) * 
+			  ((Double)m_VarMin.get(i)).doubleValue() +
+			  (((Double)m_VarMax.get(i)).doubleValue() -
+			   ((Double)m_VarMin.get(i)).doubleValue()) *
 			  (double)rand.nextDouble()));
-		}                                                         
+		}
 		return result;
 	}
 
 	public ArrayList getRoundVector(ArrayList genes) {
 		ArrayList result = new ArrayList(m_NumVar);
 		for (int i = 0; i < m_NumVar; i++) {
-			if (((Double)genes.get(i)).doubleValue() >= 
+			if (((Double)genes.get(i)).doubleValue() >=
 				((Double)m_VarMax.get(i)).doubleValue())
 				result.add(m_VarMax.get(i));
-			else if (((Double)genes.get(i)).doubleValue() <= 
+			else if (((Double)genes.get(i)).doubleValue() <=
 					 ((Double)m_VarMin.get(i)).doubleValue())
 				result.add(m_VarMin.get(i));
-			else 
+			else
 				result.add(genes.get(i));
-		}		
+		}
 		return result;
 	}
 
@@ -177,23 +177,23 @@ public class DeProbl {
 	/*
 	public double calcFitness(ArrayList genes) {
 		double fitness = 0;
-		for (int i = 0; i < m_NumVar; i++) {	
-		fitness += Math.abs(0.1 - ((Double)genes.get(i)).doubleValue()); 
+		for (int i = 0; i < m_NumVar; i++) {
+		fitness += Math.abs(0.1 - ((Double)genes.get(i)).doubleValue());
   	}
 		return fitness;
-	}	 */  
+	}	 */
 
-	
+
 	public int getNumVar() {
 		return m_NumVar;
 	}
 
 	public void setNumVar(int numVar) {
 		m_NumVar = numVar;
-	} 
+	}
 
 	public Settings getSettings() {
 		return m_StatMgr.getSettings();
 	}
-	
+
 }

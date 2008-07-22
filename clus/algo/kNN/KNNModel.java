@@ -52,8 +52,8 @@ public class KNNModel implements ClusModel {
 
 	public String getModelInfo() {
 		return "KNNModel";
-	}	
-	
+	}
+
 	/**
 	 * This method predicts the value for the given tuple and returns
 	 * some statistic.
@@ -108,19 +108,19 @@ public class KNNModel implements ClusModel {
 
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
 	}
-	
+
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 	}
-		
+
 	public void printModelToPythonScript(PrintWriter wrt) {
 	}
-	
+
 	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem, boolean ex) {
 	}
 	public void attachModel(HashMap table) {
 		System.err.println(getClass().getName()+"attachModel() not implemented");
 	}
-	
+
 /*
 	public final ClusStatistic getTotalStat() {
 		return m_TotStat;
@@ -137,15 +137,15 @@ public class KNNModel implements ClusModel {
 	public final void initTotalStat(ClusStatManager smgr) {
 		m_TotStat = smgr.createStatistic();
 	}*/
-	
+
   public int getID() {
   	return 0;
   }
-  
+
   public ClusModel prune(int prunetype) {
 	return this;
   }
-  
-  public void retrieveStatistics(ArrayList list) {	 
+
+  public void retrieveStatistics(ArrayList list) {
   }
 }

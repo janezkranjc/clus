@@ -28,7 +28,7 @@ import java.util.*;
 import clus.main.Settings;
 
 public class StopList extends Hashtable {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public StopList() {

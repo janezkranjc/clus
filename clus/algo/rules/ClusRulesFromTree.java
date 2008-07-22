@@ -37,15 +37,15 @@ import clus.util.*;
 public class ClusRulesFromTree {
 
 	protected boolean m_Validated;
-	
+
 	public ClusRulesFromTree(boolean onlyValidated) {
 		m_Validated = onlyValidated;
 	}
-	
+
  /**
   * Same as constructRules(ClusNode node, ClusStatManager mgr) but
   * with additional parameter - ClusRun to get access to the data set.
-  * 
+  *
   * @param cr ClusRun
   * @param node ClusNode
   * @param mgr ClusStatmanager
@@ -67,7 +67,7 @@ public class ClusRulesFromTree {
     }
     return res;
   }
-  
+
 	public ClusRuleSet constructRules(ClusNode node, ClusStatManager mgr) {
 		ClusRuleSet res = new ClusRuleSet(mgr);
 		ClusRule init = new ClusRule(mgr);
@@ -77,7 +77,7 @@ public class ClusRulesFromTree {
 		res.setTargetStat(node.getTargetStat());
 		return res;
 	}
-	
+
 	public void constructRecursive(ClusNode node, ClusRule rule, ClusRuleSet set) {
 		if (node.atBottomLevel()) {
 			if (!m_Validated || node.getTargetStat().isValidPrediction()) {
@@ -94,7 +94,7 @@ public class ClusRulesFromTree {
 				child_rule.addTest(branchTest);
 				constructRecursive(child, child_rule, set);
 			}
-		}	
-	}	
+		}
+	}
 }
 

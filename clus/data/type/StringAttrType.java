@@ -31,52 +31,52 @@ import clus.data.io.ClusReader;
 import clus.data.rows.*;
 
 public class StringAttrType extends ClusAttrType {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public final static int THIS_TYPE = 3;
-	public final static String THIS_TYPE_NAME = "String";	
+	public final static String THIS_TYPE_NAME = "String";
 
 	public StringAttrType(String name) {
 		super(name);
 	}
-		
+
 	public ClusAttrType cloneType() {
-		StringAttrType at = new StringAttrType(m_Name);	
+		StringAttrType at = new StringAttrType(m_Name);
 		cloneType(at);
-		return at;		
+		return at;
 	}
-	
+
 	public int getTypeIndex() {
 		return THIS_TYPE;
-	}	
-	
+	}
+
 	public String getTypeName() {
 		return THIS_TYPE_NAME;
-	}		
-	
+	}
+
 	public int getValueType() {
 		return VALUE_TYPE_OBJECT;
-	}	
-			
+	}
+
 	public String getString(DataTuple tuple) {
 		return (String)tuple.m_Objects[m_ArrayIndex];
 	}
-	
+
 	public int compareValue(DataTuple t1, DataTuple t2) {
 		String s1 = (String)t1.m_Objects[m_ArrayIndex];
-		String s2 = (String)t2.m_Objects[m_ArrayIndex];		
+		String s2 = (String)t2.m_Objects[m_ArrayIndex];
 		return s1.equals(s2) ? 0 : 1;
 	}
-	
+
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
 		wrt.print("string");
-	}	
-	
+	}
+
 	public ClusSerializable createRowSerializable() throws ClusException {
 		return new MySerializable();
-	}	
-	
+	}
+
 	public class MySerializable extends ClusSerializable {
 
 		public boolean read(ClusReader data, DataTuple tuple) throws IOException {

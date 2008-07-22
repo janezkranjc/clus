@@ -71,8 +71,8 @@ public class ClusStatManager implements Serializable {
 	public final static int MODE_CLASSIFY_AND_REGRESSION = 4;
 
 	public final static int MODE_TIME_SERIES = 5;
-	
-	public final static int MODE_ILEVELC = 6;	
+
+	public final static int MODE_ILEVELC = 6;
 
 	protected int m_Mode = MODE_NONE;
 
@@ -328,7 +328,7 @@ public class ClusStatManager implements Serializable {
 	public void setTrainSetStat(ClusStatistic stat) {
 		m_TrainSetStat = stat;
 	}
-	
+
 	public void computeTrainSetStat(RowData trainset) {
 		ClusStatistic tr_stat = createStatistic(ClusAttrType.ATTR_USE_ALL);
 		trainset.calcTotalStat(tr_stat);
@@ -455,7 +455,7 @@ public class ClusStatManager implements Serializable {
 			break;
 		case MODE_ILEVELC:
 			setTargetStatistic(new ILevelCStatistic(num2));
-			setClusteringStatistic(new ILevelCStatistic(num3));						
+			setClusteringStatistic(new ILevelCStatistic(num3));
 			break;
 		}
 	}
@@ -468,7 +468,7 @@ public class ClusStatManager implements Serializable {
 			return null;
 		}
 	}
-	
+
 	public void initRuleHeuristic() throws ClusException {
 		if ((getSettings().getHeuristic() == Settings.HEURISTIC_GAIN)) {
 			throw new ClusException("Gain heuristic not supported for rule induction!");
@@ -520,9 +520,9 @@ public class ClusStatManager implements Serializable {
 				m_Heuristic = new ClusRuleHeuristicError(this, getClusteringWeights());
 				break;
 			}
-		}	
+		}
 	}
-	
+
 	public void initBeamSearchHeuristic() throws ClusException {
 		if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
 			m_Heuristic = new ClusBeamHeuristicError(createClusteringStat());
@@ -558,26 +558,26 @@ public class ClusStatManager implements Serializable {
 		if (m_Mode == MODE_TIME_SERIES) {
 			String name = "Time Series Intra-Cluster Variation Heuristic";
 			m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights());
-			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);			
+			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 			return;
 		}
 		/* Set heuristic for trees */
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);		
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		if (num.length > 0 && nom.length > 0) {
 			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT &&
 				getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
 				throw new ClusException("Only SS-Reduction heuristic can be used for combined classification/regression trees!");
 			}
 			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
-			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);			
+			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 		} else if (num.length > 0) {
 			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT &&
 				getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
 				throw new ClusException("Only SS-Reduction heuristic can be used for regression trees!");
 			}
 			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
-			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);			
+			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 		} else if (nom.length > 0) {
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_SEMI_SUPERVISED) {
 				m_Heuristic = new ModifiedGainHeuristic(createClusteringStat());
@@ -585,16 +585,16 @@ public class ClusStatManager implements Serializable {
 				m_Heuristic = new ReducedErrorHeuristic(createClusteringStat());
 			} /*else if (getSettings().getHeuristic() == Settings.HEURISTIC_GENETIC_DISTANCE) {
 				m_Heuristic = new GeneticDistanceHeuristic();
-			}*/ 
+			}*/
 			else if (getSettings().getHeuristic() == Settings.HEURISTIC_SS_REDUCTION) {
 				m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {
 				m_Heuristic = new GainHeuristic(true);
 			} else {
-				if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && 
+				if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT &&
 				    getSettings().getHeuristic() != Settings.HEURISTIC_GAIN) {
 						throw new ClusException("Given heuristic not supported for classification trees!");
-				}				
+				}
 				m_Heuristic = new GainHeuristic(false);
 				getSettings().setHeuristic(Settings.HEURISTIC_GAIN);
 			}
@@ -604,9 +604,9 @@ public class ClusStatManager implements Serializable {
 	/**
 	 * Initializes a table with Chi Squared inverse probabilities used in
 	 * significance testing of rules.
-	 * 
+	 *
 	 * @throws MathException
-	 * 
+	 *
 	 */
 	public void initSignifcanceTestingTable() {
 		int max_nom_val = 0;
@@ -620,7 +620,7 @@ public class ClusStatManager implements Serializable {
 			max_nom_val = 1;
 		}
 		double[] table = new double[max_nom_val];
-		table[0] = 1.0 - getSettings().getRuleSignificanceLevel(); 
+		table[0] = 1.0 - getSettings().getRuleSignificanceLevel();
 		// Not really used except below
 		for (int i = 1; i < table.length; i++) {
 			DistributionFactory distributionFactory = DistributionFactory.newInstance();
@@ -725,14 +725,14 @@ public class ClusStatManager implements Serializable {
 		parent.setWeights(getClusteringWeights());
 		return parent;
 	}
-	
+
 	public ClusErrorList createExtraError(int train_err) {
 		ClusErrorList parent = new ClusErrorList();
 		if (m_Mode == MODE_TIME_SERIES) {
 			parent.addError(new SSPDICVError(parent, new QDMTimeSeriesStat()));
 		}
 		return parent;
-	}	
+	}
 
 	public PruneTree getTreePrunerNoVSB() throws ClusException {
 		Settings sett = getSettings();
@@ -775,7 +775,7 @@ public class ClusStatManager implements Serializable {
 				sett.setPruningMethod(Settings.PRUNING_METHOD_M5);
 				return new M5Pruner(getClusteringWeights(), mult);
 			}
-		} else if (m_Mode == MODE_CLASSIFY) {			
+		} else if (m_Mode == MODE_CLASSIFY) {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT
 					|| sett.getPruningMethod() == Settings.PRUNING_METHOD_C45) {
 				sett.setPruningMethod(Settings.PRUNING_METHOD_C45);
@@ -961,9 +961,9 @@ public class ClusStatManager implements Serializable {
 	/**
 	 * Initializes/checks/overrides some inter-dependent settings for rule
 	 * induction.
-	 * 
+	 *
 	 * @throws ClusException
-	 * 
+	 *
 	 */
 	public void initRuleSettings() throws ClusException {
 		Settings sett = getSettings();

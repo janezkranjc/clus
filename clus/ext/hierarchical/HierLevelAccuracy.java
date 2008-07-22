@@ -35,7 +35,7 @@ import clus.main.Settings;
 import clus.statistic.*;
 
 public class HierLevelAccuracy extends ClusError {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected ClassHierarchy m_Hier;
@@ -46,7 +46,7 @@ public class HierLevelAccuracy extends ClusError {
 	protected boolean[] m_ActualArr;
 	protected boolean[] m_PredLevelErr;
 	protected int m_MaxDepth;
-	
+
 	public HierLevelAccuracy(ClusErrorList par, ClassHierarchy hier) {
 		super(par, hier.getMaxDepth());
 		m_Hier = hier;
@@ -60,8 +60,8 @@ public class HierLevelAccuracy extends ClusError {
 	public boolean shouldBeLow() {
 		return false;
 	}
-	*/	
-	
+	*/
+
 	public void update(ClassTerm node, int depth, double[] predarr) {
 		boolean has_pred = predarr[node.getIndex()] >= 0.5;
 		boolean has_actual = m_ActualArr[node.getIndex()];
@@ -73,14 +73,14 @@ public class HierLevelAccuracy extends ClusError {
 		}
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			update((ClassTerm)node.getChild(i), depth+1, predarr);
-		}		
+		}
 	}
 
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 /*		if (!((WHTDStatistic)pred).getMeanTuple().isRoot()) {
 			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
 			tp.toBoolVector(m_ActualArr);
-			double[] predarr = ((WHTDStatistic)pred).getDiscretePred();			
+			double[] predarr = ((WHTDStatistic)pred).getDiscretePred();
 			Arrays.fill(m_PredLevelErr, false);
 			m_MaxDepth = -1;
 			// Now scans entiry hierarchy, could be made more eff.
@@ -91,7 +91,7 @@ public class HierLevelAccuracy extends ClusError {
 					allok = false;
 				} else {
 					m_CorrectLevel[i] += 1.0;
-				} 
+				}
 				m_CountLevel[i] += 1.0;
 			}
 			if (allok) {
@@ -100,10 +100,10 @@ public class HierLevelAccuracy extends ClusError {
 			m_Predicted += 1.0;
 		}	*/
 	}
-	
+
 	public void addInvalid(DataTuple tuple) {
 	}
-	
+
 	public double getModelError() {
 		int nb = getNbExamples();
 		return nb == 0 ? 0.0 : 1.0 - m_Correct / nb;
@@ -112,39 +112,39 @@ public class HierLevelAccuracy extends ClusError {
 	public double getErrorComp(int i) {
 		double nb = m_CountLevel[i];
 		return nb == 0.0 ? 0.0 : m_CorrectLevel[i] / nb;
-	}	
-	
+	}
+
 	/*should be named getPrecision()*/
 	public double getAccuracy() {
-		return m_Predicted == 0.0 ? 0.0 : m_Correct / m_Predicted;		
+		return m_Predicted == 0.0 ? 0.0 : m_Correct / m_Predicted;
 	}
-	
+
 	public double getRecall() {
 		int nb = getNbExamples();
-		return nb == 0 ? 0.0 : m_Predicted / nb;		
+		return nb == 0 ? 0.0 : m_Predicted / nb;
 	}
-	
+
 	/* should be named getRecall()*/
 	public double getOverallAccuracy() {
 		int nb = getNbExamples();
 		return nb == 0 ? 0.0 : m_Correct / nb;
-	}	
-	
+	}
+
 	public String getName() {
 		return "Hierarchical accuracy by level";
 	}
-	
+
 	public ClusError getErrorClone(ClusErrorList par) {
 		return new HierLevelAccuracy(par, m_Hier);
 	}
-	
+
 	public void reset() {
 		Arrays.fill(m_CorrectLevel, 0.0);
 		Arrays.fill(m_CountLevel, 0.0);
 		m_Correct = 0.0;
 		m_Predicted = 0.0;
 	}
-	
+
 	public void add(ClusError other) {
 		HierLevelAccuracy acc = (HierLevelAccuracy)other;
 		m_Correct += acc.m_Correct;
@@ -152,7 +152,7 @@ public class HierLevelAccuracy extends ClusError {
 		for (int i = 0; i < m_Dim; i++) {
 			m_CorrectLevel[i] += acc.m_CorrectLevel[i];
 			m_CountLevel[i] += acc.m_CountLevel[i];
-		}		
+		}
 	}
 
 	public void showModelError(PrintWriter out, int detail) {
@@ -171,6 +171,6 @@ public class HierLevelAccuracy extends ClusError {
 		buf.append(fr.format(getRecall()));
 		buf.append(", AccAll: ");
 		buf.append(fr.format(getOverallAccuracy()));
-		out.println(buf.toString());		
-	}		
+		out.println(buf.toString());
+	}
 }

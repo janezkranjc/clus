@@ -60,13 +60,13 @@ public class ARFFFile {
 			if (token.equals(TAG_NAME[0])) {
 				schema.setRelationName(tokens.readTillEol().trim());
 				// System.out.println("Relation name: "+schema.getRelationName());
-				expected = 1;				
+				expected = 1;
 			} else if (token.equals(TAG_NAME[1])) {
 				if (expected == 0) throw new IOException(TAG_NAME[expected]+TAG_ERROR+token+"'");
 				String aname = tokens.getDelimToken('\"','\"');
 				String atype = tokens.readTillEol();
 				int idx = atype.indexOf('%');
-				if (idx != -1) atype = atype.substring(0,idx-1);				
+				if (idx != -1) atype = atype.substring(0,idx-1);
 				atype = atype.trim();
 				addAttribute(schema, aname, atype, attrMap);
 				expected = 2;
@@ -82,11 +82,11 @@ public class ARFFFile {
 		// System.out.println("Number of attributes: "+schema.getNbAttributes());
 		return schema;
 	}
-	
+
 	public void skipTillData() throws IOException {
 		boolean error = false;
 		MStreamTokenizer tokens = m_Reader.getTokens();
-		String token = tokens.getToken().toUpperCase();		
+		String token = tokens.getToken().toUpperCase();
 		while (token != null) {
 			if (m_DataLine != -1 && tokens.getLine() > m_DataLine) {
 				error = true;
@@ -94,21 +94,21 @@ public class ARFFFile {
 			}
 			if (token.equals(TAG_NAME[2])) {
 				break;
-			}				
+			}
 			token = tokens.getToken().toUpperCase();
 		}
 		if (token == null || error) {
-			throw new IOException("Unexpected ARFF reader error looking for @data tag");		
+			throw new IOException("Unexpected ARFF reader error looking for @data tag");
 		}
-	}	
-		
+	}
+
 	protected void addAttribute(ClusSchema schema, String aname, String atype, HashMap attrMap) throws IOException, ClusException {
 		Settings sett = schema.getSettings();
 		String uptype = atype.toUpperCase();
 		while (attrMap.containsKey(aname)) {
 			int[] cnt = (int[])attrMap.get(aname);
 			int idx = ++cnt[0];
-			aname = aname + "-" + idx;			
+			aname = aname + "-" + idx;
 		}
 		attrMap.put(aname, new int [1]);
 		if (uptype.equals("NUMERIC") || uptype.equals("REAL") || uptype.equals("INTEGER")) {
@@ -130,7 +130,7 @@ public class ARFFFile {
 			key.setStatus(ClusAttrType.STATUS_KEY);
 		} else if (uptype.equals("TIMESERIES")) {
 			TimeSeriesAttrType tsat = new TimeSeriesAttrType(aname);
-			schema.addAttrType(tsat);			
+			schema.addAttrType(tsat);
 		} else {
 			if (uptype.equals("BINARY")) atype = "{1,0}";
 			int tlen = atype.length();
@@ -139,10 +139,10 @@ public class ARFFFile {
 				else schema.addAttrType(new NominalAttrType(aname, atype));
 			} else {
 				throw new IOException("Attribute '"+aname+"' has unknown type '"+atype+"'");
-			}				
+			}
 		}
 	}
-	
+
 	public static void writeArffHeader(PrintWriter wrt, ClusSchema schema) throws IOException, ClusException {
 		wrt.println("@RELATION "+schema.getRelationName());
 		wrt.println();
@@ -161,7 +161,7 @@ public class ARFFFile {
 		}
 		wrt.println();
 	}
-	
+
 	public static RowData readArff(String fname) throws IOException, ClusException {
 		ClusReader reader = new ClusReader(fname, null);
 		ARFFFile arff = new ARFFFile(reader);
@@ -190,10 +190,10 @@ public class ARFFFile {
 				}
 			}
 			wrt.println();
-		}		
+		}
 		wrt.close();
 	}
-		
+
 	public static void writeArffHeaderToSC(PrintWriter wrt, ClusSchema schema, String[] classterms) throws IOException, ClusException {
 		wrt.println("@RELATION "+schema.getRelationName());
 		wrt.println();
@@ -220,7 +220,7 @@ public class ARFFFile {
 		}
 		wrt.println();
 	}
-	
+
 	public static void writeArffToSC(String fname, RowData data, String[] classterms, boolean[][] classes) throws IOException, ClusException {
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
 		ClusSchema schema = data.getSchema();
@@ -245,7 +245,7 @@ public class ARFFFile {
 				}
 			}
 			wrt.println();
-		}		
+		}
 		wrt.close();
 	}
 
@@ -270,16 +270,16 @@ public class ARFFFile {
             if (!label.equals("?")) {
             	wrt.print("_"+label);
             } else {
-            	wrt.print(label);	
+            	wrt.print(label);
             }
 					} else {
-						wrt.print(type.getString(tuple));						
+						wrt.print(type.getString(tuple));
 					}
 					aidx++;
 				}
 			}
 			wrt.println(";");
-		}		
+		}
 		wrt.close();
 	}
 }

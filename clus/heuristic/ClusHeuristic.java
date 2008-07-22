@@ -31,16 +31,16 @@ public abstract class ClusHeuristic {
 
 	public void setData(RowData data) {
 	}
-	
+
 	public void setRootStatistic(ClusStatistic stat) {
 	}
 
 	public abstract double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing);
-	
+
 	public abstract String getName();
-	
+
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic[] c_pstat, int nbsplit) {
-		return Double.NEGATIVE_INFINITY;		
+		return Double.NEGATIVE_INFINITY;
 	}
 
 	public static double nonZero(double val) {

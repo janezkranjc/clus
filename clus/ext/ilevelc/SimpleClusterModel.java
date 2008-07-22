@@ -32,9 +32,9 @@ import clus.statistic.ClusStatistic;
 import clus.statistic.StatisticPrintInfo;
 
 public class SimpleClusterModel extends ClusNode {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 	protected int[] m_Assign;
 	protected ClusStatManager m_Manager;
 
@@ -42,7 +42,7 @@ public class SimpleClusterModel extends ClusNode {
 		m_Assign = assign;
 		m_Manager = mgr;
 	}
-	
+
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 		int idx = tuple.getIndex();
 		int cl = m_Assign[idx];

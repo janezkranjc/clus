@@ -36,13 +36,13 @@ import clus.util.ClusFormat;
 
 /**
  * Differential evolution algorithm.
- * 
+ *
  * @author Tea Tusar
  */
 public class DeAlg {
-	
-	// private DeParams m_Params;                        
-	private DeProbl m_Probl;    
+
+	// private DeParams m_Params;
+	private DeProbl m_Probl;
 	private DePop m_Pop;
 	private DeInd m_Best;
 	private ClusStatManager m_StatMgr;
@@ -115,7 +115,7 @@ public class DeAlg {
 						((DeInd)m_Pop.m_Inds.get(i)).copy(candidate);
 					}
 				}
-			}     
+			}
 			wrt_log.close();
 			// wrt_pop.close();
 			System.out.println(" done!");
@@ -124,15 +124,15 @@ public class DeAlg {
 		}
 		return m_Best.getGenes();
 	}
-	
+
 	public void OutputPop() throws IOException {
 		/*for (int i = 0; i < m_params.m_pop_size; i++) {
 			String tmp = ((DeInd)m_pop.m_inds.elementAt(i)).GetIndString();
 			m_file_pop.write(tmp);
 			m_file_pop.write('\n');
-		}*/		
+		}*/
 	}
-	
+
 	public void OutputLog(DeInd ind, int index, PrintWriter wrt) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		if (m_Best.m_Fitness > ind.m_Fitness) {
@@ -149,5 +149,5 @@ public class DeAlg {
 	public Settings getSettings() {
 		return m_StatMgr.getSettings();
 	}
-	
+
 }

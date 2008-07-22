@@ -45,17 +45,17 @@ public class TreeErrorComputer extends ClusModelProcessor {
 			recursiveInitialize(child, visitor);
 		}
 	}
-	
+
 	public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
 		ClusNode tree = (ClusNode)model;
 		ErrorVisitor visitor = (ErrorVisitor)tree.getVisitor();
-		visitor.testerr.addExample(tuple, tree.getTargetStat());					
+		visitor.testerr.addExample(tuple, tree.getTargetStat());
 	}
-	
+
 	public boolean needsModelUpdate() {
 		return true;
-	}		
-	
+	}
+
 	public boolean needsInternalNodes() {
 		return true;
 	}
@@ -66,8 +66,8 @@ public class TreeErrorComputer extends ClusModelProcessor {
 		ClusError child_err = error.getFirstError().getErrorClone();
 		TreeErrorComputer.computeErrorOptimized(tree, test, child_err, miss);
 		return child_err;
-	}	
-	
+	}
+
 	public static void computeErrorOptimized(ClusNode tree, RowData test, ClusError error, boolean miss) {
 //		if (miss) {
 			computeErrorStandard(tree, test, error);
@@ -79,7 +79,7 @@ public class TreeErrorComputer extends ClusModelProcessor {
 //			// System.out.println("Simple = "+error.getModelError()+" standard = "+clone.getModelError());
 //		}
 	}
-	
+
 	public static ClusError computeClusteringErrorStandard(ClusNode tree, RowData test, ClusErrorList error) {
 		error.reset();
 		error.setNbExamples(test.getNbRows());
@@ -91,19 +91,19 @@ public class TreeErrorComputer extends ClusModelProcessor {
 	public static void computeClusteringErrorStandard(ClusNode tree, RowData test, ClusError error) {
 		for (int i = 0; i < test.getNbRows(); i++) {
 			DataTuple tuple = test.getTuple(i);
-			ClusStatistic pred = tree.clusterWeighted(tuple);			
+			ClusStatistic pred = tree.clusterWeighted(tuple);
 			error.addExample(tuple, pred);
 		}
 	}
-	
+
 	public static void computeErrorStandard(ClusNode tree, RowData test, ClusError error) {
 		for (int i = 0; i < test.getNbRows(); i++) {
 			DataTuple tuple = test.getTuple(i);
-			ClusStatistic pred = tree.predictWeighted(tuple);			
+			ClusStatistic pred = tree.predictWeighted(tuple);
 			error.addExample(tuple, pred);
 		}
 	}
-	
+
 	public static void computeErrorNode(ClusNode node, RowData test, ClusError error) {
 		ClusStatistic pred = node.getTargetStat();
 		for (int i = 0; i < test.getNbRows(); i++) {
@@ -111,14 +111,14 @@ public class TreeErrorComputer extends ClusModelProcessor {
 			error.addExample(tuple, pred);
 		}
 	}
-	
+
 	public static void initializeTestErrorsData(ClusNode tree, RowData test, ClusError error) throws IOException {
-		TreeErrorComputer comp = new TreeErrorComputer(); 
+		TreeErrorComputer comp = new TreeErrorComputer();
 		initializeTestErrors(tree, error);
 		for (int i = 0; i < test.getNbRows(); i++) {
 			DataTuple tuple = test.getTuple(i);
 			tree.applyModelProcessor(tuple, comp);
-		}	
+		}
 	}
 
 	public static void initializeTestErrors(ClusNode node, ClusError error) {
@@ -130,7 +130,7 @@ public class TreeErrorComputer extends ClusModelProcessor {
 		}
 	}
 
-	public static void computeErrorSimple(ClusNode node, ClusError sum) {		
+	public static void computeErrorSimple(ClusNode node, ClusError sum) {
 		if (node.atBottomLevel()) {
 			ErrorVisitor visitor = (ErrorVisitor)node.getVisitor();
 			sum.add(visitor.testerr);
@@ -138,7 +138,7 @@ public class TreeErrorComputer extends ClusModelProcessor {
 			for (int i = 0; i < node.getNbChildren(); i++) {
 				ClusNode child = (ClusNode)node.getChild(i);
 				computeErrorSimple(child, sum);
-			}		
+			}
 		}
 	}
 }

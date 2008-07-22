@@ -42,7 +42,7 @@ public class NodeIDWriter extends ClusModelProcessor {
 	protected MyArray m_Attrs;
 	protected boolean m_First;
 	protected Settings m_Sett;
-	
+
 	public NodeIDWriter(String fname, boolean missing, Settings sett) {
 		m_Fname = fname;
 		m_Missing = missing;
@@ -65,22 +65,22 @@ public class NodeIDWriter extends ClusModelProcessor {
 		m_First = true;
 		m_Writer = m_Sett.getFileAbsoluteWriter(m_Fname);
 	}
-	
+
 	public void terminate(ClusModel model) throws IOException {
 		m_Writer.close();
 	}
 
 	public boolean needsModelUpdate() {
 		return true;
-	}		
+	}
 
-	public void modelUpdate(DataTuple tuple, ClusModel model) {	
+	public void modelUpdate(DataTuple tuple, ClusModel model) {
 		ClusNode node = (ClusNode)model;
 		if (m_First) {
 			m_Writer.print("pred(");
 			for (int j = 0; j < m_Attrs.size(); j++) {
-				ClusAttrType at = (ClusAttrType)m_Attrs.elementAt(j);					
-				m_Writer.print(at.getString(tuple));					
+				ClusAttrType at = (ClusAttrType)m_Attrs.elementAt(j);
+				m_Writer.print(at.getString(tuple));
 			}
 			m_First = false;
 		}
@@ -91,9 +91,9 @@ public class NodeIDWriter extends ClusModelProcessor {
 			m_Writer.print(node.getID());
 		}
 	}
-		
+
 	public void modelDone()	{
-		m_Writer.println(").");	
+		m_Writer.println(").");
 		m_First = true;
 	}
 }

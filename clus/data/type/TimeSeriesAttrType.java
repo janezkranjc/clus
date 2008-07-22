@@ -36,16 +36,16 @@ import clus.ext.timeseries.*;
 public class TimeSeriesAttrType extends ClusAttrType {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 	public final static String THIS_TYPE_NAME = "TimeSeries";
 	public final static int THIS_TYPE = 5;
-	
+
 	public TimeSeriesAttrType(String name) {
 		super(name);
 	}
 
 	public ClusAttrType cloneType() {
-		TimeSeriesAttrType tsat = new TimeSeriesAttrType(m_Name); 
+		TimeSeriesAttrType tsat = new TimeSeriesAttrType(m_Name);
 		return tsat;
 	}
 
@@ -60,24 +60,24 @@ public class TimeSeriesAttrType extends ClusAttrType {
 	public String getTypeName() {
 		return THIS_TYPE_NAME;
 	}
-	
+
 	public TimeSeries getTimeSeries(DataTuple tuple) {
 		return (TimeSeries)tuple.getObjVal(m_ArrayIndex);
 	}
-	
+
 	public void setTimeSeries(DataTuple tuple, TimeSeries value) {
 		tuple.setObjectVal(value, m_ArrayIndex);
-	}	
-	
+	}
+
 	public String getString(DataTuple tuple) {
 		TimeSeries ts_data = (TimeSeries)tuple.getObjVal(0);
 		return ts_data.toString();
-	}	
-	
+	}
+
 	public ClusSerializable createRowSerializable() throws ClusException {
 		return new MySerializable();
 	}
-	
+
 	public class MySerializable extends ClusSerializable {
 
 		public String getString(DataTuple tuple){
@@ -91,7 +91,7 @@ public class TimeSeriesAttrType extends ClusAttrType {
 			str.concat("]");
 			return str;
 		}
-		
+
 		public boolean read(ClusReader data, DataTuple tuple) throws IOException {
 			String str = data.readTimeSeries();
 			if (str == null) return false;
@@ -103,5 +103,5 @@ public class TimeSeriesAttrType extends ClusAttrType {
 
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
 		wrt.print("TimeSeries");
-	}	
+	}
 }

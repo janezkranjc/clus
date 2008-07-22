@@ -36,7 +36,7 @@ import jeans.tree.MyNode;
  */
 
 public class KNNTree extends ClusNode {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public ClusStatManager m_SMgr;

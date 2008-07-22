@@ -28,7 +28,7 @@ import clus.data.rows.*;
 import clus.main.Settings;
 
 public class ILevelCHeurStat extends ILevelCStatistic {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public static final int EXT = 0;
@@ -36,13 +36,13 @@ public class ILevelCHeurStat extends ILevelCStatistic {
 	public static final int NEG = 2;
 
 	protected int m_NbClass;
-	protected ArrayList m_Constraints;	
+	protected ArrayList m_Constraints;
 	protected int[][] m_ConstraintIndex;
 	protected int[] m_IE;
 	protected int[] m_Clusters;
 	protected int[] m_CL;
 	protected int[] m_ML;
-	
+
 	public ILevelCHeurStat(ILevelCStatistic stat, int nbclass) {
 		super(stat.m_Numeric);
 		m_NbClass = nbclass;
@@ -64,10 +64,10 @@ public class ILevelCHeurStat extends ILevelCStatistic {
 				else m_CL[oclass]++;
 			}
 		}
-	}	
-	
+	}
+
 	public void removeWeighted(DataTuple tuple, double weight) {
-		super.updateWeighted(tuple, -1.0*weight);		
+		super.updateWeighted(tuple, -1.0*weight);
 		int tidx = tuple.getIndex();
 		int[] cidx = m_ConstraintIndex[tidx];
 		if (cidx == null) return;
@@ -83,10 +83,10 @@ public class ILevelCHeurStat extends ILevelCStatistic {
 	}
 
 	public void setIndices(int[][] considx, ArrayList constr, int[] ie, int[] clusters) {
-		m_IE = ie;		
+		m_IE = ie;
 		m_Constraints = constr;
 		m_ConstraintIndex = considx;
-		m_Clusters = clusters;		
+		m_Clusters = clusters;
 	}
 
 	public int computeMinimumExtViolated(int ig1, int ig2, boolean allownew) {
@@ -95,7 +95,7 @@ public class ILevelCHeurStat extends ILevelCStatistic {
 			totalml += m_ML[i];
 		}
 		int best = -2;
-		int bestviolated = Integer.MAX_VALUE;		
+		int bestviolated = Integer.MAX_VALUE;
 		for (int i = 0; i < m_NbClass; i++) {
 			if (i != ig1 && i != ig2 && m_ML[i] > 0) {
 				int violated = m_CL[i] + (totalml - m_ML[i]);
@@ -110,6 +110,6 @@ public class ILevelCHeurStat extends ILevelCStatistic {
 			best = -1;
 		}
 		setClusterID(best);
-		return best == -2 ? -1 : bestviolated; 
+		return best == -2 ? -1 : bestviolated;
 	}
 }

@@ -30,36 +30,36 @@ import clus.data.type.*;
 import clus.main.*;
 
 public class COPKMeansCluster implements Serializable {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int m_Index;
 	protected ClusStatManager m_Mgr;
 	protected ArrayList m_Data = new ArrayList();
 	protected ILevelCStatistic m_Center;
-	
+
 	public COPKMeansCluster(DataTuple tuple, ClusStatManager mgr) {
 		m_Mgr = mgr;
 		m_Data.add(tuple);
 		m_Center = (ILevelCStatistic)mgr.getStatistic(ClusAttrType.ATTR_USE_CLUSTERING).cloneStat();
 		updateCenter();
 	}
-	
+
 	public ILevelCStatistic getCenter() {
 		return m_Center;
 	}
-	
+
 	public ClusStatManager getStatManager() {
 		return m_Mgr;
-	}	
-	
+	}
+
 	public void clearData() {
 		m_Data.clear();
 	}
-	
+
 	public void addData(DataTuple tuple) {
 		m_Data.add(tuple);
-	}	
+	}
 
 	public void updateCenter() {
 		m_Center.reset();
@@ -78,7 +78,7 @@ public class COPKMeansCluster implements Serializable {
 			double v1 = num[j];
 			double v2 = tuple.getDoubleVal(att.getArrayIndex());
 			dist += (v1-v2)*(v1-v2);
-		}		
+		}
 		return Math.sqrt(dist);
 	}
 

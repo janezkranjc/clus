@@ -33,12 +33,12 @@ import clus.main.*;
 import clus.util.*;
 
 public class OptXValNode extends MyNode {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int [] m_Folds;
 	protected ClusNode[] m_Nodes;
-	
+
 	public long m_Time;
 
 	public void init(int[] folds) {
@@ -47,14 +47,14 @@ public class OptXValNode extends MyNode {
 		m_Folds = new int[mnb];
 		System.arraycopy(folds, 0, m_Folds, 0, mnb);
 	}
-	
+
 	public void oneFold(int fold, ClusNode onode) {
 	}
-	
+
 	public ClusNode[] getNodes() {
 		return m_Nodes;
 	}
-		
+
 	public final void printTree(PrintWriter writer, String prefix) {
 		int lvc = 0;
 		for (int i = 0; i < m_Folds.length; i++) {
@@ -63,8 +63,8 @@ public class OptXValNode extends MyNode {
 				if (lvc != 0) writer.print(", ");
 				writer.print(m_Folds[i]+": ");
 				writer.print(ClusFormat.ONE_AFTER_DOT.format(node.getTotWeight()));
-				lvc++; 
-			}	
+				lvc++;
+			}
 		}
 		if (lvc > 0) {
 			writer.print(" ");
@@ -83,7 +83,7 @@ public class OptXValNode extends MyNode {
 			OptXValSplit split = (OptXValSplit)getChild(i);
 			if (i != 0) {
 				writer.println(prefix+"|  ");
-				writer.print(prefix);				
+				writer.print(prefix);
 			}
 			writer.print("G"+i+" ");
 			writer.print(MyIntArray.print(split.getFolds()));
@@ -91,10 +91,10 @@ public class OptXValNode extends MyNode {
 			writer.print(split.getTest().getString());
 			writer.println();
 			int mb = split.getNbChildren();
-			String gfix = (i != nb-1) ? "|  " : "   ";			
+			String gfix = (i != nb-1) ? "|  " : "   ";
 			for (int j = 0; j < mb; j++) {
 				OptXValNode node = (OptXValNode)split.getChild(j);
-				String suffix = (j != mb-1) ? "|      " : "       ";				
+				String suffix = (j != mb-1) ? "|      " : "       ";
 				if (j == 0) writer.print(prefix+gfix+"+-yes: ");
 				else {
 					writer.println(prefix+gfix+"|");
@@ -105,7 +105,7 @@ public class OptXValNode extends MyNode {
 		}
 		writer.flush();
 	}
-	
+
 	public final ClusNode getTree(int fold) {
 		int idx = Arrays.binarySearch(m_Folds, fold);
 		ClusNode node = m_Nodes[idx];
@@ -131,7 +131,7 @@ public class OptXValNode extends MyNode {
 	public final void setNodeIndex(int idx, ClusNode node) {
 		m_Nodes[idx] = node;
 	}
-	
+
 	public final void setNode(int fold, ClusNode node) {
 		int idx = Arrays.binarySearch(m_Folds, fold);
 		m_Nodes[idx] = node;

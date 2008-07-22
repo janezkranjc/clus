@@ -44,7 +44,7 @@ public class CartPruning extends PruneTree {
 	protected double m_U1, m_U2;
 	protected boolean m_IsMSENominal;
 	protected ClusError m_ErrorMeasure;
-	
+
 	public CartPruning(ClusAttributeWeights weights, boolean isMSENominal) {
 		m_Weights = weights;
 		m_IsMSENominal = isMSENominal;
@@ -54,15 +54,15 @@ public class CartPruning extends PruneTree {
 		m_Weights = weights;
 		m_MaxSize = maxsize;
 	}
-	
+
 	public int getNbResults() {
 		return Math.max(1, m_MaxSize.length);
 	}
-	
+
 	public void prune(int result, ClusNode node) throws ClusException {
 		int size = m_MaxSize[result];
 		TreeErrorComputer.recursiveInitialize(node, new CartVisitor());
-		internalInitialize(node);		
+		internalInitialize(node);
 		while (node.getNbNodes() > size) {
 			internalSequenceNext(node);
 		}
@@ -73,7 +73,7 @@ public class CartPruning extends PruneTree {
 		ClusErrorList parent = new ClusErrorList();
 		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		NominalAttrType[] nom = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		if (nom.length != 0 && num.length != 0) {			
+		if (nom.length != 0 && num.length != 0) {
 			MSError numErr = new MSError(parent, num, weights);
 			MSNominalError nomErr = new MSNominalError(parent, nom, weights);
 			ClusSumError error = new ClusSumError(parent);
@@ -92,16 +92,16 @@ public class CartPruning extends PruneTree {
 		parent.setWeights(weights);
 		return parent;
 	}
-	
+
 	public void sequenceInitialize(ClusNode node) {
 		TreeErrorComputer.recursiveInitialize(node, new CartVisitor());
-		setOriginalTree(node);		
+		setOriginalTree(node);
 	}
 
 	public void sequenceReset() {
-		setCurrentTree(null);		
+		setCurrentTree(null);
 	}
-	
+
 	public ClusNode sequenceNext() {
 		ClusNode result = getCurrentTree();
 		if (result == null) {
@@ -111,64 +111,64 @@ public class CartPruning extends PruneTree {
 			if (result.atBottomLevel()) {
 				return null;
 			} else {
-				internalSequenceNext(result);			
+				internalSequenceNext(result);
 			}
 		}
 		setCurrentTree(result);
 		return result;
 	}
-	
+
 	public void sequenceToElemK(ClusNode node, int k) {
-		internalInitialize(node);		
+		internalInitialize(node);
 		for (int i = 0; i < k; i++) {
 			internalSequenceNext(node);
 		}
 	}
-	
+
 	public void initU(ClusNode node) {
 		CartVisitor cart = (CartVisitor)node.getVisitor();
 		m_U1 = 1 + cart.delta_u1;
-		m_U2 = m_ErrorMeasure.computeLeafError(node.getClusteringStat()) + cart.delta_u2;		
+		m_U2 = m_ErrorMeasure.computeLeafError(node.getClusteringStat()) + cart.delta_u2;
 		// System.out.println("Leaves: "+m_U1+" error: "+m_U2);
 	}
-	
+
 	public final static double getLambda(ClusNode node) {
 		CartVisitor cart = (CartVisitor)node.getVisitor();
-		return cart.lambda;		
+		return cart.lambda;
 	}
-	
+
 	public final static double getLambdaMin(ClusNode node) {
 		CartVisitor cart = (CartVisitor)node.getVisitor();
-		return cart.lambda_min;		
+		return cart.lambda_min;
 	}
-	
+
 	public final static void updateLambdaMin(ClusNode node) {
 		CartVisitor cart = (CartVisitor)node.getVisitor();
 		cart.lambda_min = cart.lambda;
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			ClusNode ch = (ClusNode)node.getChild(i);
-			cart.lambda_min = Math.min(cart.lambda_min, getLambdaMin(ch)); 				
-		}			
-	}	
+			cart.lambda_min = Math.min(cart.lambda_min, getLambdaMin(ch));
+		}
+	}
 
 	public final static void updateLambda(ClusNode node) {
 		CartVisitor cart = (CartVisitor)node.getVisitor();
 		cart.lambda = - cart.delta_u2 / cart.delta_u1;
 	}
-	
+
 	public final static void subtractDeltaU(ClusNode node, double d_u1, double d_u2) {
 		CartVisitor cart = (CartVisitor)node.getVisitor();
 		cart.delta_u1 -= d_u1;
 		cart.delta_u2 -= d_u2;
-	}	
-	
+	}
+
 	public void internalSequenceNext(ClusNode node) {
-		ClusNode cr_node_t = node;		
+		ClusNode cr_node_t = node;
 		double lambda_min_t0 = getLambdaMin(node);
-		// Find node "t" for which getLambda(t) == lambda_min_t0 
+		// Find node "t" for which getLambda(t) == lambda_min_t0
 		while (getLambda(cr_node_t) > lambda_min_t0) {
 			ClusNode ch1 = (ClusNode)cr_node_t.getChild(0);
-			ClusNode ch2 = (ClusNode)cr_node_t.getChild(1);			
+			ClusNode ch2 = (ClusNode)cr_node_t.getChild(1);
 			if (getLambdaMin(ch1) == lambda_min_t0) {
 				cr_node_t = ch1;
 			} else {
@@ -191,12 +191,12 @@ public class CartPruning extends PruneTree {
 		m_U1 -= delta_u1; m_U2 -= delta_u2;
 		// System.out.println("Leaves: "+m_U1+" error: "+m_U2);
 	}
-		
+
 	public void internalInitialize(ClusNode node) {
 		internalRecursiveInitialize(node);
-		initU(node);		
+		initU(node);
 	}
-	
+
 	public void internalRecursiveInitialize(ClusNode node) {
 		int nb_c = node.getNbChildren();
 		for (int i = 0; i < nb_c; i++) {

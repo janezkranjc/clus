@@ -32,9 +32,9 @@ import clus.algo.tdidt.ClusNode;
 import clus.data.attweights.*;
 
 public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
-	
+
 	private ClusAttributeWeights m_TargetWeights;
-	
+
 	public ClusBeamHeuristicSS(ClusStatistic stat, ClusAttributeWeights prod) {
 		super(stat);
 		m_TargetWeights = prod;
@@ -57,14 +57,14 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 			m_Pos.copy(c_pstat);
 			m_Neg.copy(c_tstat);
 			m_Neg.subtractFromThis(c_pstat);
-			m_Pos.addScaled(pos_freq, missing);			
+			m_Pos.addScaled(pos_freq, missing);
 			m_Neg.addScaled(1.0-pos_freq, missing);
 			double pos_error = m_Pos.getSS(m_TargetWeights);
 			double neg_error = m_Neg.getSS(m_TargetWeights);
-			return m_TreeOffset - (pos_error + neg_error)/m_NbTrain - 2*Settings.SIZE_PENALTY;			
-		}		
+			return m_TreeOffset - (pos_error + neg_error)/m_NbTrain - 2*Settings.SIZE_PENALTY;
+		}
 	}
-	
+
 	public double estimateBeamMeasure(ClusNode tree) {
 		if (tree.atBottomLevel()) {
 			ClusStatistic total = tree.getClusteringStat();
@@ -78,16 +78,16 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 			return result - Settings.SIZE_PENALTY;
 		}
 	}
-	
+
 	public double computeLeafAdd(ClusNode leaf) {
-		return -leaf.getClusteringStat().getSS(m_TargetWeights)/m_NbTrain;		
+		return -leaf.getClusteringStat().getSS(m_TargetWeights)/m_NbTrain;
 	}
-	
+
 	public String getName() {
 		return "Beam Heuristic (Reduced Variance)"+getAttrHeuristicString()+" with "+m_TargetWeights.getName();
 	}
-	
+
 	public void setRootStatistic(ClusStatistic stat) {
 		super.setRootStatistic(stat);
-	}	
+	}
 }

@@ -32,7 +32,7 @@ import clus.data.cols.*;
 import clus.data.rows.*;
 
 public class MultiScoreStat extends ClusStatistic {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int m_NbTarget;
@@ -44,8 +44,8 @@ public class MultiScoreStat extends ClusStatistic {
 		m_NbTarget = m_MeanValues.length;
 		m_Score = score.multiScore(m_MeanValues);
 	}
-	
-	
+
+
 	public String getArrayOfStatistic() {
 		return null;
 	}
@@ -53,27 +53,27 @@ public class MultiScoreStat extends ClusStatistic {
 
 	public String getString(StatisticPrintInfo info) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
-		StringBuffer buf = new StringBuffer();				
-		buf.append("[");		
+		StringBuffer buf = new StringBuffer();
+		buf.append("[");
 		for (int i = 0; i < m_NbTarget; i++) {
 			if (i != 0) buf.append(",");
 			buf.append(1-m_Score[i]);
 		}
-		buf.append("] : [");				
+		buf.append("] : [");
 		for (int i = 0; i < m_NbTarget; i++) {
 			if (i != 0) buf.append(",");
 //			buf.append(fr.format(m_Target.transform(m_MeanValues[i], i)));
 			buf.append(fr.format(m_MeanValues[i]));
 		}
-		buf.append("]");		
+		buf.append("]");
 		return buf.toString();
 
 	}
-	
+
 	public String getPredictedClassName(int idx) {
 		return "";
-	} 
-  
+	}
+
 	public double[] getNumericPred() {
 		return m_MeanValues;
 	}
@@ -81,10 +81,10 @@ public class MultiScoreStat extends ClusStatistic {
 	public int[] getNominalPred() {
 		return m_Score;
 	}
-	
+
 	public boolean samePrediction(ClusStatistic other) {
 		MultiScoreStat or = (MultiScoreStat)other;
-		for (int i = 0; i < m_NbTarget; i++) 
+		for (int i = 0; i < m_NbTarget; i++)
 			if (m_Score[i] != or.m_Score[i]) return false;
 		return true;
 	}
@@ -92,38 +92,38 @@ public class MultiScoreStat extends ClusStatistic {
 	public ClusStatistic cloneStat() {
 		return null;
 	}
-	
+
 	public void update(ColTarget target, int idx) {
 	}
-	
+
 	public void updateWeighted(DataTuple tuple, int idx) {
-	}	
+	}
 
 	public void calcMean() {
 	}
-	
+
 	public void reset() {
 	}
 
 	public void copy(ClusStatistic other) {
 	}
-	
+
 	public void addPrediction(ClusStatistic other, double weight) {
 	}
 
 	public void add(ClusStatistic other) {
 	}
-	
+
 	public void addScaled(double scale, ClusStatistic other) {
-	}		
-	
+	}
+
 	public void subtractFromThis(ClusStatistic other) {
 	}
-	
+
 	public void subtractFromOther(ClusStatistic other) {
-	}	
-	
+	}
+
 	public void vote(ArrayList votes) {
 		System.err.println(getClass().getName() + "vote (): Not implemented");
-	}	
+	}
 }

@@ -35,8 +35,8 @@ public abstract class NominalAttrBase extends ClusAttribute {
 	public NominalAttrType getNominalType() {
 		return m_Type;
 	}
-	
+
 	public ClusAttrType getType() {
 		return m_Type;
-	}	
+	}
 }

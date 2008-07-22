@@ -20,7 +20,7 @@ import clus.main.Settings;
 public class AllTargets implements SearchAlgorithm {
 
 	protected MTLearner m_MTLearner;
-	
+
 	/**
 	 * This class will always return the full target candidates set.
 	 */

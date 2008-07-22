@@ -40,16 +40,16 @@ import clus.statistic.*;
 import clus.util.*;
 
 public class ClusRuleSet implements ClusModel, Serializable {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 	protected ClusStatistic m_TargetStat;
 	protected ArrayList m_Rules = new ArrayList();
 	/* Array of tuples covered by the default rule. */
 	protected ArrayList m_DefaultData = new ArrayList();
 	protected ClusStatManager m_StatManager;
 	protected boolean m_HasRuleErrors;
-	
+
 	/**
 	 * Constructor for this class.
 	 * @param statmanager
@@ -66,10 +66,10 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		ClusRuleSet new_ruleset = new ClusRuleSet(m_StatManager);
 		for (int i = 0; i < getModelSize(); i++) {
 			new_ruleset.add(getRule(i));
-		}		
+		}
 		return new_ruleset;
 	}
-	
+
 	public void add(ClusRule rule) {
 		if ((getSettings().getCoveringMethod() == Settings.COVERING_METHOD_WEIGHTED_ADDITIVE) ||
 				(getSettings().getCoveringMethod() == Settings.COVERING_METHOD_WEIGHTED_MULTIPLICATIVE) ||
@@ -82,11 +82,11 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			m_Rules.add(rule);
 		}
 	}
-	
+
 	public void removeLastRule() {
 		m_Rules.remove(getModelSize()-1);
 	}
-	
+
 	public boolean addIfUnique(ClusRule rule) {
 		if (unique(rule)) {
 			m_Rules.add(rule);
@@ -95,8 +95,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			return false;
 		}
 	}
-	
-	/** 
+
+	/**
 	 * Tests if the rule is already in the rule set.
 	 * @param rule to test
 	 * @return
@@ -110,8 +110,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 		return res;
 	}
-	
-	/** 
+
+	/**
 	 * Returns the statistic (prediction) for a given tuple.
 	 */
 	public ClusStatistic predictWeighted(DataTuple tuple) {
@@ -129,7 +129,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			// } else if (cover_method == Settings.COVERING_METHOD_UNION) {
 		} else if (prediction_method == Settings.RULE_PREDICTION_METHOD_UNION) {
 			// In multi-label classification: predicted set of classes is
-			// union of predictions by individual rules 
+			// union of predictions by individual rules
 			boolean covered = false;
 			ClusStatistic stat = m_TargetStat.cloneSimple();
 			stat.unionInit();
@@ -137,7 +137,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				ClusRule rule = getRule(i);
 				if (rule.covers(tuple)) {
 					stat.union(rule.getTargetStat());
-					covered = true;         
+					covered = true;
 				}
 			}
 			stat.unionDone();
@@ -151,7 +151,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 					if (rule.covers(tuple)) {
 						ClusStatistic rulestat = rule.predictWeighted(tuple);
 						stat.addPrediction(rulestat, 1); // Is this ok for regression also?
-						covered = true;         
+						covered = true;
 					}
 				}
 			} else if (prediction_method == Settings.RULE_PREDICTION_METHOD_COV_ACC_WEIGHTED) {
@@ -170,7 +170,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 						ClusStatistic rulestat = rule.predictWeighted(tuple);
 						weight = rule.getTrainAccuracy();
 						stat.addPrediction(rulestat, weight/weight_sum);
-						covered = true;         
+						covered = true;
 					}
 				}
 			} else if (prediction_method == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
@@ -186,26 +186,26 @@ public class ClusRuleSet implements ClusModel, Serializable {
 						// }
 						stat.addPrediction(rulestat, weight);
 						// stat.addPrediction(rulestat, 1);
-						covered = true;         
+						covered = true;
 					}
 				}
 			}
 			stat.computePrediction();
 			if (covered) {
-				return stat;  
+				return stat;
 			} else {
 				return m_TargetStat;
 			}
 		}
 	}
-	
+
 	public void removeEmptyRules() {
 		for (int i = getModelSize()-1; i >= 0; i--) {
 			if (getRule(i).isEmpty()) {
 				m_Rules.remove(i);
 			}
 		}
-	}	
+	}
 
 	public void removeLowWeightRules() {
 		double threshold = getSettings().getOptRuleWeightThreshold();
@@ -218,25 +218,25 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		if (Settings.VERBOSE > 0) {
 			System.out.println("Rules left: " + getModelSize() + " out of " + nb_rules);
 		}
-	}	
-	
+	}
+
 	public void simplifyRules() {
 		for (int i = getModelSize()-1; i >= 0; i--) {
 			getRule(i).simplify();
 		}
 	}
-	
+
 	public void attachModel(HashMap table) throws ClusException {
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
 			rule.attachModel(table);
 		}
 	}
-	
+
 	public void printModel(PrintWriter wrt) {
 		printModel(wrt, StatisticPrintInfo.getInstance());
-	}	
-	
+	}
+
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		boolean headers = getSettings().computeCompactness() || hasRuleErrors();
@@ -309,7 +309,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			wrt.println("   Avg_Cover*Comp  (test):  " + fr.format(avg_prod[1][0]) + " = " + fr.format(avg_prod[1][1]) + " + " + fr.format(avg_prod[1][2]));
 		}
 	}
-	
+
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, ClusSchema schema) {
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
@@ -335,34 +335,34 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				}
 				wrt.println();
 			}
-			wrt.println();			
+			wrt.println();
 		}
 		wrt.println("Default = "+(m_TargetStat == null ? "None" : m_TargetStat.getString()));
-	}	
-	
+	}
+
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
 		addDataToRules(examples);
 		printModelAndExamples(wrt, info, examples.getSchema());
-		removeDataFromRules();		
-	}	
-	
+		removeDataFromRules();
+	}
+
 	public void printModelToPythonScript(PrintWriter wrt) {
 	}
-	
+
 	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem, boolean ex) {
 	}
 	public int getModelSize() {
 		return m_Rules.size();
 	}
-	
+
 	public Settings getSettings() {
 		return m_StatManager.getSettings();
 	}
-	
+
 	public ClusRule getRule(int i) {
 		return (ClusRule)m_Rules.get(i);
 	}
-	
+
 	public int getNbLiterals() {
 		int count = 0;
 		for (int i = 0; i < m_Rules.size(); i++) {
@@ -371,11 +371,11 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 		return count;
 	}
-	
+
 	public void setTargetStat(ClusStatistic def) {
 		m_TargetStat = def;
 	}
-	
+
 	public void postProc() {
 		m_TargetStat.calcMean();
 		for (int i = 0; i < m_Rules.size(); i++) {
@@ -383,12 +383,12 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			rule.postProc();
 		}
 	}
-	
+
 	public String getModelInfo() {
 		return "Rules = "+getModelSize()+" (Tests: "+getNbLiterals()+")";
-	}		
-	
-	/** 
+	}
+
+	/**
 	 * Computes the compactness of data tuples covered by each rule.
 	 * @param mode 0 for train set, 1 for test set
 	 */
@@ -398,14 +398,14 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			rule.computeCompactness(mode);
 		}
 	}
-	
-	/** 
+
+	/**
 	 * Computes the error score of the rule set.
 	 * @param data data to compute error score on
 	 */
 	// TODO: finish
 	public double computeErrorScore(RowData data) {
-		ClusStatistic tar_stat = m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET); 
+		ClusStatistic tar_stat = m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 		NominalAttrType[] target = data.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		// Average error rate over all target attributes
 		if (tar_stat instanceof ClassificationStat) {
@@ -428,7 +428,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			for (int j = 0; j < nb_tar; j++) {
 				result += (1.0 * nb_rows - nb_right[j]) / nb_rows;
 			}
-			result /= nb_tar; 
+			result /= nb_tar;
 			return result;
 		// Average variance over all target attributes
 		} else if (tar_stat instanceof RegressionStat) {
@@ -446,14 +446,14 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				result += ((RegressionStat)stat).getVariance(j);
 				//result += (RegressionStat)stat.getRMSE(scale);
 			}
-			result /= nb_tar; 
+			result /= nb_tar;
 			return result;
 		} else {
 			return -1;
 		}
 	}
-	
-	/** 
+
+	/**
 	 * Adds the tuple to the rule which covers it.
 	 * @param tuple the data tuple
 	 * @return true if tuple is covered by any rule in this RuleSet,
@@ -470,11 +470,11 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 		return covered;
 	}
-	
+
 	/**
 	 * Adds the data tuples to rules which cover them. Noncovered
-	 * tuples are added to the m_DefaultData array. 
-	 * @param data the data 
+	 * tuples are added to the m_DefaultData array.
+	 * @param data the data
 	 */
 	public void addDataToRules(RowData data) {
 		for (int i = 0; i < data.getNbRows(); i++) {
@@ -484,9 +484,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 		}
 	}
-	
+
 	/**
-	 * Removes the data tuples from rules and from m_DefaultData array. 
+	 * Removes the data tuples from rules and from m_DefaultData array.
 	 */
 	public void removeDataFromRules() {
 		for (int i = 0; i < m_Rules.size(); i++) {
@@ -494,7 +494,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 		m_DefaultData.clear();
 	}
-	
+
 	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException {
 		for (int i = 0; i < getModelSize(); i++) {
 			ClusRule rule = getRule(i);
@@ -502,46 +502,46 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				for (int j = 0; j < mproc.size(); j++) {
 					ClusModelProcessor proc = (ClusModelProcessor)mproc.elementAt(j);
 					proc.modelUpdate(tuple, rule);
-				}      	
+				}
 			}
 		}
 	}
-	
+
 	public final void applyModelProcessor(DataTuple tuple, ClusModelProcessor proc) throws IOException {
 		for (int i = 0; i < getModelSize(); i++) {
 			ClusRule rule = getRule(i);
 			if (rule.covers(tuple)) proc.modelUpdate(tuple, rule);
 		}
 	}
-	
+
 	public void setError(ClusErrorList error, int subset) {
-		m_HasRuleErrors = true;  	
-		for (int i = 0; i < m_Rules.size(); i++) {  		
+		m_HasRuleErrors = true;
+		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = getRule(i);
 			if (error != null) rule.setError(error.getErrorClone(), subset);
 			else rule.setError(null, subset);
-		}  	
+		}
 	}
-	
+
 	public boolean hasRuleErrors() {
 		return m_HasRuleErrors;
 	}
-	
+
 	public int getID() {
 		return 0;
 	}
-	
+
 	public void numberRules() {
-		for (int i = 0; i < m_Rules.size(); i++) {  		
+		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = getRule(i);
 			rule.setID(i+1);
-		}  	
+		}
 	}
-	
+
 	public ClusModel prune(int prunetype) {
 		return this;
   }
 
-  public void retrieveStatistics(ArrayList list) {	 
+  public void retrieveStatistics(ArrayList list) {
   }
 }

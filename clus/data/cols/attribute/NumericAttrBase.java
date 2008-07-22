@@ -26,7 +26,7 @@ import clus.data.type.*;
 
 public abstract class NumericAttrBase extends ClusAttribute {
 
-	protected NumericAttrType m_Type;		
+	protected NumericAttrType m_Type;
 
 	public NumericAttrBase(NumericAttrType type) {
 		m_Type = type;

@@ -37,12 +37,12 @@ public class BasicExampleCollector extends ClusModelProcessor {
 	public boolean needsModelUpdate() {
 		return true;
 	}
-        
+
 	public void initialize(ClusModel model, ClusSchema schema) {
 		ClusNode root = (ClusNode)model;
 		recursiveInitialize(root);
 	}
-	
+
 	public void terminate(ClusModel model) throws IOException {
 	}
 
@@ -51,7 +51,7 @@ public class BasicExampleCollector extends ClusModelProcessor {
 		MyArray visitor = (MyArray)node.getVisitor();
 		visitor.addElement(tuple);
 	}
-	
+
 	private void recursiveInitialize(ClusNode node) {
 		if (node.atBottomLevel()) {
 			node.setVisitor(new MyArray());

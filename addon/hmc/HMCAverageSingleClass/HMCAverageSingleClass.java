@@ -49,13 +49,13 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 
 	private static String[] g_Options = {"models", "nodewise", "stats"};
 	private static int[] g_OptionArities = {1, 0, 0};
-	
+
 	protected Clus m_Clus;
 	protected StringTable m_Table = new StringTable();
-	
+
 	//added: keeps prediction results for each threshold
 	protected ClusErrorList[][] m_EvalArray;
-	
+
 	public void run(String[] args) throws IOException, ClusException, ClassNotFoundException {
 		m_Clus = new Clus();
 		Settings sett = m_Clus.getSettings();
@@ -77,7 +77,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				//initializing m_EvalArray
 				HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
 				m_EvalArray = new ClusErrorList[2][pruner.getNbResults()];
-				// HierClassWiseAccuracy needs some things				
+				// HierClassWiseAccuracy needs some things
 				ClassHierarchy hier = getStatManager().getHier();
 				//initialize each HierClassWiseAccuracy object
 				for (int i=0;i<pruner.getNbResults();i++) {
@@ -93,17 +93,17 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 					avg.processModels(cr);
 				} else {
 					loadModelPerModel(cargs.getOptionValue("models"), cr);
-				}				
+				}
 				//write output
 				ClusOutput output = new ClusOutput(sett.getAppName() + ".combined.out", m_Clus.getSchema(), sett);
 				// create default model
 				ClusNode def = new ClusNode();
 				ClusStatistic stat = createTargetStat();
-				stat.calcMean();				
+				stat.calcMean();
 				def.setTargetStat(stat);
 				cr.addModelInfo(ClusModel.DEFAULT).setModel(def);
 				cr.getModelInfo(ClusModel.DEFAULT).setName("Default");
-				m_Clus.calcError(cr, null); // Calc error				
+				m_Clus.calcError(cr, null); // Calc error
 				// add model for each threshold to clusrun
 				for (int i = 0; i < pruner.getNbResults(); i++) {
 					ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
@@ -124,30 +124,30 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			}
 		}
 	}
-	
+
 	public ClusStatManager getStatManager() {
 		return m_Clus.getStatManager();
 	}
-	
+
 	public Settings getSettings() {
 		return m_Clus.getSettings();
 	}
-	
+
 	public Clus getClus() {
 		return m_Clus;
 	}
-	
+
 	public ClusErrorList getEvalArray(int traintest, int j) {
 		return m_EvalArray[traintest][j];
-	}	
-	
+	}
+
 	public WHTDStatistic createTargetStat() {
 		return (WHTDStatistic)m_Clus.getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
 	}
-	
+
 	public String getClassStr(String file) {
 		int cnt = 0;
-		String result = "";		
+		String result = "";
 		String value = FileUtil.getName(FileUtil.removePath(file));
 		String[] elems = value.split("-");
 		int pos = elems.length - 1;
@@ -155,17 +155,17 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				if (cnt != 0) result = "/" + result;
 				result = "" + elems[pos] + result;
 				cnt++; pos--;
-		}	
+		}
 		return result;
 	}
-	
+
 	public int getClassIndex(String file) throws ClusException {
 		String class_str = getClassStr(file);
 		ClassHierarchy hier = getStatManager().getHier();
 		ClassesValue val = new ClassesValue(class_str, hier.getType().getTable());
 		return hier.getClassTerm(val).getIndex();
 	}
-	
+
 	public ClusModel loadModel(String file) throws IOException, ClusException, ClassNotFoundException {
 		String class_str = getClassStr(file);
 		System.out.println("Loading: "+file+" class: "+class_str);
@@ -175,8 +175,8 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			throw new ClusException("Error: .model file does not contain model named 'Original'");
 		}
 		return sub_model;
-	}	
-	
+	}
+
 	public void loadModelPerModel(String dir, ClusRun cr) throws IOException, ClusException, ClassNotFoundException {
 		String[] files = FileUtil.dirList(dir, "model");
 		for (int i = 0; i < files.length; i++) {
@@ -186,9 +186,9 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			for (int j = ClusModelInfoList.TRAINSET; j <= ClusModelInfoList.TESTSET; j++) {
 				evaluateModelAndUpdateErrors(j, class_idx, model, cr);
 			}
-		}		
+		}
 	}
-	
+
 	// evaluate tree for one class on all examples and update errors
 	public void evaluateModelAndUpdateErrors(int train_or_test, int class_idx, ClusModel model, ClusRun cr) throws ClusException, IOException {
 		RowData data = cr.getDataSet(train_or_test);
@@ -205,18 +205,18 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				boolean predicted_class = predicted_distr[0] >= pruner.getThreshold(j)/100.0;
 				HierClassWiseAccuracy acc = (HierClassWiseAccuracy)m_EvalArray[train_or_test][j].getError(0);
 				acc.nextPrediction(class_idx, predicted_class, actually_has_class);
-			}			
+			}
 		}
 	}
 
 	// Older version of the code
-	
+
 	void evaluateModel(ClusRun cr, HMCAverageTreeModel model) throws IOException, ClusException {
 		Settings sett = m_Clus.getSettings();
-		ClusOutput output = new ClusOutput(sett.getAppName() + ".combined.out", m_Clus.getSchema(), sett);		
-		HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);		
+		ClusOutput output = new ClusOutput(sett.getAppName() + ".combined.out", m_Clus.getSchema(), sett);
+		HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
 		for (int i = 0; i < pruner.getNbResults(); i++) {
-			ClusModel pruned = model.createWithThreshold(pruner.getThreshold(i));			
+			ClusModel pruned = model.createWithThreshold(pruner.getThreshold(i));
 			ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
 			pruned_info.setModel(pruned);
 			pruned_info.setStatManager(getStatManager());
@@ -227,27 +227,27 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		stat.calcMean();
 		def.setTargetStat(stat);
 		cr.getModelInfo(ClusModel.DEFAULT).setModel(def);
-		m_Clus.calcError(cr, null); // Calc error		
+		m_Clus.calcError(cr, null); // Calc error
 		output.writeHeader();
 		output.writeOutput(cr, true, true);
 		output.close();
-	}	
-	
+	}
+
 	public String[] getOptionArgs() {
 		return g_Options;
 	}
-	
+
 	public int[] getOptionArgArities() {
 		return g_OptionArities;
 	}
-	
+
 	public int getNbMainArgs() {
 		return 1;
 	}
 
 	public void showHelp() {
 	}
-	
+
 	public void countClasses(RowData data, double[] counts) {
 		ClassHierarchy hier = getStatManager().getHier();
 		int sidx = hier.getType().getArrayIndex();
@@ -265,10 +265,10 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			hier.removeParentNodes(arr);
 			for (int j = 0; j < arr.length; j++) {
 				if (arr[j]) counts[1] += 1.0;
-			}			
+			}
 		}
 	}
-		
+
 	public void computeStats() throws ClusException, IOException {
 		ClusRun cr = m_Clus.partitionData();
 		RegressionStat stat = (RegressionStat)getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
@@ -296,7 +296,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		wrt.println("% Number of examples: "+total);
 		wrt.println("% Number of classes: "+hier.getTotal());
 		wrt.println("% Number of labels/example: "+classCounts[0]+" (most specific: "+classCounts[1]+")");
-		wrt.println("% Hierarchy depth: "+hier.getDepth());		
+		wrt.println("% Hierarchy depth: "+hier.getDepth());
 		wrt.println();
 		ARFFFile.writeArffHeader(wrt, schema);
 		wrt.println("@DATA");
@@ -305,14 +305,14 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			int index = term.getIndex();
 			wrt.print(term.toStringHuman(hier));
 			wrt.print(","+hier.getWeight(index));
-			wrt.print(","+term.getMinDepth());			
-			wrt.print(","+term.getMaxDepth());			
+			wrt.print(","+term.getMinDepth());
+			wrt.print(","+term.getMaxDepth());
 			wrt.print(","+stat.getSumValues(index));
 			wrt.println();
 		}
 		wrt.close();
 	}
-	
+
 	public static void main(String[] args) {
 		try {
 			HMCAverageSingleClass avg = new HMCAverageSingleClass();

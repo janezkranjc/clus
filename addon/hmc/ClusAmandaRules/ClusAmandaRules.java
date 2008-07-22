@@ -46,7 +46,7 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 
 	private static String[] g_Options = {"sgene"};
 	private static int[] g_OptionArities = {1};
-	
+
 	protected Clus m_Clus;
 
 	public void run(String[] args) throws IOException, ClusException {
@@ -71,7 +71,7 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 			}
 		}
 	}
-	
+
 	public ClusRuleSet loadRules(String file) throws IOException, ClusException {
 		ClusRuleSet set = new ClusRuleSet(m_Clus.getStatManager());
 
@@ -94,7 +94,7 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 		}
 		return set;
 	}
-	
+
 	public ClusRule loadRule(MStreamTokenizer tokens, String number) throws IOException, ClusException {
 		ClusRule rule = new AmandaRule(m_Clus.getStatManager());
 	  ClusSchema schema = m_Clus.getSchema();
@@ -132,7 +132,7 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 	  			String value = tokens.getToken();
 					Integer res = nominal.getValueIndex(value);
 					if (res == null) {
-						throw new ClusException("Value '"+value+"' not in domain of '"+type.getName()+"' while reading rule "+number);					
+						throw new ClusException("Value '"+value+"' not in domain of '"+type.getName()+"' while reading rule "+number);
 					}
 					isin[res.intValue()] = true;
 	  			test = new SubsetTest(nominal, 1, isin, 0.0);
@@ -144,7 +144,7 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 	  }
 	  return rule;
 	}
-	
+
 	void addClass(ClusRule rule, String classstr) throws IOException, ClusException {
 		WHTDStatistic stat = (WHTDStatistic)m_Clus.getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
 		stat.calcMean();
@@ -154,7 +154,7 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 		stat.setMeanTuple(tuple);
 	  rule.setTargetStat(stat);
 	}
-	
+
 	void pruneInsignificantRules(ClusRun cr, ClusRuleSet rules) throws IOException, ClusException {
 		RowData prune = (RowData)cr.getPruneSet();
 		if (prune == null) return;
@@ -184,14 +184,14 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 				if (useBonferroni) {
 					pred.setSigLevel(sigLevel/rules.getModelSize());
 				} else {
-					pred.setSigLevel(sigLevel);				
+					pred.setSigLevel(sigLevel);
 				}
 				pred.setMeanTuple(orig.getMeanTuple());
 				pred.performSignificanceTest();
 				rule.setTargetStat(pred);
 		}
 	}
-	
+
 	void evaluateRuleSet(ClusRun cr, ClusRuleSet rules) throws IOException, ClusException {
 		Settings sett = m_Clus.getSettings();
 		ClusOutput output = new ClusOutput(sett.getAppName() + ".rules.out", m_Clus.getSchema(), sett);
@@ -200,12 +200,12 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 		info.setModel(rules);
 		info.setName("Rules");
 		m_Clus.addModelErrorMeasures(cr);
-		m_Clus.calcError(cr, null); // Calc error		
+		m_Clus.calcError(cr, null); // Calc error
 		output.writeHeader();
 		output.writeOutput(cr, true, true);
 		output.close();
 	}
-		
+
 	public void showValuesForGene(ClusRun cr, ClusRuleSet rules, String gene) throws IOException, ClusException {
 		DataTuple tuple = null;
 		if (cr.getTrainingSet() != null) {
@@ -214,11 +214,11 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 		}
 		if (tuple == null && cr.getPruneSet() != null) {
 			System.out.println("Searching for gene in validation set");
-			tuple = ((RowData)cr.getPruneSet()).findTupleByKey(gene);			
+			tuple = ((RowData)cr.getPruneSet()).findTupleByKey(gene);
 		}
 		if (tuple == null && cr.getTestSet() != null) {
-			System.out.println("Searching for gene in test set");			
-			tuple = ((RowData)cr.getTestSet()).findTupleByKey(gene);			
+			System.out.println("Searching for gene in test set");
+			tuple = ((RowData)cr.getTestSet()).findTupleByKey(gene);
 		}
 		if (tuple == null) {
 			System.out.println("Can't find gene in data set");
@@ -242,22 +242,22 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 			wrt.close();
 		}
 	}
-	
+
 	public String[] getOptionArgs() {
 		return g_Options;
 	}
-	
+
 	public int[] getOptionArgArities() {
 		return g_OptionArities;
 	}
-	
+
 	public int getNbMainArgs() {
 		return 2;
 	}
 
 	public void showHelp() {
 	}
-	
+
 	public static void main(String[] args) {
 		try {
 			ClusAmandaRules rules = new ClusAmandaRules();

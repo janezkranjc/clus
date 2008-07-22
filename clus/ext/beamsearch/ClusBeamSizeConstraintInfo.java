@@ -33,11 +33,11 @@ public class ClusBeamSizeConstraintInfo {
 	public double[]  bound;
 	public boolean[] computed;
 	boolean marked;
-	
+
 	public ClusBeamSizeConstraintInfo(int size) {
 		realcost = new double[size+1];
 		lowcost = new double[size+1];
 		bound = new double[size+1];
 		computed = new boolean[size+1];
-	} 
+	}
 }

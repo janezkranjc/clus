@@ -9,12 +9,12 @@ public abstract class ClusHeuristicImpl extends ClusHeuristic {
 	public ClusHeuristicImpl(ClusStatistic negstat) {
 		m_NegStat = negstat;
 	}
-			
+
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
 		m_NegStat.copy(tstat);
 		m_NegStat.subtractFromThis(pstat);
 		return calcHeuristic(tstat, pstat, m_NegStat, missing);
 	}
-	
-	public abstract double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic nstat, ClusStatistic missing);		
+
+	public abstract double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic nstat, ClusStatistic missing);
 }

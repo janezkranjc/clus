@@ -35,16 +35,16 @@ public class ClusRuleHeuristicError extends ClusHeuristic {
 
 	private ClusAttributeWeights m_TargetWeights;
 	private ClusStatManager m_StatManager = null;
-	
+
 	public ClusRuleHeuristicError(ClusAttributeWeights prod) {
 		m_TargetWeights = prod;
 	}
-	
+
 	public ClusRuleHeuristicError(ClusStatManager stat_mgr, ClusAttributeWeights prod) {
 		m_StatManager = stat_mgr;
 		m_TargetWeights = prod;
 	}
-	
+
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
 		double n_pos = c_pstat.m_SumWeight;
 		// Acceptable?
@@ -60,11 +60,11 @@ public class ClusRuleHeuristicError extends ClusHeuristic {
 
 		return -pos_error;
 	}
-		
+
 	public String getName() {
 		return "Rule Heuristic (Reduced Error)";
 	}
-	
+
   public Settings getSettings() {
     return m_StatManager.getSettings();
   }

@@ -41,18 +41,18 @@ import clus.data.attweights.*;
 import clus.gui.statvis.*;
 
 public class TreePanel extends JPanel {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	TreeFrame m_Frame;
 	MyDrawableNode m_Root;
-	ClusNode m_ClusRoot;	
+	ClusNode m_ClusRoot;
 	DrawableScrollableCanvas m_Canvas;
 	HashMap m_StatVis = createStatVis();
 	MyNodePainter m_Paint = new ClusNodePainter();
 	NodePainterSettings m_Sett = new NodePainterSettings();
 	ClusStatManager m_Manager;
-	boolean m_HorzVert = true;	
+	boolean m_HorzVert = true;
 
 	private final static int[] XGAPS = {10, 5,  3,  3,  2};
 
@@ -78,19 +78,19 @@ public class TreePanel extends JPanel {
 		m_Canvas.setBackground(new Color(204,204,204));
 		setTree(root, false);
 	}
-	
+
 	public void setStatManager(ClusStatManager mgr) {
 		m_Manager = mgr;
 	}
-	
+
 	public ClusStatManager getStatManager() {
 		return m_Manager;
-	}	
+	}
 
 	public ClusAttributeWeights createClusAttributeWeights() throws ClusException {
 		return m_Manager.getClusteringWeights();
 	}
-	
+
 	public void setHorzVert(boolean toggle) {
 		System.out.println("Set horz/vert: "+toggle);
 		DrawableCanvas cnv = m_Canvas.getCanvas();
@@ -160,14 +160,14 @@ public class TreePanel extends JPanel {
 			child.recursiveFakeLeaf(true);
 		}
 	}
-	
+
 	public void pruneTree(ClusNode node, int size) throws ClusException {
 		SizeConstraintPruning pruner = new SizeConstraintPruning(size, m_Manager.getClusteringWeights());
 		pruner.prune(node);
 		recursiveUpdate(m_Root);
 		doRender();
 	}
-	
+
 	public static void recursiveUpdate(MyDrawableNode node) {
 		ClusNode cnode = (ClusNode)node.getVisitor(0);
 		if (cnode.atBottomLevel() && !node.atBottomLevel()) {
@@ -175,7 +175,7 @@ public class TreePanel extends JPanel {
 		}
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			recursiveUpdate((MyDrawableNode)node.getChild(i));
-		}		
+		}
 	}
 
 	private HashMap createStatVis() {
@@ -189,8 +189,8 @@ public class TreePanel extends JPanel {
 		MyDrawableNode root = new MyDrawableNode(par);
 		recursiveCreateTree(root, node, paint);
 		if (root.getNbNodes() > 10) {
-			root.recursiveZoom(1);			
-		}		
+			root.recursiveZoom(1);
+		}
 		return root;
 	}
 

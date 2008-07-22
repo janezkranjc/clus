@@ -36,13 +36,13 @@ public class NArySplit extends NominalSplit {
 	ClusStatistic m_MStat;
 
 	public void initialize(ClusStatManager manager) {
-		m_MStat = manager.createClusteringStat();	
+		m_MStat = manager.createClusteringStat();
 	}
-	
+
 	public void setSDataSize(int size) {
 		m_MStat.setSDataSize(size);
-	}	
-	
+	}
+
 	public void findSplit(CurrentBestTestAndHeuristic node, NominalAttrType type) {
 		double unk_freq = 0.0;
 		int nbvalues = type.getNbValues();
@@ -53,7 +53,7 @@ public class NArySplit extends NominalSplit {
 			m_MStat.subtractFromThis(unknown);
 			unk_freq = unknown.m_SumWeight / node.getTotWeight();
 		} else {
-			m_MStat.copy(node.m_TotStat);		
+			m_MStat.copy(node.m_TotStat);
 		}
 		// Calculate heuristic
 		double mheur = node.calcHeuristic(m_MStat, node.m_TestStat, nbvalues);

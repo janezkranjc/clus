@@ -37,40 +37,40 @@ import java.io.*;
 import java.util.*;
 
 public class DepthFirstInduce extends ClusInductionAlgorithm {
-	
+
 	protected FindBestTest m_FindBestTest;
-	
+
 	public DepthFirstInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		super(schema, sett);
 		m_FindBestTest = new FindBestTest(getStatManager());
-	}	
-	
+	}
+
 	public DepthFirstInduce(ClusInductionAlgorithm other) {
 		super(other);
 		m_FindBestTest = new FindBestTest(getStatManager());
 	}
-	
+
 	public DepthFirstInduce(ClusInductionAlgorithm other, NominalSplit split) {
 		super(other);
 		m_FindBestTest = new FindBestTest(getStatManager(), split);
 	}
-			
+
 	public void initialize() throws ClusException, IOException {
 		super.initialize();
 	}
-	
+
 	public FindBestTest getFindBestTest() {
 		return m_FindBestTest;
 	}
-	
+
 	public CurrentBestTestAndHeuristic getBestTest() {
 		return m_FindBestTest.getBestTest();
 	}
-			
+
 	public boolean initSelectorAndStopCrit(ClusNode node, RowData data) {
 		int max = getSettings().getTreeMaxDepth();
 		if (max != -1 && node.getLevel() >= max) {
-			return true;		
+			return true;
 		}
 		return m_FindBestTest.initSelectorAndStopCrit(node.getClusteringStat(), data);
 	}
@@ -82,11 +82,11 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			return schema.getDescriptiveAttributes();
 		} else {
 			switch (sett.getEnsembleMethod()) {
-			case Settings.ENSEMBLE_BAGGING: 
+			case Settings.ENSEMBLE_BAGGING:
 				return schema.getDescriptiveAttributes();
 			case Settings.ENSEMBLE_RFOREST:
 				ClusAttrType[] attrsAll = schema.getDescriptiveAttributes();
-				return ClusEnsembleInduce.selectAttributesForRandomForest(attrsAll, schema.getSettings().getNbRandomAttrSelected());				
+				return ClusEnsembleInduce.selectAttributesForRandomForest(attrsAll, schema.getSettings().getNbRandomAttrSelected());
 			case Settings.ENSEMBLE_RSUBSPACES:
 				return ClusEnsembleInduce.getRandomSubspaces();
 			case Settings.ENSEMBLE_BAGSUBSPACES:
@@ -96,7 +96,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			}
 		}
 	}
-	
+
 	public void filterAlternativeSplits(ClusNode node, RowData data, RowData[] subsets) {
 		CurrentBestTestAndHeuristic best = m_FindBestTest.getBestTest();
 		int arity = node.getNbChildren();
@@ -134,14 +134,14 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 				}
 			}
 		}
-		node.setAlternatives(v);		
+		node.setAlternatives(v);
 	}
-	
+
 	public void induce(ClusNode node, RowData data) {
 		// Initialize selector and perform various stopping criteria
 		if (initSelectorAndStopCrit(node, data)) {
 			node.makeLeaf();
-			return;		
+			return;
 		}
 		// Find best test
 		ClusAttrType[] attrs = getDescriptiveAttributes();
@@ -150,54 +150,54 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			if (at instanceof NominalAttrType) m_FindBestTest.findNominal((NominalAttrType)at, data);
 			else m_FindBestTest.findNumeric((NumericAttrType)at, data);
 		}
-		// Partition data + recursive calls		
+		// Partition data + recursive calls
 		CurrentBestTestAndHeuristic best = m_FindBestTest.getBestTest();
 		if (best.hasBestTest()) {
 			node.testToNode(best);
 			// Output best test
-			if (Settings.VERBOSE > 0) System.out.println("Test: "+node.getTestString()+" -> "+best.getHeuristicValue());	
+			if (Settings.VERBOSE > 0) System.out.println("Test: "+node.getTestString()+" -> "+best.getHeuristicValue());
 			// Create children
 			int arity = node.updateArity();
 			NodeTest test = node.getTest();
 			RowData[] subsets = new RowData[arity];
-			for (int j = 0; j < arity; j++) {			
-				subsets[j] = data.applyWeighted(test, j);				
+			for (int j = 0; j < arity; j++) {
+				subsets[j] = data.applyWeighted(test, j);
 			}
 			if (getSettings().showAlternativeSplits()) {
-				filterAlternativeSplits(node, data, subsets);			
+				filterAlternativeSplits(node, data, subsets);
 			}
 			for (int j = 0; j < arity; j++) {
 				ClusNode child = new ClusNode();
-				node.setChild(child, j);				
-				//RowData subset = data.applyWeighted(test, j);				
-				child.initClusteringStat(m_StatManager, subsets[j]);								
+				node.setChild(child, j);
+				//RowData subset = data.applyWeighted(test, j);
+				child.initClusteringStat(m_StatManager, subsets[j]);
 				child.initTargetStat(m_StatManager, subsets[j]);
 				induce(child, subsets[j]);
-			}			
+			}
 		} else {
 			node.makeLeaf();
 		}
 	}
-			
+
 	public void initSelectorAndSplit(ClusStatistic stat) throws ClusException {
 		m_FindBestTest.initSelectorAndSplit(stat);
 	}
-	
+
 	public void cleanSplit() {
 		m_FindBestTest.cleanSplit();
 	}
-		
+
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 		RowData data = (RowData)cr.getTrainingSet();
 		ClusNode root = null;
 		// Begin of induction process
 		int nbr = 0;
 		while (true) {
-			nbr++;			
+			nbr++;
 			// Init root node
 			root = new ClusNode();
 			root.initClusteringStat(m_StatManager, data);
-			root.initTargetStat(m_StatManager, data);			
+			root.initTargetStat(m_StatManager, data);
 			root.getClusteringStat().showRootInfo();
 			initSelectorAndSplit(root.getClusteringStat());
 			// Induce the tree

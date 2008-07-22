@@ -32,23 +32,23 @@ import clus.util.*;
 public class HierIO {
 
 	public final static int TAB_SIZE = 8;
-	
+
 	protected StringTable m_Stab = new StringTable();
 
 	public HierIO() {
 	}
-	
-	public ClassHierarchy readHierarchy(String fname) throws IOException, ClusException {	
+
+	public ClassHierarchy readHierarchy(String fname) throws IOException, ClusException {
 		HierIOReader rdr = new HierIOReader(fname);
 		ClassHierarchy hier = new ClassHierarchy();
 		rdr.readHierarchy(hier.getRoot(), 0);
 		return hier;
 	}
-	
+
 	public StringTable getTable() {
 		return m_Stab;
 	}
-	
+
 	public static int getDepth(String line) {
 		int idx = 0, spc = 0, tab = 0;
 		int len = line.length();
@@ -58,15 +58,15 @@ public class HierIO {
 			idx++;
 		}
 		return spc/TAB_SIZE + tab;
-	}	
-	
+	}
+
 	public String getID(String line) {
 		String id = StringUtils.trimSpacesAndTabs(line);
 		return m_Stab.get(id);
 	}
-	
+
 	public static void writePrologTerm(ClassTerm term, PrintWriter writer) {
-		String prologID = StringUtils.removeChar(term.getID(), '\'');	
+		String prologID = StringUtils.removeChar(term.getID(), '\'');
 		writer.print("node('"+prologID+"',[");
 		for (int i = 0; i < term.getNbChildren(); i++) {
 			if (i != 0) writer.print(",");
@@ -75,7 +75,7 @@ public class HierIO {
 		}
 		writer.print("])");
 	}
-	
+
 	public static boolean hasActiveChild(ClassTerm term, boolean[] bits) {
 		for (int i = 0; i < term.getNbChildren(); i++) {
 			ClassTerm child = (ClassTerm)term.getChild(i);
@@ -83,9 +83,9 @@ public class HierIO {
 		}
 		return false;
 	}
-	
+
 	public static void writePrologTerm(ClassTerm term, boolean[] bits, PrintWriter writer) {
-		// String prologID = StringUtils.removeChar(term.getID(), '\'');	
+		// String prologID = StringUtils.removeChar(term.getID(), '\'');
 		writer.print("node([");
 		for (int i = 0; i < term.getNbChildren(); i++) {
 			if (i != 0) writer.print(",");
@@ -98,8 +98,8 @@ public class HierIO {
 			}
 		}
 		writer.print("])");
-	}	
-	
+	}
+
 	public static void writePrologGraph(String name, ClassTerm term, PrintWriter writer) {
 		String prologID = StringUtils.removeChar(term.getID(), '\'');
 		writer.println(name+"_name("+term.getIndex()+",'"+prologID+"').");
@@ -114,28 +114,28 @@ public class HierIO {
 			ClassTerm subterm = (ClassTerm)term.getChild(i);
 			writer.println(name+"_child("+term.getIndex()+","+subterm.getIndex()+").");
 		}
-		writer.println();				
+		writer.println();
 		for (int i = 0; i < term.getNbChildren(); i++) {
 			ClassTerm subterm = (ClassTerm)term.getChild(i);
 			writePrologGraph(name, subterm, writer);
 		}
-	}	
-	
+	}
+
 	public void writeHierarchy(ClassTerm term) {
 		writeHierarchy(term, ClusFormat.OUT_WRITER);
 		ClusFormat.OUT_WRITER.flush();
 	}
-	
+
 	public void writeHierarchy(ClassTerm term, PrintWriter writer) {
 		writeHierarchy(0, term, writer);
 		writer.flush();
-	}		
-	
+	}
+
 	public void writeHierarchy(int tabs, ClassTerm term, PrintWriter writer) {
 		for (int i = 0; i < term.getNbChildren(); i++) {
 			ClassTerm subterm = (ClassTerm)term.getChild(i);
 			writer.print(StringUtils.makeString('\t', tabs)+subterm.getID());
-			
+
 //			int no = subterm.getIndex();
 //			if (counts != null) {
 //				double count = counts[no];
@@ -144,20 +144,20 @@ public class HierIO {
 
 			writer.println();
 			writeHierarchy(tabs+1, subterm, writer);
-		}	
+		}
 	}
-	
+
 	private class HierIOReader {
-	
+
 		protected LineNumberReader m_Reader;
 		protected String m_LastLine;
-	
+
 		public HierIOReader(String fname) throws IOException {
 			m_Reader = new LineNumberReader(new InputStreamReader(new FileInputStream(fname)));
 			m_LastLine = null;
 		}
-		
-		public void readHierarchy(ClassTerm parent, int depth) throws IOException, ClusException {		
+
+		public void readHierarchy(ClassTerm parent, int depth) throws IOException, ClusException {
 			ClassTerm child = null;
 			String line = getLine();
 			while (line != null) {
@@ -166,7 +166,7 @@ public class HierIO {
 					String id = getID(line);
 					child = new ClassTerm(id);
 					child.addParent(parent);
-					parent.addChild(child);					
+					parent.addChild(child);
 				} else {
 					setLastLine(line);
 					if (mydepth < depth) {
@@ -182,9 +182,9 @@ public class HierIO {
 					}
 				}
 				line = getLine();
-			}			
-		}		
-				
+			}
+		}
+
 		public String getLine() throws IOException {
 			if (m_LastLine != null) {
 				String result = m_LastLine;
@@ -193,15 +193,15 @@ public class HierIO {
 			}
 			return m_Reader.readLine();
 		}
-		
+
 		public void setLastLine(String line) {
 			m_LastLine = line;
 		}
-		
+
 		public void clearLastLine() {
 			m_LastLine = null;
 		}
-	
-	
+
+
 	}
 }

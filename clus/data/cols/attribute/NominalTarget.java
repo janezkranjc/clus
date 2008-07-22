@@ -31,7 +31,7 @@ import clus.data.type.*;
 public class NominalTarget extends NominalAttrBase {
 
 	protected ColTarget m_Target;
-	protected int m_Index;	
+	protected int m_Index;
 
 	public NominalTarget(ColTarget target, NominalAttrType type, int index) {
 		super(type);
@@ -44,7 +44,7 @@ public class NominalTarget extends NominalAttrBase {
 		if (value == null) return false;
 		Integer i = (Integer)getNominalType().getValueIndex(value);
 		if (i != null) {
-			m_Target.setNominal(m_Index, row, i.intValue()); 
+			m_Target.setNominal(m_Index, row, i.intValue());
 		} else {
 			throw new IOException("Illegal value '"+value+"' for target "+getName()+" at row "+(row+1));
 		}

@@ -41,11 +41,11 @@ public class ClusToWekaData {
 	protected ClusAttributeWeights m_Weights;
 	protected Instances m_Instances;
 	protected int m_Target;
-	
+
 	public ClusToWekaData(ClusSchema schema) {
 		m_Schema = schema;
 		for (int i = 0; i < m_Schema.getNbAttributes(); i++) {
-			ClusAttrType type = m_Schema.getAttrType(i);	
+			ClusAttrType type = m_Schema.getAttrType(i);
 			if (type.getStatus() != ClusAttrType.STATUS_DISABLED) {
 				if (type instanceof NumericAttrType) {
 					m_NumAttrs.add(type);
@@ -58,24 +58,24 @@ public class ClusToWekaData {
 			NumericAttrType type = (NumericAttrType)m_NumAttrs.get(j);
 			if (type.getStatus() == ClusAttrType.STATUS_TARGET) {
 				m_Target = m_WekaTypes.size();
-			}			
+			}
 			m_WekaTypes.addElement(new Attribute(type.getName()));
-		}		
+		}
 		for (int j = 0; j < m_NomAttrs.size(); j++) {
 			NominalAttrType type = (NominalAttrType)m_NomAttrs.get(j);
 			if (type.getStatus() == ClusAttrType.STATUS_TARGET) {
 				m_Target = m_WekaTypes.size();
-			}			
+			}
 			FastVector values = new FastVector();
 			for (int k = 0; k < type.getNbValues(); k++) {
 				values.addElement(type.getValue(k));
-			}			
+			}
 			m_WekaTypes.addElement(new Attribute(type.getName(), values));
 		}
 		m_Instances = new Instances(m_Schema.getRelationName(), m_WekaTypes, 0);
 		m_Instances.setClassIndex(getClassIndex());
 	}
-	
+
 	public int getIndex(String name) {
 		for (int i = 0; i < m_WekaTypes.size(); i++) {
 			Attribute attr = (Attribute)m_WekaTypes.elementAt(i);
@@ -83,15 +83,15 @@ public class ClusToWekaData {
 		}
 		return -1;
 	}
-	
+
 	public void setTargetWeights(ClusAttributeWeights weights) {
 		m_Weights = weights;
 	}
-	
+
 	public int getClassIndex() {
 		return m_Target;
 	}
-	
+
 	public Instances getDummyData() {
 		return m_Instances;
 	}
@@ -114,10 +114,10 @@ public class ClusToWekaData {
 		for (int j = 0; j < m_NomAttrs.size(); j++) {
 			NominalAttrType type = (NominalAttrType)m_NomAttrs.get(j);
 			values[pos++] = (double)type.getNominal(tuple);
-		}		
+		}
 		return new Instance(tuple.getWeight(), values);
 	}
-	
+
 	public Instances convertData(RowData data) {
 		Instances weka_data = new Instances(m_Schema.getRelationName(), m_WekaTypes, data.getNbRows());
 		for (int i = 0; i < data.getNbRows(); i++) {

@@ -36,7 +36,7 @@ public class HMCAverageNodeWiseModels {
 
 	protected HMCAverageSingleClass m_Cls;
 	protected double[][][] m_PredProb;
-	
+
 	public HMCAverageNodeWiseModels(HMCAverageSingleClass cls) {
 		m_Cls = cls;
 	}
@@ -44,28 +44,28 @@ public class HMCAverageNodeWiseModels {
 	public ClusStatManager getStatManager() {
 		return m_Cls.getStatManager();
 	}
-	
+
 	public Settings getSettings() {
 		return m_Cls.getSettings();
 	}
-	
+
 	public Clus getClus() {
 		return m_Cls.getClus();
 	}
-	
+
 	public boolean allParentsOk(ClassTerm term, boolean[] computed) {
 		for (int j = 0; j < term.getNbParents(); j++) {
 			ClassTerm parent = term.getParent(j);
-			if (parent.getIndex() != -1 && !computed[parent.getIndex()]) return false;			
+			if (parent.getIndex() != -1 && !computed[parent.getIndex()]) return false;
 		}
 		return true;
-	}	
-	
+	}
+
 	public void processModels(ClusRun cr) throws ClusException, IOException, ClassNotFoundException {
 		ClassHierarchy hier = getStatManager().getHier();
 		boolean[] prob_computed = new boolean[hier.getTotal()];
 		// Initialize results array
-		// Cell with predicted probability for each example in the train and test sets 
+		// Cell with predicted probability for each example in the train and test sets
 		m_PredProb = new double[2][hier.getTotal()][];
 		for (int i = ClusModelInfoList.TRAINSET; i <= ClusModelInfoList.TESTSET; i++) {
 			int size = cr.getDataSet(i).getNbRows();
@@ -75,7 +75,7 @@ public class HMCAverageNodeWiseModels {
 					m_PredProb[i][j][k] = Double.MAX_VALUE;
 				}
 			}
-		}		
+		}
 		// All classes still need to be done
 		ArrayList todo = new ArrayList();
 		for (int i = 0; i < hier.getTotal(); i++) {
@@ -129,8 +129,8 @@ public class HMCAverageNodeWiseModels {
 			String nodeName = parent.toPathString("=");
 			String name = getSettings().getAppName() + "-" + nodeName + "-" + childName;
 			String toload = "nodewise/model/" + name + ".model";
-			System.out.println("Loading: "+toload);			
-			ClusModelCollectionIO io = ClusModelCollectionIO.load(toload);			
+			System.out.println("Loading: "+toload);
+			ClusModelCollectionIO io = ClusModelCollectionIO.load(toload);
 			ClusModel model = io.getModel("Original");
 			if (model == null) {
 				throw new ClusException("Error: .model file does not contain model named 'Original'");
@@ -141,7 +141,7 @@ public class HMCAverageNodeWiseModels {
 				RowData data = cr.getDataSet(traintest);
 				for (int exid = 0; exid < data.getNbRows(); exid++) {
 					updatePrediction(data, exid, traintest, model, parent, term);
-				}				
+				}
 			}
 		}
 		// prediction(class) = avg(prediction(parent_i)*prediction(class|parent_i))
@@ -149,8 +149,8 @@ public class HMCAverageNodeWiseModels {
 		for (int traintest = ClusModelInfoList.TRAINSET; traintest <= ClusModelInfoList.TESTSET; traintest++) {
 			RowData data = cr.getDataSet(traintest);
 			for (int exid = 0; exid < data.getNbRows(); exid++) {
-				m_PredProb[traintest][child_idx][exid] /= term.getNbParents(); 
-			}				
+				m_PredProb[traintest][child_idx][exid] /= term.getNbParents();
+			}
 		}
 	}
 
@@ -163,7 +163,7 @@ public class HMCAverageNodeWiseModels {
 		int child_idx = term.getIndex();
 		double parent_prob = parent_idx == -1 ? 1.0 : m_PredProb[traintest][parent_idx][exid];
 		double child_prob = parent_prob * predicted_prob;
-		if (child_prob < m_PredProb[traintest][child_idx][exid]) {	
+		if (child_prob < m_PredProb[traintest][child_idx][exid]) {
 			m_PredProb[traintest][child_idx][exid] = child_prob;
 		}
 	}

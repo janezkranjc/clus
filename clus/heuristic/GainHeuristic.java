@@ -30,15 +30,15 @@ import jeans.math.*;
 public class GainHeuristic extends ClusHeuristic {
 
 	protected boolean m_GainRatio;
-	
+
 	public GainHeuristic(boolean gainratio) {
 		m_GainRatio = gainratio;
 	}
-	
+
 	public final boolean isGainRatio() {
 		return m_GainRatio;
 	}
-	
+
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
 		ClassificationStat tstat = (ClassificationStat)c_tstat;
 		ClassificationStat pstat = (ClassificationStat)c_pstat;
@@ -54,8 +54,8 @@ public class GainHeuristic extends ClusHeuristic {
 		// Initialize entropy's
 		double pos_ent = 0.0;
 		double neg_ent = 0.0;
-		double tot_ent = 0.0;		
-		// Entropy?		
+		double tot_ent = 0.0;
+		// Entropy?
 		for (int i = 0; i < nb; i++) {
 			pos_ent += pstat.entropy(i, n_pos);
 			tot_ent += tstat.entropy(i, n_tot);
@@ -71,11 +71,11 @@ public class GainHeuristic extends ClusHeuristic {
 		}
 		return value;
 	}
-	
+
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic[] c_pstat, int nbsplit) {
 		ClassificationStat tstat = (ClassificationStat)c_tstat;
 		// Acceptable?
-/*		
+/*
 		for (int i = 0; i < nbsplit; i++)
 			if (((ClassificationStat)c_pstat[i]).m_SumWeight < Settings.MINIMAL_WEIGHT)
 				return Double.NEGATIVE_INFINITY;
@@ -84,18 +84,18 @@ public class GainHeuristic extends ClusHeuristic {
 		double value = 0.0;
 		int nb = tstat.m_NbTarget;
 		double n_tot = tstat.m_SumWeight;
-		for (int i = 0; i < nb; i++) 
+		for (int i = 0; i < nb; i++)
 			value += tstat.entropy(i, n_tot);
 		// Subset entropy
 		for (int i = 0; i < nbsplit; i++) {
 			ClassificationStat s_stat = (ClassificationStat)c_pstat[i];
-			double n_set = s_stat.m_SumWeight;			
+			double n_set = s_stat.m_SumWeight;
 			// Calculate entropy
-			double s_ent = 0.0;					
+			double s_ent = 0.0;
 			for (int j = 0; j < nb; j++)
 				s_ent += tstat.entropy(j, n_set);
 			// Update gain
-			value -= n_set*s_ent/n_tot;				
+			value -= n_set*s_ent/n_tot;
 		}
 		if (value < MathUtil.C1E_6) return Double.NEGATIVE_INFINITY;
 		if (m_GainRatio) {
@@ -115,7 +115,7 @@ public class GainHeuristic extends ClusHeuristic {
 		}
 		return value;
 	}
-	
+
 	public String getName() {
 		return m_GainRatio ? "Gainratio" : "Gain";
 	}

@@ -32,45 +32,45 @@ import clus.error.*;
 import java.io.*;
 
 public class ClusShowModelInfo {
-	
+
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println("Usage: java clus.tools.ClusShowModelInfo somefile.model");
 			System.exit(1);
 		}
 		try {
-			PrintWriter output = new PrintWriter(System.out);			
+			PrintWriter output = new PrintWriter(System.out);
 			ClusModelCollectionIO dot_model_file = ClusModelCollectionIO.load(args[0]);
 			int nb_models = dot_model_file.getNbModels();
 			output.println("This .model file contains: "+nb_models+" models.");
 //			for (int i = 0; i < nb_models; i++) {
-			for (int i = 0; i < 1; i++) {			
+			for (int i = 0; i < 1; i++) {
 				ClusModelInfo model_info = dot_model_file.getModelInfo(i);
-				ClusModel model = model_info.getModel();				
+				ClusModel model = model_info.getModel();
 				output.println("Model: "+i+", Name: "+model_info.getName());
 				output.println("Size: "+model.getModelSize());
 				output.println();
 				model.printModel(output);
 				ClusErrorList train_error = model_info.getTrainingError();
-				output.println();				
+				output.println();
 				if (train_error != null) {
 					output.println("Training Error:");
 					train_error.showError(output);
 				} else {
 					output.println("No Training Error Available");
-				}				
+				}
 				ClusErrorList test_error = model_info.getTestError();
-				output.println();				
+				output.println();
 				if (test_error != null) {
 					output.println("Testing Error:");
-					test_error.showError(output);					
+					test_error.showError(output);
 					/* One can also get an individual error, or iterate over all error measures */
 					ClusError err = test_error.getErrorByName("Classification Error");
 					if (err != null) {
 						for (int j = 0; j < err.getDimension(); j++) {
 							output.println("Target: "+j+" error: "+err.getModelErrorComponent(j));
 						}
-					}					
+					}
 				} else {
 					output.println("No Testing Error Available");
 				}

@@ -44,16 +44,16 @@ public class WHTDStatistic extends RegressionStat {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected static DistributionFactory m_Fac = DistributionFactory.newInstance();
-	
+
 	protected ClassHierarchy m_Hier;
 	protected ClassesTuple m_MeanTuple;
-	protected ClassesTuple m_PrintTuple;	
-	protected double[] m_DiscrMean;	
+	protected ClassesTuple m_PrintTuple;
+	protected double[] m_DiscrMean;
 	protected WHTDStatistic m_Global, m_Validation;
 	protected double m_SigLevel;
 	protected double m_Threshold = 50.0;
 	protected int m_Compatibility;
-		
+
 	public WHTDStatistic(ClassHierarchy hier, int comp) {
 		this(hier, false, comp);
 	}
@@ -63,35 +63,35 @@ public class WHTDStatistic extends RegressionStat {
 		m_Compatibility = comp;
 		m_Hier = hier;
 	}
-	
+
 	public int getCompatibility() {
 		return m_Compatibility;
 	}
-	
+
 	public void setValidationStat(WHTDStatistic valid) {
 		m_Validation = valid;
 	}
-	
+
 	public void setGlobalStat(WHTDStatistic global) {
 		m_Global = global;
-	}	
-	
+	}
+
 	public void setSigLevel(double sig) {
 		m_SigLevel = sig;
 	}
-	
+
 	public void setThreshold(double threshold) {
 		m_Threshold = threshold;
 	}
-	
+
 	public double getThreshold(){
 		return m_Threshold;
 	}
-	
+
 	public ClusStatistic cloneStat() {
 		return new WHTDStatistic(m_Hier, false, m_Compatibility);
 	}
-	
+
 	public ClusStatistic cloneSimple() {
 		WHTDStatistic res = new WHTDStatistic(m_Hier, true, m_Compatibility);
 		res.m_Threshold = m_Threshold;
@@ -102,14 +102,14 @@ public class WHTDStatistic extends RegressionStat {
 		}
 		return res;
 	}
-	
+
 	public void copyAll(ClusStatistic other) {
 		super.copy(other);
-		WHTDStatistic my_other = (WHTDStatistic)other; 
+		WHTDStatistic my_other = (WHTDStatistic)other;
 		m_Global = my_other.m_Global;
 		m_Validation = my_other.m_Validation;
 		m_SigLevel = my_other.m_SigLevel;
-	}	
+	}
 
 	public void addPrediction(ClusStatistic other, double weight) {
 		WHTDStatistic or = (WHTDStatistic)other;
@@ -118,7 +118,7 @@ public class WHTDStatistic extends RegressionStat {
 			m_Validation.addPrediction(or.m_Validation, weight);
 		}
 	}
-	
+
 	public void updateWeighted(DataTuple tuple, double weight) {
 		int sidx = m_Hier.getType().getArrayIndex();
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
@@ -136,18 +136,18 @@ public class WHTDStatistic extends RegressionStat {
 			m_SumWeights[i] += weight;
 		}
 	}
-	
+
 	public final ClassHierarchy getHier() {
 		return m_Hier;
 	}
-	
+
 	public final void setHier(ClassHierarchy hier) throws ClusException {
 		if (m_Hier != null && m_Hier.getTotal() != hier.getTotal()) {
 			throw new ClusException("Different number of classes in new hierarchy: "+hier.getTotal()+" <> "+m_Hier.getTotal());
 		}
-		m_Hier = hier;		
+		m_Hier = hier;
 	}
-	
+
 	public int getNbPredictedClasses() {
 		int count = 0;
 		for (int i = 0; i < m_DiscrMean.length; i++) {
@@ -155,9 +155,9 @@ public class WHTDStatistic extends RegressionStat {
 				count++;
 			}
 		}
-		return count;			
+		return count;
 	}
-	
+
 	public void computePrediction() {
 		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means, m_Threshold);
 		m_DiscrMean = m_MeanTuple.getVectorNodeAndAncestors(m_Hier);
@@ -168,21 +168,21 @@ public class WHTDStatistic extends RegressionStat {
 		ArrayList added = new ArrayList();
 		boolean[] interms = new boolean[m_Hier.getTotal()];
 		m_PrintTuple.addIntermediateElems(m_Hier, interms, added);
-	}		
-	
+	}
+
 	public void calcMean() {
 		super.calcMean();
 		computePrediction();
 	}
-	
+
 	public int round(double value) {
 		if (getCompatibility() == Settings.COMPATIBILITY_CMB05) {
 			return (int)value;
 		} else {
 			return (int)Math.round(value);
-		}		
+		}
 	}
-	
+
 	public void performSignificanceTest() {
 		if (m_Validation != null) {
 			for (int i = 0; i < m_DiscrMean.length; i++) {
@@ -214,9 +214,9 @@ public class WHTDStatistic extends RegressionStat {
 			}
 			// Treshold of 0.5 is ok because components of m_DiscrMean are 0 or 1.
 			m_MeanTuple = m_Hier.getBestTupleMaj(m_DiscrMean, 0.5);
-		}	
+		}
 	}
-	
+
 	public void setMeanTuple(ClassesTuple tuple) {
 		m_MeanTuple = tuple;
 		m_DiscrMean = m_MeanTuple.getVector(m_Hier);
@@ -224,20 +224,20 @@ public class WHTDStatistic extends RegressionStat {
 			if (m_DiscrMean[i] > 0.5) m_Means[i] = 1.0;
 		}
 	}
-	
+
 	public ClassesTuple getMeanTuple() {
 		return m_MeanTuple;
 	}
-	
+
 	public double[] getDiscretePred() {
 		return m_DiscrMean;
 	}
-	
+
 	public void printTree() {
 		m_Hier.print(ClusFormat.OUT_WRITER, m_SumValues);
 		ClusFormat.OUT_WRITER.flush();
 	}
-	
+
 	public String getString(StatisticPrintInfo info) {
 		String pred = null;
 		if (m_PrintTuple != null) {
@@ -247,15 +247,15 @@ public class WHTDStatistic extends RegressionStat {
 		}
 		return pred+" ["+ClusFormat.TWO_AFTER_DOT.format(getTotalWeight())+"]";
 	}
-	
+
 	public String getPredictString() {
 		return "["+m_MeanTuple.toStringHuman(getHier())+"]";
 	}
-	
+
 	public boolean isValidPrediction() {
 		return !m_MeanTuple.isRoot();
 	}
-	
+
 	public void showRootInfo() {
 		try {
 			PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream("hierarchy.txt")));
@@ -267,7 +267,7 @@ public class WHTDStatistic extends RegressionStat {
 			System.out.println("IO Error: "+e.getMessage());
 		}
 	}
-	
+
 	public void printDistributionRec(PrintWriter out, ClassTerm node) {
 		int idx = node.getIndex();
 		ClassesValue val = new ClassesValue(node);
@@ -276,7 +276,7 @@ public class WHTDStatistic extends RegressionStat {
 			printDistributionRec(out, (ClassTerm)node.getChild(i));
 		}
 	}
-	
+
 	public void printDistribution(PrintWriter wrt) throws IOException {
 		wrt.println("Total: "+m_SumWeight);
 		printDistributionRec(wrt, m_Hier.getRoot());
@@ -294,7 +294,7 @@ public class WHTDStatistic extends RegressionStat {
 				int upper = Math.min(rule_tot, pop_cls);
 				int nb_other = pop_tot - pop_cls;
 				int min_this = rule_tot - nb_other;
-				int lower = Math.max(rule_cls, min_this);				
+				int lower = Math.max(rule_cls, min_this);
 				HypergeometricDistribution dist = m_Fac.createHypergeometricDistribution(pop_tot, pop_cls, rule_tot);
 				try {
 					double stat = dist.cumulativeProbability(lower, upper);
@@ -303,7 +303,7 @@ public class WHTDStatistic extends RegressionStat {
 					out.append(" pop_cls = "+String.valueOf(pop_cls));
 					out.append(" rule_tot = "+String.valueOf(rule_tot));
 					out.append(" rule_cls = "+String.valueOf(rule_cls));
-					out.append(" upper = "+String.valueOf(upper));					
+					out.append(" upper = "+String.valueOf(upper));
 					out.append(" prob = "+ClusFormat.SIX_AFTER_DOT.format(stat));
 					// out.append(" siglevel = "+m_SigLevel);
 					out.append("\n");
@@ -318,7 +318,7 @@ public class WHTDStatistic extends RegressionStat {
 	}
 
 	public String getExtraInfo() {
-		StringBuffer res = new StringBuffer();		
+		StringBuffer res = new StringBuffer();
 		ClassesTuple meantuple = m_Hier.getBestTupleMaj(m_Means, 50.0);
 		double[] discrmean = meantuple.getVectorNodeAndAncestors(m_Hier);
 		for (int i = 0; i < m_Hier.getRoot().getNbChildren(); i++) {
@@ -326,7 +326,7 @@ public class WHTDStatistic extends RegressionStat {
 		}
 		return res.toString();
 	}
-	
+
 	public void addPredictWriterSchema(String prefix, ClusSchema schema) {
 		ClassHierarchy hier = getHier();
 		for (int i = 0; i < m_NbAttrs; i++) {
@@ -336,22 +336,22 @@ public class WHTDStatistic extends RegressionStat {
 			schema.addAttrType(type);
 		}
 	}
-	
+
 	public void unionInit() {
 		m_DiscrMean = new double[m_Means.length];
 	}
-	
+
 	public void union(ClusStatistic other) {
 		double[] discr_mean = ((WHTDStatistic)other).m_DiscrMean;
 		for (int i = 0; i < m_DiscrMean.length; i++) {
 				if (discr_mean[i] >= 0.5) m_DiscrMean[i] = 1.0;
-		}		
+		}
 	}
-	
+
 	public void unionDone() {
-		m_MeanTuple = m_Hier.getBestTupleMaj(m_DiscrMean, 0.5);		
+		m_MeanTuple = m_Hier.getBestTupleMaj(m_DiscrMean, 0.5);
 	}
-	
+
 	public void vote(ArrayList votes) {
 		reset();
 		m_Means = new double[m_NbAttrs];
@@ -365,5 +365,5 @@ public class WHTDStatistic extends RegressionStat {
 		}
 		computePrediction();
 	}
-	
+
 }

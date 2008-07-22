@@ -63,11 +63,11 @@ trees!
 import clus.main.*;
 
 public class SSPDMatrix extends MSymMatrix implements Serializable {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public SSPDMatrix(int size) {
-		super(size, true);	
+		super(size, true);
 	}
 
 	// Matrix stores squared distances [sum of (i,j)^2 and (j,i)^2]
@@ -85,10 +85,10 @@ public class SSPDMatrix extends MSymMatrix implements Serializable {
 			for (int j = 0; j < nb; j++) {
 				double value = reader.readFloat();
 				matrix.add_sym(i,j,value* value);
-			}		
+			}
 			if (!reader.isEol()) throw new IOException("SSPD Matrix is not square");
 		}
-		reader.close();	
+		reader.close();
 //		matrix.print(ClusFormat.OUT_WRITER, ClusFormat.TWO_AFTER_DOT, 5);
 //		ClusFormat.OUT_WRITER.flush();
 		return matrix;

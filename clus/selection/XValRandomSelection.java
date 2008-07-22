@@ -52,26 +52,26 @@ public class XValRandomSelection extends XValMainSelection {
 			createRegularXVAL(nbtot, folds, random);
 		}
 	}
-	
+
 	public int getFold(int row) {
 		return m_Selection[row];
-	}	
-	
+	}
+
 	public void printDebug() {
 		System.out.println("XVAL: "+MyIntArray.print(m_Selection));
 	}
-	
+
 	public void createLeaveOneOutXVAL(int nbtot) {
 		m_Selection = new int[nbtot];
 		for (int i = 0; i < nbtot; i++) {
 			m_Selection[i] = i;
-		}		
-	}	
-	
+		}
+	}
+
 	// TODO: - put in (stratified) cross-validation partition code from "csvconvert.exe"
 	public void createRegularXVAL(int nbtot, int folds, Random random) throws ClusException {
 		m_Random = random;
-		int max = nbtot/folds;		
+		int max = nbtot/folds;
 		XValGroup[] grps = new XValGroup[folds];
 		for (int i = 0; i < folds; i++) grps[i] = new XValGroup(max+1);
 		int from = devide2(grps, 0, nbtot, max);
@@ -85,9 +85,9 @@ public class XValRandomSelection extends XValMainSelection {
 			for (int j = 0; j < gr.getNbElements(); j++) {
 				m_Selection[gr.getElement(j)] = i;
 			}
-		}		
-	} 
-	
+		}
+	}
+
 	public int devide2(XValGroup[] grps, int from, int till, int max) {
 		while (from < till) {
 			int grp = m_Random.nextInt(grps.length);
@@ -99,7 +99,7 @@ public class XValRandomSelection extends XValMainSelection {
 		}
 		return -1;
 	}
-	
+
 	public boolean add_to_group(int from, XValGroup[] grps, int grp, int max) {
 		int nbg = grps.length;
 		int ctr = 0;

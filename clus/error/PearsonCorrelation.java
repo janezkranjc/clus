@@ -31,7 +31,7 @@ import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
 public class PearsonCorrelation extends ClusNumericError {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double[] m_SumPi, m_SumSPi;
@@ -46,14 +46,14 @@ public class PearsonCorrelation extends ClusNumericError {
 		m_SumSAi = new double[m_Dim];
 		m_SumPiAi = new double[m_Dim];
 	}
-	
+
 	public void reset() {
 		for (int i = 0; i < m_Dim; i++) {
 			m_SumPi[i] = 0.0;
 			m_SumSPi[i] = 0.0;
 			m_SumAi[i] = 0.0;
 			m_SumSAi[i] = 0.0;
-			m_SumPiAi[i] = 0.0;			
+			m_SumPiAi[i] = 0.0;
 		}
 	}
 
@@ -62,11 +62,11 @@ public class PearsonCorrelation extends ClusNumericError {
 	}
 
 	public double getCorrelation(int i) {
-		
-		int nb = getNbExamples();		
-		
+
+		int nb = getNbExamples();
+
 		double Pi_ss = m_SumSPi[i]-m_SumPi[i]*m_SumPi[i]/nb;
-		
+
 		if(Pi_ss == 0){
 			//constant prediction case
 			return 0;
@@ -75,11 +75,11 @@ public class PearsonCorrelation extends ClusNumericError {
 
 		double root = Math.sqrt(Pi_ss*Ai_ss);
 		double above = m_SumPiAi[i] - m_SumPi[i]*m_SumAi[i]/nb;
-		
-		
-		return above/root;		
+
+
+		return above/root;
 	}
-	
+
 	public double getModelErrorComponent(int i) {
 		return getCorrelation(i);
 	}
@@ -104,15 +104,15 @@ public class PearsonCorrelation extends ClusNumericError {
 			m_SumPiAi[i] += predicted[i] * real[i];
 		}
 	}
-	
+
 	public void addInvalid(DataTuple tuple) {
 	}
-	
+
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		double[] predicted = pred.getNumericPred();
 		for (int i = 0; i < m_Dim; i++) {
 				double real_i = getAttr(i).getNumeric(tuple);
-				
+
 				// Predicted
 				m_SumPi[i] += predicted[i];
 				m_SumSPi[i] += predicted[i] * predicted[i];
@@ -120,15 +120,15 @@ public class PearsonCorrelation extends ClusNumericError {
 				m_SumAi[i] += real_i;
 				m_SumSAi[i] += real_i * real_i;
 				// Cross real, predicted
-				m_SumPiAi[i] += predicted[i] * real_i;	
-		}		
-	}	
-	
+				m_SumPiAi[i] += predicted[i] * real_i;
+		}
+	}
+
 	public void addExample(DataTuple real, DataTuple pred) {
 		for (int i = 0; i < m_Dim; i++) {
 				double real_i = getAttr(i).getNumeric(real);
 				double predicted_i = getAttr(i).getNumeric(pred);
-				
+
 				// Predicted
 				m_SumPi[i] += predicted_i;
 				m_SumSPi[i] += predicted_i * predicted_i;
@@ -136,9 +136,9 @@ public class PearsonCorrelation extends ClusNumericError {
 				m_SumAi[i] += real_i;
 				m_SumSAi[i] += real_i * real_i;
 				// Cross real, predicted
-				m_SumPiAi[i] += predicted_i * real_i;	
-		}		
-	}	
+				m_SumPiAi[i] += predicted_i * real_i;
+		}
+	}
 
 	public void add(ClusError other) {
 		PearsonCorrelation oe = (PearsonCorrelation)other;

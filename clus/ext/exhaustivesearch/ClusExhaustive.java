@@ -34,13 +34,13 @@ public class ClusExhaustive {
 	int m_MaxWidth;
 	int m_CrWidth;
 	boolean m_RemoveEqualHeur;
-	
-	
+
+
 	public ClusExhaustive(int width) {
 		m_Tree = new TreeMap(); //trees in the beam
 		m_Values = m_Tree.values();
 		m_MaxWidth = width;
-	}	
+	}
 
 	//add a tree to the beam if it not already there
 	public int addIfNotIn(ClusBeamModel model) {
@@ -51,23 +51,23 @@ public class ClusExhaustive {
 			return 1;
 		} else return 0;
 	}
-	
+
 	public void print(PrintWriter wrt, int best_n) {
 		ArrayList lst = toArray();
 		for (int i = 0; i < Math.min(best_n, lst.size()); i++) {
 			if (i != 0) wrt.println();
 			ClusBeamModel mdl = (ClusBeamModel)lst.get(lst.size()-i-1);
 			ClusNode tree = (ClusNode)mdl.getModel();
-			double error = Double.NaN; // tree.estimateError(); 
+			double error = Double.NaN; // tree.estimateError();
 			wrt.println("Model: "+i+" value: "+mdl.getValue()+" error: "+error+" parent: "+mdl.getParentModelIndex());
 			tree.printModel(wrt);
 		}
 	}
-	
+
 	public Iterator getIterator() {
 		return m_Values.iterator();
 	}
-	
+
 	public ArrayList toArray() {
 		ArrayList lst = new ArrayList();
 		Iterator iter = m_Values.iterator();
@@ -77,16 +77,16 @@ public class ClusExhaustive {
 		}
 		return lst;
 	}
-	
+
 	public int getMaxWidth() {
 		return m_MaxWidth;
 	}
-	
+
 	public int getCrWidth() {
 		return m_CrWidth;
 	}
-	
-	
+
+
 	public void print() {
 /*		System.out.println("Beam:");
 		m_Tree.printStructure();

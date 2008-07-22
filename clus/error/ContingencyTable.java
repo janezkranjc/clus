@@ -33,8 +33,8 @@ import clus.util.*;
 
 public class ContingencyTable extends ClusNominalError {
 
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
-	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+
 	protected final static String REAL_PRED = "REAL\\PRED";
 
 	protected int[][][] m_ContTable;
@@ -51,11 +51,11 @@ public class ContingencyTable extends ClusNominalError {
 			m_ContTable[i] = new int[size][size];
 		}
 	}
-	
+
 	public boolean isMultiLine() {
 		return true;
 	}
-		
+
 	public int calcNbCorrect(int[][] table) {
 		int sum = 0;
 		int size = table.length;
@@ -64,11 +64,11 @@ public class ContingencyTable extends ClusNominalError {
 		}
 		return sum;
 	}
-	
+
 	public double calcXSquare(int[][] table) {
 		int size = table.length;
 		int[] ri = new int[size];
-		int[] cj = new int[size];		
+		int[] cj = new int[size];
 		for (int j = 0; j < size; j++) {
 			ri[j] = sumRow(table, j);
 			cj[j] = sumColumn(table, j);
@@ -82,36 +82,36 @@ public class ContingencyTable extends ClusNominalError {
 				if (err != 0.0)	xsquare += err*err/eij;
 			}
 		}
-		return xsquare;		
+		return xsquare;
 	}
-	
+
 	public double calcCramerV(int[][] table) {
 		int q = table.length;
 		int n = getNbExamples();
 		double div = (double)n*(q-1);
 		return Math.sqrt(calcXSquare(table)/div);
 	}
-	
+
 	public double calcAccuracy(int[][] table) {
 		return (double)calcNbCorrect(table)/getNbExamples();
 	}
-	
+
 	public double calcDefaultAccuracy(int i) {
 		return 0.0;
-	}	
-	
+	}
+
 	public double getModelErrorComponent(int i) {
 		return calcAccuracy(m_ContTable[i]);
 	}
-	
+
 	public double getModelComponent() {
 		double sum = 0.0;
 		for (int i = 0; i < m_Dim; i++) {
 			sum += calcAccuracy(m_ContTable[i]);
 		}
 		return sum/m_Dim;
-	}	
-	
+	}
+
 	public void showAccuracy(PrintWriter out, int i) {
 		double acc = calcAccuracy(m_ContTable[i]);
 		out.print("Accuracy: "+ClusFormat.SIX_AFTER_DOT.format(acc));
@@ -130,8 +130,8 @@ public class ContingencyTable extends ClusNominalError {
 				}
 			}
 		}
-	}	
-	
+	}
+
 	public void showModelError(PrintWriter out, int detail) {
 		if (detail == DETAIL_VERY_SMALL) {
 			out.print(getPrefix()+"[");
@@ -148,8 +148,8 @@ public class ContingencyTable extends ClusNominalError {
 				showContTable(out, i);
 			}
 		}
-	}	
-	
+	}
+
 	public int sumColumn(int[][] table, int j) {
 		int sum = 0;
 		int size = table.length;
@@ -157,22 +157,22 @@ public class ContingencyTable extends ClusNominalError {
 			sum += table[i][j];
 		return sum;
 	}
-	
+
 	public int sumRow(int[][] table, int i) {
 		int sum = 0;
 		int size = table.length;
 		for (int j = 0; j < size; j++)
 			sum += table[i][j];
 		return sum;
-	}	
-	
+	}
+
 	public void showContTable(PrintWriter out, int i) {
 		int[][] table = m_ContTable[i];
 		int size = m_Attrs[i].getNbValues();
 		if (m_Attrs[i].hasMissing()) {
 			// also add a column for "?" for the semi-supervised setting
 			size++;
-		}		
+		}
 		// Calculate sizes
 		int[] wds = new int[size+2];
 		// First column
@@ -194,14 +194,14 @@ public class ContingencyTable extends ClusNominalError {
 		for (int k = 0; k < size; k++) {
 			String str = String.valueOf(sumColumn(table, k));
 			wds[k+1] = Math.max(wds[k+1], str.length()+1);
-		}					
+		}
 		// Total sum
 		wds[size+1] = Math.max(wds[size+1], String.valueOf(getNbExamples()).length()+1);
 		// Calculate line width
 		int s = 0;
 		for (int j = 0; j < size+2; j++) s += wds[j];
 		String horiz = getPrefix()+"  "+StringUtils.makeString('-', s+(size+1)*2);
-		// Header		
+		// Header
 		out.print(getPrefix()+"  ");
 		printString(out, wds[0], REAL_PRED);
 		out.print(" |");
@@ -214,15 +214,15 @@ public class ContingencyTable extends ClusNominalError {
 		// Data rows
 		for (int j = 0; j < size; j++) {
 			out.print(getPrefix()+"  ");
-			printString(out, wds[0], m_Attrs[i].getValueOrMissing(j));	
-			out.print(" |");			
+			printString(out, wds[0], m_Attrs[i].getValueOrMissing(j));
+			out.print(" |");
 			for (int k = 0; k < size; k++) {
 				printString(out, wds[k+1], String.valueOf(table[j][k]));
 				out.print(" |");
 			}
 			printString(out, wds[size+1], String.valueOf(sumRow(table, j)));
 			out.println();
-		}						
+		}
 		out.println(horiz);
 		out.print(getPrefix()+"  ");
 		out.print(StringUtils.makeString(' ', wds[0]));
@@ -233,70 +233,70 @@ public class ContingencyTable extends ClusNominalError {
 		}
 		printString(out, wds[size+1], String.valueOf(getNbExamples()));
 		out.println();
-		out.print(getPrefix()+"  ");		
+		out.print(getPrefix()+"  ");
 		showAccuracy(out, i);
-		out.print(getPrefix()+"  ");		
+		out.print(getPrefix()+"  ");
 		double cramer = calcCramerV(table);
-		out.println("Cramer's coefficient: "+ClusFormat.SIX_AFTER_DOT.format(cramer));		
+		out.println("Cramer's coefficient: "+ClusFormat.SIX_AFTER_DOT.format(cramer));
 		out.println();
 	}
-	
-	public void showSummaryError(PrintWriter out, boolean detail) {		
-		if (!detail) {	
+
+	public void showSummaryError(PrintWriter out, boolean detail) {
+		if (!detail) {
 			for (int i = 0; i < m_Dim; i++) {
 				out.print(getPrefix()+"Attribute: "+m_Attrs[i].getName()+" - ");
 				showAccuracy(out, i);
-			}			
+			}
 		}
-	}	
-	
+	}
+
 	public void printString(PrintWriter out, int wd, String str) {
 		out.print(StringUtils.makeString(' ', wd-str.length()));
 		out.print(str);
 	}
-	
+
 	public String getName() {
 		return "Classification Error";
 	}
-	
+
 	public ClusError getErrorClone(ClusErrorList par) {
 		return new ContingencyTable(par, m_Attrs);
 	}
-	
+
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		int[] predicted = pred.getNominalPred();
 		for (int i = 0; i < m_Dim; i++) {
 			m_ContTable[i][getAttr(i).getNominal(tuple)][predicted[i]]++;
-		}		
+		}
 	}
-	
+
 	public void addInvalid(DataTuple tuple) {
-	}	
-	
+	}
+
 		public double get_error_classif(){
 			//System.out.println("nb of examples : "+getNbExamples());
 			//System.out.println("nb of correctly classify examples : "+calcNbCorrect(m_ContTable[0]));
 		return (1 - get_accuracy());
 		}
-	
+
 		public double get_TP(){
 			return calcNbCorrect(m_ContTable[0]);
 		}
-	
+
 		public double get_accuracy() {
 			return calcAccuracy(m_ContTable[0]);
 		}
-		
+
 		public double get_precision() {
 			return 0.0;
 		}
-		
+
 		public double get_recall() {
 			return 0.0;
 		}
-		
+
 		public double get_auc() {
 			return 0.0;
 		}
-	
+
 }

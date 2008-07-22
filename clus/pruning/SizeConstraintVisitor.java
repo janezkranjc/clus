@@ -31,7 +31,7 @@ public class SizeConstraintVisitor extends ErrorVisitor {
 	public int[] left;
 	public boolean[] computed;
 	public double error;
-	
+
 	public SizeConstraintVisitor(int size) {
 		cost = new double[size+1];
 		left = new int[size+1];

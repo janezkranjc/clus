@@ -28,44 +28,44 @@ import clus.data.attweights.*;
 import clus.data.type.*;
 
 public class SSReductionHeuristic extends ClusHeuristic {
-	
+
 	private ClusAttributeWeights m_TargetWeights;
 	private ClusAttrType[] m_Attrs;
-	
+
 	public SSReductionHeuristic(ClusAttributeWeights prod, ClusAttrType[] attrs) {
 		m_TargetWeights = prod;
 		m_Attrs = attrs;
 	}
-	
+
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
-		double n_tot = tstat.m_SumWeight;		
-		double n_pos = pstat.m_SumWeight; 
+		double n_tot = tstat.m_SumWeight;
+		double n_pos = pstat.m_SumWeight;
 		double n_neg = n_tot - n_pos;
 		// Acceptable?
 		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
 			return Double.NEGATIVE_INFINITY;
 		}
-/*		
+/*
         FIXME: make a setting of this
 		if(pstat.m_nbEx <= 2 || (tstat.m_nbEx - pstat.m_nbEx) <= 2){
 			return Double.NEGATIVE_INFINITY;
 		}
 */
 		// Compute SS
-		double ss_tot = tstat.getSS(m_TargetWeights);		
+		double ss_tot = tstat.getSS(m_TargetWeights);
 		double ss_pos = pstat.getSS(m_TargetWeights);
 		double ss_neg = tstat.getSSDiff(m_TargetWeights, pstat);
-		// printInfo(ss_tot, ss_pos, ss_neg, pstat);		
+		// printInfo(ss_tot, ss_pos, ss_neg, pstat);
 		return FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos, ss_neg);
 	}
-		
+
 	public String getName() {
 		return "SS-Reduction (ftest: "+Settings.FTEST_VALUE+", "+m_TargetWeights.getName(m_Attrs)+")";
 	}
-	
+
 	public void printInfo(double ss_tot, double ss_pos, double ss_neg, ClusStatistic pstat) {
 		pstat.calcMean();
 		System.out.println("C-pos: "+pstat);
 		System.out.println("SS-pos: "+ss_pos+" SS-neg: "+ss_neg+" -> "+(ss_tot-(ss_pos+ss_neg)));
-	}	
+	}
 }

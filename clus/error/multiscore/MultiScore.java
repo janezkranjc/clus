@@ -30,9 +30,9 @@ import clus.data.type.*;
 
 public class MultiScore {
 
-	protected double[] m_Thresholds;	
+	protected double[] m_Thresholds;
 	protected int m_NbValues;
-	
+
 	public MultiScore(ClusSchema schema, Settings sett) throws ClusException {
 		String val = "";/* = sett.getMultiScore(); */
 		int len = val.length();
@@ -41,7 +41,7 @@ public class MultiScore {
 			if (len > 2 && val.charAt(0) == '{' && val.charAt(len-1) == '}') {
 				StringTokenizer tokens = new StringTokenizer(val.substring(1,len-1), ", ");
 				m_NbValues = tokens.countTokens();
-				if (m_NbValues != nb_wanted) 
+				if (m_NbValues != nb_wanted)
 					throw new ClusException("Not enough ("+m_NbValues+" < "+nb_wanted+") thresholds given for multi-score");
 				m_Thresholds = new double[m_NbValues];
 				for (int i = 0; i < m_NbValues; i++) m_Thresholds[i] = Double.parseDouble(tokens.nextToken());
@@ -54,7 +54,7 @@ public class MultiScore {
 			throw new ClusException("Parse error reading multi-score values");
 		}
 	}
-		
+
 	public int getNbTarget() {
 		return m_NbValues;
 	}
@@ -62,14 +62,14 @@ public class MultiScore {
 	// Class index 0 = positive, 1 = negative (!)
 	public int[] multiScore(double[] input) {
 		int[] res = new int[input.length];
-		for (int i = 0; i < m_NbValues; i++) 
+		for (int i = 0; i < m_NbValues; i++)
 			res[i] = (input[i] > m_Thresholds[i]) ? 0 : 1;
 		return res;
 	}
-	
-	// Class index 0 = positive, 1 = negative (!)	
+
+	// Class index 0 = positive, 1 = negative (!)
 	public void multiScore(double[] input, int[] res) {
-		for (int i = 0; i < m_NbValues; i++) 
+		for (int i = 0; i < m_NbValues; i++)
 			res[i] = (input[i] > m_Thresholds[i]) ? 0 : 1;
-	}	
+	}
 }

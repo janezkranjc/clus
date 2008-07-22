@@ -61,16 +61,16 @@ public class NodeExampleCollector extends BasicExampleCollector {
 		}
 		super.initialize(model, schema);
 	}
-	
+
 	public void terminate(ClusModel model) throws IOException {
 		ClusNode root = (ClusNode)model;
 		writeFile(root);
 		root.clearVisitors();
 	}
-	
+
 	public final void writeFile(ClusNode root) throws IOException {
 		PrintWriter wrt = m_Sett.getFileAbsoluteWriter(m_FName);
-		LeafTreeIterator iter = new LeafTreeIterator(root);	
+		LeafTreeIterator iter = new LeafTreeIterator(root);
 		while (iter.hasMoreNodes()) {
 			ClusNode node = (ClusNode)iter.getNextNode();
 			MyArray visitor = (MyArray)node.getVisitor();
@@ -90,12 +90,12 @@ public class NodeExampleCollector extends BasicExampleCollector {
 				    catch(ClassCastException cce) {
 					//Temporarily, as mentioned above
 				    }
-				}			
-				if (m_Attrs.size() > 1) wrt.print("]");			
-				if (m_Missing) wrt.print(")");				
+				}
+				if (m_Attrs.size() > 1) wrt.print("]");
+				if (m_Missing) wrt.print(")");
 			}
 			wrt.println("]).");
-		}		
+		}
 		wrt.close();
 	}
 }

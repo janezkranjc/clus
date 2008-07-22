@@ -36,7 +36,7 @@ import clus.util.ClusException;
 public class MPCKMeansWrapper {
 
 	protected ClusStatManager m_Manager;
-	
+
 	public MPCKMeansWrapper(ClusStatManager statManager) {
 		m_Manager = statManager;
 	}
@@ -44,7 +44,7 @@ public class MPCKMeansWrapper {
 	public ClusStatManager getStatManager() {
 		return m_Manager;
 	}
-	
+
 	public static void writeStream(InputStream in) throws IOException {
 		int ch = -1;
 		StringBuffer sb = new StringBuffer();
@@ -53,12 +53,12 @@ public class MPCKMeansWrapper {
 		}
 		System.out.println(sb.toString());
 	}
-	
+
 	public double computeRandIndex(RowData data, int[] assign, String tpe) {
 		int a = 0;
 		int b = 0;
 		int nbex = data.getNbRows();
-		ClusSchema schema = data.getSchema(); 
+		ClusSchema schema = data.getSchema();
 		NominalAttrType classtype = (NominalAttrType)schema.getAttrType(schema.getNbAttributes()-1);
 		for (int i = 0; i < nbex; i++) {
 			DataTuple ti = data.getTuple(i);
@@ -74,9 +74,9 @@ public class MPCKMeansWrapper {
 		}
 		double rand = 1.0 * (a+b) / (nbex*(nbex-1)/2);
 		System.out.println(tpe+"Rand = "+rand+" (nbex = "+nbex+")");
-		return rand;		
+		return rand;
 	}
-	
+
 	public ClusModel induce(RowData data, RowData test, ArrayList constraints, int cls) throws IOException, ClusException {
 		String main = getStatManager().getSettings().getAppName();
 		String datf = main+"-temp-MPCKMeans.arff";
@@ -113,10 +113,10 @@ public class MPCKMeansWrapper {
 			String line = "";
 			int[] assign = new int[data.getNbRows()];
 			Arrays.fill(assign, -1);
-			String cmdline = "-D "+datf+" -C "+cons+" -O "+outf; 
+			String cmdline = "-D "+datf+" -C "+cons+" -O "+outf;
 			Process proc = Runtime.getRuntime().exec(script+" "+cmdline);
 			proc.waitFor();
-			writeStream(proc.getInputStream());			
+			writeStream(proc.getInputStream());
 			writeStream(proc.getErrorStream());
 			LineNumberReader rdr = new LineNumberReader(new InputStreamReader(new FileInputStream(outf)));
 			while ((line = rdr.readLine()) != null) {
@@ -140,10 +140,10 @@ public class MPCKMeansWrapper {
 			computeRandIndex(data, assign, "All data: ");
 			if (test != null) computeRandIndex(test, assign, "Test data: ");
 			return new SimpleClusterModel(assign, getStatManager());
-		} catch (InterruptedException e) {			
+		} catch (InterruptedException e) {
 		}
 		return new SimpleClusterModel(null, getStatManager());
 	}
-	
-	
+
+
 }

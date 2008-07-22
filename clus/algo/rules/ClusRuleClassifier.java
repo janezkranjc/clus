@@ -38,18 +38,18 @@ import clus.model.ClusModelInfo;
 import clus.util.ClusException;
 
 public class ClusRuleClassifier extends ClusInductionAlgorithmType {
-	
+
 	public ClusRuleClassifier(Clus clus) {
 		super(clus);
 	}
-	
+
 	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		ClusRuleInduce induce = new ClusRuleInduce(schema, sett);
 		induce.getStatManager().setRuleInduce(true);
 		induce.getStatManager().initRuleSettings();
 		return induce;
 	}
-	
+
 	public void printInfo() {
 		if (!getSettings().isRandomRules()) {
 			System.out.println("RuleSystem based on CN2");
@@ -58,17 +58,17 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 			System.out.println("RuleSystem generating random rules");
 		}
 	}
-	
+
 	public void pruneAll(ClusRun cr) throws ClusException, IOException {
 	}
-	 
+
 	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
 		return model;
 	}
-	
+
 	public void postProcess(ClusRun cr) throws ClusException, IOException {
 		ClusModelInfo def_model = cr.addModelInfo(ClusModel.DEFAULT);
 		def_model.setModel(ClusDecisionTree.induceDefault(cr));
 		def_model.setName("Default");
-	}	
+	}
 }

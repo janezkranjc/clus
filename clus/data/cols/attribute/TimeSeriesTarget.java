@@ -27,18 +27,18 @@ import java.io.IOException;
 import clus.data.cols.ColTarget;
 import clus.data.io.ClusReader;
 import clus.data.type.TimeSeriesAttrType;
- 
+
 public class TimeSeriesTarget extends TimeSeriesAttrBase {
 
 	protected ColTarget m_Target;
-	protected int m_Index;	
-	
+	protected int m_Index;
+
 	public TimeSeriesTarget(ColTarget target, TimeSeriesAttrType type, int index) {
 		super(type);
 		m_Target = target;
 		m_Index = index;
 	}
-	
+
 	public boolean read(ClusReader data, int row) throws IOException {
 //		m_Target.setTimeSeries(m_Index, row, new TimeSeries(data.readTimeSeries()));
 		return true;

@@ -44,18 +44,18 @@ public abstract class OptXValInduce extends ClusInductionAlgorithm {
 	protected DepthFirstInduce m_DFirst;
 	protected NominalSplit m_Split;
 	protected ClusStatistic[] m_PosStat;
-	protected ClusStatistic[][] m_TestStat;	
+	protected ClusStatistic[][] m_TestStat;
 	protected ClusStatistic m_Scratch;
 	protected int m_NbFolds;
 	protected int[] m_PrevCl;
-	protected double[] m_PrevVl;	
+	protected double[] m_PrevVl;
 	protected CurrentBestTestAndHeuristic[] m_Selector;
 	protected int m_MaxStats;
-	
+
 	public OptXValInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		super(schema, sett);
 	}
-	
+
 	public final void findNominal(NominalAttrType at, OptXValGroup grp) {
 		// Reset positive statistic
 		int nbvalues = at.getNbValues();
@@ -65,7 +65,7 @@ if (Debug.debug == 1) {
 		ClusStat.deltaSplit();
 }
 
-		// For each attribute value		
+		// For each attribute value
 		RowData data = grp.getData();
 		int nb_rows = data.getNbRows();
 		for (int i = 0; i < nb_rows; i++) {
@@ -93,7 +93,7 @@ if (Debug.debug == 1) {
 			if (foldnr != 0) {
 				ClusStatistic[] zero_stat = m_TestStat[0];
 				ClusStatistic[] cr_stat = m_TestStat[foldnr];
-				for (int j = 0; j < statsize; j++) {				
+				for (int j = 0; j < statsize; j++) {
 					cr_stat[j].subtractFromOther(zero_stat[j]);
 				}
 			}
@@ -103,12 +103,12 @@ if (Debug.debug == 1) {
 
 			m_Split.findSplit(m_Selector[i], at);
 if (Debug.debug == 1) {
-			ClusStat.deltaHeur();			
+			ClusStat.deltaHeur();
 }
 
 		}
 	}
-	
+
 	public final void findNumeric(NumericAttrType at, OptXValGroup grp) {
 		// Sort data
 		DataTuple tuple;
@@ -123,14 +123,14 @@ if (Debug.debug == 1) {
 		ClusStat.deltaSort();
 }
 
-		reset(2);		
+		reset(2);
 		// Missing values
-		int first = 0;		
+		int first = 0;
 		int nb_rows = data.getNbRows();
-		if (at.hasMissing()) {			
+		if (at.hasMissing()) {
 			while (first < nb_rows && (tuple = data.getTuple(first)).hasNumMissing(idx)) {
 				m_TestStat[tuple.m_Index][1].updateWeighted(tuple, first);
-				first++;			
+				first++;
 			}
 			subtractMissing(grp);
 		} else {
@@ -141,13 +141,13 @@ if (Debug.debug == 1) {
 }
 
 		int[] folds = grp.getFolds();
-//		ClusNode[] nodes = grp.getNodes();		
+//		ClusNode[] nodes = grp.getNodes();
 		for (int i = 0; i < folds.length; i++) {
 			m_PrevCl[i] = -1;
 			m_PrevVl[i] = Double.NaN;
 		}
 		ClusStatistic sum = m_PosStat[0];
-		if (Settings.ONE_NOMINAL) {		
+		if (Settings.ONE_NOMINAL) {
 			for (int i = first; i < nb_rows; i++) {
 				tuple = data.getTuple(i);
 				boolean no_sum_calc = true;
@@ -155,12 +155,12 @@ if (Debug.debug == 1) {
 				int crcl = tuple.getClassification();
 				double value = tuple.getDoubleVal(idx);
 				for (int j = 0; j < folds.length; j++) {
-					int cr_fold = folds[j];			
+					int cr_fold = folds[j];
 					if (foldnr != cr_fold) {
 						if (m_PrevCl[j] == -1 && value != m_PrevVl[j] && m_PrevVl[j] != Double.NaN) {
 							if (no_sum_calc) {
 if (Debug.debug == 1) {
-								ClusStat.deltaTest();							
+								ClusStat.deltaTest();
 }
 
 								sum.reset();
@@ -173,7 +173,7 @@ if (Debug.debug == 1) {
 							}
 							if (cr_fold != 0) {
 if (Debug.debug == 1) {
-								ClusStat.deltaTest();							
+								ClusStat.deltaTest();
 }
 
 								m_Scratch.copy(sum);
@@ -206,7 +206,7 @@ if (Debug.debug == 1) {
 					}
 				}
 if (Debug.debug == 1) {
-				ClusStat.deltaTest();				
+				ClusStat.deltaTest();
 }
 
 				m_PosStat[foldnr].updateWeighted(tuple, i);
@@ -222,12 +222,12 @@ if (Debug.debug == 1) {
 				int foldnr = tuple.getIndex();
 				double value = tuple.getDoubleVal(idx);
 				for (int j = 0; j < folds.length; j++) {
-					int cr_fold = folds[j];			
-					if (foldnr != cr_fold) {				
+					int cr_fold = folds[j];
+					if (foldnr != cr_fold) {
 						if (value != m_PrevVl[j] && m_PrevVl[j] != Double.NaN) {
 							if (no_sum_calc) {
 if (Debug.debug == 1) {
-								ClusStat.deltaTest();							
+								ClusStat.deltaTest();
 }
 
 								sum.reset();
@@ -240,7 +240,7 @@ if (Debug.debug == 1) {
 							}
 							if (cr_fold != 0) {
 if (Debug.debug == 1) {
-								ClusStat.deltaTest();							
+								ClusStat.deltaTest();
 }
 
 								m_Scratch.copy(sum);
@@ -270,7 +270,7 @@ if (Debug.debug == 1) {
 					}
 				}
 if (Debug.debug == 1) {
-				ClusStat.deltaTest();				
+				ClusStat.deltaTest();
 }
 
 				m_PosStat[foldnr].updateWeighted(tuple, i);
@@ -278,16 +278,16 @@ if (Debug.debug == 1) {
 				ClusStat.deltaStat();
 }
 
-			}		
-		}		
-	}	
-	
+			}
+		}
+	}
+
 	public abstract OptXValNode xvalInduce(OptXValGroup mgrp);
-	
+
 	public ClusData createData() {
 		return new RowData(m_Schema);
 	}
-	
+
 	public final void reset(int nb) {
 		for (int i = 0; i <= m_NbFolds; i++) {
 			for (int j = 0; j < nb; j++) {
@@ -295,43 +295,43 @@ if (Debug.debug == 1) {
 			}
 		}
 	}
-	
+
 	public final void sumStats(int nb) {
 		// For each test stat
-		for (int j = 0; j < nb; j++) {		
+		for (int j = 0; j < nb; j++) {
 			// Sum over folds (fold 0 = whole tree)
 			ClusStatistic sum = m_TestStat[0][j];
 			for (int i = 1; i <= m_NbFolds; i++) {
 				sum.add(m_TestStat[i][j]);
 			}
-		}		
+		}
 	}
-	
-	public final void subtractMissing(OptXValGroup grp) {	
+
+	public final void subtractMissing(OptXValGroup grp) {
 		// Sum missing values for fold zero
 		ClusStatistic sum = m_TestStat[0][1];
 		for (int i = 1; i <= m_NbFolds; i++) {
 			sum.add(m_TestStat[i][1]);
 		}
-		// subtract missing values	
-		ClusStatistic stot[] = grp.m_TotStat;		
+		// subtract missing values
+		ClusStatistic stot[] = grp.m_TotStat;
 		for (int i = 0; i <= m_NbFolds; i++) {
 			m_TestStat[i][1].subtractFromOther(stot[i]);
 		}
 	}
 
-	public final void copyTotal(OptXValGroup grp) {	
-		ClusStatistic stot[] = grp.m_TotStat;		
-		for (int i = 0; i <= m_NbFolds; i++) {	
-			m_TestStat[i][1].copy(stot[i]);						
-		}		
-	}	
-		
+	public final void copyTotal(OptXValGroup grp) {
+		ClusStatistic stot[] = grp.m_TotStat;
+		for (int i = 0; i <= m_NbFolds; i++) {
+			m_TestStat[i][1].copy(stot[i]);
+		}
+	}
+
 	public final void findBestTest(OptXValGroup mgrp) {
 		// First make nodes
 		mgrp.makeNodes();
 		// For each attribute
-		RowData data = mgrp.getData();				
+		RowData data = mgrp.getData();
 		ClusSchema schema = data.getSchema();
 		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
 		int nb_normal = attrs.length;
@@ -339,13 +339,13 @@ if (Debug.debug == 1) {
 			ClusAttrType at = attrs[i];
 			if (at instanceof NominalAttrType) findNominal((NominalAttrType)at, mgrp);
 			else findNumeric((NumericAttrType)at, mgrp);
-		}			
+		}
 	}
-	
+
 	public final CurrentBestTestAndHeuristic getSelector(int i) {
 		return m_Selector[i];
 	}
-	
+
 	public final void cleanSplit() {
 		m_Split = null;
 	}
@@ -359,9 +359,9 @@ if (Debug.debug == 1) {
 		for (int i = 0; i < mfolds; i++) {
 			for (int j = 0; j < m_MaxStats; j++) {
 				m_TestStat[i][j] = m_StatManager.createClusteringStat();
-			}	
+			}
 			m_PosStat[i] = m_TestStat[i][0];
-			// Create test selectors for each fold :-)			
+			// Create test selectors for each fold :-)
 			CurrentBestTestAndHeuristic sel = m_Selector[i] = new CurrentBestTestAndHeuristic();
 			sel.m_Heuristic = m_Heuristic;
 		}
@@ -371,7 +371,7 @@ if (Debug.debug == 1) {
 		sel.m_TestStat = m_TestStat[0];
 		sel.m_PosStat = m_PosStat[0];
 	}
-		
+
 	public final void initTestSelectors(OptXValGroup grp) {
 		int nb = grp.getNbFolds();
 		for (int i = 0; i < nb; i++) {
@@ -382,13 +382,13 @@ if (Debug.debug == 1) {
 			sel.initTestSelector(grp.getTotStat(fold));
 		}
 	}
-		
+
 	public final void setNbFolds(int folds) {
-		m_NbFolds = folds;	
+		m_NbFolds = folds;
 		m_PrevCl = new int[folds+1];
 		m_PrevVl = new double[folds+1];
 	}
-	
+
 	public final void initialize(int folds) {
 		// Create nominal split
 		if (getSettings().isBinarySplit()) m_Split = new SubsetSplit();
@@ -422,8 +422,8 @@ if (Debug.debug == 1) {
 	public ClusNode induce(ClusRun cr, MultiScore score) {
 		return null;
 	}
-	
+
 	public ClusModel induceSingleUnpruned(ClusRun cr) {
 		return null;
-	}	
+	}
 }

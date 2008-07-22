@@ -24,21 +24,21 @@ public class KNNLearner extends MTLearnerImpl {
 
 	@Override
 	protected RowData[] LearnModel(TargetSet targets, RowData train,RowData test) {
-		
+
 		String appName = m_Sett.getAppName();
-		
+
 		writeCSV("train.csv"+appName,targets,train);
 		writeCSV("test.csv"+appName,targets,test);
-		
+
 		/*
 		System.out.println(train.getNbRows());
 		System.out.println(test.getNbRows());
 		*/
-		
+
 		NumericAttrType[] descriptive = test.m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE);
 		int nrFeatures = descriptive.length;
 		int nrTargets = targets.size();
-		
+
 		try {
 			///ga_basic_SIT <config file> <fold size> <# features> <# targets> <training data> <test data> <output file name>
 
@@ -46,16 +46,16 @@ public class KNNLearner extends MTLearnerImpl {
 			// /data/home/u0051096/top40/
 			String[] commands = new String[]{"/home/beau/SIT_evaluation/gent/top40/ga_basic_SIT","config.txt",
 					 test.getNbRows()+"",nrFeatures+"",nrTargets+"","train.csv"+appName,"test.csv"+appName,"result.csv"+appName,benchmk_cnt+""};
-			
-			
+
+
 
 			for(int i = 0;i<commands.length;i++){
 				System.out.print(commands[i]+" ");
 			}
 	//		System.out.println();
-			
+
 			//commands = new String[]{"/home/beau/SIT_evaluation/gent/top40/ga_basic_SIT"};
-			
+
 			Process child = Runtime.getRuntime().exec(commands);
 			String line;
 			BufferedReader input =
@@ -65,10 +65,10 @@ public class KNNLearner extends MTLearnerImpl {
 		     //   System.out.println(line);
 		      }
 
-			
-						
+
+
 			child.waitFor();
-			
+
 
 		} catch (IOException e) {
 		} catch (InterruptedException e) {
@@ -77,8 +77,8 @@ public class KNNLearner extends MTLearnerImpl {
 		}
 
 		RowData predictions = new RowData(test.m_Schema,test.getNbRows());
-		
-		
+
+
 		readResult(targets,predictions);
 		RowData[] result = {test,predictions};
 
@@ -90,19 +90,19 @@ public class KNNLearner extends MTLearnerImpl {
 	}
 
 	private RowData readResult(TargetSet targets,RowData result){
-		
+
 		try {
 			FileReader input = new FileReader("result.csv"+m_Sett.getAppName());
 			BufferedReader bufRead = new BufferedReader(input);
 			String line = bufRead.readLine();
-			
+
 			int count = 0;
 			while (line != null){
 				DataTuple t = parseLine(line,targets,result.m_Schema);
 				result.setTuple(t,count);
 				count++;
 				line = bufRead.readLine();
-				
+
 			}
 			bufRead.close();
 			if(count==0){
@@ -110,36 +110,36 @@ public class KNNLearner extends MTLearnerImpl {
 			}
 
 		}catch (ArrayIndexOutOfBoundsException e){
-			System.out.println("no results file found?");          
+			System.out.println("no results file found?");
 		}catch (IOException e){
 			e.printStackTrace();
 		}
-		
-		
+
+
 		return result;
 	}
-	
+
 	private DataTuple parseLine(String line,TargetSet targets,ClusSchema schema){
 		DataTuple t = new DataTuple(schema);
-		
+
 		Iterator trgts = targets.iterator();
-		
+
 		String[] values = line.split(",");
 		Double[] doubles = new Double[values.length];
-		
+
 		for(int i=0;i<values.length;i++){
 			doubles[i] = Double.parseDouble(values[i]);
-			
+
 		}
-		
+
 		int count = 0;
 		while(trgts.hasNext()){
 			NumericAttrType atr = (NumericAttrType) trgts.next();
 			atr.setNumeric(t,doubles[count]);
 			count++;
 		}
-		
-		
+
+
 		return t;
 	}
 

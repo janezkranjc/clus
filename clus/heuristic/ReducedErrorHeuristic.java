@@ -34,12 +34,12 @@ public class ReducedErrorHeuristic extends ClusHeuristic {
 
 	private double m_NbTrain;
 	ClusStatistic m_Pos, m_Neg;
-	
+
 	public ReducedErrorHeuristic(ClusStatistic stat) {
 		m_Pos = stat;
 		m_Neg = stat.cloneStat();
 	}
-	
+
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
 		double n_tot = c_tstat.m_SumWeight;
 		double n_pos = c_pstat.m_SumWeight;
@@ -61,19 +61,19 @@ public class ReducedErrorHeuristic extends ClusHeuristic {
 			m_Neg.addScaled(1.0-pos_freq, missing);
 			double pos_error = m_Pos.getError();
 			double neg_error = m_Neg.getError();
-			return -(pos_error + neg_error)/m_NbTrain;			
+			return -(pos_error + neg_error)/m_NbTrain;
 		}
 	}
-	
+
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic[] c_pstat, int nbsplit) {
 		return Double.NEGATIVE_INFINITY;
 	}
-	
+
 	public void setRootStatistic(ClusStatistic stat) {
 		m_NbTrain = stat.m_SumWeight;
 	}
-	
+
 	public String getName() {
 		return "Reduced Error Heuristic";
-	}	
+	}
 }

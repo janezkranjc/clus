@@ -42,7 +42,7 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 
 	public final static int LEVEL_WISE = 0;
 	public final static int DEPTH_FIRST = 1;
-	
+
 	public ClusDecisionTree(Clus clus) {
 		super(clus);
 	}
@@ -51,7 +51,7 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 		System.out.println("TDIDT");
 		System.out.println("Heuristic: "+getStatManager().getHeuristicName());
 	}
-	
+
 	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		if (sett.hasConstraintFile()) {
 			boolean fillin = cargs.hasOption("fillin");
@@ -61,23 +61,23 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 		} else {
 			return new DepthFirstInduce(schema, sett);
 		}
-	}	
-	
+	}
+
 	public final static ClusNode pruneToRoot(ClusNode orig) {
 		ClusNode pruned = (ClusNode) orig.cloneNode();
 		pruned.makeLeaf();
 		return pruned;
 	}
-	
+
 	public static ClusModel induceDefault(ClusRun cr) {
 		ClusNode node = new ClusNode();
 		RowData data = (RowData)cr.getTrainingSet();
 		node.initTargetStat(cr.getStatManager(), data);
 		node.computePrediction();
-		node.makeLeaf();		
+		node.makeLeaf();
 		return node;
 	}
-	
+
 	public void convertToRules(ClusRun cr, int tree) throws ClusException, IOException {
 		ClusNode tree_root = (ClusNode)cr.getModel(tree);
 		ClusRulesFromTree rft = new ClusRulesFromTree(true);
@@ -107,17 +107,17 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 			pruned_info.setName(pruner.getPrunedName(i));
 		}
 	}
-	
+
 	public final ClusModel pruneSingle(ClusModel orig, ClusRun cr) throws ClusException {
 		ClusNode pruned = (ClusNode)((ClusNode)orig).cloneTree();
 		PruneTree pruner = getStatManager().getTreePruner(cr.getPruneSet());
 		pruner.setTrainingData((RowData) cr.getTrainingSet());
 		pruner.prune(pruned);
 		return pruned;
-	}	
-	
+	}
+
 	public void postProcess(ClusRun cr) throws ClusException, IOException {
-		ClusNode orig = (ClusNode)cr.getModel(ClusModel.ORIGINAL);		
+		ClusNode orig = (ClusNode)cr.getModel(ClusModel.ORIGINAL);
 		ClusModelInfo orig_info = cr.getModelInfo(ClusModel.ORIGINAL);
 		orig_info.setName("Original");
 		ClusNode defmod = pruneToRoot(orig);
@@ -130,7 +130,7 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 			int cr_nb = cr.getNbModels();
 			for (int i = 0; i < cr_nb; i++) {
 				if (i != ClusModel.DEFAULT) {
-					convertToRules(cr, i);					
+					convertToRules(cr, i);
 				}
 			}
 		}

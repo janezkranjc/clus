@@ -33,39 +33,39 @@ import java.io.*;
 import java.util.*;
 
 public interface ClusModel {
-	
+
 	public static int DEFAULT = 0;
 	public static int ORIGINAL = 1;
 	public static int PRUNED = 2;
-	
+
 	public static int PRUNE_INVALID = 0;
-  
+
     public static int TRAIN = 0;
     public static int TEST = 1;
 
 	public ClusStatistic predictWeighted(DataTuple tuple);
-	
+
 	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException;
-	
+
 	public int getModelSize();
-	
+
 	public String getModelInfo();
-	
+
 	public void printModel(PrintWriter wrt);
-	
-	public void printModel(PrintWriter wrt, StatisticPrintInfo info);	
-	
+
+	public void printModel(PrintWriter wrt, StatisticPrintInfo info);
+
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples);
 
 	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem, boolean exhaustive);
-	
+
 	public void printModelToPythonScript(PrintWriter wrt);
-	
+
 	public void attachModel(HashMap table) throws ClusException;
-	
+
 	public void retrieveStatistics(ArrayList list);
-	
+
 	public ClusModel prune(int prunetype);
-	
+
 	public int getID();
 }

@@ -34,11 +34,11 @@ import clus.data.rows.*;
 public abstract class NodeTest implements Serializable {
 
 	public final static int UNKNOWN = -1;
-	
+
 	public final static int N_EQ = 0;	// Not equal
 	public final static int S_EQ = 1;	// Soft equal
 	public final static int H_EQ = 2;	// Hard equal
-	
+
 	public boolean m_UnknownBranch;
 	public double m_UnknownFreq;
 	public double[] m_BranchFreq;
@@ -52,72 +52,72 @@ public abstract class NodeTest implements Serializable {
  * Prediction methods
  ***************************************************************************/
 
-/*	
+/*
 	// In case of binary, first branch (0) is "yes"
 	public abstract int predict(ClusAttribute attr, int idx);
-*/	
-		
+*/
+
 	// Prediction for tuples
 	public abstract int predictWeighted(DataTuple tuple);
-		
+
 	// Prediction for nominal var
 	public int nominalPredict(int value) {
 		return -1;
 	}
-	
+
 	// Prediction for numeric var
 	public int numericPredict(double value) {
 		return -1;
-	}	
-	
+	}
+
 	// Prediction for nominal var
 	public int nominalPredictWeighted(int value) {
 		return -1;
 	}
-	
+
 	// Prediction for numeric var
 	public int numericPredictWeighted(double value) {
 		return -1;
 	}
-	
+
 	public boolean isUnknown(DataTuple tuple) {
 		return getType().isMissing(tuple);
 	}
-		
+
 /***************************************************************************
  * Proportion of examples in different branches
  ***************************************************************************/
-	
+
 	// Get proportion of examples in branch
 	public final double getProportion(int branch) {
 		return m_BranchFreq[branch];
 	}
-	
+
 	public final void setProportion(int branch, double prop) {
 		m_BranchFreq[branch] = prop;
 	}
-		
+
 	public final void setProportion(double[] prop) {
 		m_BranchFreq = prop;
-	}	
-	
+	}
+
 	public final void setPosFreq(double prop) {
 		m_BranchFreq[ClusNode.YES] = prop;
 		m_BranchFreq[ClusNode.NO] = 1.0-prop;
-	}	
-	
+	}
+
 	public final double getPosFreq() {
 		return m_BranchFreq[ClusNode.YES];
 	}
-		
+
 	public final double getUnknownFreq() {
 		return m_UnknownFreq;
 	}
-	
+
 	public final void setUnknownFreq(double unk) {
 		m_UnknownFreq = unk;
-	}	
-	
+	}
+
 /***************************************************************************
  * Arity methods
  ***************************************************************************/
@@ -131,11 +131,11 @@ public abstract class NodeTest implements Serializable {
 	public final int getNbChildren() {
 		return m_BranchFreq.length;
 	}
-	
+
 	public final void setArity(int arity) {
 		m_BranchFreq = new double[arity];
-	}	
-	
+	}
+
 	public final int updateArity() {
 //		if (getUnknownFreq() > 0.0) addUnknownBranch();
 		return getNbChildren();
@@ -145,7 +145,7 @@ public abstract class NodeTest implements Serializable {
 	private void addUnknownBranch() {
 		m_UnknownBranch = true;
 		int arity = getNbChildren();
-		double unkfreq = getUnknownFreq();		
+		double unkfreq = getUnknownFreq();
 		double[] oldBFreq = m_BranchFreq;
 		m_BranchFreq = new double[arity+1];
 		for (int i = 0; i < arity; i++) {
@@ -167,33 +167,33 @@ public abstract class NodeTest implements Serializable {
 	public boolean isSoft() {
 		return false;
 	}
-	
+
 	// Soft equality
 	public int softEquals(NodeTest test) {
 		return equals(test) ? H_EQ : N_EQ;
 	}
-	
+
 	// Returns true if this test has constants filled in
 	// this is useful for the syntactic constraints
 	public boolean hasConstants() {
 		return true;
 	}
-	
+
 	public NodeTest getBranchTest(int i) {
 		return null;
 	}
-	
+
 	public NodeTest simplifyConjunction(NodeTest other) {
 		return null;
 	}
-	
+
 /***************************************************************************
  * Equality test
  ***************************************************************************/
 
 	// Equality test
 	public abstract boolean equals(NodeTest test);
-	
+
 	public int hashCode() {
 		return 1111;
 	}
@@ -204,26 +204,26 @@ public abstract class NodeTest implements Serializable {
 
 	// Attribute type to split on
 	public abstract ClusAttrType getType();
-	
+
 	// Switch type
-	public abstract void setType(ClusAttrType type);	
+	public abstract void setType(ClusAttrType type);
 
 /***************************************************************************
  * String methods
  ***************************************************************************/
 
-	// String representation		
+	// String representation
 	public abstract String getString();
 
 	// String representation (for branch - not used for binary)
 	public String getBranchString(int i) {
 		return null;
 	}
-	
+
 	public String getBranchLabel(int i) {
 		return getBranchString(i);
 	}
-	
+
 	public boolean hasBranchLabels() {
 		return false;
 	}
@@ -244,12 +244,12 @@ public abstract class NodeTest implements Serializable {
 		// Clone type to avoid overwriting original type
 		ctype.copyArrayIndex(ntype);
 		setType(ctype);
-	}	
-	
+	}
+
 	public int getNbLines() {
 		return 1;
 	}
-	
+
 	public String getLine(int i) {
 		return getString();
 	}
@@ -266,21 +266,21 @@ public abstract class NodeTest implements Serializable {
 			String unk = ClusFormat.ONE_AFTER_DOT.format(getUnknownFreq()*100);
 			str += " (miss: " + unk + "%)";
 		}
-		return str;		
+		return str;
 	}
-	
+
 	public final String getTestString(int idx) {
 		String str = getBranchString(idx);
 		if (Settings.SHOW_BRANCH_FREQ) {
 			String bfr = ClusFormat.ONE_AFTER_DOT.format(getProportion(idx)*100);
-			str += " (" + bfr + "%)";			
-		}		
+			str += " (" + bfr + "%)";
+		}
 		if (idx == 0 && Settings.SHOW_UNKNOWN_FREQ) {
 			String unk = ClusFormat.ONE_AFTER_DOT.format(getUnknownFreq()*100);
 			str += " (miss:" + unk + "%)";
 		}
 		return str;
-	}		
+	}
 
 	// Get string representation of test
 	public final String toString() {

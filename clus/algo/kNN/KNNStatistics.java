@@ -232,7 +232,7 @@ public class KNNStatistics {
 		DataTuple t = $prototypes[idx];
 		ClusSchema schema = data.getSchema();
 		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
-		
+
 		for (int i = 0; i < attrs.length; i++){
 			if (attrs[i].getTypeIndex() == NominalAttrType.THIS_TYPE){
 				System.out.print(attrs[i].getNominal(t)+",");

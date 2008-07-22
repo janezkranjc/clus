@@ -36,7 +36,7 @@ public class OverSample extends ClusSelection {
 	public boolean supportsReplacement() {
 		return true;
 	}
-	
+
 	public int getIndex(int i) {
 		return ClusRandom.nextInt(ClusRandom.RANDOM_SELECTION, m_NbRows);
 	}
@@ -44,7 +44,7 @@ public class OverSample extends ClusSelection {
 	public int getNbSelected() {
 		return m_NbSelected;
 	}
-	
+
 	public boolean isSelected(int row) {
 		return false;
 	}

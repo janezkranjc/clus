@@ -39,8 +39,8 @@ import clus.ext.hierarchical.*;
  * Create one rule for each value of each nominal attribute
  */
 public class ClusRulesForAttrs {
-	
-	double m_SigLevel = 0.05;	
+
+	double m_SigLevel = 0.05;
 
 	public ClusRuleSet constructRules(ClusRun cr) throws IOException, ClusException {
 		ClusStatManager mgr = cr.getStatManager();
@@ -66,14 +66,14 @@ public class ClusRulesForAttrs {
     		valid_stat.calcMean();
   			stat.setValidationStat(valid_stat);
   			stat.setGlobalStat(global_valid);
- 				stat.setSigLevel(m_SigLevel);				
+ 				stat.setSigLevel(m_SigLevel);
   			stat.calcMean();
   			if (stat.isValidPrediction()) {
   				rule.setTargetStat(stat);
   				res.add(rule);
   			}
-    	}    	
-    }    
+    	}
+    }
     res.removeEmptyRules();
     res.simplifyRules();
     return res;

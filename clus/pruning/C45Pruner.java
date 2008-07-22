@@ -34,22 +34,22 @@ import clus.statistic.*;
 // import clus.weka.*;
 
 public class C45Pruner extends PruneTree {
-	
+
 	RowData m_TrainingData;
 	boolean m_SubTreeRaising = true;
 	double m_ConfidenceFactor = 0.25;
 	double m_ZScore = 0.0;
-	
+
 	public void prune(ClusNode node) throws ClusException {
 		m_ZScore = computeZScore();
 		node.safePrune();
 		// ClusNode orig = (ClusNode)node.cloneTree();
 		node.pruneByTrainErr(null);
 		pruneC45Recursive(node, m_TrainingData);
-		// System.out.println("Performing test of C45 pruning");		
-		// TestC45PruningRuleNode.performTest(orig, node, m_TrainingData);		
+		// System.out.println("Performing test of C45 pruning");
+		// TestC45PruningRuleNode.performTest(orig, node, m_TrainingData);
 	}
-	
+
 	public void pruneC45Recursive(ClusNode node, RowData data) throws ClusException {
 		if (!node.atBottomLevel()) {
 			// first prune all child trees
@@ -60,7 +60,7 @@ public class C45Pruner extends PruneTree {
 				pruneC45Recursive(child, subset);
 			}
 			// compute largest branch index
-			double errorsLargestBranch = 0.0;			
+			double errorsLargestBranch = 0.0;
 			int indexOfLargestBranch = node.getLargestBranchIndex();
 			if (m_SubTreeRaising) {
 				ClusNode largest = (ClusNode)node.getChild(indexOfLargestBranch);
@@ -92,7 +92,7 @@ public class C45Pruner extends PruneTree {
 			}
 		}
 	}
-	
+
 	public double getEstimatedErrorsForDistribution(ClassificationStat stat) {
 	    if (ClusUtil.eq(stat.getTotalWeight(), 0.0)) {
 	        return 0.0;
@@ -101,7 +101,7 @@ public class C45Pruner extends PruneTree {
 	    	return nb_incorrect + addErrs(stat.getTotalWeight(), nb_incorrect, m_ConfidenceFactor);
 	    }
 	}
-	
+
 	public double getEstimatedErrorsForBranch(ClusNode node, RowData data) {
 		if (node.atBottomLevel()) {
 			ClassificationStat stat = (ClassificationStat)node.getTargetStat().cloneStat();
@@ -114,24 +114,24 @@ public class C45Pruner extends PruneTree {
 				ClusNode child = (ClusNode)node.getChild(i);
 				RowData subset = data.applyWeighted(tst, i);
 				sum += getEstimatedErrorsForBranch(child, subset);
-			}			
+			}
 			return sum;
 		}
 	}
-	
+
 	public double getEstimatedErrors(ClusNode node) {
-		if (node.atBottomLevel()) {    
+		if (node.atBottomLevel()) {
 		    return getEstimatedErrorsForDistribution((ClassificationStat)node.getTargetStat());
 		} else {
 			double sum = 0.0;
 			for (int i = 0; i < node.getNbChildren(); i++) {
 				ClusNode child = (ClusNode)node.getChild(i);
 				sum += getEstimatedErrors(child);
-			}			
+			}
 			return sum;
 		}
 	}
-	
+
 	/* Computes estimated extra error for given total number of instances
 	 * and error using normal approximation to binomial distribution (and continuity correction)
 	 */
@@ -145,9 +145,9 @@ public class C45Pruner extends PruneTree {
 		  if (e < 1) {
 			  // Base case (i.e. e == 0) from documenta Geigy Scientific
 			  // Tables, 6th edition, page 185
-			  double base = N * (1 - Math.pow(CF, 1 / N)); 
+			  double base = N * (1 - Math.pow(CF, 1 / N));
 			  if (e == 0) {
-				  return base; 
+				  return base;
 			  }
 			  // Use linear interpolation between 0 and 1 like C4.5 does
 			  return base + e * (addErrs(N, 1, CF) - base);
@@ -164,11 +164,11 @@ public class C45Pruner extends PruneTree {
 		  double r = (f + (z * z) / (2 * N) + z * Math.sqrt((f / N) - (f * f / N) + (z * z / (4 * N * N)))) / (1 + (z * z) / N);
 		  return (r * N) - e;
 	}
-	
+
 	public void setTrainingData(RowData data) {
 		m_TrainingData = data;
 	}
-	
+
 	public double computeZScore() throws ClusException {
 		try {
 			DistributionFactory distributionFactory = DistributionFactory.newInstance();

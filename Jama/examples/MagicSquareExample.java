@@ -21,7 +21,7 @@
  *************************************************************************/
 
 package Jama.examples;
-import Jama.*; 
+import Jama.*;
 import java.util.Date;
 
 /** Example of use of Matrix Class, featuring magic squares. **/
@@ -92,7 +92,7 @@ public class MagicSquareExample {
    private static void print (String s) {
       System.out.print(s);
    }
-   
+
    /** Format double with Fw.d. **/
 
    public static String fixedWidthDoubletoString (double x, int w, int d) {
@@ -120,7 +120,7 @@ public class MagicSquareExample {
 
    public static void main (String argv[]) {
 
-   /* 
+   /*
     | Tests LU, QR, SVD and symmetric Eig decompositions.
     |
     |   n       = order of magic square.
@@ -136,7 +136,7 @@ public class MagicSquareExample {
       print("\n    Test of Matrix Class, using magic squares.\n");
       print("    See MagicSquareExample.main() for an explanation.\n");
       print("\n      n     trace       max_eig   rank        cond      lu_res      qr_res\n\n");
- 
+
       Date start_time = new Date();
       double eps = Math.pow(2.0,-52.0);
       for (int n = 3; n <= 32; n++) {
@@ -178,7 +178,7 @@ public class MagicSquareExample {
       }
       Date stop_time = new Date();
       double etime = (stop_time.getTime() - start_time.getTime())/1000.;
-      print("\nElapsed Time = " + 
+      print("\nElapsed Time = " +
          fixedWidthDoubletoString(etime,12,3) + " seconds\n");
       print("Adios\n");
    }

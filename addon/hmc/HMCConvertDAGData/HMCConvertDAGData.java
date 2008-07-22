@@ -32,14 +32,14 @@ import clus.ext.hierarchical.WHTDStatistic;
 public class HMCConvertDAGData {
 
 	public final static boolean CREATE_TRAIN_TUNE_TEST_SPLIT = true;
-	
+
 	public void convert(String input, String output) throws Exception {
 		Clus clus = new Clus();
 		String appname = FileUtil.getName(input)+".s";
 		clus.initializeAddOn(appname);
 		ClusStatManager mgr = clus.getStatManager();
 		Settings sett = clus.getSettings();
-		RowData data = (RowData)clus.getData();		
+		RowData data = (RowData)clus.getData();
 		if (CREATE_TRAIN_TUNE_TEST_SPLIT) {
 			ClusRun run = clus.partitionData();
 			ClusStatistic[] stats = new ClusStatistic[1];
@@ -66,14 +66,14 @@ public class HMCConvertDAGData {
 				ARFFFile.writeArff(output+".test.arff", test);
 			}
 			if (!sett.isNullPruneFile()) {
-				RowData tune  = (RowData)run.getPruneSet();	
-				ARFFFile.writeArff(output+".valid.arff", tune);			
-			}		
+				RowData tune  = (RowData)run.getPruneSet();
+				ARFFFile.writeArff(output+".valid.arff", tune);
+			}
 		} else {
 			ARFFFile.writeArff(output, data);
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		if (args.length != 2) {
 			System.out.println("Usage: HMCConvertDAGData input.arff output.arff");
@@ -88,5 +88,5 @@ public class HMCConvertDAGData {
 			System.err.println("Error: "+e);
 			e.printStackTrace();
 		}
-	}	
+	}
 }

@@ -42,9 +42,9 @@ public class ClusWekaModel implements ClusModel {
 
 	Classifier m_Classifier;
 	ClusWekaClassifier m_Parent;
-	
+
 	public ClusStatistic predictWeighted(DataTuple tuple) {
-		Instance weka_tuple = m_Parent.m_Data.convertInstance(tuple);		
+		Instance weka_tuple = m_Parent.m_Data.convertInstance(tuple);
 	    Instance classMissing = (Instance)weka_tuple.copy();
 	    classMissing.setDataset(m_Parent.getDummyData());
 	    classMissing.setClassMissing();
@@ -53,61 +53,61 @@ public class ClusWekaModel implements ClusModel {
 	    	ClassificationStat stat = (ClassificationStat)m_Parent.createStatistic();
 	    	stat.initSingleTargetFrom(dist);
 	    	stat.calcMean();
-	    	return stat;		
+	    	return stat;
 	    } catch (Exception e) {
 	    	System.out.println("Weka Error: "+e.getClass().getName()+": "+e.getMessage());
 	    }
 		return null;
 	}
-	
+
 	public void setParent(ClusWekaClassifier parent) {
 		m_Parent = parent;
 	}
-	
+
 	public void setClassifier(Classifier classifier) {
 		m_Classifier = classifier;
 	}
-	
+
 	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException {
 	}
-	
+
 	public int getModelSize() {
 		return 0;
 	}
-	
+
 	public String getModelInfo() {
 		return "Weka Model";
 	}
-	
+
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 	}
-	
+
 	public void printModel(PrintWriter wrt) {
 	}
-	
+
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
-	}	
-	
+	}
+
 	public void printModelToPythonScript(PrintWriter wrt) {
 	}
-	
+
 	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem, boolean ex) {
 	}
 	public void saveModel(ObjectSaveStream strm) throws IOException {
 	}
-	
+
 	public void attachModel(HashMap table) {
 		System.err.println(getClass().getName()+"attachModel() not implemented");
 	}
-	
+
 	public int getID() {
   		return 0;
-  	}	
-  
+  	}
+
   	public ClusModel prune(int prunetype) {
   		return this;
 	}
-  	
-    public void retrieveStatistics(ArrayList list) {	 
+
+    public void retrieveStatistics(ArrayList list) {
     }
 }

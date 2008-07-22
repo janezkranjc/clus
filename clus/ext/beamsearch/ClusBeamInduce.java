@@ -41,27 +41,27 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 
 public class ClusBeamInduce extends ClusInductionAlgorithm {
-	
+
 	protected NominalSplit m_Split;
 	protected ClusBeamSearch m_Search;
-	
+
 	public ClusBeamInduce(ClusSchema schema, Settings sett, ClusBeamSearch search) throws ClusException, IOException {
 		super(schema, sett);
 		m_Search = search;
 	}
-	
+
 	public void initializeHeuristic() {
 		m_Search.initializeHeuristic();
 	}
-		
+
 	public boolean isModelWriter() {
 		return true;
 	}
-	
+
 	public void writeModel(ClusModelCollectionIO strm) throws IOException {
 		m_Search.writeModel(strm);
 	}
-	
+
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 		ClusNode root = m_Search.beamSearch(cr);
 		root.updateTree();
@@ -75,7 +75,7 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 		def_model.setName("Default");
 		ArrayList lst = m_Search.getBeam().toArray();
 		updateAllPredictions(lst);
-		
+
 		//the pruning is ON for all setings! This could be turned off when needed!
 		if (getSettings().getBeamTreeMaxSize() <= -1) postPruneBeamModels(cr, lst);
 		if (getSettings().getBeamSortOnTrainParameter()) sortModels(cr, lst);
@@ -84,11 +84,11 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 		bsimout.appendToFile(lst, cr);
 		boolean toForest = cr.getStatManager().getSettings().isBeamToForest();
 		ClusForest bForest = new ClusForest(getStatManager());
-		
+
 		for (int i = 0; i < lst.size(); i++) {
 			ClusBeamModel mdl = (ClusBeamModel)lst.get(lst.size()-i-1);
 			ClusModelInfo model_info = cr.addModelInfo(i+1);
-			ClusNode tree = (ClusNode)mdl.getModel();			
+			ClusNode tree = (ClusNode)mdl.getModel();
 			model_info.setModel(tree);
 			model_info.setName("Beam "+(i+1));
 			model_info.clearAll();
@@ -100,10 +100,10 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 			forest_info.setName("BeamToForest");
 		}
 	}
-	
+
 	/**Dragi, JSI
 	 *Post Pruning of the models in the beam
-	 * 
+	 *
 	 * @param cr - ClusRun
 	 * @param arr - List with the beam
 	 * @throws ClusException
@@ -124,14 +124,14 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 		    tree.updateTree();
 		}
 	}
-	
+
 	/**Dragi, JSI
 	 * Sorts the beam according to train accuracy/correlation in descending order
-	 * In case of equal train accuracy/correlation 
+	 * In case of equal train accuracy/correlation
 	 * then the tree with greater heuristic score are put higher
 	 * @param cr - Clus Run
 	 * @param arr	- List with the beam
-	 * @throws ClusException 
+	 * @throws ClusException
 	 * @throws ClusException
 	 * @throws IOException
 	 */
@@ -174,11 +174,11 @@ public class ClusBeamInduce extends ClusInductionAlgorithm {
 							tmp = heur [j];
 							heur [j] = heur [k];
 							heur [k] = tmp;
-						} 
+						}
 				}
 			}
 		arr.clear();
 		for (int m = 0; m < size; m++)arr.add(models[m]);
 	}
-	
+
 }

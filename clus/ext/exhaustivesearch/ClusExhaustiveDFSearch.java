@@ -49,34 +49,34 @@ import clus.util.ClusException;
 public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 
 	protected int m_cTree;
-	
+
 	public ClusExhaustiveDFSearch(Clus clus) throws ClusException, IOException {
 		super(clus);
 	}
-	
+
 	public int getCTree() {
 		return m_cTree;
 	}
-	
+
 	public void setCTree(int i) {
 		m_cTree = i;
 	}
-	
+
 	public void incCTree() {
 		m_cTree++;
 	}
-	
+
 	public ClusBeamModel getRootNode(ClusRun run) throws ClusException {
 		ClusStatManager smanager = m_BeamInduce.getStatManager();
-		Settings sett = smanager.getSettings();	
+		Settings sett = smanager.getSettings();
 		sett.setMinimalWeight(1); //the minimal number of covered example in a leaf is 1
 		/* Create single leaf node */
 		RowData train = (RowData)run.getTrainingSet();
 		ClusStatistic stat = m_Induce.createTotalClusteringStat(train);
 		stat.calcMean();
 		m_Induce.initSelectorAndSplit(stat);
-		initSelector(m_Induce.getBestTest());		
-		System.out.println("Root statistic: "+stat);		
+		initSelector(m_Induce.getBestTest());
+		System.out.println("Root statistic: "+stat);
 		ClusNode root = null;
 		/* Has syntactic constraints? */
 		String constr_file = sett.getConstraintFile();
@@ -98,16 +98,16 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 		/* Add tree to beam */
 		return new ClusBeamModel(value, root);
 	}
-	
+
 	/*
 	 * @leaf : the leaf to refine
 	 * @root : the entire model which encapsuled the tree (contains the value, etc...)
 	 * @beam : the entire beam
 	 * @attr : the attribute that can be used for to refine the leaf
-	 * 
+	 *
 	 * Everything that concerns setting the test is in the ClusNode Class
 	 */
-	
+
 	public void refineGivenLeafExhaustiveDF(ClusNode leaf, ClusBeamModel root, ClusBeam beam, ClusAttrType[] attrs, ClusRun run) throws IOException {
 		MyArray arr = (MyArray)leaf.getVisitor();
 		RowData data = new RowData(arr.getObjects(), arr.size());
@@ -123,7 +123,7 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 		// init base value for heuristic
 		CurrentBestTestAndHeuristic sel = m_Induce.getBestTest();
 		FindBestTest find = m_Induce.getFindBestTest();
-		double base_value = root.getValue();		
+		double base_value = root.getValue();
 		double leaf_add = m_Heuristic.computeLeafAdd(leaf);
 		m_Heuristic.setTreeOffset(base_value - leaf_add);
 		int nbNewLeaves = 0;
@@ -147,9 +147,9 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 				newLeaves[nbNewLeaves++] = ref_leaf;
 			}
 		}
-		ClusStatManager mgr = m_Induce.getStatManager();		
+		ClusStatManager mgr = m_Induce.getStatManager();
 		for (int i = 0; i < nbNewLeaves; i++) {
-			ClusNode ref_leaf = newLeaves[i]; 
+			ClusNode ref_leaf = newLeaves[i];
 			int arity = ref_leaf.updateArity();
 			NodeTest test = ref_leaf.getTest();
 			for (int j = 0; j < arity; j++) {
@@ -171,11 +171,11 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 			refineModel(new_model, beam, run);
 		}
 	}
-	
+
 	/*
 	 * Used to go down the tree to each leaf and then refine each leafs
 	 */
-	
+
 	public void refineEachLeafDF(ClusNode tree, ClusBeamModel root, ClusBeam beam, ClusAttrType[] attrs, ClusRun run) throws IOException {
 		int nb_c = tree.getNbChildren();
 		//System.out.println("Tree to refine:");
@@ -192,12 +192,12 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 	    	}
 	    }
 	}
-	
+
 	public static ArrayList getErrorPerleaf(ClusNode tree, MDouble sumLeftLeaves) {
 		ArrayList listRightLeaves = new ArrayList();
 		//System.out.println("Tree:");
 		//tree.printTree();
-		getErrorPerleaf(tree, sumLeftLeaves, listRightLeaves);		
+		getErrorPerleaf(tree, sumLeftLeaves, listRightLeaves);
 		Collections.sort(listRightLeaves);
 		/*System.out.println("SumLeftLeaves: "+sumLeftLeaves.getDouble());
 		System.out.print("ListRightLeaves: ");
@@ -205,11 +205,11 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 			if (i != 0) System.out.print(",");
 			System.out.print(listRightLeaves.get(i));
 		}
-		System.out.println();	*/	
+		System.out.println();	*/
 		return listRightLeaves;
-	}	
-	
-	public static void getErrorPerleaf(ClusNode tree, MDouble sumLeftLeaves, ArrayList listRightLeaves) {	
+	}
+
+	public static void getErrorPerleaf(ClusNode tree, MDouble sumLeftLeaves, ArrayList listRightLeaves) {
 		int nb_c = tree.getNbChildren();
 		if (nb_c == 0) {
 			ClusStatistic total = tree.getClusteringStat();
@@ -221,15 +221,15 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 	    		if (foundRightMost) {
 	    			getSumLeftLeavesError(child, sumLeftLeaves);
 	    		} else {
-	    			getErrorPerleaf(child, sumLeftLeaves, listRightLeaves);	
-	    		}	    		
+	    			getErrorPerleaf(child, sumLeftLeaves, listRightLeaves);
+	    		}
 	    		if (child.getNbChildren() > 0) {
 	    			foundRightMost = true;
 	    		}
 	    	}
 	    }
 	}
-	
+
 	public static void getSumLeftLeavesError(ClusNode tree, MDouble sumLeftLeaves) {
 		int nb_c = tree.getNbChildren();
 		if (nb_c == 0) {
@@ -240,9 +240,9 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 	    		ClusNode child = (ClusNode)tree.getChild(i);
 	    		getSumLeftLeavesError(child, sumLeftLeaves);
 	    	}
-	    }		
-	}	
-	
+	    }
+	}
+
 	public void refineModel(ClusBeamModel model, ClusBeam beam, ClusRun run) throws IOException {
 		ClusNode tree = (ClusNode)model.getModel();
 		int size = tree.getNbNodes();
@@ -259,24 +259,24 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 		if ((size == 1) && (m_MaxError > 0 && (tree.m_ClusteringStat).getErrorRel() > m_MaxError)) {tree_ok = false;}
 		if (tree_ok) {
 			//System.out.println("model "+getCTree()+" must be added");
-			beam.addModel(model);	
-		}		
+			beam.addModel(model);
+		}
 		//System.out.println("Tree size: "+size+" err: "+ClusNode.estimateErrorRecursive(tree)/m_TotalWeight+" ok: "+tree_ok);
 		//tree.printTree();
 		/* Compute size */
-		if (m_MaxTreeSize >= 0) { //if the size is infinite, it equals -1			
+		if (m_MaxTreeSize >= 0) { //if the size is infinite, it equals -1
 			if (size + 2 > m_MaxTreeSize) {
 				return;
 			}
 		}
-		
-		
+
+
 		//we assume that the test as binary
 		if(m_MaxError >0 && m_MaxTreeSize>0){//default m_MaxError =0
 			int NbpossibleSplit = (m_MaxTreeSize - tree.getModelSize())/2;
 			//System.out.println("the number of possible split is still "+NbpossibleSplit);
-			
-			MDouble sumLeftLeaves = new MDouble(); 
+
+			MDouble sumLeftLeaves = new MDouble();
 			ArrayList error = getErrorPerleaf(tree, sumLeftLeaves);
 			//System.out.println("the number of leaf is "+error.length);
 			if(error.size() > NbpossibleSplit){
@@ -284,7 +284,7 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 				for(int i = 0; i < (error.size()-NbpossibleSplit);i++){
 					//System.out.println(" leaf "+i+", error = "+error[i]);
 					minerror += ((Double)error.get(i)).doubleValue();
-				}	
+				}
 				double minerrorrel = minerror/m_TotalWeight;
 				//System.out.println("the minimum relative error is : "+minerrorrel);
 				if(minerrorrel > m_MaxError){
@@ -294,8 +294,8 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 				}
 			}
 		}
-		
-		
+
+
 		/* Sort the data into tree */
 		RowData train = (RowData)run.getTrainingSet();
 		m_Coll.initialize(tree, null);
@@ -310,7 +310,7 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 		/* Remove data from tree */
 		tree.clearVisitors();
 	}
-			
+
 	public ClusBeam exhaustiveSearch(ClusRun run) throws ClusException, IOException {
 		//int cpt_tree_evaluation = 0;
 		reset();
@@ -332,4 +332,4 @@ public class ClusExhaustiveDFSearch extends ClusExhaustiveSearch {
 		return beam;
 	}
 }
-	
+

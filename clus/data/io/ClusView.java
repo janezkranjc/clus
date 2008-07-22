@@ -38,7 +38,7 @@ public class ClusView {
 	public int getNbAttributes() {
 		return m_Attr.size();
 	}
-	
+
 	public ClusSerializable getAttribute(int idx) {
 		return (ClusSerializable)m_Attr.get(idx);
 	}
@@ -46,7 +46,7 @@ public class ClusView {
 	public void addAttribute(ClusSerializable attr) {
 		m_Attr.add(attr);
 	}
-		
+
 	public RowData readData(ClusReader reader, ClusSchema schema) throws IOException, ClusException {
 		schema.setReader(true);
 		ArrayList items = new ArrayList();
@@ -62,7 +62,7 @@ public class ClusView {
 		schema.setReader(false);
 		return new RowData(items, schema);
 	}
-	
+
 	public DataTuple readDataTupleFirst(ClusReader reader, ClusSchema schema) throws IOException, ClusException {
 		if (!reader.hasMoreTokens()) return null;
 		boolean sparse = reader.isNextChar('{');
@@ -70,28 +70,28 @@ public class ClusView {
 			m_Attr.clear();
 			schema.ensureSparse();
 			schema.createNormalView(this);
-		}		
+		}
 		return readDataTuple(reader, schema, sparse);
 	}
-	
+
 	public DataTuple readDataTupleNext(ClusReader reader, ClusSchema schema) throws IOException {
 		if (!reader.hasMoreTokens()) return null;
 		boolean sparse = reader.isNextChar('{');
 		if (sparse && !schema.isSparse()) {
 			throw new IOException("Sparse tuple found in a non-sparse data set (at row "+(reader.getRow()+1)+")");
-		}		
+		}
 		return readDataTuple(reader, schema, sparse);
-	}	
-	
+	}
+
 	public DataTuple readDataTuple(ClusReader reader, ClusSchema schema) throws IOException {
 		if (!reader.hasMoreTokens()) return null;
 		boolean sparse = reader.isNextChar('{');
 		return readDataTuple(reader, schema, sparse);
 	}
-	
+
 	public DataTuple readDataTuple(ClusReader reader, ClusSchema schema, boolean sparse) throws IOException {
-		DataTuple tuple = schema.createTuple();		
-		if (sparse) {			
+		DataTuple tuple = schema.createTuple();
+		if (sparse) {
 			while (!reader.isNextChar('}')) {
 				int idx = reader.readIntIndex();
 				if (idx < 1 || idx > m_Attr.size()) {
@@ -103,7 +103,7 @@ public class ClusView {
 				}
 			}
 		} else {
-			if (m_Attr.size() > 0) {			
+			if (m_Attr.size() > 0) {
 				ClusSerializable attr_0 = (ClusSerializable)m_Attr.get(0);
 				if (!attr_0.read(reader, tuple)) return null;
 				for (int j = 1; j < m_Attr.size(); j++) {
@@ -116,5 +116,5 @@ public class ClusView {
 		}
 		reader.readEol();
 		return tuple;
-	}	
+	}
 }

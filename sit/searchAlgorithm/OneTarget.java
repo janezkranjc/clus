@@ -8,7 +8,7 @@ import clus.main.Settings;
 
 /**
  * Fake learner which returns the maintarget.
- * 
+ *
  * @author beau
  *
  */
@@ -26,7 +26,7 @@ public class OneTarget implements SearchAlgorithm{
 	}
 
 	public void setSettings(Settings s) {
-		
+
 	}
 
 }

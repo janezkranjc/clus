@@ -44,13 +44,13 @@ public class COPKMeans {
 	protected int[][] m_ConstraintsIndex;
 	protected COPKMeansCluster[] m_Clusters;
 	protected ClusNormalizedAttributeWeights m_Scale;
-	
+
 	public COPKMeans(int maxNbClasses, ClusStatManager mgr) {
 		m_K = maxNbClasses;
 		m_Mgr = mgr;
 		m_Scale = (ClusNormalizedAttributeWeights)mgr.getClusteringWeights();
 	}
-	
+
 	public ClusStatManager getStatManager() {
 		return m_Mgr;
 	}
@@ -100,7 +100,7 @@ public class COPKMeans {
 		m_Constraints = new ArrayList();
 		Iterator edges = set.iterator();
 		while (edges.hasNext()) {
-			int[] edge = (int[])edges.next();			
+			int[] edge = (int[])edges.next();
 			DataTuple tj = new_data.getTuple(edge[0]);
 			DataTuple tk = new_data.getTuple(edge[1]);
 			m_Constraints.add(new ILevelConstraint(tj, tk, ILevelConstraint.ILevelCCannotLink));
@@ -136,7 +136,7 @@ public class COPKMeans {
 				if (!used_tuples[t2i]) {
 					used_tuples[t2i] = true;
 					m_Clusters[nb_has++] = new COPKMeansCluster(new_data.getTuple(t2i), mgr);
-				}				
+				}
 			} else {
 				ArrayList poss_pts = new ArrayList();
 				for (int i = 0; i < used_tuples.length; i++) {
@@ -153,7 +153,7 @@ public class COPKMeans {
 					int pi = ClusRandom.nextInt(ClusRandom.RANDOM_ALGO_INTERNAL, used_tuples.length);
 					m_Clusters[nb_has++] = new COPKMeansCluster(new_data.getTuple(pi), mgr);
 				}
-			}			
+			}
 		}
 	}
 
@@ -161,30 +161,30 @@ public class COPKMeans {
 		for (int i = 0; i < m_K; i++) {
 			m_Clusters[i].setIndex(i);
 		}
-	}	
-	
+	}
+
 	public void clearDataFromClusters() {
 		for (int i = 0; i < m_K; i++) {
 			m_Clusters[i].clearData();
 		}
 	}
-	
+
 	public void updateClusterCenters() {
 		for (int i = 0; i < m_K; i++) {
 			m_Clusters[i].updateCenter();
-		}		
+		}
 	}
-	
+
 	public double computeVariance() {
 		double variance = 0;
 		for (int i = 0; i < m_K; i++) {
 			variance += m_Clusters[i].getCenter().getSS(m_Scale);
-		}		
+		}
 		return variance;
-	}	
-	
+	}
+
 	public boolean checkConstraints(DataTuple tuple, int clid, int[] assign) {
-		int[] cidx = m_ConstraintsIndex[tuple.getIndex()];				
+		int[] cidx = m_ConstraintsIndex[tuple.getIndex()];
 		if (cidx != null) {
 			for (int j = 0; j < cidx.length; j++) {
 				/* CL constraint with otidx */
@@ -194,13 +194,13 @@ public class COPKMeans {
 				if (clid == oclid) {
 					/* cannot link constraint violated ! */
 					return false;
-				}				
+				}
 			}
 			return true;
 		} else {
 			return true;
-		}		
-	} 
+		}
+	}
 
 	public boolean assignDataToClusters(int[] assign) {
 		for (int i = 0; i < m_Data.getNbRows(); i++) {
@@ -227,12 +227,12 @@ public class COPKMeans {
 		}
 		return true;
 	}
-	
+
 	public double computeRandIndex(int[] assign) {
 		int a = 0;
 		int b = 0;
 		int nbex = m_OrigData.getNbRows();
-		ClusSchema schema = m_OrigData.getSchema(); 
+		ClusSchema schema = m_OrigData.getSchema();
 		NominalAttrType classtype = (NominalAttrType)schema.getAttrType(schema.getNbAttributes()-1);
 		for (int i = 0; i < nbex; i++) {
 			DataTuple ti = m_OrigData.getTuple(i);
@@ -248,9 +248,9 @@ public class COPKMeans {
 		}
 		double rand = 1.0 * (a+b) / (nbex*(nbex-1)/2);
 		System.out.println("Rand = "+rand+" (nbex = "+nbex+")");
-		return rand;		
+		return rand;
 	}
-		
+
 	public ClusModel induce(RowData data, ArrayList constr) {
 		COPKMeansModel model = new COPKMeansModel();
 		model.setK(m_K);
@@ -259,9 +259,9 @@ public class COPKMeans {
 		//System.out.println("Number clusters...");
 		numberClusters();
 		int[] prev_assign = null;
-		int[] assign = new int[m_Data.getNbRows()];		
+		int[] assign = new int[m_Data.getNbRows()];
 		for (int k = 0; k < 1000000; k++) {
-			clearDataFromClusters();			
+			clearDataFromClusters();
 			Arrays.fill(assign, -1);
 			if (!assignDataToClusters(assign)) {
 				/* cluster assignment fails - constraints violated! */

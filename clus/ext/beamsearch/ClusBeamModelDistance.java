@@ -39,8 +39,8 @@ public class ClusBeamModelDistance{
 	boolean isNumeric = false;
 	boolean isNominal = false;
 	boolean isStatInitialized = false;
-	boolean isBeamUpdated = false; 
-	
+	boolean isBeamUpdated = false;
+
 	public ClusBeamModelDistance(ClusRun run, ClusBeam beam){
 		m_Data = (RowData)run.getTrainingSet();
 		if (m_Data == null){
@@ -51,7 +51,7 @@ public class ClusBeamModelDistance{
 		setStatType(run.getStatManager());
 		fillBeamWithPredictions(beam);
 	}
-	
+
 	public void setStatType(ClusStatManager mngr){
 		if (mngr.getMode() == ClusStatManager.MODE_CLASSIFY)
 			isNominal = true;
@@ -59,11 +59,11 @@ public class ClusBeamModelDistance{
 			isNumeric = true;
 		else {
 			System.err.println(getClass().getName()+": initializeStat(): Unsupported Target Variables");
-			System.exit(1);			
+			System.exit(1);
 		}
 		isStatInitialized = true;
 	}
-	
+
 	public void fillBeamWithPredictions(ClusBeam beam){
 		ArrayList arr = beam.toArray();
 		ClusBeamModel model;
@@ -72,7 +72,7 @@ public class ClusBeamModelDistance{
 			model.setModelPredictions(getPredictions(model.getModel()));
 		}
 	}
-	
+
 	//this method should be optimized
 	public ArrayList getPredictions(ClusModel model){
 		ClusStatistic stat;
@@ -91,7 +91,7 @@ public class ClusBeamModelDistance{
 		}
 		return predictions;
 	}
-	
+
 	public static ArrayList getPredictionsDataSet(ClusModel model, RowData train, boolean isNum){
 		ClusStatistic stat;
 		DataTuple tuple;
@@ -110,7 +110,7 @@ public class ClusBeamModelDistance{
 		}
 		return predictions;
 	}
-	
+
 	/**Dragi
 	 * For nominal target attributes
 	 * @param pred1 - predictions for model 1
@@ -127,14 +127,14 @@ public class ClusBeamModelDistance{
 			pred1val = (double[])pred1.get(k);
 			pred2val = (double[])pred2.get(k);
 			for (int i=0; i < pred1val.length; i++)
-				if (pred1val[i] != pred2val[i]) 
+				if (pred1val[i] != pred2val[i])
 					resAttr++;
 			result += Math.sqrt(resAttr / pred1val.length);
 		}
 		return result / pred1.size();
 	}
-	
-	
+
+
 	/**Dragi
 	 * For numeric target attributes
 	 * This method works only if the values of the target attribute are non-negative.
@@ -160,14 +160,14 @@ public class ClusBeamModelDistance{
 				if (pred2val[i] > max) max = pred2val[i];
 				if (pred1val[i] < min) min = pred1val[i];
 				if (pred2val[i] < min) min = pred2val[i];
-				resAttr +=Math.pow((pred1val[i]-pred2val[i]), 2);	
+				resAttr +=Math.pow((pred1val[i]-pred2val[i]), 2);
 			}
 			if (max == min) return 0.0; // this is extreme case when all predictions are equal
 			result += Math.sqrt(resAttr/pred1val.length)/(max-min);
 		}
 		return result / pred1.size();
 	}
-	
+
 	public void calculatePredictionDistances(ClusBeam beam,ClusBeamModel candidate){
 		ArrayList arr = beam.toArray();
 		ClusBeamModel beamModel1, beamModel2;
@@ -182,17 +182,17 @@ public class ClusBeamModelDistance{
 			for (int j = 0; j < arr.size(); j++){
 				beamModel2 = (ClusBeamModel) arr.get(j);
 				predModel2 = beamModel2.getModelPredictions();
-				if (isNumeric) 
+				if (isNumeric)
 					dist += getDistanceNumeric(predModel1, predModel2);
 				else if (isNominal)
 					dist += getDistanceNominal(predModel1, predModel2);
 			}
-			
+
 			if (isNumeric) {
 				dist += getDistanceNumeric(predModel1, predCandidate);
 				candidateDist += getDistanceNumeric(predModel1, predCandidate);
 			}
-			else if (isNominal){	
+			else if (isNominal){
 				dist += getDistanceNominal(predModel1, predCandidate);
 				candidateDist += getDistanceNominal(predModel1, predCandidate);
 			}
@@ -203,7 +203,7 @@ public class ClusBeamModelDistance{
 //		similarity = 1 - average(distance)
 		candidate.setDistanceToBeam(candidateDist);
 	}
-	
+
 	public void calculatePredictionDistancesOpt(ClusBeam beam,ClusBeamModel candidate){
 		ArrayList arr = beam.toArray();
 		int size = arr.size();
@@ -231,17 +231,17 @@ public class ClusBeamModelDistance{
 			if (isNumeric) {
 				temp = getDistanceNumeric(predModel1, predCandidate);
 			}
-			else if (isNominal){	
+			else if (isNominal){
 				temp = getDistanceNominal(predModel1, predCandidate);
 			}
-			tempDist [i] += temp; 
+			tempDist [i] += temp;
 			candidateDist += temp;
 			beamModel1.setDistanceToBeam(tempDist[i]);
 		}
 		if (isNumeric) {
 			temp = getDistanceNumeric(((ClusBeamModel)arr.get(size-1)).getModelPredictions(), predCandidate);
 		}
-		else if (isNominal){	
+		else if (isNominal){
 			temp = getDistanceNominal(((ClusBeamModel)arr.get(size-1)).getModelPredictions(), predCandidate);
 		}
 		tempDist [size-1] += temp;
@@ -249,7 +249,7 @@ public class ClusBeamModelDistance{
 		((ClusBeamModel)arr.get(size-1)).setDistanceToBeam(tempDist[size-1]);
 		candidate.setDistanceToBeam(candidateDist);
 	}
-	
+
 	public void addDistToCandOpt(ClusBeam beam, ClusBeamModel candidate){
 		ArrayList arr = beam.toArray();
 		int size = arr.size();
@@ -272,9 +272,9 @@ public class ClusBeamModelDistance{
 			model.setDistanceToBeam(distance);
 		}
 		candidate.setDistanceToBeam(candidatedist);
-		
+
 	}
-	
+
 	public void deductFromBeamOpt(ClusBeam beam, ClusBeamModel candidate, int position){
 		ArrayList arr = beam.toArray();
 		int size = arr.size();
@@ -287,7 +287,7 @@ public class ClusBeamModelDistance{
 			for (int i = 0; i < size; i++){
 				model = (ClusBeamModel)arr.get(i);
 				if (isNumeric){
-					dist = getDistanceNumeric(model.getModelPredictions(), candidatepredictions); 	
+					dist = getDistanceNumeric(model.getModelPredictions(), candidatepredictions);
 				}
 				else if (isNominal){
 					dist = getDistanceNominal(model.getModelPredictions(), candidatepredictions);
@@ -323,9 +323,9 @@ public class ClusBeamModelDistance{
 			candidate.setDistanceToBeam(distance);
 		}
 	}
-	
-	
-	
+
+
+
 /*	*//**Dragi
 	 * Updates the distances of each model to the other members of the beam
 	 * and calculates the beam similarity
@@ -344,9 +344,9 @@ public class ClusBeamModelDistance{
 			for (int j = 0; j < arr.size(); j++){
 				beamModel2 = (ClusBeamModel) arr.get(j);
 				predModel2 = beamModel2.getModelPredictions();
-				if (isNumeric) 
+				if (isNumeric)
 					dist += getDistanceNumeric(predModel1, predModel2);
-				else	
+				else
 					dist += getDistanceNominal(predModel1, predModel2);
 			}
 			dist = 1-(dist / beam.getCrWidth());
@@ -356,18 +356,18 @@ public class ClusBeamModelDistance{
 		}
 		beam.setBeamSimilarity(bsim/beam.m_CrWidth);
 	}*/
-	
+
 	public boolean getIsBeamUpdated(){
 		return isBeamUpdated;
 	}
-	
+
 	public void setIsBeamUpdated(boolean update){
 		isBeamUpdated = update;
 	}
-	
+
 	/**Dragi
 	 * Calculates BeamSimilarity for a given Data Set
-	 * 
+	 *
 	 * @param beam
 	 * @param data
 	 * @param isNum
@@ -400,7 +400,7 @@ public class ClusBeamModelDistance{
 		}
 		return result / beam.size();
 	}
-	
+
 	public void printDebugInfo(ClusBeam beam){
 		ArrayList arr = beam.toArray();
 		ClusBeamModel model;
@@ -410,7 +410,7 @@ public class ClusBeamModelDistance{
 		}
 		System.out.println();
 	}
-	
+
 	/**Dragi
 	 * Calculates the distance between a given model and the syntactic constraint
 	 * @param model

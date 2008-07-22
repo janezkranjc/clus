@@ -24,12 +24,12 @@ import clus.util.ClusFormat;
 
 public class ClusErrorOutput extends ClusOutput {
 
-	
+
 	public ClusErrorOutput(String fname, ClusSchema schema, Settings sett)
 	throws IOException {
 		super(fname, schema, sett);
 	}
-	
+
 	public ClusErrorOutput(String fname, Settings sett)
 	throws IOException {
 		super(fname, null,sett);
@@ -49,8 +49,8 @@ public class ClusErrorOutput extends ClusOutput {
 		m_Writer.println("@attribute Targets string");
 		m_Writer.println("@attribute Descriptive string");
 		m_Writer.println("@attribute MainTarget numeric");
-		
-		
+
+
 		//the errors
 		m_Writer.println("@attribute RMSE_Default numeric");
 		m_Writer.println("@attribute RMSE_Original numeric");
@@ -63,13 +63,13 @@ public class ClusErrorOutput extends ClusOutput {
 		//the modelsizes
 		m_Writer.println("@attribute OriginalModelSize numeric");
 		m_Writer.println("@attribute PrunedModelSize numeric");
-		
+
 		//support targets
 //		m_Writer.println("@attribute SupportTargets string");
 		m_Writer.println("@attribute nrSupportTargets numeric");
 		m_Writer.println("@attribute inductionTime numeric");
-		
-			
+
+
 
 		m_Writer.println("@data");
 
@@ -109,14 +109,14 @@ public class ClusErrorOutput extends ClusOutput {
 		}else{
 			mt_idx = 1;
 		}
-	*/	
+	*/
 		ClusErrorList tr_err = cr.getTestError();
 		if (tr_err != null) {
 			for (int i = 1; i < 3; i++) {//the models
 				for (int j = 0; j < 3; j++) {//the errors
 					ClusModelInfo inf = cr.getModelInfo(j);
 					ClusErrorList parent = inf.getError(ClusModelInfo.TEST_ERR);
-					
+
 					ClusError err2 = parent.getError(i);
 					//System.out.print(inf.getName()+": ");
 					//System.out.println(err2.getName());
@@ -127,9 +127,9 @@ public class ClusErrorOutput extends ClusOutput {
 				ClusModelInfo inf = cr.getModelInfo(j);
 				m_Writer.print(","+inf.getModelSize());
 			}
-		}	
+		}
 		//m_Writer.println("@attribute SupportTargets string");
-		
+
 		int supportTargetCounter = -1;
 	//	m_Writer.print(",[");
 		for(int j = 0;j<clusteringWeights.length;j++){
@@ -143,7 +143,7 @@ public class ClusErrorOutput extends ClusOutput {
 		m_Writer.print(","+supportTargetCounter);
 		//induction time
 		m_Writer.print(","+ClusFormat.FOUR_AFTER_DOT.format((double)cr.getInductionTime()/1000.0));
-		
+
 		m_Writer.println();
 		m_Writer.flush();
 	}

@@ -35,7 +35,7 @@ import clus.data.type.*;
 import clus.data.rows.*;
 
 public class SoftNumericTest extends SoftTest {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected NumericAttrType m_Type;
@@ -43,14 +43,14 @@ public class SoftNumericTest extends SoftTest {
 	protected int[] m_Folds;
 	protected int[][] m_BoundFolds;
 	protected int[][] m_PosFolds;
-	protected int[][] m_NegFolds;	
+	protected int[][] m_NegFolds;
 
 	public SoftNumericTest(NodeTest test, int gsize) {
 		NumericTest ntest = (NumericTest)test;
 		m_Type = ntest.getNumType();
 		m_Bounds = new double[gsize];
 		m_Folds = new int[gsize];
-		setArity(2);		
+		setArity(2);
 	}
 
 	public String getString() {
@@ -61,16 +61,16 @@ public class SoftNumericTest extends SoftTest {
 			if (i != 0) buff.append("; ");
 			buff.append(ClusFormat.FOUR_AFTER_DOT.format(m_Bounds[i]));
 			buff.append(" ");
-			int[] folds = m_BoundFolds[i];			
+			int[] folds = m_BoundFolds[i];
 			for (int j = 0; j < folds.length; j++) {
 				if (j != 0) buff.append(",");
-				buff.append(folds[j]);				
+				buff.append(folds[j]);
 			}
 		}
-		buff.append("]");		
+		buff.append("]");
 		return buff.toString();
 	}
-	
+
 	public int foldSetIntersects2(DataTuple data, int[] folds) {
 		int[] dfolds = data.m_Folds;
 		for (int i = 0; i < folds.length; i++) {
@@ -83,8 +83,8 @@ public class SoftNumericTest extends SoftTest {
 		double value = tuple.m_Doubles[m_Type.getArrayIndex()];
 		if (branch == ClusNode.YES) {
 			if (value > m_Bounds[0]) return 1;
-			if (value <= m_Bounds[m_Bounds.length-1]) return 0;			
-			int ps = 1;			
+			if (value <= m_Bounds[m_Bounds.length-1]) return 0;
+			int ps = 1;
 			while (value <= m_Bounds[ps]) ps++;
 			return foldSetIntersects2(tuple, m_PosFolds[ps]);
 		} else {
@@ -94,7 +94,7 @@ public class SoftNumericTest extends SoftTest {
 			while (value <= m_Bounds[ps]) ps++;
 			return foldSetIntersects2(tuple, m_NegFolds[ps]);
 		}
-	}	
+	}
 
 	public int foldSetIntersects(DataTuple data, int[] folds) {
 		int fold = data.m_Index;
@@ -110,8 +110,8 @@ public class SoftNumericTest extends SoftTest {
 		double value = tuple.m_Doubles[m_Type.getArrayIndex()];
 		if (branch == ClusNode.YES) {
 			if (value > m_Bounds[0]) return 1;
-			if (value <= m_Bounds[m_Bounds.length-1]) return 0;			
-			int ps = 1;			
+			if (value <= m_Bounds[m_Bounds.length-1]) return 0;
+			int ps = 1;
 			while (value <= m_Bounds[ps]) ps++;
 			return foldSetIntersects(tuple, m_PosFolds[ps]);
 		} else {
@@ -122,7 +122,7 @@ public class SoftNumericTest extends SoftTest {
 			return foldSetIntersects(tuple, m_NegFolds[ps]);
 		}
 	}
-	
+
 	public int[] updateFoldSet(DataTuple data, int[] folds) {
 		int[] rfolds;
 		int fold = data.m_Index;
@@ -137,8 +137,8 @@ public class SoftNumericTest extends SoftTest {
 		}
 		return rfolds;
 	}
-	
-	public int updateFoldSet(RowData data, int idx, DataTuple tuple, int[] folds) {	
+
+	public int updateFoldSet(RowData data, int idx, DataTuple tuple, int[] folds) {
 		int[] res = updateFoldSet(tuple, folds);
 		if (res.length > 0) {
 			DataTuple clone = tuple.cloneTuple();
@@ -147,8 +147,8 @@ public class SoftNumericTest extends SoftTest {
 			data.setTuple(clone, idx++);
 		}
 		return idx;
-	}	
-	
+	}
+
 	public int softPredict(RowData res, DataTuple tuple, int idx, int branch) {
 		double value = tuple.m_Doubles[m_Type.getArrayIndex()];
 		if (branch == ClusNode.YES) {
@@ -157,35 +157,35 @@ public class SoftNumericTest extends SoftTest {
 				res.setTuple(tuple, idx++);
 				return idx;
 			}
-			int ps = 1;			
+			int ps = 1;
 			while (value <= m_Bounds[ps]) ps++;
 			return updateFoldSet(res, idx, tuple, m_PosFolds[ps]);
 		} else {
 			if (value > m_Bounds[0]) return idx;
 			if (value <= m_Bounds[m_Bounds.length-1]) {
-				res.setTuple(tuple, idx++);			
+				res.setTuple(tuple, idx++);
 				return idx;
-			}						
+			}
 			int ps = 1;
 			while (value <= m_Bounds[ps]) ps++;
-			return updateFoldSet(res, idx, tuple, m_NegFolds[ps]);			
+			return updateFoldSet(res, idx, tuple, m_NegFolds[ps]);
 		}
 	}
-	
+
 	public int updateFoldSet2(RowData data, int idx, DataTuple tuple, int[] folds) {
 		if (foldSetIntersects2(tuple, folds) != 0) {
 			DataTuple clone = tuple.cloneTuple();
-			int[] origflds = tuple.m_Folds;			
+			int[] origflds = tuple.m_Folds;
 			clone.m_Folds = new int[origflds.length];
 			for (int i = 0; i < folds.length; i++) {
 				int ps = folds[i];
-				clone.m_Folds[ps] = origflds[ps];			
+				clone.m_Folds[ps] = origflds[ps];
 			}
 			data.setTuple(clone, idx++);
 		}
 		return idx;
-	}		
-	
+	}
+
 	public int softPredict2(RowData res, DataTuple tuple, int idx, int branch) {
 		double value = tuple.m_Doubles[m_Type.getArrayIndex()];
 		if (branch == ClusNode.YES) {
@@ -194,21 +194,21 @@ public class SoftNumericTest extends SoftTest {
 				res.setTuple(tuple, idx++);
 				return idx;
 			}
-			int ps = 1;			
+			int ps = 1;
 			while (value <= m_Bounds[ps]) ps++;
 			return updateFoldSet2(res, idx, tuple, m_PosFolds[ps]);
 		} else {
 			if (value > m_Bounds[0]) return idx;
 			if (value <= m_Bounds[m_Bounds.length-1]) {
-				res.setTuple(tuple, idx++);			
+				res.setTuple(tuple, idx++);
 				return idx;
-			}						
+			}
 			int ps = 1;
 			while (value <= m_Bounds[ps]) ps++;
-			return updateFoldSet2(res, idx, tuple, m_NegFolds[ps]);			
+			return updateFoldSet2(res, idx, tuple, m_NegFolds[ps]);
 		}
 	}
-	
+
 	public void addTest(int idx, int fold, NodeTest test) {
 		NumericTest ntest = (NumericTest)test;
 		m_Bounds[idx] = ntest.getBound();
@@ -234,7 +234,7 @@ public class SoftNumericTest extends SoftTest {
 		m_BoundFolds = new int[nb][];
 		// Fill arrays
 		int idx = 0;
-		prev = old[0];		
+		prev = old[0];
 		int nb_folds = 0;
 		for (int i = 0; i <= old.length; i++) {
 			if (i == old.length || old[i] != prev) {
@@ -244,10 +244,10 @@ public class SoftNumericTest extends SoftTest {
 					Arrays.sort(folds);
 					nb_folds = 0;
 				}
-				m_Bounds[idx++] = prev;				
+				m_Bounds[idx++] = prev;
 				if (i < old.length) prev = old[i];
 			}
-			nb_folds++;		
+			nb_folds++;
 		}
 		// Clean folds
 		m_Folds	= null;
@@ -257,18 +257,18 @@ public class SoftNumericTest extends SoftTest {
 		int[] prev_v = m_PosFolds[nb-1] = m_BoundFolds[nb-1];
 		for (int i = nb-2; i > 0; i--) {
 			prev_v = m_PosFolds[i] = MyIntArray.mergeSorted(prev_v, m_BoundFolds[i]);
-		}		
+		}
 		prev_v = m_NegFolds[1] = m_BoundFolds[0];
 		for (int i = 2; i < nb; i++) {
 			prev_v = m_NegFolds[i] = MyIntArray.mergeSorted(prev_v, m_BoundFolds[i-1]);
 		}
 	}
-	
+
 	public ClusAttrType getType() {
 		return m_Type;
 	}
-	
+
 	public void setType(ClusAttrType type) {
 		m_Type = (NumericAttrType)type;
-	}	
+	}
 }

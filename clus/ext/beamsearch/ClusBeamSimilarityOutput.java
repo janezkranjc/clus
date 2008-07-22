@@ -36,11 +36,11 @@ import clus.util.ClusException;
 import clus.util.ClusFormat;
 
 public class ClusBeamSimilarityOutput {
-	
+
 	static boolean m_WriteHeader;//is header written?
 	static ArrayList m_BeamSimTrain;//the train similarities
 	static ArrayList m_BeamSimTest;//the test similarities
-	
+
 	public ClusBeamSimilarityOutput(Settings sett) throws IOException{
 		if (!m_WriteHeader) {
 			writeHeader(sett);
@@ -49,12 +49,12 @@ public class ClusBeamSimilarityOutput {
 			m_BeamSimTrain = new ArrayList();
 		}
 	}
-	
+
 	public boolean isHeaderWritten(){
 		return m_WriteHeader;
 	}
-	
-	public void appendToFile(ArrayList models, ClusRun run) throws IOException, ClusException{	
+
+	public void appendToFile(ArrayList models, ClusRun run) throws IOException, ClusException{
 //		String str = run.getStatManager().getSettings().getFileAbsolute(run.getStatManager().getSettings().getAppName())+".bsim";
 //		File output = new File(fname);
 		FileWriter wrtr = new FileWriter(new File(run.getStatManager().getSettings().getAppName() + ".bsim"), true);
@@ -71,7 +71,7 @@ public class ClusBeamSimilarityOutput {
 		m_BeamSimTrain.add(Double.valueOf(sim[0]));
 		try {
 		sim[1] = ClusBeamModelDistance.calcBeamSimilarity(models, run.getTestSet(), isNum);
-		m_BeamSimTest.add(Double.valueOf(sim[1]));	
+		m_BeamSimTest.add(Double.valueOf(sim[1]));
 			if (Settings.IS_XVAL){
 				wrtr.write("Fold "+run.getIndexString()+":\t"+outF.format(sim[0])+"\t\t"+outF.format(sim[1])+"\n");
 				if (run.getIndex() == run.getStatManager().getSettings().getXValFolds()){
@@ -85,7 +85,7 @@ public class ClusBeamSimilarityOutput {
 		}
 		wrtr.flush();
 	}
-	
+
 	public void writeHeader(Settings sett) throws IOException{
 		File output = new File(sett.getAppName() + ".bsim");
 		FileWriter wrtr = new FileWriter(output);
@@ -100,12 +100,12 @@ public class ClusBeamSimilarityOutput {
 		wrtr.write("---------------------------------------\n");
 		wrtr.flush();
 	}
-	
+
 	public static double getAverage(ArrayList arr){
 		double result = 0.0;
 		for (int i = 0; i < arr.size(); i++)
 			result += ((Double)arr.get(i)).doubleValue();
 		return result / arr.size();
 	}
-	
+
 }

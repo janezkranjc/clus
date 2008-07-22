@@ -30,7 +30,7 @@ import clus.main.Settings;
 import clus.util.ClusFormat;
 
 public class TimeSeries implements Serializable{
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	private double[] values;
@@ -66,16 +66,16 @@ public class TimeSeries implements Serializable{
 		a.append(']');
 		return a.toString();
 	}
-	
-	
+
+
 	public TimeSeries(double[] values){
 		this.values = new double[values.length];
-		System.arraycopy(values, 0, this.values, 0, values.length); 
+		System.arraycopy(values, 0, this.values, 0, values.length);
 	}
 
 	public TimeSeries(int size){
 		this.values = new double[size];
-		for (int i=0; i<size;i++){this.values[i]=0;} 
+		for (int i=0; i<size;i++){this.values[i]=0;}
 	}
 
 	public int length(){
@@ -90,14 +90,14 @@ public class TimeSeries implements Serializable{
 		System.arraycopy(values, 0, result, 0, values.length);
 		return result;
 	}
-	
+
 	public double[] getValuesNoCopy() {
 		return values;
 	}
 
 	/*
 	 * [Aco]
-	 * Geting a single value 
+	 * Geting a single value
 	 */
 	public double getValue(int index) {
 		return values[index];
@@ -128,7 +128,7 @@ public class TimeSeries implements Serializable{
 			}
 		}
 	}
-	
+
 	/*
 	 * [Aco]
 	 * rescaling a time series, for any reason
@@ -140,7 +140,7 @@ public class TimeSeries implements Serializable{
 		if (tmpMax==tmpMin)	for (int i=0; i< length(); i++) values[i]=(max-min)/2;
 		else for (int i=0; i< length(); i++) values[i]=((values[i]-tmpMin)/(tmpMax-tmpMin))*(max-min)+min;
 	}
-	
+
 	/*
 	 * [Aco]
 	 * minimal element
@@ -163,13 +163,13 @@ public class TimeSeries implements Serializable{
 			if (r < values[i]){r=values[i];}
 		}
 		return r;
-		
+
 	}
-	
+
 	public void setValues(double[] values) {
 		System.arraycopy(values, 0, this.values, 0, values.length);
 	}
-	
+
 	/*
 	 * [Aco]
 	 * seting a single value
@@ -177,6 +177,6 @@ public class TimeSeries implements Serializable{
 	public void setValue(int index, double value) {
 		values[index]=value;
 	}
-	
+
 
 }

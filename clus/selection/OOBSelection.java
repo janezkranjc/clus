@@ -44,23 +44,23 @@ public class OOBSelection extends ClusSelection{
 	public boolean changesDistribution() {
 		return true;
 	}
-	
+
 	public double getWeight(int row) {
 		return (double)m_OOBCounts[row];
 	}
-	
+
 	public int getNbSelected() {
 		return m_OOBNbSel;
 	}
-	
+
 	public boolean isSelected(int row) {
 		return m_OOBCounts[row] != 0;
 	}
-	
+
 	public final int getCount(int row) {
-		return m_OOBCounts[row];	
-	}	
-	
+		return m_OOBCounts[row];
+	}
+
 	public void addToThis(OOBSelection other){
 		for (int i = 0; i < this.m_OOBCounts.length; i++){
 			if ((this.getWeight(i) == 0)&&(other.getWeight(i) == 1)){
@@ -69,7 +69,7 @@ public class OOBSelection extends ClusSelection{
 			}
 		}
 	}
-	
+
 	public void addToOther(OOBSelection other){
 		for (int i = 0; i < this.m_OOBCounts.length; i++){
 			if ((this.getWeight(i) == 1)&&(other.getWeight(i) == 0)){
@@ -78,5 +78,5 @@ public class OOBSelection extends ClusSelection{
 			}
 		}
 	}
-	
+
 }

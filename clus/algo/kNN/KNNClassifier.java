@@ -62,7 +62,7 @@ public class KNNClassifier extends ClusInductionAlgorithmType {
 	public ClusModel induceSingleUnpruned(ClusRun cr) {
 		return null;
 	}
-	
+
 	/**
 	 * Normally should induce the given data, but
 	 * there is nothing to induce in a nearest neightbour classifier.
@@ -201,16 +201,16 @@ public class KNNClassifier extends ClusInductionAlgorithmType {
 		}
 		return weights;
 	}
-	
+
 	public void pruneAll(ClusRun cr) throws ClusException, IOException {
 	}
-	 
+
 	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
 		return model;
 	}
-	
+
 	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		return null;
 	}
-	
+
 }

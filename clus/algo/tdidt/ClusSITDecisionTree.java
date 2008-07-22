@@ -62,15 +62,15 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		if (i != 0) System.out.print(" ");
 		System.out.print(String.valueOf(i+1));
 
-		System.out.flush();	
+		System.out.flush();
 	}
 
 	public ClusError doParamXVal(ClusData trset, ClusData pruneset) throws ClusException, IOException {
 		int prevVerb = Settings.enableVerbose(0);
 		ClusStatManager mgr = getStatManager();
 		ClusSummary summ = new ClusSummary();
-		summ.setTestError(createTuneError(mgr));		
-//		Next does not always use same partition!		
+		summ.setTestError(createTuneError(mgr));
+//		Next does not always use same partition!
 //		Random random = ClusRandom.getRandom(ClusRandom.RANDOM_PARAM_TUNE);
 		Random random = new Random(0);
 
@@ -78,10 +78,10 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		XValMainSelection sel = new XValRandomSelection(trset.getNbRows(), nbfolds, random);
 
 		for (int i = 0; i < nbfolds; i++) {
-			showFold(i,sel);			
+			showFold(i,sel);
 			XValSelection msel = new XValSelection(sel, i);
 			ClusRun cr = m_Clus.partitionDataBasic(trset, msel, pruneset, summ, i+1);
-			ClusModel pruned = m_Class.induceSingle(cr);			
+			ClusModel pruned = m_Class.induceSingle(cr);
 			cr.addModelInfo(ClusModel.PRUNED).setModel(pruned);
 			m_Clus.calcError(cr, summ);
 
@@ -245,7 +245,7 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		boolean recursive = settings.getRecursive();
 
 		//Optimizing for target 1:
-		//set all weights to 0, except the main_target		
+		//set all weights to 0, except the main_target
 		resetWeights(main_target);
 		double[] weights = mgr.getClusteringWeights().m_Weights;
 		double best_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
@@ -253,11 +253,11 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		if(recursive){
 			System.out.println("\n---recursive sit---");
 			weights = mgr.getClusteringWeights().m_Weights;
-			double new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset); 
+			double new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
 			while(new_err > best_err){
 				best_err = new_err;
 				weights = mgr.getClusteringWeights().m_Weights;
-				new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset); 
+				new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
 			}
 		}
 
@@ -280,7 +280,7 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		boolean recursive = settings.getRecursive();
 
 		//estimate ST-error
-		//set all weights to 0, except the main_target		
+		//set all weights to 0, except the main_target
 		resetWeights(main_target);
 		double[] weights = mgr.getClusteringWeights().m_Weights;
 
@@ -305,21 +305,21 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 			best_err = MT_err;
 			System.out.println("\n---recursive sub sit---");
 			weights = mgr.getClusteringWeights().m_Weights;
-			double new_err = substractBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset); 
+			double new_err = substractBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
 			while(new_err > best_err){
 				best_err = new_err;
 				weights = mgr.getClusteringWeights().m_Weights;
-				new_err = substractBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset); 
+				new_err = substractBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
 			}
 		}else{
 			System.out.println("\n---recursive add sit---");
 			resetWeights(main_target);
 			weights = mgr.getClusteringWeights().m_Weights;
-			double new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset); 
+			double new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
 			while(new_err > best_err){
 				best_err = new_err;
 				weights = mgr.getClusteringWeights().m_Weights;
-				new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset); 
+				new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
 			}
 		}
 
@@ -346,7 +346,7 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		boolean recursive = settings.getRecursive();
 
 		//estimate ST-error
-		//set all weights to 0, except the main_target		
+		//set all weights to 0, except the main_target
 		resetWeights(main_target);
 		double[] weights = mgr.getClusteringWeights().m_Weights;
 
@@ -382,13 +382,13 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		System.out.println("\n---recursive sit---");
 
 		weights = starting_weights;
-		double new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset); 
+		double new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
 		new_err = substractBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
 		while(new_err > best_err){
 			best_err = new_err;
 
 			weights = mgr.getClusteringWeights().m_Weights;
-			new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset); 
+			new_err = addBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
 			new_err = substractBestSupportTasks((double[])weights.clone(),emc,support_range,trset,pruneset);
 		}
 		System.out.println();
@@ -408,7 +408,7 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		boolean recursive = settings.getRecursive();
 
 		//estimate ST-error
-		//set all weights to 0, except the main_target		
+		//set all weights to 0, except the main_target
 		resetWeights(main_target);
 		double[] weights = mgr.getClusteringWeights().m_Weights;
 
@@ -480,7 +480,7 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 
 
 	}
-	
+
 	public void exhaustiveSearch(ClusRun cr) throws ClusException, IOException{
 		ClusStatManager mgr = getStatManager();
 		Settings settings = mgr.getSettings();
@@ -494,12 +494,12 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 		//int emc = main_target - support_range[0];//error model component of the main target
 		boolean recursive = settings.getRecursive();
 
-		
+
 		resetWeights();
 		double[] weights = mgr.getClusteringWeights().m_Weights;//.clone();
 
 		ClusErrorOutput errOutput = new ClusErrorOutput(settings.getAppName() + ".err", settings);
-		
+
 		//generate all subsets for n targets
 		int n = support_range[1]-support_range[0]+1;
 		for( int B=0; B<(1<<n); ++B ){
@@ -516,16 +516,16 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 					System.out.print((j+1)+" ");
 				}
 			}
-			
+
 			errOutput.writeOutput(cr, false, false, weights);
 		}
-		
-		
-		
+
+
+
 		ClusError err = doParamXVal(cr.getTrainingSet(),cr.getPruneSet());
 		double best_err = err.getModelErrorComponent(0);
 	}
-	
+
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		ClusStatManager mgr = getStatManager();
 		Settings settings = mgr.getSettings();
@@ -534,7 +534,7 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 
 
 
-		
+
 
 
 

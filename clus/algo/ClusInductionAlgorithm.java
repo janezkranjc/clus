@@ -36,7 +36,7 @@ import java.io.*;
 
 /*
  * Subclasses should implement:
- * 
+ *
  *	public ClusModel induceSingleUnpruned(ClusRun cr);
  *
  * In addition, subclasses may also want to implement (to return more than one model):
@@ -48,45 +48,45 @@ import java.io.*;
 public abstract class ClusInductionAlgorithm {
 
 	protected ClusSchema m_Schema;
-	protected ClusStatManager m_StatManager;	
-	
+	protected ClusStatManager m_StatManager;
+
 	public ClusInductionAlgorithm(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		m_Schema = schema;
 		m_StatManager = new ClusStatManager(schema, sett);
 	}
-	
+
 	public ClusInductionAlgorithm(ClusInductionAlgorithm other) {
 		m_Schema = other.m_Schema;
-		m_StatManager = other.m_StatManager;		
+		m_StatManager = other.m_StatManager;
 	}
-	
+
 	public ClusSchema getSchema() {
 		return m_Schema;
 	}
-	
+
 	public ClusStatManager getStatManager() {
 		return m_StatManager;
 	}
-	
+
 	public Settings getSettings() {
 		return m_StatManager.getSettings();
-	}	
-	
+	}
+
 	public void initialize() throws ClusException, IOException {
 		m_StatManager.initSH();
 	}
-	
+
 	public void getPreprocs(DataPreprocs pps) {
 		m_StatManager.getPreprocs(pps);
 	}
-	
+
 	public boolean isModelWriter() {
 		return false;
 	}
-	
+
 	public void writeModel(ClusModelCollectionIO strm) throws IOException {
 	}
-	
+
 	public ClusData createData() {
 		return new RowData(m_Schema);
 	}
@@ -94,14 +94,14 @@ public abstract class ClusInductionAlgorithm {
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		ClusModel model = induceSingleUnpruned(cr);
 		ClusModelInfo model_info = cr.addModelInfo(ClusModel.ORIGINAL);
-		model_info.setModel(model);		
+		model_info.setModel(model);
 	}
-	
+
 	public abstract ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException;
-	
+
 	public void initializeHeuristic() {
 	}
-	
+
 	public ClusStatistic createTotalClusteringStat(RowData data) {
 		ClusStatistic stat = m_StatManager.createClusteringStat();
 		stat.setSDataSize(data.getNbRows());
@@ -109,12 +109,12 @@ public abstract class ClusInductionAlgorithm {
 		stat.optimizePreCalc(data);
 		return stat;
 	}
-	
+
 	public ClusStatistic createTotalTargetStat(RowData data) {
 		ClusStatistic stat = m_StatManager.createTargetStat();
 		stat.setSDataSize(data.getNbRows());
 		data.calcTotalStat(stat);
 		stat.optimizePreCalc(data);
 		return stat;
-	}	
+	}
 }

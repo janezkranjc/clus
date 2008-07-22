@@ -30,12 +30,12 @@ public class Debug {
 	public final static boolean HIER_DEBUG = false;
 
 	public final static boolean HIER_JANS_PAPER = false;
-	
-	public final static boolean HEURISTIC_DEBUG = false;	
-	
-	public final static boolean MAKE_ID_FILES = false;	
-	
+
+	public final static boolean HEURISTIC_DEBUG = false;
+
+	public final static boolean MAKE_ID_FILES = false;
+
 	public final static boolean MAKE_PRED_FILES = false;
-	
-	public final static boolean HIER_ERROR_DEBUG = true;	
+
+	public final static boolean HIER_ERROR_DEBUG = true;
 }

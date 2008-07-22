@@ -39,8 +39,8 @@ public class SSPD {
 				double wi = w1 * t2.getWeight();
 				double d = dist.calcDistance(t1, t2);
 				sum += wi * d * d;
-				sumWiTria += wi;				
-			}			
+				sumWiTria += wi;
+			}
 			sumWiDiag += w1 * w1;
 		}
 		return sum / (2 * sumWiTria + sumWiDiag);

@@ -35,7 +35,7 @@ import clus.main.*;
  * @author Tea Tusar
  */
 public class DePop {
-	
+
 	public ArrayList m_Inds;
 	private DeProbl m_Probl;
 	private Random m_Rand;
@@ -44,7 +44,7 @@ public class DePop {
 	public DePop(ClusStatManager stat_mgr, DeProbl probl) {
 		m_Probl = probl;
 		m_StatMgr = stat_mgr;
-		m_Rand = new Random(getSettings().getOptDESeed()); 
+		m_Rand = new Random(getSettings().getOptDESeed());
 		m_Inds = new ArrayList(getSettings().getOptDEPopSize());
 		for (int i = 0; i < getSettings().getOptDEPopSize(); i++) {
 			DeInd ind = new DeInd();
@@ -59,7 +59,7 @@ public class DePop {
 
 	public int evaluatePop(int num_eval) {
 		int result = num_eval;
-		for (int i = 0; i < m_Inds.size(); i++) { 
+		for (int i = 0; i < m_Inds.size(); i++) {
 			result = ((DeInd)m_Inds.get(i)).evaluate(m_Probl, result);
 		}
 		return result;
@@ -72,7 +72,7 @@ public class DePop {
 	  for (int k = 0; k < m_Probl.getNumVar(); k++) {
 	  	result.add(k, (new Double(0.0)));
 	  }
-	  
+
 	  do i1 = (int)(getSettings().getOptDEPopSize() * m_Rand.nextDouble());
 	  while (i1 == parent);
 
@@ -88,7 +88,7 @@ public class DePop {
 	  	if (m_Rand.nextDouble() < (getSettings().getOptDECrossProb()) || (i == i_rand))
 	    	result.set(i,new Double(
 	    			getSettings().getOptDEWeight() *
-				(((Double)((DeInd)m_Inds.get(i1)).getGenes().get(i)).doubleValue() - 
+				(((Double)((DeInd)m_Inds.get(i1)).getGenes().get(i)).doubleValue() -
 				 ((Double)((DeInd)m_Inds.get(i2)).getGenes().get(i)).doubleValue()) +
 				 ((Double)((DeInd)m_Inds.get(i3)).getGenes().get(i)).doubleValue()));
 	    else
@@ -97,7 +97,7 @@ public class DePop {
 	  }
 	  return m_Probl.getRoundVector(result);
 	}
-	
+
 	public void sortPopRandom() {
 	  int i;
 	  ArrayList inds = new ArrayList(getSettings().getOptDEPopSize());
@@ -108,8 +108,8 @@ public class DePop {
 	  	indexes.add(new Integer(i));
 	  }
 
-	  int n; 
-	  
+	  int n;
+
 	  for (i = 0; i < getSettings().getOptDEPopSize(); i++) {
 	  	 n = (int)(indexes.size() * m_Rand.nextDouble());
 	  	 ((DeInd)inds.get(i)).copy(
@@ -122,8 +122,8 @@ public class DePop {
 	  	((DeInd)m_Inds.get(i)).copy((DeInd)inds.get(i));
 	  }
 	}
-	
-	public String getPopString() {                          
+
+	public String getPopString() {
 	  String result = "";
 	  for (int i = 0; i < m_Inds.size(); i++) {
 	  	result += ((DeInd)m_Inds.get(i)).getIndString();

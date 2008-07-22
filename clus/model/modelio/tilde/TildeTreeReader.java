@@ -34,7 +34,7 @@ public class TildeTreeReader {
 
 	protected TildeOutReader m_Parent;
 
-	public TildeTreeReader(TildeOutReader parent) {		
+	public TildeTreeReader(TildeOutReader parent) {
 		m_Parent = parent;
 	}
 
@@ -44,7 +44,7 @@ public class TildeTreeReader {
 		ClusNode node = doReadTree(head);
 		return node;
 	}
-	
+
 	public ClusNode doReadTree(String name) throws IOException {
 		ClusNode tree = new ClusNode();
 		boolean isleaf = cleanString(getTillEOL(), tree);
@@ -53,12 +53,12 @@ public class TildeTreeReader {
 			ClusNode left = doReadTree("yes");
 			tree.addChild(left);
 			skipEntry("no");
-			ClusNode right = doReadTree("no");		
+			ClusNode right = doReadTree("no");
 			tree.addChild(right);
-		}	
+		}
 		return tree;
 	}
-	
+
 	public void readLeaf(MStreamTokenizer tokens, ClusNode node) throws IOException {
 		int mode = m_Parent.getMode();
 		if (mode == TildeOutReader.MULTI_CLASSIFY) {
@@ -68,8 +68,8 @@ public class TildeTreeReader {
 			tokens.readChar('[');
 			tokens.readChar('[');
 		}
-		ClusStatManager mgr = m_Parent.getStatMgr();		
-		ClassificationStat stat = (ClassificationStat)mgr.createClusteringStat();		
+		ClusStatManager mgr = m_Parent.getStatMgr();
+		ClassificationStat stat = (ClassificationStat)mgr.createClusteringStat();
 		if (mode == TildeOutReader.REGRESSION) {
 			int nbdim = m_Parent.getDim();
 			double[] propvec = new double[nbdim];
@@ -90,7 +90,7 @@ public class TildeTreeReader {
 			double weight = 0.0;
 			for (int i = 0; i < nb; i++) {
 				if (i > 0) tokens.readChar(',');
-				tokens.readToken();	
+				tokens.readToken();
 				tokens.readChar(':');
 				double nbclass = (double)tokens.readFloat();
 				stat.setCount(0, i, nbclass);
@@ -101,9 +101,9 @@ public class TildeTreeReader {
 		stat.calcMean();
 		node.setClusteringStat(stat);
 	}
-	
+
 	public boolean cleanString(String str, ClusNode node) throws IOException {
-		String res = str;	
+		String res = str;
 		int qps = res.indexOf('?');
 		boolean isleaf = true;
 		if (qps != -1) {
@@ -118,13 +118,13 @@ public class TildeTreeReader {
 		FakeTest test = new FakeTest();
 		test.setLine(res);
 		StringBuffer result = new StringBuffer();
-		MStreamTokenizer tokens = MStreamTokenizer.createStringParser(res);		
+		MStreamTokenizer tokens = MStreamTokenizer.createStringParser(res);
 		tokens.setCharTokens(",[]():");
 		while (token != null) {
 			token = tokens.getToken();
-			if (token != null) {			
+			if (token != null) {
 				if (!isleaf) {
-					if (token.equals("(")) nbpar++;					
+					if (token.equals("(")) nbpar++;
 					if (token.equals(")")) nbpar--;
 					if (nbpar == 0 && token.equals(",")) {
 						crena = false;
@@ -138,34 +138,34 @@ public class TildeTreeReader {
 					}
 				} else if (token.equals("[")) {
 					readLeaf(tokens, node);
-					break;					
+					break;
 				}
 				if (ena && crena) result.append(token);
 				crena = true;
 				count++;
-			}			
-		}		
+			}
+		}
 		if (!isleaf) {
 			if (m_Parent.getDebug()) System.out.println("Test: "+res);
 			if (result.length() > 0) test.addLine(result.toString());
 			node.setTest(test);
 		} else {
-			if (m_Parent.getDebug()) System.out.println("Leaf: "+node.getClusteringStat());		
-		
+			if (m_Parent.getDebug()) System.out.println("Leaf: "+node.getClusteringStat());
+
 		}
 		return isleaf;
 	}
-	
+
 	public void skipEntry(String which) throws IOException {
 		MStreamTokenizer tokens = m_Parent.getStream();
 		while (tokens.isNextTokenIn("|+-") != null);
 		String token = tokens.readToken();
 		if (!token.equals(which)) {
-			System.out.println("Error token: "+token+" must be "+which);			
+			System.out.println("Error token: "+token+" must be "+which);
 		}
 		tokens.readChar(':');
 	}
-	
+
 	public boolean isLeaf(String node) {
 		return node.indexOf('?') == -1;
 	}
@@ -175,8 +175,8 @@ public class TildeTreeReader {
 		String str = null;
 		while (str == null) {
 			str = tokens.readTillEol().trim();
-			if (str.equals("")) str = null;			
+			if (str.equals("")) str = null;
 		}
-		return str;	
+		return str;
 	}
 }

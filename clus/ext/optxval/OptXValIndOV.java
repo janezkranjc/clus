@@ -44,7 +44,7 @@ public class OptXValIndOV extends OptXValInduce {
 	public OptXValIndOV(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		super(schema, sett);
 	}
-	
+
 	public static void updateExtra(DataTuple tuple, ClusStatistic[] stats, int idx) {
 		int[] folds = tuple.m_Folds;
 		for (int j = 0; j < folds.length; j++) stats[folds[j]].updateWeighted(tuple, idx);
@@ -55,19 +55,19 @@ public class OptXValIndOV extends OptXValInduce {
 		int nbvalues = at.getNbValues();
 		int statsize = nbvalues + at.intHasMissing();
 		reset(statsize);
-		resetExtra(statsize);		
+		resetExtra(statsize);
 if (Debug.debug == 1) {
 		ClusStat.deltaSplit();
 }
 
-		// For each attribute value		
+		// For each attribute value
 		RowData data = grp.getData();
-		int nb_rows = data.getNbRows();		
+		int nb_rows = data.getNbRows();
 		for (int i = 0; i < nb_rows; i++) {
 			DataTuple tuple = data.getTuple(i);
 			int value = at.getNominal(tuple);
 if (Debug.debug == 1) {
-			ClusStat.deltaTest();			
+			ClusStat.deltaTest();
 }
 
 			if (tuple.m_Index != -1) {
@@ -76,20 +76,20 @@ if (Debug.debug == 1) {
 				updateExtra(tuple, m_TestExtraStat[value], i);
 			}
 if (Debug.debug == 1) {
-			ClusStat.deltaStat();	
+			ClusStat.deltaStat();
 }
 
 		}
 		sumStats(statsize);
 if (Debug.debug == 1) {
-		ClusStat.deltaStat();	
+		ClusStat.deltaStat();
 }
 
 		// Find best split
 		int nb = grp.getNbFolds();
 		for (int i = nb-1; i >= 0; i--) {
 			int foldnr = grp.getFold(i);
-			ClusStatistic[] cr_stat = m_TestStat[foldnr];			
+			ClusStatistic[] cr_stat = m_TestStat[foldnr];
 			if (foldnr != 0) {
 				ClusStatistic[] zero_stat = m_TestStat[0];
 				for (int j = 0; j < statsize; j++) {
@@ -105,25 +105,25 @@ if (Debug.debug == 1) {
 
 			m_Split.findSplit(m_Selector[i], at);
 if (Debug.debug == 1) {
-			ClusStat.deltaHeur();			
+			ClusStat.deltaHeur();
 }
 
 		}
 	}
-	
+
 	public final void resetExtra(int nb) {
 		for (int i = 0; i < nb; i++) {
-			for (int j = 0; j <= m_NbFolds; j++) {		
+			for (int j = 0; j <= m_NbFolds; j++) {
 				m_TestExtraStat[i][j].reset();
 			}
 		}
-	}	
-	
+	}
+
 	public final void findNumericOV(NumericAttrType at, OptXValGroup grp) {
 		// Sort data
 		DataTuple tuple;
 		RowData data = grp.getData();
-		int idx = at.getArrayIndex();		
+		int idx = at.getArrayIndex();
 if (Debug.debug == 1) {
 		ClusStat.deltaSplit();
 }
@@ -137,44 +137,44 @@ if (Debug.debug == 1) {
 		ClusStatistic[] extra = m_TestExtraStat[0];
 		ClusStatistic.reset(extra);
 		// Missing values
-		int first = 0;		
+		int first = 0;
 		int nb_rows = data.getNbRows();
-// should add extra somewhere???		
+// should add extra somewhere???
 /*		if (at.hasMissing()) {
 			while (first < nb_rows && (tuple = data.getTuple(first)).hasNumMissing(idx)) {
 				m_TestStat[tuple.m_Index][1].updateWeighted(tuple);
-				first++;			
+				first++;
 			}
 			substractMissing(grp);
 		} else {*/
 			copyTotal(grp);
 /*		}*/
 if (Debug.debug == 1) {
-		ClusStat.deltaStat();	
+		ClusStat.deltaStat();
 }
 
 		int[] folds = grp.getFolds();
-//		ClusNode[] nodes = grp.getNodes();		
+//		ClusNode[] nodes = grp.getNodes();
 		for (int i = 0; i < folds.length; i++) {
 			m_PrevCl[i] = -1;
 			m_PrevVl[i] = Double.NaN;
 		}
 		ClusStatistic sum = m_PosStat[0];
-		if (Settings.ONE_NOMINAL) {		
+		if (Settings.ONE_NOMINAL) {
 			for (int i = first; i < nb_rows; i++) {
 				tuple = data.getTuple(i);
 				boolean no_sum_calc = true;
 				int foldnr = tuple.m_Index;
 				int crcl = tuple.getClassification();
 				double value = tuple.getDoubleVal(idx);
-				if (foldnr != -1) {			
+				if (foldnr != -1) {
 					for (int j = 0; j < folds.length; j++) {
-						int cr_fold = folds[j];			
+						int cr_fold = folds[j];
 						if (foldnr != cr_fold) {
 							if (m_PrevCl[j] == -1 && value != m_PrevVl[j] && m_PrevVl[j] != Double.NaN) {
 								if (no_sum_calc) {
 if (Debug.debug == 1) {
-									ClusStat.deltaTest();								
+									ClusStat.deltaTest();
 }
 
 									sum.reset();
@@ -186,7 +186,7 @@ if (Debug.debug == 1) {
 
 								}
 if (Debug.debug == 1) {
-								ClusStat.deltaTest();								
+								ClusStat.deltaTest();
 }
 
 								m_Scratch.copy(sum);
@@ -209,12 +209,12 @@ if (Debug.debug == 1) {
 						}
 					}
 if (Debug.debug == 1) {
-					ClusStat.deltaTest();					
+					ClusStat.deltaTest();
 }
 
 					m_PosStat[foldnr].updateWeighted(tuple, i);
 if (Debug.debug == 1) {
-					ClusStat.deltaStat();					
+					ClusStat.deltaStat();
 }
 
 				} else {
@@ -227,7 +227,7 @@ if (Debug.debug == 1) {
 							if (m_PrevCl[fi] == -1 && value != m_PrevVl[fi] && m_PrevVl[fi] != Double.NaN) {
 								if (no_sum_calc) {
 if (Debug.debug == 1) {
-									ClusStat.deltaTest();								
+									ClusStat.deltaTest();
 }
 
 									sum.reset();
@@ -239,7 +239,7 @@ if (Debug.debug == 1) {
 
 								}
 if (Debug.debug == 1) {
-								ClusStat.deltaTest();								
+								ClusStat.deltaTest();
 }
 
 								m_Scratch.copy(sum);
@@ -260,12 +260,12 @@ if (Debug.debug == 1) {
 							}
 							m_PrevVl[fi] = value;
 if (Debug.debug == 1) {
-							ClusStat.deltaTest();							
+							ClusStat.deltaTest();
 }
 
-							extra[cr_fold].updateWeighted(tuple, i);			
+							extra[cr_fold].updateWeighted(tuple, i);
 if (Debug.debug == 1) {
-							ClusStat.deltaStat();							
+							ClusStat.deltaStat();
 }
 
 							ei++; fi++;
@@ -282,15 +282,15 @@ if (Debug.debug == 1) {
 				tuple = data.getTuple(i);
 				boolean no_sum_calc = true;
 				int foldnr = tuple.m_Index;
-				double value = tuple.getDoubleVal(idx);		
-				if (foldnr != -1) {			
+				double value = tuple.getDoubleVal(idx);
+				if (foldnr != -1) {
 					for (int j = 0; j < folds.length; j++) {
-						int cr_fold = folds[j];			
+						int cr_fold = folds[j];
 						if (foldnr != cr_fold) {
 							if (value != m_PrevVl[j] && m_PrevVl[j] != Double.NaN) {
 								if (no_sum_calc) {
 if (Debug.debug == 1) {
-									ClusStat.deltaTest();									
+									ClusStat.deltaTest();
 }
 
 									sum.reset();
@@ -302,7 +302,7 @@ if (Debug.debug == 1) {
 
 								}
 if (Debug.debug == 1) {
-								ClusStat.deltaTest();									
+								ClusStat.deltaTest();
 }
 
 								m_Scratch.copy(sum);
@@ -320,9 +320,9 @@ if (Debug.debug == 1) {
 							}
 							m_PrevVl[j] = value;
 						}
-					}		
+					}
 if (Debug.debug == 1) {
-					ClusStat.deltaTest();										
+					ClusStat.deltaTest();
 }
 
 					m_PosStat[foldnr].updateWeighted(tuple, i);
@@ -340,7 +340,7 @@ if (Debug.debug == 1) {
 							if (value != m_PrevVl[fi] && m_PrevVl[fi] != Double.NaN) {
 								if (no_sum_calc) {
 if (Debug.debug == 1) {
-									ClusStat.deltaTest();									
+									ClusStat.deltaTest();
 }
 
 									sum.reset();
@@ -352,14 +352,14 @@ if (Debug.debug == 1) {
 
 								}
 if (Debug.debug == 1) {
-								ClusStat.deltaTest();									
+								ClusStat.deltaTest();
 }
 
 								m_Scratch.copy(sum);
 								m_Scratch.add(extra[cr_fold]);
 								if (cr_fold != 0) m_Scratch.subtractFromThis(m_PosStat[cr_fold]);
 if (Debug.debug == 1) {
-								ClusStat.deltaStat();								
+								ClusStat.deltaStat();
 }
 
 								m_Selector[fi].updateNumeric(value, m_Scratch, at);
@@ -370,12 +370,12 @@ if (Debug.debug == 1) {
 							}
 							m_PrevVl[fi] = value;
 if (Debug.debug == 1) {
-							ClusStat.deltaTest();								
+							ClusStat.deltaTest();
 }
 
-							extra[cr_fold].updateWeighted(tuple, i);			
+							extra[cr_fold].updateWeighted(tuple, i);
 if (Debug.debug == 1) {
-							ClusStat.deltaStat();							
+							ClusStat.deltaStat();
 }
 
 							ei++; fi++;
@@ -385,11 +385,11 @@ if (Debug.debug == 1) {
 							fi++;
 						}
 					}
-				}			
+				}
 			}
 		}
-	}	
-	
+	}
+
 	public final int mkNewGroups(OptXValGroup mgrp, MyListIter ngrps) {
 		int nb_groups = 0;
 		int nb = mgrp.getNbFolds();
@@ -437,7 +437,7 @@ if (Debug.debug == 1) {
 					}
 				}
 				// Show best test
-				if (stest != null) stest.sortIntervals();				
+				if (stest != null) stest.sortIntervals();
 				if (Settings.VERBOSE > 0) ngrp.println();
 				ngrps.insertBefore(ngrp);
 				nb_groups++;
@@ -445,12 +445,12 @@ if (Debug.debug == 1) {
 		}
 		return nb_groups;
 	}
-	
+
 	public final void findBestTestOV(OptXValGroup mgrp) {
 		// First make nodes
 		mgrp.makeNodes();
 		// For each attribute
-		RowData data = mgrp.getData();				
+		RowData data = mgrp.getData();
 		ClusSchema schema = data.getSchema();
 		ClusAttrType[] attrs = schema.getDescriptiveAttributes();
 		int nb_normal = attrs.length;
@@ -458,9 +458,9 @@ if (Debug.debug == 1) {
 			ClusAttrType at = attrs[i];
 			if (at instanceof NominalAttrType) findNominalOV((NominalAttrType)at, mgrp);
 			else findNumericOV((NumericAttrType)at, mgrp);
-		}			
-	}	
-	
+		}
+	}
+
 	public final void xvalInduce(OptXValNode node, OptXValGroup mgrp) {
 		long t0;
 if (Debug.debug == 1) {
@@ -487,10 +487,10 @@ if (Debug.debug == 1) {
 			m_DFirst.induce(onode, mgrp.getData().getOVFoldData(fold));
 			return;
 		}
-		// Init test selectors		
+		// Init test selectors
 		initTestSelectors(mgrp);
 if (Debug.debug == 1) {
-		ClusStat.deltaSplit();		
+		ClusStat.deltaSplit();
 }
 
 		if (mgrp.m_IsSoft) findBestTestOV(mgrp);
@@ -500,7 +500,7 @@ if (Debug.debug == 1) {
 }
 
 		mgrp.preprocNodes(node, this);
-		// Make new groups		
+		// Make new groups
 		MyListIter ngrps = new MyListIter();
 		int nb_groups = mkNewGroups(mgrp, ngrps);
 if (Debug.debug == 1) {
@@ -525,20 +525,20 @@ if (Debug.debug == 1) {
 				if (grp.m_IsSoft) {
 				    long t01;
 if (Debug.debug == 1) {
-					t01 = ResourceInfo.getCPUTime();				
+					t01 = ResourceInfo.getCPUTime();
 }
 
-					for (int i = 0; i < arity; i++) {				
+					for (int i = 0; i < arity; i++) {
 						OptXValNode child = new OptXValNode();
 						split.setChild(child, i);
 						OptXValGroup cgrp = grp.cloneGroup();
-						if (test.isSoft()) cgrp.setData(gdata.applySoft((SoftTest)test, i));						
-						else cgrp.setData(gdata.apply(test, i));						
+						if (test.isSoft()) cgrp.setData(gdata.applySoft((SoftTest)test, i));
+						else cgrp.setData(gdata.apply(test, i));
 						cgrp.create(m_StatManager, m_NbFolds);
 						if (cgrp.updateSoft()) cgrp.calcTotalStats(m_TestExtraStat[0]);
 						else cgrp.calcTotalStats();
 if (Debug.debug == 1) {
-						node.m_Time += ResourceInfo.getCPUTime() - t01;						
+						node.m_Time += ResourceInfo.getCPUTime() - t01;
 }
 
 if (Debug.debug == 1) {
@@ -550,8 +550,8 @@ if (Debug.debug == 1) {
 						t01 = ResourceInfo.getCPUTime();
 }
 
-					}				
-				} else {			
+					}
+				} else {
 					long t01;
 if (Debug.debug == 1) {
 					t01 = ResourceInfo.getCPUTime();
@@ -562,7 +562,7 @@ if (Debug.debug == 1) {
 						split.setChild(child, i);
 						OptXValGroup cgrp = grp.cloneGroup();
 						cgrp.setData(gdata.apply(test, i));
-						cgrp.create(m_StatManager, m_NbFolds);						
+						cgrp.create(m_StatManager, m_NbFolds);
 						cgrp.calcTotalStats();
 if (Debug.debug == 1) {
 						node.m_Time += ResourceInfo.getCPUTime() - t01;
@@ -580,21 +580,21 @@ if (Debug.debug == 1) {
 					}
 				}
 				grp = (OptXValGroup)ngrps.getNext();
-			}			
-		}				
-	}	
-	
+			}
+		}
+	}
+
 	public final void createExtraStats() {
 		m_TestExtraStat = new ClusStatistic[m_MaxStats][m_NbFolds+1];
 		for (int j = 0; j < m_MaxStats; j++) {
-			for (int i = 0; i <= m_NbFolds; i++) {		
+			for (int i = 0; i <= m_NbFolds; i++) {
 				m_TestExtraStat[j][i] = m_StatManager.createClusteringStat();
 			}
 		}
 	}
-	
+
 	public OptXValNode xvalInduce(OptXValGroup mgrp) {
-		createExtraStats();	
+		createExtraStats();
 		OptXValNode root = new OptXValNode();
 		xvalInduce(root, mgrp);
 		return root;

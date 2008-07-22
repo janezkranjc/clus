@@ -32,11 +32,11 @@ public class HierWPenalty implements HierBasicDistance {
 			m_Weights[i] = Math.pow(fac, (double)i);
 		}
 	}
-	
+
 	protected final double getWeight(int level) {
 		return m_Weights[level-1];
 	}
-	
+
 	public double getVirtualRootWeight() {
 		return 0.0;
 	}

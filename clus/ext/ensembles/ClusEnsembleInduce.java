@@ -54,22 +54,22 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	static ClusAttrType[] m_RandomSubspaces;
 	ClusForest m_OForest;//Forest with the original models
 	ClusForest m_DForest;//Forest with stumps (default models)
-	
+
 	//memory optimization
 	static boolean m_OptMode;
 	static int[] m_HashCodeTuple;
 	static double[][] m_AvgPredictions;
-	
+
 	//output ensemble at different values
 	int[] m_OutEnsembleAt;//sorted values (ascending)!
 	static int m_NbMaxBags;
-	
+
 	//OOB estimate for Bagging and Random Forests
 	static boolean m_OOBEstimate;
 	static HashMap m_OOBPredictions;
 	static HashMap m_OOBUsage;
 	static boolean m_OOBCalculation;
-	
+
 	public ClusEnsembleInduce(ClusSchema schema, Settings sett, Clus clus) throws ClusException, IOException {
 		super(schema, sett);
 		m_BagClus = clus;
@@ -83,15 +83,15 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 //		m_OOBEstimate = false;
 		m_OOBCalculation = false;
 	}
-	
+
 	public static boolean isOptimized(){
 		return m_OptMode;
 	}
-	
+
 	public static boolean isCalcOOB(){
 		return m_OOBCalculation;
 	}
-	
+
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		System.out.println("Memory And Time Optimization = " + m_OptMode);
 		System.out.println("Out-Of-Bag Estimate of the error = " + m_OOBEstimate);
@@ -115,7 +115,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 		postProcessForest(cr);
 	}
-	
+
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException,
 			IOException {
 		// TODO Auto-generated method stub
@@ -123,16 +123,16 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	}
 
 	public void postProcessForest(ClusRun cr) throws ClusException{
-		
+
 		ClusModelInfo orig_info = cr.addModelInfo(ClusModel.ORIGINAL);
 		orig_info.setModel(m_OForest);
 		orig_info.setName("Original");
-		
+
 		if (!m_OptMode){
 			ClusModelInfo def_info = cr.addModelInfo(ClusModel.DEFAULT);
 			def_info.setModel(m_DForest);
-			def_info.setName("Default");	
-		}//		avoid printing the M1 attributes in the header of the oob predictions in the .oob.pred file 
+			def_info.setName("Default");
+		}//		avoid printing the M1 attributes in the header of the oob predictions in the .oob.pred file
 		else cr.getModelInfo(ClusModel.DEFAULT).setName("Default");
 
 		//Application of Thresholds for HMC
@@ -150,7 +150,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 					pruned_info.setName("T("+thresholds[i]+")");
 				}
 			}
-		}	
+		}
 	}
 
 	public void postProcessForestForOOBEstimate(ClusRun cr, OOBSelection oob_total, RowData all_data, Clus cl, String addname) throws ClusException, IOException{
@@ -159,7 +159,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			ClusOutput output = new ClusOutput(sett.getAppName() + addname +".oob", schema, sett);
 			ClusSummary summary = cr.getSummary();
 			m_OOBCalculation = true;
-			
+
 			//this is the section for writing the predictions from the OOB estimate
 			//should new option in .s file be introduced???
 			ClusStatistic target = getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
@@ -186,7 +186,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			wrt.close();
 			m_OOBCalculation = false;
 		}
-		
+
 	public void induceSubspaces(ClusRun cr) throws ClusException, IOException {
 		m_OForest = new ClusForest(getStatManager());
 		m_DForest = new ClusForest(getStatManager());
@@ -213,12 +213,12 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			ClusModel model = ind.induceSingleUnpruned(crSingle);
 
 //			ClusModelInfo model_info = crSingle.addModelInfo(ClusModels.ORIGINAL);
-//			model_info.setModel(model);	
+//			model_info.setModel(model);
 //			model_info.setName("Original");
 //			m_OForest.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
-			
+
 			summ_time += ResourceInfo.getTime() - one_bag_time;
-			
+
 			if (m_OptMode){
 				//for i == 0 [i.e. the first run] it will initialize the predictions
 				if (i == 0) initModelPredictionForTuples(model, train_iterator, test_iterator);
@@ -226,11 +226,11 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 			else{
 				ClusModelInfo model_info = crSingle.addModelInfo(ClusModel.ORIGINAL);
-				model_info.setModel(model);	
+				model_info.setModel(model);
 				model_info.setName("Original");
 				m_OForest.addModelToForest(crSingle.getModel(ClusModel.ORIGINAL));
-				
-				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);		
+
+				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
 				ClusModelInfo def_info = crSingle.addModelInfo(ClusModel.DEFAULT);
 				def_info.setModel(defmod);
 				def_info.setName("Default");
@@ -246,7 +246,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 		}
 	}
-	
+
 	public void induceBagging(ClusRun cr) throws ClusException, IOException {
 		int nbrows = cr.getTrainingSet().getNbRows();
 		m_OForest = new ClusForest(getStatManager());
@@ -256,8 +256,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		TupleIterator test_iterator = null; // = test set iterator
 		OOBSelection oob_total = null; // = total OOB selection
 		OOBSelection oob_sel = null; // = current OOB selection
-		
-		if (m_OptMode){	
+
+		if (m_OptMode){
 			train_iterator = cr.getTrainIter();
 			if (m_BagClus.hasTestSet()){
 				test_iterator = cr.getTestSet().getIterator();
@@ -275,16 +275,16 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			ind.initialize();
 			crSingle.getStatManager().initClusteringWeights();
 			ClusModel model = ind.induceSingleUnpruned(crSingle);
-			
+
 //			ClusModelInfo model_info = crSingle.addModelInfo(ClusModels.ORIGINAL);
-//			model_info.setModel(model);	
+//			model_info.setModel(model);
 //			model_info.setName("Original");
 //			m_OForest.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
-			
+
 			summ_time += ResourceInfo.getTime() - one_bag_time;
-			
+
 			if (m_OOBEstimate){		//OOB estimate is on
-				oob_sel = new OOBSelection(msel);	
+				oob_sel = new OOBSelection(msel);
 				if (i == 0){ //initialization
 					oob_total = new OOBSelection(msel);
 					m_OOBPredictions = new HashMap();
@@ -299,11 +299,11 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 			else{
 				ClusModelInfo model_info = crSingle.addModelInfo(ClusModel.ORIGINAL);
-				model_info.setModel(model);	
+				model_info.setModel(model);
 				model_info.setName("Original");
 				m_OForest.addModelToForest(crSingle.getModel(ClusModel.ORIGINAL));
-				
-				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);		
+
+				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
 				ClusModelInfo def_info = crSingle.addModelInfo(ClusModel.DEFAULT);
 				def_info.setModel(defmod);
 				def_info.setName("Default");
@@ -319,17 +319,17 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 				outputBetweenForest(crSingle, m_BagClus, "_"+(i+1)+"_");
 //				crSingle.deleteDataAndModels();
 			}
-			
+
 			if (m_OOBEstimate && checkToOutEnsemble(i+1)){
 				crSingle.setInductionTime(summ_time);
 				postProcessForest(crSingle);
 				postProcessForestForOOBEstimate(crSingle, oob_total, (RowData)cr.getTrainingSet(), m_BagClus, "_"+(i+1)+"_");
 			}
 			crSingle.deleteDataAndModels();
-		}		
+		}
 	}
-	
-	
+
+
 	public void induceBaggingSubspaces(ClusRun cr) throws ClusException, IOException {
 		int nbrows = cr.getTrainingSet().getNbRows();
 		m_OForest = new ClusForest(getStatManager());
@@ -339,7 +339,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		TupleIterator test_iterator = null; // = test set iterator
 		OOBSelection oob_total = null; // = total OOB selection
 		OOBSelection oob_sel = null; // = current OOB selection
-		
+
 		if (m_OptMode){
 			train_iterator = cr.getTrainIter();
 			if (m_BagClus.hasTestSet()){
@@ -360,22 +360,22 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			ind.initializeHeuristic();
 			ClusModel model = ind.induceSingleUnpruned(crSingle);
 //			ClusModelInfo model_info = crSingle.addModelInfo(ClusModels.ORIGINAL);
-//			model_info.setModel(model);	
+//			model_info.setModel(model);
 //			model_info.setName("Original");
 //			m_OForest.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
-			
+
 			summ_time += ResourceInfo.getTime() - one_bag_time;
-			
+
 			if (m_OOBEstimate){		//OOB estimate is on
-				oob_sel = new OOBSelection(msel);	
+				oob_sel = new OOBSelection(msel);
 				if (i == 0){ //initialization
 					oob_total = new OOBSelection(msel);
 					m_OOBPredictions = new HashMap();
 					m_OOBUsage = new HashMap();
 				}else oob_total.addToThis(oob_sel);
-				updateOOBTuples(oob_sel, (RowData)cr.getTrainingSet(), model);				
+				updateOOBTuples(oob_sel, (RowData)cr.getTrainingSet(), model);
 			}
-			
+
 			if (m_OptMode){
 				//for i == 0 [i.e. the first run] it will initialize the predictions
 				if (i == 0) initModelPredictionForTuples(model, train_iterator, test_iterator);
@@ -383,11 +383,11 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 			else{
 				ClusModelInfo model_info = crSingle.addModelInfo(ClusModel.ORIGINAL);
-				model_info.setModel(model);	
+				model_info.setModel(model);
 				model_info.setName("Original");
 				m_OForest.addModelToForest(crSingle.getModel(ClusModel.ORIGINAL));
-				
-				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);		
+
+				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
 				ClusModelInfo def_info = crSingle.addModelInfo(ClusModel.DEFAULT);
 				def_info.setModel(defmod);
 				def_info.setName("Default");
@@ -411,8 +411,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			crSingle.deleteDataAndModels();
 		}
 	}
-	
-	public void updateOOBTuples(OOBSelection oob_sel, RowData train_data, ClusModel model) throws IOException, ClusException{	
+
+	public void updateOOBTuples(OOBSelection oob_sel, RowData train_data, ClusModel model) throws IOException, ClusException{
 		for (int i = 0; i < train_data.getNbRows(); i++){
 			if (oob_sel.isSelected(i)){
 				DataTuple tuple = train_data.getTuple(i);
@@ -421,7 +421,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 		}
 	}
-	
+
 	public boolean existsOOBtuple(DataTuple tuple){
 		if (m_OOBUsage.containsKey(tuple.hashCode()) && m_OOBPredictions.containsKey(tuple.hashCode()))
 			return true;
@@ -431,13 +431,13 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			System.err.println(this.getClass().getName()+":existsOOBtuple(DataTuple) OOB tuples mismatch-> Usage = True, Predictions = False");
 		return false;
 	}
-	
+
 	public void addOOBTuple(DataTuple tuple, ClusModel model){
 		WHTDStatistic stat = (WHTDStatistic)model.predictWeighted(tuple);
 		m_OOBUsage.put(tuple.hashCode(), 1);
 		m_OOBPredictions.put(tuple.hashCode(),stat.getNumericPred());
 	}
-	
+
 	public void updateOOBTuple(DataTuple tuple, ClusModel model){
 		Integer used = (Integer)m_OOBUsage.get(tuple.hashCode());
 		used = used.intValue()+1;
@@ -448,7 +448,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		avg_predictions = incrementPredictions(avg_predictions, predictions, used.doubleValue());
 		m_OOBPredictions.put(tuple.hashCode(), avg_predictions);
 	}
-	
+
 	public void initializeTupleHashCodes(TupleIterator train, TupleIterator test, int nb_tuples) throws IOException, ClusException{
 		m_HashCodeTuple = new int[nb_tuples];
 		int count = 0;
@@ -469,7 +469,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 		}
 	}
-	
+
 	public void initializeTupleHashCodes(TupleIterator train, TupleIterator test) throws IOException, ClusException{
 		ArrayList<Integer> tuple_hash = new ArrayList<Integer>();
 		train.init();
@@ -493,12 +493,12 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		for (int k = 0; k < nb_tuples; k++)
 			m_HashCodeTuple[k] = tuple_hash.get(k);
 	}
-	
+
 	public void initPredictions(ClusForest forest){
-		ClusEnsembleInduce.m_AvgPredictions = new double[ClusEnsembleInduce.m_HashCodeTuple.length][forest.getStat().getNbAttributes()];	
+		ClusEnsembleInduce.m_AvgPredictions = new double[ClusEnsembleInduce.m_HashCodeTuple.length][forest.getStat().getNbAttributes()];
 	}
-	
-	public void initModelPredictionForTuples(ClusModel model, TupleIterator train, TupleIterator test) throws IOException, ClusException{		
+
+	public void initModelPredictionForTuples(ClusModel model, TupleIterator train, TupleIterator test) throws IOException, ClusException{
 		train.init();
 		DataTuple train_tuple = train.readTuple();
 		while (train_tuple != null){
@@ -520,7 +520,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			test.init();
 		}
 	}
-	
+
 	public void addModelPredictionForTuples(ClusModel model, TupleIterator train, TupleIterator test, int nb_models) throws IOException, ClusException{
 		train.init();
 		DataTuple train_tuple = train.readTuple();
@@ -543,7 +543,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			test.init();
 		}
 	}
-	
+
 	public static int locateTuple(DataTuple tuple){
 		int position = -1;
 		boolean found  = false;
@@ -558,7 +558,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 		return position;
 	}
-	
+
 	public double[] incrementPredictions(double[] avg_predictions, double[] predictions, double nb_models){
 		//the current averages are stored in the avg_predictions
 		int plength = avg_predictions.length;
@@ -567,7 +567,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			result[i] = avg_predictions[i]+(predictions[i]-avg_predictions[i])/nb_models;
 		return result;
 	}
-	
+
 	public int[] getIntermediateEnsembles(INIFileNominalOrIntOrVector values){
 		int[] result = new int[values.getVectorLength()];
 		for (int i = 0; i < result.length; i++)
@@ -582,15 +582,15 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 					result[k] = swap;
 				}
 		return result;
-	}	
+	}
 
 	//Checks whether we reached a limit
 	public boolean checkToOutEnsemble(int idx){
 		for (int i = 0; i < m_OutEnsembleAt.length; i++)
 			if  (m_OutEnsembleAt[i] == idx) return true;
-		return false;	
+		return false;
 	}
-	
+
 	public void outputBetweenForest(ClusRun cr, Clus cl, String addname)	throws IOException, ClusException {
 		Settings sett = cr.getStatManager().getSettings();
 		ClusSchema schema = cr.getStatManager().getSchema();
@@ -598,7 +598,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		ClusSummary summary = cr.getSummary();
 		ClusStatistic tr_stat = cr.getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
 		cr.getTrainingSet().calcTotalStat(tr_stat);
-		cr.getStatManager().setTrainSetStat(tr_stat);				
+		cr.getStatManager().setTrainSetStat(tr_stat);
 		cl.calcError(cr, null); // Calc error
 		if (summary != null) {
 			for (int i = ClusModel.ORIGINAL; i < cr.getNbModels(); i++) {
@@ -614,14 +614,14 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		cl.getClassifier().saveInformation(sett.getAppName());
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
 		cl.saveModels(cr, io);
-		io.save(cl.getSettings().getFileAbsolute(cr.getStatManager().getSettings().getAppName() + addname+".model"));	
+		io.save(cl.getSettings().getFileAbsolute(cr.getStatManager().getSettings().getAppName() + addname+".model"));
 //		cr.deleteDataAndModels();
 	}
-	
+
 	public static int getMaxNbBags(){
 		return ClusEnsembleInduce.m_NbMaxBags;
 	}
-	
+
 	public static void selectRandomSubspaces(ClusAttrType[] attrs, int select){
 		int origsize = attrs.length;
 		int[] samples = new int [origsize];
@@ -648,15 +648,15 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 //		System.out.println(java.util.Arrays.toString(samples));
 		setRandomSubspaces(result);
 	}
-	
+
 	public static ClusAttrType[] getRandomSubspaces(){
 		return m_RandomSubspaces;
 	}
-	
+
 	public static void setRandomSubspaces(ClusAttrType[] attrs){
 		m_RandomSubspaces = attrs;
 	}
-	
+
 	public static ClusAttrType[] selectAttributesForRandomForest(ClusAttrType[] attrs, int select){
 		int origsize = attrs.length;
 		int[] samples = new int [origsize];
@@ -683,14 +683,14 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 //		System.out.println(java.util.Arrays.toString(samples));
 		return result;
 	}
-	
+
 	public final void calcOOBError(OOBSelection oob_tot, RowData all_data, int type, ClusRun cr) throws IOException, ClusException {
 		ClusSchema mschema = all_data.getSchema();
 //		if (iter.shouldAttach()) attachModels(mschema, cr);
 		cr.initModelProcessors(type, mschema);
 		ModelProcessorCollection allcoll = cr.getAllModelsMI().getAddModelProcessors(type);
 		DataTuple tuple;// = iter.readTuple();
-		
+
 		for (int t = 0; t < all_data.getNbRows(); t++){
 			if (oob_tot.isSelected(t)){
 				tuple = all_data.getTuple(t);
@@ -714,8 +714,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 				}
 				allcoll.exampleDone();
 			}
-		}	
+		}
 		cr.termModelProcessors(type);
 	}
-	
+
 }

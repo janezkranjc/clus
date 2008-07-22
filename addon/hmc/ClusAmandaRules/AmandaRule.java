@@ -31,26 +31,26 @@ import clus.main.*;
 import clus.model.test.*;
 
 public class AmandaRule extends ClusRule {
-	
-  public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
+
+  public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
   public AmandaRule(ClusStatManager statManager) {
     super(statManager);
   }
-  
+
   public boolean doTest(NodeTest test, DataTuple tuple) {
   ///Leander: gans eerste if-test geblokkeerd
 	  /*if (test.isUnknown(tuple)) {
 			// Amanda does someting weird with unknown values
-			// (because of the perl implementation of > and <=)  
+			// (because of the perl implementation of > and <=)
 			if (test instanceof InverseNumericTest) {
 			  // <= succeeds for ? <= 26
 			  // <= fails for ? <= -26
 				if (!(0.0 <= ((NumericTest)test).getBound())) return false;
 			} else if (test instanceof NumericTest) {
-				// > fails for ? > 26					
+				// > fails for ? > 26
 			  // > succeeds for ? > -26
-				if (!(0.0 > ((NumericTest)test).getBound())) return false; 
+				if (!(0.0 > ((NumericTest)test).getBound())) return false;
 			} else {
 				return false;
 			}
@@ -66,5 +66,5 @@ public class AmandaRule extends ClusRule {
 			if (!doTest(test, tuple)) return false;
 		}
 		return true;
-	}		
+	}
 }

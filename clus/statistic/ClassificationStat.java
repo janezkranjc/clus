@@ -41,14 +41,14 @@ import clus.data.type.*;
 import clus.data.attweights.*;
 
 public class ClassificationStat extends ClusStatistic {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 	public int m_NbTarget;
 	public NominalAttrType[] m_Attrs;
 	public double[][] m_ClassCounts;
 	public int[] m_MajorityClasses;
-	
+
   /**
    * Constructor for this class.
    * @param nomAtts array of nominal attributes
@@ -60,8 +60,8 @@ public class ClassificationStat extends ClusStatistic {
 			m_ClassCounts[i] = new double[nomAtts[i].getNbValues()];
 		}
 		m_Attrs = nomAtts;
-	} 
-	
+	}
+
 /*	public ClassificationStat(BitwiseNominalAttrType[] nomAtts) {
 		m_NbTarget = nomAtts.length;
 		m_ClassCounts = new double[m_NbTarget][];
@@ -70,15 +70,15 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		m_Attrs = nomAtts;
 	}*/
-	
+
 	public int getNbNominalAttributes() {
 		return m_NbTarget;
 	}
-	
+
 	public ClusStatistic cloneStat() {
 		return new ClassificationStat(m_Attrs);
 	}
-	
+
 	public void initSingleTargetFrom(double[] distro) {
 		m_ClassCounts[0] = distro;
 		m_SumWeight = 0.0;
@@ -88,7 +88,7 @@ public class ClassificationStat extends ClusStatistic {
 	}
 
   /** Added because RegressionStat has this method.
-   * 
+   *
    * @param idx
    * @return
    */
@@ -100,55 +100,55 @@ public class ClassificationStat extends ClusStatistic {
 		m_SumWeight = 0.0;
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] clcts = m_ClassCounts[i];
-			for (int j = 0; j < clcts.length; j++) clcts[j] = 0.0;		
+			for (int j = 0; j < clcts.length; j++) clcts[j] = 0.0;
 		}
 	}
 
 	/** Resets the SumWeight and majority class count to weight and all other
 	 *  class counts to zero.
-	 */ 
+	 */
 	public void resetToSimple(double weight) {
 		m_SumWeight = weight;
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] clcts = m_ClassCounts[i];
 			for (int j = 0; j < clcts.length; j++) {
 				if (j == m_MajorityClasses[i]) {
-					clcts[j] = weight;		
+					clcts[j] = weight;
 				} else {
 					clcts[j] = 0.0;
 				}
 			}
 		}
 	}
-	
+
 	public void copy(ClusStatistic other) {
-		ClassificationStat or = (ClassificationStat)other;	
+		ClassificationStat or = (ClassificationStat)other;
 		m_SumWeight = or.m_SumWeight;
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
 			System.arraycopy(your, 0, my, 0, my.length);
 		}
-	}	
-	
+	}
+
 	public boolean samePrediction(ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
-		for (int i = 0; i < m_NbTarget; i++) 
-			if (m_MajorityClasses[i] != or.m_MajorityClasses[i]) 
+		for (int i = 0; i < m_NbTarget; i++)
+			if (m_MajorityClasses[i] != or.m_MajorityClasses[i])
 				return false;
 		return true;
-	}	
-	
+	}
+
 	public void addPrediction(ClusStatistic other, double weight) {
 		ClassificationStat or = (ClassificationStat)other;
-		m_SumWeight += weight*or.m_SumWeight;		
-		for (int i = 0; i < m_NbTarget; i++) {		
+		m_SumWeight += weight*or.m_SumWeight;
+		for (int i = 0; i < m_NbTarget; i++) {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
 			for (int j = 0; j < my.length; j++) my[j] += weight*your[j];
 		}
-	}	
-	
+	}
+
 	public void add(ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
 		m_SumWeight += or.m_SumWeight;
@@ -158,7 +158,7 @@ public class ClassificationStat extends ClusStatistic {
 			for (int j = 0; j < my.length; j++) my[j] += your[j];
 		}
 	}
-	
+
 	public void addScaled(double scale, ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
 		m_SumWeight += scale*or.m_SumWeight;
@@ -167,8 +167,8 @@ public class ClassificationStat extends ClusStatistic {
 			double[] your = or.m_ClassCounts[i];
 			for (int j = 0; j < my.length; j++) my[j] += scale*your[j];
 		}
-	}		
-	
+	}
+
 	public void subtractFromThis(ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
 		m_SumWeight -= or.m_SumWeight;
@@ -178,7 +178,7 @@ public class ClassificationStat extends ClusStatistic {
 			for (int j = 0; j < my.length; j++) my[j] -= your[j];
 		}
 	}
-	
+
 	public void subtractFromOther(ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
 		m_SumWeight = or.m_SumWeight - m_SumWeight;
@@ -187,38 +187,38 @@ public class ClassificationStat extends ClusStatistic {
 			double[] your = or.m_ClassCounts[i];
 			for (int j = 0; j < my.length; j++) my[j] = your[j] - my[j];
 		}
-	}	
-	
+	}
+
 	public void update(ColTarget target, int idx) {
-		m_SumWeight += 1.0;		
+		m_SumWeight += 1.0;
 		int[] values = target.m_Nominal[idx];
 		for (int i = 0; i < m_NbTarget; i++) {
 			m_ClassCounts[i][values[i]] += 1.0;
 		}
-	}		
-	
+	}
+
 	public void update(int j, int[] values) {
-		m_SumWeight += 1.0;		
+		m_SumWeight += 1.0;
 		for (int i = 0; i < m_NbTarget; i++) {
 			m_ClassCounts[i][values[i]] += 1.0;
 		}
-	}	
-	
+	}
+
 	public void updateWeighted(DataTuple tuple, int idx) {
 		updateWeighted(tuple, tuple.getWeight());
 	}
-	
+
 	public void updateWeighted(DataTuple tuple, double weight) {
-		m_SumWeight += weight;		
+		m_SumWeight += weight;
 		for (int i = 0; i < m_NbTarget; i++) {
 			int val = m_Attrs[i].getNominal(tuple);
 //			System.out.println("val: "+ val);
-			if (val != m_Attrs[i].getNbValues()) {				
+			if (val != m_Attrs[i].getNbValues()) {
 				m_ClassCounts[i][val] += weight;
 			}
-		}	
+		}
 	}
-	
+
 	public int getMajorityClass(int attr) {
 		int m_class = -1;
 		double m_max = Double.NEGATIVE_INFINITY;
@@ -231,7 +231,7 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		return m_class;
 	}
-	
+
 	public int getMajorityClassDiff(int attr, ClassificationStat other) {
 		int m_class = -1;
 		double m_max = Double.NEGATIVE_INFINITY;
@@ -246,7 +246,7 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		return m_class;
 	}
-	
+
 	public double entropy(int attr, double total) {
 		if (total < 1e-6) {
 			return 0.0;
@@ -262,7 +262,7 @@ public class ClassificationStat extends ClusStatistic {
 			return -acc/MathUtil.M_LN2;
 		}
 	}
-	
+
 	public double entropyDifference(int attr, ClassificationStat other, double total) {
 		double acc = 0.0;
 		double[] clcts = m_ClassCounts[attr];
@@ -272,7 +272,7 @@ public class ClassificationStat extends ClusStatistic {
 			if (diff != 0.0) acc += diff/total*Math.log(diff/total);
 		}
 		return -acc/MathUtil.M_LN2;
-	}	
+	}
 
 	public double gini(int attr) {
 		if (m_SumWeight == 0) {
@@ -287,7 +287,7 @@ public class ClassificationStat extends ClusStatistic {
 			return 1.0 - sum;
 		}
 	}
-	
+
 	public double giniDifference(int attr, ClassificationStat other) {
 		double wDiff = m_SumWeight - other.m_SumWeight;
 		if (wDiff == 0) {
@@ -302,25 +302,25 @@ public class ClassificationStat extends ClusStatistic {
 			}
 			return 1.0 - sum;
 		}
-	}	
-	
+	}
+
 	public static double computeSplitInfo(double sum_tot, double sum_pos, double sum_neg) {
 		if (sum_pos == 0.0)
 			return -1.0*sum_neg/sum_tot*Math.log(sum_neg/sum_tot)/MathUtil.M_LN2;
 		if (sum_neg == 0.0)
 			return -1.0*sum_pos/sum_tot*Math.log(sum_pos/sum_tot)/MathUtil.M_LN2;
-		return -(sum_pos/sum_tot*Math.log(sum_pos/sum_tot) + 
+		return -(sum_pos/sum_tot*Math.log(sum_pos/sum_tot) +
 				sum_neg/sum_tot*Math.log(sum_neg/sum_tot))/MathUtil.M_LN2;
-	}	
-	
+	}
+
 	public boolean isCalcMean() {
 		return m_MajorityClasses != null;
 	}
-	
+
 	public void calcMean() {
 		m_MajorityClasses = new int[m_NbTarget];
 		for (int i = 0; i < m_NbTarget; i++) {
-			m_MajorityClasses[i] = getMajorityClass(i); 
+			m_MajorityClasses[i] = getMajorityClass(i);
 		}
 	}
 
@@ -329,13 +329,13 @@ public class ClassificationStat extends ClusStatistic {
    * G = 2*SUM(obs*ln(obs/exp))
    * @param att attribute index
    * @return p-value
-   * @throws MathException 
+   * @throws MathException
    */
   public double getGTestPValue(int att, ClusStatManager stat_manager) throws MathException {
     double global_n = ((CombStat)stat_manager.getTrainSetStat()).getTotalWeight();
     double local_n = getTotalWeight();
     double ratio = local_n / global_n;
-    double global_counts[] =((CombStat)stat_manager.getTrainSetStat()).m_ClassStat.getClassCounts(att); 
+    double global_counts[] =((CombStat)stat_manager.getTrainSetStat()).m_ClassStat.getClassCounts(att);
     double local_counts[] = getClassCounts(att);
     double g = 0;
     for (int i = 0; i < global_counts.length; i++) {
@@ -348,19 +348,19 @@ public class ClassificationStat extends ClusStatistic {
     ChiSquaredDistribution chiSquaredDistribution = distributionFactory.createChiSquareDistribution(degreesOfFreedom);
     return 1 - chiSquaredDistribution.cumulativeProbability(g);
   }
-  
+
   /**
    * Computes a G statistic and returns the result of a G test.
    * G = 2*SUM(obs*ln(obs/exp))
    * @param att attribute index
    * @return p-value
-   * @throws MathException 
+   * @throws MathException
    */
   public boolean getGTest(int att, ClusStatManager stat_manager) {
     double global_n = ((CombStat)stat_manager.getTrainSetStat()).getTotalWeight();
     double local_n = getTotalWeight();
     double ratio = local_n / global_n;
-    double global_counts[] =((CombStat)stat_manager.getTrainSetStat()).m_ClassStat.getClassCounts(att); 
+    double global_counts[] =((CombStat)stat_manager.getTrainSetStat()).m_ClassStat.getClassCounts(att);
     double local_counts[] = getClassCounts(att);
     double g = 0;
     for (int i = 0; i < global_counts.length; i++) {
@@ -372,26 +372,26 @@ public class ClassificationStat extends ClusStatistic {
     double chi2_crit = stat_manager.getChiSquareInvProb(df);
     return (g > chi2_crit);
   }
-  
+
 	public double[] getNumericPred() {
 		return null;
 	}
-	
+
 	public int[] getNominalPred() {
 		return m_MajorityClasses;
-	}	
-	
+	}
+
 	public String getString2() {
-		StringBuffer buf = new StringBuffer();		
+		StringBuffer buf = new StringBuffer();
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		buf.append(fr.format(m_SumWeight));
 		buf.append(" ");
 		buf.append(super.toString());
 		return buf.toString();
-	}	
+	}
 
 	public String getArrayOfStatistic(){
-		StringBuffer buf = new StringBuffer();		
+		StringBuffer buf = new StringBuffer();
 		if (m_MajorityClasses != null) {
 			buf.append("[");
 			for (int i = 0; i < m_NbTarget; i++) {
@@ -401,10 +401,10 @@ public class ClassificationStat extends ClusStatistic {
 			buf.append("]");
 		}
 		return buf.toString();
-		
-	}	
+
+	}
 	public String getString(StatisticPrintInfo info) {
-		StringBuffer buf = new StringBuffer();		
+		StringBuffer buf = new StringBuffer();
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		if (m_MajorityClasses != null) {//print the name of the majority class
 			buf.append("[");
@@ -418,7 +418,7 @@ public class ClassificationStat extends ClusStatistic {
 			buf.append("?");
 		}
 		if (info.SHOW_DISTRIBUTION) {
-			for (int j = 0; j < m_NbTarget; j++) {		
+			for (int j = 0; j < m_NbTarget; j++) {
 				buf.append(" [");
 				for (int i = 0; i < m_ClassCounts[j].length; i++) {
 					if (i != 0) buf.append(",");
@@ -429,9 +429,9 @@ public class ClassificationStat extends ClusStatistic {
 				buf.append("]");
 			}//end for
 			if (info.SHOW_EXAMPLE_COUNT) {
-				buf.append(":");		
+				buf.append(":");
 				buf.append(fr.format(m_SumWeight));
-			}			
+			}
 		}//end if show distribution
 		else {
 			// print stat on the majority classes
@@ -444,11 +444,11 @@ public class ClassificationStat extends ClusStatistic {
 				// added colon here to make trees print correctly
 				buf.append("]: ");
 				buf.append(fr.format(m_SumWeight));
-			}			
+			}
 		}
 		return buf.toString();
 	}
-	
+
 	public void addPredictWriterSchema(String prefix, ClusSchema schema) {
 		for (int i = 0; i < m_NbTarget; i++) {
 			ClusAttrType type = m_Attrs[i].cloneType();
@@ -461,9 +461,9 @@ public class ClassificationStat extends ClusStatistic {
 				ClusAttrType type = new NumericAttrType(prefix+"-p-"+m_Attrs[i].getName()+"-"+value);
 				schema.addAttrType(type);
 			}
-		}		
+		}
 	}
-	
+
 	public String getPredictWriterString() {
 		StringBuffer buf = new StringBuffer();
 		for (int i = 0; i < m_NbTarget; i++) {
@@ -472,67 +472,67 @@ public class ClassificationStat extends ClusStatistic {
 				buf.append(m_Attrs[i].getValue(m_MajorityClasses[i]));
 			} else {
 				buf.append("?");
-			}			
+			}
 		}
 		for (int i = 0; i < m_NbTarget; i++) {
 			for (int j = 0; j < m_ClassCounts[i].length; j++) {
 				buf.append(",");
 				buf.append(""+m_ClassCounts[i][j]);
 			}
-		}		
+		}
 		return buf.toString();
-	}	
-	
+	}
+
 	public int getNbClasses(int idx) {
 		return m_ClassCounts[idx].length;
 	}
-	
+
 	public double getCount(int idx, int cls) {
 		return m_ClassCounts[idx][cls];
-	}	
-	
+	}
+
 	//changed elisa 13/06/2007
 	public String getPredictedClassName(int idx) {
 		return m_Attrs[idx].getName()+" = "+m_Attrs[idx].getValue(m_MajorityClasses[idx]);
 		// return m_Attrs[idx].getValue(getMajorityClass(idx));
-	} 
-	
+	}
+
 	public String getClassName(int idx, int cls) {
 		return m_Attrs[idx].getValue(cls);
-	} 
-	
+	}
+
 	public void setCount(int idx, int cls, double count) {
 		m_ClassCounts[idx][cls] = count;
 	}
-	
+
 	public String getSimpleString() {
 		return getClassString() + " : " + super.getSimpleString();
-	}	
-	
+	}
+
 	public String getClassString() {
-		StringBuffer buf = new StringBuffer();		
+		StringBuffer buf = new StringBuffer();
 		for (int i = 0; i < m_NbTarget; i++) {
 			if (i != 0) buf.append(",");
 			buf.append(m_Attrs[i].getValue(m_MajorityClasses[i]));
 		}
 		return buf.toString();
 	}
-	
+
 	public double getError(ClusAttributeWeights scale) {
 		double result = 0.0;
 		for (int i = 0; i < m_NbTarget; i++) {
 			int maj = getMajorityClass(i);
-			result += m_SumWeight - m_ClassCounts[i][maj]; 
+			result += m_SumWeight - m_ClassCounts[i][maj];
 		}
 		return result / m_NbTarget;
 	}
-		
+
 	public double getErrorRel() {
 		//System.out.println("ClassificationStat getErrorRel");
 		// System.out.println("ClassificationStat nb example in the leaf "+m_SumWeight);
 		return getError() / getTotalWeight();
 	}
-	
+
 	public double getErrorDiff(ClusAttributeWeights scale, ClusStatistic other) {
 		double result = 0.0;
 		ClassificationStat or = (ClassificationStat)other;
@@ -540,11 +540,11 @@ public class ClassificationStat extends ClusStatistic {
 		for (int i = 0; i < m_NbTarget; i++) {
 			int maj = getMajorityClassDiff(i, or);
 			double diff_maj = m_ClassCounts[i][maj] - or.m_ClassCounts[i][maj];
-			result += diff_total - diff_maj; 
+			result += diff_total - diff_maj;
 		}
 		return result / m_NbTarget;
 	}
-	
+
 	public int getNbPseudoTargets() {
 		int nbTarget = 0;
 		for (int i = 0; i < m_NbTarget; i++) {
@@ -552,7 +552,7 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		return nbTarget;
 	}
-	
+
 	public double getSS(ClusAttributeWeights scale) {
 		double result = 0.0;
 		double sum = m_SumWeight;
@@ -561,7 +561,7 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		return result / m_NbTarget;
 	}
-	
+
 	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other) {
 		double result = 0.0;
 		double sum = m_SumWeight - other.m_SumWeight;
@@ -569,9 +569,9 @@ public class ClassificationStat extends ClusStatistic {
 		for (int i = 0; i < m_NbTarget; i++) {
 			result += giniDifference(i, cother) * scale.getWeight(m_Attrs[i]) * sum;
 		}
-		return result / m_NbTarget;		
+		return result / m_NbTarget;
 	}
-	
+
 	public void initNormalizationWeights(ClusAttributeWeights weights, boolean[] shouldNormalize) {
 		for (int i = 0; i < m_NbTarget; i++) {
 			int idx = m_Attrs[i].getIndex();
@@ -582,16 +582,16 @@ public class ClassificationStat extends ClusStatistic {
 				weights.setWeight(m_Attrs[i], norm);
 			}
 		}
-	}	
-		
+	}
+
 	public double[] getClassCounts(int i) {
 		return m_ClassCounts[i];
 	}
-	
+
 	public String toString() {
 		return getString();
 	}
-	
+
 	public void printDistribution(PrintWriter wrt) throws IOException {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		for (int i = 0; i < m_Attrs.length; i++) {
@@ -604,17 +604,17 @@ public class ClassificationStat extends ClusStatistic {
 				wrt.print(fr.format(m_ClassCounts[i][j]));
 				sum += m_ClassCounts[i][j];
 			}
-			wrt.println("]: "+fr.format(sum));	
+			wrt.println("]: "+fr.format(sum));
 		}
-	}	
-	
+	}
+
 	public void predictTuple(DataTuple prediction) {
 		for (int i = 0; i < m_NbTarget; i++) {
 			NominalAttrType type = m_Attrs[i];
 			type.setNominal(prediction, m_MajorityClasses[i]);
 		}
-	}	
-	
+	}
+
 	public void vote(ArrayList votes) {
 		switch (Settings.m_ClassificationVoteType.getValue()){
 			case 0: voteMajority(votes);break;
@@ -635,7 +635,7 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		calcMean();
 	}
-	
+
 	public void voteProbDistr(ArrayList votes) {
 		reset();
 		ClassificationStat vote;
@@ -648,7 +648,7 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		calcMean();
 	}
-	
+
 	public void addVote(ClusStatistic vote) {
 		ClassificationStat or = (ClassificationStat)vote;
 		m_SumWeight += or.m_SumWeight;
@@ -660,8 +660,8 @@ public class ClassificationStat extends ClusStatistic {
 			for (int j = 0; j < my.length; j++) my[j] += your[j]/total;
 		}
 	}
-			  
+
 	public ClassificationStat getClassificationStat() {
 		return this;
-	}	
+	}
 }

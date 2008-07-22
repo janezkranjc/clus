@@ -32,8 +32,8 @@ public class DummySerializable extends ClusSerializable {
 	public boolean read(ClusReader data, int row) throws IOException {
 		return data.skipTillComma();
 	}
-	
+
 	public boolean read(ClusReader data, DataTuple tuple) throws IOException {
 		return data.skipTillComma();
-	}	
+	}
 }

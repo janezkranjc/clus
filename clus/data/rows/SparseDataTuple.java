@@ -28,21 +28,21 @@ import clus.main.Settings;
 import java.util.*;
 
 public class SparseDataTuple extends DataTuple {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 	protected HashMap map = new HashMap();
-	
+
 	public SparseDataTuple(ClusSchema schema) {
 		super(schema);
 	}
 
 	public void setDoubleValueSparse(double val, int index) {
-		map.put(new Integer(index), new Double(val));		
+		map.put(new Integer(index), new Double(val));
 	}
-	
+
 	public double getDoubleValueSparse(int index) {
 		Double value = (Double)map.get(new Integer(index));
 		return value != null ? value.doubleValue() : 0.0;
-	}	
+	}
 }

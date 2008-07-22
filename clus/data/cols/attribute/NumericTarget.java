@@ -31,7 +31,7 @@ import clus.data.type.*;
 public class NumericTarget extends NumericAttrBase {
 
 	protected ColTarget m_Target;
-	protected int m_Index;	
+	protected int m_Index;
 
 	public NumericTarget(ColTarget target, NumericAttrType type, int index) {
 		super(type);

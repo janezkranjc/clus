@@ -44,36 +44,36 @@ import clus.util.*;
 import clus.tools.optimization.de.*;
 
 public class ClusRuleInduce extends ClusInductionAlgorithm {
-	
+
 	protected boolean m_BeamChanged;
 	protected FindBestTestRules m_FindBestTest;
 	protected ClusHeuristic m_Heuristic;
-	
+
 	public ClusRuleInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		super(schema, sett);
 		m_FindBestTest = new FindBestTestRules(getStatManager());
 	}
-	
+
 	void resetAll() {
 		m_BeamChanged = false;
-	}	
-	
+	}
+
 	public void setHeuristic(ClusHeuristic heur) {
 		m_Heuristic = heur;
 	}
-		
+
 	public double estimateBeamMeasure(ClusRule rule) {
 		return m_Heuristic.calcHeuristic(null, rule.getClusteringStat(), null);
 	}
-	
+
 	public boolean isBeamChanged() {
 		return m_BeamChanged;
 	}
-	
+
 	public void setBeamChanged(boolean change) {
 		m_BeamChanged = change;
 	}
-	
+
 	ClusBeam initializeBeam(RowData data) {
 		Settings sett = getSettings();
 		ClusBeam beam = new ClusBeam(sett.getBeamWidth(), sett.getBeamRemoveEqualHeur());
@@ -82,16 +82,16 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		rule.setClusteringStat(stat);
 		rule.setVisitor(data);
 		double value = estimateBeamMeasure(rule);
-		beam.addModel(new ClusBeamModel(value, rule));		
+		beam.addModel(new ClusBeamModel(value, rule));
 		return beam;
 	}
-	
+
 	public void refineModel(ClusBeamModel model, ClusBeam beam, int model_idx) {
 		ClusRule rule = (ClusRule)model.getModel();
 		RowData data = (RowData)rule.getVisitor();
 		if (m_FindBestTest.initSelectorAndStopCrit(rule.getClusteringStat(), data)) {
 			model.setFinished(true);
-			return;			
+			return;
 		}
 		CurrentBestTestAndHeuristic sel = m_FindBestTest.getBestTest();
 		ClusAttrType[] attrs = data.getSchema().getDescriptiveAttributes();
@@ -132,7 +132,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			}
 		}
 	}
-	
+
 	public void refineBeam(ClusBeam beam) {
 		setBeamChanged(false);
 		ArrayList models = beam.toArray();
@@ -144,9 +144,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				model.setRefined(true);
 				model.setParentModelIndex(-1);
 			}
-		}	
+		}
 	}
-	
+
 	public ClusRule learnOneRule(RowData data) {
 		ClusBeam beam = initializeBeam(data);
 		int i = 0;
@@ -169,7 +169,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		}
 		System.out.println();
 		double best = beam.getBestModel().getValue();
-		double worst = beam.getWorstModel().getValue();		
+		double worst = beam.getWorstModel().getValue();
 		System.out.println("Worst = "+worst+" Best = "+best);
 		ClusRule result = (ClusRule)beam.getBestAndSmallestModel().getModel();
 		// Create target statistic for rule
@@ -178,7 +178,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		result.setVisitor(null);
 		return result;
 	}
-	
+
 	public ClusRule learnEmptyRule(RowData data) {
 		ClusRule result = new ClusRule(getStatManager());
 		// Create target statistic for rule
@@ -187,7 +187,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		// result.setVisitor(null);
 		return result;
 	}
-	
+
 	/**
 	 * Returns all the rules in the beam, not just the best one.
 	 * @param data
@@ -215,7 +215,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		}
 		System.out.println();
 		double best = beam.getBestModel().getValue();
-		double worst = beam.getWorstModel().getValue();		
+		double worst = beam.getWorstModel().getValue();
 		System.out.println("Worst = "+worst+" Best = "+best);
 		ArrayList beam_models = beam.toArray();
 		ClusRule[] result = new ClusRule[beam_models.size()];
@@ -232,7 +232,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		}
 		return result;
 	}
-	
+
 	public void separateAndConquor(ClusRuleSet rset, RowData data) {
 		while (data.getNbRows() > 0) {
 			ClusRule rule = learnOneRule(data);
@@ -251,12 +251,12 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 	}
-	
+
 	/**
 	 * separateAndConquor method which uses reweighting
 	 * @param rset
 	 * @param data
-	 * @throws ClusException 
+	 * @throws ClusException
 	 */
 	public void separateAndConquorWeighted(ClusRuleSet rset, RowData data) throws ClusException {
 		int max_rules = getSettings().getMaxRulesNb();
@@ -281,7 +281,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 							for (int k = 0; k < rset.getModelSize(); k++) {
 								if (rset.getRule(k).covers(data_copy.getTuple(j))) {
 									bit_vect[j] = true;
-									break;									
+									break;
 								}
 							}
 						}
@@ -296,12 +296,12 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 	}
-	
+
 	/** Modified separateAndConquorWeighted method: Adds a rule to the rule set
 	 * only if it improves the rule set performance
 	 * @param rset
 	 * @param data
-	 */ 
+	 */
 	public void separateAndConquorAddRulesIfBetter(ClusRuleSet rset, RowData data) throws ClusException {
 		int max_rules = getSettings().getMaxRulesNb();
 		int i = 0;
@@ -339,7 +339,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 								for (int k = 0; k < rset.getModelSize(); k++) {
 									if (rset.getRule(k).covers(data_copy.getTuple(j))) {
 										bit_vect[j] = true;
-										break;									
+										break;
 									}
 								}
 							}
@@ -361,7 +361,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	 * If not, it checks other rules in the beam.
 	 * @param rset
 	 * @param data
-	 */ 
+	 */
 	public void separateAndConquorAddRulesIfBetterFromBeam(ClusRuleSet rset, RowData data) throws ClusException {
 		int max_rules = getSettings().getMaxRulesNb();
 		int i = 0;
@@ -430,7 +430,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 							for (int k = 0; k < rset.getModelSize(); k++) {
 								if (rset.getRule(k).covers(data.getTuple(j))) {
 									bit_vect[j] = true;
-									break;									
+									break;
 								}
 							}
 						}
@@ -445,12 +445,12 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 	}
-	
+
 	/**
 	 * separateAndConquor method that induces rules on several bootstraped data subsets
 	 * @param rset
 	 * @param data
-	 * @throws ClusException 
+	 * @throws ClusException
 	 */
 	public void separateAndConquorBootstraped(ClusRuleSet rset, RowData data) throws ClusException {
 		int nb_sets = 10; // TODO: parameter?
@@ -496,7 +496,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 								for (int k = 0; k < rset.getModelSize(); k++) {
 									if (rset.getRule(k).covers(data_sel_copy.getTuple(j))) {
 										bit_vect[j] = true;
-										break;									
+										break;
 									}
 								}
 							}
@@ -512,12 +512,12 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 	}
-	
+
 	/** Evaluates each rule in the context of a complete rule set.
 	 *  Individual rules are generated randomly.
 	 * @param rset
 	 * @param data
-	 */ 
+	 */
 	public void separateAndConquorRandomly(ClusRuleSet rset, RowData data) throws ClusException {
     int nb_rules = 100; // TODO: parameter?
     int max_def_rules = 10; // TODO: parameter?
@@ -601,13 +601,13 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 	}
-	
+
 	/** Modified separateAndConquorWeighted method: evaluates each rule in
 	 *  the context of a complete rule set, it builds the default rule first.
 	 *  If first learned rule is no good, it checks next rules in the beam.
 	 * @param rset
 	 * @param data
-	 */ 
+	 */
 	public void separateAndConquorAddRulesIfBetterFromBeam2(ClusRuleSet rset, RowData data) throws ClusException {
 		int max_rules = getSettings().getMaxRulesNb();
 		int i = 0;
@@ -686,7 +686,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			ClusRule[] rules = learnBeamOfRules(data);
 			ClusRule rule = rules[0];
 			for (int l = 0; l < rules.length-1; l++) {
-				rule = rules[l+1]; 
+				rule = rules[l+1];
 				if (rset.unique(rule)) {
 					break;
 				}
@@ -705,7 +705,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 						for (int k = 0; k < rset.getModelSize(); k++) {
 							if (rset.getRule(k).covers(data.getTuple(j))) {
 								bit_vect[j] = true;
-								break;									
+								break;
 							}
 						}
 					}
@@ -716,7 +716,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		}
 		updateDefaultRule(rset, data);
 	}
-	
+
 	public double sanityCheck(double value, ClusRule rule) {
 		double expected = estimateBeamMeasure(rule);
 		if (Math.abs(value-expected) > 1e-6) {
@@ -729,7 +729,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		}
 		return expected;
 	}
-	
+
 	public ClusModel induce(ClusRun run) throws ClusException, IOException {
 		int method = getSettings().getCoveringMethod();
 		int add_method = getSettings().getRuleAddingMethod();
@@ -804,7 +804,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		if (classification) {
 			ClusSchema schema = data.getSchema();
 			NominalAttrType[] target = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			int nb_values = ((ClassificationStat)rset.m_TargetStat).getAttribute(0).getNbValues(); 
+			int nb_values = ((ClassificationStat)rset.m_TargetStat).getAttribute(0).getNbValues();
 			double[][][] rule_pred = new double[nb_rows][nb_rules][nb_values]; // [instance][rule][class_value]
 			double[] true_val = new double[nb_rows];
 			for (int i = 0; i < nb_rows; i++) {
@@ -813,7 +813,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 					ClusRule rule = rset.getRule(j);
 					if (rule.covers(tuple)) {
 						rule_pred[i][j] = (double[])((ClassificationStat)rule.predictWeighted(tuple)).
-						getClassCounts(0); // TODO: 
+						getClassCounts(0); // TODO:
 					} else {
 						for (int k = 0; k < nb_values; k++) {
 							rule_pred[i][j][k] = Double.NaN;
@@ -825,7 +825,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 					}
 					wrt_pred.print("]");
 				}
-				//true_val[i] = (double)tuple.getIntVal(0); // TODO: 
+				//true_val[i] = (double)tuple.getIntVal(0); // TODO:
 				true_val[i] = target[0].getNominal(tuple);
 				wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
 			}
@@ -856,12 +856,12 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue());
 		}
 		rset.removeLowWeightRules();
-		RowData data_copy = (RowData)data.cloneData(); 
+		RowData data_copy = (RowData)data.cloneData();
 		updateDefaultRule(rset, data_copy);
 		// TODO: Should I update all the rules also, rerun the optimization?
 		return rset;
 	}
-	
+
 /*			try {
 				// Generate pathseeker input
 				ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
@@ -888,7 +888,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 								wrt_pred.write("" + ((RegressionStat)rule.predictWeighted(tuple)).
 										                 getNumericPred()[0]);
 							}
-						} 
+						}
 						if ((j+1) < rset.getModelSize()) {
 							wrt_pred.write(",");
 						}
@@ -960,7 +960,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 	}
-	
+
 	/**
 	 * Method that induces a specified number of random rules.
 	 * @param cr ClusRun
@@ -971,7 +971,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		RowData data = (RowData)run.getTrainingSet();
 		ClusStatistic stat = createTotalClusteringStat(data);
 		m_FindBestTest.initSelectorAndSplit(stat);
-		setHeuristic(m_FindBestTest.getBestTest().getHeuristic()); // ??? 
+		setHeuristic(m_FindBestTest.getBestTest().getHeuristic()); // ???
 		ClusRuleSet rset = new ClusRuleSet(getStatManager());
 		Random rn = new Random(42);
 		for (int i = 0; i < number; i++) {
@@ -1002,17 +1002,17 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		}
 		return rset;
 	}
-	
-	/** 
+
+	/**
 	 * Generates one random rule.
 	 * @param data
 	 * @param rn
 	 * @return
 	 */
 	private ClusRule generateOneRandomRule(RowData data, Random rn) {
-		// TODO: Remove/change the beam stuff!!! 
+		// TODO: Remove/change the beam stuff!!!
 		// Jans: Removed beam stuff (because was more difficult to debug)
-		ClusStatManager mgr = getStatManager();    
+		ClusStatManager mgr = getStatManager();
 		ClusRule result = new ClusRule(mgr);
 		ClusAttrType[] attrs = data.getSchema().getDescriptiveAttributes();
 		// Pointer to the complete data set
@@ -1046,7 +1046,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			result.setClusteringStat(createTotalClusteringStat(data));
 			if (m_FindBestTest.initSelectorAndStopCrit(result.getClusteringStat(), data)) {
 				// Do not add test if stop criterion succeeds (???)
-				break;			
+				break;
 			}
 			sel.resetBestTest();
 			sel.setBestHeur(Double.NEGATIVE_INFINITY);
@@ -1069,7 +1069,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		result.setClusteringStat(createTotalClusteringStat(data));
 		return result;
 	}
-	
+
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 		// ClusRulesForAttrs rfa = new ClusRulesForAttrs();
 		// return rfa.constructRules(cr);
@@ -1080,7 +1080,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			return induceRandomly(cr);
 		}
 	}
-	
+
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		ClusModel model = induceSingleUnpruned(cr);
 		// FIXME: implement cloneModel();

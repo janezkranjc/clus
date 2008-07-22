@@ -247,12 +247,12 @@ public class KNNTreeClassifier extends ClusInductionAlgorithmType {
 
 	public void pruneAll(ClusRun cr) throws ClusException, IOException {
 	}
-	 
+
 	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
 		return model;
 	}
-	
+
 	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		return null;
-	}	
+	}
 }

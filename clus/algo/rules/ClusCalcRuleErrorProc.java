@@ -36,18 +36,18 @@ public class ClusCalcRuleErrorProc extends ClusModelProcessor {
 
 	protected int m_Subset;
 	protected ClusErrorList m_Global;
-	
+
 	public ClusCalcRuleErrorProc(int subset, ClusErrorList global) {
 		m_Subset = subset;
 		m_Global = global;
 	}
-	
+
 	public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
 		ClusRule rule = (ClusRule)model;
 		ClusErrorList error = rule.getError(m_Subset);
 		error.addExample(tuple, rule.getTargetStat());
 	}
-	
+
 	public void terminate(ClusModel model) throws IOException {
 		ClusRuleSet set = (ClusRuleSet)model;
 		for (int i = 0; i < set.getModelSize(); i++) {
@@ -55,8 +55,8 @@ public class ClusCalcRuleErrorProc extends ClusModelProcessor {
 			rule.getError(m_Subset).updateFromGlobalMeasure(m_Global);
 		}
 	}
-	
+
 	public boolean needsModelUpdate() {
 		return true;
-	}		
+	}
 }

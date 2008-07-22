@@ -48,11 +48,11 @@ public class Sit implements CMDLineArgsProvider{
 	protected MTLearner m_Learner;
 	protected SearchAlgorithm m_Search;
 	protected int m_SearchSelection;
-	
-	
+
+
 	private Sit(){} //make sit a singleton
 	private static Sit singleton = null;
-	
+
 	/**
 	 * Returns the one and only Sit instance (singleton pattern)
 	 * @return Sit singleton
@@ -63,7 +63,7 @@ public class Sit implements CMDLineArgsProvider{
 		}
 		return singleton;
 	}
-	
+
 	/**
 	 * Initialize:
 	 * 	-load settings
@@ -91,7 +91,7 @@ public class Sit implements CMDLineArgsProvider{
 		m_Sett.setTarget(m_Schema.getTarget().toString());
 		m_Sett.setDisabled(m_Schema.getDisabled().toString());
 		m_Sett.setClustering(m_Schema.getClustering().toString());
-		m_Sett.setDescriptive(m_Schema.getDescriptive().toString());		
+		m_Sett.setDescriptive(m_Schema.getDescriptive().toString());
 		// Load data from file
 		if (ResourceInfo.isLibLoaded()) {
 			ClusStat.m_InitialMemory = ResourceInfo.getMemory();
@@ -103,9 +103,9 @@ public class Sit implements CMDLineArgsProvider{
 		m_Sett.update(m_Schema);
 		// Set XVal field in Settings
 		Settings.IS_XVAL = true;
-		System.out.println("Has missing values: " + m_Schema.hasMissing());		
+		System.out.println("Has missing values: " + m_Schema.hasMissing());
 	}
-	
+
 	/**
 	 * Returns the current settings object
 	 * @return settings
@@ -113,7 +113,7 @@ public class Sit implements CMDLineArgsProvider{
 	public final Settings getSettings() {
 		return m_Sett;
 	}
-	
+
 	/**
 	 * Initialize the settings object
 	 * @param cargs Commandline arguments
@@ -122,28 +122,28 @@ public class Sit implements CMDLineArgsProvider{
 	public final void initSettings(CMDLineArgs cargs) throws IOException {
 		m_Sett.initialize(cargs, true);
 	}
-	
+
 	/**
 	 * Initialize the MTLearner with the current data and settings.
 	 */
 	private void InitLearner() {
-		
+
 		if(this.m_Sett.getLearnerName().equals("KNN")){
 			System.out.println("Using KNN Learner");
 			this.m_Learner = new KNNLearner();
 		}else{
 			System.out.println("Using Clus Learner");
 			this.m_Learner = new ClusLearner();
-			
+
 		}
 		//this.m_Learner = new AvgLearner();
 		this.m_Learner.init(this.m_Data,this.m_Sett);
 		int mt = new Integer(m_Sett.getMainTarget())-1;
 		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
 		this.m_Learner.setMainTarget(mainTarget);
-		
+
 	}
-	
+
 	/**
 	 * Initialize the MTLearner with partial data for XVAL.
 	 */
@@ -154,15 +154,15 @@ public class Sit implements CMDLineArgsProvider{
 		}else{
 			System.out.println("Using Clus Learner");
 			this.m_Learner = new ClusLearner();
-			
+
 		}
 		//this.m_Learner = new AvgLearner();
-		
+
 		this.m_Learner.init(data,this.m_Sett);
 		int mt = new Integer(m_Sett.getMainTarget())-1;
 		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
 		this.m_Learner.setMainTarget(mainTarget);
-		
+
 	}
 	/**
 	 * Initialize the SearchAlgorithm
@@ -196,33 +196,33 @@ public class Sit implements CMDLineArgsProvider{
 		else{
 			System.err.println("Search strategy unknown!");
 		}
-		
-		
+
+
 		this.m_Search.setMTLearner(this.m_Learner);
 		this.m_Search.setSettings(this.m_Sett);
-			
+
 	}
-	
+
 	/**
 	 * Start the search for the optimal subset using the current learner and search algorithm
 	 * @return Targetset The found subset
 	 */
 	public TargetSet search(){
-		
+
 		int mt = new Integer(m_Sett.getMainTarget())-1;
 		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
 		IntervalCollection candidates = new IntervalCollection(m_Sett.getTarget());
 		TargetSet candidateSet = new TargetSet(m_Schema,candidates);
 		return m_Search.search(mainTarget, candidateSet);
-		
+
 	}
-	
+
 	/*************************************
 	 * CMDLineArgsProvider implementation
 	 *************************************/
 	public final static String[] OPTION_ARGS = {"xval"};
 	public final static int[] OPTION_ARITIES = {0};
-	
+
 	public int getNbMainArgs() {
 		return 1;
 	}
@@ -236,15 +236,15 @@ public class Sit implements CMDLineArgsProvider{
 	}
 
 	public void showHelp() {	}
-	
+
 	public void singleRun(){
 		System.out.println("Starting single run");
 		/* Init the Learner */
 		InitLearner();
 		/* Init the Search algorithm */
 		InitSearchAlgorithm();
-		
-		
+
+
 		ErrorOutput errOut = new ErrorOutput(this.m_Sett);
 		try {
 			errOut.writeHeader();
@@ -252,9 +252,9 @@ public class Sit implements CMDLineArgsProvider{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		TargetSet trgset = search();
-		
+
 		//compute the error of the final set
 		int mt = new Integer(m_Sett.getMainTarget())-1;
 		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
@@ -267,62 +267,62 @@ public class Sit implements CMDLineArgsProvider{
 		for(int f = 0;f<nbFolds;f++){
 			folds.add(m_Learner.LearnModel(trgset,f));
 		}
-				
+
 		double finalerror = Evaluator.getPearsonCorrelation(folds,errorIdx);
-		
+
 		//errOut.addFold(0,0,m_Learner.getName(),m_Search.getName(),Integer.toString(mt+1),finalerror,"["+trgset.toString()+"]");
-		
-		
+
+
 	}
-	
-	
+
+
 	public void XValRun() throws Exception{
 		ErrorOutput errOut = new ErrorOutput(this.m_Sett);
 		errOut.writeHeader();
 		System.out.println("Starting XVal run");
-		
-		
+
+
 		XValRandomSelection m_XValSel = null;
 		int nrFolds = 26;
 		try {
-			
+
 			m_XValSel = new XValRandomSelection(m_Data.getNbRows(),nrFolds);
 		} catch (ClusException e) {
 			e.printStackTrace();
 		}
-		
+
 		int mt = new Integer(m_Sett.getMainTarget())-1;
 		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
 		int errorIdx = mainTarget.getArrayIndex();
-		
+
 		for(int i=0;i<nrFolds;i++){
 			System.out.println("Outer XVAL fold "+(i+1));
 			XValSelection msel = new XValSelection(m_XValSel,i);
 			RowData train = (RowData) m_Data.cloneData();
 			RowData test = (RowData) train.select(msel);
-			
+
 			System.out.println(test.getNbRows());
-			
-			
-			
+
+
+
 			/* Init the Learner */
 			InitLearner(train);
 			/* Init the Search algorithm */
 			InitSearchAlgorithm();
-			
-			
+
+
 			Long d = (new Date()).getTime();
 			TargetSet searchResult = search();
-			
+
 			//find the error
 			m_Learner.setTestData(test);
-			
-			
+
+
 			RowData[] predictions = m_Learner.LearnModel(searchResult);
-			
-			
-			
-			
+
+
+
+
 			/*
 			RowData t = predictions[0];
 			DataTuple tt = t.getTuple(0);
@@ -333,7 +333,7 @@ public class Sit implements CMDLineArgsProvider{
 			*/
 			Long new_d = (new Date()).getTime();
 			Long dif = new_d - d;
-			
+
 			double error = 0;
 			String errorName = m_Sett.getError();
 			if(errorName.equals("MSE")){
@@ -342,69 +342,69 @@ public class Sit implements CMDLineArgsProvider{
 			else if(errorName.equals("MisclassificationError")){
 				error = Evaluator.getMisclassificationError(predictions,errorIdx);
 			}else{
-				
+
 				error = Evaluator.getPearsonCorrelation(predictions,errorIdx);
 			}
-			
-		
-	
-			
+
+
+
+
 			//errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt),error,"\""+searchResult.toString()+" \"",dt,dp);
 			errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt+1),error,"\""+searchResult.toString()+" \"",dif);
-			
+
 		}
-		
-		
-		
-		
+
+
+
+
 	}
-	
+
 	public void YATSXValRun() throws Exception{
 		ErrorOutput errOut = new ErrorOutput(this.m_Sett);
 		errOut.writeHeader();
 		System.out.println("Starting XVal run");
-		
-		
+
+
 		XValRandomSelection m_XValSel = null;
 		int nrFolds = 500;
 		try {
-			
+
 			m_XValSel = new XValRandomSelection(m_Data.getNbRows(),nrFolds);
 		} catch (ClusException e) {
 			e.printStackTrace();
 		}
-		
+
 		int mt = new Integer(m_Sett.getMainTarget())-1;
 		ClusAttrType mainTarget = m_Schema.getAttrType(mt);
 		int errorIdx = mainTarget.getArrayIndex();
-		
+
 		for(int i=0;i<nrFolds;i++){
 			System.out.println("Outer XVAL fold "+(i+1));
 			XValSelection msel = new XValSelection(m_XValSel,i);
 			RowData train = (RowData) m_Data.cloneData();
 			RowData test = (RowData) train.select(msel);
-			
+
 			//System.out.println(test.getNbRows());
-			
+
 			/* Init the Learner */
 			InitLearner(train);
 			/* Init the Search algorithm */
 			InitSearchAlgorithm();
-						
+
 			Long d = (new Date()).getTime();
 			TargetSet searchResult = search();
-			
+
 			//find the error
 			m_Learner.setTestData(test);
-						
-			RowData[] predictions = m_Learner.LearnModel(searchResult);
-			
-			
-			//add new data to training		
-			
-			
 
-			
+			RowData[] predictions = m_Learner.LearnModel(searchResult);
+
+
+			//add new data to training
+
+
+
+
 			RowData pred = predictions[1];
 			RowData xtr_train = (RowData) test.deepCloneData();
 			for(int t=0;t<pred.getNbRows();t++){
@@ -412,33 +412,33 @@ public class Sit implements CMDLineArgsProvider{
 				double dp = mainTarget.getNumeric(tp);
 			    DataTuple clone = xtr_train.getTuple(t);
 			    ((NumericAttrType) mainTarget).setNumeric(clone, dp);
-			
+
 			}
-			
-			
+
+
 			RowData new_train = new RowData(train.getSchema(),train.getNbRows()+xtr_train.getNbRows());
-			
+
 			for(int j=0;j<train.getNbRows();j++){
 				new_train.setTuple(train.getTuple(j),j);
 			}
 			for(int j=train.getNbRows();j<train.getNbRows()+xtr_train.getNbRows();j++){
 				new_train.setTuple(xtr_train.getTuple(j-train.getNbRows()),j);
 			}
-			
+
 			InitLearner(xtr_train);
 			m_Learner.setTestData(test);
-			
+
 			//predictions = m_Learner.LearnModel(searchResult);
-			
-			
-			
-			
+
+
+
+
 			Long new_d = (new Date()).getTime();
 			Long dif = new_d - d;
-			
+
 			double error = 0;
 			String errorName = m_Sett.getError();
-			
+
 			if(errorName.equals("RME")){
 				error = Evaluator.getRelativeError(predictions,errorIdx);
 				System.out.println(error);
@@ -449,30 +449,30 @@ public class Sit implements CMDLineArgsProvider{
 			else if(errorName.equals("MisclassificationError")){
 				error = Evaluator.getMisclassificationError(predictions,errorIdx);
 			}else{
-				
+
 				error = Evaluator.getPearsonCorrelation(predictions,errorIdx);
 			}
-			
-		
-	
-			
+
+
+
+
 			//errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt),error,"\""+searchResult.toString()+" \"",dt,dp);
 			errOut.addFold(0,i,m_Learner.getName(),m_Search.getName(),Integer.toString(mt+1),error,"\""+searchResult.toString()+" \"",dif);
-			
+
 		}
-		
-		
-		
-		
+
+
+
+
 	}
-	
+
 	/***************************************
 	 * MAIN
 	 ***************************************/
-	
+
 	/**
 	 * @param args
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
 		Sit sit = Sit.getInstance();
@@ -484,26 +484,26 @@ public class Sit implements CMDLineArgsProvider{
 			System.out.println();
 			System.out.println("Expected main argument");
 			System.exit(0);
-		}	
+		}
 		if (cargs.allOK()) {
 			sett.setDate(new Date());
 			sett.setAppName(cargs.getMainArg(0));
 			sit.initSettings(cargs);
-		
+
 		}else{
 			System.err.println("Arguments not ok?!");
 		}
 		sit.initialize();
-		
-		
-		
-		
+
+
+
+
 		/* Search for the optimal subset */
 		sit.m_SearchSelection = 1;
 		sit.XValRun();
-		
+
 		//sit.YATSXValRun();
-				
+
 		System.out.println("Finished");
 	}
 }

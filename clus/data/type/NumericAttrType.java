@@ -35,15 +35,15 @@ import clus.algo.kNN.NumericStatistic;
 
 public class NumericAttrType extends ClusAttrType {
 
-	public final static long serialVersionUID = 1L;	
-	
+	public final static long serialVersionUID = 1L;
+
 	public final static int THIS_TYPE = 1;
 	public final static String THIS_TYPE_NAME = "Numeric";
 
 	public final static double MISSING = Double.POSITIVE_INFINITY;
-	
+
 	protected boolean m_Sparse;
-	
+
 	public NumericAttrType(String name) {
 		super(name);
 	}
@@ -54,11 +54,11 @@ public class NumericAttrType extends ClusAttrType {
 		at.m_Sparse = m_Sparse;
 		return at;
 	}
-	
+
 	public boolean isSparse() {
 		return m_Sparse;
 	}
-	
+
 	public void setSparse(boolean sparse) {
 		m_Sparse = sparse;
 	}
@@ -96,7 +96,7 @@ public class NumericAttrType extends ClusAttrType {
 			return val == MISSING ? "?" : String.valueOf(val);
 		}
 	}
-	
+
 	public boolean isMissing(DataTuple tuple) {
 		return tuple.m_Doubles[m_ArrayIndex] == MISSING;
 	}
@@ -104,10 +104,10 @@ public class NumericAttrType extends ClusAttrType {
 	public double getNumeric(DataTuple tuple) {
 		return tuple.getDoubleVal(m_ArrayIndex);
 	}
-	
+
 	public void setNumeric(DataTuple tuple, double value) {
 		tuple.setDoubleVal(value, m_ArrayIndex);
-	}	
+	}
 
 	public int compareValue(DataTuple t1, DataTuple t2) {
 		double v1 = t1.m_Doubles[m_ArrayIndex];
@@ -119,7 +119,7 @@ public class NumericAttrType extends ClusAttrType {
 	public ClusAttribute createTargetAttr(ColTarget target) {
 		return new NumericTarget(target, this, getArrayIndex());
 	}
-	
+
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
 		wrt.print("numeric");
 	}
@@ -127,11 +127,11 @@ public class NumericAttrType extends ClusAttrType {
 	public ClusSerializable createRowSerializable() throws ClusException {
 		return new MySerializable();
 	}
-	
+
 	public class MySerializable extends ClusSerializable {
 
 		public int m_NbZero, m_NbTotal;
-		
+
 		public boolean read(ClusReader data, DataTuple tuple) throws IOException {
 			if (!data.readNoSpace()) return false;
 			double val = data.getFloat();
@@ -146,7 +146,7 @@ public class NumericAttrType extends ClusAttrType {
 			m_NbTotal++;
 			return true;
 		}
-		
+
 		public void term(ClusSchema schema) {
 			if (m_NbZero > m_NbTotal*75/100) {
 				setSparse(true);

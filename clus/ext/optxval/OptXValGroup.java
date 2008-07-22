@@ -37,8 +37,8 @@ public class OptXValGroup extends MyList {
 
 	public RowData m_Data;
 	public int[] m_Folds;
-	public boolean m_IsSoft;	
-	
+	public boolean m_IsSoft;
+
 	public NodeTest m_Test;
 	public ClusStatistic[] m_TotStat;
 	public ClusNode[] m_Nodes;
@@ -47,21 +47,21 @@ public class OptXValGroup extends MyList {
 		m_Data = data;
 		m_Folds = new int[size];
 	}
-	
+
 	public OptXValGroup(OptXValGroup grp, int size) {
 		m_Data = grp.m_Data;
 		m_IsSoft = grp.m_IsSoft;
 		m_Folds = new int[size];
-	}	
-	
+	}
+
 	public void optimize2() {
 		m_Data.optimize2(m_Folds);
 	}
-	
+
 	public final int[] getFolds() {
 		return m_Folds;
 	}
-	
+
 	public final void preprocNodes(OptXValNode node, OptXValInduce induce) {
 		int nb = getNbFolds();
 		for (int i = 0; i < nb; i++) {
@@ -77,7 +77,7 @@ public class OptXValGroup extends MyList {
 			node.setNode(getFold(i), fnode);
 		}
 	}
-	
+
 	public final void preprocNodes2(OptXValNode node, OOTInduce induce) {
 		int nb = getNbFolds();
 		for (int i = 0; i < nb; i++) {
@@ -92,12 +92,12 @@ public class OptXValGroup extends MyList {
 			// Store node in tree
 			node.setNode(getFold(i), fnode);
 		}
-	}	
-	
+	}
+
 	public final void setSoft() {
 		m_IsSoft = true;
 	}
-	
+
 	public final boolean updateSoft() {
 		return (m_IsSoft = m_Data.isSoft());
 	}
@@ -112,18 +112,18 @@ public class OptXValGroup extends MyList {
 	public final void setFold(int idx, int fold) {
 		m_Folds[idx] = fold;
 	}
-	
+
 	public final void setTest(NodeTest test) {
 		m_Test = test;
 	}
-	
+
 	public final NodeTest getTest() {
 		return m_Test;
 	}
 
 	public final void println() {
 		System.out.print("[");
-		System.out.print(m_Folds[0]);		
+		System.out.print(m_Folds[0]);
 		for (int i = 1; i < m_Folds.length; i++) {
 			System.out.print(","+m_Folds[i]);
 		}
@@ -132,72 +132,72 @@ public class OptXValGroup extends MyList {
 	}
 
 	public final void initializeFolds() {
-		for (int i = 0; i < m_Folds.length; i++) 
+		for (int i = 0; i < m_Folds.length; i++)
 			m_Folds[i] = i;
 	}
-	
+
 	public final ClusNode getNode(int i) {
 		return m_Nodes[i];
 	}
-	
+
 	public final ClusNode[] getNodes() {
 		return m_Nodes;
-	}	
-	
+	}
+
 	public final void cleanNode(int i) {
 		m_Nodes[i] = null;
-	}	
-	
+	}
+
 	public final void create(ClusStatManager m_StatManager, int folds) {
 		m_TotStat = new ClusStatistic[folds+1];
-		for (int i = 0; i <= folds; i++) 
+		for (int i = 0; i <= folds; i++)
 			m_TotStat[i] = m_StatManager.createClusteringStat();
 	}
-	
+
 	public final void create2(ClusStatManager m_StatManager, int folds) {
 		m_TotStat = new ClusStatistic[folds];
-		for (int i = 0; i < folds; i++) 
+		for (int i = 0; i < folds; i++)
 			m_TotStat[i] = m_StatManager.createClusteringStat();
-	}	
-	
+	}
+
 	public final void makeNodes() {
 		int nb = m_Folds.length;
 		m_Nodes = new ClusNode[nb];
 		for (int i = 0; i < nb; i++) {
 			m_Nodes[i] = new ClusNode();
 			int foldnr = m_Folds[i];
-			m_Nodes[i].m_ClusteringStat = m_TotStat[foldnr];			
+			m_Nodes[i].m_ClusteringStat = m_TotStat[foldnr];
 		}
 	}
-	
+
 	public final ClusStatistic getTotStat(int fold) {
 		return m_TotStat[fold];
 	}
-	
+
 	public final RowData getData() {
 		return m_Data;
 	}
-	
+
 	public final void setData(RowData data) {
 		m_Data = data;
-	}	
-	
+	}
+
 	public final int getFold() {
 		return m_Folds[0];
 	}
-	
+
 	public final int getNbFolds() {
 		return m_Folds.length;
 	}
-	
+
 	public final int getFold(int idx) {
 		return m_Folds[idx];
 	}
-	
+
 	public final void killFold(int idx) {
 		m_Folds[idx] = -1;
-	}	
-	
+	}
+
 	public final boolean cleanFolds() {
 		// Count number of -1's
 		int nb = 0;
@@ -227,8 +227,8 @@ public class OptXValGroup extends MyList {
 	public final boolean stopCrit(int idx) {
 		if (m_TotStat[idx].m_SumWeight < 2.0*Settings.MINIMAL_WEIGHT) return true;
 		return false;
-	}	
-		
+	}
+
 	public final void stopCrit(OptXValNode node) {
 		int nb = getNbFolds();
 		for (int i = 0; i < nb; i++) {
@@ -238,7 +238,7 @@ public class OptXValGroup extends MyList {
 				node.setNodeIndex(i, makeLeaf(fld));
 				// Remove fold
 				killFold(i);
-			}	
+			}
 		}
 	}
 
@@ -251,9 +251,9 @@ public class OptXValGroup extends MyList {
 				int times = folds[j];
 				if (times != 0)	m_TotStat[j].updateWeighted(tuple, times*tuple.getWeight());
 			}
-		}	
-	}	
-	
+		}
+	}
+
 	public final void calcTotalStats() {
 		m_Data.calcXValTotalStat(m_TotStat);
 		ClusStatistic sum = m_TotStat[0];
@@ -266,7 +266,7 @@ public class OptXValGroup extends MyList {
 			m_TotStat[i].subtractFromOther(sum);
 		}
 	}
-	
+
 	public final void calcTotalStats(ClusStatistic[] extra) {
 		m_Data.calcXValTotalStat(m_TotStat, extra);
 		ClusStatistic sum = m_TotStat[0];
@@ -283,5 +283,5 @@ public class OptXValGroup extends MyList {
 			m_TotStat[i].add(extra[i]);
 		}
 	}
-	
+
 }

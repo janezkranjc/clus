@@ -35,66 +35,66 @@ import clus.data.io.ClusReader;
 import clus.data.rows.*;
 
 public class ClassesAttrType extends ClusAttrType {
-	
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
-	
+
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+
 	public final static int THIS_TYPE = 2;
-	public final static String THIS_TYPE_NAME = "Classes";	
-	
-	protected transient StringTable m_Table = new StringTable();	
-	protected ClassHierarchy m_Hier;	
-	
+	public final static String THIS_TYPE_NAME = "Classes";
+
+	protected transient StringTable m_Table = new StringTable();
+	protected ClassHierarchy m_Hier;
+
 	public ClassesAttrType(String name) {
 		super(name);
 		m_Hier = new ClassHierarchy(this);
 	}
-	
+
 	public ClassesAttrType(String name, ClassHierarchy hier) {
 		super(name);
 		m_Hier = hier;
-	}	
-		
+	}
+
 	public StringTable getTable() {
 		return m_Table;
 	}
-	
+
 	public ClassHierarchy getHier() {
 		return m_Hier;
 	}
-	
+
 	public ClusAttrType cloneType() {
 		ClassesAttrType at = new ClassesAttrType(m_Name, m_Hier);
 		cloneType(at);
 		return at;
 	}
-	
+
 	public int getTypeIndex() {
 		return THIS_TYPE;
-	}	
-	
+	}
+
 	public String getTypeName() {
 		return THIS_TYPE_NAME;
-	}		
-	
+	}
+
 	public int getValueType() {
 		return VALUE_TYPE_OBJECT;
-	}	
-		
+	}
+
 	public String getString(DataTuple tuple) {
 		ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_ArrayIndex];
 		return ct.toStringData(m_Hier);
 	}
-	
+
 	public ClusSerializable createRowSerializable() throws ClusException {
 		return new MySerializable();
 	}
-	
+
 	public void getPreprocs(DataPreprocs pps, boolean single) {
 		// this builds the hierarchy based on the data
 		// and adds intermediate class nodes to each example
 		pps.addPreproc(new ClassHierarchyPreproc(this, true));
 	}
-	
+
 	public void initializeHierarchy(String atype) throws ClusException, IOException {
 		// hierarchy is given in @attribute specification in .arff
 		// this means we can initialize the hierarchy and lock it
@@ -115,14 +115,14 @@ public class ClassesAttrType extends ClusAttrType {
 				}
 			}
 		}
-		m_Hier.initialize();		
+		m_Hier.initialize();
 	}
-	
+
 	public void initializeFrom(ClusAttrType other_type) {
 		ClassesAttrType other = (ClassesAttrType)other_type;
 		m_Hier = other.getHier();
 	}
-	
+
 	// Some attributes initialize differently based on some user settings
 	// For HMC, this is whether it uses a tree or DAG representation
 	public void initSettings(Settings sett) {
@@ -130,7 +130,7 @@ public class ClassesAttrType extends ClusAttrType {
 			getHier().setHierType(ClassHierarchy.DAG);
 		}
 	}
-	
+
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
 		ArrayList list;
 		if (getSettings().getHierType() == Settings.HIERTYPE_DAG) {
@@ -143,10 +143,10 @@ public class ClassesAttrType extends ClusAttrType {
 			if (i != 0) wrt.print(",");
 			wrt.print((String)list.get(i));
 		}
-	}	
-	
+	}
+
 	public class MySerializable extends ClusSerializable {
-		
+
 		public boolean read(ClusReader data, DataTuple tuple) throws IOException {
 			String val = data.readString();
 			if (val == null) return false;

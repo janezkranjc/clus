@@ -28,12 +28,12 @@ import clus.data.io.ClusReader;
 import clus.data.rows.*;
 import clus.data.type.*;
 
-public abstract class ClusSerializable {	
-	
+public abstract class ClusSerializable {
+
 	public void term(ClusSchema schema) {
 	}
-	
+
 	public boolean read(ClusReader data, DataTuple tuple) throws IOException {
 		throw new IOException("Attribute does not support tuple wise reading");
-	}	
+	}
 }

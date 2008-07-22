@@ -33,17 +33,17 @@ import clus.data.attweights.*;
 // import clus.weka.*;
 
 public class M5Pruner extends PruneTree {
-	
+
 	double m_PruningMult = 2;
 	double m_GlobalDeviation;
 	ClusAttributeWeights m_ClusteringWeights;
 	RowData m_TrainingData;
-	
+
 	public M5Pruner(ClusAttributeWeights prod, double mult) {
 		m_ClusteringWeights = prod;
 		m_PruningMult = mult;
 	}
-	
+
 	public void prune(ClusNode node) {
 		RegressionStat stat = (RegressionStat)node.getClusteringStat();
 		m_GlobalDeviation = Math.sqrt(stat.getSS(m_ClusteringWeights)/stat.getTotalWeight());
@@ -51,15 +51,15 @@ public class M5Pruner extends PruneTree {
 		// System.out.println("Performing test of M5 pruning");
 		// TestM5PruningRuleNode.performTest(orig, node, m_GlobalDeviation, m_TargetWeights, m_TrainingData);
 	}
-	
+
 	private double pruningFactor(double num_instances, int num_params) {
 		if (num_instances <= num_params) {
 			return 10.0;    // Caution says Yong in his code
-		} 
-		return ((double) (num_instances + m_PruningMult * num_params) 
+		}
+		return ((double) (num_instances + m_PruningMult * num_params)
 				/ (double) (num_instances - num_params));
-	} 
-	
+	}
+
 	public void pruneRecursive(ClusNode node) {
 		if (node.atBottomLevel()) {
 			return;
@@ -70,12 +70,12 @@ public class M5Pruner extends PruneTree {
 		}
 		RegressionStat stat = (RegressionStat)node.getClusteringStat();
 		double rmsLeaf = stat.getRMSE(m_ClusteringWeights);
-		double adjustedErrorLeaf = rmsLeaf * pruningFactor(stat.getTotalWeight(), 1);		
+		double adjustedErrorLeaf = rmsLeaf * pruningFactor(stat.getTotalWeight(), 1);
 		double rmsSubTree = Math.sqrt(node.estimateClusteringSS(m_ClusteringWeights)/stat.getTotalWeight());
 		double adjustedErrorTree = rmsSubTree * pruningFactor(stat.getTotalWeight(), node.getModelSize());
 		// System.out.println("C mode: "+rmsModel+" tree: "+rmsSubTree);
 		// System.out.println("C modeadj: "+adjustedErrorModel +" treeadj: "+adjustedErrorNode);
-		if ((adjustedErrorLeaf <= adjustedErrorTree) || 
+		if ((adjustedErrorLeaf <= adjustedErrorTree) ||
 		    (adjustedErrorLeaf < (m_GlobalDeviation * 0.00001))) {
 				node.makeLeaf();
 		}

@@ -31,12 +31,12 @@ public class DerivedConstraintsComputer {
 
 	public ArrayList m_Points;
 	public ArrayList m_Constraints;
-	
+
 	public DerivedConstraintsComputer(ArrayList points, ArrayList constr) {
 		m_Points = points;
 		m_Constraints = constr;
 	}
-	
+
 	public void compute() {
 		indexPoints();
 		DisjointSetForest dsf = createDSFWithMustLinks();
@@ -45,8 +45,8 @@ public class DerivedConstraintsComputer {
 		m_Constraints.clear();
 		addTransitiveClosureOfMustLinks(comps);
 		addCannotLinkConstraints(set, comps);
-	}	
-	
+	}
+
 	public DisjointSetForest createDSFWithMustLinks() {
 		DisjointSetForest dsf = new DisjointSetForest(m_Points.size());
 		dsf.makeSets(m_Points.size());
@@ -61,8 +61,8 @@ public class DerivedConstraintsComputer {
 		}
 		return dsf;
 	}
-	
-	public ArrayList[] assignPointsToComponents(DisjointSetForest dsf) { 
+
+	public ArrayList[] assignPointsToComponents(DisjointSetForest dsf) {
 		int nbComps = dsf.numberComponents();
 		ArrayList[] comps = new ArrayList[nbComps];
 		for (int i = 0; i < nbComps; i++) {
@@ -73,21 +73,21 @@ public class DerivedConstraintsComputer {
 		}
 		return comps;
 	}
-	
+
 	public HashSet createCannotLinkSet(DisjointSetForest dsf) {
 		HashSet set = new HashSet();
 		for (int i = 0; i < m_Constraints.size(); i++) {
 			ILevelConstraint ic = (ILevelConstraint)m_Constraints.get(i);
 			int type = ic.getType();
 			if (type == ILevelConstraint.ILevelCCannotLink) {
-				int c1 = dsf.getComponent(ic.getT1().getIndex()); 
+				int c1 = dsf.getComponent(ic.getT1().getIndex());
 				int c2 = dsf.getComponent(ic.getT2().getIndex());
 				set.add(makeEdge(c1, c2));
 			}
 		}
 		return set;
 	}
-	
+
 	public void addTransitiveClosureOfMustLinks(ArrayList[] comps) {
 		for (int i = 0; i < comps.length; i++) {
 			ArrayList compcomps = comps[i];
@@ -98,7 +98,7 @@ public class DerivedConstraintsComputer {
 					m_Constraints.add(new ILevelConstraint(tj, tk, ILevelConstraint.ILevelCMustLink));
 				}
 			}
-		}			
+		}
 	}
 
 	public void addCannotLinkConstraints(HashSet set, ArrayList[] comps) {
@@ -116,18 +116,18 @@ public class DerivedConstraintsComputer {
 			}
 		}
 	}
-		
+
 	public int[] makeEdge(int i1, int i2) {
 		int[] edge = new int[2];
 		edge[0] = Math.min(i1, i2);
 		edge[1] = Math.max(i1, i2);
 		return edge;
 	}
-	
+
 	public void indexPoints() {
 		for (int i = 0; i < m_Points.size(); i++) {
 			DataTuple tuple = (DataTuple)m_Points.get(i);
 			tuple.setIndex(i);
 		}
-	}	
+	}
 }

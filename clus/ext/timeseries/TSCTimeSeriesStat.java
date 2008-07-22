@@ -64,7 +64,7 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 	public double calcDistance(TimeSeries t1, TimeSeries t2) {
 		//this calculates the Correlation coefficient of two TimeSeries
 		//the two TimeSeries may have different lengths - Cycle Arrays
-		
+
 		double[] ts1=t1.getValues();
 		double[] ts2=t2.getValues();
 		double mean_ts1=calculateMean(ts1);
@@ -85,7 +85,7 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 		cc=1-Math.abs(sum_ts1_ts2/Math.sqrt(sum_ts1_sqr*sum_ts2_sqr));
 		return cc;
 	}*/
-	
+
 	public double getSS(ClusAttributeWeights scale, RowData data) {
 		// TODO Auto-generated method stub
 		return super.getSS(scale, data);
@@ -112,7 +112,7 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 		// TODO Auto-generated method stub
 		return Double.POSITIVE_INFINITY;
 	}
-	
+
 	public double calculateMean(double[] ts){
 		double sum = 0;
 		for (int k = 0; k < ts.length; k++)sum += ts[k];
@@ -127,17 +127,17 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 	 */
 	public String getString(StatisticPrintInfo info){
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
-		StringBuffer buf = new StringBuffer();		
+		StringBuffer buf = new StringBuffer();
 		buf.append(m_RepresentativeMean.toString());
 		if (info.SHOW_EXAMPLE_COUNT) {
-			buf.append(": ");		
+			buf.append(": ");
 			buf.append(fr.format(m_SumWeight));
-		}		
+		}
 		return buf.toString();
 
 		//java.lang.Double.toString(m_SumWeight);
 	}
-	
+
 	/*
 	 * [Aco]
 	 * a new timeseries comes, and we calculate something for it
@@ -146,7 +146,7 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 	public void updateWeighted(DataTuple tuple, int idx){
 	    super.updateWeighted(tuple,idx);
 	}
-	
+
 	/*
 	 * [Aco]
 	 * this is executed in the end

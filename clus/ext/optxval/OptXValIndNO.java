@@ -41,7 +41,7 @@ public class OptXValIndNO extends OptXValInduce {
 	public OptXValIndNO(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		super(schema, sett);
 	}
-	
+
 	public final int mkNewGroups(OptXValGroup mgrp, MyListIter ngrps) {
 		int nb_groups = 0;
 		int nb = mgrp.getNbFolds();
@@ -77,11 +77,11 @@ public class OptXValIndNO extends OptXValInduce {
 		}
 		return nb_groups;
 	}
-	
+
 	public final void xvalInduce(OptXValNode node, OptXValGroup mgrp) {
 	    long t0;
 if (Debug.debug == 1) {
-		t0 = ResourceInfo.getCPUTime();	
+		t0 = ResourceInfo.getCPUTime();
 }
 
 if (Debug.debug == 1) {
@@ -90,53 +90,53 @@ if (Debug.debug == 1) {
 
 		node.init(mgrp.getFolds());
 		mgrp.stopCrit(node);
-		if (mgrp.cleanFolds()) return;		
+		if (mgrp.cleanFolds()) return;
 		// Optimize for one fold
 		if (mgrp.getNbFolds() == 1) {
 		        int fold = mgrp.getFold();
 			ClusNode onode = new ClusNode();
 			onode.m_ClusteringStat = mgrp.getTotStat(fold);
-			node.setNode(fold, onode);			
+			node.setNode(fold, onode);
 			m_DFirst.induce(onode, mgrp.getData().getFoldData(fold));
 			return;
 		}
 		// Init test selectors
-		initTestSelectors(mgrp);				
+		initTestSelectors(mgrp);
 if (Debug.debug == 1) {
-		ClusStat.deltaSplit();		
+		ClusStat.deltaSplit();
 }
 
 		findBestTest(mgrp);
 if (Debug.debug == 1) {
-		ClusStat.deltaTest();		
+		ClusStat.deltaTest();
 }
 
 		mgrp.preprocNodes(node, this);
-		// Make new groups		
+		// Make new groups
 		MyListIter ngrps = new MyListIter();
 		int nb_groups = mkNewGroups(mgrp, ngrps);
 if (Debug.debug == 1) {
-		ClusStat.deltaSplit();		
+		ClusStat.deltaSplit();
 }
 
 if (Debug.debug == 1) {
-		node.m_Time = ResourceInfo.getCPUTime() - t0;		
+		node.m_Time = ResourceInfo.getCPUTime() - t0;
 }
 
 		// Recursive calls
 		if (nb_groups > 0) {
 			int idx = 0;
-			node.setNbChildren(nb_groups);			
+			node.setNbChildren(nb_groups);
 			OptXValGroup grp = (OptXValGroup)ngrps.getFirst();
 			while (grp != null) {
 				NodeTest test = grp.getTest();
-				OptXValSplit split = new OptXValSplit();				
-				int arity = split.init(grp.getFolds(), test);				
+				OptXValSplit split = new OptXValSplit();
+				int arity = split.init(grp.getFolds(), test);
 				node.setChild(split, idx++);
 				RowData gdata = grp.getData();
 				long t01;
 if (Debug.debug == 1) {
-				t01 = ResourceInfo.getCPUTime();				
+				t01 = ResourceInfo.getCPUTime();
 }
 
 				for (int i = 0; i < arity; i++) {
@@ -147,26 +147,26 @@ if (Debug.debug == 1) {
 					cgrp.create(m_StatManager, m_NbFolds);
 					cgrp.calcTotalStats();
 if (Debug.debug == 1) {
-					node.m_Time += ResourceInfo.getCPUTime() - t01;					
+					node.m_Time += ResourceInfo.getCPUTime() - t01;
 }
 
 if (Debug.debug == 1) {
 					ClusStat.deltaSplit();
 }
 
-					xvalInduce(child, cgrp);					
+					xvalInduce(child, cgrp);
 if (Debug.debug == 1) {
 					t01 = ResourceInfo.getCPUTime();
 }
 
 				}
 				grp = (OptXValGroup)ngrps.getNext();
-			}			
-		}				
-	}	
+			}
+		}
+	}
 
 	public OptXValNode xvalInduce(OptXValGroup mgrp) {
-		OptXValNode root = new OptXValNode();	
+		OptXValNode root = new OptXValNode();
 		xvalInduce(root, mgrp);
 		return root;
 	}

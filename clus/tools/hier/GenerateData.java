@@ -45,23 +45,23 @@ public class GenerateData {
 		createSimpleHierarchy(term, 0);
 		return term;
 	}
-	
+
 	public static void createSimpleHierarchy(ClassTerm term, int depth) {
-		if (depth >= MAX_DEPTH) return;		
+		if (depth >= MAX_DEPTH) return;
 		for (int i = 0; i < MAX_BRANCH ; i++) {
 			ClassTerm child = new ClassTerm(String.valueOf(i+1));
 			child.addParent(child);
 			term.addChild(child);
 			createSimpleHierarchy(child, depth+1);
 		}
-	}	
+	}
 
 	public static ClassTerm createInitHierarchy() {
 		ClassTerm term = new ClassTerm();
 		createInitHier(term, 0);
 		return term;
 	}
-		
+
 	public static void createInitHier(ClassTerm term, int depth) {
 		if (depth >= MAX_DEPTH) return;
 		int arity = ClusRandom.nextInt(ClusRandom.RANDOM_CREATE_DATA, (int)Math.floor(2*MEAN_BRANCH));
@@ -72,17 +72,17 @@ public class GenerateData {
 			createInitHier(child, depth+1);
 		}
 	}
-	
+
 	public static ClassTerm createHierarchy() {
 		boolean done = false;
 		boolean increase = true;
-		int count = 0;		
+		int count = 0;
 		ClassTerm root = createInitHierarchy();
 		MyArray terms = new MyArray();
 		addAll(root, terms);
 		MyArray sel_from = new MyArray();
-	    SingleStat stat = new SingleStat();		
-		while (!done) {			
+	    SingleStat stat = new SingleStat();
+		while (!done) {
 			int nb_possible = 0;
 			sel_from.removeAllElements();
 			if (increase) {
@@ -104,7 +104,7 @@ public class GenerateData {
 				for (int i = 0; i < terms.size(); i++) {
 					ClassTerm trm = (ClassTerm)terms.elementAt(i);
 					if (trm.getNbChildren() > 0) {
-						nb_possible++;	
+						nb_possible++;
 						sel_from.addElement(trm);
 					}
 
@@ -117,15 +117,15 @@ public class GenerateData {
 				mydecr.numberChildren();
 				terms.removeAllElements();
 				addAll(root, terms);
-				
-			}			
+
+			}
 			boolean depth_constraint = false;
 			for (int i = 0; i < terms.size(); i++) {
 				ClassTerm trm = (ClassTerm)terms.elementAt(i);
 				if (trm.getLevel() == MAX_DEPTH) depth_constraint = true;
-			}						
+			}
 			stat.reset();
-			root.getMeanBranch(null, stat);			
+			root.getMeanBranch(null, stat);
 			if (depth_constraint) {
 				if (Math.abs(stat.getMean() - MEAN_BRANCH) < MAX_ERROR) {
 					done = true;
@@ -150,14 +150,14 @@ public class GenerateData {
 			addAll((ClassTerm)root.getChild(i), cls);
 		}
 	}
-				
+
 	public static void addClasses(ClassTerm root, MyArray cls) {
 		if (root.atBottomLevel()) cls.addElement(root);
 		for (int i = 0; i < root.getNbChildren(); i++) {
 			addClasses((ClassTerm)root.getChild(i), cls);
 		}
 	}
-	
+
 	public static void addAttributes(ClassTerm root, MyArray cls) {
 		if (!root.atBottomLevel()) cls.addElement(root);
 		for (int i = 0; i < root.getNbChildren(); i++) {
@@ -174,53 +174,53 @@ public class GenerateData {
 
 	public static void main(String[] args) {
 		// MEAN_BRANCH = Double.parseDouble(args[0]);
-		MAX_BRANCH  = Integer.parseInt(args[0]);		
+		MAX_BRANCH  = Integer.parseInt(args[0]);
 		MAX_DEPTH   = Integer.parseInt(args[1]);
 		MAX_CLASS   = Integer.parseInt(args[2]);
 		int RND     = Integer.parseInt(args[3]);
-		
+
 		System.out.println("Branch: "+MAX_BRANCH);
 		System.out.println("Depth:  "+MAX_DEPTH);
-		System.out.println("Class:  "+MAX_CLASS);	
-		System.out.println("Random: "+RND);			
-	
-		ClusRandom.initialize(RND);	
+		System.out.println("Class:  "+MAX_CLASS);
+		System.out.println("Random: "+RND);
+
+		ClusRandom.initialize(RND);
 		ClassTerm root = createSimpleHierarchy();
-		
+
 		HierIO io = new HierIO();
 		System.out.println("Hierarchy:");
 		io.writeHierarchy(root, ClusFormat.OUT_WRITER);
-		
+
 	    	SingleStat hb = new SingleStat();
-		root.getMeanBranch(null, hb);		
+		root.getMeanBranch(null, hb);
 		System.out.println("Mean branching factor: "+hb);
-		
+
 		MyArray cls = new MyArray();
 		addClasses(root, cls);
-		
+
 		MyArray attr = new MyArray();
 		addAttributes(root, attr);
-		
+
 		MyFile file = new MyFile("artificial.arff");
 		file.log("@relation artificial");
-		file.log();		
-		
+		file.log();
+
 		for (int i = 0; i < attr.size(); i++) {
-			ClassTerm at = (ClassTerm)attr.elementAt(i);			
+			ClassTerm at = (ClassTerm)attr.elementAt(i);
 			for (int j = 0; j < at.getNbChildren(); j++) {
 				file.log("@attribute\t"+at+"_"+j+"\t{0,1}");
-			}						
+			}
 		}
 		file.log("@attribute\ttarget\tclasses");
-		
+
 		file.log();
-		file.log("@data");		
-		
+		file.log("@data");
+
 		ClassHierarchy hier = new ClassHierarchy(root);
 		hier.numberHierarchy();
 		MyArray target = new MyArray();
 		boolean[] include = new boolean[hier.getTotal()];
-		
+
 		int nb_class = 0;
 		SingleStat meb = new SingleStat();
 		for (int i = 0; i < NB_DATA; i++) {
@@ -229,21 +229,21 @@ public class GenerateData {
 			Arrays.fill(include, false);
 			target.removeAllElements();
 			int nb_classes = ClusRandom.nextInt(ClusRandom.RANDOM_CREATE_DATA, MAX_CLASS)+1;
-			for (int j = 0; j < nb_classes; j++) {		
+			for (int j = 0; j < nb_classes; j++) {
 				boolean found = false;
 				ClassTerm mcls = null;
 				while (!found) {
 					int idx = ClusRandom.nextInt(ClusRandom.RANDOM_CREATE_DATA, cls.size());
 					mcls = (ClassTerm)cls.elementAt(idx);
 					if (!include[mcls.getIndex()]) found = true;
-				}										
+				}
 //				mcls.toBoolVector(include);
 				target.addElement(mcls);
 			}
 
 			nb_class += nb_classes;
 			meb.addMean(hier.getMeanBranch(include));
-					
+
 			for (int j = 0; j < attr.size(); j++) {
 				ClassTerm at = (ClassTerm)attr.elementAt(j);
 				if (include[at.getIndex()]) {
@@ -256,22 +256,22 @@ public class GenerateData {
 						} else {
 							buf.append('0');
 						}
-						buf.append(',');						
+						buf.append(',');
 					}
 				} else {
 					for (int k = 0; k < at.getNbChildren(); k++) {
 						int value = ClusRandom.nextInt(ClusRandom.RANDOM_CREATE_DATA, 2);
 						buf.append(value);
-						buf.append(',');						
-					}				
+						buf.append(',');
+					}
 				}
 			}
 			for (int j = 0; j < target.size(); j++) {
 				if (j != 0) buf.append('@');
 				buf.append(target.elementAt(j));
-			}			
-			file.log(buf.toString());		
-		}		
+			}
+			file.log(buf.toString());
+		}
 		file.close();
 
 		SingleStat md = new SingleStat();
@@ -291,6 +291,6 @@ public class GenerateData {
 		info.log();
 		io.writeHierarchy(root, info.getWriter());
 		info.close();
-	}	
+	}
 }
 

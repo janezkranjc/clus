@@ -39,25 +39,25 @@ public class SSDHeuristic extends ClusHeuristic {
 		m_NegStat = negstat;
 		m_TargetWeights = targetweights;
 	}
-	
+
 	public void setData(RowData data) {
 		m_Data = data;
-	}	
-		
+	}
+
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
-		double n_tot = tstat.m_SumWeight; 
+		double n_tot = tstat.m_SumWeight;
 		double n_pos = pstat.m_SumWeight;
 		double n_neg = n_tot - n_pos;
 		// Acceptable?
 		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
 			return Double.NEGATIVE_INFINITY;
-		}		
+		}
 		// Calculate value
 		//System.out.println("Inside calcHeuristic()");
 		double ss_tot = tstat.getSS(m_TargetWeights, m_Data);
 		//System.out.println("SS-tot: "+ss_tot);
 		double ss_pos = pstat.getSS(m_TargetWeights, m_Data);
-		//System.out.println("SS-pos: "+ss_pos);		
+		//System.out.println("SS-pos: "+ss_pos);
 		m_NegStat.copy(tstat);
 		m_NegStat.subtractFromThis(pstat);
 		double ss_neg = m_NegStat.getSS(m_TargetWeights, m_Data);
@@ -73,7 +73,7 @@ public class SSDHeuristic extends ClusHeuristic {
 		if (value < 1e-6) return Double.NEGATIVE_INFINITY;
 		return value;
 	}
-	
+
 	public String getName() {
 		return "SS Reduction ("+m_BasicDist+", "+m_TargetWeights.getName()+") (FTest = "+FTest.getSettingSig()+")";
 	}

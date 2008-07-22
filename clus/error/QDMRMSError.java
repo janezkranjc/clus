@@ -30,7 +30,7 @@ import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
 public class QDMRMSError extends ClusTimeSeriesError {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double m_SumSqErr;
@@ -38,7 +38,7 @@ public class QDMRMSError extends ClusTimeSeriesError {
 	public QDMRMSError(ClusErrorList par, TimeSeriesAttrType[] ts) {
 		super(par, ts);
 	}
-	
+
 	public void reset() {
 		m_SumSqErr = 0.0;
 	}
@@ -50,28 +50,28 @@ public class QDMRMSError extends ClusTimeSeriesError {
 
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		TimeSeries predicted = pred.getTimeSeriesPred();
-		double err = ((TimeSeriesStat)pred).calcDistance(getAttr(0).getTimeSeries(tuple),  predicted);			
+		double err = ((TimeSeriesStat)pred).calcDistance(getAttr(0).getTimeSeries(tuple),  predicted);
 		m_SumSqErr += sqr(err);
 	}
 
 	public final static double sqr(double value) {
 		return value*value;
 	}
-	
+
 	public double getModelErrorAdditive() {
 		// return squared error not divided by the number of examples
 		// optimized, e.g., by size constraint pruning
 		return m_SumSqErr;
 	}
-	
+
 	public double getModelError() {
 		return getModelErrorComponent(0);
 	}
-	
+
 	public boolean shouldBeLow() {
 		return true;
-	}	
-	
+	}
+
 	public TimeSeriesAttrType getAttr(int i) {
 		return m_Attrs[i];
 	}

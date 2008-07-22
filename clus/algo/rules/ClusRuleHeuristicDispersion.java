@@ -35,7 +35,7 @@ import clus.main.ClusStatManager;
 import clus.main.Settings;
 
 public abstract class ClusRuleHeuristicDispersion extends ClusHeuristic {
-	
+
 	public ClusStatManager m_StatManager = null;
 	public int[] m_DataIndexes;
 	public int[][] m_DataIndexesPerVal;
@@ -45,7 +45,7 @@ public abstract class ClusRuleHeuristicDispersion extends ClusHeuristic {
 	public void setDataIndexes(int[] indexes) {
 		m_DataIndexes = indexes;
 	}
-	
+
 	public void setDataIndexes(boolean[] isin) {
 		if ((m_DataIndexesPerVal != null) && (isin.length == m_DataIndexesPerVal.length)) {
 			int size = 0;
@@ -68,7 +68,7 @@ public abstract class ClusRuleHeuristicDispersion extends ClusHeuristic {
 			System.exit(1); // Exception???
 		}
 	}
-	
+
 	public void setDataIndexesPerVal(int[][] indexes) {
 		m_DataIndexesPerVal = indexes;
 	}
@@ -81,11 +81,11 @@ public abstract class ClusRuleHeuristicDispersion extends ClusHeuristic {
 		m_CoveredBitVectArray = new ArrayList();
 		m_NbTuples = size;
 	}
-	
+
 	public void setCoveredBitVectArray(ArrayList bit_vect_array) {
 		m_CoveredBitVectArray = bit_vect_array;
 	}
-	
+
   public Settings getSettings() {
     return m_StatManager.getSettings();
   }

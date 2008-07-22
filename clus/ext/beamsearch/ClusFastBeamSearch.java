@@ -53,8 +53,8 @@ double heuristic = test.getHeuristicValue() + offset;
 
 The possible refinements for each leaf are stored in an object of the
 class ClusBeamAttrSelector in each leaf. It has an array storing the best
-split for each attribute. The "non-fast" version, on the other hand, 
-repeats the compuation of all heuristics each time the leaf is considered 
+split for each attribute. The "non-fast" version, on the other hand,
+repeats the compuation of all heuristics each time the leaf is considered
 for refinement.
 
 (2) If a new test is introduced in a tree, then the data of the node where
@@ -72,19 +72,19 @@ method.
 public class ClusFastBeamSearch extends ClusBeamSearch {
 
 	ClusBeamSizeConstraints m_Constr;
-	
+
 	public ClusFastBeamSearch(Clus clus) throws IOException, ClusException {
 		super(clus);
-		m_Constr = new ClusBeamSizeConstraints(); 
+		m_Constr = new ClusBeamSizeConstraints();
 	}
-	
+
 	public ClusBeam initializeBeam(ClusRun run) throws ClusException, IOException {
 		ClusBeam beam = super.initializeBeam(run);
 		ClusBeamModel model = beam.getBestModel();
 		initModelRecursive((ClusNode)model.getModel(), (RowData)run.getTrainingSet());
 		return beam;
 	}
-	
+
 	public void initModelRecursive(ClusNode node, RowData data) {
 		if (node.atBottomLevel()) {
 			ClusBeamAttrSelector attrsel = new ClusBeamAttrSelector();
@@ -94,19 +94,19 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 			NodeTest test = node.getTest();
 			for (int j = 0; j < node.getNbChildren(); j++) {
 				ClusNode child = (ClusNode)node.getChild(j);
-				RowData subset = data.applyWeighted(test, j);				
+				RowData subset = data.applyWeighted(test, j);
 				initModelRecursive(child, subset);
-			}			
+			}
 		}
 	}
-	
+
 	public void computeGlobalHeuristic(NodeTest test, RowData data, CurrentBestTestAndHeuristic sel) {
 		sel.reset(2);
 		data.calcPosAndMissStat(test, ClusNode.YES, sel.getPosStat(), sel.getMissStat());
 		double global_heur = m_Heuristic.calcHeuristic(sel.getTotStat(), sel.getPosStat(), sel.getMissStat());
 		test.setHeuristicValue(global_heur);
 	}
-	
+
 	public void refineGivenLeaf(ClusNode leaf, ClusBeamModel root, ClusBeam beam, ClusAttrType[] attrs) {
 		ClusBeamAttrSelector attrsel = (ClusBeamAttrSelector)leaf.getVisitor();
 		if (attrsel.isStopCrit()) {
@@ -139,9 +139,9 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 					}
 					attrsel.setBestTest(i, test);
 				}
-			}		
+			}
 		}
-		double offset = root.getValue() - m_Heuristic.computeLeafAdd(leaf);			
+		double offset = root.getValue() - m_Heuristic.computeLeafAdd(leaf);
 		NodeTest[] besttests = attrsel.getBestTests();
 		if (m_Verbose) System.out.println("[M:"+beam.getMinValue()+"]");
 		for (int i = 0; i < besttests.length; i++) {
@@ -159,7 +159,7 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 					int arity = ref_leaf.updateArity();
 					for (int j = 0; j < arity; j++) {
 						ClusNode child = new ClusNode();
-						ref_leaf.setChild(child, j);				
+						ref_leaf.setChild(child, j);
 					}
 					ClusNode root_model = (ClusNode)root.getModel();
 					ClusNode ref_tree = root_model.cloneTreeWithVisitors(leaf, ref_leaf);
@@ -174,21 +174,21 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 			}
 		}
 	}
-		
+
 	public void refineModel(ClusBeamModel model, ClusBeam beam, ClusRun run) throws IOException {
 		ClusNode tree = (ClusNode)model.getModel();
 		ClusBeamModel new_model = model.cloneModel();
 		/* Create new model because value can be different */
 		new_model.setValue(sanityCheck(model.getValue(), tree));
-		if (isBeamPostPrune()) {			
-			ClusNode clone = tree.cloneTreeWithVisitors();			
+		if (isBeamPostPrune()) {
+			ClusNode clone = tree.cloneTreeWithVisitors();
 			m_Constr.enforce(clone, m_MaxTreeSize);
 /*			if (m_Constr.isModified()) {
 				System.out.println();
 				System.out.println("Previous:");
 				tree.printTree();
 				System.out.println("Modified:");
-				clone.printTree();				
+				clone.printTree();
 				ClusNode clone2 = tree.cloneTreeWithVisitors();
 				m_Constr.setDebug(true);
 				m_Constr.enforce(clone2, m_MaxTreeSize);
@@ -211,11 +211,11 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 				}
 			}
 		}
-		RowData train = (RowData)run.getTrainingSet();		
-		ClusAttrType[] attrs = train.getSchema().getDescriptiveAttributes();		
+		RowData train = (RowData)run.getTrainingSet();
+		ClusAttrType[] attrs = train.getSchema().getDescriptiveAttributes();
 		refineEachLeaf((ClusNode)new_model.getModel(), new_model, beam, attrs);
 	}
-	
+
 	public void updateModelRefinement(ClusBeamModel model) {
 		/* Get data into children of last refinement */
 		ClusNode leaf = (ClusNode)model.getRefinement();
@@ -225,17 +225,17 @@ public class ClusFastBeamSearch extends ClusBeamSearch {
 		ClusStatManager mgr = m_Induce.getStatManager();
 		for (int j = 0; j < leaf.getNbChildren(); j++) {
 			ClusNode child = (ClusNode)leaf.getChild(j);
-			ClusBeamAttrSelector casel = new ClusBeamAttrSelector();					
-			RowData subset = data.applyWeighted(leaf.getTest(), j);				
+			ClusBeamAttrSelector casel = new ClusBeamAttrSelector();
+			RowData subset = data.applyWeighted(leaf.getTest(), j);
 			child.initTargetStat(mgr, subset);
 			child.initClusteringStat(mgr, subset);
 			casel.setData(subset);
-			child.setVisitor(casel);					
+			child.setVisitor(casel);
 		}
 		leaf.setVisitor(null);
 		model.setRefinement(null);
 	}
-		
+
 	public void refineBeam(ClusBeam beam, ClusRun run) throws IOException {
 		super.refineBeam(beam, run);
 		ArrayList models = beam.toArray();

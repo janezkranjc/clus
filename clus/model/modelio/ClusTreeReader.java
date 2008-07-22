@@ -38,7 +38,7 @@ public class ClusTreeReader {
 
 	public final static String[] YESNO = {"yes", "no"};
 
-	String m_FName;	
+	String m_FName;
 	ClusSchema m_Schema;
 	LineNumberReader m_Reader;
 	MStringTokenizer m_Tokens = createTokenizer();
@@ -46,7 +46,7 @@ public class ClusTreeReader {
 	boolean m_IsReading, m_NoPartialTree;
 	ArrayList m_Lines, m_StartPos;
 	String m_LineAfterTree;
-	
+
 	public ClusNode loadTree(String fname, ClusSchema schema) throws IOException {
 		m_FName = fname;
 		m_Schema = schema;
@@ -69,7 +69,7 @@ public class ClusTreeReader {
 		rdr.close();
 		return root;
 	}
-	
+
 	public ClusNode loadOutTree(String fname, ClusSchema schema, String find) throws IOException {
 		m_FName = fname;
 		m_Schema = schema;
@@ -90,15 +90,15 @@ public class ClusTreeReader {
 		/* Read tree */
 		ClusNode root = null;
 		if (line != null) {
-			
+
 			root = readTree(line, rdr);
 		}
 		line = getFirstNonEmptyLine(rdr);
 		m_LineAfterTree = line;
 		rdr.close();
 		return root;
-	}		
-	
+	}
+
 	public ClusNode loadTreeTree(String fname, ClusSchema schema) throws IOException {
 		m_FName = fname;
 		m_Schema = schema;
@@ -106,26 +106,26 @@ public class ClusTreeReader {
 		System.out.println("Loading .tree file: "+fname);
 		LineNumberReader rdr = new LineNumberReader(new InputStreamReader(new FileInputStream(fname)));
 		String line = rdr.readLine();
-		
+
 		/* Read tree */
 		ClusNode root = null;
 		root = readTree(line, rdr);
-		
+
 		rdr.close();
 		return root;
-	}		
-	
+	}
+
 	public ClusNode readTree(String line, LineNumberReader rdr) throws IOException {
 		m_Reader = rdr;
 		m_IsReading = true;
-		m_PushBack = -1;		
-		return readTree(line);		
+		m_PushBack = -1;
+		return readTree(line);
 	}
-	
+
 	public ClusNode readTree(String line) throws IOException {
 		String trim = line.trim();
 		System.out.println("Reading: '"+line+"'");
-		ClusNode result = new ClusNode();		
+		ClusNode result = new ClusNode();
 		if (!trim.equals("?")) {
 			int arity = 2;
 			String[] branchnames = YESNO;
@@ -161,21 +161,21 @@ public class ClusTreeReader {
 					}
 					stopPlayBack();
 				}
-			}			
+			}
 		} else {
-			checkPartialTreeAllowed("while reading child node");			
+			checkPartialTreeAllowed("while reading child node");
 		}
 		return result;
 	}
-	
+
 	public String getLineAfterTree() {
 		return m_LineAfterTree;
 	}
-	
+
 	public boolean allowPartialTree() {
 		return !m_NoPartialTree;
 	}
-	
+
 	public void checkPartialTreeAllowed(String str) throws IOException {
 		if (!allowPartialTree()) {
 			createError("No question marks allowed in tree ("+str+")");
@@ -188,7 +188,7 @@ public class ClusTreeReader {
 		if (trim.length() > 1 && trim.charAt(0) == '%') return true;
 		return false;
 	}
-	
+
 	public ClusAttrType findAttrType(String name, boolean shouldfind) throws IOException {
 		ClusAttrType type = m_Schema.getAttrType(name);
 		if (type == null && shouldfind) {
@@ -196,12 +196,12 @@ public class ClusTreeReader {
 		}
 		return type;
 	}
-	
+
 	public void readCharTokens(String chars, MStringTokenizer tokens) throws IOException {
 		String token = tokens.getToken();
 		for (int pos = 0; pos < chars.length(); pos++) {
 			if (!chars.substring(pos,pos+1).equals(token)) {
-				createError("Expected '"+chars.substring(pos,pos+1)+"', not '"+token+"'");				
+				createError("Expected '"+chars.substring(pos,pos+1)+"', not '"+token+"'");
 			}
 			if (pos < chars.length()-1) {
 				if (tokens.hasMoreTokens()) {
@@ -210,9 +210,9 @@ public class ClusTreeReader {
 					createError("Expected '"+chars.substring(pos+1,pos+2)+"' at end of line");
 				}
 			}
-		}	
+		}
 	}
-	
+
 	public void readNumericTest(ClusAttrType attr, ClusNode node, MStringTokenizer tokens) throws IOException {
 		NumericTest test = new NumericTest(attr);
 		if (tokens.hasMoreTokens()) {
@@ -226,13 +226,13 @@ public class ClusTreeReader {
 						double bound = Double.parseDouble(value);
 						test.setBound(bound);
 					} catch (NumberFormatException e) {
-						createError("Expected numeric value for '"+attr.getName()+"', not '"+value+"'");						
-					}					
-				}				
+						createError("Expected numeric value for '"+attr.getName()+"', not '"+value+"'");
+					}
+				}
 			} else {
 				createError("Expected numeric value for test on '"+attr.getName()+"'");
 			}
-		}		
+		}
 		node.setTest(test);
 	}
 
@@ -244,7 +244,7 @@ public class ClusTreeReader {
 			} else {
 				Integer res = attr.getValueIndex(token);
 				if (res == null) {
-					createError("Value '"+token+"=' not in domain of '"+attr.getName()+"'");					
+					createError("Value '"+token+"=' not in domain of '"+attr.getName()+"'");
 				}
 				isin[res.intValue()] = true;
 				return 1;
@@ -254,7 +254,7 @@ public class ClusTreeReader {
 		}
 		return 0;
 	}
-	
+
 	public int readMultiValue(boolean[] isin, NominalAttrType attr, MStringTokenizer tokens) throws IOException {
 		int nb = 0;
 		if (tokens.hasMoreTokens()) {
@@ -263,13 +263,13 @@ public class ClusTreeReader {
 				checkPartialTreeAllowed("in subset test");
 			} else {
 				if (!token.equals("{")) {
-					createError("Expected set after 'in' while reading test on '"+attr.getName()+"'");	
+					createError("Expected set after 'in' while reading test on '"+attr.getName()+"'");
 				}
 				while (tokens.hasMoreTokens()) {
 					String name = tokens.getToken();
 					Integer res = attr.getValueIndex(name);
 					if (res == null) {
-						createError("Value '"+name+"=' not in domain of '"+attr.getName()+"'");					
+						createError("Value '"+name+"=' not in domain of '"+attr.getName()+"'");
 					}
 					isin[res.intValue()] = true; nb++;
 					if (tokens.hasMoreTokens()) {
@@ -279,7 +279,7 @@ public class ClusTreeReader {
 							createError("Expected '}' or ',' while reading test on '"+attr.getName()+"'");
 						}
 					} else {
-						createError("End of set expected while reading test on '"+attr.getName()+"'");						
+						createError("End of set expected while reading test on '"+attr.getName()+"'");
 					}
 				}
 			}
@@ -287,8 +287,8 @@ public class ClusTreeReader {
 			createError("Expected value after 'in' while reading test on '"+attr.getName()+"'");
 		}
 		return nb;
-	}	
-	
+	}
+
 	public void readNominalTest(ClusAttrType attr, ClusNode node, MStringTokenizer tokens) throws IOException {
 		NominalAttrType ntype = (NominalAttrType)attr;
 		if (tokens.hasMoreTokens()) {
@@ -296,22 +296,22 @@ public class ClusTreeReader {
 			boolean[] isin = new boolean[ntype.getNbValues()];
 			String token = tokens.getToken();
 			if (token.equals("=")) {
-				nb = readSingleValue(isin, ntype, tokens);				
+				nb = readSingleValue(isin, ntype, tokens);
 			} else if (token.equals("in")) {
 				nb = readMultiValue(isin, ntype, tokens);
 			} else {
-				createError("Expected '=' or 'in' while reading test on '"+attr.getName()+"'");				
-			}			
-			SubsetTest test = new SubsetTest(ntype, nb, isin, Double.NEGATIVE_INFINITY);			
-			node.setTest(test);			
+				createError("Expected '=' or 'in' while reading test on '"+attr.getName()+"'");
+			}
+			SubsetTest test = new SubsetTest(ntype, nb, isin, Double.NEGATIVE_INFINITY);
+			node.setTest(test);
 		} else {
 			double[] freqs = new double[ntype.getNbValues()];
 			Arrays.fill(freqs, Double.NEGATIVE_INFINITY);
 			NominalTest test = new NominalTest(ntype, freqs);
 			node.setTest(test);
-		}		
-	}	
-	
+		}
+	}
+
 	public void readTest(ClusAttrType attr, ClusNode node, MStringTokenizer tokens) throws IOException {
 		switch (attr.getTypeIndex()) {
 			case NumericAttrType.THIS_TYPE:
@@ -322,9 +322,9 @@ public class ClusTreeReader {
 				break;
 			default:
 				createError("Unsupported attribute type '"+attr.getTypeName()+"'");
-		}		
+		}
 	}
-	
+
 	public boolean readNextChild(ClusNode node, String[] bnames, boolean[] has_ch) throws IOException {
 		String str = readLine();
 		/* Count number of branches that have already been read */
@@ -348,7 +348,7 @@ public class ClusTreeReader {
 			name = name.substring(idxmm+2).trim();
 		}
 		/* Is this a wildcard branch? */
-		if (name.equals("?")) {			
+		if (name.equals("?")) {
 			checkPartialTreeAllowed("as child node '"+str+"'");
 			startRecording(str);
 			return true;
@@ -382,11 +382,11 @@ public class ClusTreeReader {
 		}
 		/* OK, I guess we have a valid branch here :-) */
 		String rest = str.substring(idx+1).trim();
-		ClusNode child = readTree(rest); 
+		ClusNode child = readTree(rest);
 		node.setChild(child, pos);
 		return false;
 	}
-	
+
 	public void readWildCardChild(ClusNode node, boolean[] has_ch) throws IOException {
 		String str = readLine();
 		/* Count number of branches that have already been read */
@@ -399,7 +399,7 @@ public class ClusTreeReader {
 		/* Full? */
 		if (first_free == -1) {
 			createError("Internal error (all branches already read) while reading wildcard branch for "+node.getTest());
-		}		
+		}
 		/* End of file encountered? */
 		if (str == null) {
 			createError("End of file encountered while reading wildcard branch "+cnt+" for "+node.getTest());
@@ -415,11 +415,11 @@ public class ClusTreeReader {
 		}
 		/* OK, I guess we have a valid branch here :-) */
 		String rest = str.substring(idx+1).trim();
-		ClusNode child = readTree(rest); 
+		ClusNode child = readTree(rest);
 		node.setChild(child, first_free);
 		has_ch[first_free] = true;
-	}	
-	
+	}
+
 	public void createError(String err) throws IOException {
 		throw new IOException(err+" ("+m_FName+": "+getLineNumber()+")");
 	}
@@ -434,32 +434,32 @@ public class ClusTreeReader {
 			String line = m_Reader.readLine();
 			if (isRecording() && line != null) {
 				m_Lines.add(line);
-				m_CrLine++;			
+				m_CrLine++;
 			}
 			return line;
 		} else {
 			return (String)m_Lines.get(m_CrLine++);
-		}		
+		}
 	}
-	
+
 	public void markStartRecording() {
 		m_PushBack = m_CrLine-1;
-		m_StartPos.add(new Integer(m_CrLine-1));	
+		m_StartPos.add(new Integer(m_CrLine-1));
 	}
-	
+
 	public void startRecording(String firstline) {
 		if (m_Lines != null) {
 			markStartRecording();
 		} else {
-			m_CrLine = 1;			
+			m_CrLine = 1;
 			m_StartLine = m_Reader.getLineNumber() - 1;
 			m_Lines = new ArrayList();
 			m_Lines.add(firstline);
-			m_StartPos = new ArrayList();			
+			m_StartPos = new ArrayList();
 			markStartRecording();
 		}
 	}
-	
+
 	public void startPlayBack() {
 		m_IsReading = false;
 		reset();
@@ -472,49 +472,49 @@ public class ClusTreeReader {
 			m_Lines = null;
 			m_StartPos = null;
 		}
-	}	
-	
+	}
+
 	public void reset() {
 		Integer pos = (Integer)m_StartPos.get(m_StartPos.size()-1);
 		m_CrLine = pos.intValue();
-	}	
-	
+	}
+
 	public boolean isRecording() {
 		return m_Lines != null;
 	}
-	
+
 	public int getLineNumber() {
 		if (m_IsReading) return m_Reader.getLineNumber();
 		else return m_StartLine + m_CrLine;
 	}
-	
+
 	public MStringTokenizer getTokens() {
 		return m_Tokens;
 	}
-	
+
 	public static boolean checkAtEnd(LineNumberReader rdr) throws IOException {
 		String line = rdr.readLine();
 		/* Skip empty lines */
 		while (line != null && isSkipLine(line)) {
 			line = rdr.readLine();
 		}
-		return line == null;		
+		return line == null;
 	}
-	
+
 	public static String getFirstNonEmptyLine(LineNumberReader rdr) throws IOException {
 		String line = rdr.readLine();
 		/* Skip empty lines */
 		while (line != null && isSkipLine(line)) {
 			line = rdr.readLine();
 		}
-		return line;		
-	}	
-	
+		return line;
+	}
+
 	public static MStringTokenizer createTokenizer() {
 		MStringTokenizer tokens = new MStringTokenizer();
 		tokens.setCharTokens("=<>{},");
 		//to use spaces in attributes when reading tree(eg. specify constraints)
-		tokens.setBlockChars("\"", "\""); 
+		tokens.setBlockChars("\"", "\"");
 		tokens.setSpaceChars(" \t");
 		return tokens;
 	}

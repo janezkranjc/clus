@@ -30,7 +30,7 @@ public class ILevelCUtil {
 		/* create index as array lists */
 		ArrayList[] crIndex = new ArrayList[nbtrain];
 		for (int i = 0; i < constr.size(); i++) {
-			ILevelConstraint ic = (ILevelConstraint)constr.get(i);			
+			ILevelConstraint ic = (ILevelConstraint)constr.get(i);
 			int t1 = ic.getT1().getIndex();
 			int t2 = ic.getT2().getIndex();
 			if (crIndex[t1] == null) crIndex[t1] = new ArrayList();
@@ -47,10 +47,10 @@ public class ILevelCUtil {
 				for (int j = 0; j < nb; j++) {
 					Integer value = (Integer)crIndex[i].get(j);
 					index[i][j] = value.intValue();
-				}				
+				}
 			}
-		}		
+		}
 		return index;
 	}
-	
+
 }

@@ -29,9 +29,9 @@ public interface TuplePreproc {
 	public int getNbPasses();
 
 	public void preproc(int pass, DataTuple tuple) throws ClusException;
-	
+
 	public void preprocSingle(DataTuple tuple) throws ClusException;
-	
-	public void done(int pass) throws ClusException;	
+
+	public void done(int pass) throws ClusException;
 
 }

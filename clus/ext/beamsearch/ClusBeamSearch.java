@@ -54,9 +54,9 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 
 	public final static int HEURISTIC_ERROR = 0;
 	public final static int HEURISTIC_SS = 1;
-	
+
 //	public final static int m_MaxSteps = 100000;
-	
+
 	protected BasicExampleCollector m_Coll = new BasicExampleCollector();
 	protected ConstraintDFInduce m_Induce;
 	protected ClusBeamInduce m_BeamInduce;
@@ -72,11 +72,11 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 	protected boolean m_Verbose;
 	protected ClusBeamModelDistance m_BeamModelDistance;
 	protected ClusBeamSyntacticConstraint m_BeamSyntConstr;
-	
+
 	public ClusBeamSearch(Clus clus) throws ClusException, IOException {
 		super(clus);
 	}
-	
+
 	public void reset() {
 		m_Beam = null;
 		m_BeamChanged = false;
@@ -84,14 +84,14 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 		m_TotalWeight = 0.0;
 		m_BeamStats = new ArrayList();
 	}
-	
+
 	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		schema.addIndices(ClusSchema.ROWS);
 		m_BeamInduce = new ClusBeamInduce(schema, sett, this);
 		m_BeamInduce.getStatManager().setBeamSearch(true);
 		return m_BeamInduce;
 	}
-	
+
 	public void initializeHeuristic() {
 		ClusStatManager smanager = m_BeamInduce.getStatManager();
 		Settings sett = smanager.getSettings();
@@ -102,43 +102,43 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
    		int attr_heur = sett.getBeamAttrHeuristic();
    		if (attr_heur != Settings.HEURISTIC_DEFAULT) {
    			m_AttrHeuristic = smanager.createHeuristic(attr_heur);
-   			m_Heuristic.setAttrHeuristic(m_AttrHeuristic);    			
-   		}		
+   			m_Heuristic.setAttrHeuristic(m_AttrHeuristic);
+   		}
 	}
-	
+
 	public final boolean isBeamPostPrune() {
 		return m_BeamPostPruning;
 	}
-	
+
 	public double computeLeafAdd(ClusNode leaf) {
 		return m_Heuristic.computeLeafAdd(leaf);
-	}	
-	
+	}
+
 	public double estimateBeamMeasure(ClusNode tree) {
 		return m_Heuristic.estimateBeamMeasure(tree);
 	}
-	
+
 	public void initSelector(CurrentBestTestAndHeuristic sel) {
 		if (hasAttrHeuristic()) {
 			sel.setHeuristic(m_AttrHeuristic);
 		}
 	}
-	
+
 	public final boolean hasAttrHeuristic() {
 		return m_AttrHeuristic != null;
 	}
-	
+
 	public ClusBeam initializeBeam(ClusRun run) throws ClusException, IOException {
 		ClusStatManager smanager = m_BeamInduce.getStatManager();
-		Settings sett = smanager.getSettings();	
+		Settings sett = smanager.getSettings();
 		ClusBeam beam = new ClusBeam(sett.getBeamWidth(), sett.getBeamRemoveEqualHeur());
 		/* Create single leaf node */
 		RowData train = (RowData)run.getTrainingSet();
 		ClusStatistic stat = m_Induce.createTotalClusteringStat(train);
 		stat.calcMean();
 		m_Induce.initSelectorAndSplit(stat);
-		initSelector(m_Induce.getBestTest());		
-		System.out.println("Root statistic: "+stat);		
+		initSelector(m_Induce.getBestTest());
+		System.out.println("Root statistic: "+stat);
 		/* Has syntactic constraints? */
 		ClusNode root = null;
 		String constr_file = sett.getConstraintFile();
@@ -163,11 +163,11 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 		beam.addModel(new ClusBeamModel(value, root));
 		/* Initialize Tree Distance */
 		m_BeamModelDistance = new ClusBeamModelDistance(run,beam);
-		/* Initialize the Syntactic Distance Constraint */ 
+		/* Initialize the Syntactic Distance Constraint */
 		if (Settings.BEAM_SYNT_DIST_CONSTR)m_BeamSyntConstr = new ClusBeamSyntacticConstraint(run);		// this can throw IOException
 		return beam;
 	}
-	
+
 	public void refineGivenLeaf(ClusNode leaf, ClusBeamModel root, ClusBeam beam, ClusAttrType[] attrs) {
 		MyArray arr = (MyArray)leaf.getVisitor();
 		RowData data = new RowData(arr.getObjects(), arr.size());
@@ -178,7 +178,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 		// init base value for heuristic
 		CurrentBestTestAndHeuristic sel = m_Induce.getBestTest();
 		FindBestTest find = m_Induce.getFindBestTest();
-		double base_value = root.getValue();		
+		double base_value = root.getValue();
 		double leaf_add = m_Heuristic.computeLeafAdd(leaf);
 		m_Heuristic.setTreeOffset(base_value - leaf_add);
 		// find good splits
@@ -197,7 +197,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 				ClusNode ref_leaf = (ClusNode)leaf.cloneNode();
 				ref_leaf.testToNode(sel);
 				// output best test
-				if (Settings.VERBOSE > 0) System.out.println("Test: "+ref_leaf.getTestString()+" -> "+sel.m_BestHeur+" ("+ref_leaf.getTest().getPosFreq()+")");	
+				if (Settings.VERBOSE > 0) System.out.println("Test: "+ref_leaf.getTestString()+" -> "+sel.m_BestHeur+" ("+ref_leaf.getTest().getPosFreq()+")");
 				// create child nodes
 				ClusStatManager mgr = m_Induce.getStatManager();
 				int arity = ref_leaf.updateArity();
@@ -216,17 +216,17 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 				ClusNode ref_tree = (ClusNode)root_model.cloneTree(leaf, ref_leaf);
 				double new_heur = sanityCheck(sel.m_BestHeur, ref_tree);
 				// Check for sure if _strictly_ better!
-			
+
 				ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_tree);
 				new_model.setParentModelIndex(getCurrentModel());
-				
+
 				if ((Settings.BEAM_SIMILARITY != 0)&&!Settings.BEAM_SYNT_DIST_CONSTR){
 					new_model.setModelPredictions(m_BeamModelDistance.getPredictions(new_model.getModel()));
 					if (!beam.modelAlreadyIn(new_model)){
 						//This version is linear wrt the beam-width
 						m_BeamModelDistance.addDistToCandOpt(beam, new_model);
 						if (beam.removeMinUpdatedOpt(new_model, m_BeamModelDistance) == 1) setBeamChanged(true);
-						
+
 						//These were used for KDID 2006 paper
 /*						m_BeamModelDistance.calculatePredictionDistances(beam, new_model);
 						if (beam.removeMinUpdated(new_model) == 1) setBeamChanged(true);*/
@@ -253,7 +253,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 			}
 		}
 	}
-	
+
 	public void refineEachLeaf(ClusNode tree, ClusBeamModel root, ClusBeam beam, ClusAttrType[] attrs) {
 		int nb_c = tree.getNbChildren();
 		if (nb_c == 0) {
@@ -265,7 +265,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 			}
 		}
 	}
-	
+
 	public void refineModel(ClusBeamModel model, ClusBeam beam, ClusRun run) throws IOException {
 		ClusNode tree = (ClusNode)model.getModel();
 		/* Compute size */
@@ -289,7 +289,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 		/* Remove data from tree */
 		tree.clearVisitors();
 	}
-	
+
 	public void refineBeam(ClusBeam beam, ClusRun run) throws IOException {
 		setBeamChanged(false);
 		ArrayList models = beam.toArray();
@@ -308,12 +308,12 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 					System.out.print("[R]");
 				}
 				if (model.isFinished()) {
-					System.out.print("[F]");					
+					System.out.print("[F]");
 				}
 			}
 		}
 	}
-	
+
 	public Settings getSettings() {
 		return m_Clus.getSettings();
 	}
@@ -333,16 +333,16 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 				if (!tops.contains(top)) {
 					tops.add(top);
 				}
-			}			
+			}
 		}
 		Iterator iter = beam.getIterator();
 		while (iter.hasNext()) {
 			ClusBeamTreeElem elem = (ClusBeamTreeElem)iter.next();
 			stat_same_heur.addFloat(elem.getCount());
-		}				
+		}
 		ArrayList stat = new ArrayList();
 		stat.add(stat_heuristic);
-		stat.add(stat_same_heur);		
+		stat.add(stat_same_heur);
 		stat.add(stat_size);
 		stat.add(new Integer(tops.size()));
 		m_BeamStats.add(stat);
@@ -351,7 +351,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 	public String getLevelStat(int i) {
 		ArrayList stat = (ArrayList)m_BeamStats.get(i);
 		StringBuffer buf = new StringBuffer();
-		buf.append("Level: "+i);			
+		buf.append("Level: "+i);
 		for (int j = 0; j < stat.size(); j++) {
 			Object elem = stat.get(j);
 			buf.append(", ");
@@ -364,11 +364,11 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 		}
 		return buf.toString();
 	}
-	
+
 	public void printBeamStats(int level) {
 		System.out.println(getLevelStat(level));
 	}
-	
+
 	public void saveBeamStats() {
 		MyFile stats = new MyFile(getSettings().getAppName()+".bmstats");
 		for (int i = 0; i < m_BeamStats.size(); i++) {
@@ -376,7 +376,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 		}
 		stats.close();
 	}
-	
+
 	public void writeModel(ClusModelCollectionIO strm) throws IOException {
 			saveBeamStats();
 	    	ArrayList beam = getBeam().toArray();
@@ -395,12 +395,12 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 				strm.addModel(info);
 				pos++;
 	    	}
-	}	
-	
+	}
+
 	public void setVerbose(boolean verb) {
 		m_Verbose = verb;
 	}
-	
+
 	public ClusNode beamSearch(ClusRun run) throws ClusException, IOException {
 		reset();
 		System.out.println("Starting beam search");
@@ -420,7 +420,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 			}
 			i++;
 		}
-		setBeam(beam);	
+		setBeam(beam);
 		double best = beam.getBestModel().getValue();
 		double worst = beam.getWorstModel().getValue();
 		System.out.println("Worst = "+worst+" Best = "+best);
@@ -433,31 +433,31 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 	public void setBeam(ClusBeam beam) {
 		m_Beam = beam;
 	}
-	
+
 	public ClusBeam getBeam() {
 		return m_Beam;
 	}
-	
+
 	public boolean isBeamChanged() {
 		return m_BeamChanged;
 	}
-	
+
 	public void setBeamChanged(boolean change) {
 		m_BeamChanged = change;
 	}
-	
+
 	public int getCurrentModel() {
 		return m_CurrentModel;
 	}
-	
+
 	public void setCurrentModel(int model) {
 		m_CurrentModel = model;
 	}
-	
+
 	public void setTotalWeight(double weight) {
 		m_TotalWeight = weight;
 	}
-	
+
 	public double sanityCheck(double value, ClusNode tree) {
 /*		int size = tree.getModelSize();
 		System.out.println("Size = "+size);
@@ -474,7 +474,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 		}
 		return expected;
 	}
-	
+
 	public void tryLogBeam(MyFile log, ClusBeam beam, String txt) {
 		if (log.isEnabled()) {
 			log.log(txt);
@@ -483,11 +483,11 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 			log.log();
 		}
 	}
-	
+
 	public void pruneAll(ClusRun cr) throws ClusException, IOException {
 	}
-	
+
 	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
 		return model;
-	}	
+	}
 }

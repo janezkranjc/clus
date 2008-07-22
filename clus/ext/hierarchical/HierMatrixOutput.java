@@ -30,14 +30,14 @@ import clus.data.rows.*;
 import jeans.util.array.*;
 
 
-public class HierMatrixOutput {	
+public class HierMatrixOutput {
 
 	public static void writeExamples(RowData data, ClassHierarchy hier) {
 		try {
 			PrintWriter wrt = data.getSchema().getSettings().getFileAbsoluteWriter("examples.matrix");
 			writeHeader(hier, wrt);
-			ClassesAttrType type = hier.getType();		
-			int sidx = type.getArrayIndex();	
+			ClassesAttrType type = hier.getType();
+			int sidx = type.getArrayIndex();
 			double[] vector = new double[hier.getTotal()];
 			for (int i = 0; i < data.getNbRows(); i++) {
 				Arrays.fill(vector, 0.0);
@@ -55,11 +55,11 @@ public class HierMatrixOutput {
 		}
 	}
 
-	public static void writeHeader(ClassHierarchy hier, PrintWriter wrt) {		
+	public static void writeHeader(ClassHierarchy hier, PrintWriter wrt) {
 		wrt.print("[");
 		for (int i = 0; i < hier.getTotal(); i++) {
 			if (i != 0) wrt.print(",");
-			wrt.print(String.valueOf(hier.getWeight(i)));			
+			wrt.print(String.valueOf(hier.getWeight(i)));
 		}
 		wrt.println("]");
 	}

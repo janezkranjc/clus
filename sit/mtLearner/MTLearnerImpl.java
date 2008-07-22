@@ -11,21 +11,21 @@ import clus.util.ClusException;
 import clus.util.ClusRandom;
 
 public abstract class MTLearnerImpl implements MTLearner {
-	
+
 	protected RowData m_Data;
 	protected RowData m_Test = null;
 	protected Settings m_Sett;
 	protected XValMainSelection m_XValSel;
 	protected ResultsCache m_Cache;
 	protected ClusAttrType m_MainTarget;
-	
+
 	/**************************
 	 * Interface functions
 	 **************************/
-	 
+
 	/**
 	 * @see MTLearner
-	 */ 
+	 */
 	public void init(RowData data, Settings sett) {
 		this.m_Data = data;
 		this.m_Sett = sett;
@@ -38,14 +38,14 @@ public abstract class MTLearnerImpl implements MTLearner {
 		if(m_Test == null){
 			throw new Exception();
 		}
-		
-		
+
+
 		RowData[] result = m_Cache.getResult(targets, this.m_Test);
 		if(result != null){
 			return result;
 		}
 		result = LearnModel(targets, this.m_Data, this.m_Test);
-		m_Cache.addResult(targets, result);		
+		m_Cache.addResult(targets, result);
 		return result;
 	}
 	/**
@@ -64,8 +64,8 @@ public abstract class MTLearnerImpl implements MTLearner {
 		} catch (ClusException e) {
 			e.printStackTrace();
 		}
-		
-		
+
+
 	}
 	/**
 	 * @see MTLearner
@@ -77,9 +77,9 @@ public abstract class MTLearnerImpl implements MTLearner {
 		} catch (ClusException e) {
 			e.printStackTrace();
 		}
-		
+
 		return  m_Data.getNbRows();
-		
+
 	}
 	/**
 	 * @see MTLearner
@@ -88,13 +88,13 @@ public abstract class MTLearnerImpl implements MTLearner {
 		XValSelection msel = new XValSelection(m_XValSel, foldNr);
 		RowData train = (RowData) m_Data.cloneData();
 		RowData test = (RowData) train.select(msel);
-		
+
 		RowData[] result = m_Cache.getResult(targets, test);
 		if(result != null){
 			return result;
 		}
 		result = LearnModel(targets, train, test);
-		m_Cache.addResult(targets, result);		
+		m_Cache.addResult(targets, result);
 		return result;
 	}
 	/**
@@ -102,12 +102,12 @@ public abstract class MTLearnerImpl implements MTLearner {
 	 * @param the testdata
 	 */
 	public void setTestData(RowData test) {
-		this.m_Test = test;		
+		this.m_Test = test;
 	}
-	
+
 	public void setMainTarget(ClusAttrType target){
 		this.m_MainTarget = target;
 	}
-	
-	protected abstract RowData[] LearnModel(TargetSet targets, RowData train, RowData test);	
+
+	protected abstract RowData[] LearnModel(TargetSet targets, RowData train, RowData test);
 }

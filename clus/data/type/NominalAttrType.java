@@ -36,8 +36,8 @@ import clus.algo.kNN.NominalStatistic;
 
 public class NominalAttrType extends ClusAttrType {
 
-	public final static long serialVersionUID = 1L;	
-	
+	public final static long serialVersionUID = 1L;
+
 	public final static String[] BINARY_NAMES = {"1", "0"};
 	public final static int THIS_TYPE = 0;
 	public final static String THIS_TYPE_NAME = "Nominal";
@@ -117,8 +117,8 @@ public class NominalAttrType extends ClusAttrType {
 
 	public String getValueOrMissing(int idx) {
 		return idx < m_Values.length ? m_Values[idx] : "?";
-	}	
-	
+	}
+
 	public Integer getValueIndex(String value) {
 		return (Integer)m_Hash.get(value);
 	}
@@ -135,14 +135,14 @@ public class NominalAttrType extends ClusAttrType {
 		return true;
 	}
 */
-	
+
 	public void createHash() {
 		m_Hash = new Hashtable();
 		for (int i = 0; i < m_NbValues; i++) {
 			m_Hash.put(m_Values[i], new Integer(i));
 		}
 	}
-	
+
 	public String getTypeString() {
 		StringBuffer res = new StringBuffer();
 		res.append("{");
@@ -158,15 +158,15 @@ public class NominalAttrType extends ClusAttrType {
 		int idx = this.getNominal(tuple);
 		return idx >= m_NbValues ? "?" : m_Values[idx];
 	}
-	
+
 	public boolean isMissing(DataTuple tuple) {
 		return this.getNominal(tuple) >= m_NbValues;
-	}	
+	}
 
 	public int getNominal(DataTuple tuple) {
 		return tuple.getIntVal(m_ArrayIndex);
 	}
-	
+
 	public void setNominal(DataTuple tuple, int intvalue) {
 		tuple.setIntVal(intvalue,getArrayIndex());
 	}
@@ -184,7 +184,7 @@ public class NominalAttrType extends ClusAttrType {
 	public ClusSerializable createRowSerializable() throws ClusException {
 		return new MySerializable();
 	}
-	
+
 	public void writeARFFType(PrintWriter wrt) throws ClusException {
 		wrt.print(getTypeString());
 	}

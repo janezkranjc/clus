@@ -31,20 +31,20 @@ import clus.main.Settings;
 import clus.util.*;
 
 public class ClassesTuple implements Serializable {
-	
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
-	
+
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+
 	protected ClassesValue[] m_Tuple;
 	protected int m_Count;
-	
+
 	public ClassesTuple() {
 	}
-	
+
 	public ClassesTuple(String constr, StringTable table) throws ClusException {
 		if (constr.equals(ClassesValue.EMPTY_SET_INDICATOR)) {
 			m_Tuple = new ClassesValue[0];
 		} else {
-			int idx = 0;		
+			int idx = 0;
 			StringTokenizer tokens = new StringTokenizer(constr, "@");
 			int tlen = tokens.countTokens();
 			m_Tuple = new ClassesValue[tlen];
@@ -55,11 +55,11 @@ public class ClassesTuple implements Serializable {
 			if (tlen == 0) new ClusException("Number of classes should be >= 1");
 		}
 	}
-	
+
 	public ClassesTuple(int size) {
 		m_Tuple = new ClassesValue[size];
 	}
-	
+
 	public boolean isRoot() {
 		if (m_Tuple.length == 0) return true;
 		if (m_Tuple.length == 1) {
@@ -67,15 +67,15 @@ public class ClassesTuple implements Serializable {
 		}
 		return false;
 	}
-	
+
 	public boolean hasClass(int index) {
 		for (int i = 0; i < m_Tuple.length; i++) {
 			ClassesValue val = getClass(i);
 			if (index == val.getIndex()) return true;
 		}
 		return false;
-	}	
-	
+	}
+
 	public ClassesTuple toFlat(StringTable table) {
 		ClassesTuple tuple = new ClassesTuple(m_Tuple.length);
 		for (int i = 0; i < m_Tuple.length; i++) {
@@ -83,13 +83,13 @@ public class ClassesTuple implements Serializable {
 		}
 		return tuple;
 	}
-	
+
 	public void setLength(int size) {
 		ClassesValue[] old = m_Tuple;
 		m_Tuple = new ClassesValue[size];
-		System.arraycopy(old, 0, m_Tuple, 0, size);		
+		System.arraycopy(old, 0, m_Tuple, 0, size);
 	}
-	
+
 	public boolean equalsTuple(ClassesTuple other) {
 		if (m_Tuple.length != other.m_Tuple.length) return false;
 		for (int i = 0; i < m_Tuple.length; i++) {
@@ -97,45 +97,45 @@ public class ClassesTuple implements Serializable {
 		}
 		return true;
 	}
-	
+
 	public final void setSize(int size) {
 		m_Tuple = new ClassesValue[size];
 	}
-	
+
 	public final void setItemAt(ClassesValue item, int pos) {
 		m_Tuple[pos] = item;
 	}
-	
+
 	public final void addItem(ClassesValue item) {
 		m_Tuple[m_Count++] = item;
-	}	
-	
+	}
+
 	public int getPosition(int idx) {
 		return m_Tuple[idx].getIndex();
 	}
-	
+
 	public final int getNbClasses() {
 		return m_Tuple.length;
 	}
-	
+
 	public final ClassesValue getClass(int idx) {
 		return m_Tuple[idx];
 	}
-	
+
 	public void updateDistribution(double[] distr, double weight) {
 		for (int i = 0; i < getNbClasses(); i++) {
 			distr[getClass(i).getIndex()] += weight;
-		}		
+		}
 	}
-	
+
 	public final boolean[] getVectorBoolean(ClassHierarchy hier) {
 		boolean[] vec = new boolean[hier.getTotal()];
 		for (int i = 0; i < getNbClasses(); i++) {
 			vec[getClass(i).getIndex()] = true;
 		}
-		return vec;				
+		return vec;
 	}
-				
+
 	public final double[] getVector(ClassHierarchy hier) {
 		double[] vec = new double[hier.getTotal()];
 		for (int i = 0; i < getNbClasses(); i++) {
@@ -143,23 +143,23 @@ public class ClassesTuple implements Serializable {
 		}
 		return vec;
 	}
-	
+
 	public final double[] getVectorNodeAndAncestors(ClassHierarchy hier) {
 		double[] vec = new double[hier.getTotal()];
 		for (int i = 0; i < getNbClasses(); i++) {
 			ClassesValue val = getClass(i);
-			val.getTerm().fillVectorNodeAndAncestors(vec);			
+			val.getTerm().fillVectorNodeAndAncestors(vec);
 		}
 		return vec;
 	}
-	
+
 	public final void fillBoolArrayNodeAndAncestors(boolean[] interms) {
 		for (int i = 0; i < getNbClasses(); i++) {
 			ClassesValue val = getClass(i);
 			val.getTerm().fillBoolArrayNodeAndAncestors(interms);
 		}
 	}
-	
+
 	public final void addIntermediateElems(ClassHierarchy hier, boolean[] interms, ArrayList added) {
 		fillBoolArrayNodeAndAncestors(interms);
 		for (int i = 0; i < hier.getTotal(); i++) {
@@ -173,19 +173,19 @@ public class ClassesTuple implements Serializable {
 		m_Tuple = new ClassesValue[added.size()];
 		System.arraycopy(added.toArray(), 0, m_Tuple, 0, added.size());
 	}
-	
+
 	public final void cloneFrom(ClassesTuple tuple) {
 		int size = tuple.m_Tuple.length;
 		m_Tuple = new ClassesValue[size];
 		System.arraycopy(tuple.m_Tuple, 0, m_Tuple, 0, size);
 	}
-		
+
 	public String toString() {
 		return toString(null, '@', false);
 	}
-	
+
 	// Represent the set of classes to a human
-	// Difference with toStringData() is that ',' is used as separator 
+	// Difference with toStringData() is that ',' is used as separator
 	public String toStringHuman(ClassHierarchy hier) {
 		return toString(hier, ',', false);
 	}
@@ -194,8 +194,8 @@ public class ClassesTuple implements Serializable {
 	// Used by ClassesAttrType.getString(DataTuple tuple)
 	public String toStringData(ClassHierarchy hier) {
 		return toString(hier, '@', false);
-	}	
-	
+	}
+
 	public String toString(ClassHierarchy hier, char separator, boolean allowinterm) {
 		if (getNbClasses() > 0) {
 			int idx = 0;
@@ -213,19 +213,19 @@ public class ClassesTuple implements Serializable {
 			return "none";
 		}
 	}
-	
+
 	public void setAllIntermediate(boolean inter) {
 		for (int i = 0; i < m_Tuple.length; i++) {
 			((ClassesValue)m_Tuple[i]).setIntermediate(inter);
-		}		
+		}
 	}
-	
+
 	public final void addToHierarchy(ClassHierarchy hier) {
 		for (int i = 0; i < getNbClasses(); i++) {
 			hier.addClass(getClass(i));
 		}
 	}
-	
+
 	public final void addHierarchyIndices(ClassHierarchy hier) throws ClusException {
 		for (int i = 0; i < getNbClasses(); i++) {
 			ClassesValue val = getClass(i);
@@ -233,7 +233,7 @@ public class ClassesTuple implements Serializable {
 			val.setClassTerm(term);
 		}
 	}
-		
+
 	public static ClassesTuple readFromFile(String fname, ClassHierarchy hier) throws ClusException, IOException {
 		int idx = 0;
 		BufferedReader input = new BufferedReader(new FileReader(fname));
@@ -252,5 +252,5 @@ public class ClassesTuple implements Serializable {
 		ClassesTuple tuple = new ClassesTuple(classes.toString(), hier.getType().getTable());
 		tuple.addHierarchyIndices(hier);
 		return tuple;
-	} 
+	}
 }

@@ -40,20 +40,20 @@ import clus.model.ClusModel;
 import clus.model.test.*;
 
 public class ConstraintDFInduce extends DepthFirstInduce {
-	
+
 	protected boolean m_FillIn;
 	protected String m_ConstrFile;
-	
+
 	public ConstraintDFInduce(ClusSchema schema, Settings sett, boolean fillin) throws ClusException, IOException {
 		super(schema, sett);
 		m_FillIn = fillin;
 		m_ConstrFile = sett.getConstraintFile();
 	}
-	
+
 	public ConstraintDFInduce(ClusInductionAlgorithm other) {
 		super(other, null);
 	}
-	
+
 	public void fillInStatsAndTests(ClusNode node, RowData data) {
 		NodeTest test = node.getTest();
 		if (test == null) {
@@ -64,7 +64,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 			// no constants in test, find optimal split constant
 			if (initSelectorAndStopCrit(node, data)) {
 				node.makeLeaf();
-				return;		
+				return;
 			}
 			ClusAttrType at = test.getType();
 			if (at instanceof NominalAttrType) getFindBestTest().findNominal((NominalAttrType)at, data);
@@ -72,7 +72,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 			CurrentBestTestAndHeuristic best = m_FindBestTest.getBestTest();
 			if (best.hasBestTest()) {
 				node.testToNode(best);
-				if (Settings.VERBOSE > 0) System.out.println("Fill in Test: "+node.getTestString()+" -> "+best.getHeuristicValue());	
+				if (Settings.VERBOSE > 0) System.out.println("Fill in Test: "+node.getTestString()+" -> "+best.getHeuristicValue());
 			} else {
 				node.makeLeaf();
 				return;
@@ -81,7 +81,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 			double tot_weight = 0.0;
 			double unk_weight = 0.0;
 			double tot_no_unk = 0.0;
-			double[] branch_weight = new double[test.getNbChildren()]; 
+			double[] branch_weight = new double[test.getNbChildren()];
 			for (int i = 0; i < data.getNbRows(); i++) {
 				DataTuple tuple = data.getTuple(i);
 				int pred = test.predictWeighted(tuple);
@@ -96,18 +96,18 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 			for (int i = 0; i < test.getNbChildren(); i++) {
 				test.setProportion(i, branch_weight[i]/tot_no_unk);
 			}
-			test.setUnknownFreq(unk_weight/tot_weight);			
+			test.setUnknownFreq(unk_weight/tot_weight);
 		}
-		NodeTest best_test = node.getTest();		
+		NodeTest best_test = node.getTest();
 		for (int j = 0; j < node.getNbChildren(); j++) {
 			ClusNode child = (ClusNode)node.getChild(j);
-			RowData subset = data.applyWeighted(best_test, j);				
-			child.initTargetStat(m_StatManager, subset);								
+			RowData subset = data.applyWeighted(best_test, j);
+			child.initTargetStat(m_StatManager, subset);
 			child.initClusteringStat(m_StatManager, subset);
 			fillInStatsAndTests(child, subset);
 		}
 	}
-	
+
 	public void induceRecursive(ClusNode node, RowData data) {
 		if (node.atBottomLevel()) {
 			induce(node, data);
@@ -115,19 +115,19 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 			NodeTest test = node.getTest();
 			for (int j = 0; j < node.getNbChildren(); j++) {
 				ClusNode child = (ClusNode)node.getChild(j);
-				RowData subset = data.applyWeighted(test, j);				
+				RowData subset = data.applyWeighted(test, j);
 				induceRecursive(child, subset);
-			}			
+			}
 		}
 	}
-	
+
 	public ClusNode createRootNode(RowData data, ClusStatistic cstat, ClusStatistic tstat) {
 		ClusConstraintFile file = ClusConstraintFile.getInstance();
 		ClusNode root = file.getClone(m_ConstrFile);
 		root.setClusteringStat(cstat);
 		root.setTargetStat(tstat);
 		fillInStatsAndTests(root, data);
-		return root;		
+		return root;
 	}
 
 	public ClusNode fillInInTree(RowData data, ClusNode tree, ClusStatistic cstat, ClusStatistic tstat) {
@@ -135,20 +135,20 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		root.setClusteringStat(cstat);
 		root.setTargetStat(tstat);
 		fillInStatsAndTests(root, data);
-		return root;		
-	}	
-	
+		return root;
+	}
+
 	public ClusNode fillInInduce(ClusRun cr, ClusNode node, MultiScore score) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
 		ClusStatistic cstat = createTotalClusteringStat(data);
-		ClusStatistic tstat = createTotalTargetStat(data);		
+		ClusStatistic tstat = createTotalTargetStat(data);
 		initSelectorAndSplit(cstat);
 		ClusNode root = fillInInTree(data, node, cstat, tstat);
 		root.postProc(score);
 		cleanSplit();
-		return root;		
-	}		
-	
+		return root;
+	}
+
 /*	public ClusNode induce(ClusRun cr, MultiScore score) throws ClusException {
 		RowData data = (RowData)cr.getTrainingSet();
 		ClusStatistic cstat = createTotalClusteringStat(data);
@@ -158,12 +158,12 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		if (!m_FillIn) {
 			// Call induce on each leaf
 			induceRecursive(root, data);
-		}	
+		}
 		root.postProc(score);
 		cleanSplit();
 		return root;
 	}*/
-	
+
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 		RowData data = (RowData)cr.getTrainingSet();
 		ClusStatistic cstat = createTotalClusteringStat(data);
@@ -173,7 +173,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		if (!m_FillIn) {
 			// Call induce on each leaf
 			induceRecursive(root, data);
-		}	
+		}
 		root.postProc(null);
 		cleanSplit();
 		return root;

@@ -36,7 +36,7 @@ public class ClusBeamHeuristicMorishita extends ClusBeamHeuristic {
 	public ClusBeamHeuristicMorishita(ClusStatistic stat) {
 		super(stat);
 	}
-	
+
 	public double computeMorishitaStat(ClusStatistic stat, ClusStatistic tstat) {
 		RegressionStat stat_set = (RegressionStat)stat;
 		RegressionStat stat_all = (RegressionStat)tstat;
@@ -44,7 +44,7 @@ public class ClusBeamHeuristicMorishita extends ClusBeamHeuristic {
 		double result = 0.0;
 		for (int i = 0; i < stat_set.getNbAttributes(); i++) {
 				double term_i = stat_set.getMean(i) - stat_all.getMean(i);
-				result += term_i * term_i;		
+				result += term_i * term_i;
 		}
 		return result * stat_set.getTotalWeight();
 	}
@@ -60,7 +60,7 @@ public class ClusBeamHeuristicMorishita extends ClusBeamHeuristic {
 		m_Neg.copy(c_tstat);
 		m_Neg.subtractFromThis(c_pstat);
 		// Does not take into account missing values!
-		return computeMorishitaStat(c_pstat, c_tstat) + computeMorishitaStat(m_Neg, c_tstat); 			
+		return computeMorishitaStat(c_pstat, c_tstat) + computeMorishitaStat(m_Neg, c_tstat);
 	}
 
 	public double estimateBeamMeasure(ClusNode tree, ClusNode parent) {
@@ -75,7 +75,7 @@ public class ClusBeamHeuristicMorishita extends ClusBeamHeuristic {
 			return result;
 		}
 	}
-	
+
 	public double estimateBeamMeasure(ClusNode tree) {
 		if (tree.atBottomLevel()) {
 			return 0;
@@ -88,15 +88,15 @@ public class ClusBeamHeuristicMorishita extends ClusBeamHeuristic {
 			return result;
 		}
 	}
-	
+
 	public double computeLeafAdd(ClusNode leaf) {
-		return 0.0;		
+		return 0.0;
 	}
-	
+
 	public String getName() {
 		return "Beam Heuristic (Morishita)";
 	}
-	
+
 	public void setRootStatistic(ClusStatistic stat) {
 		super.setRootStatistic(stat);
 	}

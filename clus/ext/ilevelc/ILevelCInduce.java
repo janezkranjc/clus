@@ -35,9 +35,9 @@ import clus.main.*;
 import clus.util.*;
 
 public class ILevelCInduce extends DepthFirstInduce {
-		
+
 	protected NodeTest m_BestTest;
-	protected ClusNode m_BestLeaf;	
+	protected ClusNode m_BestLeaf;
 	protected double m_BestHeur = Double.POSITIVE_INFINITY;
 	protected int m_NbClasses = 1;
 	protected int m_MaxNbClasses = 2;
@@ -47,16 +47,16 @@ public class ILevelCInduce extends DepthFirstInduce {
 	protected ArrayList m_Constraints;
 	protected int[][] m_ConstraintsIndex;
 	protected ClusNormalizedAttributeWeights m_Scale;
-	
+
 	public ILevelCInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		super(schema, sett);
 	}
-	
+
 	public int[][] createConstraintsIndex() {
 		/* create index as array lists */
 		ArrayList[] crIndex = new ArrayList[m_NbTrain];
 		for (int i = 0; i < m_Constraints.size(); i++) {
-			ILevelConstraint ic = (ILevelConstraint)m_Constraints.get(i);			
+			ILevelConstraint ic = (ILevelConstraint)m_Constraints.get(i);
 			int t1 = ic.getT1().getIndex();
 			int t2 = ic.getT2().getIndex();
 			if (crIndex[t1] == null) crIndex[t1] = new ArrayList();
@@ -73,11 +73,11 @@ public class ILevelCInduce extends DepthFirstInduce {
 				for (int j = 0; j < nb; j++) {
 					Integer value = (Integer)crIndex[i].get(j);
 					index[i][j] = value.intValue();
-				}				
+				}
 			}
-		}		
+		}
 		return index;
-	}	
+	}
 
 	public ILevelConstraint[] getSubsetConstraints(RowData data) {
 		int count = 0;
@@ -102,7 +102,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 		}
 		return result;
 	}
-	
+
 	public int[] createIE(RowData data) {
 		int[] ie = new int[m_NbTrain];
 	    for (int i = 0; i < data.getNbRows(); i++) {
@@ -118,8 +118,8 @@ public class ILevelCInduce extends DepthFirstInduce {
 		double heur = (1.0-alpha) * ss_norm + alpha * violated_norm;
 		// System.out.println("Violated: "+violated+" SS: "+ss+" -> "+heur);
 		return heur;
-	}	
-	
+	}
+
 	public double computeHeuristic(ILevelCHeurStat pos, ILevelCHeurStat neg, ILevelCStatistic ps, boolean use_p_lab, double ss_offset, int nb_violated) {
 		if (pos.getTotalWeight() < m_MinLeafWeight) return Double.POSITIVE_INFINITY;
 		if (neg.getTotalWeight() < m_MinLeafWeight) return Double.POSITIVE_INFINITY;
@@ -128,25 +128,25 @@ public class ILevelCInduce extends DepthFirstInduce {
 		if (use_p_lab) {
 			/* if does not occur elsewhere then it becomes available for reuse */
 			nbLabels = m_NbClasses-1;
-			pLabel = ps.getClusterID();					
-		}				
+			pLabel = ps.getClusterID();
+		}
 		int v1 = tryLabel(pos, neg, pLabel, nbLabels);
 		int v2 = tryLabel(neg, pos, pLabel, nbLabels);
 		if (v1 == -1) {
 			if (v2 != -1) nb_violated += v2;
-			else return Double.POSITIVE_INFINITY;			
+			else return Double.POSITIVE_INFINITY;
 		} else if (v2 == -1) {
 			if (v1 != -1) nb_violated += v1;
 			else return Double.POSITIVE_INFINITY;
 		} else {
 			nb_violated += Math.min(v1, v2);
-		}		
+		}
 		double ss_pos = pos.getSS(m_Scale);
 		double ss_neg = neg.getSS(m_Scale);
 		double ss = ss_offset + ss_pos + ss_neg;
 		return computeHeuristic(nb_violated, ss);
-	}	
-	
+	}
+
 	public void findNumericConstraints(NumericAttrType at, ClusNode leaf, boolean use_p_lab, double ss_offset, int violated_offset, int violated_leaf, int[] clusters) throws ClusException {
 		RowData data = (RowData)leaf.getVisitor();
 		ILevelCStatistic tot = (ILevelCStatistic)leaf.getClusteringStat();
@@ -160,25 +160,25 @@ public class ILevelCInduce extends DepthFirstInduce {
 	    int nb_rows = data.getNbRows();
 	    if (at.hasMissing()) {
 	      throw new ClusException("Does not support attributes with missing values: "+at.getName());
-	    }  
+	    }
 	    /* test is of form A > vi */
 	    /* vi is sorted from large to small */
 	    /* pos statistic is values larger than current threshold */
 	    /* neg statistic is values smaller than current threshold */
 	    ILevelCStatistic cs = (ILevelCStatistic)leaf.getClusteringStat();
-	    ILevelCHeurStat pos = new ILevelCHeurStat(cs, m_NbClasses); 
+	    ILevelCHeurStat pos = new ILevelCHeurStat(cs, m_NbClasses);
 	    ILevelCHeurStat neg = new ILevelCHeurStat(cs, m_NbClasses);
 	    /* create internal/external index */
-	    int[] ie = createIE(data);	    
+	    int[] ie = createIE(data);
 	    /* pass required indices to statistics */
 	    pos.setIndices(m_ConstraintsIndex, m_Constraints, ie, clusters);
 	    neg.setIndices(m_ConstraintsIndex, m_Constraints, ie, clusters);
 	    /* initially all data is in negative statistic */
 	    for (int i = 0; i < nb_rows; i++) {
 	  		DataTuple tuple = data.getTuple(i);
-	  		neg.updateWeighted(tuple, tuple.getWeight());	  		
-	  	}	    
-	    int nb_violated = violated_leaf; 
+	  		neg.updateWeighted(tuple, tuple.getWeight());
+	  	}
+	    int nb_violated = violated_leaf;
 	    /* then loop over all examples */
 	    double prev = Double.NaN;
 	  	for (int i = 0; i < nb_rows; i++) {
@@ -207,27 +207,27 @@ public class ILevelCInduce extends DepthFirstInduce {
 					if (ie[otidx] != ILevelCHeurStat.EXT) {
 						boolean was_violated = false;
 						if (cons.getType() == ILevelConstraint.ILevelCMustLink) {
-							if (ie[tidx] != ie[otidx]) was_violated = true; 
+							if (ie[tidx] != ie[otidx]) was_violated = true;
 						} else {
 							if (ie[tidx] == ie[otidx]) was_violated = true;
 						}
 						if (was_violated) nb_violated--;
-						else nb_violated++;					
+						else nb_violated++;
 					}
 				}
 			}
 	  		ie[tidx] = ILevelCHeurStat.POS;
 	  	}
-	}	
-	
-	public void tryGivenLeaf(ClusNode leaf, boolean use_p_lab, int violated, double ss, int[] clusters) throws ClusException {		
+	}
+
+	public void tryGivenLeaf(ClusNode leaf, boolean use_p_lab, int violated, double ss, int[] clusters) throws ClusException {
 		ILevelCStatistic stat = (ILevelCStatistic)leaf.getClusteringStat();
 		if (stat.getTotalWeight() <= m_MinLeafWeight) {
 			/* don't refine clusters that are too small */
 			return;
 		}
 		RowData leaf_data = (RowData)leaf.getVisitor();
-		double ss_leaf = stat.getSS(m_Scale);		
+		double ss_leaf = stat.getSS(m_Scale);
 		double ss_offset = ss - ss_leaf;
 		int[] v_info = countViolatedConstaints(leaf_data, clusters);
 		int violated_offset = violated - v_info[0];
@@ -238,14 +238,14 @@ public class ILevelCInduce extends DepthFirstInduce {
 			ClusAttrType at = attrs[i];
 			if (at instanceof NumericAttrType) findNumericConstraints((NumericAttrType)at, leaf, use_p_lab, ss_offset, violated_offset, v_info[1], clusters);
 			else throw new ClusException("Unsupported descriptive attribute type: "+at.getName());
-		}			
+		}
 	}
-	
+
 	public void tryEachLeaf(ClusNode tree, ClusNode root, int violated, double ss, int[] clusters) throws ClusException {
 		int nb_c = tree.getNbChildren();
 		if (nb_c == 0) {
 			ILevelCStatistic ps = (ILevelCStatistic)tree.getClusteringStat();
-			int nbParLabel = countLabel(root, ps.getClusterID());			
+			int nbParLabel = countLabel(root, ps.getClusterID());
 			tryGivenLeaf(tree, nbParLabel <= 1, violated, ss, clusters);
 		} else {
 			for (int i = 0; i < nb_c; i++) {
@@ -254,28 +254,28 @@ public class ILevelCInduce extends DepthFirstInduce {
 			}
 		}
 	}
-	
+
 	public ILevelCHeurStat computeCHeurStat(ClusNode leaf, ClusNode par, int[] ie, int[] clusters) {
-		RowData data = (RowData)leaf.getVisitor();		
-		ILevelCStatistic cs = (ILevelCStatistic)leaf.getClusteringStat();		
+		RowData data = (RowData)leaf.getVisitor();
+		ILevelCStatistic cs = (ILevelCStatistic)leaf.getClusteringStat();
 	    ILevelCHeurStat lstat = new ILevelCHeurStat(cs, m_NbClasses);
 	    lstat.setIndices(m_ConstraintsIndex, m_Constraints, ie, clusters);
 	    for (int i = 0; i < data.getNbRows(); i++) {
 	  		DataTuple tuple = data.getTuple(i);
-	  		lstat.updateWeighted(tuple, tuple.getWeight());	  		
+	  		lstat.updateWeighted(tuple, tuple.getWeight());
 	  	}
 	    return lstat;
 	}
-	
-	public int tryLabel(ILevelCHeurStat a, ILevelCHeurStat b, int parlabel, int nb) {		
+
+	public int tryLabel(ILevelCHeurStat a, ILevelCHeurStat b, int parlabel, int nb) {
 		int v1 = a.computeMinimumExtViolated(parlabel, -1, nb < m_MaxNbClasses);
 		int label_a = a.getClusterID();
 		if (label_a == -1) nb++;
 		int v2 = b.computeMinimumExtViolated(parlabel, label_a, nb < m_MaxNbClasses);
 		return (v1 == -1 || v2 == -1) ? -1 : v1 + v2;
 	}
-	
-	public void assignLabels(ILevelCHeurStat a, ILevelCHeurStat b, ClusNode root, int parlabel, int nb) throws ClusException {		
+
+	public void assignLabels(ILevelCHeurStat a, ILevelCHeurStat b, ClusNode root, int parlabel, int nb) throws ClusException {
 		int v1 = a.computeMinimumExtViolated(parlabel, -1, nb < m_MaxNbClasses);
 		int label_a = a.getClusterID();
 		if (label_a == -1) {
@@ -294,14 +294,14 @@ public class ILevelCInduce extends DepthFirstInduce {
 			throw new ClusException("Error: can't assign labels: v1 = "+v1+" v2 = "+v2);
 		}
 	}
-	
+
 	public void storeLabels(ClusNode leaf, ILevelCHeurStat stat) {
-		ILevelCStatistic cs = (ILevelCStatistic)leaf.getClusteringStat();		
+		ILevelCStatistic cs = (ILevelCStatistic)leaf.getClusteringStat();
 		ILevelCStatistic ts = (ILevelCStatistic)leaf.getTargetStat();
 	    cs.setClusterID(stat.getClusterID());
 	    ts.setClusterID(stat.getClusterID());
-	}	
-	
+	}
+
 	public void enterBestTest(ClusNode tree, ClusNode root, int[] clusters) throws ClusException {
 		int nb_c = tree.getNbChildren();
 		if (nb_c == 0) {
@@ -319,23 +319,23 @@ public class ILevelCInduce extends DepthFirstInduce {
 					child.getTargetStat().calcMean();
 					child.setVisitor(subset);
 				}
-				int[] ie = createIE(data);				
+				int[] ie = createIE(data);
 				ILevelCStatistic ps = (ILevelCStatistic)tree.getClusteringStat();
-				ILevelCHeurStat left = computeCHeurStat((ClusNode)tree.getChild(0), tree, ie, clusters);				
-				ILevelCHeurStat right = computeCHeurStat((ClusNode)tree.getChild(1), tree, ie, clusters);				
+				ILevelCHeurStat left = computeCHeurStat((ClusNode)tree.getChild(0), tree, ie, clusters);
+				ILevelCHeurStat right = computeCHeurStat((ClusNode)tree.getChild(1), tree, ie, clusters);
 				int nbParLabel = countLabel(root, ps.getClusterID());
 				int pLabel = -1;
 				int nbLabels = m_NbClasses;
 				if (nbParLabel <= 0) {
 					/* if does not occur elsewhere then it becomes available for reuse */
 					nbLabels = m_NbClasses-1;
-					pLabel = ps.getClusterID();					
-				}				
+					pLabel = ps.getClusterID();
+				}
 				int v1 = tryLabel(left, right, pLabel, nbLabels);
 				int v2 = tryLabel(right, left, pLabel, nbLabels);
 				if (v1 == -1 || v2 == -1) {
 					v1 = tryLabel(left, right, pLabel, nbLabels);
-					v2 = tryLabel(right, left, pLabel, nbLabels);					
+					v2 = tryLabel(right, left, pLabel, nbLabels);
 				}
 				if ((v1 <= v2 && v1 != -1) || v2 == -1) {
 					assignLabels(left, right, root, pLabel, nbLabels);
@@ -343,8 +343,8 @@ public class ILevelCInduce extends DepthFirstInduce {
 					assignLabels(right, left, root, pLabel, nbLabels);
 				}
 				storeLabels((ClusNode)tree.getChild(0), left);
-				storeLabels((ClusNode)tree.getChild(1), right);				
-				tree.setVisitor(null);				
+				storeLabels((ClusNode)tree.getChild(1), right);
+				tree.setVisitor(null);
 			}
 		} else {
 			for (int i = 0; i < nb_c; i++) {
@@ -353,7 +353,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 			}
 		}
 	}
-	
+
 	public int freeLabel(ClusNode tree, int ignore) {
 		boolean[] set = new boolean[m_NbClasses];
 		labelSet(tree, set);
@@ -363,7 +363,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 		if (m_NbClasses < m_MaxNbClasses) return m_NbClasses;
 		else return -1;
 	}
-	
+
 	public void labelSet(ClusNode tree, boolean[] set) {
 		int nb_c = tree.getNbChildren();
 		if (nb_c == 0) {
@@ -376,7 +376,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 			}
 		}
 	}
-	
+
 	public int countLabel(ClusNode tree, int label) {
 		int nb_c = tree.getNbChildren();
 		if (nb_c == 0) {
@@ -390,10 +390,10 @@ public class ILevelCInduce extends DepthFirstInduce {
 			}
 			return count;
 		}
-	}		
-			
+	}
+
 	public void iLevelCInduce(ClusNode root) throws ClusException {
-		double ss = root.estimateClusteringSS(m_Scale);		
+		double ss = root.estimateClusteringSS(m_Scale);
 		int[] clusters = assignAllInstances(root);
 		int violated = countViolatedConstaints(clusters);
 		computeHeuristic(violated, ss);
@@ -407,17 +407,17 @@ public class ILevelCInduce extends DepthFirstInduce {
 			if (m_BestTest == null) {
 				/* no improvement possible */
 				return;
-			} else {				
+			} else {
 				/* refine tree and continue */
 				enterBestTest(root, root, clusters);
 				System.out.println("Tree:");
 				root.printTree();
-				ss = root.estimateClusteringSS(m_Scale);		
+				ss = root.estimateClusteringSS(m_Scale);
 				clusters = assignAllInstances(root);
 				violated = countViolatedConstaints(clusters);
 				double heur = computeHeuristic(violated, ss);
 				if (Math.abs(heur - m_BestHeur) > 1e-6) {
-					throw new ClusException("Error: heuristic "+heur+" <> "+m_BestHeur);					
+					throw new ClusException("Error: heuristic "+heur+" <> "+m_BestHeur);
 				}
 				System.out.println("CHECK heuristic "+heur+" == "+m_BestHeur+" [OK]");
 			}
@@ -434,14 +434,14 @@ public class ILevelCInduce extends DepthFirstInduce {
 			ClusNode child = (ClusNode)tree.getChild(i);
 			assignAllInstances(child, clusters);
 		}
-	}	
-	
+	}
+
 	public int[] assignAllInstances(ClusNode root) {
 		int[] clusters = new int[m_NbTrain];
 		assignAllInstances(root, clusters);
 		return clusters;
 	}
-	
+
 	public int[] countViolatedConstaints(RowData data, int[] clusters) {
 		int violated = 0;
 		int violated_internal = 0;
@@ -468,7 +468,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 		result[1] = violated_internal;
 		return result;
 	}
-	
+
 	public int countViolatedConstaints(int[] clusters) {
 		int violated = 0;
 		for (int i = 0; i < m_Constraints.size(); i++) {
@@ -483,15 +483,15 @@ public class ILevelCInduce extends DepthFirstInduce {
 			}
 		}
 		return violated;
-	}		
-			
+	}
+
 	public ArrayList createConstraints(RowData data, int nbRows) {
 		ArrayList constr = new ArrayList();
 		ClusAttrType type = getSchema().getAttrType(getSchema().getNbAttributes()-1);
-		if (type.getTypeIndex() == NominalAttrType.THIS_TYPE) {				
+		if (type.getTypeIndex() == NominalAttrType.THIS_TYPE) {
 			NominalAttrType cls = (NominalAttrType)type;
 			m_MaxNbClasses = cls.getNbValues();
-			int nbConstraints = getSettings().getILevelCNbRandomConstraints();				
+			int nbConstraints = getSettings().getILevelCNbRandomConstraints();
 			for (int i = 0; i < nbConstraints; i++) {
 				int t1i = ClusRandom.nextInt(ClusRandom.RANDOM_ALGO_INTERNAL, nbRows);
 				int t2i = ClusRandom.nextInt(ClusRandom.RANDOM_ALGO_INTERNAL, nbRows);
@@ -506,11 +506,11 @@ public class ILevelCInduce extends DepthFirstInduce {
 		}
 		return constr;
 	}
-	
+
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 		m_NbClasses = 1;
 		ClusRandom.reset(ClusRandom.RANDOM_ALGO_INTERNAL);
-		RowData data = (RowData)cr.getTrainingSet();				
+		RowData data = (RowData)cr.getTrainingSet();
 		int nbRows = data.getNbRows();
 		/* add in test data! */
 		RowData test = (RowData)cr.getTestSet();
@@ -533,7 +533,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 		} else {
 			m_Constraints = createConstraints(data, nbRows);
 		}
-		if (getSettings().isILevelCCOPKMeans()) { 
+		if (getSettings().isILevelCCOPKMeans()) {
 			COPKMeans km = new COPKMeans(m_MaxNbClasses, getStatManager());
 			COPKMeansModel model = null;
 			int sumIter = 0;
@@ -557,8 +557,8 @@ public class ILevelCInduce extends DepthFirstInduce {
 			DerivedConstraintsComputer comp = new DerivedConstraintsComputer(points, m_Constraints);
 			comp.compute();
 			m_ConstraintsIndex = createConstraintsIndex();
-			System.out.println("Number of instance level constraints: "+m_Constraints.size());			
-			/* create initial node */		
+			System.out.println("Number of instance level constraints: "+m_Constraints.size());
+			/* create initial node */
 			ClusNode root = new ClusNode();
 			root.initClusteringStat(m_StatManager, data);
 			root.initTargetStat(m_StatManager, data);
@@ -568,7 +568,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 			ilevels.setClusterID(0);
 			/* initialize scale */
 			m_Scale = (ClusNormalizedAttributeWeights)getStatManager().getClusteringWeights();
-			m_GlobalSS = ilevels.getSS(m_Scale);	
+			m_GlobalSS = ilevels.getSS(m_Scale);
 			System.out.println("Global SS: "+m_GlobalSS);
 			/* induce tree now */
 			initSelectorAndSplit(root.getClusteringStat());
@@ -577,5 +577,5 @@ public class ILevelCInduce extends DepthFirstInduce {
 			cleanSplit();
 			return root;
 		}
-	}	
+	}
 }

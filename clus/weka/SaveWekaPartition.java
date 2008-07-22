@@ -30,9 +30,9 @@ import weka.classifiers.*;
 public class SaveWekaPartition extends Evaluation {
 
 	public SaveWekaPartition(Instances data, CostMatrix costMatrix) throws Exception {
-		super(data, costMatrix);	
+		super(data, costMatrix);
 	}
-	
+
 	public void saveXVAL(Instances train, int numFolds, Random rnd, String fname) throws Exception {
 		Instances data = new Instances(train);
 		data.randomize(rnd);
@@ -42,18 +42,18 @@ public class SaveWekaPartition extends Evaluation {
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".folds")));
 		for (int i = 0; i < numFolds; i++) {
 			System.out.println("Fold: "+i);
-			Instances test_cv = data.testCV(numFolds, i);			
+			Instances test_cv = data.testCV(numFolds, i);
 			for(int j = 0; j<test_cv.numInstances(); j++) {
 				Instance in = test_cv.instance(j);
 				// System.out.println(i + ":" + in.toString());
 				if (j != 0) wrt.print(",");
 				wrt.print(in.toString(0));
 			}
-			wrt.println();			
+			wrt.println();
 		}
 		wrt.close();
 	}
-	
+
 	public static void savePartition(String[] options) throws Exception {
 		Instances train = null, template = null;
 		int seed = 1, folds = 10, classIndex = -1;
@@ -65,7 +65,7 @@ public class SaveWekaPartition extends Evaluation {
 		if (classIndexString.length() != 0) {
 			classIndex = Integer.parseInt(classIndexString);
 		}
-		trainFileName = Utils.getOption('t', options); 
+		trainFileName = Utils.getOption('t', options);
 		if (trainFileName.length() == 0) {
 			throw new Exception("No training file and no object input file given.");
 		}
@@ -90,16 +90,16 @@ public class SaveWekaPartition extends Evaluation {
 		costMatrix = handleCostOption(Utils.getOption('m', options), template.numClasses());
 		Utils.checkForRemainingOptions(options);
 		SaveWekaPartition eval = new SaveWekaPartition(new Instances(template, 0), costMatrix);
-		Random rnd = new Random(seed);		
+		Random rnd = new Random(seed);
  		eval.saveXVAL(train, folds, rnd, trainFileName+"."+seed);
 	}
-	
+
 	public static void main(String[] args) {
 		try {
 			savePartition(args);
 		} catch (Exception ex) {
-			System.err.println(ex.getMessage());			
-			ex.printStackTrace();      			
+			System.err.println(ex.getMessage());
+			ex.printStackTrace();
 		}
-	}  
+	}
 }

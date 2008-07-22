@@ -41,10 +41,10 @@ import clus.util.ClusFormat;
 public class CombStat extends ClusStatistic {
 
   public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-  
+
   public static int IN_HEURISTIC = 0;
   public static int IN_OUTPUT = 1;
-  
+
   private int m_NbNumAtts;
   private int m_NbNomAtts;
   private NominalAttrType[] m_NomAtts;
@@ -52,13 +52,13 @@ public class CombStat extends ClusStatistic {
   protected RegressionStat m_RegStat;
   protected ClassificationStat m_ClassStat;
   private ClusStatManager m_StatManager;
-  
+
   /**
    * Constructor for this class.
    * @param statManager ClusStatManager (to get access to attribute weights
    *        for normalization, nominal and numeric attributes, ...)
    */
-  public CombStat(ClusStatManager statManager, NumericAttrType[] num, NominalAttrType[] nom) {    
+  public CombStat(ClusStatManager statManager, NumericAttrType[] num, NominalAttrType[] nom) {
     m_StatManager = statManager;
     m_NbNumAtts = num.length;
     m_NumAtts = num;
@@ -67,25 +67,25 @@ public class CombStat extends ClusStatistic {
     m_RegStat = new RegressionStat(num);
     m_ClassStat = new ClassificationStat(nom);
   }
-  
+
   public ClusStatistic cloneStat() {
   	return new CombStat(m_StatManager, m_NumAtts, m_NomAtts);
   }
-  
+
   public RegressionStat getRegressionStat() {
     return m_RegStat;
   }
-  
+
   public ClassificationStat getClassificationStat() {
 	    return m_ClassStat;
-  }  
-  
+  }
+
   public void updateWeighted(DataTuple tuple, double weight) {
     m_RegStat.updateWeighted(tuple, weight);
     m_ClassStat.updateWeighted(tuple, weight);
-    m_SumWeight += weight;  	
+    m_SumWeight += weight;
   }
-  
+
   public void updateWeighted(DataTuple tuple, int idx) { // idx?
     m_RegStat.updateWeighted(tuple, tuple.getWeight());
     m_ClassStat.updateWeighted(tuple, tuple.getWeight());
@@ -96,7 +96,7 @@ public class CombStat extends ClusStatistic {
     m_RegStat.calcMean();
     m_ClassStat.calcMean();
   }
-  
+
   /** Returns the compactness of all attributes. Used when outputing the compactness.
    * @return combined compactness
    */
@@ -269,23 +269,23 @@ double dis3 = comp;
   }
 
   /** Returns the compactness of numeric attributes.
-   * 
+   *
    * @return compactness of numeric attributes
    */
   public double compactnessNum(int use) {
   	// TODO: Try using mean abs distance instead of variance ...
     return meanVariance(use);
   }
-  
+
   /** Returns the compactness of nominal attributes.
-   * 
+   *
    * @return compactness of nominal attributes
    */
   public double compactnessNom(int use) {
     // return meanEntropy();
     return meanDistNom(use);
   }
-  
+
   /**
    * Returns the mean variance of all numeric attributes.
    * @return the mean variance
@@ -293,9 +293,9 @@ double dis3 = comp;
   public double meanVariance(int use) {
     double sumvar = 0;
     double weight;
-    // Normalization with the purpose of geting most of the single variances within the 
+    // Normalization with the purpose of geting most of the single variances within the
     // [0,1] interval. This weight is in stdev units,
-    // default value = 4 = (-2sigma,2sigma) should cover 95% of examples 
+    // default value = 4 = (-2sigma,2sigma) should cover 95% of examples
     double norm = getSettings().getNumCompNormWeight();
     for (int i = 0; i < m_NbNumAtts; i++) {
       if (use == IN_HEURISTIC) {
@@ -346,7 +346,7 @@ double dis3 = comp;
     for (int i = 0; i < nbval; i++) {
       prototype[i] = sum != 0 ? counts[i] / sum : 0;
     }
-    // Sum of distances 
+    // Sum of distances
     for (int i = 0; i < nbval; i++) {
       dist += (1 - prototype[i]) * counts[i];
     }
@@ -379,7 +379,7 @@ double dis3 = comp;
   }
 
   /**
-   * Calculates the difference 
+   * Calculates the difference
    * @return difference
    */
   public double prototypeDifference(CombStat stat) {
@@ -439,7 +439,7 @@ double dis3 = comp;
   }
 
   /**
-   * 
+   *
    * @return number of attributes with significantly different
    * distributions
    */
@@ -533,7 +533,7 @@ double dis3 = comp;
     /* double global_n = ((CombStat)m_StatManager.getGlobalStat()).getTotalWeight();
     double local_n = getTotalWeight();
     double ratio = local_n / global_n;
-    double global_counts[] = new double[m_ClassStat.getClassCounts(att).length];  
+    double global_counts[] = new double[m_ClassStat.getClassCounts(att).length];
     long local_counts[] = new long[global_counts.length];
     for (int i = 0; i < local_counts.length; i++) {
       local_counts[i] = (long)(m_ClassStat.getClassCounts(att)[i]);
@@ -547,7 +547,7 @@ double dis3 = comp;
     System.err.println("Attr.nom.: " + att + ", Gvalue/thresh: " + m_ClassStat.getGTest(att, m_StatManager) + " / " + m_StatManager.getChiSquareInvProb(global_counts.length-1));
     boolean result = testStatistic.chiSquareTest(global_counts, local_counts, alpha);
     System.err.println("Attr.nom.: " + att + ", result: " + result);
-    return result; */   
+    return result; */
     return m_ClassStat.getGTest(att, m_StatManager);
   }
 
@@ -566,11 +566,11 @@ double dis3 = comp;
   }
 
   /**
-   * 
+   *
    * @return String representation of the combined statistics
    */
   public String getCompactnessString() {
-    StringBuffer buf = new StringBuffer();    
+    StringBuffer buf = new StringBuffer();
     NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
     buf.append("[");
     buf.append(fr.format(compactnessCalc()));
@@ -578,43 +578,43 @@ double dis3 = comp;
     buf.append(fr.format(compactnessNum(IN_OUTPUT)));
     buf.append(" , ");
     buf.append(fr.format(compactnessNom(IN_OUTPUT)));
-    buf.append("]");    
+    buf.append("]");
     return buf.toString();
   }
 
   public String getString(StatisticPrintInfo info) {
-    StringBuffer buf = new StringBuffer();    
+    StringBuffer buf = new StringBuffer();
     buf.append("[");
     buf.append(m_ClassStat.getString(info));
     buf.append(" | ");
     buf.append(m_RegStat.getString(info));
-    buf.append("]");    
+    buf.append("]");
     return buf.toString();
   }
-  
+
 	public void addPredictWriterSchema(String prefix, ClusSchema schema) {
 		m_ClassStat.addPredictWriterSchema(prefix, schema);
-		m_RegStat.addPredictWriterSchema(prefix, schema);		
+		m_RegStat.addPredictWriterSchema(prefix, schema);
 	}
-	
+
 	public String getPredictWriterString() {
 		StringBuffer buf = new StringBuffer();
 		buf.append(m_ClassStat.getPredictWriterString());
 		if (buf.length() != 0) buf.append(",");
 		buf.append(m_RegStat.getPredictWriterString());
 		return buf.toString();
-	}	
-  
+	}
+
 	public String getArrayOfStatistic(){
 	    return null;
 	}
-	
+
 	public double getSS(ClusAttributeWeights scale) {
 		int nbTargetNom = m_ClassStat.getNbNominalAttributes();
 		int nbTargetNum = m_RegStat.getNbNumericAttributes();
 		return (m_ClassStat.getSS(scale)*nbTargetNom + m_RegStat.getSS(scale)*nbTargetNum) / (nbTargetNom+nbTargetNum);
 	}
-	
+
 	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other) {
 		int nbTargetNom = m_ClassStat.getNbNominalAttributes();
 		int nbTargetNum = m_RegStat.getNbNumericAttributes();
@@ -622,7 +622,7 @@ double dis3 = comp;
 		RegressionStat oreg = ((CombStat)other).getRegressionStat();
 		return (m_ClassStat.getSSDiff(scale, ocls)*nbTargetNom + m_RegStat.getSSDiff(scale, oreg)*nbTargetNum) / (nbTargetNom+nbTargetNum);
 	}
-	
+
   public void reset() {
     m_RegStat.reset();
     m_ClassStat.reset();
@@ -675,11 +675,11 @@ double dis3 = comp;
   public int getNbNominalAttributes() {
     return m_ClassStat.getNbNominalAttributes();
   }
-  
+
   public String getPredictedClassName(int idx) {
 		return "";
-	} 
-  
+	}
+
   public int getNbNumericAttributes() {
     return m_RegStat.getNbNumericAttributes();
   }
@@ -687,10 +687,10 @@ double dis3 = comp;
   public double[] getNumericPred() {
     return m_RegStat.getNumericPred();
   }
-  
+
   public int[] getNominalPred() {
     return m_ClassStat.getNominalPred();
-  } 
+  }
 
   public Settings getSettings() {
     return m_StatManager.getSettings();
@@ -700,7 +700,7 @@ double dis3 = comp;
   public double getError() {
     return getError(null);
   }
-  
+
   // TODO: This error asessement should be changed, I guess.
   public double getError(ClusAttributeWeights scale) {
 	  System.out.println("CombStat :getError");
@@ -720,7 +720,7 @@ double dis3 = comp;
   	m_ClassStat.printDistribution(wrt);
   	m_RegStat.printDistribution(wrt);
   }
-  
+
   public void vote(ArrayList votes) {
 	  System.err.println(getClass().getName() + "vote (): Not implemented");
   }

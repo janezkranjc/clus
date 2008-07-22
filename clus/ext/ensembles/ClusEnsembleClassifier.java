@@ -55,9 +55,9 @@ public class ClusEnsembleClassifier extends ClusInductionAlgorithmType {
 	public void pruneAll(ClusRun cr) throws ClusException, IOException {
 		// TODO Auto-generated method stub
 	}
-	
+
 	public void printInfo() {
 		System.out.println("Ensemble Classifier");
-	}	
-	
+	}
+
 }

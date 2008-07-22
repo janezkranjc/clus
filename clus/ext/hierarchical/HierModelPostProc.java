@@ -23,13 +23,13 @@
 package clus.ext.hierarchical;
 
 /*
- * Collect target values in each leave 
+ * Collect target values in each leave
  *
  */
 
 public class HierModelPostProc /*extends ClusModelProcessor*/ {
 /*
-	
+
 	public ClassHierarchy m_Hier;
 
 	public HierModelPostProc(ClassHierarchy hier) {
@@ -43,7 +43,7 @@ public class HierModelPostProc /*extends ClusModelProcessor*/ {
 			node.setVisitor(new MyArray());
 		}
 	}
-		
+
 	public void terminate(ClusModel model) throws IOException {
 		LeafTreeIterator iter = new LeafTreeIterator((Node)model);
 		while (iter.hasMoreNodes()) {
@@ -58,11 +58,11 @@ public class HierModelPostProc /*extends ClusModelProcessor*/ {
 		ClusNode node = (ClusNode)model;
 		MyArray visitor = (MyArray)node.getVisitor();
 		// FIXME -- target attribute should be zero.
-		DoubleObject example = new DoubleObject(tuple.getWeight(), tuple.getObjVal(0));		
+		DoubleObject example = new DoubleObject(tuple.getWeight(), tuple.getObjVal(0));
 		visitor.addElement(example);
 	}
-	
-	public ClassesTuple findBestPrediction(MyArray examples) {		
+
+	public ClassesTuple findBestPrediction(MyArray examples) {
 		double bestvalue = Double.POSITIVE_INFINITY;
 		ClassesTuple besttuple = new ClassesTuple(0);
 		System.out.println("Finding best prediction for set of "+examples.size()+" examples.");
@@ -70,7 +70,7 @@ public class HierModelPostProc /*extends ClusModelProcessor*/ {
 			DoubleObject obj = (DoubleObject)examples.elementAt(i);
 			ClassesTuple actual = (ClassesTuple)obj.getObject();
 			System.out.println("  -  "+actual);
-		}		
+		}
 		// Try all 1-class tuples
 		ClassesTuple current = new ClassesTuple(1);
 		LeafTreeIterator iter = m_Hier.getLeavesIter();
@@ -85,9 +85,9 @@ public class HierModelPostProc /*extends ClusModelProcessor*/ {
 		}
 		System.out.println("  -> "+besttuple+" "+bestvalue);
 		// Try all 2-class tuples
-		return besttuple;	
+		return besttuple;
 	}
-	
+
 	public double evaluateTuple(ClassesTuple pred, MyArray examples) {
 		MSymMatrix km = m_Hier.getKMatrix();
 		double aiAai = 0.0;
@@ -98,15 +98,15 @@ public class HierModelPostProc /*extends ClusModelProcessor*/ {
 			double weight = obj.getValue();
 			ClassesTuple actual = (ClassesTuple)obj.getObject();
 			sumweight += weight;
-			for (int j = 0; j < actual.size(); j++) {			
+			for (int j = 0; j < actual.size(); j++) {
 				int index = actual.getPosition(j);
 				km.addRowWeighted(Aai, index, weight);
 			}
 			aiAai += weight * km.xtAx(actual);
 		}
-		double piApi = km.xtAx(pred);		
+		double piApi = km.xtAx(pred);
 		return sumweight*piApi - 2 * MSymMatrix.dot(pred, Aai) + aiAai;
 	}
-*/	
+*/
 }
 

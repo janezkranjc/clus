@@ -11,11 +11,11 @@ public class ModifiedGainHeuristic extends ClusHeuristicImpl {
 	public ModifiedGainHeuristic(ClusStatistic stat) {
 		super(stat);
 	}
-	
+
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic c_nstat, ClusStatistic missing) {
 		ClassificationStat tstat = (ClassificationStat)c_tstat;
 		ClassificationStat pstat = (ClassificationStat)c_pstat;
-		ClassificationStat nstat = (ClassificationStat)c_nstat;		
+		ClassificationStat nstat = (ClassificationStat)c_nstat;
 		// Equal for all target attributes
 		int nb = tstat.m_NbTarget;
 		double n_tot = tstat.m_SumWeight;
@@ -28,11 +28,11 @@ public class ModifiedGainHeuristic extends ClusHeuristicImpl {
 		// Initialize entropy's
 		double pos_ent = 0.0;
 		double neg_ent = 0.0;
-		double tot_ent = 0.0;		
-		// Entropy?		
+		double tot_ent = 0.0;
+		// Entropy?
 		for (int i = 0; i < nb; i++) {
 			pos_ent += pstat.entropy(i, n_pos);
-			neg_ent += nstat.entropy(i, n_neg);			
+			neg_ent += nstat.entropy(i, n_neg);
 			tot_ent += tstat.entropy(i, n_tot);
 		}
 		// Gain?
@@ -40,7 +40,7 @@ public class ModifiedGainHeuristic extends ClusHeuristicImpl {
 		if (gain < MathUtil.C1E_6) return Double.NEGATIVE_INFINITY;
 		return gain;
 	}
-		
+
 	public String getName() {
 		return "Gain modified for semi-supervised learning";
 	}

@@ -30,7 +30,7 @@ import clus.main.*;
 import clus.statistic.*;
 
 public class COPKMeansModel extends ClusNode {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int m_K, m_Iterations, m_CSets, m_AvgIter;
@@ -41,11 +41,11 @@ public class COPKMeansModel extends ClusNode {
 	public void setK(int k) {
 		m_K = k;
 	}
-	
+
 	public int getModelSize() {
 		return m_K;
 	}
-		
+
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 		if (m_Illegal) {
 			return null;
@@ -62,7 +62,7 @@ public class COPKMeansModel extends ClusNode {
 			return m_Clusters[best_cl].getCenter();
 		}
 	}
-	
+
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 		wrt.println("COPKMeans("+m_K+", iter = "+m_Iterations+", max = "+m_AvgIter+", csets = "+m_CSets+")");
 		if (m_Illegal) {
@@ -73,7 +73,7 @@ public class COPKMeansModel extends ClusNode {
 			}
 		}
 	}
-	
+
 	public String getModelInfo() {
 		if (m_Illegal) {
 			return "Rand Index = ?";
@@ -81,25 +81,25 @@ public class COPKMeansModel extends ClusNode {
 			return "Rand Index = "+m_RandIndex;
 		}
 	}
-	
+
 	public void setCSets(int sets) {
 		m_CSets = sets;
 	}
-	
+
 	public int getCSets() {
 		return m_CSets;
 	}
-	
+
 	public void setAvgIter(int avg) {
 		m_AvgIter = avg;
 	}
-	
+
 	public void setIllegal(boolean illegal) {
 		m_Illegal = illegal;
 	}
-	
+
 	public void setRandIndex(double value) {
-		m_RandIndex = value;		
+		m_RandIndex = value;
 	}
 
 	public void setClusters(COPKMeansCluster[] clusters) {
@@ -113,7 +113,7 @@ public class COPKMeansModel extends ClusNode {
 	public int getIterations() {
 		return m_Iterations;
 	}
-	
+
 	public boolean isIllegal() {
 		return m_Illegal;
 	}

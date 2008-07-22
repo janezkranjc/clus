@@ -29,16 +29,16 @@ import clus.main.*;
 import clus.data.type.*;
 
 public class DataTuple implements Serializable {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected ClusSchema m_Schema;
-	
+
 	// Attributes can have several base types
 	public int[] m_Ints; // nominal attributes
 	public double[] m_Doubles;
 	public Object[] m_Objects;
-		
+
 	// Each example can have a weight
 	public double m_Weight;
 	public int m_Index;
@@ -52,20 +52,20 @@ public class DataTuple implements Serializable {
 	public DataTuple(ClusSchema schema) {
 		// Initialize arrays for three base types
 		int nb_int = schema.getNbInts();
-		if (nb_int > 0) m_Ints = new int[nb_int];		
+		if (nb_int > 0) m_Ints = new int[nb_int];
 		int nb_double = schema.getNbDoubles();
-		if (nb_double > 0) m_Doubles = new double[nb_double];		
+		if (nb_double > 0) m_Doubles = new double[nb_double];
 		int nb_obj = schema.getNbObjects();
 		if (nb_obj > 0) m_Objects = new Object[nb_obj];
 		// Initialize weight
 		m_Weight = 1.0;
 		m_Schema = schema;
 	}
-	
+
 	public final ClusSchema getSchema() {
 		return m_Schema;
 	}
-	
+
 	public final DataTuple cloneTuple() {
 		DataTuple res = new DataTuple();
 		res.m_Ints = m_Ints;
@@ -77,8 +77,8 @@ public class DataTuple implements Serializable {
 		res.m_Schema = m_Schema;
 		return res;
 	}
-	
-	
+
+
 	public double euclDistance(DataTuple other)
 	{
 		double result = 0;
@@ -109,68 +109,68 @@ public class DataTuple implements Serializable {
 		res.m_Folds = m_Folds;
 		res.m_Schema = m_Schema;
 		return res;
-	}	
-	
+	}
+
 	public final DataTuple changeWeight(double weight) {
 		DataTuple res = cloneTuple();
 		res.m_Weight = weight;
 		return res;
 	}
-	
+
 	public final DataTuple multiplyWeight(double weight) {
-		DataTuple res = cloneTuple();		
+		DataTuple res = cloneTuple();
 		res.m_Weight = m_Weight * weight;
 		return res;
-	}		
-	
+	}
+
 	public final int getClassification() { // should not be used
 		return -1;
 	}
-	
+
 	public final boolean hasNumMissing(int idx) {
 		return m_Doubles[idx] == Double.POSITIVE_INFINITY;
 	}
-	
+
 	public final double getDoubleVal(int idx) {
 		return m_Doubles[idx];
-	}	
-	
+	}
+
 	public final int getIntVal(int idx) {
 		return m_Ints[idx];
-	}		
-	
+	}
+
 	public final Object getObjVal(int idx) {
 		return m_Objects[idx];
-	}			
-	
+	}
+
 	public final void setIntVal(int value, int idx) {
 		m_Ints[idx] = value;
 	}
-	
+
 	public final void setDoubleVal(double value, int idx) {
-		m_Doubles[idx] = value;	
+		m_Doubles[idx] = value;
 	}
-	
+
 	public final void setObjectVal(Object value, int idx) {
-		m_Objects[idx] = value;	
-	}	
-	
+		m_Objects[idx] = value;
+	}
+
 	public final void setIndex(int idx) {
 		m_Index = idx;
 	}
-	
+
 	public final int getIndex() {
 		return m_Index;
 	}
-	
+
 	public final double getWeight() {
 		return m_Weight;
-	}	
+	}
 
 	public final void setWeight(double weight) {
 		m_Weight = weight;
 	}
-	
+
 	public String toString() {
 		int aidx = 0;
 		StringBuffer buf = new StringBuffer();
@@ -183,13 +183,13 @@ public class DataTuple implements Serializable {
 					buf.append(type.getString(this));
 					aidx++;
 				}
-			}		
+			}
 		} else {
 			for (int i = 0; i < m_Objects.length; i++) {
 				if (i != 0) buf.append(",");
-				buf.append(m_Objects[i].toString());				
-			}		
+				buf.append(m_Objects[i].toString());
+			}
 		}
-		return buf.toString();		
+		return buf.toString();
 	}
 }

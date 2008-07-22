@@ -54,15 +54,15 @@ public class ClusOutput {
 		m_Fname = fname;
 		m_Writer = sett.getFileAbsoluteWriter(fname);
 	}
-	
+
 	public ClusOutput(ClusSchema schema, Settings sett) throws IOException {
 		m_Schema = schema;
 		m_Sett = sett;
-		m_Sett2 = sett;		
+		m_Sett2 = sett;
 		m_StrWrt = new StringWriter();
 		m_Writer = new PrintWriter(m_StrWrt);
 	}
-	
+
 	public void print(String str) {
 		m_Writer.print(str);
 	}
@@ -70,11 +70,11 @@ public class ClusOutput {
 	public String getString() {
 		return m_StrWrt.toString();
 	}
-	
+
 	public Settings getSettings() {
 		return m_Sett;
 	}
-	
+
 	public void writeHeader() throws IOException {
 		String relname = m_Schema.getRelationName();
 		m_Writer.println("Clus run "+relname);
@@ -95,7 +95,7 @@ public class ClusOutput {
 		m_Sett.show(m_Writer);
 		m_Writer.flush();
 	}
-	
+
 	public void writeBrief(ClusRun cr) throws IOException {
 		String ridx = cr.getIndexString();
 		m_Writer.println("Run: "+ridx);
@@ -105,15 +105,15 @@ public class ClusOutput {
 		}
 		ClusErrorList tr_err = cr.getTrainError();
 		if (m_Sett.isOutTrainError() && tr_err != null) {
-			tr_err.showErrorBrief(cr, ClusModelInfo.TRAIN_ERR, m_Writer);			
+			tr_err.showErrorBrief(cr, ClusModelInfo.TRAIN_ERR, m_Writer);
 		}
 		m_Writer.println();
 	}
-	
+
 	public void writeOutput(ClusRun cr, boolean detail) throws IOException, ClusException {
 		writeOutput(cr, detail, false);
 	}
-	
+
 	public boolean shouldShowModel(int model) {
 		Settings sett = getSettings();
 		boolean others = sett.getShowModel(Settings.SHOW_MODELS_OTHERS);
@@ -145,18 +145,18 @@ public class ClusOutput {
 					root = root.prune(ClusModel.PRUNE_INVALID);
 				}
 			}
-			models.add(root);			
+			models.add(root);
 		}
 		// Compute statistics
 	    String cpu = ResourceInfo.isLibLoaded() ? " (CPU)" : "";
 		m_Writer.println("Induction Time: "+ClusFormat.FOUR_AFTER_DOT.format(tsec)+" sec"+cpu);
-		m_Writer.println("Pruning Time: "+ClusFormat.FOUR_AFTER_DOT.format(tpru)+" sec"+cpu);		
+		m_Writer.println("Pruning Time: "+ClusFormat.FOUR_AFTER_DOT.format(tpru)+" sec"+cpu);
 		m_Writer.println("Model information");
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			ClusModelInfo mi = cr.getModelInfo(i);
 			m_Writer.print("     "+mi.getName()+": ");
 			ClusModel model = (ClusModel)models.get(i);
-			String info_str = model == null ? "No model available" : model.getModelInfo();			
+			String info_str = model == null ? "No model available" : model.getModelInfo();
 			String[] info = info_str.split("\\s*\\,\\s*");
 			for (int j = 0; j < info.length; j++) {
 				if (j > 0) m_Writer.print(StringUtils.makeString(' ', mi.getName().length()+7));
@@ -186,17 +186,17 @@ public class ClusOutput {
 				m_Writer.println();
 				va_err.showError(cr, ClusModelInfo.VALID_ERR, m_Writer);
 				m_Writer.println();
-			}			
+			}
 			if (te_err != null) {
 				m_Writer.println("Testing error");
 				m_Writer.println("-------------");
 				m_Writer.println();
 				te_err.showError(cr, ClusModelInfo.TEST_ERR, m_Writer);
-				m_Writer.println();				
+				m_Writer.println();
 			}
 		}
 		StatisticPrintInfo info = m_Sett.getStatisticPrintInfo();
-		
+
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			if (shouldShowModel(i)) {
 				ClusModelInfo mi = cr.getModelInfo(i);
@@ -220,7 +220,7 @@ public class ClusOutput {
 							root.printModelToPythonScript(m_Writer);//root is a forest
 						}
 						else {
-							// use following lines for getting tree as Python function 
+							// use following lines for getting tree as Python function
 							m_Writer.print("def clus_tree( ");
 							ClusAttrType[] cat = ClusSchema.vectorToAttrArray(m_Schema.collectAttributes(ClusAttrType.ATTR_USE_DESCRIPTIVE, ClusAttrType.THIS_TYPE));
 							for (int ii=0;ii<cat.length-1;ii++){
@@ -231,8 +231,8 @@ public class ClusOutput {
 							m_Writer.println();
 						}
 					}
-					
-				}//end if (root != null)				
+
+				}//end if (root != null)
 			}//end if (shouldShowModel(i))
 		}// end for
 		if (getSettings().isOutputDatabaseQueries()) {
@@ -243,11 +243,11 @@ public class ClusOutput {
 			String out_database_name =  m_Sett2.getAppName()+".txt";
 			PrintWriter database_writer = m_Sett2.getFileAbsoluteWriter(out_database_name);
 			root.printModelToQuery(database_writer,cr,starttree,startitem,getSettings().isExhaustiveSearch());
-			
+
 			database_writer.close();
 			System.out.println("The queries are in "+out_database_name);
 		}
-		
+
 		m_Writer.flush();
 	}
 
@@ -267,12 +267,12 @@ public class ClusOutput {
 		double psec = (double)summary.getPrepareTime()/1000.0;
 		m_Writer.println("Preprocessing time: "+ClusFormat.ONE_AFTER_DOT.format(psec)+" sec");
 		m_Writer.println("Mean number of tests");
-		
+
 		//Currently implemented ensemble methods don't have pruned models
 		int end_model;
 		if (!Settings.m_EnsembleMode)end_model = ClusModel.PRUNED;
 		else end_model = ClusModel.ORIGINAL;
-		
+
 //		for (int i = ClusModels.ORIGINAL; i <= ClusModels.PRUNED; i++) {
 		for (int i = ClusModel.ORIGINAL; i <= end_model; i++) {
 			ClusModelInfo mi = summary.getModelInfo(i);
@@ -294,7 +294,7 @@ public class ClusOutput {
 			m_Writer.println();
 			va_err.showError(summary, ClusModelInfo.VALID_ERR, m_Writer);
 			m_Writer.println();
-		}		
+		}
 		ClusErrorList te_err = summary.getTestError();
 		if (te_err != null) {
 			m_Writer.println("Testing error");
@@ -327,8 +327,8 @@ public class ClusOutput {
 		System.out.println("conditions. Type 'clus -copying' for distribution details.");
 		System.out.println();
 	}
-	
-	public static void showHelp() {	    
+
+	public static void showHelp() {
 		System.out.println("Usage: clus appname");
 		System.out.println("Database: appname.arff");
 		System.out.println("Settings: appname.s");
@@ -337,8 +337,8 @@ public class ClusOutput {
 		System.out.println("More information on:");
 		System.out.println("http://www.cs.kuleuven.be/~dtai/clus");
 	}
-	
+
 	public static void printGPL() {
 		System.out.println("This function will display the content of 'LICENSE.TXT'.");
-	}	
+	}
 }
