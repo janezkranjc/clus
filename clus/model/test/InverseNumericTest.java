@@ -71,7 +71,7 @@ public class InverseNumericTest extends NumericTest {
 	}	
 	
 	public int predictWeighted(DataTuple tuple) {
-		double val = tuple.m_Doubles[m_Type.getArrayIndex()];
+		double val = m_Type.getNumeric(tuple);
 		return numericPredictWeighted(val);
 	}
 	

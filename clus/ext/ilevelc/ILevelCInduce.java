@@ -153,9 +153,9 @@ public class ILevelCInduce extends DepthFirstInduce {
 		// System.out.println("Trying: "+at.getName());
 		int idx = at.getArrayIndex();
 	    if (at.isSparse()) {
-	      data.sortSparse(idx);
+	      data.sortSparse(at);
 	    } else {
-	      data.sort(idx);
+	      data.sort(at);
 	    }
 	    int nb_rows = data.getNbRows();
 	    if (at.hasMissing()) {

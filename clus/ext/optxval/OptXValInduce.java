@@ -118,7 +118,7 @@ if (Debug.debug == 1) {
 		ClusStat.deltaSplit();
 }
 
-		data.sort(idx);
+		data.sort(at);
 if (Debug.debug == 1) {
 		ClusStat.deltaSort();
 }

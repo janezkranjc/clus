@@ -90,9 +90,9 @@ public class FindBestTestRules extends FindBestTest {
 		DataTuple tuple;
 		int idx = at.getArrayIndex();
 		if (at.isSparse()) {
-			data.sortSparse(idx);
+			data.sortSparse(at);
 		} else {
-			data.sort(idx);
+			data.sort(at);
 		}
 		m_BestTest.reset(2);    
 		// Missing values

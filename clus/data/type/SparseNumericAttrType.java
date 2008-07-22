@@ -36,6 +36,10 @@ public class SparseNumericAttrType extends NumericAttrType {
 		return ((SparseDataTuple)tuple).getDoubleValueSparse(getIndex());
 	}
 	
+	public boolean isMissing(DataTuple tuple) {
+		return ((SparseDataTuple)tuple).getDoubleValueSparse(getIndex()) == MISSING;
+	}
+	
 	public void setNumeric(DataTuple tuple, double value) {
 		((SparseDataTuple)tuple).setDoubleValueSparse(value, getIndex());
 	}	

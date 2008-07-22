@@ -98,17 +98,12 @@ public class FindBestTest {
 		m_Split.findRandomSplit(m_BestTest, at, rn);
 	}
 
-	public void findNumeric(NumericAttrType at, RowData data) {
-		findNumeric(at, data, false);
-	}
-	
-	public void findNumeric(NumericAttrType at, RowData data, boolean invSplits) { 
+	public void findNumeric(NumericAttrType at, RowData data) { 
 		DataTuple tuple;
-		int idx = at.getArrayIndex();
 		if (at.isSparse()) {
-			data.sortSparse(idx);
+			data.sortSparse(at);
 		} else {
-			data.sort(idx);
+			data.sort(at);
 		}
 		m_BestTest.reset(2);    
 		// Missing values
@@ -118,7 +113,7 @@ public class FindBestTest {
 		m_BestTest.copyTotal();
 		if (at.hasMissing()) {
 			// Because of sorting, all missing values are in the front :-)
-			while (first < nb_rows && (tuple = data.getTuple(first)).hasNumMissing(idx)) {
+			while (first < nb_rows && at.isMissing(tuple = data.getTuple(first))) {
 				m_BestTest.m_MissingStat.updateWeighted(tuple, first);
 				first++;
 			}
@@ -127,7 +122,7 @@ public class FindBestTest {
 		double prev = Double.NaN;
 		for (int i = first; i < nb_rows; i++) {
 			tuple = data.getTuple(i);
-			double value = tuple.getDoubleVal(idx);
+			double value = at.getNumeric(tuple);
 			if (value != prev) {
 				if (value != Double.NaN) {
 					// System.err.println("Value (>): " + value);
@@ -137,23 +132,6 @@ public class FindBestTest {
 			}       
 			m_BestTest.m_PosStat.updateWeighted(tuple, i);
 		}
-		// For, e.g., rules check inverse splits also
-		if (invSplits) {
-			m_BestTest.reset();
-			DataTuple next_tuple = data.getTuple(nb_rows-1);
-			double next = next_tuple.getDoubleVal(idx);
-			for (int i = nb_rows-1; i > first; i--) {
-				tuple = next_tuple;
-				next_tuple = data.getTuple(i-1);
-				double value = next;
-				next = next_tuple.getDoubleVal(idx);
-				m_BestTest.m_PosStat.updateWeighted(tuple, i);
-				if ((value != next) && (value != Double.NaN)) {
-					// System.err.println("Value (<=): " + value);
-					m_BestTest.updateInverseNumeric(value, at);
-				}
-			}
-		}
 	}
 
 	public void findNumericRandom(NumericAttrType at, RowData data, RowData orig_data, Random rn) { 
@@ -161,9 +139,9 @@ public class FindBestTest {
 		int idx = at.getArrayIndex();
 		// Sort values from large to small
 		if (at.isSparse()) {
-			data.sortSparse(idx);
+			data.sortSparse(at);
 		} else {
-			data.sort(idx);
+			data.sort(at);
 		}
 		m_BestTest.reset(2);    
 		// Missing values
@@ -182,9 +160,9 @@ public class FindBestTest {
 		// Do the same for original data, except updating the statistics:
 		// Sort values from large to small
 		if (at.isSparse()) {
-			orig_data.sortSparse(idx);
+			orig_data.sortSparse(at);
 		} else {
-			orig_data.sort(idx);
+			orig_data.sort(at);
 		}
 		// Missing values
 		int orig_first = 0;        

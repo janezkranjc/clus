@@ -23,6 +23,7 @@
 package clus.data.rows;
 
 import jeans.util.sort.*;
+import jeans.util.compound.*;
 
 import java.util.*;
 import java.io.*;
@@ -184,20 +185,19 @@ public class RowData extends ClusData implements MSortable {
 		m_Schema = schema;		
 	}	
 	
-	public void sortSparse(int idx) {
-		m_Index = idx;	
+	public void sortSparse(NumericAttrType at) {
 		int nbmiss = 0, nbzero = 0, nbother = 0;
 		DataTuple[] missing = new DataTuple[m_NbRows];
 		DataTuple[] zero = new DataTuple[m_NbRows];
-		DataTuple[] other = new DataTuple[m_NbRows];
+		DoubleObject[] other = new DoubleObject[m_NbRows];
 		for (int i = 0; i < m_NbRows; i++) {
-			double data = m_Data[i].getDoubleVal(idx);
+			double data = at.getNumeric(m_Data[i]);
 			if (data == 0.0) {
 				zero[nbzero++] = m_Data[i];
 			} else if (data == NumericAttrType.MISSING) {
 				missing[nbmiss++] = m_Data[i];
 			} else {
-				other[nbother++] = m_Data[i];
+				other[nbother++] = new DoubleObject(data, m_Data[i]);
 			}			
 		}
 		MSorter.quickSort(new MySortableArray(other), 0, nbother);
@@ -206,15 +206,15 @@ public class RowData extends ClusData implements MSortable {
 			m_Data[pos++] = missing[i];
 		}
 		for (int i = 0; i < nbother; i++) {
-			m_Data[pos++] = other[i];
+			m_Data[pos++] = (DataTuple)other[i].getObject();
 		}
 		for (int i = 0; i < nbzero; i++) {
 			m_Data[pos++] = zero[i];
 		}		
 	}
 	
-	public void sort(int idx) {
-		m_Index = idx;
+	public void sort(NumericAttrType at) {
+		m_Index = at.getArrayIndex();
 		MSorter.quickSort(this, 0, m_NbRows);
 	}
 	
@@ -626,18 +626,18 @@ public class RowData extends ClusData implements MSortable {
 	
 	public class MySortableArray implements MSortable {
 		
-		DataTuple[] tuples;
+		DoubleObject[] tuples;
 		
-		public MySortableArray(DataTuple[] data) {
+		public MySortableArray(DoubleObject[] data) {
 			tuples = data;
 		}
 		
 		public double getDouble(int i) {
-			return tuples[i].getDoubleVal(m_Index);		
+			return tuples[i].getValue();		
 		}
 		
 		public void swap(int i, int j) {
-			DataTuple obj_i = tuples[i];
+			DoubleObject obj_i = tuples[i];
 			tuples[i] = tuples[j];
 			tuples[j] = obj_i;
 		}
