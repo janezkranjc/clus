@@ -22,7 +22,6 @@
 
 package clus.heuristic;
 
-import jeans.math.MathUtil;
 import clus.main.*;
 import clus.statistic.*;
 import clus.data.attweights.*;
@@ -46,15 +45,11 @@ public class SSReductionHeuristic extends ClusHeuristic {
 		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
 			return Double.NEGATIVE_INFINITY;
 		}
-/*
+		/*
 		if(pstat.m_nbEx <= 2 || (tstat.m_nbEx - pstat.m_nbEx) <= 2){
 			return Double.NEGATIVE_INFINITY;
 		}
 		*/
-		// Compute SS
-
-		
-		
 		// Compute SS
 		double ss_tot = tstat.getSS(m_TargetWeights);
 		double ss_pos = pstat.getSS(m_TargetWeights);

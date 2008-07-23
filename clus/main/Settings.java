@@ -472,6 +472,7 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_ShowModels;
 	protected INIFileBool m_PrintModelAndExamples;
 	protected INIFileNominal m_WritePredictions;
+	protected INIFileBool m_WriteErrorFile;
 	protected INIFileBool m_ModelIDFiles;
 	protected INIFileBool m_OutputPythonModel;
 	protected INIFileBool m_OutputDatabaseQueries;
@@ -506,6 +507,10 @@ public class Settings implements Serializable {
 
 	public boolean isWriteTrainSetPredictions() {
 		return m_WritePredictions.contains(WRITE_PRED_TRAIN);
+	}
+	
+	public boolean isWriteErrorFile() {
+		return m_WriteErrorFile.getValue();
 	}
 
 	public boolean isWriteModelIDPredictions() {
@@ -1356,6 +1361,7 @@ public class Settings implements Serializable {
 		output.addNode(m_OutTrainErr = new INIFileBool("TrainErrors", true));
 		output.addNode(m_OutFoldModels = new INIFileBool("AllFoldModels", true));
 		output.addNode(m_OutFoldErr = new INIFileBool("AllFoldErrors", false));
+		output.addNode(m_WriteErrorFile = new INIFileBool("WriteErrorFile", false));
 		output.addNode(m_ShowUnknown = new INIFileBool("UnknownFrequency", false));
 		output.addNode(m_ShowBrFreq = new INIFileBool("BranchFrequency", false));
 		output.addNode(m_ShowInfo = new INIFileNominal("ShowInfo", SHOW_INFO, SHOW_INFO_VALUES));

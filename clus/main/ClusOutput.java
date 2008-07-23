@@ -37,6 +37,7 @@ import clus.data.type.*;
 import clus.error.*;
 import clus.ext.ensembles.ClusEnsembleInduce;
 import clus.data.rows.*;
+import clus.Clus;
 
 public class ClusOutput {
 
@@ -316,7 +317,7 @@ public class ClusOutput {
 	}
 
 	public static void printHeader() {
-		System.out.println("Clus v2.2 - Software for Predictive Clustering");
+		System.out.println("Clus v"+Clus.VERSION+" - Software for Predictive Clustering");
 		System.out.println();
 		System.out.println("Copyright (C) 2007");
 		System.out.println("   Katholieke Universiteit Leuven, Leuven, Belgium");

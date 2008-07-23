@@ -22,7 +22,6 @@
 
 package clus.heuristic;
 
-import jeans.math.MathUtil;
 import clus.main.*;
 import clus.statistic.*;
 import clus.data.attweights.*;

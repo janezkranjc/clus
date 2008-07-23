@@ -74,6 +74,8 @@ import clus.algo.rules.*;
 public class Clus implements CMDLineArgsProvider {
 
 	public final static boolean m_UseHier = true;
+	
+	public final static String VERSION = "2.3";
 
 	//exhaustive was added the 1/08/2006
 	public final static String[] OPTION_ARGS = {"exhaustive", "xval", "oxval", "target",
@@ -494,11 +496,11 @@ public class Clus implements CMDLineArgsProvider {
 			if (m_Sett.isWriteTestSetPredictions()) {
 				String tname = FileUtil.getName(test_fname);
 				ClusModelInfo allmi = cr.getAllModelsMI();
-				allmi.addModelProcessor(ClusModelInfo.TEST_ERR, new PredictionWriter(tname + ".pred", m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
+				allmi.addModelProcessor(ClusModelInfo.TEST_ERR, new PredictionWriter(tname + ".pred.arff", m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
 			}
 		}
 		if (m_Sett.isWriteTrainSetPredictions()) {
-			String tr_name = m_Sett.getAppName() + ".train." + idx + ".pred";
+			String tr_name = m_Sett.getAppName() + ".train." + idx + ".pred.arff";
 			ClusModelInfo allmi = cr.getAllModelsMI();
 			allmi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new PredictionWriter(tr_name, m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
 		}
@@ -921,13 +923,15 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
-	public final ClusRun doOneFold(int fold, ClusInductionAlgorithmType clss, XValMainSelection sel, ClusModelCollectionIO io, PredictionWriter wrt, ClusOutput output,ClusErrorOutput errOutput) throws IOException, ClusException {
-		wrt.println("! Fold = " + fold);
+	public final ClusRun doOneFold(int fold, ClusInductionAlgorithmType clss, XValMainSelection sel, ClusModelCollectionIO io, PredictionWriter wrt, ClusOutput output, ClusErrorOutput errOutput) throws IOException, ClusException {
 		XValSelection msel = new XValSelection(sel, fold);
 		ClusRun cr = partitionData(msel, fold + 1);
 		// Create statistic for the training set
 		getStatManager().computeTrainSetStat((RowData)cr.getTrainingSet());
-		cr.getAllModelsMI().addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
+		if (wrt != null) {
+			wrt.println("! Fold = " + fold);
+			cr.getAllModelsMI().addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
+		}		
 		// ARFFFile.writeCN2Data("test-"+i+".exs", cr.getTestSet());
 		// ARFFFile.writeCN2Data("train-"+i+".exs", (RowData)cr.getTrainingSet());
 		// Induce tree
@@ -937,7 +941,10 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		// Calc error
 		calcError(cr, m_Summary);
-		errOutput.writeOutput(cr, false, false, getStatManager().getClusteringWeights().m_Weights);
+		if (errOutput != null) {
+			// Write errors to ARFF file
+			errOutput.writeOutput(cr, false, false, getStatManager().getClusteringWeights().m_Weights);
+		}
 		if (m_Sett.isOutputFoldModels()) {
 			// Write output to file and also store in .model file
 			output.writeOutput(cr, false);
@@ -955,21 +962,29 @@ public class Clus implements CMDLineArgsProvider {
 
 
 	public final void xvalRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
+		ClusErrorOutput errFileOutput = null;
+		if (getSettings().isWriteErrorFile()) {
+			errFileOutput = new ClusErrorOutput(m_Sett.getAppName() + ".err", m_Schema,m_Sett);
+			errFileOutput.writeHeader();
+		}		
+		PredictionWriter testPredWriter = null;
+		if (getSettings().isWriteTestSetPredictions()) {
+			ClusStatistic target = getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
+			testPredWriter = new PredictionWriter(m_Sett.getAppName() + ".test.pred.arff", m_Sett, target);
+			testPredWriter.globalInitialize(m_Schema);
+		}
+		/* Perform cross-validation */
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".xval", m_Schema, m_Sett);
 		output.writeHeader();
-		ClusErrorOutput errOutput = new ClusErrorOutput(m_Sett.getAppName() + ".err", m_Schema,m_Sett);
-		errOutput.writeHeader();
-		ClusStatistic target = getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
-		PredictionWriter wrt = new PredictionWriter(m_Sett.getAppName()	+ ".test.pred", m_Sett, target);
-		wrt.globalInitialize(m_Schema);
 		XValMainSelection sel = getXValSelection();
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
 		for (int fold = 0; fold < sel.getNbFolds(); fold++) {
-			doOneFold(fold, clss, sel, io, wrt, output,errOutput);
+			doOneFold(fold, clss, sel, io, testPredWriter, output, errFileOutput);
 		}
-		wrt.close();
 		output.writeSummary(m_Summary);
 		output.close();
+		if (testPredWriter != null) testPredWriter.close();
+		if (errFileOutput != null) errFileOutput.close();
 		/* Cross-validation now includes a single run */
 		ClusRandom.initialize(m_Sett);
 		ClusRun run = singleRunMain(clss, m_Summary);
@@ -983,7 +998,7 @@ public class Clus implements CMDLineArgsProvider {
 		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".bag", m_Schema, m_Sett);
 		output.writeHeader();
 		ClusStatistic target = getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
-		PredictionWriter wrt = new PredictionWriter(m_Sett.getAppName()	+ ".test.pred", m_Sett, target);
+		PredictionWriter wrt = new PredictionWriter(m_Sett.getAppName()	+ ".test.pred.arff", m_Sett, target);
 		wrt.globalInitialize(m_Schema);
 		int nbsets = m_Sett.getBaggingSets();
 		int nbrows = m_Data.getNbRows();

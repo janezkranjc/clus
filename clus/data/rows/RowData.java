@@ -196,8 +196,11 @@ public class RowData extends ClusData implements MSortable {
 				zero[nbzero++] = m_Data[i];
 			} else if (data == NumericAttrType.MISSING) {
 				missing[nbmiss++] = m_Data[i];
-			} else {
+			} else if (data > 0.0) {
 				other[nbother++] = new DoubleObject(data, m_Data[i]);
+			} else {
+				System.err.println("Sparse attribute has negative value!");
+				System.exit(-1);
 			}
 		}
 		MSorter.quickSort(new MySortableArray(other), 0, nbother);
