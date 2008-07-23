@@ -40,6 +40,9 @@ import clus.statistic.RegressionStat;
 public class MSError extends ClusNumericError {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
+	
+	protected int[]	   m_nbEx;
 
 	protected double[] m_SumErr;
 	protected double[] m_SumSqErr;
@@ -56,6 +59,7 @@ public class MSError extends ClusNumericError {
 
 	public MSError(ClusErrorList par, NumericAttrType[] num, ClusAttributeWeights weights, boolean printall) {
 		super(par, num);
+		m_nbEx = new int[m_Dim];
 		m_SumErr = new double[m_Dim];
 		m_SumSqErr = new double[m_Dim];
 		m_Weights = weights;
@@ -74,11 +78,12 @@ public class MSError extends ClusNumericError {
 	}
 
 	public double getModelErrorComponent(int i) {
+		
+		//int nb = getNbExamples();
+		int nb = m_nbEx[i];
 
-		int nb = getNbExamples();
 		//System.out.println(m_SumErr[i]);
 		double err = nb != 0.0 ? m_SumErr[i]/nb : 0.0;
-		System.out.println(err);
 		if (m_Weights != null) err *= m_Weights.getWeight(getAttr(i));
 
 		return err;
@@ -86,17 +91,20 @@ public class MSError extends ClusNumericError {
 
 	public double getModelError() {
 		double ss_tree = 0.0;
-		int nb = getNbExamples();
+		int nb = 0;
+		for(int i=0;i<m_Dim;i++){
+			nb+= m_nbEx[i];
+		}
 		if (m_Weights != null) {
 			for (int i = 0; i < m_Dim; i++) {
 				ss_tree += m_SumErr[i]*m_Weights.getWeight(getAttr(i));
 			}
-			return nb != 0.0 ? ss_tree/nb/m_Dim : 0.0;
+			return nb != 0.0 ? ss_tree/nb : 0.0;
 		} else {
 			for (int i = 0; i < m_Dim; i++) {
 				ss_tree += m_SumErr[i];
 			}
-			return nb != 0.0 ? ss_tree/nb/m_Dim : 0.0;
+			return nb != 0.0 ? ss_tree/nb : 0.0;
 		}
 	}
 
@@ -112,7 +120,12 @@ public class MSError extends ClusNumericError {
 				sum_sq_err += m_SumSqErr[i]*sqr(m_Weights.getWeight(getAttr(i)));
 			}
 		}
-		double n = getNbExamples() * m_Dim;
+		//double n = getNbExamples() * m_Dim;
+		double n = 0;
+		for(int i=0;i<m_Dim;i++){
+			n+= m_nbEx[i];
+		}
+		
 		if (n <= 1) {
 			return Double.POSITIVE_INFINITY;
 		} else {
@@ -128,18 +141,25 @@ public class MSError extends ClusNumericError {
 	public void addExample(double[] real, double[] predicted) {
 		for (int i = 0; i < m_Dim; i++) {
 			double err = sqr(real[i] - predicted[i]);
-			m_SumErr[i] += err;
-			m_SumSqErr[i] += sqr(err);
+			System.out.println(err);
+			if(!Double.isInfinite(err) && !Double.isNaN(err)){
+				m_SumErr[i] += err;
+				m_SumSqErr[i] += sqr(err);
+				m_nbEx[i]++;
+			}
 		}
 	}
 
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		double[] predicted = pred.getNumericPred();
 		for (int i = 0; i < m_Dim; i++) {
-			double err = sqr(getAttr(i).getNumeric(tuple) - predicted[i]);
-			m_SumErr[i] += err;
-			m_SumSqErr[i] += sqr(err);
-		}
+			double err = sqr(getAttr(i).getNumeric(tuple) - predicted[i]);			
+			if(!Double.isInfinite(err) && !Double.isNaN(err)){
+				m_SumErr[i] += err;
+				m_SumSqErr[i] += sqr(err);
+				m_nbEx[i]++;
+			}
+		}		
 	}
 
 	public void addExample(DataTuple real, DataTuple pred) {
@@ -147,15 +167,13 @@ public class MSError extends ClusNumericError {
 				double real_i = getAttr(i).getNumeric(real);
 				double predicted_i = getAttr(i).getNumeric(pred);
 				double err = sqr(real_i - predicted_i);
-				m_SumErr[i] += err;
-				m_SumSqErr[i] += sqr(err);
-
-
-
-
-		}
-	}
-
+				if(!Double.isInfinite(err) && !Double.isNaN(err)){
+					m_SumErr[i] += err;
+					m_SumSqErr[i] += sqr(err);
+					m_nbEx[i]++;
+				}
+		}		
+	}	
 	public void addInvalid(DataTuple tuple) {
 	}
 

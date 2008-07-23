@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
+import clus.error.MSError;
 import clus.main.Settings;
 
 public class ErrorOutput {
@@ -49,5 +50,23 @@ public class ErrorOutput {
 		m_Writer.println(m_Sett.getDataFile()+","+run+","+fold+","+learner+","+search+","+mt+","+error+","+sts+","+dif/1000.0);
 		m_Writer.flush();
 	}
+
+	
+	public void addFoldAllErrors(int run,int fold, String learner,String search,String mt, MSError error,String sts, Long dif){
+		m_Writer.print(m_Sett.getDataFile()+","+run+","+fold+","+learner+","+search+","+mt+",");
+		
+		for(int i = 0;i<error.getDimension();i++){
+			//m_Writer.print(error.getModelErrorComponent(i)+",");
+			
+		//	m_Writer.println("@attribute Target"+i+" numeric");
+		}
+		
+		m_Writer.print(error.getModelError()+",");
+		
+		m_Writer.print(sts+","+dif/1000.0);
+		m_Writer.println();
+		m_Writer.flush();
+	}
+	
 
 }

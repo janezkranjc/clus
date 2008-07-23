@@ -28,48 +28,49 @@ import clus.statistic.*;
 import clus.data.attweights.*;
 import clus.data.type.*;
 
-public class SSReductionHeuristic extends ClusHeuristic {
-
+public class SSReductionHeuristicMissing extends ClusHeuristic {
+	
 	private ClusAttributeWeights m_TargetWeights;
 	private ClusAttrType[] m_Attrs;
-
-	public SSReductionHeuristic(ClusAttributeWeights prod, ClusAttrType[] attrs) {
+	protected ClusStatistic m_Pos, m_Neg, m_Tot;
+	
+	public SSReductionHeuristicMissing(ClusAttributeWeights prod, ClusAttrType[] attrs, ClusStatistic stat) {
 		m_TargetWeights = prod;
 		m_Attrs = attrs;
+		m_Pos = stat.cloneStat();
+		m_Neg = stat.cloneStat();
+		m_Tot = stat.cloneStat();		
 	}
-
+	
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
 		double n_tot = tstat.m_SumWeight;
-		double n_pos = pstat.m_SumWeight;
+		double n_pos = pstat.m_SumWeight; 
 		double n_neg = n_tot - n_pos;
-		// Acceptable?
+		// Acceptable?		
 		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
 			return Double.NEGATIVE_INFINITY;
 		}
-/*
+		/*
 		if(pstat.m_nbEx <= 2 || (tstat.m_nbEx - pstat.m_nbEx) <= 2){
 			return Double.NEGATIVE_INFINITY;
 		}
 		*/
-		// Compute SS
-
-		
-		
-		// Compute SS
-		double ss_tot = tstat.getSS(m_TargetWeights);
-		double ss_pos = pstat.getSS(m_TargetWeights);
-		double ss_neg = tstat.getSSDiff(m_TargetWeights, pstat);
-		// printInfo(ss_tot, ss_pos, ss_neg, pstat);
-		return FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos, ss_neg);
+		// Compute SS		
+		double pos_freq = n_pos / n_tot;
+		m_Pos.copy(pstat);
+		m_Neg.copy(tstat);
+		m_Tot.copy(tstat);
+		m_Tot.add(missing);
+		m_Neg.subtractFromThis(pstat);
+		m_Pos.addScaled(pos_freq, missing);			
+		m_Neg.addScaled(1.0-pos_freq, missing);
+		double s_ss_pos = m_Pos.getSS(m_TargetWeights);
+		double s_ss_neg = m_Neg.getSS(m_TargetWeights);		
+		double s_ss_tot = m_Tot.getSS(m_TargetWeights);		
+		return FTest.calcSSHeuristic(n_tot, s_ss_tot, s_ss_pos, s_ss_neg);
 	}
-
+	
 	public String getName() {
-		return "SS-Reduction (ftest: "+Settings.FTEST_VALUE+", "+m_TargetWeights.getName(m_Attrs)+")";
-	}
-
-	public void printInfo(double ss_tot, double ss_pos, double ss_neg, ClusStatistic pstat) {
-		pstat.calcMean();
-		System.out.println("C-pos: "+pstat);
-		System.out.println("SS-pos: "+ss_pos+" SS-neg: "+ss_neg+" -> "+(ss_tot-(ss_pos+ss_neg)));
+		return "SS-Reduction Missing Values (ftest: "+Settings.FTEST_VALUE+", "+m_TargetWeights.getName(m_Attrs)+")";
 	}
 }

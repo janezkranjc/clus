@@ -666,12 +666,14 @@ public class Settings implements Serializable {
 
 	public final static String[] HEURISTICS = { "Default", "ReducedError",
 		"Gain", "GainRatio", "SSPD", "SSReduction", "MEstimate", "Morishita", "DispersionAdt", "DispersionMlt",
-		"WRDispersionAdt", "WRDispersionMlt", "GeneticDistance", "SemiSupervised"};
 
-	public final static int HEURISTIC_DEFAULT = 0;
-	public final static int HEURISTIC_REDUCED_ERROR = 1;
-	public final static int HEURISTIC_GAIN = 2;
-	public final static int HEURISTIC_GAIN_RATIO = 3;
+		"WRDispersionAdt", "WRDispersionMlt", "GeneticDistance", "SemiSupervised", "SSReductionMissing"};
+	
+	public final static int HEURISTIC_DEFAULT = 0;	
+	public final static int HEURISTIC_REDUCED_ERROR = 1;	
+	public final static int HEURISTIC_GAIN = 2;	
+	public final static int HEURISTIC_GAIN_RATIO = 3;	
+
 	public final static int HEURISTIC_SSPD = 4;
 	public final static int HEURISTIC_SS_REDUCTION = 5;
 	public final static int HEURISTIC_MESTIMATE = 6;
@@ -682,6 +684,7 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_WR_DISPERSION_MLT = 11;
 	public final static int HEURISTIC_GENETIC_DISTANCE = 12;
 	public final static int HEURISTIC_SEMI_SUPERVISED = 13;
+	public final static int HEURISTIC_SS_REDUCTION_MISSING = 14;	
 
 	public static int FTEST_LEVEL;
 	public static double FTEST_VALUE;

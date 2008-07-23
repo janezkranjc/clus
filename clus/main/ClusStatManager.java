@@ -564,6 +564,10 @@ public class ClusStatManager implements Serializable {
 		/* Set heuristic for trees */
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		if (getSettings().getHeuristic() == Settings.HEURISTIC_SS_REDUCTION_MISSING){
+			m_Heuristic = new SSReductionHeuristicMissing(getClusteringWeights(), m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING),createClusteringStat());
+			return;
+		}
 		if (num.length > 0 && nom.length > 0) {
 			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT &&
 				getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
