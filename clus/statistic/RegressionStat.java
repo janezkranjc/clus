@@ -368,7 +368,14 @@ public class RegressionStat extends ClusStatistic {
 			buf.append(fr.format(m_Means[i]));
 		}
 		buf.append("]");
-		if (info.SHOW_EXAMPLE_COUNT) {
+		if (info.SHOW_EXAMPLE_COUNT_BYTARGET) {
+			buf.append(": [");
+			for (int i = 0; i < m_NbAttrs; i++) {
+				if (i != 0) buf.append(",");
+				buf.append(fr.format(m_SumWeights[i]));
+			}
+			buf.append("]");
+		} else if (info.SHOW_EXAMPLE_COUNT) {
 			buf.append(": ");
 			buf.append(fr.format(m_SumWeight));
 		}

@@ -531,9 +531,10 @@ public class Settings implements Serializable {
 	public StatisticPrintInfo getStatisticPrintInfo() {
 		StatisticPrintInfo info = new StatisticPrintInfo();
 		info.SHOW_EXAMPLE_COUNT = m_ShowInfo.contains(0);
-		info.SHOW_DISTRIBUTION = m_ShowInfo.contains(1);
-		info.SHOW_INDEX = m_ShowInfo.contains(2);
-		info.INTERNAL_DISTR = m_ShowInfo.contains(3);
+		info.SHOW_EXAMPLE_COUNT_BYTARGET = m_ShowInfo.contains(1);		
+		info.SHOW_DISTRIBUTION = m_ShowInfo.contains(2);
+		info.SHOW_INDEX = m_ShowInfo.contains(3);
+		info.INTERNAL_DISTR = m_ShowInfo.contains(4);
 		return info;
 	}
 
@@ -553,7 +554,7 @@ public class Settings implements Serializable {
 	public final static int SHOW_MODELS_PRUNED = 2;
 	public final static int SHOW_MODELS_OTHERS = 3;
 
-	public final static String[] SHOW_INFO = {"Count", "Distribution", "Index", "NodePrototypes"};
+	public final static String[] SHOW_INFO = {"Count", "CountByTarget", "Distribution", "Index", "NodePrototypes"};
 
 	public final static int[] SHOW_INFO_VALUES = {0};
 
