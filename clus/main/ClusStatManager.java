@@ -664,7 +664,7 @@ public class ClusStatManager implements Serializable {
 				parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
 				break;
 			case MODE_ILEVELC:
-				NominalAttrType cls = (NominalAttrType)getSchema().getAttrType(getSchema().getNbAttributes()-1);
+				NominalAttrType cls = (NominalAttrType)getSchema().getLastNonDisabledType();
 				parent.addError(new ILevelCRandIndex(parent, cls));
 				break;
 		}

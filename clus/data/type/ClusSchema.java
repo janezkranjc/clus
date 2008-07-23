@@ -210,6 +210,15 @@ public class ClusSchema implements Serializable {
 		return false;
 	}
 
+	public ClusAttrType getLastNonDisabledType() {
+		int nb = getNbAttributes()-1;
+		while (nb >= 0 && getAttrType(nb).isDisabled()) {
+			nb--;
+		}
+		if (nb >= 0) return getAttrType(nb);
+		else return null;
+	}
+	
 /***********************************************************************
  * Methods for adding attributes to the schema                         *
  ***********************************************************************/
