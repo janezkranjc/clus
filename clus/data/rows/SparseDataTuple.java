@@ -37,12 +37,12 @@ public class SparseDataTuple extends DataTuple {
 		super(schema);
 	}
 
-	public void setDoubleValueSparse(double val, int index) {
-		map.put(new Integer(index), new Double(val));
+	public void setDoubleValueSparse(double val, Integer index) {
+		map.put(index, new Double(val));
 	}
-
-	public double getDoubleValueSparse(int index) {
-		Double value = (Double)map.get(new Integer(index));
+	
+	public double getDoubleValueSparse(Integer index) {
+		Double value = (Double)map.get(index);
 		return value != null ? value.doubleValue() : 0.0;
-	}
+	}	
 }

@@ -11,6 +11,8 @@ import clus.util.ClusException;
 
 public class SparseNumericAttrType extends NumericAttrType {
 
+	protected Integer m_IntIndex;
+	
 	public SparseNumericAttrType(String name) {
 		super(name);
 		setSparse(true);
@@ -27,21 +29,26 @@ public class SparseNumericAttrType extends NumericAttrType {
 		cloneType(at);
 		return at;
 	}
+	
+	public void setIndex(int idx) {
+		m_Index = idx;
+		m_IntIndex = new Integer(idx);
+	}
 
 	public int getValueType() {
 		return VALUE_TYPE_NONE;
 	}
 
 	public double getNumeric(DataTuple tuple) {
-		return ((SparseDataTuple)tuple).getDoubleValueSparse(getIndex());
+		return ((SparseDataTuple)tuple).getDoubleValueSparse(m_IntIndex);
 	}
 
 	public boolean isMissing(DataTuple tuple) {
-		return ((SparseDataTuple)tuple).getDoubleValueSparse(getIndex()) == MISSING;
+		return ((SparseDataTuple)tuple).getDoubleValueSparse(m_IntIndex) == MISSING;
 	}
 
 	public void setNumeric(DataTuple tuple, double value) {
-		((SparseDataTuple)tuple).setDoubleValueSparse(value, getIndex());
+		((SparseDataTuple)tuple).setDoubleValueSparse(value, m_IntIndex);
 	}
 
 	public ClusSerializable createRowSerializable() throws ClusException {
