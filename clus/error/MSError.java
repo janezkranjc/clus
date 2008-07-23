@@ -70,6 +70,7 @@ public class MSError extends ClusNumericError {
 		for (int i = 0; i < m_Dim; i++) {
 			m_SumErr[i] = 0.0;
 			m_SumSqErr[i] = 0.0;
+			m_nbEx[i] = 0;
 		}
 	}
 
@@ -182,6 +183,7 @@ public class MSError extends ClusNumericError {
 		for (int i = 0; i < m_Dim; i++) {
 			m_SumErr[i] += oe.m_SumErr[i];
 			m_SumSqErr[i] += oe.m_SumSqErr[i];
+			m_nbEx[i]+= oe.m_nbEx[i];
 		}
 	}
 
