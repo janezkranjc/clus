@@ -489,7 +489,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		if (writetest) {
 			if (m_Sett.isWriteModelIDPredictions()) {
-				String tname = FileUtil.getName(test_fname);
+				String tname = FileUtil.removePath(FileUtil.getName(test_fname));
 				ClusModelInfo mi = cr.addModelInfo(ClusModel.PRUNED);
 				mi.addModelProcessor(ClusModelInfo.TEST_ERR, new NodeIDWriter(tname + ".id", hasMissing, m_Sett));
 			}
