@@ -246,7 +246,7 @@ public class ClusStatManager implements Serializable {
 	public void initCompactnessWeights() throws ClusException {
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
-		initWeights(m_CompactnessWeights, num, nom, getSettings().getCompactnessWeights());
+		initWeights(m_CompactnessWeights, num, nom, getSettings().getDispersionWeights());
 		if (getSettings().getVerbose() >= 1 && isRuleInduce()) {
 			System.out.println("Compactness:   " + m_CompactnessWeights.getName(m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_ALL)));
 		}
@@ -401,8 +401,8 @@ public class ClusStatManager implements Serializable {
 		if (isRuleInduce()) {
 			return (getSettings().getHeuristic() == Settings.HEURISTIC_DISPERSION_ADT
 					|| getSettings().getHeuristic() == Settings.HEURISTIC_DISPERSION_MLT
-					|| getSettings().getHeuristic() == Settings.HEURISTIC_WR_DISPERSION_ADT || getSettings()
-					.getHeuristic() == Settings.HEURISTIC_WR_DISPERSION_MLT);
+					|| getSettings().getHeuristic() == Settings.HEURISTIC_R_DISPERSION_ADT || getSettings()
+					.getHeuristic() == Settings.HEURISTIC_R_DISPERSION_MLT);
 		} else {
 			return false;
 		}
@@ -487,11 +487,11 @@ public class ClusStatManager implements Serializable {
 			case Settings.HEURISTIC_DISPERSION_MLT:
 				m_Heuristic = new ClusRuleHeuristicDispersionMlt(this, getClusteringWeights());
 				break;
-			case Settings.HEURISTIC_WR_DISPERSION_ADT:
-				m_Heuristic = new ClusRuleHeuristicWRDispersionAdt(this, getClusteringWeights());
+			case Settings.HEURISTIC_R_DISPERSION_ADT:
+				m_Heuristic = new ClusRuleHeuristicRDispersionAdt(this, getClusteringWeights());
 				break;
-			case Settings.HEURISTIC_WR_DISPERSION_MLT:
-				m_Heuristic = new ClusRuleHeuristicWRDispersionMlt(this, getClusteringWeights());
+			case Settings.HEURISTIC_R_DISPERSION_MLT:
+				m_Heuristic = new ClusRuleHeuristicRDispersionMlt(this, getClusteringWeights());
 				break;
 			case Settings.HEURISTIC_DEFAULT:
 				m_Heuristic = new ClusRuleHeuristicError(this, getClusteringWeights());
@@ -510,11 +510,11 @@ public class ClusStatManager implements Serializable {
 			case Settings.HEURISTIC_DISPERSION_MLT:
 				m_Heuristic = new ClusRuleHeuristicDispersionMlt(this, getClusteringWeights());
 				break;
-			case Settings.HEURISTIC_WR_DISPERSION_ADT:
-				m_Heuristic = new ClusRuleHeuristicWRDispersionAdt(this, getClusteringWeights());
+			case Settings.HEURISTIC_R_DISPERSION_ADT:
+				m_Heuristic = new ClusRuleHeuristicRDispersionAdt(this, getClusteringWeights());
 				break;
-			case Settings.HEURISTIC_WR_DISPERSION_MLT:
-				m_Heuristic = new ClusRuleHeuristicWRDispersionMlt(this, getClusteringWeights());
+			case Settings.HEURISTIC_R_DISPERSION_MLT:
+				m_Heuristic = new ClusRuleHeuristicRDispersionMlt(this, getClusteringWeights());
 				break;
 			case Settings.HEURISTIC_DEFAULT:
 				m_Heuristic = new ClusRuleHeuristicError(this, getClusteringWeights());
@@ -976,10 +976,10 @@ public class ClusStatManager implements Serializable {
 		// General
 		if (((sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_ADT)
 				|| (sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_MLT)
-				|| (sett.getHeuristic() != Settings.HEURISTIC_WR_DISPERSION_ADT) || (sett
-				.getHeuristic() != Settings.HEURISTIC_WR_DISPERSION_MLT))
-				&& sett.isCompHeurRuleDist()) {
-			sett.setCompHeurRuleDistPar(0.0);
+				|| (sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_ADT) || (sett
+				.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_MLT))
+				&& sett.isHeurRuleDist()) {
+			sett.setHeurRuleDistPar(0.0);
 		}
 		if (sett.isRuleSignificanceTesting()) { // Is this faster than calling
 			// isRuleSignificanceTesting()
@@ -1004,13 +1004,13 @@ public class ClusStatManager implements Serializable {
 						.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
 			}
 			sett.setCoveringWeight(0.0);
-			if (getSettings().getCompHeurRuleDistPar() < 0) {
+			if (getSettings().getHeurRuleDistPar() < 0) {
 				throw new ClusException("Clus heuristic covering: CompHeurRuleDistPar must be >= 0!");
 			}
 			if ((sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_ADT)
 					|| (sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_MLT)
-					|| (sett.getHeuristic() != Settings.HEURISTIC_WR_DISPERSION_ADT)
-					|| (sett.getHeuristic() != Settings.HEURISTIC_WR_DISPERSION_MLT)) {
+					|| (sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_ADT)
+					|| (sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_MLT)) {
 				throw new ClusException(
 						"Clus heuristic covering: Only Dispersion-based heuristics supported!");
 			}

@@ -57,12 +57,12 @@ public class ClusRulesFromTree {
     RowData data = (RowData)cr.getTrainingSet();
     RowData testdata;
     res.addDataToRules(data);
-    res.computeCompactness(ClusModel.TRAIN);
+    res.computeDispersion(ClusModel.TRAIN);
     res.removeDataFromRules();
     if (cr.getTestIter() != null) {
       testdata = (RowData)cr.getTestSet();
       res.addDataToRules(testdata);
-      res.computeCompactness(ClusModel.TEST);
+      res.computeDispersion(ClusModel.TEST);
       res.removeDataFromRules();
     }
     return res;

@@ -82,7 +82,7 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 		ClusNode tree_root = (ClusNode)cr.getModel(tree);
 		ClusRulesFromTree rft = new ClusRulesFromTree(true);
 		ClusRuleSet rule_set = null;
-		if (getSettings().computeCompactness()) {
+		if (getSettings().computeDispersion()) {
 			rule_set = rft.constructRules(cr, tree_root, getStatManager());
 		} else {
 			rule_set = rft.constructRules(tree_root, getStatManager());

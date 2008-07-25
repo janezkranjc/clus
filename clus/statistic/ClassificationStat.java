@@ -49,10 +49,10 @@ public class ClassificationStat extends ClusStatistic {
 	public double[][] m_ClassCounts;
 	public int[] m_MajorityClasses;
 
-  /**
-   * Constructor for this class.
-   * @param nomAtts array of nominal attributes
-   */
+	/**
+	 * Constructor for this class.
+	 * @param nomAtts array of nominal attributes
+	 */
 	public ClassificationStat(NominalAttrType[] nomAtts) {
 		m_NbTarget = nomAtts.length;
 		m_ClassCounts = new double[m_NbTarget][];
@@ -87,14 +87,10 @@ public class ClassificationStat extends ClusStatistic {
 		}
 	}
 
-  /** Added because RegressionStat has this method.
-   *
-   * @param idx
-   * @return
-   */
-  public NominalAttrType getAttribute(int idx) {
-    return m_Attrs[idx];
-  }
+	// Added because RegressionStat has this method.
+	public NominalAttrType getAttribute(int idx) {
+		return m_Attrs[idx];
+	}
 
 	public void reset() {
 		m_SumWeight = 0.0;
@@ -188,6 +184,17 @@ public class ClassificationStat extends ClusStatistic {
 			for (int j = 0; j < my.length; j++) my[j] = your[j] - my[j];
 		}
 	}
+
+	// TODO: Just a temporary solution - should be done in a more elegant way
+	// use with care, e.g., on a ClassificationStat copy 
+	public void normalizeCounts() {
+		for (int i = 0; i < m_NbTarget; i++) {		
+			for (int j = 0; j < m_ClassCounts[i].length; j++) {
+				m_ClassCounts[i][j] /= m_SumWeight;
+			}
+		}
+		m_SumWeight = 1;		
+	}	
 
 	public void update(ColTarget target, int idx) {
 		m_SumWeight += 1.0;

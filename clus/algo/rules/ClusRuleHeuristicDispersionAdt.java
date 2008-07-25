@@ -46,12 +46,12 @@ public class ClusRuleHeuristicDispersionAdt extends ClusRuleHeuristicDispersion 
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
 		double n_pos = c_pstat.m_SumWeight;
 		// Acceptable?
-		if (n_pos-Settings.MINIMAL_WEIGHT < 1e-6) {
+		if (n_pos-Settings.MINIMAL_WEIGHT < 1e-6) { // (n_pos < Settings.MINIMAL_WEIGHT)
 			return Double.NEGATIVE_INFINITY;
 		}
-		double pos_comp = ((CombStat)c_pstat).dispersionAdtHeur();
+		double disp = ((CombStat)c_pstat).dispersionAdtHeur();
 		// Rule distance part
-		if (((CombStat)c_pstat).getSettings().isCompHeurRuleDist() &&
+		if (((CombStat)c_pstat).getSettings().isHeurRuleDist() &&
 				(m_CoveredBitVectArray.size() > 0)) {
 			double avg_dist = 0.0;
 			int nb_rules = m_CoveredBitVectArray.size();
@@ -72,11 +72,11 @@ public class ClusRuleHeuristicDispersionAdt extends ClusRuleHeuristicDispersion 
 				avg_dist += single_dist;
 			}
 			avg_dist /= nb_rules;
-			double dist_par = ((CombStat)c_pstat).getSettings().getCompHeurRuleDistPar();
+			double dist_par = ((CombStat)c_pstat).getSettings().getHeurRuleDistPar();
 			double dist_part = avg_dist * dist_par;
-			pos_comp += 1.0 - dist_part;
+			disp += 1.0 - dist_part; // TODO: Check if this offset is ok!
 		}
-		return -pos_comp;
+		return -disp;
 	}
 
 	public String getName() {

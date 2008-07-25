@@ -670,9 +670,9 @@ public class Settings implements Serializable {
  ***********************************************************************/
 
 	public final static String[] HEURISTICS = { "Default", "ReducedError",
-		"Gain", "GainRatio", "SSPD", "SSReduction", "MEstimate", "Morishita", "DispersionAdt", "DispersionMlt",
-
-		"WRDispersionAdt", "WRDispersionMlt", "GeneticDistance", "SemiSupervised", "SSReductionMissing"};
+		"Gain", "GainRatio", "SSPD", "SSReduction", "MEstimate", "Morishita",
+		"DispersionAdt", "DispersionMlt", "RDispersionAdt", "RDispersionMlt",
+		"GeneticDistance", "SemiSupervised", "SSReductionMissing"};
 	
 	public final static int HEURISTIC_DEFAULT = 0;	
 	public final static int HEURISTIC_REDUCED_ERROR = 1;	
@@ -685,8 +685,8 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_MORISHITA = 7;
 	public final static int HEURISTIC_DISPERSION_ADT = 8;
 	public final static int HEURISTIC_DISPERSION_MLT = 9;
-	public final static int HEURISTIC_WR_DISPERSION_ADT = 10;
-	public final static int HEURISTIC_WR_DISPERSION_MLT = 11;
+	public final static int HEURISTIC_R_DISPERSION_ADT = 10;
+	public final static int HEURISTIC_R_DISPERSION_MLT = 11;
 	public final static int HEURISTIC_GENETIC_DISTANCE = 12;
 	public final static int HEURISTIC_SEMI_SUPERVISED = 13;
 	public final static int HEURISTIC_SS_REDUCTION_MISSING = 14;	
@@ -761,22 +761,32 @@ public class Settings implements Serializable {
 	public final static int COVERING_METHOD_RULES_FROM_TREE = 9;
 
 	public final static String[] RULE_PREDICTION_METHODS =
-	{"DecisionList", "CoverageWeighted", "CovAccWeighted", "Union", "Optimized"};
+	{"DecisionList", "TotCoverageWeighted", "CoverageWeighted", "AccuracyWeighted",
+		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union"};
 
 	public final static int RULE_PREDICTION_METHOD_DECISION_LIST = 0;
-	public final static int RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED = 1;
-	public final static int RULE_PREDICTION_METHOD_COV_ACC_WEIGHTED = 2;
-	public final static int RULE_PREDICTION_METHOD_UNION = 3;
-	public final static int RULE_PREDICTION_METHOD_OPTIMIZED = 4;
+	// Each rule's prediction has a weight proportional to its coverage on the total learning set
+	public final static int RULE_PREDICTION_METHOD_TOT_COVERAGE_WEIGHTED = 1;
+	// Each rule's prediction has a weight proportional to its coverage on the curent learning set
+	// i.e., learning set on which the rule was learned
+	public final static int RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED = 2;
+	// Each rule's prediction has a weight proportional to its accuracy on the total learning set
+	// Not yet implemented.
+	public final static int RULE_PREDICTION_METHOD_ACCURACY_WEIGHTED = 3;
+	// Each rule's prediction has a weight proportional a product of to its accuracy on
+	// the total learning set and its coverage
+	public final static int RULE_PREDICTION_METHOD_ACC_COV_WEIGHTED = 4;
+	// Not yet implemented.
+	public final static int RULE_PREDICTION_METHOD_EQUALLY_WEIGHTED = 5;
+	public final static int RULE_PREDICTION_METHOD_OPTIMIZED = 6;
+	public final static int RULE_PREDICTION_METHOD_UNION = 7;
 
 	public final static String[] RULE_ADDING_METHODS =	{"Always", "IfBetter", "IfBetterBeam"};
 
 	// Always adds a rule to the rule set
 	public final static int RULE_ADDING_METHOD_ALWAYS = 0;
-
 	// Only adds a rule to the rule set if it improves the rule set performance
 	public final static int RULE_ADDING_METHOD_IF_BETTER = 1;
-
 	// Only adds a rule to the rule set if it improves the rule set performance.
 	// If not, it checks other rules in the beam
 	public final static int RULE_ADDING_METHOD_IF_BETTER_BEAM = 2;
@@ -790,14 +800,15 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_CoveringWeight;
 	protected INIFileDouble m_InstCoveringWeightThreshold;
 	protected INIFileInt m_MaxRulesNb;
+	protected INIFileDouble m_HeurDispOffset;
 	protected INIFileDouble m_HeurCoveragePar;
-	protected INIFileDouble m_CompHeurRuleDistPar;
+	protected INIFileDouble m_HeurRuleDistPar;
 	protected INIFileDouble m_HeurPrototypeDistPar;
 	protected INIFileDouble m_RuleSignificanceLevel;
 	protected INIFileInt m_RuleNbSigAtts;
-	protected INIFileBool m_ComputeCompactness;
+	protected INIFileBool m_ComputeDispersion;
 	protected INIFileDouble m_NumCompNormWeight;
-	protected INIFileNominalOrDoubleOrVector m_CompactnessWeights;
+	protected INIFileNominalOrDoubleOrVector m_DispersionWeights;
 	protected INIFileInt m_RandomRules;
 	protected INIFileBool m_RuleWiseErrors;
 	protected INIFileInt m_OptDEPopSize;
@@ -808,8 +819,8 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_OptRegPar;
 	protected INIFileDouble m_OptRuleWeightThreshold;
 
-	public INIFileNominalOrDoubleOrVector getCompactnessWeights() {
-		return m_CompactnessWeights;
+	public INIFileNominalOrDoubleOrVector getDispersionWeights() {
+		return m_DispersionWeights;
 	}
 
 	public boolean isRandomRules() {
@@ -881,23 +892,27 @@ public class Settings implements Serializable {
 	}
 
 	public boolean isRuleSignificanceTesting() {
-	    return m_RuleNbSigAtts.getValue() != 0;
+		return m_RuleNbSigAtts.getValue() != 0;
+	}
+
+	public double getHeurDispOffset() {
+		return m_HeurDispOffset.getValue();
 	}
 
 	public double getHeurCoveragePar() {
-	    return m_HeurCoveragePar.getValue();
+		return m_HeurCoveragePar.getValue();
 	}
 
-	public double getCompHeurRuleDistPar() {
-	    return m_CompHeurRuleDistPar.getValue();
+	public double getHeurRuleDistPar() {
+		return m_HeurRuleDistPar.getValue();
 	}
 
-	public void setCompHeurRuleDistPar(double value) {
-	    m_CompHeurRuleDistPar.setValue(value);
+	public void setHeurRuleDistPar(double value) {
+	    m_HeurRuleDistPar.setValue(value);
 	}
 
-	public boolean isCompHeurRuleDist() {
-	    return m_CompHeurRuleDistPar.getValue() > 0;
+	public boolean isHeurRuleDist() {
+	    return m_HeurRuleDistPar.getValue() > 0;
 	}
 
   	public double getHeurPrototypeDistPar() {
@@ -913,13 +928,13 @@ public class Settings implements Serializable {
 	}
 
 	public void disableRuleInduceParams() {
-		setCompHeurRuleDistPar(0.0);
+		setHeurRuleDistPar(0.0);
 		setRulePredictionMethod(RULE_PREDICTION_METHOD_DECISION_LIST);
 		setCoveringMethod(COVERING_METHOD_RULES_FROM_TREE);
 	}
 
-	public boolean computeCompactness() {
-		return m_ComputeCompactness.getValue();
+	public boolean computeDispersion() {
+		return m_ComputeDispersion.getValue();
   	}
 
   	public double getNumCompNormWeight() {
@@ -1399,16 +1414,16 @@ public class Settings implements Serializable {
 		rules.addNode(m_InstCoveringWeightThreshold = new INIFileDouble("InstCoveringWeightThreshold", 0.1));
 		rules.addNode(m_MaxRulesNb = new INIFileInt("MaxRulesNb", 1000));
 		rules.addNode(m_HeurCoveragePar = new INIFileDouble("HeurCoveragePar", 1.0));
-		rules.addNode(m_CompHeurRuleDistPar = new INIFileDouble("CompHeurRuleDistPar", 0.0));
+		rules.addNode(m_HeurRuleDistPar = new INIFileDouble("CompHeurRuleDistPar", 0.0));
 		rules.addNode(m_HeurPrototypeDistPar = new INIFileDouble("HeurPrototypeDistPar", 0.0));
 		rules.addNode(m_RuleSignificanceLevel = new INIFileDouble("RuleSignificanceLevel", 0.05));
 		rules.addNode(m_RuleNbSigAtts = new INIFileInt("RuleNbSigAtts", 0));
-		rules.addNode(m_ComputeCompactness = new INIFileBool("ComputeCompactness", false));
+		rules.addNode(m_ComputeDispersion = new INIFileBool("ComputeDispersion", false));
 		rules.addNode(m_NumCompNormWeight = new INIFileDouble("NumCompNormWeight", 4.0));
-		rules.addNode(m_CompactnessWeights = new INIFileNominalOrDoubleOrVector("CompactnessWeights", EMPTY));
-		m_CompactnessWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);
-		m_CompactnessWeights.setDoubleArray(FOUR_ONES);
-		m_CompactnessWeights.setArrayIndexNames(true);
+		rules.addNode(m_DispersionWeights = new INIFileNominalOrDoubleOrVector("DispersionWeights", EMPTY));
+		m_DispersionWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);
+		m_DispersionWeights.setDoubleArray(FOUR_ONES);
+		m_DispersionWeights.setArrayIndexNames(true);
 		rules.addNode(m_RandomRules = new INIFileInt("RandomRules", 0));
 		rules.addNode(m_RuleWiseErrors = new INIFileBool("PrintRuleWiseErrors", false));
 		rules.addNode(m_OptDEPopSize = new INIFileInt("OptDEPopSize", 500));

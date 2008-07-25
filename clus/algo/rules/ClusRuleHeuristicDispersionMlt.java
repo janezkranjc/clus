@@ -46,12 +46,14 @@ public class ClusRuleHeuristicDispersionMlt extends ClusRuleHeuristicDispersion 
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
 		double n_pos = c_pstat.m_SumWeight;
 		// Acceptable?
-		if (n_pos-Settings.MINIMAL_WEIGHT < 1e-6) {
+		if (n_pos-Settings.MINIMAL_WEIGHT < 1e-6) { // (n_pos < Settings.MINIMAL_WEIGHT)
 			return Double.NEGATIVE_INFINITY;
 		}
-		double pos_comp = ((CombStat)c_pstat).dispersionMltHeur();
+		double disp = ((CombStat)c_pstat).dispersionMltHeur();
+double disp1 = disp;
+double ad = -1;
 		// Rule distance part
-		if (((CombStat)c_pstat).getSettings().isCompHeurRuleDist() &&
+		if (((CombStat)c_pstat).getSettings().isHeurRuleDist() &&
 				(m_CoveredBitVectArray.size() > 0)) {
 			double avg_dist = 0.0;
 			int nb_rules = m_CoveredBitVectArray.size();
@@ -72,11 +74,14 @@ public class ClusRuleHeuristicDispersionMlt extends ClusRuleHeuristicDispersion 
 				avg_dist += single_dist;
 			}
 			avg_dist /= nb_rules;
-			double dist_par = ((CombStat)c_pstat).getSettings().getCompHeurRuleDistPar();
-			double dist_part = avg_dist > 0 ? 1 / avg_dist * dist_par : 100; // 100 ???
-	    pos_comp *= 1.0 + dist_part;
+			double dist_par = ((CombStat)c_pstat).getSettings().getHeurRuleDistPar();
+			// double dist_part = avg_dist > 0 ? 1 / avg_dist * dist_par : 100; // 100 ???
+	    // disp *= 1.0 + dist_part;
+			disp = avg_dist > 0 ? disp/Math.pow(avg_dist, dist_par) : 100; 
+			ad = avg_dist;
 		}
-		return -pos_comp;
+// System.err.println("Avg.dist: " + ad + " Before: " + disp1 + " after: " + disp + "\n");
+		return -disp;
 	}
 
 	public String getName() {

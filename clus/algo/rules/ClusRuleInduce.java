@@ -113,7 +113,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				ref_rule.setVisitor(subset);
 				ref_rule.setClusteringStat(createTotalClusteringStat(subset));
 				// if (Settings.VERBOSE > 0) System.out.println("  Sanity.check.val: " + sel.m_BestHeur);
-				if (getSettings().isCompHeurRuleDist()) {
+				if (getSettings().isHeurRuleDist()) {
 					int[] subset_idx = new int[subset.getNbRows()];
 					for (int j = 0; j < subset_idx.length; j++) {
 						subset_idx[j] = subset.getTuple(j).getIndex();
@@ -274,7 +274,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				rset.add(rule);
 				data = rule.reweighCovered(data);
 				i++;
-				if (getSettings().isCompHeurRuleDist()) {
+				if (getSettings().isHeurRuleDist()) {
 					boolean[] bit_vect = new boolean[data_copy.getNbRows()];
 					for (int j = 0; j < bit_vect.length; j++) {
 						if (!bit_vect[j]) {
@@ -332,7 +332,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 					System.out.println();
 					err_score = new_err_score;
 					rset.add(rule);
-					if (getSettings().isCompHeurRuleDist()) {
+					if (getSettings().isHeurRuleDist()) {
 						boolean[] bit_vect = new boolean[data_copy.getNbRows()];
 						for (int j = 0; j < bit_vect.length; j++) {
 							if (!bit_vect[j]) {
@@ -423,7 +423,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				rules[rule_added].printModel();
 				System.out.println();
 				rset.add(rules[rule_added]);
-				if (getSettings().isCompHeurRuleDist()) {
+				if (getSettings().isHeurRuleDist()) {
 					boolean[] bit_vect = new boolean[data.getNbRows()];
 					for (int j = 0; j < bit_vect.length; j++) {
 						if (!bit_vect[j]) {
@@ -464,7 +464,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			BaggingSelection msel = new BaggingSelection(nb_rows);
 			data_sel.update(msel);
 			// Reset tuple indexes used in heuristic
-			if (getSettings().isCompHeurRuleDist()) {
+			if (getSettings().isHeurRuleDist()) {
 				int[] data_idx = new int[data_sel.getNbRows()];
 				for (int j = 0; j < data_sel.getNbRows(); j++) {
 					data_sel.getTuple(j).setIndex(j);
@@ -489,7 +489,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 					data_sel = rule.removeCovered(data_sel);
 					data_not_covered = rule.removeCovered(data_not_covered);
 					i++;
-					if (getSettings().isCompHeurRuleDist()) {
+					if (getSettings().isHeurRuleDist()) {
 						boolean[] bit_vect = new boolean[data_sel_copy.getNbRows()];
 						for (int j = 0; j < bit_vect.length; j++) {
 							if (!bit_vect[j]) {
@@ -737,7 +737,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		ClusStatistic stat = createTotalClusteringStat(data);
 		m_FindBestTest.initSelectorAndSplit(stat);
 		setHeuristic(m_FindBestTest.getBestTest().getHeuristic());
-		if (getSettings().isCompHeurRuleDist()) {
+		if (getSettings().isHeurRuleDist()) {
 			int[] data_idx = new int[data.getNbRows()];
 			for (int i = 0; i < data.getNbRows(); i++) {
 				data.getTuple(i).setIndex(i);
@@ -770,14 +770,14 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			rset = optimizeRuleSet(rset, data);
 		}
 		// Computing compactness
-		if (getSettings().computeCompactness()) {
+		if (getSettings().computeDispersion()) {
 			rset.addDataToRules(data);
-			rset.computeCompactness(ClusModel.TRAIN);
+			rset.computeDispersion(ClusModel.TRAIN);
 			rset.removeDataFromRules();
 			if (run.getTestIter() != null) {
 				RowData testdata = (RowData)run.getTestSet();
 				rset.addDataToRules(testdata);
-				rset.computeCompactness(ClusModel.TEST);
+				rset.computeDispersion(ClusModel.TEST);
 				rset.removeDataFromRules();
 			}
 		}
@@ -989,14 +989,14 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		rset.setTargetStat(left_over);
 		rset.postProc();
 		// Computing compactness
-		if (getSettings().computeCompactness()) {
+		if (getSettings().computeDispersion()) {
 			rset.addDataToRules(data);
-			rset.computeCompactness(ClusModel.TRAIN);
+			rset.computeDispersion(ClusModel.TRAIN);
 			rset.removeDataFromRules();
 			if (run.getTestIter() != null) {
 				RowData testdata = (RowData)run.getTestSet();
 				rset.addDataToRules(testdata);
-				rset.computeCompactness(ClusModel.TEST);
+				rset.computeDispersion(ClusModel.TEST);
 				rset.removeDataFromRules();
 			}
 		}

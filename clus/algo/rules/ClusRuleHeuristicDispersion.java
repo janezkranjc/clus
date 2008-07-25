@@ -64,7 +64,7 @@ public abstract class ClusRuleHeuristicDispersion extends ClusHeuristic {
 			}
 			setDataIndexes(new_data_idx);
 		} else {
-			System.err.println("ClusRuleHeuristicCompactness: setDataIndexes(boolean[])");
+			System.err.println("ClusRuleHeuristicDispersion: setDataIndexes(boolean[])");
 			System.exit(1); // Exception???
 		}
 	}

@@ -63,9 +63,9 @@ public class NominalAttrType extends ClusAttrType {
 		createHash();
 	}
 
-    public String[] getValues(){
-        return m_Values;
-    }
+	public String[] getValues(){
+		return m_Values;
+	}
 
 	public NominalAttrType(String name, String[] values) {
 		super(name);

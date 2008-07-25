@@ -821,6 +821,9 @@ public class Clus implements CMDLineArgsProvider {
 		cr.getTrainingSet().calcTotalStat(tr_stat);
 		getStatManager().setTrainSetStat(tr_stat);
 		// ARFFFile.writeCN2Data("train-all.exs", (RowData)cr.getTrainingSet());
+		// ARFFFile.writeOrangeData("train-all.tab", (RowData)cr.getTrainingSet());
+	  // ARFFFile.writeFRSHead("header.pl", (RowData)cr.getTrainingSet(), true);
+	  // ARFFFile.writeFRSData("train-all.pl", (RowData)cr.getTrainingSet(), true);
 		induce(cr, clss); // Induce model
 		if (summ == null) {
 			// E.g., rule-wise error measures
@@ -934,6 +937,8 @@ public class Clus implements CMDLineArgsProvider {
 		}		
 		// ARFFFile.writeCN2Data("test-"+i+".exs", cr.getTestSet());
 		// ARFFFile.writeCN2Data("train-"+i+".exs", (RowData)cr.getTrainingSet());
+		// ARFFFile.writeOrangeData("test-"+fold+".tab", cr.getTestSet());
+		// ARFFFile.writeOrangeData("train-"+fold+".tab", (RowData)cr.getTrainingSet());
 		// Induce tree
 		induce(cr, clss);
 		if (m_Sett.isRuleWiseErrors()) {

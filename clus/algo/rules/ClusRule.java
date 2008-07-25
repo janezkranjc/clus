@@ -57,14 +57,14 @@ public class ClusRule implements ClusModel, Serializable {
 	/* Number of examples covered by this rule */
 	protected double[] m_Coverage = new double[2];
 	protected ClusErrorList[] m_Errors;
-	/* Accuracy score of the rule on the training set */
-	protected double m_TrainAccuracy;
+	/* Average error score of the rule */
+	protected double m_TrainErrorScore;
 	/* Optimized weight of the rule */
 	protected double m_OptWeight;
 
 	public ClusRule(ClusStatManager statManager) {
 		m_StatManager = statManager;
-		m_TrainAccuracy = -1;
+		m_TrainErrorScore = -1;
 		m_OptWeight = -1;
 	}
 
@@ -83,7 +83,7 @@ public class ClusRule implements ClusModel, Serializable {
 	public void computePrediction() {
 		m_TargetStat.calcMean();
 		m_ClusteringStat.calcMean();
-		setTrainAccuracy();
+		// setTrainErrorScore();
 	}
 
 	public ClusRule cloneRule() {
@@ -171,11 +171,10 @@ public class ClusRule implements ClusModel, Serializable {
 	}
 
 	/**
-	 * Removes the examples that have been covered by enough rules, i.e.,
-	 * have weights below the threshold.
-	 * @param data
-	 * @return data
+	 * Removes the examples that have been covered by enough rules,
+	 * i.e., rules that have weights below the threshold.
 	 */
+	// TODO: Clean up!
 	public RowData removeCoveredEnough(RowData data) {
 		// double MAX_TIMES_COVERED = 5;
 		// double threshold;
@@ -227,12 +226,12 @@ public class ClusRule implements ClusModel, Serializable {
 	 * @return data with reweighted examples
 	 * @throws ClusException
 	 */
+	// TODO: Delete?
 	public RowData reweighCoveredOld(RowData data) throws ClusException {
 		int method = getSettings().getCoveringMethod();
 		double gamma = getSettings().getCoveringWeight();
 		double newweight;
 		RowData result = new RowData(data.getSchema(), data.getNbRows());
-		NominalAttrType[] target = data.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		for (int i = 0; i < data.getNbRows(); i++) {
 			DataTuple tuple = data.getTuple(i);
 			double oldweight = tuple.getWeight();
@@ -254,7 +253,7 @@ public class ClusRule implements ClusModel, Serializable {
 							// TODO: weighted by a distance to a prototype of examples covered by this rule
 							double coeff = predictions.length;
 							for (int j = 0; j < predictions.length; j++) {
-								int true_value = target[j].getNominal(tuple);
+								int true_value = tuple.getIntVal(j);
 								if (predictions[j] == true_value) {
 									coeff--;
 								}
@@ -263,7 +262,7 @@ public class ClusRule implements ClusModel, Serializable {
 							newweight = oldweight * coeff * gamma;
 						} else {
 							int prediction = predictions[0];
-							int true_value = target[0].getNominal(tuple);
+							int true_value = tuple.getClassification();
 							if (prediction == true_value) {
 								newweight = oldweight * gamma;
 							} else {
@@ -342,8 +341,6 @@ public class ClusRule implements ClusModel, Serializable {
 		RowData result = new RowData(data.getSchema(), nb_rows);
 		double old_weight, new_weight;
 		boolean cls_mode = true;
-		ClusSchema schema = data.getSchema();
-		NominalAttrType[] target = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (m_TargetStat instanceof RegressionStat) {
 			cls_mode = false;
 		} else if (m_TargetStat instanceof CombStat){
@@ -361,7 +358,7 @@ public class ClusRule implements ClusModel, Serializable {
 				new_weight = gamma * old_weight / (old_weight + 1);
 			} else if (method == Settings.COVERING_METHOD_WEIGHTED_MULTIPLICATIVE) {
 				new_weight = old_weight * gamma;
-			} else {
+			} else { // COVERING_METHOD_WEIGHTED_ERROR
 				// DONE: weighted by a proportion of incorrectly classified target attributes.
 				// TODO: weighted by a distance to a prototype of examples covered by this rule.
 				if (cls_mode) { // Classification
@@ -369,7 +366,7 @@ public class ClusRule implements ClusModel, Serializable {
 					if (predictions.length > 1) { // Multiple target
 						double prop_true = 0;
 						for (int j = 0; j < predictions.length; j++) {
-							int true_value = target[j].getNominal(tuple);
+							int true_value = tuple.getIntVal(j);
 							if (predictions[j] == true_value) {
 								prop_true++;
 							}
@@ -378,7 +375,7 @@ public class ClusRule implements ClusModel, Serializable {
 						new_weight = old_weight * (1 + prop_true * (gamma - 1));
 					} else { // Single target
 						int prediction = predictions[0];
-						int true_value = target[0].getNominal(tuple);
+						int true_value = tuple.getClassification();
 						if (prediction == true_value) {
 							new_weight = old_weight * gamma;
 						} else {
@@ -397,7 +394,8 @@ public class ClusRule implements ClusModel, Serializable {
 							true_values[j] = tuple.getDoubleVal(j);
 							NumericAttrType[] target_atts = m_StatManager.getSchema().
 							getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-							target_idx[j] = target_atts[0].getArrayIndex();
+							// System.err.println("Error weighted covering : BUG!!! - CHECK!!!");
+							target_idx[j] = target_atts[j].getArrayIndex(); // BUG?!?!?
 							variance[j] = ((CombStat)stat).getRegressionStat().getVariance(target_idx[j]);
 							coef[j] = gamma * Math.abs(predictions[j] - true_values[j]) / Math.sqrt(variance[j]); // Add /2 or /4 here?
 						}
@@ -488,17 +486,17 @@ public class ClusRule implements ClusModel, Serializable {
 			wrt.println();
 			wrt.print(extra);
 		}
-		if (getSettings().computeCompactness() && (m_CombStat[ClusModel.TRAIN] != null)) {
+		if (getSettings().computeDispersion() && (m_CombStat[ClusModel.TRAIN] != null)) {
 			if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
 				wrt.println("\n   Rule weight        : " + fr.format(getOptWeight()));
 			}
-			wrt.println("   Compactness (train): " + m_CombStat[ClusModel.TRAIN].getCompactnessString());
+			wrt.println("   Compactness (train): " + m_CombStat[ClusModel.TRAIN].getDispersionString());
 			wrt.println("   Coverage    (train): " + fr.format(m_Coverage[ClusModel.TRAIN]));
-			wrt.println("   Cover*Comp  (train): " + fr.format((m_CombStat[ClusModel.TRAIN].compactnessCalc()*m_Coverage[ClusModel.TRAIN])));
+			wrt.println("   Cover*Comp  (train): " + fr.format((m_CombStat[ClusModel.TRAIN].dispersionCalc()*m_Coverage[ClusModel.TRAIN])));
 			if (m_CombStat[ClusModel.TEST] != null) {
-				wrt.println("   Compactness (test):  " + m_CombStat[ClusModel.TEST].getCompactnessString());
+				wrt.println("   Compactness (test):  " + m_CombStat[ClusModel.TEST].getDispersionString());
 				wrt.println("   Coverage    (test):  " + fr.format(m_Coverage[ClusModel.TEST]));
-				wrt.println("   Cover*Comp  (test):  " + fr.format((m_CombStat[ClusModel.TEST].compactnessCalc()*m_Coverage[ClusModel.TEST])));
+				wrt.println("   Cover*Comp  (test):  " + fr.format((m_CombStat[ClusModel.TEST].dispersionCalc()*m_Coverage[ClusModel.TEST])));
 			}
 		}
 		if (hasErrors()) {
@@ -520,8 +518,10 @@ public class ClusRule implements ClusModel, Serializable {
 
 	public void printModelToPythonScript(PrintWriter wrt) {
 	}
+
 	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem, boolean ex) {
 	}
+	
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
 	}
 
@@ -585,35 +585,94 @@ public class ClusRule implements ClusModel, Serializable {
 		return "Tests = "+getModelSize();
 	}
 
-	public double getTrainAccuracy() {
-		return m_TrainAccuracy;
-	}
+	public double getTrainErrorScore() {
+		return m_TrainErrorScore;
+	}	
 
-	/** Calculates the accuracy score - average of accuracies
-	 *  across all target attributes (kind of).
-	 *
+	/** Calculates the error score - average of error rates
+	 *  across all target attributes on the current training set
+	 *  i.e., the data that the rule was trained on and not the 
+	 *  entire training set (kind of ...).
 	 */
-	public void setTrainAccuracy() {
+	public void setTrainErrorScore() {
+		int nb_tar = m_TargetStat.getNbAttributes();
+		double sum_err = 0;
 		if (m_TargetStat instanceof ClassificationStat) {
-			double sum_acc = 0;
-			int nb_tar = m_TargetStat.getNbNominalAttributes();
 			for (int i = 0; i < nb_tar; i++) {
 				int maj_class = ((ClassificationStat)m_TargetStat).getNominalPred()[i];
-				double acc = ((ClassificationStat)m_TargetStat).getCount(i,maj_class) / m_TargetStat.m_SumWeight;
-				sum_acc += acc;
+				double err = 1 - ((ClassificationStat)m_TargetStat).getCount(i,maj_class) / m_TargetStat.m_SumWeight;
+				sum_err += err;
 			}
-			m_TrainAccuracy = sum_acc / nb_tar;
-		} else if (m_TargetStat instanceof RegressionStat) {
-			// TODO: I'm not really sure about this
-			double sum_acc = 0;
-			int nb_tar = m_TargetStat.getNbNumericAttributes();
+			m_TrainErrorScore = sum_err / nb_tar;
+		} else { // if (m_TargetStat instanceof RegressionStat) {
+			double norm = getSettings().getNumCompNormWeight();
 			for (int i = 0; i < nb_tar; i++) {
-				double acc = ((RegressionStat)m_TargetStat).getStandardDeviation(i) / m_TargetStat.m_SumWeight;
-				sum_acc += acc;
+				double weight = m_StatManager.getClusteringWeights().getWeight(
+						((RegressionStat)m_TargetStat).getAttribute(i));
+				sum_err += ((RegressionStat)m_TargetStat).getVariance(i) * weight / (norm*norm);
 			}
-			m_TrainAccuracy = 1 / (sum_acc / nb_tar); // ?!
-		} else {
-			m_TrainAccuracy = -1;
+			m_TrainErrorScore = sum_err / nb_tar;
+		}
+		if (m_TrainErrorScore > 1) { // Limit the error store to 1 
+			m_TrainErrorScore = 1;
+		}
+	}
+
+	/** Calculates the error score - average of error rates
+	 *  across all target attributes on the all training data 
+	 *  covered by this rule (kind of ...).
+	 */
+	public void setErrorScore() {
+		int nb_rows = m_Data.size();
+		int nb_tar = m_TargetStat.getNbAttributes();
+		if (m_TargetStat instanceof ClassificationStat) {
+			int[] true_counts = new int[nb_tar];
+			for (int i = 0; i < nb_rows; i++) {
+				DataTuple tuple = (DataTuple)m_Data.get(i);
+				int[] prediction = predictWeighted(tuple).getNominalPred();
+				int[] true_value = tuple.m_Ints;
+				for (int j = 0; j < nb_tar; j++) {
+					if (prediction[j] == true_value[j]) {
+						true_counts[j]++;
+					}
+				}
+			}
+			double sum_err = 0;
+			for (int j = 0; j < nb_tar; j++) {
+				sum_err += (double)(nb_rows - true_counts[j]) / nb_rows;
+			}
+			m_TrainErrorScore = sum_err / nb_tar;
+		} else { // if (m_TargetStat instanceof RegressionStat) {
+			double norm = getSettings().getNumCompNormWeight();
+			ClusStatistic stat = m_StatManager.getTrainSetStat();
+			NumericAttrType[] target_atts = m_StatManager.getSchema().
+												getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+			int[] target_idx = new int[nb_tar];
+			double[] variance = new double[nb_tar];
+			double[] diff = new double[nb_tar];
+			for (int j = 0; j < nb_tar; j++) {
+				target_idx[j] = target_atts[j].getArrayIndex();
+				variance[j] = ((CombStat)stat).getRegressionStat().getVariance(target_idx[j]);
+			}
+			for (int i = 0; i < nb_rows; i++) {
+				DataTuple tuple = (DataTuple)m_Data.get(i);
+				double[] prediction = predictWeighted(tuple).getNumericPred();
+				double[] true_value = tuple.m_Doubles;
+				for (int j = 0; j < nb_tar; j++) {
+					diff[j] += Math.abs(prediction[j] - true_value[j]);				
+				}
+			}
+			double sum_diff = 0;
+			for (int j = 0; j < nb_tar; j++) {
+				sum_diff += diff[j] / nb_rows / Math.sqrt(variance[j]) / (norm*norm);
+			}
+			// Should this attribute weight below also be included above?
+			// double weight = m_StatManager.getClusteringWeights().getWeight(
+			// 		((RegressionStat)m_TargetStat).getAttribute(i));
+			m_TrainErrorScore = sum_diff / nb_tar;
+			if (m_TrainErrorScore > 1) { // Limit the error store to 1 
+				m_TrainErrorScore = 1;
+			}
 		}
 	}
 
@@ -631,10 +690,10 @@ public class ClusRule implements ClusModel, Serializable {
 	}
 
 	/**
-	 * Computes the compactness of data tuples covered by this rule.
+	 * Computes the dispersion of data tuples covered by this rule.
 	 * @param mode 0 for train set, 1 for test set
 	 */
-	public void computeCompactness(int mode) {
+	public void computeDispersion(int mode) {
 		CombStat combStat = (CombStat)m_StatManager.createStatistic(ClusAttrType.ATTR_USE_ALL);
 		for (int i = 0; i < m_Data.size(); i++) {
 			combStat.updateWeighted((DataTuple)m_Data.get(i), 0); // second parameter does nothing!

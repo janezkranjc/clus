@@ -100,8 +100,8 @@ public class CombStat extends ClusStatistic {
   /** Returns the compactness of all attributes. Used when outputing the compactness.
    * @return combined compactness
    */
-  public double compactnessCalc() {
-    return compactness(IN_OUTPUT);
+  public double dispersionCalc() {
+    return dispersion(IN_OUTPUT);
   }
 
   /** Dispersion based heuristic - additive version
@@ -109,16 +109,21 @@ public class CombStat extends ClusStatistic {
    * @return heuristic value
    */
   public double dispersionAdtHeur() {
-    double comp = 1.0 + compactness(IN_HEURISTIC);  // 1.0 - offset just in case?
+    // double comp = 1.0 + compactness(IN_HEURISTIC);  // 1.0 - offset just in case?
+  	double offset = getSettings().getHeurDispOffset();
+  	double disp = dispersion(IN_HEURISTIC) + offset;
     // Coverage part
   	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
     double cov_par = getSettings().getHeurCoveragePar();
-    comp += (1.0 - cov_par*m_SumWeight/train_sum_w);
+    // comp += (1.0 - cov_par*m_SumWeight/train_sum_w);
+    disp -= cov_par*m_SumWeight/train_sum_w/2; // Added /2 to reduce this part
     // Prototype distance part
+    // Prefers rules that predict different class than the default rule
     if (getSettings().isHeurPrototypeDistPar()) {
     	double proto_par = getSettings().getHeurPrototypeDistPar();
     	double proto_val = prototypeDifference((CombStat)m_StatManager.getTrainSetStat());
-    	comp += (1.0 - proto_par*m_SumWeight/train_sum_w*proto_val);
+    	// disp += (1.0 - proto_par*m_SumWeight/train_sum_w*proto_val);
+    	disp -= proto_par*proto_val;
     }
     // Significance testing part - TODO: Complete or remove altogether
     if (Settings.IS_RULE_SIG_TESTING) {
@@ -127,34 +132,42 @@ public class CombStat extends ClusStatistic {
     	if (thresh > 0) {
     		sign_diff = signDifferent();
     		if (sign_diff < thresh) {
-    			comp += 1000; // Some big number ???
+    			disp += 1000; // Some big number ???
     		}
     	} else if (thresh < 0) { // Testing just one target attribute - TODO: change!
     		if (!targetSignDifferent()) {
-    			comp += 1000; // Some big number ???
+    			disp += 1000; // Some big number ???
     		}
     	}
     }
-    return comp;
+    return disp;
   }
 
   /** Weighted relative dispersion based heuristic - additive version
    *  Smaller values are better!
    * @return heuristic value
    */
-  public double wRDispersionAdtHeur() {
-    double comp = compactness(IN_HEURISTIC);
-    double def_comp = ((CombStat)m_StatManager.getTrainSetStat()).compactness(IN_HEURISTIC);
-    comp = comp - def_comp;  // This should be < 0
+  public double rDispersionAdtHeur() {
+  	double offset = getSettings().getHeurDispOffset();
+  	double disp = dispersion(IN_HEURISTIC) + offset;
+//double dis1 = comp;
+    double def_disp = ((CombStat)m_StatManager.getTrainSetStat()).dispersion(IN_HEURISTIC);
+    disp = disp - def_disp;  // This should be < 0 most of the time
+//double dis2 = comp;
     // Coverage part
   	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
     double cov_par = getSettings().getHeurCoveragePar();
-    comp += (1.0 - cov_par*m_SumWeight/train_sum_w);
+    // comp += (1.0 - cov_par*m_SumWeight/train_sum_w);
+    disp -= cov_par*m_SumWeight/train_sum_w/2; // Added /2 to reduce this part
+//double dis3 = comp;
+//double dis4 = cov_par*m_SumWeight/train_sum_w;
     // Prototype distance part
+    // Prefers rules that predict different class than the default rule
     if (getSettings().isHeurPrototypeDistPar()) {
     	double proto_par = getSettings().getHeurPrototypeDistPar();
     	double proto_val = prototypeDifference((CombStat)m_StatManager.getTrainSetStat());
-    	comp += (1.0 - proto_par*m_SumWeight/train_sum_w*proto_val);
+    	// disp += (1.0 - proto_par*m_SumWeight/train_sum_w*proto_val);
+    	disp -= proto_par*proto_val;
     }
     // Significance testing part - TODO: Complete or remove altogether
     if (Settings.IS_RULE_SIG_TESTING) {
@@ -163,15 +176,16 @@ public class CombStat extends ClusStatistic {
     	if (thresh > 0) {
     		sign_diff = signDifferent();
     		if (sign_diff < thresh) {
-    			comp += 1000; // Some big number ???
+    			disp += 1000; // Some big number ???
     		}
     	} else if (thresh < 0) { // Testing just one target attribute - TODO: change!
     		if (!targetSignDifferent()) {
-    			comp += 1000; // Some big number ???
+    			disp += 1000; // Some big number ???
     		}
     	}
     }
-    return comp;
+//System.err.println("Disp: " + dis1 + " RDisp: " + dis2 + " Wei: " + dis4 + " FDisp: " + dis3);
+    return disp;
   }
 
   /** Dispersion based heuristic - multiplicative version
@@ -180,19 +194,23 @@ public class CombStat extends ClusStatistic {
    */
   public double dispersionMltHeur() {
     // double comp = 1.0 + compactness(IN_HEURISTIC);
-    double comp = compactness(IN_HEURISTIC);
-double dis1 = comp;
+  	double offset = getSettings().getHeurDispOffset();
+  	double disp = dispersion(IN_HEURISTIC) + offset;
+double dis1 = disp;
     // Coverage part
   	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
     double cov_par = getSettings().getHeurCoveragePar();
-    comp *= (1.0 + cov_par*train_sum_w/m_SumWeight);
+    // comp *= (1.0 + cov_par*train_sum_w/m_SumWeight);
     // comp *= cov_par*m_SumWeight/train_sum_w;
-double dis2 = comp;
+    disp *= Math.pow(m_SumWeight/train_sum_w, cov_par);
+double dis2 = disp;
     // Prototype distance part
+    // Prefers rules that predict different class than the default rule
     if (getSettings().isHeurPrototypeDistPar()) {
     	double proto_par = getSettings().getHeurPrototypeDistPar();
     	double proto_val = prototypeDifference((CombStat)m_StatManager.getTrainSetStat());
-    	comp *= (1.0 + proto_par*m_SumWeight/train_sum_w*proto_val);
+    	// disp *= (1.0 + proto_par*m_SumWeight/train_sum_w*proto_val);
+    	disp = proto_val > 0 ? disp/Math.pow(proto_val, proto_par) : 0.0;
     }
     // Significance testing part - TODO: Complete or remove altogether
     if (Settings.IS_RULE_SIG_TESTING) {
@@ -201,45 +219,49 @@ double dis2 = comp;
     	if (thresh > 0) {
     		sign_diff = signDifferent();
     		if (sign_diff < thresh) {
-    			comp *= 1000; // Some big number ??? - What if comp < 0???
+    			disp *= 1000; // Some big number ??? - What if comp < 0???
     		}
     	} else if (thresh < 0) { // Testing just one target attribute - TODO: change!
     		if (!targetSignDifferent()) {
-    			comp *= 1000; // Some big number ???
+    			disp *= 1000; // Some big number ???
     		}
     	}
     }
 // System.err.println("Disp: " + dis1 + " FDisp: " + dis2);
-    return comp;
+    return disp;
   }
 
   /** Weighted relative dispersion based heuristic - multiplicative version
    *  Smaller values are better!
    * @return heuristic value
    */
-  public double wRDispersionMltHeur() {
+  public double rDispersionMltHeur() {
   	// Original
-/*  	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
+    /* double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
     double comp = compactness(IN_HEURISTIC);
     double def_comp = ((CombStat)m_StatManager.getTrainSetStat()).compactness(IN_HEURISTIC);
-    return -m_SumWeight/train_sum_w*(def_comp-comp);
-*/    double comp = compactness(IN_HEURISTIC);
-double dis1 = comp;
-    double def_comp = ((CombStat)m_StatManager.getTrainSetStat()).compactness(IN_HEURISTIC);
-    comp = comp - def_comp;  // This should be < 0
-    double dis2 = comp;
+    return -m_SumWeight/train_sum_w*(def_comp-comp); */
+  	double offset = getSettings().getHeurDispOffset();
+  	double disp = dispersion(IN_HEURISTIC) + offset;
+double dis1 = disp;
+    double def_disp = ((CombStat)m_StatManager.getTrainSetStat()).dispersion(IN_HEURISTIC);
+    disp = disp - def_disp;  // This should be < 0 most of the time
+double dis2 = disp;
     // Coverage part
   	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
     double cov_par = getSettings().getHeurCoveragePar();
     // comp *= (1.0 + cov_par*train_sum_w/m_SumWeight); // How about this???
     // comp *= cov_par*train_sum_w/m_SumWeight;
-    comp *= cov_par*m_SumWeight/train_sum_w;
-double dis3 = comp;
+    // comp *= cov_par*m_SumWeight/train_sum_w;
+    disp *= Math.pow(m_SumWeight/train_sum_w, cov_par);
+double dis3 = disp;
     // Prototype distance part
+    // Prefers rules that predict different class than the default rule
     if (getSettings().isHeurPrototypeDistPar()) {
     	double proto_par = getSettings().getHeurPrototypeDistPar();
     	double proto_val = prototypeDifference((CombStat)m_StatManager.getTrainSetStat());
-    	comp *= (1.0 + proto_par*m_SumWeight/train_sum_w*proto_val);
+    	// disp *= (1.0 + proto_par*m_SumWeight/train_sum_w*proto_val);
+    	disp = proto_val > 0 ? disp/Math.pow(proto_val, proto_par) : 0.0;
     }
     // Significance testing part - TODO: Complete or remove altogether
     if (Settings.IS_RULE_SIG_TESTING) {
@@ -248,31 +270,31 @@ double dis3 = comp;
     	if (thresh > 0) {
     		sign_diff = signDifferent();
     		if (sign_diff < thresh) {
-    			comp *= 1000; // Some big number ??? - What if comp < 0???
+    			disp *= 1000; // Some big number ??? - What if comp < 0???
     		}
     	} else if (thresh < 0) { // Testing just one target attribute - TODO: change!
     		if (!targetSignDifferent()) {
-    			comp *= 1000; // Some big number ???
+    			disp *= 1000; // Some big number ???
     		}
     	}
     }
-// System.err.println("Disp: " + dis1 + " DDisp: " + def_comp + " RDisp: " + dis2 + " FDisp: " + dis3);
-    return comp;
+//System.err.println("Disp: " + dis1 + " DDisp: " + def_disp + " RDisp: " + dis2 + " FDisp: " + dis3);
+    return disp;
   }
 
-  /** Returns the compactness over clustering or all attributes (nominal and numeric).
-   *  @return compactness score
+  /** Returns the dispersion over clustering or all attributes (nominal and numeric).
+   *  @return dispersion score
    */
-  public double compactness(int use) {
+  public double dispersion(int use) {
     // return compactnessNom(use) + compactnessNum(use);
-  	return compactnessNom(use) + meanVariance(use);
+  	return dispersionNom(use) + meanVariance(use);
   }
 
   /** Returns the compactness of numeric attributes.
    *
    * @return compactness of numeric attributes
    */
-  public double compactnessNum(int use) {
+  public double dispersionNum(int use) {
   	// TODO: Try using mean abs distance instead of variance ...
     return meanVariance(use);
   }
@@ -281,7 +303,7 @@ double dis3 = comp;
    *
    * @return compactness of nominal attributes
    */
-  public double compactnessNom(int use) {
+  public double dispersionNom(int use) {
     // return meanEntropy();
     return meanDistNom(use);
   }
@@ -392,7 +414,7 @@ double dis3 = comp;
     	sumdiff += Math.abs(prototypeNum(i) - stat.prototypeNum(i)) * weight;
     	// System.err.println("sumdiff: " + Math.abs(prototypeNum(i) - stat.prototypeNum(i)) * weight);
     }
-    // Nominal atts: Mantattan distance
+    // Nominal atts: Manhattan distance
     for (int i = 0; i < m_NbNomAtts; i++) {
       weight = m_StatManager.getClusteringWeights().
                getWeight(m_ClassStat.getAttribute(i));
@@ -569,15 +591,15 @@ double dis3 = comp;
    *
    * @return String representation of the combined statistics
    */
-  public String getCompactnessString() {
+  public String getDispersionString() {
     StringBuffer buf = new StringBuffer();
     NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
     buf.append("[");
-    buf.append(fr.format(compactnessCalc()));
+    buf.append(fr.format(dispersionCalc()));
     buf.append(" : ");
-    buf.append(fr.format(compactnessNum(IN_OUTPUT)));
+    buf.append(fr.format(dispersionNum(IN_OUTPUT)));
     buf.append(" , ");
-    buf.append(fr.format(compactnessNom(IN_OUTPUT)));
+    buf.append(fr.format(dispersionNom(IN_OUTPUT)));
     buf.append("]");
     return buf.toString();
   }

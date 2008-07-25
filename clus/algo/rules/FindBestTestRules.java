@@ -22,6 +22,8 @@
 
 package clus.algo.rules;
 
+import java.util.Random;
+
 import clus.algo.split.*;
 import clus.data.rows.*;
 import clus.data.type.*;
@@ -42,7 +44,7 @@ public class FindBestTestRules extends FindBestTest {
 		int nbvalues = at.getNbValues();
 		m_BestTest.reset(nbvalues + 1);
 		int nb_rows = data.getNbRows();
-		if (!getSettings().isCompHeurRuleDist()) {
+		if (!getSettings().isHeurRuleDist()) {
 			// For each attribute value
 			for (int i = 0; i < nb_rows; i++) {
 				DataTuple tuple = data.getTuple(i);
@@ -86,6 +88,27 @@ public class FindBestTestRules extends FindBestTest {
 		m_Split.findSplit(m_BestTest, at);
 	}
 
+	/**
+	 * Randomly generates nominal split
+	 * @param at
+	 * @param data
+	 * @param rn
+	 */
+	public void findNominalRandom(NominalAttrType at, RowData data, Random rn) {
+		// Reset positive statistic
+		int nbvalues = at.getNbValues();
+		m_BestTest.reset(nbvalues + 1);
+		// For each attribute value   
+		int nb_rows = data.getNbRows();
+		for (int i = 0; i < nb_rows; i++) {
+			DataTuple tuple = data.getTuple(i);
+			int value = at.getNominal(tuple);     
+			m_BestTest.m_TestStat[value].updateWeighted(tuple, i);      
+		}
+		// Find the split
+		m_Split.findRandomSplit(m_BestTest, at, rn);
+	}
+
 	public void findNumeric(NumericAttrType at, RowData data) {
 		DataTuple tuple;
 		int idx = at.getArrayIndex();
@@ -110,7 +133,7 @@ public class FindBestTestRules extends FindBestTest {
 		}
 		double prev = Double.NaN;
 		int[] data_idx = new int[nb_rows]; // TODO: Skip missing ones?!
-		if (getSettings().isCompHeurRuleDist()) {
+		if (getSettings().isHeurRuleDist()) {
 			for (int i = first; i < nb_rows; i++) {
 				data_idx[i] = data.getTuple(i).getIndex();
 			}
@@ -120,7 +143,7 @@ public class FindBestTestRules extends FindBestTest {
 			double value = tuple.getDoubleVal(idx);
 			if (value != prev) {
 				if (value != Double.NaN) {
-					if (getSettings().isCompHeurRuleDist()) {
+					if (getSettings().isHeurRuleDist()) {
 						int[] subset_idx = new int[i-first];
 						System.arraycopy(data_idx, first, subset_idx, 0, i-first);
 						((ClusRuleHeuristicDispersion)m_BestTest.m_Heuristic).setDataIndexes(subset_idx);
@@ -144,7 +167,7 @@ public class FindBestTestRules extends FindBestTest {
 				next = next_tuple.getDoubleVal(idx);
 				m_BestTest.m_PosStat.updateWeighted(tuple, i);
 				if ((value != next) && (value != Double.NaN)) {
-					if (getSettings().isCompHeurRuleDist()) {
+					if (getSettings().isHeurRuleDist()) {
 						int[] subset_idx = new int[nb_rows-i];
 						System.arraycopy(data_idx, i, subset_idx, 0, nb_rows-i);
 						((ClusRuleHeuristicDispersion)m_BestTest.m_Heuristic).setDataIndexes(subset_idx);
@@ -155,4 +178,65 @@ public class FindBestTestRules extends FindBestTest {
 			}
 		}
 	}
+
+	/**
+	 * Randomly generates numeric split value
+	 * @param at
+	 * @param data
+	 * @param rn
+	 */
+	public void findNumericRandom(NumericAttrType at, RowData data, RowData orig_data, Random rn) { 
+		DataTuple tuple;
+		int idx = at.getArrayIndex();
+		// Sort values from large to small
+		if (at.isSparse()) {
+			data.sortSparse(at);
+		} else {
+			data.sort(at);
+		}
+		m_BestTest.reset(2);    
+		// Missing values
+		int first = 0;        
+		int nb_rows = data.getNbRows();
+		// Copy total statistic into corrected total
+		m_BestTest.copyTotal();
+		if (at.hasMissing()) {
+			// Because of sorting, all missing values are in the front :-)
+			while (first < nb_rows && (tuple = data.getTuple(first)).hasNumMissing(idx)) {
+				m_BestTest.m_MissingStat.updateWeighted(tuple, first);
+				first++;
+			}
+			m_BestTest.subtractMissing();
+		}   
+		// Do the same for original data, except updating the statistics:
+		// Sort values from large to small
+		if (at.isSparse()) {
+			orig_data.sortSparse(at);
+		} else {
+			orig_data.sort(at);
+		}
+		// Missing values
+		int orig_first = 0;        
+		int orig_nb_rows = orig_data.getNbRows();
+		if (at.hasMissing()) {
+			// Because of sorting, all missing values are in the front :-)
+			while (orig_first < orig_nb_rows && 
+					(tuple = orig_data.getTuple(orig_first)).hasNumMissing(idx)) {
+				orig_first++;
+			}
+		}   
+		// Generate the random split value based on the original data
+		double min_value = orig_data.getTuple(orig_nb_rows-1).getDoubleVal(idx);
+		double max_value = orig_data.getTuple(orig_first).getDoubleVal(idx);
+		double split_value = (max_value - min_value) * rn.nextDouble() + min_value;
+		for (int i = first; i < nb_rows; i++) {
+			tuple = data.getTuple(i);
+			if (tuple.getDoubleVal(idx) <= split_value) break;
+			m_BestTest.m_PosStat.updateWeighted(tuple, i);        
+		}
+		m_BestTest.updateNumeric(split_value, at);
+		System.err.println("Inverse splits not yet included!");
+		// TODO: m_Selector.updateInverseNumeric(split_value, at);
+	}
+
 }

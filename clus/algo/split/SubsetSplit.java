@@ -99,7 +99,7 @@ public class SubsetSplit extends NominalSplit {
 			m_PStat.reset();
 			int bvalue = 0;
 			if ((m_PStat instanceof CombStat) &&
-					((CombStat)m_PStat).getSettings().isCompHeurRuleDist()) {
+					((CombStat)m_PStat).getSettings().isHeurRuleDist()) {
 				((ClusRuleHeuristicDispersion)node.m_Heuristic).setDataIndexes(new int[0]);
 			}
 			while ((bvalue != -1) && ((card+1) < nbvalues)) {
@@ -110,7 +110,7 @@ public class SubsetSplit extends NominalSplit {
 						m_CStat.copy(m_PStat);
 						m_CStat.add(node.m_TestStat[j]);
 						if ((m_PStat instanceof CombStat) &&
-								((CombStat)m_PStat).getSettings().isCompHeurRuleDist()) {
+								((CombStat)m_PStat).getSettings().isHeurRuleDist()) {
 							boolean isin_current[] = new boolean[nbvalues];
 							for (int k = 0; k < nbvalues; k++) {
 								isin_current[k] = isin[k];

@@ -115,9 +115,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	 * Returns the statistic (prediction) for a given tuple.
 	 */
 	public ClusStatistic predictWeighted(DataTuple tuple) {
-		// int cover_method = getSettings().getCoveringMethod();
 		int prediction_method = getSettings().getRulePredictionMethod();
-		// if (cover_method == Settings.COVERING_METHOD_STANDARD) {
 		if (prediction_method == Settings.RULE_PREDICTION_METHOD_DECISION_LIST) {
 			for (int i = 0; i < getModelSize(); i++) {
 				ClusRule rule = getRule(i);
@@ -126,7 +124,6 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				}
 			}
 			return m_TargetStat;
-			// } else if (cover_method == Settings.COVERING_METHOD_UNION) {
 		} else if (prediction_method == Settings.RULE_PREDICTION_METHOD_UNION) {
 			// In multi-label classification: predicted set of classes is
 			// union of predictions by individual rules
@@ -144,36 +141,123 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			return covered ? stat : m_TargetStat;
 		} else {  // Unordered rules, i.e., weighted covering methods
 			boolean covered = false;
-			ClusStatistic stat = m_TargetStat.cloneSimple();
-			if (prediction_method == Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED) {
-				for (int i = 0; i < getModelSize(); i++) {
-					ClusRule rule = getRule(i);
-					if (rule.covers(tuple)) {
-						ClusStatistic rulestat = rule.predictWeighted(tuple);
-						stat.addPrediction(rulestat, 1); // Is this ok for regression also?
-						covered = true;
-					}
-				}
-			} else if (prediction_method == Settings.RULE_PREDICTION_METHOD_COV_ACC_WEIGHTED) {
-				double weight = 1;
+			ClusStatistic stat = m_TargetStat.cloneStat();
+			if (prediction_method == Settings.RULE_PREDICTION_METHOD_TOT_COVERAGE_WEIGHTED) {
 				double weight_sum = 0;
 				for (int i = 0; i < getModelSize(); i++) {
 					ClusRule rule = getRule(i);
 					if (rule.covers(tuple)) {
-						weight = rule.getTrainAccuracy();
-						weight_sum += weight;
+						weight_sum += rule.getCoverage()[0];
 					}
 				}
 				for (int i = 0; i < getModelSize(); i++) {
 					ClusRule rule = getRule(i);
 					if (rule.covers(tuple)) {
 						ClusStatistic rulestat = rule.predictWeighted(tuple);
-						weight = rule.getTrainAccuracy();
-						stat.addPrediction(rulestat, weight/weight_sum);
+						double weight = rule.getCoverage()[0]/weight_sum;
+						if (m_TargetStat instanceof RegressionStat) {
+							stat.addScaled(weight, rulestat);
+						} else {
+							// Normalize a copy, in case original is used somewhere else
+							ClassificationStat rulestat2 = (ClassificationStat)rulestat.cloneStat();
+							rulestat2.copy(rulestat);
+							((ClassificationStat)rulestat2).normalizeCounts();
+							stat.addPrediction(rulestat2, weight);
+						}
+						// System.err.println("Val: " + tuple.getDoubleVal(0) + " Sum weight: " + weight_sum + " weight: " + weight);
 						covered = true;
 					}
 				}
+			} else if (prediction_method == Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED) {
+				double weight_sum = 0;
+				if (m_TargetStat instanceof RegressionStat) {
+					for (int i = 0; i < getModelSize(); i++) {
+						ClusRule rule = getRule(i);
+						if (rule.covers(tuple)) {
+							weight_sum += rule.m_TargetStat.m_SumWeight;
+						}
+					}
+				}
+				for (int i = 0; i < getModelSize(); i++) {
+					ClusRule rule = getRule(i);
+					if (rule.covers(tuple)) {
+						ClusStatistic rulestat = rule.predictWeighted(tuple);
+						if (m_TargetStat instanceof RegressionStat) {
+							double weight = rule.m_TargetStat.m_SumWeight/weight_sum;
+							stat.addScaled(weight, rulestat);
+							// System.err.println("Val: " + tuple.getDoubleVal(0) +  " " + tuple.getDoubleVal(1) + " Sum weight: " + weight_sum + " weight: " + weight);
+						} else {
+							stat.addPrediction(rulestat, 1);
+						}
+						covered = true;         
+					}
+				}
+			} else if (prediction_method == Settings.RULE_PREDICTION_METHOD_ACC_COV_WEIGHTED) {
+				double weight_sum = 0;
+				if (m_TargetStat instanceof RegressionStat) {
+					for (int i = 0; i < getModelSize(); i++) {
+						ClusRule rule = getRule(i);
+						if (rule.covers(tuple)) {
+							weight_sum += rule.m_TargetStat.m_SumWeight * (1 - rule.getTrainErrorScore());
+						}
+					}
+				} else {
+					for (int i = 0; i < getModelSize(); i++) {
+						ClusRule rule = getRule(i);
+						if (rule.covers(tuple)) {
+							weight_sum += 1 - rule.getTrainErrorScore();
+						}
+					}
+				}
+				for (int i = 0; i < getModelSize(); i++) {
+					ClusRule rule = getRule(i);
+					if (rule.covers(tuple)) {
+						ClusStatistic rulestat = rule.predictWeighted(tuple);
+						if (m_TargetStat instanceof RegressionStat) {
+							double weight = rule.m_TargetStat.m_SumWeight * (1 - rule.getTrainErrorScore()) / weight_sum;
+							stat.addScaled(weight, rulestat);
+  						System.err.println("Val: " + tuple.getDoubleVal(0) +  " " + tuple.getDoubleVal(1) + " Sum weight: " + weight_sum + " weight: " + weight);
+						} else {
+							double weight = (1 - rule.getTrainErrorScore()) / weight_sum;
+							stat.addPrediction(rulestat, weight);
+						}
+						covered = true;         
+					}
+				}
+			} else if (prediction_method == Settings.RULE_PREDICTION_METHOD_ACCURACY_WEIGHTED) {
+				double weight_sum = 0;
+				if (m_TargetStat instanceof RegressionStat) {
+					for (int i = 0; i < getModelSize(); i++) {
+						ClusRule rule = getRule(i);
+						if (rule.covers(tuple)) {
+							weight_sum += 1 - rule.getTrainErrorScore();
+						}
+					}
+				} else {
+					for (int i = 0; i < getModelSize(); i++) {
+						ClusRule rule = getRule(i);
+						if (rule.covers(tuple)) {
+							weight_sum += 1 - rule.getTrainErrorScore();
+						}
+					}
+				}
+				for (int i = 0; i < getModelSize(); i++) {
+					ClusRule rule = getRule(i);
+					if (rule.covers(tuple)) {
+						ClusStatistic rulestat = rule.predictWeighted(tuple);
+						if (m_TargetStat instanceof RegressionStat) {
+							double weight = (1 - rule.getTrainErrorScore()) / weight_sum;
+							stat.addScaled(weight, rulestat);
+  						// System.err.println("Val: " + tuple.getDoubleVal(0) +  " " + tuple.getDoubleVal(1) + " Sum weight: " + weight_sum + " weight: " + weight);
+						} else {
+							double weight = (1 - rule.getTrainErrorScore()) / weight_sum;
+							stat.addPrediction(rulestat, weight);
+						}
+						covered = true;         
+					}
+				}
 			} else if (prediction_method == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
+				System.err.println("ClusRuleSet.predictWeighted: Not implemented correctly!");
 				for (int i = 0; i < getModelSize(); i++) {
 					ClusRule rule = getRule(i);
 					if (rule.covers(tuple)) {
@@ -181,18 +265,17 @@ public class ClusRuleSet implements ClusModel, Serializable {
 						double weight = rule.getOptWeight();
 						// TODO: for regression
 						// if (rule.getTargetStat() instanceof ClassificationStat) {
-							// TODO: This is probably not ok
+						// TODO: This is probably not ok
 						// 	rulestat.resetToSimple(weight);
 						// }
 						stat.addPrediction(rulestat, weight);
-						// stat.addPrediction(rulestat, 1);
-						covered = true;
+						covered = true;         
 					}
 				}
 			}
-			stat.computePrediction();
 			if (covered) {
-				return stat;
+				stat.calcMean();
+				return stat;  
 			} else {
 				return m_TargetStat;
 			}
@@ -239,9 +322,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
-		boolean headers = getSettings().computeCompactness() || hasRuleErrors();
+		boolean headers = getSettings().computeDispersion() || hasRuleErrors();
 		// [train/test][comb/num/nom]
-		double[][] avg_compactness = new double[2][3];
+		double[][] avg_dispersion = new double[2][3];
 		double[] avg_coverage = new double[2];
 		double[][] avg_prod = new double[2][3];
 		for (int i = 0; i < m_Rules.size(); i++) {
@@ -255,22 +338,22 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				wrt.println(head);
 				wrt.println(new String(underline));
 				// Added this test so that PrintRuleWiseErrors also works in HMC setting (02/01/06)
-				if (getSettings().computeCompactness()) {
-					avg_compactness[0][0] += rule.m_CombStat[0].compactnessCalc();
-					avg_compactness[0][1] += rule.m_CombStat[0].compactnessNum(1);
-					avg_compactness[0][2] += rule.m_CombStat[0].compactnessNom(1);
+				if (getSettings().computeDispersion()) {
+					avg_dispersion[0][0] += rule.m_CombStat[0].dispersionCalc();
+					avg_dispersion[0][1] += rule.m_CombStat[0].dispersionNum(1);
+					avg_dispersion[0][2] += rule.m_CombStat[0].dispersionNom(1);
 					avg_coverage[0] += rule.m_Coverage[0];
-					avg_prod[0][0] += rule.m_CombStat[0].compactnessCalc()*rule.m_Coverage[0];
-					avg_prod[0][1] += rule.m_CombStat[0].compactnessNum(1)*rule.m_Coverage[0];
-					avg_prod[0][2] += rule.m_CombStat[0].compactnessNom(1)*rule.m_Coverage[0];
+					avg_prod[0][0] += rule.m_CombStat[0].dispersionCalc()*rule.m_Coverage[0];
+					avg_prod[0][1] += rule.m_CombStat[0].dispersionNum(1)*rule.m_Coverage[0];
+					avg_prod[0][2] += rule.m_CombStat[0].dispersionNom(1)*rule.m_Coverage[0];
 					if (rule.m_CombStat[1] != null) {
-						avg_compactness[1][0] += rule.m_CombStat[1].compactnessCalc();
-						avg_compactness[1][1] += rule.m_CombStat[1].compactnessNum(1);
-						avg_compactness[1][2] += rule.m_CombStat[1].compactnessNom(1);
+						avg_dispersion[1][0] += rule.m_CombStat[1].dispersionCalc();
+						avg_dispersion[1][1] += rule.m_CombStat[1].dispersionNum(1);
+						avg_dispersion[1][2] += rule.m_CombStat[1].dispersionNom(1);
 						avg_coverage[1] += rule.m_Coverage[1];
-						avg_prod[1][0] += rule.m_CombStat[1].compactnessCalc()*rule.m_Coverage[1];
-						avg_prod[1][1] += rule.m_CombStat[1].compactnessNum(1)*rule.m_Coverage[1];
-						avg_prod[1][2] += rule.m_CombStat[1].compactnessNom(1)*rule.m_Coverage[1];
+						avg_prod[1][0] += rule.m_CombStat[1].dispersionCalc()*rule.m_Coverage[1];
+						avg_prod[1][1] += rule.m_CombStat[1].dispersionNum(1)*rule.m_Coverage[1];
+						avg_prod[1][2] += rule.m_CombStat[1].dispersionNom(1)*rule.m_Coverage[1];
 					}
 				}
 			}
@@ -284,29 +367,29 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 			wrt.println("Default = "+(m_TargetStat == null ? "N/A" : m_TargetStat.getString()));
 		}
-		if (headers && getSettings().computeCompactness()) {
-			wrt.println("\n\nRule set compactness:");
+		if (headers && getSettings().computeDispersion()) {
+			wrt.println("\n\nRule set dispersion:");
 			wrt.println("=====================");
-			avg_compactness[0][0] = avg_compactness[0][0] == 0 ? 0 : avg_compactness[0][0]/m_Rules.size();
-			avg_compactness[0][1] = avg_compactness[0][1] == 0 ? 0 : avg_compactness[0][1]/m_Rules.size();
-			avg_compactness[0][2] = avg_compactness[0][2] == 0 ? 0 : avg_compactness[0][2]/m_Rules.size();
+			avg_dispersion[0][0] = avg_dispersion[0][0] == 0 ? 0 : avg_dispersion[0][0]/m_Rules.size();
+			avg_dispersion[0][1] = avg_dispersion[0][1] == 0 ? 0 : avg_dispersion[0][1]/m_Rules.size();
+			avg_dispersion[0][2] = avg_dispersion[0][2] == 0 ? 0 : avg_dispersion[0][2]/m_Rules.size();
 			avg_coverage[0] = avg_coverage[0] == 0 ? 0 : avg_coverage[0]/m_Rules.size();
 			avg_prod[0][0] = avg_prod[0][0] == 0 ? 0 : avg_prod[0][0]/m_Rules.size();
 			avg_prod[0][1] = avg_prod[0][1] == 0 ? 0 : avg_prod[0][1]/m_Rules.size();
 			avg_prod[0][2] = avg_prod[0][2] == 0 ? 0 : avg_prod[0][2]/m_Rules.size();
-			avg_compactness[1][0] = avg_compactness[1][0] == 0 ? 0 : avg_compactness[1][0]/m_Rules.size();
-			avg_compactness[1][1] = avg_compactness[1][1] == 0 ? 0 : avg_compactness[1][1]/m_Rules.size();
-			avg_compactness[1][2] = avg_compactness[1][2] == 0 ? 0 : avg_compactness[1][2]/m_Rules.size();
+			avg_dispersion[1][0] = avg_dispersion[1][0] == 0 ? 0 : avg_dispersion[1][0]/m_Rules.size();
+			avg_dispersion[1][1] = avg_dispersion[1][1] == 0 ? 0 : avg_dispersion[1][1]/m_Rules.size();
+			avg_dispersion[1][2] = avg_dispersion[1][2] == 0 ? 0 : avg_dispersion[1][2]/m_Rules.size();
 			avg_coverage[1] = avg_coverage[1] == 0 ? 0 : avg_coverage[1]/m_Rules.size();
 			avg_prod[1][0] = avg_prod[1][0] == 0 ? 0 : avg_prod[1][0]/m_Rules.size();
 			avg_prod[1][1] = avg_prod[1][1] == 0 ? 0 : avg_prod[1][1]/m_Rules.size();
 			avg_prod[1][2] = avg_prod[1][2] == 0 ? 0 : avg_prod[1][2]/m_Rules.size();
-			wrt.println("   Avg_Compactness (train): " + fr.format(avg_compactness[0][0]) + " = " + fr.format(avg_compactness[0][1]) + " + " + fr.format(avg_compactness[0][2]));
+			wrt.println("   Avg_Dispersion  (train): " + fr.format(avg_dispersion[0][0]) + " = " + fr.format(avg_dispersion[0][1]) + " + " + fr.format(avg_dispersion[0][2]));
 			wrt.println("   Avg_Coverage    (train): " + fr.format(avg_coverage[0]));
-			wrt.println("   Avg_Cover*Comp  (train): " + fr.format(avg_prod[0][0]) + " = " + fr.format(avg_prod[0][1]) + " + " + fr.format(avg_prod[0][2]));
-			wrt.println("   Avg_Compactness (test):  " + fr.format(avg_compactness[1][0]) + " = " + fr.format(avg_compactness[1][1]) + " + " + fr.format(avg_compactness[1][2]));
+			wrt.println("   Avg_Cover*Disp  (train): " + fr.format(avg_prod[0][0]) + " = " + fr.format(avg_prod[0][1]) + " + " + fr.format(avg_prod[0][2]));
+			wrt.println("   Avg_Dispersion  (test):  " + fr.format(avg_dispersion[1][0]) + " = " + fr.format(avg_dispersion[1][1]) + " + " + fr.format(avg_dispersion[1][2]));
 			wrt.println("   Avg_Coverage    (test):  " + fr.format(avg_coverage[1]));
-			wrt.println("   Avg_Cover*Comp  (test):  " + fr.format(avg_prod[1][0]) + " = " + fr.format(avg_prod[1][1]) + " + " + fr.format(avg_prod[1][2]));
+			wrt.println("   Avg_Cover*Disp  (test):  " + fr.format(avg_prod[1][0]) + " = " + fr.format(avg_prod[1][1]) + " + " + fr.format(avg_prod[1][2]));
 		}
 	}
 
@@ -389,13 +472,13 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	}
 
 	/**
-	 * Computes the compactness of data tuples covered by each rule.
+	 * Computes the dispersion of data tuples covered by each rule.
 	 * @param mode 0 for train set, 1 for test set
 	 */
-	public void computeCompactness(int mode) {
+	public void computeDispersion(int mode) {
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
-			rule.computeCompactness(mode);
+			rule.computeDispersion(mode);
 		}
 	}
 
@@ -406,7 +489,6 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	// TODO: finish
 	public double computeErrorScore(RowData data) {
 		ClusStatistic tar_stat = m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] target = data.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		// Average error rate over all target attributes
 		if (tar_stat instanceof ClassificationStat) {
 			double result = 0;
@@ -419,7 +501,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				int true_value;
 				for (int j = 0; j < nb_tar; j++) {
 					// Target attributes are first in m_Ints[]
-					true_value = target[j].getNominal(tuple);
+					true_value = tuple.getIntVal(j);
 					if (predictions[j] == true_value) {
 						nb_right[j]++;
 					}
@@ -430,25 +512,26 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 			result /= nb_tar;
 			return result;
-		// Average variance over all target attributes
+		// Average RMSE over all target attributes
 		} else if (tar_stat instanceof RegressionStat) {
 			double result = 0;
 			int nb_rows = data.getNbRows();
 			int nb_tar = tar_stat.getNbNumericAttributes();
-			ClusStatistic stat = tar_stat.cloneStat();
+			double[] sum_sqr_err = new double[nb_tar];
 			for (int i = 0; i < nb_rows; i++) {
 				DataTuple tuple = data.getTuple(i);
-				ClusStatistic ruleset_stat = predictWeighted(tuple);
-				stat.addPrediction(ruleset_stat, 1);
+				double[] predictions = ((RegressionStat)predictWeighted(tuple)).getNumericPred();
+				for (int j = 0; j < nb_tar; j++) {
+					double diff = predictions[j] - tuple.getDoubleVal(j); 
+					sum_sqr_err[j] += diff * diff;
+				}
 			}
 			for (int j = 0; j < nb_tar; j++) {
-				// TODO: replace!
-				result += ((RegressionStat)stat).getVariance(j);
-				//result += (RegressionStat)stat.getRMSE(scale);
+				result += Math.sqrt(sum_sqr_err[j]/nb_rows);
 			}
 			result /= nb_tar;
 			return result;
-		} else {
+		} else { // Mixed classification and regresion not yet implemented
 			return -1;
 		}
 	}
@@ -467,6 +550,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				rule.addDataTuple(tuple);
 				covered = true;
 			}
+		}
+		for (int i = 0; i < m_Rules.size(); i++) {
+			((ClusRule)m_Rules.get(i)).setErrorScore();
 		}
 		return covered;
 	}
