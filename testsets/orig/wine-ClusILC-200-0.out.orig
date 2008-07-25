@@ -1,84 +1,33 @@
 Clus run wine
 *************
 
-Date: 4/30/07 5:31 PM
+Date: 7/25/08 5:06 PM
 File: wine-ClusILC-200-0.out
 Attributes: 14 (input: 13, output: 13)
 Missing values: No
-Rows: 178
+Memory usage: 12884 kB (initial), 13092 kB (data loaded)
 
 [General]
 Verbose = 1
-RandomSeed = 0
-XVal = 10
-ResourceInfoLoaded = No
 Compatibility = Latest
+RandomSeed = 0
+ResourceInfoLoaded = Yes
 
 [Data]
-File = ../../data/wine/wine.arff
+File = ../data/wine/wine.arff
 TestSet = None
 PruneSet = None
-PruneSetMax = Infinity
+XVal = 10
 
 [Attributes]
 Target = 1-13
-Disable = None
 Clustering = 1-13
 Descriptive = 1-13
 Key = None
+Disable = None
 Weights = 1.0
 ClusteringWeights = 1.0
-
-[Model]
-MinimalWeight = 2.0
-ParamTuneNumberFolds = 10
-ClassWeights = 0.0
-
-[Tree]
-Heuristic = Default
-MaxDepth = Infinity
-BinarySplit = Yes
-PruningMethod = None
-1-SE-Rule = No
-M5PruningMult = 2.0
-ConvertToRules = No
-
-[Rules]
-CoveringMethod = RulesFromTree
-PredictionMethod = DecisionList
-RuleAddingMethod = Always
-CoveringWeight = 0.9
-InstCoveringWeightThreshold = 0.1
-MaxRulesNb = 1000
-HeurCoveragePar = 1.0
-CompHeurRuleDistPar = 0.0
-HeurPrototypeDistPar = 0.0
-RuleSignificanceLevel = 0.05
-RuleNbSigAtts = 0
-ComputeCompactness = No
-NumCompNormWeight = 4.0
-CompactnessWeights = 
-  TargetWeight = 1.0
-  NonTargetWeight = 1.0
-  NumericWeight = 1.0
-  NominalWeight = 1.0
-RandomRules = 0
-PrintRuleWiseErrors = No
-OptDEPopSize = 500
-OptDENumEval = 10000
-OptDECrossProb = 0.3
-OptDEWeight = 0.5
-OptDESeed = 0
-OptRegPar = 0.0
-OptRuleWeightThreshold = 0.1
-
-[Numeric]
-FTest = 1.0
-MultiScore = None
-
-[Nominal]
-GainRatio = No
-MEstimate = 1.0
+ReduceMemoryNominalAttrs = No
 
 [Constraints]
 Syntactic = None
@@ -86,29 +35,51 @@ MaxSize = Infinity
 MaxError = 0.0
 
 [Output]
+ShowModels = {Default, Pruned, Others}
+TrainErrors = No
 AllFoldModels = No
 AllFoldErrors = Yes
-TrainErrors = No
+WriteErrorFile = No
 UnknownFrequency = No
 BranchFrequency = No
 ShowInfo = {Count}
-ShowModels = {Default, Pruned, Others}
 PrintModelAndExamples = No
 WritePredictions = {None}
 ModelIDFiles = No
 OutputPythonModel = No
 OutputDatabaseQueries = No
 
-[Exhaustive]
-Exhaustive = Yes
-StartTreeCpt = 0
-StartItemCpt = 0
+[Nominal]
+MEstimate = 1.0
+
+[Model]
+MinimalWeight = 2.0
+ParamTuneNumberFolds = 10
+ClassWeights = 0.0
+
+[Tree]
+Heuristic = SSReduction
+FTest = 1.0
+MaxDepth = Infinity
+BinarySplit = Yes
+PruningMethod = None
+MSENominal = No
+ConvertToRules = No
+AlternativeSplits = No
 
 [ILevelC]
 Alpha = 0.5
 File = None
 NbRandomConstraints = 200
 RunCOPKMeans = No
+RunMPCKMeans = No
+
+[SIT]
+Main_target = Default
+Recursive = No
+Search = OneTarget
+Learner = ClusLearner
+Error = MSE
 
 Run: 01
 *******
@@ -117,8 +88,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.073 sec
-Pruning Time: 0 sec
+Induction Time: 0.136 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 19 (Leaves: 10)
@@ -132,6 +103,10 @@ Mean absolute error (MAE)
    Default        : [0.6885,0.9203,0.2092,2.595,10.9992,0.5363,0.8589,0.1047,0.4459,1.8358,0.1869,0.6117,259.3323], Avg: 3824.5999
    Original       : [0.4177,0.6753,0.195,2.0464,7.7542,0.3309,0.3514,0.0836,0.3516,1.1806,0.1241,0.3086,91.5786], Avg: 1443.1432
    Pruned         : [0.4177,0.6753,0.195,2.0464,7.7542,0.3309,0.3514,0.0836,0.3516,1.1806,0.1241,0.3086,91.5786], Avg: 1443.1432
+Mean squared error (MSE)
+   Default        : [0.6554,1.241,0.0748,11.09,202.8433,0.3895,0.9921,0.0154,0.3258,5.3443,0.052,0.5013,98609.601]: 7602.5481
+   Original       : [0.2703,0.8722,0.0615,6.8898,100.2739,0.1823,0.2172,0.0115,0.2121,2.4413,0.025,0.153,13547.3656]: 1050.6904
+   Pruned         : [0.2703,0.8722,0.0615,6.8898,100.2739,0.1823,0.2172,0.0115,0.2121,2.4413,0.025,0.153,13547.3656]: 1050.6904
 Root mean squared error (RMSE)
    Default        : [0.8095,1.114,0.2736,3.3302,14.2423,0.6241,0.996,0.1241,0.5707,2.3118,0.2279,0.708,314.0217]: 87.1926
    Original       : [0.5199,0.9339,0.248,2.6248,10.0137,0.427,0.466,0.1072,0.4605,1.5625,0.1582,0.3912,116.3932]: 32.4144
@@ -153,6 +128,10 @@ Mean absolute error (MAE)
    Default        : [0.6885,0.9203,0.2092,2.595,10.9992,0.5363,0.8589,0.1047,0.4459,1.8358,0.1869,0.6117,259.3323], Avg: 3824.5999
    Original       : [0.4032,0.6507,0.1839,2.0809,8.9805,0.3295,0.3727,0.0776,0.3669,1.2006,0.1286,0.3138,75.5178], Avg: 1240.6169
    Pruned         : [0.4032,0.6507,0.1839,2.0809,8.9805,0.3295,0.3727,0.0776,0.3669,1.2006,0.1286,0.3138,75.5178], Avg: 1240.6169
+Mean squared error (MSE)
+   Default        : [0.6554,1.241,0.0748,11.09,202.8433,0.3895,0.9921,0.0154,0.3258,5.3443,0.052,0.5013,98609.601]: 7602.5481
+   Original       : [0.2572,0.8225,0.0579,7.9879,141.7429,0.1905,0.302,0.0104,0.2343,2.6256,0.0277,0.1765,10245.7186]: 800.0118
+   Pruned         : [0.2572,0.8225,0.0579,7.9879,141.7429,0.1905,0.302,0.0104,0.2343,2.6256,0.0277,0.1765,10245.7186]: 800.0118
 Root mean squared error (RMSE)
    Default        : [0.8095,1.114,0.2736,3.3302,14.2423,0.6241,0.996,0.1241,0.5707,2.3118,0.2279,0.708,314.0217]: 87.1926
    Original       : [0.5071,0.9069,0.2406,2.8263,11.9056,0.4364,0.5495,0.1021,0.484,1.6204,0.1665,0.4202,101.2211]: 28.2845

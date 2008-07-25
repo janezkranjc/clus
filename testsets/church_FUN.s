@@ -4,7 +4,7 @@
 % cdiff %f.out orig/%f.out.orig
 
 % *CLEAN*
-% rm -f %f.out %f.model
+% rm -f %f.out %f.model hierarchy.txt
 
 [Data]
 File = ../data/church_FUN/church_FUN.trainvalid.arff.zip

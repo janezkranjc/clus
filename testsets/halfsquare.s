@@ -1,4 +1,11 @@
 
+% *RUN*
+% clus %f.s
+% cdiff %f.out orig/%f.out.orig
+
+% *CLEAN*
+% rm -f %f.out %f.model
+
 [Data]
 File = ../data/ilevelc/halfsquare/halfsquare.arff
 

@@ -1,0 +1,396 @@
+Clus run 'church0.names'
+************************
+
+Date: 7/25/08 5:30 PM
+File: church_FUN.out
+Attributes: 28 (input: 27, output: 1)
+Missing values: Yes
+Memory usage: 13632 kB (initial), 16012 kB (data loaded)
+
+[General]
+Verbose = 1
+Compatibility = Latest
+RandomSeed = 0
+ResourceInfoLoaded = Yes
+
+[Data]
+File = ../data/church_FUN/church_FUN.trainvalid.arff.zip
+TestSet = ../data/church_FUN/church_FUN.test.arff.zip
+PruneSet = None
+XVal = 10
+
+[Attributes]
+Target = 28
+Clustering = 28
+Descriptive = 1-27
+Key = None
+Disable = None
+Weights = Normalize
+ClusteringWeights = 1.0
+ReduceMemoryNominalAttrs = Yes
+
+[Constraints]
+Syntactic = None
+MaxSize = Infinity
+MaxError = 0.0
+
+[Output]
+ShowModels = {Default, Pruned, Others}
+TrainErrors = Yes
+AllFoldModels = Yes
+AllFoldErrors = No
+WriteErrorFile = No
+UnknownFrequency = No
+BranchFrequency = No
+ShowInfo = {Count}
+PrintModelAndExamples = No
+WritePredictions = {None}
+ModelIDFiles = No
+OutputPythonModel = No
+OutputDatabaseQueries = No
+
+[Nominal]
+MEstimate = 1.0
+
+[Model]
+MinimalWeight = 5.0
+ParamTuneNumberFolds = 10
+ClassWeights = 0.0
+
+[Tree]
+Heuristic = SSReduction
+FTest = 0.125
+MaxDepth = Infinity
+BinarySplit = Yes
+PruningMethod = Default
+MSENominal = No
+ConvertToRules = No
+AlternativeSplits = No
+
+[Hierarchical]
+Type = Tree
+WType = ExpAvgParentWeight
+WParam = 0.75
+HSeparator = /
+EmptySetIndicator = n
+DefinitionFile = None
+NoRootPredictions = No
+PruneInSig = 0.0
+Bonferroni = No
+ClassificationTreshold = [90.0,95.0]
+EvalClasses = None
+
+[SIT]
+Main_target = Default
+Recursive = No
+Search = OneTarget
+Learner = ClusLearner
+Error = MSE
+
+Run: 01
+*******
+
+Statistics
+----------
+
+FTValue (FTest): 0.125
+Induction Time: 3.58 sec (CPU)
+Pruning Time: 0.044 sec (CPU)
+Model information
+     Default: Nodes = 1 (Leaves: 1)
+     Original: Nodes = 53 (Leaves: 27)
+     T(90.0): Nodes = 53 (Leaves: 27)
+     T(95.0): Nodes = 53 (Leaves: 27)
+
+Training error
+--------------
+
+Number of examples: 2474
+Coverage:
+  Default: 0
+  Original: 218
+  T(90.0): 74
+  T(95.0): 62
+Hierarchical accuracy by class
+   Default        : precision: 0, recall: 0, coverage: 0, TP: 0, FP: 0, nbPos: 21448
+   Original       : precision: 0.712919, recall: 0.020841, coverage: 0.088116, TP: 447, FP: 180, nbPos: 21448
+      01, def: 0.3533, prec: 0.65, rec: 0.0446, TP: 39, FP: 21, nbPos: 874
+      01/05, def: 0.1229, prec: 0.5455, rec: 0.0395, TP: 12, FP: 10, nbPos: 304
+      02, def: 0.0877, prec: 0.7, rec: 0.0645, TP: 14, FP: 6, nbPos: 217
+      02/11, def: 0.0129, prec: 1, rec: 0.25, TP: 8, FP: 0, nbPos: 32
+      02/13, def: 0.0271, prec: 1, rec: 0.1194, TP: 8, FP: 0, nbPos: 67
+      02/45, def: 0.0105, prec: 0.625, rec: 0.1923, TP: 5, FP: 3, nbPos: 26
+      02/45/15, def: 0.0036, prec: 0.625, rec: 0.5556, TP: 5, FP: 3, nbPos: 9
+      12, def: 0.1108, prec: 0.82, rec: 0.2993, TP: 82, FP: 18, nbPos: 274
+      12/01, def: 0.0671, prec: 0.8372, rec: 0.4337, TP: 72, FP: 14, nbPos: 166
+      12/01/01, def: 0.0566, prec: 0.8023, rec: 0.4929, TP: 69, FP: 17, nbPos: 140
+      14, def: 0.249, prec: 0.5, rec: 0.0065, TP: 4, FP: 4, nbPos: 616
+      14/10, def: 0.0465, prec: 0.5, rec: 0.0348, TP: 4, FP: 4, nbPos: 115
+      16, def: 0.2324, prec: 0.5333, rec: 0.0139, TP: 8, FP: 7, nbPos: 575
+      16/03, def: 0.0691, prec: 0.6, rec: 0.0175, TP: 3, FP: 2, nbPos: 171
+      20, def: 0.2389, prec: 0.65, rec: 0.022, TP: 13, FP: 7, nbPos: 591
+      20/01, def: 0.1342, prec: 0.6, rec: 0.0361, TP: 12, FP: 8, nbPos: 332
+      20/01/01, def: 0.0368, prec: 0.625, rec: 0.0549, TP: 5, FP: 3, nbPos: 91
+      20/01/01/01, def: 0.0315, prec: 0.625, rec: 0.0641, TP: 5, FP: 3, nbPos: 78
+      20/01/15, def: 0.0198, prec: 0.75, rec: 0.1224, TP: 6, FP: 2, nbPos: 49
+      20/03, def: 0.0477, prec: 0.5, rec: 0.0339, TP: 4, FP: 4, nbPos: 118
+      20/03/22, def: 0.0129, prec: 0.5, rec: 0.125, TP: 4, FP: 4, nbPos: 32
+      20/09, def: 0.1633, prec: 0.5, rec: 0.0099, TP: 4, FP: 4, nbPos: 404
+      20/09/04, def: 0.0226, prec: 0.5, rec: 0.0714, TP: 4, FP: 4, nbPos: 56
+      32, def: 0.1213, prec: 0.8235, rec: 0.0467, TP: 14, FP: 3, nbPos: 300
+      32/01, def: 0.0978, prec: 0.7647, rec: 0.0537, TP: 13, FP: 4, nbPos: 242
+      34, def: 0.1071, prec: 0.5, rec: 0.0264, TP: 7, FP: 7, nbPos: 265
+      34/01, def: 0.0404, prec: 0.5, rec: 0.04, TP: 4, FP: 4, nbPos: 100
+      34/01/01, def: 0.038, prec: 0.5, rec: 0.0426, TP: 4, FP: 4, nbPos: 94
+      34/01/01/03, def: 0.0105, prec: 0.5, rec: 0.1538, TP: 4, FP: 4, nbPos: 26
+      42, def: 0.1778, prec: 0.6471, rec: 0.025, TP: 11, FP: 6, nbPos: 440
+   T(90.0)        : precision: 0.994475, recall: 0.008392, coverage: 0.029911, TP: 180, FP: 1, nbPos: 21448
+      01, def: 0.3533, prec: 0.9167, rec: 0.0126, TP: 11, FP: 1, nbPos: 874
+      02, def: 0.0877, prec: 1, rec: 0.0369, TP: 8, FP: 0, nbPos: 217
+      02/11, def: 0.0129, prec: 1, rec: 0.25, TP: 8, FP: 0, nbPos: 32
+      02/13, def: 0.0271, prec: 1, rec: 0.1194, TP: 8, FP: 0, nbPos: 67
+      12, def: 0.1108, prec: 1, rec: 0.1971, TP: 54, FP: 0, nbPos: 274
+      12/01, def: 0.0671, prec: 1, rec: 0.2892, TP: 48, FP: 0, nbPos: 166
+      12/01/01, def: 0.0566, prec: 1, rec: 0.3071, TP: 43, FP: 0, nbPos: 140
+   T(95.0)        : precision: 1, recall: 0.00788, coverage: 0.025061, TP: 169, FP: 0, nbPos: 21448
+      02, def: 0.0877, prec: 1, rec: 0.0369, TP: 8, FP: 0, nbPos: 217
+      02/11, def: 0.0129, prec: 1, rec: 0.25, TP: 8, FP: 0, nbPos: 32
+      02/13, def: 0.0271, prec: 1, rec: 0.1194, TP: 8, FP: 0, nbPos: 67
+      12, def: 0.1108, prec: 1, rec: 0.1971, TP: 54, FP: 0, nbPos: 274
+      12/01, def: 0.0671, prec: 1, rec: 0.2892, TP: 48, FP: 0, nbPos: 166
+      12/01/01, def: 0.0566, prec: 1, rec: 0.3071, TP: 43, FP: 0, nbPos: 140
+
+Testing error
+-------------
+
+Number of examples: 1281
+Coverage:
+  Default: 0
+  Original: 111
+  T(90.0): 29
+  T(95.0): 27
+Hierarchical accuracy by class
+   Default        : precision: 0, recall: 0, coverage: 0, TP: 0, FP: 0, nbPos: 11393
+   Original       : precision: 0.443262, recall: 0.010972, coverage: 0.086651, TP: 125, FP: 157, nbPos: 11393
+      01, def: 0.3528, prec: 0.5789, rec: 0.0487, TP: 22, FP: 16, nbPos: 452
+      01/05, def: 0.1304, prec: 0.3636, rec: 0.024, TP: 4, FP: 7, nbPos: 167
+      02, def: 0.0851, prec: 0.8, rec: 0.0367, TP: 4, FP: 1, nbPos: 109
+      02/11, def: 0.0133, prec: 0.6667, rec: 0.1176, TP: 2, FP: 1, nbPos: 17
+      02/13, def: 0.0351, prec: 0.6667, rec: 0.0444, TP: 2, FP: 1, nbPos: 45
+      02/45, def: 0.007, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 9
+      02/45/15, def: 0.0039, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 5
+      12, def: 0.1124, prec: 0.6739, rec: 0.2153, TP: 31, FP: 15, nbPos: 144
+      12/01, def: 0.0703, prec: 0.6757, rec: 0.2778, TP: 25, FP: 12, nbPos: 90
+      12/01/01, def: 0.0593, prec: 0.6757, rec: 0.3289, TP: 25, FP: 12, nbPos: 76
+      14, def: 0.2592, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 332
+      14/10, def: 0.0461, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 59
+      16, def: 0.2279, prec: 0.2, rec: 0.0068, TP: 2, FP: 8, nbPos: 292
+      16/03, def: 0.0804, prec: 0.2, rec: 0.0097, TP: 1, FP: 4, nbPos: 103
+      20, def: 0.2295, prec: 0, rec: 0, TP: 0, FP: 5, nbPos: 294
+      20/01, def: 0.1413, prec: 0, rec: 0, TP: 0, FP: 5, nbPos: 181
+      20/01/01, def: 0.032, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 41
+      20/01/01/01, def: 0.025, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 32
+      20/01/15, def: 0.0164, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 21
+      20/03, def: 0.0461, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 59
+      20/03/22, def: 0.0117, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 15
+      20/09, def: 0.1546, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 198
+      20/09/04, def: 0.0219, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 28
+      32, def: 0.1351, prec: 0.1, rec: 0.0058, TP: 1, FP: 9, nbPos: 173
+      32/01, def: 0.1101, prec: 0.1, rec: 0.0071, TP: 1, FP: 9, nbPos: 141
+      34, def: 0.1109, prec: 0.2, rec: 0.007, TP: 1, FP: 4, nbPos: 142
+      34/01, def: 0.0414, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 53
+      34/01/01, def: 0.0351, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 45
+      34/01/01/03, def: 0.0086, prec: 0, rec: 0, TP: 0, FP: 3, nbPos: 11
+      42, def: 0.1928, prec: 0.4, rec: 0.0162, TP: 4, FP: 6, nbPos: 247
+   T(90.0)        : precision: 0.787879, recall: 0.004564, coverage: 0.022639, TP: 52, FP: 14, nbPos: 11393
+      01, def: 0.3528, prec: 1, rec: 0.0044, TP: 2, FP: 0, nbPos: 452
+      02, def: 0.0851, prec: 1, rec: 0.0275, TP: 3, FP: 0, nbPos: 109
+      02/11, def: 0.0133, prec: 0.6667, rec: 0.1176, TP: 2, FP: 1, nbPos: 17
+      02/13, def: 0.0351, prec: 0.6667, rec: 0.0444, TP: 2, FP: 1, nbPos: 45
+      12, def: 0.1124, prec: 0.75, rec: 0.125, TP: 18, FP: 6, nbPos: 144
+      12/01, def: 0.0703, prec: 0.8125, rec: 0.1444, TP: 13, FP: 3, nbPos: 90
+      12/01/01, def: 0.0593, prec: 0.8, rec: 0.1579, TP: 12, FP: 3, nbPos: 76
+   T(95.0)        : precision: 0.78125, recall: 0.004389, coverage: 0.021077, TP: 50, FP: 14, nbPos: 11393
+      02, def: 0.0851, prec: 1, rec: 0.0275, TP: 3, FP: 0, nbPos: 109
+      02/11, def: 0.0133, prec: 0.6667, rec: 0.1176, TP: 2, FP: 1, nbPos: 17
+      02/13, def: 0.0351, prec: 0.6667, rec: 0.0444, TP: 2, FP: 1, nbPos: 45
+      12, def: 0.1124, prec: 0.75, rec: 0.125, TP: 18, FP: 6, nbPos: 144
+      12/01, def: 0.0703, prec: 0.8125, rec: 0.1444, TP: 13, FP: 3, nbPos: 90
+      12/01/01, def: 0.0593, prec: 0.8, rec: 0.1579, TP: 12, FP: 3, nbPos: 76
+
+Default Model
+*************
+
+none [2474]
+
+Original Model
+**************
+
+alpha_fy5_alpha > 1.29
++--yes: rel_heat_heat > 0.04
+|       +--yes: sig_heat > 0.33
+|       |       +--yes: heat_heat > 2.76
+|       |       |       +--yes: pp_number_of_probe_pairs > 20.0
+|       |       |       |       +--yes: 32/01,42 [12]
+|       |       |       |       +--no:  none [15]
+|       |       |       +--no:  pp_number_of_probe_pairs > 21.0
+|       |       |               +--yes: 12/01/01 [5]
+|       |       |               +--no:  none [16]
+|       |       +--no:  32/01,42 [5]
+|       +--no:  rel_alpha_fy5_alpha > -0.09
+|               +--yes: avg_abund > 1.16
+|               |       +--yes: pp_number_of_probe_pairs > 21.0
+|               |       |       +--yes: median_deviation_of_log_fc_fy5_alpha > 0.18
+|               |       |       |       +--yes: 12/01/01 [5]
+|               |       |       |       +--no:  rel_gal_gal > -0.14
+|               |       |       |               +--yes: rel_alpha_fy5_alpha > 0.03
+|               |       |       |               |       +--yes: 12/01/01 [15]
+|               |       |       |               |       +--no:  12/01/01 [5]
+|               |       |       |               +--no:  12/01/01 [5]
+|               |       |       +--no:  heat_heat > 1.31
+|               |       |               +--yes: sig_heat > 0.67
+|               |       |               |       +--yes: sig_heat > 2.33
+|               |       |               |       |       +--yes: 12/01/01 [8]
+|               |       |               |       |       +--no:  rel_heat_heat > -0.12
+|               |       |               |       |               +--yes: 12/01/01 [6]
+|               |       |               |       |               +--no:  12/01/01 [13]
+|               |       |               |       +--no:  rel_alpha_fy5_alpha > 0.01
+|               |       |               |               +--yes: 12/01/01 [24]
+|               |       |               |               +--no:  16 [10]
+|               |       |               +--no:  16/03 [5]
+|               |       +--no:  34 [6]
+|               +--no:  sig_fy5_alpha > 1.5
+|                       +--yes: 01/05 [10]
+|                       +--no:  12 [14]
++--no:  heat_heat > 0.21
+        +--yes: rel_heat_heat > 0.23
+        |       +--yes: none [76]
+        |       +--no:  rel_gal_gal > 0.15
+        |               +--yes: rel_heat_heat > -0.02
+        |               |       +--yes: 01 [38]
+        |               |       +--no:  median_deviation_of_log_fc_gal > 0.12
+        |               |               +--yes: 02,20/01 [12]
+        |               |               +--no:  02/11,02/13,02/45/15,14/10,20/01/01/01,20/01/15,20/03/22,20/09/04,34/01/01/03 [8]
+        |               +--no:  none [432]
+        +--no:  below_threshold_in_all_conditions > 0.0
+                +--yes: none [954]
+                +--no:  heat_heat > 0.12
+                        +--yes: none [262]
+                        +--no:  rel_gal_gal > 0.15
+                                +--yes: 01/05 [12]
+                                +--no:  none [501]
+
+T(90.0) Model
+*************
+
+alpha_fy5_alpha > 1.29
++--yes: rel_heat_heat > 0.04
+|       +--yes: sig_heat > 0.33
+|       |       +--yes: heat_heat > 2.76
+|       |       |       +--yes: pp_number_of_probe_pairs > 20.0
+|       |       |       |       +--yes: none [12]
+|       |       |       |       +--no:  none [15]
+|       |       |       +--no:  pp_number_of_probe_pairs > 21.0
+|       |       |               +--yes: 12/01/01 [5]
+|       |       |               +--no:  none [16]
+|       |       +--no:  none [5]
+|       +--no:  rel_alpha_fy5_alpha > -0.09
+|               +--yes: avg_abund > 1.16
+|               |       +--yes: pp_number_of_probe_pairs > 21.0
+|               |       |       +--yes: median_deviation_of_log_fc_fy5_alpha > 0.18
+|               |       |       |       +--yes: 12/01/01 [5]
+|               |       |       |       +--no:  rel_gal_gal > -0.14
+|               |       |       |               +--yes: rel_alpha_fy5_alpha > 0.03
+|               |       |       |               |       +--yes: 12/01/01 [15]
+|               |       |       |               |       +--no:  12/01/01 [5]
+|               |       |       |               +--no:  12/01 [5]
+|               |       |       +--no:  heat_heat > 1.31
+|               |       |               +--yes: sig_heat > 0.67
+|               |       |               |       +--yes: sig_heat > 2.33
+|               |       |               |       |       +--yes: none [8]
+|               |       |               |       |       +--no:  rel_heat_heat > -0.12
+|               |       |               |       |               +--yes: 12 [6]
+|               |       |               |       |               +--no:  12/01/01 [13]
+|               |       |               |       +--no:  rel_alpha_fy5_alpha > 0.01
+|               |       |               |               +--yes: none [24]
+|               |       |               |               +--no:  none [10]
+|               |       |               +--no:  none [5]
+|               |       +--no:  none [6]
+|               +--no:  sig_fy5_alpha > 1.5
+|                       +--yes: none [10]
+|                       +--no:  none [14]
++--no:  heat_heat > 0.21
+        +--yes: rel_heat_heat > 0.23
+        |       +--yes: none [76]
+        |       +--no:  rel_gal_gal > 0.15
+        |               +--yes: rel_heat_heat > -0.02
+        |               |       +--yes: none [38]
+        |               |       +--no:  median_deviation_of_log_fc_gal > 0.12
+        |               |               +--yes: none [12]
+        |               |               +--no:  02/11,02/13 [8]
+        |               +--no:  none [432]
+        +--no:  below_threshold_in_all_conditions > 0.0
+                +--yes: none [954]
+                +--no:  heat_heat > 0.12
+                        +--yes: none [262]
+                        +--no:  rel_gal_gal > 0.15
+                                +--yes: 01 [12]
+                                +--no:  none [501]
+
+T(95.0) Model
+*************
+
+alpha_fy5_alpha > 1.29
++--yes: rel_heat_heat > 0.04
+|       +--yes: sig_heat > 0.33
+|       |       +--yes: heat_heat > 2.76
+|       |       |       +--yes: pp_number_of_probe_pairs > 20.0
+|       |       |       |       +--yes: none [12]
+|       |       |       |       +--no:  none [15]
+|       |       |       +--no:  pp_number_of_probe_pairs > 21.0
+|       |       |               +--yes: 12/01/01 [5]
+|       |       |               +--no:  none [16]
+|       |       +--no:  none [5]
+|       +--no:  rel_alpha_fy5_alpha > -0.09
+|               +--yes: avg_abund > 1.16
+|               |       +--yes: pp_number_of_probe_pairs > 21.0
+|               |       |       +--yes: median_deviation_of_log_fc_fy5_alpha > 0.18
+|               |       |       |       +--yes: 12/01/01 [5]
+|               |       |       |       +--no:  rel_gal_gal > -0.14
+|               |       |       |               +--yes: rel_alpha_fy5_alpha > 0.03
+|               |       |       |               |       +--yes: 12/01/01 [15]
+|               |       |       |               |       +--no:  12/01/01 [5]
+|               |       |       |               +--no:  12/01 [5]
+|               |       |       +--no:  heat_heat > 1.31
+|               |       |               +--yes: sig_heat > 0.67
+|               |       |               |       +--yes: sig_heat > 2.33
+|               |       |               |       |       +--yes: none [8]
+|               |       |               |       |       +--no:  rel_heat_heat > -0.12
+|               |       |               |       |               +--yes: 12 [6]
+|               |       |               |       |               +--no:  12/01/01 [13]
+|               |       |               |       +--no:  rel_alpha_fy5_alpha > 0.01
+|               |       |               |               +--yes: none [24]
+|               |       |               |               +--no:  none [10]
+|               |       |               +--no:  none [5]
+|               |       +--no:  none [6]
+|               +--no:  sig_fy5_alpha > 1.5
+|                       +--yes: none [10]
+|                       +--no:  none [14]
++--no:  heat_heat > 0.21
+        +--yes: rel_heat_heat > 0.23
+        |       +--yes: none [76]
+        |       +--no:  rel_gal_gal > 0.15
+        |               +--yes: rel_heat_heat > -0.02
+        |               |       +--yes: none [38]
+        |               |       +--no:  median_deviation_of_log_fc_gal > 0.12
+        |               |               +--yes: none [12]
+        |               |               +--no:  02/11,02/13 [8]
+        |               +--no:  none [432]
+        +--no:  below_threshold_in_all_conditions > 0.0
+                +--yes: none [954]
+                +--no:  heat_heat > 0.12
+                        +--yes: none [262]
+                        +--no:  rel_gal_gal > 0.15
+                                +--yes: none [12]
+                                +--no:  none [501]
+

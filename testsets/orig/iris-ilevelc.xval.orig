@@ -1,16 +1,17 @@
 Clus run iris
 *************
 
-Date: 7/23/08 11:13 AM
+Date: 7/25/08 5:03 PM
 File: iris-ilevelc.xval
 Attributes: 5 (input: 4, output: 4)
 Missing values: No
+Memory usage: 12980 kB (initial), 13132 kB (data loaded)
 
 [General]
 Verbose = 1
 Compatibility = Latest
 RandomSeed = 0
-ResourceInfoLoaded = No
+ResourceInfoLoaded = Yes
 
 [Data]
 File = ../data/iris/iris.arff
@@ -87,8 +88,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.046 sec
-Pruning Time: 0.001 sec
+Induction Time: 0.056 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
@@ -124,8 +125,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.02 sec
-Pruning Time: 0 sec
+Induction Time: 0.012 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
@@ -161,8 +162,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.009 sec
-Pruning Time: 0 sec
+Induction Time: 0.008 sec (CPU)
+Pruning Time: 0.004 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
@@ -198,8 +199,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.009 sec
-Pruning Time: 0.001 sec
+Induction Time: 0.008 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
@@ -235,8 +236,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.122 sec
-Pruning Time: 0 sec
+Induction Time: 0.004 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
@@ -272,8 +273,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.018 sec
-Pruning Time: 0 sec
+Induction Time: 0.004 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
@@ -309,8 +310,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.009 sec
-Pruning Time: 0 sec
+Induction Time: 0.008 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
@@ -346,8 +347,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.005 sec
-Pruning Time: 0.001 sec
+Induction Time: 0.004 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
@@ -383,8 +384,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.039 sec
-Pruning Time: 0 sec
+Induction Time: 0.012 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
@@ -420,8 +421,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.013 sec
-Pruning Time: 0 sec
+Induction Time: 0.008 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
@@ -454,7 +455,7 @@ Summary
 *******
 
 Runs: 10
-Induction time: 0.29 sec
+Induction time: 0.124 sec
 Preprocessing time: 0 sec
 Mean number of tests
      Original: 5
@@ -469,13 +470,13 @@ Mean absolute error (MAE)
    Original       : [0.365,0.2582,0.3143,0.1735], Avg: 41.6639
    Pruned         : [0.365,0.2582,0.3143,0.1735], Avg: 41.6639
 Mean squared error (MSE)
-   Default        : [0,0,0,0]: 0
-   Original       : [0,0,0,0]: 0
-   Pruned         : [0,0,0,0]: 0
+   Default        : [0.6811,0.1868,3.0924,0.5785]: 1.1347
+   Original       : [0.2165,0.1117,0.1768,0.0534]: 0.1396
+   Pruned         : [0.2165,0.1117,0.1768,0.0534]: 0.1396
 Root mean squared error (RMSE)
-   Default        : [0,0,0,0]: 0
-   Original       : [0,0,0,0]: 0
-   Pruned         : [0,0,0,0]: 0
+   Default        : [0.8253,0.4321,1.7585,0.7606]: 1.0652
+   Original       : [0.4652,0.3342,0.4204,0.2311]: 0.3736
+   Pruned         : [0.4652,0.3342,0.4204,0.2311]: 0.3736
 Pearson correlation coefficient
    Default        : [0,0,?,?], Avg r^2: ?
    Original       : [0.8261,0.6354,0.9712,0.9532], Avg r^2: 0.7345

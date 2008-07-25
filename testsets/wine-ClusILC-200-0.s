@@ -1,3 +1,11 @@
+
+% *RUN*
+% clus -xval %f.s
+% cdiff %f.out orig/%f.out.orig
+
+% *CLEAN*
+% rm -f %f.out %f.xval %f.model
+
 !JOB = 33
 [General]
 RandomSeed = 0
