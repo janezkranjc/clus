@@ -34,11 +34,7 @@ public class SSPDHeuristic extends ClusHeuristic {
 
 	protected RowData m_Data;
 
-	// FIXME - matrix not used !!!
-	protected SSPDMatrix m_Matrix;
-
-	public SSPDHeuristic(SSPDMatrix mtrx) {
-		m_Matrix = mtrx;
+	public SSPDHeuristic() {
 	}
 
 	public void setData(RowData data) {

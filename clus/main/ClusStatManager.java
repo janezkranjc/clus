@@ -354,7 +354,6 @@ public class ClusStatManager implements Serializable {
 			getSettings().setSectionHierarchicalEnabled(true);
 			nb_types++;
 		}
-		// FIXME: SSPD mode does not work anymore
 		int nb_int = 0;
 		if (nb_int > 0 || m_Settings.checkHeuristic("SSPD")) {
 			m_Mode = MODE_SSPD;
@@ -381,8 +380,7 @@ public class ClusStatManager implements Serializable {
 			createHierarchy();
 			break;
 		case MODE_SSPD:
-			m_SSPDMtrx = SSPDMatrix.read(getSettings().getAppName() + ".dist",
-					getSettings());
+			m_SSPDMtrx = SSPDMatrix.read(getSettings().getFileAbsolute(getSettings().getAppName() + ".dist"), getSettings());
 			break;
 		}
 	}
@@ -434,8 +432,9 @@ public class ClusStatManager implements Serializable {
 			setTargetStatistic(new WHTDStatistic(m_Hier, getCompatibility()));
 			break;
 		case MODE_SSPD:
-			setClusteringStatistic(new SSPDStatistic(m_SSPDMtrx));
-			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx));
+			ClusAttrType[] target = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
+			setClusteringStatistic(new SSPDStatistic(m_SSPDMtrx, target));
+			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx, target));
 			break;
 		case MODE_TIME_SERIES:
 			switch (Settings.m_TimeSeriesDM.getValue()) {
@@ -551,7 +550,7 @@ public class ClusStatManager implements Serializable {
 			return;
 		}
 		if (m_Mode == MODE_SSPD) {
-			m_Heuristic = new SSPDHeuristic(m_SSPDMtrx);
+			m_Heuristic = new SSPDHeuristic();
 			getSettings().setHeuristic(Settings.HEURISTIC_SSPD);
 			return;
 		}

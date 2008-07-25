@@ -26,7 +26,10 @@ import jeans.list.*;
 
 import clus.main.Settings;
 import clus.statistic.*;
+import clus.util.ClusException;
 import clus.data.rows.*;
+import clus.data.type.ClusAttrType;
+import clus.data.type.IntegerAttrType;
 import clus.data.attweights.*;
 
 // This is used in combination with SSPDHeuristic
@@ -37,14 +40,24 @@ public class SSPDStatistic extends BitVectorStat {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected SSPDMatrix m_Matrix;
+	protected IntegerAttrType m_Target;
 	protected double m_Value;
 
-	public SSPDStatistic(SSPDMatrix mtrx) {
+	public SSPDStatistic(SSPDMatrix mtrx, ClusAttrType[] target) throws ClusException {
+		if (target.length != 1) {
+			throw new ClusException("Only one target allowed in SSPD modus");
+		}
 		m_Matrix = mtrx;
+		m_Target = (IntegerAttrType)target[0];
+	}
+	
+	public SSPDStatistic(SSPDMatrix mtrx, IntegerAttrType target) {
+		m_Matrix = mtrx;
+		m_Target = target;
 	}
 
 	public ClusStatistic cloneStat() {
-		SSPDStatistic stat = new SSPDStatistic(m_Matrix);
+		SSPDStatistic stat = new SSPDStatistic(m_Matrix, m_Target);
 		stat.cloneFrom(this);
 		return stat;
 	}
@@ -59,15 +72,16 @@ public class SSPDStatistic extends BitVectorStat {
 		if (!m_Modified) return;
 		m_Value = 0.0;
 		int nb = m_Bits.size();
+		int idx = m_Target.getArrayIndex();
 		for (int i = 0; i < nb; i++) {
 			if (m_Bits.getBit(i)) {
 				DataTuple a = data.getTuple(i);
 				double a_weight = a.getWeight();
-				int a_idx = a.m_Ints[0];
+				int a_idx = a.m_Ints[idx];
 				for (int j = 0; j <= i; j++) {
 					if (m_Bits.getBit(j)) {
 						DataTuple b = data.getTuple(j);
-						m_Value += a_weight*b.getWeight()*m_Matrix.get(a_idx, b.m_Ints[0]);
+						m_Value += a_weight*b.getWeight()*m_Matrix.get(a_idx, b.m_Ints[idx]);
 					}
 				}
 			}
@@ -88,15 +102,16 @@ public class SSPDStatistic extends BitVectorStat {
 		double value = 0.0;
 		int nb = m_Bits.size();
 		BitList posbits = pos.m_Bits;
+		int idx = m_Target.getArrayIndex();
 		for (int i = 0; i < nb; i++) {
 			if (m_Bits.getBit(i) && (!posbits.getBit(i))) {
 				DataTuple a = data.getTuple(i);
 				double a_weight = a.getWeight();
-				int a_idx = a.m_Ints[0];
+				int a_idx = a.m_Ints[idx];
 				for (int j = 0; j <= i; j++) {
 					if (m_Bits.getBit(j) && (!posbits.getBit(j))) {
 						DataTuple b = data.getTuple(j);
-						value += a_weight*b.getWeight()*m_Matrix.get(a_idx, b.m_Ints[0]);
+						value += a_weight*b.getWeight()*m_Matrix.get(a_idx, b.m_Ints[idx]);
 					}
 				}
 			}

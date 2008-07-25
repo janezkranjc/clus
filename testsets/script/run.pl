@@ -29,6 +29,7 @@ while (($hasclean == 0) && ($line = <IN>)) {
             if (!($line =~ /^\s*\%\%/)) {
                $line =~ s/^\s*\%\s*//;
                $line =~ s/cdiff/perl script\/cdiff.pl/;
+               $line =~ s/mdiff/perl script\/mdiff.pl/;
                $eval = "\$line =~ s/\\%f/$stem/g";
                eval($eval);
                print "$line\n";

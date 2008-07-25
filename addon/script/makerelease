@@ -1,5 +1,5 @@
 #!/bin/sh
-VERS="2.3"
+VERS="2.4"
 rm -rf release
 mkdir -p release
 mkdir -p release/Clus-$VERS
