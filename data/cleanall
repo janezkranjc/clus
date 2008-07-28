@@ -9,3 +9,4 @@ while ($line = <FILE>) {
 	}
 }
 close(FILE);
+system("rm -rf church_FUN/AUC_average");
