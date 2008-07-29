@@ -663,14 +663,12 @@ double dis3 = disp;
     m_ClassStat.copy(or.m_ClassStat);
   }
 
-  // TODO: Is this ok???
   public void addPrediction(ClusStatistic other, double weight) {
     CombStat or = (CombStat)other;
     m_RegStat.addPrediction(or.m_RegStat, weight);
     m_ClassStat.addPrediction(or.m_ClassStat, weight);
   }
 
-  // TODO: Is this ok???
   public void add(ClusStatistic other) {
     CombStat or = (CombStat)other;
     m_RegStat.add(or.m_RegStat);
@@ -678,7 +676,6 @@ double dis3 = disp;
     m_SumWeight += or.m_SumWeight;
   }
 
-  // TODO: Is this ok???
   public void subtractFromThis(ClusStatistic other) {
     CombStat or = (CombStat)other;
     m_RegStat.subtractFromThis(or.m_RegStat);
@@ -686,7 +683,6 @@ double dis3 = disp;
     m_SumWeight -= or.m_SumWeight;
   }
 
-  // TODO: Is this ok???
   public void subtractFromOther(ClusStatistic other) {
     CombStat or = (CombStat)other;
     m_RegStat.subtractFromOther(or.m_RegStat);
@@ -700,7 +696,7 @@ double dis3 = disp;
 
   public String getPredictedClassName(int idx) {
 		return "";
-	}
+  }
 
   public int getNbNumericAttributes() {
     return m_RegStat.getNbNumericAttributes();
@@ -716,11 +712,6 @@ double dis3 = disp;
 
   public Settings getSettings() {
     return m_StatManager.getSettings();
-  }
-
-  // TODO: Is this 'null' ok?
-  public double getError() {
-    return getError(null);
   }
 
   // TODO: This error asessement should be changed, I guess.

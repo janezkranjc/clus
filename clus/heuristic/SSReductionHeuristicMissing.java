@@ -66,7 +66,7 @@ public class SSReductionHeuristicMissing extends ClusHeuristic {
 		double s_ss_pos = m_Pos.getSS(m_TargetWeights);
 		double s_ss_neg = m_Neg.getSS(m_TargetWeights);		
 		double s_ss_tot = m_Tot.getSS(m_TargetWeights);		
-		return FTest.calcSSHeuristic(n_tot, s_ss_tot, s_ss_pos, s_ss_neg);
+		return FTest.calcSSHeuristic(n_tot, s_ss_tot, s_ss_pos+s_ss_neg);
 	}
 	
 	public String getName() {

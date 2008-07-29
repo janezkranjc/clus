@@ -203,7 +203,11 @@ public class RegressionStat extends ClusStatistic {
 	public double getSumValues(int i) {
 		return m_SumValues[i];
 	}
-
+	
+	public double getSumWeights(int i) {
+		return m_SumWeights[i];
+	}
+	
 	public double getSS(int i) {
 		double n_tot = m_SumWeight;
 		double k_tot = m_SumWeights[i];
@@ -365,7 +369,9 @@ public class RegressionStat extends ClusStatistic {
 		buf.append("[");
 		for (int i = 0; i < m_NbAttrs; i++) {
 			if (i != 0) buf.append(",");
-			buf.append(fr.format(m_Means[i]));
+			double tot = getSumWeights(i);
+			if (tot == 0) buf.append("?");
+			else buf.append(fr.format(getSumValues(i)/tot));
 		}
 		buf.append("]");
 		if (info.SHOW_EXAMPLE_COUNT_BYTARGET) {

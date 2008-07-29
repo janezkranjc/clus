@@ -63,7 +63,7 @@ public class SSDHeuristic extends ClusHeuristic {
 		double ss_neg = m_NegStat.getSS(m_TargetWeights, m_Data);
 		//System.out.println("SS-neg: "+ss_neg);
 		//System.out.println("DONE.");
-		double value = FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos, ss_neg);
+		double value = FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos+ss_neg);
 		if (Settings.VERBOSE >= 10) {
 			System.out.println("TOT: "+tstat.getDebugString());
 			System.out.println("POS: "+pstat.getDebugString());

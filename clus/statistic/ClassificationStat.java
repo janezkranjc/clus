@@ -254,6 +254,14 @@ public class ClassificationStat extends ClusStatistic {
 		return m_class;
 	}
 
+	public double entropy() {
+		double sum = 0.0;
+		for (int i = 0; i < m_NbTarget; i++) {
+			sum += entropy(i, m_SumWeight);
+		}
+		return sum;
+	}
+	
 	public double entropy(int attr, double total) {
 		if (total < 1e-6) {
 			return 0.0;
@@ -270,6 +278,15 @@ public class ClassificationStat extends ClusStatistic {
 		}
 	}
 
+	public double entropyDifference(ClassificationStat other) {
+		double sum = 0.0;
+		double tot = m_SumWeight - other.m_SumWeight;
+		for (int i = 0; i < m_NbTarget; i++) {
+			sum += entropyDifference(i, other, tot);
+		}
+		return sum;
+	}
+		
 	public double entropyDifference(int attr, ClassificationStat other, double total) {
 		double acc = 0.0;
 		double[] clcts = m_ClassCounts[attr];

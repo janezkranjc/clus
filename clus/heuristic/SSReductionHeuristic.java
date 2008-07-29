@@ -29,17 +29,17 @@ import clus.data.type.*;
 
 public class SSReductionHeuristic extends ClusHeuristic {
 
-	private ClusAttributeWeights m_TargetWeights;
+	private ClusAttributeWeights m_ClusteringWeights;
 	private ClusAttrType[] m_Attrs;
 
 	public SSReductionHeuristic(ClusAttributeWeights prod, ClusAttrType[] attrs) {
-		m_TargetWeights = prod;
+		m_ClusteringWeights = prod;
 		m_Attrs = attrs;
 	}
 
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
-		double n_tot = tstat.m_SumWeight;
-		double n_pos = pstat.m_SumWeight;
+		double n_tot = tstat.getTotalWeight();
+		double n_pos = pstat.getTotalWeight();
 		double n_neg = n_tot - n_pos;
 		// Acceptable?
 		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
@@ -51,15 +51,32 @@ public class SSReductionHeuristic extends ClusHeuristic {
 		}
 		*/
 		// Compute SS
-		double ss_tot = tstat.getSS(m_TargetWeights);
-		double ss_pos = pstat.getSS(m_TargetWeights);
-		double ss_neg = tstat.getSSDiff(m_TargetWeights, pstat);
+		double ss_tot = tstat.getSS(m_ClusteringWeights);
+		double ss_pos = pstat.getSS(m_ClusteringWeights);
+		double ss_neg = tstat.getSSDiff(m_ClusteringWeights, pstat);
 		// printInfo(ss_tot, ss_pos, ss_neg, pstat);
-		return FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos, ss_neg);
+		return FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos+ss_neg);
+	}
+	
+	public double calcHeuristic(ClusStatistic tstat, ClusStatistic[] pstat, int nbsplit) {
+		// Acceptable?
+		for (int i = 0; i < nbsplit; i++) {
+			if (pstat[i].getTotalWeight() < Settings.MINIMAL_WEIGHT) {
+				return Double.NEGATIVE_INFINITY;
+			}
+		}
+		// Compute SS
+		double ss_sum = 0.0;
+		for (int i = 0; i < nbsplit; i++) {
+			ss_sum += pstat[i].getSS(m_ClusteringWeights);
+		}
+		double ss_tot = tstat.getSS(m_ClusteringWeights);
+		double n_tot = tstat.getTotalWeight();
+		return FTest.calcSSHeuristic(n_tot, ss_tot, ss_sum);
 	}
 
 	public String getName() {
-		return "SS-Reduction (ftest: "+Settings.FTEST_VALUE+", "+m_TargetWeights.getName(m_Attrs)+")";
+		return "SS-Reduction (ftest: "+Settings.FTEST_VALUE+", "+m_ClusteringWeights.getName(m_Attrs)+")";
 	}
 
 	public void printInfo(double ss_tot, double ss_pos, double ss_neg, ClusStatistic pstat) {

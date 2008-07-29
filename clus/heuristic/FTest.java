@@ -188,20 +188,19 @@ public class FTest {
 		}
 	}
 
-	public static double calcSSHeuristic(double n_tot, double ss_tot, double ss_pos, double ss_neg) {
+	public static double calcSSHeuristic(double n_tot, double ss_tot, double ss_sum) {
 		int n_2 = (int)Math.floor(n_tot - 2.0 + 0.5);
-		double sum_ss = ss_pos + ss_neg;
-		double value = ss_tot - sum_ss;
+		double value = ss_tot - ss_sum;
 		if (value < MathUtil.C1E_9) return Double.NEGATIVE_INFINITY;
 		if (n_2 <= 0) {
 			if (Settings.FTEST_LEVEL == 0) return value;
 			else return Double.NEGATIVE_INFINITY;
 		} else {
-			if (FTest.ftest(Settings.FTEST_LEVEL, ss_tot, sum_ss, n_2)) {
+			if (FTest.ftest(Settings.FTEST_LEVEL, ss_tot, ss_sum, n_2)) {
 				return value;
 			} else {
 				return Double.NEGATIVE_INFINITY;
 			}
 		}
-	}
+	}	
 }

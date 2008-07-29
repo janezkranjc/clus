@@ -19,9 +19,9 @@ $mainname =~ s/\.[^\.]+$//;
 @methods = ("avg", "wavg");
 
 $ILLEGAL{"root"} = 1;
-#$ILLEGAL{"GO0003674"} = 1;
-#$ILLEGAL{"GO0005575"} = 1;
-#$ILLEGAL{"GO0008150"} = 1;
+$ILLEGAL{"GO0003674"} = 1;
+$ILLEGAL{"GO0005575"} = 1;
+$ILLEGAL{"GO0008150"} = 1;
 
 get_all_classes($outfile);
 read_class_pr_values($outfile);
@@ -453,4 +453,3 @@ sub get_area_file_byclass {
    close(IN);
    system("rm -f AUC_average/${dname}_${printclass}*");
 }
-

@@ -55,7 +55,7 @@ public class SSPDHeuristic extends ClusHeuristic {
 		double ss_tot = tstat.getSS(m_Data);
 		double ss_pos = pstat.getSS(m_Data);
 		double ss_neg = tstat.getDiffSS(pstat, m_Data);
-		return FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos, ss_neg);
+		return FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos+ss_neg);
 	}
 
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic[] c_pstat, int nbsplit) {
