@@ -88,7 +88,7 @@ public class NumericAttrType extends ClusAttrType {
 	}
 
 	public String getString(DataTuple tuple) {
-		double val = tuple.m_Doubles[m_ArrayIndex];
+		double val = this.getNumeric(tuple);
 // FIXME - SOON - STATUS_KEY attribute :-)
 		if (getStatus() == STATUS_KEY) {
 			return String.valueOf((int)val);
