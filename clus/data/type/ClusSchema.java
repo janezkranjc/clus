@@ -540,6 +540,9 @@ public class ClusSchema implements Serializable {
 	}
 
 	public void initializeFrom(ClusSchema schema) throws ClusException {
+		if (schema.isSparse())
+			this.ensureSparse();
+		
 		int this_nb = getNbAttributes();
 		int other_nb = schema.getNbAttributes();
 		if (other_nb > this_nb) {
@@ -554,7 +557,7 @@ public class ClusSchema implements Serializable {
 			}
 			if (this_type.getClass() != other_type.getClass()) {
 				throw new ClusException("Attribute types do not match for '"+other_type.getName()+
-		                                "' expected '"+other_type.getTypeName()+" but found '"+this_type.getTypeName()+"'");
+		                                "' expected '"+other_type.getClass().getName()+"' but found '"+this_type.getClass().getName()+"'");
 			}
 			this_type.initializeFrom(other_type);
 		}
