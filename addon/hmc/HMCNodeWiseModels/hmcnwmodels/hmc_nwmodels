@@ -1,0 +1,6 @@
+#!/bin/sh
+export WEKA_DIR=$HOME/weka-3-4-10
+export CLUS_DIR=$HOME/Clus
+export HMC_AVG_SINGLE_DIR=$CLUS_DIR/addon/hmc/HMCNodeWiseModels/bin
+echo $HMC_AVG_SINGLE_DIR
+java -Xmx1000000000 -Xms1000000000 -cp "$HMC_AVG_SINGLE_DIR/.:$CLUS_DIR/bin:$WEKA_DIR/weka.jar:$CLUS_DIR/commons-math-1.0.jar" hmcnwmodels/HMCNodeWiseModels $*
