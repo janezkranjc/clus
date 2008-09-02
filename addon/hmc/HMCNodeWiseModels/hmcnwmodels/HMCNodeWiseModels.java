@@ -33,6 +33,7 @@ import clus.algo.*;
 import clus.algo.tdidt.*;
 import clus.data.rows.*;
 import clus.data.type.*;
+import clus.ext.ensembles.ClusEnsembleClassifier;
 import clus.ext.hierarchical.*;
 import clus.main.*;
 import clus.model.*;
@@ -42,8 +43,8 @@ import clus.util.*;
 
 public class HMCNodeWiseModels implements CMDLineArgsProvider {
 
-	private static String[] g_Options = {};
-	private static int[] g_OptionArities = {};
+	private static String[] g_Options = {"forest"};
+	private static int[] g_OptionArities = {0};
 
 	protected Clus m_Clus;
 	protected CMDLineArgs m_Cargs;
@@ -54,31 +55,42 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			m_Clus = new Clus();
 			Settings sett = m_Clus.getSettings();
 			m_Cargs = new CMDLineArgs(this);
+			
+			System.out.println("args: "+ args[0]);
+			m_Cargs.process(args);
 
-			String[] newargs = new String[args.length-1];
+/*			String[] newargs = new String[args.length-1];
 			for (int i=0; i<newargs.length; i++)
 			{
 				newargs[i] = args[i];
 			}
 			readFtests(args[args.length-1]);
 			m_Cargs.process(newargs);
+\*/
 
-//			m_Cargs.process(args);
 
 			if (m_Cargs.allOK()) {
 				(new File("nodewise")).mkdir();
 				(new File("nodewise/out")).mkdir();
 				(new File("nodewise/model")).mkdir();
 				sett.setDate(new Date());
+				
+				System.out.println("appname: "+ m_Cargs.getMainArg(0));
+				
 				sett.setAppName(m_Cargs.getMainArg(0));
 				m_Clus.initSettings(m_Cargs);
 				ClusDecisionTree clss = new ClusDecisionTree(m_Clus);
 				m_Clus.initialize(m_Cargs, clss);
 				doRun();
 			}
+			else
+			{
+				System.out.println("m_Cargs nok");
+			}
 	}
 
 	private void readFtests(String filename) {
+		System.out.println("filename: "+ filename);
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(filename));
 			String s;
@@ -161,7 +173,14 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			ClassesAttrType ctype = new ClassesAttrType(nodeName+"-"+childName);
 			ClusSchema cschema = createChildSchema(train.getSchema(), ctype, "REL-"+nodeName+"-"+childName);
 			RowData childData = createChildData(nodeData, ctype, child.getIndex());
-			ClusInductionAlgorithmType clss = new ClusDecisionTree(m_Clus);
+			ClusInductionAlgorithmType clss;
+			if (m_Cargs.hasOption("forest")) {
+				clss = new ClusEnsembleClassifier(m_Clus);
+			}
+			else {
+				clss = new ClusDecisionTree(m_Clus);
+			}
+			
 			m_Clus.recreateInduce(m_Cargs, clss, cschema, childData);
 			String name = m_Clus.getSettings().getAppName() + "-" + nodeName + "-" + childName;
 			ClusRun cr = new ClusRun(childData.cloneData(), m_Clus.getSummary());
