@@ -56,7 +56,6 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			Settings sett = m_Clus.getSettings();
 			m_Cargs = new CMDLineArgs(this);
 			
-			System.out.println("args: "+ args[0]);
 			m_Cargs.process(args);
 
 /*			String[] newargs = new String[args.length-1];
@@ -73,15 +72,11 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				(new File("nodewise")).mkdir();
 				(new File("nodewise/out")).mkdir();
 				(new File("nodewise/model")).mkdir();
-				sett.setDate(new Date());
-				
-				System.out.println("appname: "+ m_Cargs.getMainArg(0));
-				
+				sett.setDate(new Date());		
 				sett.setAppName(m_Cargs.getMainArg(0));
 				m_Clus.initSettings(m_Cargs);
 				ClusDecisionTree clss = new ClusDecisionTree(m_Clus);
 				m_Clus.initialize(m_Cargs, clss);
-				System.out.println("Do RUN");
 				doRun();
 			}
 			else
@@ -110,20 +105,6 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			e.printStackTrace();
 		}
 	}
-
-
-	/*public RowData getNodeData(RowData train, int nodeid) {
-		ArrayList selected = new ArrayList();
-		for (int i = 0; i < train.getNbRows(); i++) {
-			DataTuple tuple = train.getTuple(i);
-			ClassesTuple target = (ClassesTuple)tuple.getObjVal(0);
-			if (nodeid == -1 || target.hasClass(nodeid)) {
-				selected.add(tuple);
-			}
-		}
-		return new RowData(selected, train.getSchema());
-	}*/
-	
 	
 	public RowData getNodeData(RowData train, int nodeid) {
 		ArrayList selected = new ArrayList();
@@ -189,7 +170,6 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 	}
 
 	public void doOneNode(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid) throws ClusException, IOException {
-		System.out.println("Do ONE NODE");
 		// get data relevant to node
 		RowData nodeData = getNodeData(train, node.getIndex());
 		String nodeName = node.toPathString("=");
