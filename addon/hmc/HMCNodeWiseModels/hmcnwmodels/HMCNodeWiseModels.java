@@ -81,6 +81,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				m_Clus.initSettings(m_Cargs);
 				ClusDecisionTree clss = new ClusDecisionTree(m_Clus);
 				m_Clus.initialize(m_Cargs, clss);
+				System.out.println("Do RUN");
 				doRun();
 			}
 			else
@@ -111,10 +112,29 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 	}
 
 
-	public RowData getNodeData(RowData train, int nodeid) {
+	/*public RowData getNodeData(RowData train, int nodeid) {
 		ArrayList selected = new ArrayList();
 		for (int i = 0; i < train.getNbRows(); i++) {
 			DataTuple tuple = train.getTuple(i);
+			ClassesTuple target = (ClassesTuple)tuple.getObjVal(0);
+			if (nodeid == -1 || target.hasClass(nodeid)) {
+				selected.add(tuple);
+			}
+		}
+		return new RowData(selected, train.getSchema());
+	}*/
+	
+	
+	public RowData getNodeData(RowData train, int nodeid) {
+		ArrayList selected = new ArrayList();
+		for (int i = 0; i < train.getNbRows(); i++) {
+			DataTuple tuple;
+			if (m_Clus.getSchema().isSparse()) {
+				tuple = (SparseDataTuple)train.getTuple(i);
+			}
+			else {
+				tuple = train.getTuple(i);
+			}
 			ClassesTuple target = (ClassesTuple)tuple.getObjVal(0);
 			if (nodeid == -1 || target.hasClass(nodeid)) {
 				selected.add(tuple);
@@ -133,7 +153,13 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 		RowData childData = new RowData(ctype.getSchema(), nodeData.getNbRows());
 		for (int j = 0; j < nodeData.getNbRows(); j++) {
 			ClassesTuple clss = null;
-			DataTuple tuple = nodeData.getTuple(j);
+			DataTuple tuple;
+			if (m_Clus.getSchema().isSparse()) {
+				tuple = (SparseDataTuple)nodeData.getTuple(j);
+			}
+			else {
+				tuple = nodeData.getTuple(j);
+			}
 			ClassesTuple target = (ClassesTuple)tuple.getObjVal(0);
 			if (target.hasClass(childid)) {
 				clss = new ClassesTuple(1);
@@ -163,6 +189,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 	}
 
 	public void doOneNode(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid) throws ClusException, IOException {
+		System.out.println("Do ONE NODE");
 		// get data relevant to node
 		RowData nodeData = getNodeData(train, node.getIndex());
 		String nodeName = node.toPathString("=");
