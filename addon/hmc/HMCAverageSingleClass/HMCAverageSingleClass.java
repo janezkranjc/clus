@@ -41,6 +41,7 @@ import clus.util.*;
 import clus.statistic.*;
 import clus.data.type.*;
 import clus.model.*;
+import clus.model.ClusModel;
 import clus.model.modelio.*;
 import clus.ext.hierarchical.*;
 import clus.error.*;
