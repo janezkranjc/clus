@@ -52,9 +52,8 @@ public class ClusBeamSyntacticConstraint {
 	public void initializeConstraint(ClusRun run) throws IOException{
 		ClusStatManager csm = run.getStatManager();
 		ClusTreeReader rdr = new ClusTreeReader();
-		ClusSchema cs = csm.getSchema();
-		String bconstrFile = run.getStatManager().getSettings().getBeamConstraintFile();
-		m_Constraint = rdr.loadTree(bconstrFile, cs);
+		String bconstrFile = csm.getSettings().getBeamConstraintFile();
+		m_Constraint = rdr.loadTree(bconstrFile, csm.getSchema());
 		m_Constraint.setClusteringStat(csm.createClusteringStat());
 		m_Constraint.setTargetStat(csm.createTargetStat());
 	}
@@ -87,6 +86,7 @@ public class ClusBeamSyntacticConstraint {
 		ArrayList predictions = new ArrayList();
 		double[] singleattr;
 		boolean isNum = (run.getStatManager().getMode() == 1);
+		
 		for (int k = 0; k < ClusBeamModelDistance.m_NbTarget; k++){
 			singleattr = new double[train.getNbRows()];
 			for (int i = 0; i < (train.getNbRows()); i++){

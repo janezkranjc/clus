@@ -25,7 +25,10 @@ package clus.ext.beamsearch;
 
 import java.util.ArrayList;
 
+import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.*;
+import clus.data.type.ClusAttrType;
+import clus.data.type.NumericAttrType;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.statistic.*;
@@ -40,7 +43,8 @@ public class ClusBeamModelDistance{
 	boolean isNominal = false;
 	boolean isStatInitialized = false;
 	boolean isBeamUpdated = false;
-
+	static double[] m_NormCoefficients;//The squared distances are normalized only for regression. Here we keep stored 1/var of the targets...
+	
 	public ClusBeamModelDistance(ClusRun run, ClusBeam beam){
 		m_Data = (RowData)run.getTrainingSet();
 		if (m_Data == null){
@@ -55,15 +59,25 @@ public class ClusBeamModelDistance{
 	public void setStatType(ClusStatManager mngr){
 		if (mngr.getMode() == ClusStatManager.MODE_CLASSIFY)
 			isNominal = true;
-		else if (mngr.getMode() == ClusStatManager.MODE_REGRESSION)
+		else if (mngr.getMode() == ClusStatManager.MODE_REGRESSION){
 			isNumeric = true;
+			initNormCoefficients(mngr);
+		}
 		else {
 			System.err.println(getClass().getName()+": initializeStat(): Unsupported Target Variables");
-			System.exit(1);
+			System.exit(1);			
 		}
-		isStatInitialized = true;
+		m_NbTarget = mngr.getSchema().getNbNumericTargetAttributes()+mngr.getSchema().getNbNominalTargetAttributes();
 	}
 
+	public void initNormCoefficients(ClusStatManager mngr){//this is used only for regression
+		NumericAttrType[] attrs = mngr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		ClusAttributeWeights caw = mngr.getNormalizationWeights();
+		m_NormCoefficients = new double[attrs.length];
+		for (int i = 0; i < attrs.length; i++)
+			m_NormCoefficients[i] = caw.getWeight(attrs[i]);
+	}
+	
 	public void fillBeamWithPredictions(ClusBeam beam){
 		ArrayList arr = beam.toArray();
 		ClusBeamModel model;
@@ -73,40 +87,35 @@ public class ClusBeamModelDistance{
 		}
 	}
 
-	//this method should be optimized
 	public ArrayList getPredictions(ClusModel model){
-		ClusStatistic stat;
-		DataTuple tuple;
 		ArrayList predictions = new ArrayList();
-		double[] predictattr;// = new double[m_NbRows];
-		for (int k = 0; k < m_NbTarget; k++){
-			predictattr = new double[m_NbRows];
-			for (int i = 0; i < (m_NbRows); i++){
-				tuple = m_Data.getTuple(i);
-				stat = model.predictWeighted(tuple);
-				if (isNumeric)	predictattr[i] = stat.getNumericPred()[k];
-				else if (isNominal)	predictattr[i] = stat.getNominalPred()[k];
+//		double[] predictattr;// = new double[m_NbRows];
+		for (int i = 0; i < m_NbRows; i++){
+			DataTuple tuple = m_Data.getTuple(i);
+			ClusStatistic stat = model.predictWeighted(tuple);
+			if (isNumeric){
+				double[] tuple_predictions = stat.getNumericPred();
+				predictions.add(tuple_predictions);
+			}else {
+				double[][] tuple_predictions = ((ClassificationStat)stat).getProbabilityPrediction();
+				predictions.add(tuple_predictions);
 			}
-			predictions.add(predictattr);
 		}
 		return predictions;
-	}
-
+	}	
+	
 	public static ArrayList getPredictionsDataSet(ClusModel model, RowData train, boolean isNum){
-		ClusStatistic stat;
-		DataTuple tuple;
 		ArrayList predictions = new ArrayList();
-		double[] predictattr;// = new double[m_NbRows];
-		int nb_target = train.getSchema().getNbNumericTargetAttributes() + train.getSchema().getNbNominalTargetAttributes();
-		for (int k = 0; k < nb_target; k++){
-			predictattr = new double[train.getNbRows()];
-			for (int i = 0; i < (train.getNbRows()); i++){
-				tuple = train.getTuple(i);
-				stat = model.predictWeighted(tuple);
-				if (isNum)	predictattr[i] = stat.getNumericPred()[k];
-				else predictattr[i] = stat.getNominalPred()[k];
+		for (int i = 0; i < train.getNbRows(); i++){
+			DataTuple tuple = train.getTuple(i);
+			ClusStatistic stat = model.predictWeighted(tuple);
+			if (isNum){
+				double[] tuple_predictions = stat.getNumericPred();
+				predictions.add(tuple_predictions);
+			}else {
+				double[][] tuple_predictions = ((ClassificationStat)stat).getProbabilityPrediction();
+				predictions.add(tuple_predictions);
 			}
-			predictions.add(predictattr);
 		}
 		return predictions;
 	}
@@ -115,25 +124,24 @@ public class ClusBeamModelDistance{
 	 * For nominal target attributes
 	 * @param pred1 - predictions for model 1
 	 * @param pred2 - predictions for model 2
-	 * @return square root from mean distance between the predictions
+	 * @return averaged squared distances between the predictions
 	 */
-	public static double getDistanceNominal(ArrayList pred1, ArrayList pred2){
+	public static double getDistanceNominal(ArrayList predictions1, ArrayList predictions2){
 		double result = 0.0;
-		double resAttr;
-		double[] pred1val;
-		double[] pred2val;
-		for (int k = 0; k < pred1.size(); k++){
-			resAttr = 0.0;
-			pred1val = (double[])pred1.get(k);
-			pred2val = (double[])pred2.get(k);
-			for (int i=0; i < pred1val.length; i++)
-				if (pred1val[i] != pred2val[i])
-					resAttr++;
-			result += Math.sqrt(resAttr / pred1val.length);
+		double[] per_target = new double[m_NbTarget];
+		for (int k = 0; k < predictions1.size(); k++){//for all tuples
+			double[][] pred1val = (double[][])predictions1.get(k);
+			double[][] pred2val = (double[][])predictions2.get(k);
+			for (int i=0; i < pred1val.length; i++) //for each target
+				per_target[i] += getSquaredDistance(pred1val[i], pred2val[i]);
+//				result_attr += getSquaredDistance(pred1val[i], pred2val[i]);
+//			result += result_attr / pred1val.length; //average per target
 		}
-		return result / pred1.size();
+		for (int j = 0; j < per_target.length; j++)
+			result += per_target[j];
+		result = result / per_target.length; //average per target
+		return result / predictions1.size();//average per tuple
 	}
-
 
 	/**Dragi
 	 * For numeric target attributes
@@ -142,30 +150,20 @@ public class ClusBeamModelDistance{
 	 * @param pred2 - predictions for model 2
 	 * @return normalized square root from mean squared distance between the predictions
 	 */
-	public static double getDistanceNumeric(ArrayList pred1, ArrayList pred2){
+	public static double getDistanceNumeric(ArrayList predictions1, ArrayList predictions2){
 		double result = 0.0;
-		double resAttr;// = 0.0;
-		double max;// = Double.NEGATIVE_INFINITY;
-		double min;// = Double.POSITIVE_INFINITY;
-		double[] pred1val;
-		double[] pred2val;
-		for (int k = 0; k < pred1.size(); k++){
-			max = Double.NEGATIVE_INFINITY;
-			min = Double.POSITIVE_INFINITY;
-			pred1val = (double[])pred1.get(k);
-			pred2val = (double[])pred2.get(k);
-			resAttr = 0.0;
-			for (int i=0; i < pred1val.length; i++){
-				if (pred1val[i] > max) max = pred1val[i];
-				if (pred2val[i] > max) max = pred2val[i];
-				if (pred1val[i] < min) min = pred1val[i];
-				if (pred2val[i] < min) min = pred2val[i];
-				resAttr +=Math.pow((pred1val[i]-pred2val[i]), 2);
+		double[] per_target = new double[m_NbTarget];
+		for (int k = 0; k < predictions1.size(); k++){//for all tuples
+			double[] pred1val = (double[])predictions1.get(k);
+			double[] pred2val = (double[])predictions2.get(k);
+			for (int i=0; i < pred1val.length; i++){ //for all targets
+				per_target[i] += (pred1val[i]-pred2val[i])*(pred1val[i]-pred2val[i]);
 			}
-			if (max == min) return 0.0; // this is extreme case when all predictions are equal
-			result += Math.sqrt(resAttr/pred1val.length)/(max-min);
 		}
-		return result / pred1.size();
+		for (int j = 0; j < per_target.length; j++)
+			result += per_target[j] * m_NormCoefficients[j];
+		result = result / per_target.length; //average per target
+		return result / predictions1.size();//average per tuple
 	}
 
 	public void calculatePredictionDistances(ClusBeam beam,ClusBeamModel candidate){
@@ -401,15 +399,15 @@ public class ClusBeamModelDistance{
 		return result / beam.size();
 	}
 
-	public void printDebugInfo(ClusBeam beam){
-		ArrayList arr = beam.toArray();
-		ClusBeamModel model;
-		for (int i = 0; i < arr.size(); i++){
-			model = (ClusBeamModel) arr.get(i);
-			System.out.print(model.getDistanceToBeam()+"\t");
-		}
-		System.out.println();
-	}
+//	public void printDebugInfo(ClusBeam beam){
+//		ArrayList arr = beam.toArray();
+//		ClusBeamModel model;
+//		for (int i = 0; i < arr.size(); i++){
+//			model = (ClusBeamModel) arr.get(i);
+//			System.out.print(model.getDistanceToBeam()+"\t");
+//		}
+//		System.out.println();
+//	}
 
 	/**Dragi
 	 * Calculates the distance between a given model and the syntactic constraint
@@ -422,5 +420,12 @@ public class ClusBeamModelDistance{
 			return (1 - getDistanceNumeric(model.getModelPredictions(), constraint.getConstraintPredictions()));
 		else
 			return (1- getDistanceNominal(model.getModelPredictions(), constraint.getConstraintPredictions()));
+	}
+	
+	public final static double getSquaredDistance(double[] a, double[] b){
+		double result = 0.0;
+		for (int i = 0; i < a.length; i++)
+			result += (a[i] - b[i]) * (a[i] - b[i]);
+		return result;
 	}
 }

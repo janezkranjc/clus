@@ -688,4 +688,18 @@ public class ClassificationStat extends ClusStatistic {
 	public ClassificationStat getClassificationStat() {
 		return this;
 	}
+	
+	public double[][] getProbabilityPrediction(){
+		double[][] result = new double[m_NbTarget][];
+		for (int i = 0; i < m_NbTarget; i++) {//for each target
+			double total = 0.0;
+			for (int k = 0; k < m_ClassCounts[i].length; k++)
+				total += m_ClassCounts[i][k]; //get the number of instances
+			result[i] = new double[m_ClassCounts[i].length];
+			for (int j = 0; j < result[i].length; j++) 
+				result[i][j] = m_ClassCounts[i][j]/total;//store the frequencies
+		}		
+		return result;
+	}
+	
 }
