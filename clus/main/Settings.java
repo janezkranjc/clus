@@ -1247,6 +1247,7 @@ public class Settings implements Serializable {
 	public static boolean m_EnsembleMode = false;
 	public static INIFileBool m_EnsembleShouldOpt;
 	public static INIFileBool m_EnsembleOOBestimate;
+	protected INIFileBool m_FeatureRanking;
 
 
 	public boolean isEnsembleMode() {
@@ -1261,6 +1262,10 @@ public class Settings implements Serializable {
 		return m_EnsembleMethod.getValue();
 	}
 
+	public boolean shouldPerformRanking(){
+		return m_FeatureRanking.getValue();
+	}
+	
 	public INIFileNominalOrIntOrVector getNbBaggingSets(){
 		if (!m_NbBags.isVector()&&(m_NbBags.getInt() == 0))m_NbBags.setInt(10);
 		return m_NbBags;
@@ -1493,6 +1498,7 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_PrintAllModels = new INIFileBool("PrintAllModels", false));
 		m_SectionEnsembles.addNode(m_EnsembleShouldOpt = new INIFileBool("Optimize", false));
 		m_SectionEnsembles.addNode(m_EnsembleOOBestimate = new INIFileBool("OOBestimate", false));
+		m_SectionEnsembles.addNode(m_FeatureRanking = new INIFileBool("FeatureRanking", false));
 		m_SectionEnsembles.setEnabled(false);
 
 		m_SectionKNN = new INIFileSection("kNN");

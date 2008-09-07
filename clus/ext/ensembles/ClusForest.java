@@ -139,19 +139,56 @@ public class ClusForest implements ClusModel, Serializable{
 	}
 
 	public ClusStatistic predictWeightedOOB(DataTuple tuple) {
+		
+		if (ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_HIERARCHICAL || ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_REGRESSION)
+			return predictWeightedOOBRegressionHMC(tuple);
+		if (ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_CLASSIFY)
+			return predictWeightedOOBClassification(tuple);
+		
+		System.err.println(this.getClass().getName()+".predictWeightedOOB(DataTuple) - Error in Setting the Mode");
+		return null;
+	}
+
+	public ClusStatistic predictWeightedOOBRegressionHMC(DataTuple tuple) {
 		double[] predictions = null;
 		if (ClusEnsembleInduce.m_OOBPredictions.containsKey(tuple.hashCode()))
 			predictions = (double[])ClusEnsembleInduce.m_OOBPredictions.get(tuple.hashCode());
 		else{
-			System.err.println(this.getClass().getName()+".predictWeightedOOB(DataTuple) - Missing Prediction For Tuple");
+			System.err.println(this.getClass().getName()+".predictWeightedOOBRegressionHMC(DataTuple) - Missing Prediction For Tuple");
 			System.err.println("Tuple Hash = "+tuple.hashCode());
 		}
 		m_Stat.reset();
-		((WHTDStatistic)m_Stat).m_Means = new double[predictions.length];
-		for (int j = 0; j < predictions.length; j++){
-			((WHTDStatistic)m_Stat).m_Means[j] = predictions[j];
+		
+		if (ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_HIERARCHICAL || ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_REGRESSION){
+			((RegressionStat)m_Stat).m_Means = new double[predictions.length];
+			for (int j = 0; j < predictions.length; j++){
+				((RegressionStat)m_Stat).m_Means[j] = predictions[j];
+			}	
+			if (ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_HIERARCHICAL) m_Stat = (WHTDStatistic)m_Stat;
+			m_Stat.computePrediction();
 		}
-		m_Stat.computePrediction();
+		
+		return m_Stat;
+	}
+
+	public ClusStatistic predictWeightedOOBClassification(DataTuple tuple) {
+		double[][] predictions = null;
+		if (ClusEnsembleInduce.m_OOBPredictions.containsKey(tuple.hashCode()))
+			predictions = (double[][])ClusEnsembleInduce.m_OOBPredictions.get(tuple.hashCode());
+		else{
+			System.err.println(this.getClass().getName()+".predictWeightedOOBClassification(DataTuple) - Missing Prediction For Tuple");
+			System.err.println("Tuple Hash = "+tuple.hashCode());
+		}
+		m_Stat.reset();
+		
+		((ClassificationStat)m_Stat).m_ClassCounts = new double[predictions.length][];
+			for (int m = 0; m < predictions.length; m++){
+				((ClassificationStat)m_Stat).m_ClassCounts[m] = new double[predictions[m].length];
+				for (int n = 0; n < predictions[m].length; n++){
+					((ClassificationStat)m_Stat).m_ClassCounts[m][n] = predictions[m][n];
+				}
+			}
+			m_Stat.computePrediction();
 		return m_Stat;
 	}
 
