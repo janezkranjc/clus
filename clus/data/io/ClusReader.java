@@ -278,23 +278,22 @@ public class ClusReader {
 		Reader reader = m_Token.getReader();
 		m_Scratch.setLength(0);
 		int ch = getNextChar(reader);
-		int prev = ch;
-		while ((ch != -1) && (prev !=']')) {
-			if (ch !=(int) '\t' && ch != 10 && ch != 13) {
-				m_Scratch.append((char)ch);
- 			} else {
-				if (ch == 10 || ch == 13) setLastChar(13);
-			}
-			prev = ch;
-			ch = reader.read();
+		while ((ch == ' ' || ch == '\t') && ch != -1) {
+			ch = getNextChar(reader);
 		}
-
-//		if (ch==']')
-//			m_Scratch.append((char)ch);
-
-		if (ch == -1)
-			m_Scratch.append((char)prev);
-
+		if (ch != '[') {
+			throw new IOException("Error parsing time series attribute "+m_Attr+" at row "+(m_Row+1)+": '[' not found");
+		} else {
+			m_Scratch.append((char)ch);
+		}
+		ch = getNextChar(reader);		
+		while (ch != -1) {
+			if (ch != '\t') {
+				m_Scratch.append((char)ch);
+			}
+			if (ch == ']') break;
+			ch = getNextChar(reader);
+		}		
 		String result = m_Scratch.toString().trim();
 		if (result.length() > 0) {
 			m_Attr++;
