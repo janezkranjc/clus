@@ -20,7 +20,7 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package ilevelc;
+package addon.ILevelC.ilevelc;
 
 import java.io.*;
 import java.util.*;

@@ -1,9 +1,12 @@
 
 size 18 6
 
+! Process this file with GLE available at:
+! <www.gle-graphics.org>
+
 set texlabels 1 hei 0.28
 
-ds$ = "church_FUN-allthres"
+ds$ = "church_FUN"
 
 fopen "AUC_average/"+ds$+".areas" f1 read
 fread f1 n$ orig

@@ -20,7 +20,7 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package hmcnwmodels;
+package addon.hmc.HMCNodeWiseModels.hmcnwmodels;
 
 import java.io.*;
 import java.util.*;

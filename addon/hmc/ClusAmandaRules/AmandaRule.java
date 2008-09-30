@@ -20,6 +20,8 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
+package addon.hmc.ClusAmandaRules;
+
 /*
  * Created on Jan 2, 2006
  */

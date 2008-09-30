@@ -20,6 +20,8 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
+package addon.hmc.HMCAverageSingleClass;
+
 /*
  * Created on Jan 18, 2006
  */

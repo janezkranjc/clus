@@ -15,6 +15,7 @@ find release/Clus-$VERS/ -name ".cvsignore" -exec rm -f {} \;
 find release/Clus-$VERS/data -name "debug.txt" -exec rm -f {} \;
 find release/Clus-$VERS/data -name "*.model" -exec rm -f {} \;
 find release/Clus-$VERS/data -name "*.xval" -exec rm -f {} \;
+find release/Clus-$VERS/data -name ".gle" -exec rm -rf {} \;
 cd release/Clus-$VERS/
 . compile.sh
 cd bin

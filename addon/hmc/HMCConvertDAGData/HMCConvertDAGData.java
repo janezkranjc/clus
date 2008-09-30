@@ -20,6 +20,8 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
+package addon.hmc.HMCConvertDAGData;
+
 import jeans.util.*;
 import clus.*;
 import clus.main.*;

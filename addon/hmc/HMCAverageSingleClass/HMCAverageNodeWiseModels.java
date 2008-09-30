@@ -20,6 +20,8 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
+package addon.hmc.HMCAverageSingleClass;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
