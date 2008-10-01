@@ -1,13 +1,14 @@
+
+package addon.hmc.HMCConvertToSC;
+
 import java.util.*;
 import jeans.util.*;
+
 import clus.*;
 import clus.main.*;
 import clus.data.rows.*;
-import clus.ext.hierarchical.ClassHierarchy;
-import clus.ext.hierarchical.ClassesTuple;
-import clus.ext.hierarchical.ClassTerm;
-import clus.io.*;
-
+import clus.data.io.*;
+import clus.ext.hierarchical.*;
 
 public class HMCConvertToSC {
 
@@ -34,8 +35,8 @@ public class HMCConvertToSC {
 			ClusRun run = clus.partitionData();
 
 			RowData train = (RowData)run.getTrainingSet();
-			classes = new boolean[train.getNbTuples()][hier.getTotal()];
-			for (int i = 0; i < train.getNbTuples(); i++) {
+			classes = new boolean[train.getNbRows()][hier.getTotal()];
+			for (int i = 0; i < train.getNbRows(); i++) {
 	   			DataTuple tuple = train.getTuple(i);
 	   			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
 	   			Arrays.fill(classes[i], false);
@@ -45,8 +46,8 @@ public class HMCConvertToSC {
 
 			if (!sett.isNullTestFile()) {
 				RowData test  = (RowData)run.getTestSet();
-				classes = new boolean[test.getNbTuples()][hier.getTotal()];
-				for (int i = 0; i < test.getNbTuples(); i++) {
+				classes = new boolean[test.getNbRows()][hier.getTotal()];
+				for (int i = 0; i < test.getNbRows(); i++) {
 		   			DataTuple tuple = test.getTuple(i);
 		   			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
 		   			Arrays.fill(classes[i], false);
@@ -56,8 +57,8 @@ public class HMCConvertToSC {
 			}
 			if (!sett.isNullPruneFile()) {
 				RowData tune  = (RowData)run.getPruneSet();	
-				classes = new boolean[tune.getNbTuples()][hier.getTotal()];
-				for (int i = 0; i < tune.getNbTuples(); i++) {
+				classes = new boolean[tune.getNbRows()][hier.getTotal()];
+				for (int i = 0; i < tune.getNbRows(); i++) {
 		   			DataTuple tuple = tune.getTuple(i);
 		   			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
 		   			Arrays.fill(classes[i], false);
@@ -67,8 +68,8 @@ public class HMCConvertToSC {
 			}		
 		} else {
 			RowData data = (RowData)clus.getData();		
-			classes = new boolean[data.getNbTuples()][hier.getTotal()];
-			for (int i = 0; i < data.getNbTuples(); i++) {
+			classes = new boolean[data.getNbRows()][hier.getTotal()];
+			for (int i = 0; i < data.getNbRows(); i++) {
 	   			DataTuple tuple = data.getTuple(i);
 	   			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
 	   			Arrays.fill(classes[i], false);
