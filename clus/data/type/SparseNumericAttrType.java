@@ -27,6 +27,7 @@ public class SparseNumericAttrType extends NumericAttrType {
 	public SparseNumericAttrType cloneType() {
 		SparseNumericAttrType at = new SparseNumericAttrType(m_Name);
 		cloneType(at);
+		at.setIndex(getIndex());
 		return at;
 	}
 	
@@ -38,9 +39,9 @@ public class SparseNumericAttrType extends NumericAttrType {
 	public int getValueType() {
 		return VALUE_TYPE_NONE;
 	}
-
+	
 	public double getNumeric(DataTuple tuple) {
-		return ((SparseDataTuple)tuple).getDoubleValueSparse(m_IntIndex);
+		return ((SparseDataTuple)tuple).getDoubleValueSparse(getIndex());
 	}
 
 	public boolean isMissing(DataTuple tuple) {
