@@ -102,6 +102,7 @@ public class HMCConvertToSC {
 				wrt.print("@ATTRIBUTE ");
 				wrt.print(classterms[i]);
 				if (binary) {
+					// don't change this type
 					wrt.print("     numeric");
 				} else {
 					wrt.print("     hierarchical     p,n");
@@ -152,6 +153,8 @@ public class HMCConvertToSC {
 		while (match && mainargs < args.length) {
 			match = false;
 			if (args[mainargs].equals("-binary")) {
+				// generate data in 1/0 encoding instead of p/n encoding
+				// IMPORTANT: the attribute type is also "numeric" and not "hierarchical"
 				binary = true;
 				match = true;
 			}
