@@ -170,7 +170,14 @@ public class ClusReader {
 			} else if (ch == '%') {
 				allowall = true;
 			} else if (ch != ' ' && ch != '\t' && allowall == false) {
-				throw new IOException("Too many data on row "+m_Row+": '"+(char)ch+"'");
+				int cnt = 0;				
+				StringBuffer err = new StringBuffer();
+				while (ch != 10 && ch != 13 && cnt < 100) {
+					err.append((char)ch);
+					ch = getNextChar(reader);
+					cnt++;
+				}
+				throw new IOException("Too many data on row "+m_Row+": '"+err.toString()+"'");
 			}
 			ch = reader.read();
 		}
@@ -188,7 +195,6 @@ public class ClusReader {
 		}
 	}
 
-	// TODO: add better support for quotes?
 	public String readString() throws IOException {
 		int nb = 0;
 		Reader reader = m_Token.getReader();
@@ -202,6 +208,15 @@ public class ClusReader {
 			if (ch != '\t' && ch != 10 && ch != 13) {
 				m_Scratch.append((char)ch);
 				if (ch != ' ') nb++;
+				if (nb == 1 && ch == '\"') {
+					ch = reader.read();
+					// Add support for escaped quotes, i.e., '\"'?
+					while (ch != -1 && ch != 10 && ch != 13 && ch != '\"') {
+						m_Scratch.append((char)ch);
+						ch = reader.read();
+					}
+					if (ch == '\"') m_Scratch.append((char)ch);
+				}
 			} else {
 				if (ch == 10 || ch == 13) setLastChar(13);
 				if (nb > 0) break;
