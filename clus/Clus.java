@@ -791,9 +791,6 @@ public class Clus implements CMDLineArgsProvider {
 		return cr;
 	}
 
-
-
-
 	public final void singleRun(ClusInductionAlgorithmType clss) throws IOException, ClusException {
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
 		m_Summary.setTotalRuns(1);
@@ -820,10 +817,11 @@ public class Clus implements CMDLineArgsProvider {
 		ClusStatistic tr_stat = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
 		cr.getTrainingSet().calcTotalStat(tr_stat);
 		getStatManager().setTrainSetStat(tr_stat);
-		// ARFFFile.writeCN2Data("train-all.exs", (RowData)cr.getTrainingSet());
-		// ARFFFile.writeOrangeData("train-all.tab", (RowData)cr.getTrainingSet());
-	  // ARFFFile.writeFRSHead("header.pl", (RowData)cr.getTrainingSet(), true);
-	  // ARFFFile.writeFRSData("train-all.pl", (RowData)cr.getTrainingSet(), true);
+		// Used for exporting data to CN2 and Orange formats
+		/* ARFFFile.writeCN2Data("train-all.exs", (RowData)cr.getTrainingSet());
+		   ARFFFile.writeOrangeData("train-all.tab", (RowData)cr.getTrainingSet());
+	       ARFFFile.writeFRSHead("header.pl", (RowData)cr.getTrainingSet(), true);
+	       ARFFFile.writeFRSData("train-all.pl", (RowData)cr.getTrainingSet(), true); */
 		induce(cr, clss); // Induce model
 		if (summ == null) {
 			// E.g., rule-wise error measures
@@ -934,11 +932,12 @@ public class Clus implements CMDLineArgsProvider {
 		if (wrt != null) {
 			wrt.println("! Fold = " + fold);
 			cr.getAllModelsMI().addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
-		}		
-		// ARFFFile.writeCN2Data("test-"+i+".exs", cr.getTestSet());
-		// ARFFFile.writeCN2Data("train-"+i+".exs", (RowData)cr.getTrainingSet());
-		// ARFFFile.writeOrangeData("test-"+fold+".tab", cr.getTestSet());
-		// ARFFFile.writeOrangeData("train-"+fold+".tab", (RowData)cr.getTrainingSet());
+		}
+		// Used for exporting data to CN2 and Orange formats
+		/* ARFFFile.writeCN2Data("test-"+i+".exs", cr.getTestSet());
+		   ARFFFile.writeCN2Data("train-"+i+".exs", (RowData)cr.getTrainingSet());
+		   ARFFFile.writeOrangeData("test-"+fold+".tab", cr.getTestSet());
+		   ARFFFile.writeOrangeData("train-"+fold+".tab", (RowData)cr.getTrainingSet()); */
 		// Induce tree
 		induce(cr, clss);
 		if (m_Sett.isRuleWiseErrors()) {
@@ -1173,7 +1172,7 @@ public class Clus implements CMDLineArgsProvider {
 					clss = new KNNTreeClassifier(clus);
 				} else if (cargs.hasOption("rules")) {
 					clus.getSettings().setSectionBeamEnabled(true);
-					clus.getSettings().setSectionTreeEnabled(false);
+					// clus.getSettings().setSectionTreeEnabled(false);
 					clss = new ClusRuleClassifier(clus);
 				} else if (cargs.hasOption("weka")) {
 					// clss = new ClusWekaClassifier(clus, cargs.getOptionValue("weka"));
@@ -1194,7 +1193,6 @@ public class Clus implements CMDLineArgsProvider {
 					//new part by beau
 					clss = new ClusDecisionTree(clus);
 					clss = new ClusSITDecisionTree(clss);
-
 				} else if (cargs.hasOption("forest")) {
 					sett.setEnsembleMode(true);
 					clss = new ClusEnsembleClassifier(clus);

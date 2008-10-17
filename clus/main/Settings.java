@@ -276,7 +276,6 @@ public class Settings implements Serializable {
 		return m_Weights;
 	}
 
-
 	public boolean hasNonTrivialWeights() {
 		for (int i = 0; i < m_Weights.getVectorLength(); i++) {
 			if (m_Weights.isNominal(i))
@@ -1418,6 +1417,7 @@ public class Settings implements Serializable {
 		rules.addNode(m_CoveringWeight = new INIFileDouble("CoveringWeight", 0.9));
 		rules.addNode(m_InstCoveringWeightThreshold = new INIFileDouble("InstCoveringWeightThreshold", 0.1));
 		rules.addNode(m_MaxRulesNb = new INIFileInt("MaxRulesNb", 1000));
+	    rules.addNode(m_HeurDispOffset = new INIFileDouble("HeurDispOffset", 0.0));
 		rules.addNode(m_HeurCoveragePar = new INIFileDouble("HeurCoveragePar", 1.0));
 		rules.addNode(m_HeurRuleDistPar = new INIFileDouble("CompHeurRuleDistPar", 0.0));
 		rules.addNode(m_HeurPrototypeDistPar = new INIFileDouble("HeurPrototypeDistPar", 0.0));

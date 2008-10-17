@@ -973,66 +973,60 @@ public class ClusStatManager implements Serializable {
 		int covering = sett.getCoveringMethod();
 		int prediction = sett.getRulePredictionMethod();
 		// General
-		if (((sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_ADT)
-				|| (sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_MLT)
-				|| (sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_ADT) || (sett
-				.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_MLT))
-				&& sett.isHeurRuleDist()) {
+		if (((sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_ADT) ||
+			(sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_MLT) ||
+			(sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_ADT) ||
+			(sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_MLT)) &&
+			 sett.isHeurRuleDist()) {
 			sett.setHeurRuleDistPar(0.0);
 		}
-		if (sett.isRuleSignificanceTesting()) { // Is this faster than calling
-			// isRuleSignificanceTesting()
-			Settings.IS_RULE_SIG_TESTING = true; // from Compactness
-			// heuristic each time?
+		if (sett.isRuleSignificanceTesting()) {
+			Settings.IS_RULE_SIG_TESTING = true;
+			// Is this faster than calling isRuleSignificanceTesting()
+			// from Dispersion heuristic each time?
 		}
 		// Random rules
 		if (sett.isRandomRules()) {
 			sett.setCoveringMethod(Settings.COVERING_METHOD_STANDARD);
 			// sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_DECISION_LIST);
-			// ???
 			sett.setCoveringWeight(0);
-			// Ordered rules
+		// Ordered rules
 		} else if (covering == Settings.COVERING_METHOD_STANDARD) {
 			// sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_DECISION_LIST);
 			sett.setCoveringWeight(0);
-			// Unordered rules - Heuristic covering
+		// Unordered rules - Heuristic covering
 		} else if (covering == Settings.COVERING_METHOD_HEURISTIC_ONLY) {
-			if ((prediction == Settings.RULE_PREDICTION_METHOD_DECISION_LIST)
-					|| (prediction == Settings.RULE_PREDICTION_METHOD_UNION)) {
-				sett
-						.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
+			if ((prediction == Settings.RULE_PREDICTION_METHOD_DECISION_LIST) ||
+				(prediction == Settings.RULE_PREDICTION_METHOD_UNION)) {
+				sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
 			}
 			sett.setCoveringWeight(0.0);
 			if (getSettings().getHeurRuleDistPar() < 0) {
-				throw new ClusException("Clus heuristic covering: CompHeurRuleDistPar must be >= 0!");
+				throw new ClusException("Clus heuristic covering: HeurRuleDistPar must be >= 0!");
 			}
-			if ((sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_ADT)
-					|| (sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_MLT)
-					|| (sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_ADT)
-					|| (sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_MLT)) {
-				throw new ClusException(
-						"Clus heuristic covering: Only Dispersion-based heuristics supported!");
+			if ((sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_ADT) ||
+				(sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_MLT) ||
+				(sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_ADT) ||
+				(sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_MLT)) {
+				throw new ClusException("Clus heuristic covering: Only dispersion-based heuristics supported!");
 			}
-			// Unordered rules - Weighted coverings
-		} else if ((covering == Settings.COVERING_METHOD_WEIGHTED_ADDITIVE)
-				|| (covering == Settings.COVERING_METHOD_WEIGHTED_MULTIPLICATIVE)
-				|| (covering == Settings.COVERING_METHOD_WEIGHTED_ERROR)
-				|| (covering == Settings.COVERING_METHOD_BEAM_RULE_DEF_SET)
-				|| (covering == Settings.COVERING_METHOD_RANDOM_RULE_SET)) {
-			if ((prediction == Settings.RULE_PREDICTION_METHOD_DECISION_LIST)
-					|| (prediction == Settings.RULE_PREDICTION_METHOD_UNION)) {
-				sett
-						.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
+		// Unordered rules - Weighted coverings
+		} else if ((covering == Settings.COVERING_METHOD_WEIGHTED_ADDITIVE) ||
+					(covering == Settings.COVERING_METHOD_WEIGHTED_MULTIPLICATIVE) ||
+					(covering == Settings.COVERING_METHOD_WEIGHTED_ERROR) ||
+					(covering == Settings.COVERING_METHOD_BEAM_RULE_DEF_SET) ||
+					(covering == Settings.COVERING_METHOD_RANDOM_RULE_SET)) {
+			if ((prediction == Settings.RULE_PREDICTION_METHOD_DECISION_LIST) ||
+				(prediction == Settings.RULE_PREDICTION_METHOD_UNION)) {
+				sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
 			}
 			if (sett.getCoveringWeight() < 0) {
-				throw new ClusException(
-						"Clus weighted covering: Covering weight must be >= 0!");
+				throw new ClusException("Clus weighted covering: Covering weight must be >= 0!");
 			}
-			// Rule induction from bootstrap sampled data, optimized ...
+		// Rule induction from bootstrap sampled data, optimized ...
 		} else if (covering == Settings.COVERING_METHOD_STANDARD_BOOTSTRAP) {
-			sett
-					.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_OPTIMIZED);
-			// Multi-label classification
+			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_OPTIMIZED);
+		// Multi-label classification
 		} else if (covering == Settings.COVERING_METHOD_UNION) {
 			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_UNION);
 		}
