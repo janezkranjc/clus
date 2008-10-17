@@ -304,8 +304,11 @@ public class ClusStatManager implements Serializable {
 			CombStat cmb = (CombStat) stat;
 			RegressionStat rstat = cmb.getRegressionStat();
 			rstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
-			ClassificationStat cstat = cmb.getClassificationStat();
-			cstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
+			// Normalization is currently required for trees but not for rules
+			if (!isRuleInduce()) {
+				ClassificationStat cstat = cmb.getClassificationStat();
+				cstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
+			}
 		}
 	}
 
