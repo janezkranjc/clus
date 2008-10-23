@@ -102,6 +102,7 @@ public class SubsetSplit extends NominalSplit {
 					((CombStat)m_PStat).getSettings().isHeurRuleDist()) {
 				((ClusRuleHeuristicDispersion)node.m_Heuristic).setDataIndexes(new int[0]);
 			}
+			boolean allowSubsetSplits = getStatManager().getSettings().isNominalSubsetTests();
 			while ((bvalue != -1) && ((card+1) < nbvalues)) {
 				bvalue = -1;
 				for (int j = 0; j < nbvalues; j++) {
@@ -120,7 +121,7 @@ public class SubsetSplit extends NominalSplit {
 						}
 						// Calc heuristic
 						double mheur = node.calcHeuristic(m_MStat, m_CStat);
-						showTest(type, isin, j, mheur, m_MStat, m_CStat);
+						// showTest(type, isin, j, mheur, m_MStat, m_CStat);
 						if (mheur > bheur) {
 							bheur = mheur;
 							bvalue = j;
@@ -134,14 +135,12 @@ public class SubsetSplit extends NominalSplit {
 					isin[bvalue] = true;
 					m_PStat.add(node.m_TestStat[bvalue]);
 				}
-//				Elisa 19/06/2007
-				//System.out.println("SubsetSplit : try to avoid the subset split");
-				//if((getStatManager().getSettings()).isExhaustiveSearch()){break;}
+				if (!allowSubsetSplits) {
+					// just generate equality tests for nominal attributes
+					break;
+				}
 			}
 		}
-		// Found better test :-)
-			//System.out.print("In SubsetSlip, new test is "+type.getName());
-			//System.out.println(" with heurisitc :"+bheur);
 		if (bheur > node.m_BestHeur + ClusHeuristic.DELTA) {
 			node.m_UnknownFreq = unk_freq;
 			node.m_BestHeur = bheur;
