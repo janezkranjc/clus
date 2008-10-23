@@ -11,6 +11,13 @@ public class CriterionBasedSelection {
 		}
 		return false;
 	}
+
+	public static final void clearMissingFlagTargetAttrs(ClusSchema schema) {		
+		ClusAttrType[] targets = schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		for (int i = 0; i < targets.length; i++) {
+			targets[i].setNbMissing(0);			
+		}
+	}
 	
 	public static final RowData removeMissingTarget(RowData data) {
 		int nbrows = data.getNbRows();

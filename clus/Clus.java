@@ -144,6 +144,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		if (getSettings().isRemoveMissingTarget()) {
 			m_Data = CriterionBasedSelection.removeMissingTarget(m_Data);
+			CriterionBasedSelection.clearMissingFlagTargetAttrs(m_Schema);
 		}
 		// Preprocess and initialize induce
 		m_Sett.update(m_Schema);

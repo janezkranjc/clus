@@ -122,6 +122,10 @@ public abstract class ClusAttrType implements Serializable, Comparable {
 	public void incNbMissing() {
 		m_NbMissing++;
 	}
+	
+	public void setNbMissing(int nb) {
+		m_NbMissing = nb;
+	}
 
 	public String getName() {
 		return m_Name;
