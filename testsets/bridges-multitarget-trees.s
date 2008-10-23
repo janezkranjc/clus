@@ -8,8 +8,12 @@
 
 [Data]
 File = ../data/bridges/bridges.arff
+PruneSet = 0.33
 
 [Attributes]
 Target = 9-13
 Disable = 1
+
+[Tree]
+PruningMethod = CartVSB
 
