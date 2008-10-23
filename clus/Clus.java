@@ -142,6 +142,9 @@ public class Clus implements CMDLineArgsProvider {
 		if (ResourceInfo.isLibLoaded()) {
 			ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
 		}
+		if (getSettings().isRemoveMissingTarget()) {
+			m_Data = CriterionBasedSelection.removeMissingTarget(m_Data);
+		}
 		// Preprocess and initialize induce
 		m_Sett.update(m_Schema);
 		// If not rule induction, reset some settings just to be sure

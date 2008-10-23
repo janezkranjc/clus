@@ -151,6 +151,7 @@ public class Settings implements Serializable {
 	protected INIFileStringOrDouble m_PruneSet;
 	protected INIFileStringOrInt m_PruneSetMax;
 	protected INIFileStringOrInt m_XValFolds;
+	protected INIFileBool m_RemoveMissingTarget;
 
 	public String getDataFile() {
 		return m_DataFile.getValue();
@@ -215,6 +216,10 @@ public class Settings implements Serializable {
 		m_XValFolds.setIntValue(folds);
 	}
 
+	public boolean isRemoveMissingTarget() {
+		return m_RemoveMissingTarget.getValue();
+	}
+	
 /***********************************************************************
  * Section: Attribute                                                  *
  ***********************************************************************/
@@ -1347,6 +1352,7 @@ public class Settings implements Serializable {
 		data.addNode(m_PruneSetMax = new INIFileStringOrInt("PruneSetMax", INFINITY_STRING));
 		data.addNode(m_XValFolds = new INIFileStringOrInt("XVal"));
 		m_XValFolds.setIntValue(10);
+		data.addNode(m_RemoveMissingTarget = new INIFileBool("RemoveMissingTarget", false));
 
 		INIFileSection attrs = new INIFileSection("Attributes");
 		attrs.addNode(m_Target = new INIFileString("Target", DEFAULT));

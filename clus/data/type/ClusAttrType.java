@@ -33,7 +33,7 @@ import clus.data.cols.attribute.*;
 
 import clus.algo.kNN.BasicDistance;
 
-public abstract class ClusAttrType implements Serializable,Comparable {
+public abstract class ClusAttrType implements Serializable, Comparable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
