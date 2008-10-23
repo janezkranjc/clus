@@ -250,6 +250,9 @@ public class CurrentBestTestAndHeuristic {
 			if (Settings.VERBOSE >= 2) System.err.println("Better.");
 			double tot_w = getTotWeight();
 			double tot_no_unk = getTotNoUnkW();
+			if (Settings.VERBOSE >= 2) {
+				System.err.println(" tot_w: " + tot_w + " tot_no_unk: " + tot_no_unk);
+			}
 			m_UnknownFreq = (tot_w - tot_no_unk) / tot_w;
 			m_TestType = TYPE_NUMERIC;
 			m_PosFreq = getPosWeight() / tot_no_unk;

@@ -111,7 +111,6 @@ public class FindBestTestRules extends FindBestTest {
 
 	public void findNumeric(NumericAttrType at, RowData data) {
 		DataTuple tuple;
-		int idx = at.getArrayIndex();
 		if (at.isSparse()) {
 			data.sortSparse(at);
 		} else {
@@ -125,7 +124,7 @@ public class FindBestTestRules extends FindBestTest {
 		m_BestTest.copyTotal();
 		if (at.hasMissing()) {
 			// Because of sorting, all missing values are in the front :-)
-			while (first < nb_rows && (tuple = data.getTuple(first)).hasNumMissing(idx)) {
+			while (first < nb_rows && at.isMissing(tuple = data.getTuple(first))) {
 				m_BestTest.m_MissingStat.updateWeighted(tuple, first);
 				first++;
 			}
@@ -140,7 +139,7 @@ public class FindBestTestRules extends FindBestTest {
 		}
 		for (int i = first; i < nb_rows; i++) {
 			tuple = data.getTuple(i);
-			double value = tuple.getDoubleVal(idx);
+			double value = at.getNumeric(tuple);
 			if (value != prev) {
 				if (value != Double.NaN) {
 					if (getSettings().isHeurRuleDist()) {
@@ -159,12 +158,12 @@ public class FindBestTestRules extends FindBestTest {
 		if (m_StatManager.isRuleInduce()) {
 			m_BestTest.reset();
 			DataTuple next_tuple = data.getTuple(nb_rows-1);
-			double next = next_tuple.getDoubleVal(idx);
+			double next = at.getNumeric(next_tuple);
 			for (int i = nb_rows-1; i > first; i--) {
 				tuple = next_tuple;
 				next_tuple = data.getTuple(i-1);
 				double value = next;
-				next = next_tuple.getDoubleVal(idx);
+				next = at.getNumeric(next_tuple);
 				m_BestTest.m_PosStat.updateWeighted(tuple, i);
 				if ((value != next) && (value != Double.NaN)) {
 					if (getSettings().isHeurRuleDist()) {

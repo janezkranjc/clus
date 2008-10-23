@@ -1419,7 +1419,7 @@ public class Settings implements Serializable {
 		rules.addNode(m_MaxRulesNb = new INIFileInt("MaxRulesNb", 1000));
 	    rules.addNode(m_HeurDispOffset = new INIFileDouble("HeurDispOffset", 0.0));
 		rules.addNode(m_HeurCoveragePar = new INIFileDouble("HeurCoveragePar", 1.0));
-		rules.addNode(m_HeurRuleDistPar = new INIFileDouble("CompHeurRuleDistPar", 0.0));
+		rules.addNode(m_HeurRuleDistPar = new INIFileDouble("HeurRuleDistPar", 0.0));
 		rules.addNode(m_HeurPrototypeDistPar = new INIFileDouble("HeurPrototypeDistPar", 0.0));
 		rules.addNode(m_RuleSignificanceLevel = new INIFileDouble("RuleSignificanceLevel", 0.05));
 		rules.addNode(m_RuleNbSigAtts = new INIFileInt("RuleNbSigAtts", 0));

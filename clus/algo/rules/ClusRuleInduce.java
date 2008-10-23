@@ -253,7 +253,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	}
 
 	/**
-	 * separateAndConquor method which uses reweighting
+	 * separateAndConquor method which uses re-weighting
 	 * @param rset
 	 * @param data
 	 * @throws ClusException
@@ -790,6 +790,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		String fname = getSettings().getDataFile();
 		PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
 		DecimalFormat mf = new DecimalFormat("###.000");
+		ClusSchema schema = data.getSchema();
 		// Generate optimization input
 		//ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 		DeAlg deAlg;
@@ -802,7 +803,6 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		}
 		// TODO: more target atts
 		if (classification) {
-			ClusSchema schema = data.getSchema();
 			NominalAttrType[] target = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			int nb_values = ((ClassificationStat)rset.m_TargetStat).getAttribute(0).getNbValues();
 			double[][][] rule_pred = new double[nb_rows][nb_rules][nb_values]; // [instance][rule][class_value]
@@ -832,6 +832,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			wrt_pred.close();
 			deAlg = new DeAlg(getStatManager(), rule_pred, true_val);
 		} else { // regression
+			NumericAttrType[] target = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			double[][] rule_pred = new double[nb_rows][nb_rules]; // [instance][rule]
 			double[] true_val = new double[nb_rows];
 			for (int i = 0; i < nb_rows; i++) {
@@ -845,7 +846,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 					}
 					wrt_pred.print(", " + mf.format(rule_pred[i][j]));
 				}
-				true_val[i] = tuple.getDoubleVal(0);
+				true_val[i] = target[0].getNumeric(tuple);
 				wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
 			}
 			wrt_pred.close();

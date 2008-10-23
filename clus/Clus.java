@@ -382,7 +382,7 @@ public class Clus implements CMDLineArgsProvider {
 		}*/
 		mgr.initNormalizationWeights(allStat);
 		mgr.initClusteringWeights();
-		mgr.initCompactnessWeights();
+		mgr.initDispersionWeights();
 		mgr.initHeuristic();
 		mgr.initSignifcanceTestingTable();
 	}

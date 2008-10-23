@@ -216,7 +216,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 						if (m_TargetStat instanceof RegressionStat) {
 							double weight = rule.m_TargetStat.m_SumWeight * (1 - rule.getTrainErrorScore()) / weight_sum;
 							stat.addScaled(weight, rulestat);
-  						System.err.println("Val: " + tuple.getDoubleVal(0) +  " " + tuple.getDoubleVal(1) + " Sum weight: " + weight_sum + " weight: " + weight);
+							// System.err.println("Val: " + tuple.getDoubleVal(0) +  " " + tuple.getDoubleVal(1) + " Sum weight: " + weight_sum + " weight: " + weight);
 						} else {
 							double weight = (1 - rule.getTrainErrorScore()) / weight_sum;
 							stat.addPrediction(rulestat, weight);
@@ -499,9 +499,10 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				DataTuple tuple = data.getTuple(i);
 				int[] predictions = predictWeighted(tuple).getNominalPred();
 				int true_value;
+				NominalAttrType[] targetAttrs = data.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 				for (int j = 0; j < nb_tar; j++) {
 					// Target attributes are first in m_Ints[]
-					true_value = tuple.getIntVal(j);
+					true_value = targetAttrs[j].getNominal(tuple);
 					if (predictions[j] == true_value) {
 						nb_right[j]++;
 					}
@@ -518,11 +519,12 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			int nb_rows = data.getNbRows();
 			int nb_tar = tar_stat.getNbNumericAttributes();
 			double[] sum_sqr_err = new double[nb_tar];
+			NumericAttrType[] targetAttrs = data.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			for (int i = 0; i < nb_rows; i++) {
 				DataTuple tuple = data.getTuple(i);
 				double[] predictions = ((RegressionStat)predictWeighted(tuple)).getNumericPred();
 				for (int j = 0; j < nb_tar; j++) {
-					double diff = predictions[j] - tuple.getDoubleVal(j); 
+					double diff = predictions[j] - targetAttrs[j].getNumeric(tuple); 
 					sum_sqr_err[j] += diff * diff;
 				}
 			}
