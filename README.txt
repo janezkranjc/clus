@@ -70,16 +70,22 @@ Select "Java Project" in the dialog box.
 In the "New Java Project" dialog box:
    * Enter "Clus" in the field "Project Name".
    * Choose "Create project from existing source" and browse to the location where you unzipped Clus.
-     E.g., /home/jan/Clus-1.3 or C:\Clus-1.3.
+     E.g., /home/jan/Clus or C:\Clus.
    * Click "Next".
+   * Select the "Source" tab of the build settings dialog box.
+     Change "Default output folder" (where the class files are generated) to: "Clus/bin"   
    * Select the "Libraries" tab of the build settings dialog box.
      Click "Add external jars" and add in this way these three jars:
         Clus-1.3/jars/commons-math-1.0.jar
         Clus-1.3/jars/jgap.jar
         Clus-1.3/jars/weka.jar
-   * Select the "Source" tab and exclude the directory "addon" from the build path.
-     That is, exclude "addon/**" from the source code.
    * Click "Finish".
+
+Select the "Navigator" view (Choose Window | Show View | Navigator)
+   * Right click the "Clus" project in this view.
+   * Select "Properties" from the context menu.
+   * Select the "Java Compiler" tab.
+   * Set the "Java Compliance Level" to 5.0.
 
 Now Clus should be automatically compiled by Eclipse.
 
@@ -94,12 +100,12 @@ Running Clus (if you compiled from the source code)
 (Windows)
 
 cd path\to\appfile.s
-java -cp "C:\Clus;C:\Clus\jars\commons-math-1.0.jar;C:\Clus\jars\jgap.jar" clus.Clus appfile
+java -cp "C:\Clus\bin;C:\Clus\jars\commons-math-1.0.jar;C:\Clus\jars\jgap.jar" clus.Clus appfile
 
 (Unix)
 
 cd path/to/appfile.s
-java -cp "$HOME/Clus:$HOME/Clus/jars/commons-math-1.0.jar:$HOME/Clus/jars/jgap.jar" clus.Clus appfile
+java -cp "$HOME/Clus/bin:$HOME/Clus/jars/commons-math-1.0.jar:$HOME/Clus/jars/jgap.jar" clus.Clus appfile
 
 
 Settings overview
