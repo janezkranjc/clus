@@ -8,9 +8,10 @@ import clus.data.rows.DataTuple;
 import clus.data.type.NominalAttrType;
 import clus.statistic.ClassificationStat;
 import clus.statistic.ClusStatistic;
-import clus.statistic.RegressionStat;
 
 public class MSNominalError extends ClusNominalError {
+	
+	public final static long serialVersionUID = 1L;
 
 	protected ClusAttributeWeights m_Weights;
 	protected double[] m_SumErr;

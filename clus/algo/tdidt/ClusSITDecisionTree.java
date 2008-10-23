@@ -7,7 +7,6 @@ import java.util.Random;
 import jeans.resource.ResourceInfo;
 import jeans.util.IntervalCollection;
 
-import clus.Clus;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.ClusModelInfo;
@@ -21,7 +20,6 @@ import clus.data.type.NominalAttrType;
 import clus.data.type.NumericAttrType;
 import clus.error.*;
 import clus.ext.hierarchical.HierClassWiseAccuracy;
-import clus.heuristic.*;
 
 
 public class ClusSITDecisionTree extends ClusDecisionTree{

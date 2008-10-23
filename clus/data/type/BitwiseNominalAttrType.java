@@ -3,6 +3,8 @@ import clus.data.rows.DataTuple;
 import java.lang.Math;
 
 public class BitwiseNominalAttrType extends NominalAttrType {
+	
+	public final static long serialVersionUID = 1L;
 
 	protected int m_BitPosition;
 	public final static double LOG2 = Math.log(2.0);

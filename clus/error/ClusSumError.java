@@ -7,6 +7,8 @@ import clus.statistic.ClusStatistic;
 import clus.statistic.CombStat;
 
 public class ClusSumError extends ClusError {
+	
+	public final static long serialVersionUID = 1L;
 
 	protected ArrayList m_Errors = new ArrayList();
 

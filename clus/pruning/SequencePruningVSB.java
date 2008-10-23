@@ -23,7 +23,6 @@
 package clus.pruning;
 
 import java.util.*;
-import java.io.*;
 
 import jeans.io.MyFile;
 

@@ -22,7 +22,6 @@
 
 package clus.data.io;
 
-import jeans.util.*;
 import java.io.*;
 import java.util.*;
 

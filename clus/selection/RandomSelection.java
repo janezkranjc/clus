@@ -24,8 +24,6 @@ package clus.selection;
 
 import java.util.Random;
 
-import clus.util.*;
-
 public class RandomSelection extends ClusSelection {
 
 	protected int m_NbSelected;

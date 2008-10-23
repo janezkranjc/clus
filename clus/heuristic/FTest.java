@@ -23,7 +23,6 @@
 package clus.heuristic;
 
 import clus.main.*;
-import clus.statistic.*;
 import clus.util.*;
 import jeans.math.*;
 

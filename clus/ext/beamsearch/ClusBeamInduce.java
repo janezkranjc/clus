@@ -36,8 +36,6 @@ import clus.model.*;
 import clus.model.modelio.*;
 
 import java.io.*;
-import java.text.DateFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 
 public class ClusBeamInduce extends ClusInductionAlgorithm {

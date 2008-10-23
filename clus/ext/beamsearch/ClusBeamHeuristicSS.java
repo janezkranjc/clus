@@ -25,7 +25,6 @@
  */
 package clus.ext.beamsearch;
 
-import jeans.math.MathUtil;
 import clus.main.Settings;
 import clus.statistic.*;
 import clus.algo.tdidt.ClusNode;

@@ -27,7 +27,6 @@ import java.io.PrintWriter;
 
 import clus.data.io.ClusReader;
 import clus.data.rows.DataTuple;
-import clus.data.rows.RowData;
 import clus.io.ClusSerializable;
 import clus.main.Settings;
 import clus.util.ClusException;

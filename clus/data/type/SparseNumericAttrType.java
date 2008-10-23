@@ -5,11 +5,13 @@ import java.io.IOException;
 import clus.data.io.ClusReader;
 import clus.data.rows.DataTuple;
 import clus.data.rows.SparseDataTuple;
-import clus.data.type.NumericAttrType.MySerializable;
 import clus.io.ClusSerializable;
+import clus.main.Settings;
 import clus.util.ClusException;
 
 public class SparseNumericAttrType extends NumericAttrType {
+	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected Integer m_IntIndex;
 	

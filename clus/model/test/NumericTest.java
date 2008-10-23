@@ -22,8 +22,6 @@
 
 package clus.model.test;
 
-import java.text.*;
-
 import clus.main.*;
 import clus.algo.tdidt.ClusNode;
 import clus.data.type.*;

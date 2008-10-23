@@ -27,7 +27,6 @@ import java.util.ArrayList;
 
 import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
-import clus.data.type.*;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.modelio.ClusTreeReader;
