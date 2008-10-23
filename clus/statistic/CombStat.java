@@ -243,10 +243,10 @@ double dis2 = disp;
     return -m_SumWeight/train_sum_w*(def_comp-comp); */
   	double offset = getSettings().getHeurDispOffset();
   	double disp = dispersion(IN_HEURISTIC) + offset;
-double dis1 = disp;
+  	double dis1 = disp;
     double def_disp = ((CombStat)m_StatManager.getTrainSetStat()).dispersion(IN_HEURISTIC);
     disp = disp - def_disp;  // This should be < 0 most of the time
-double dis2 = disp;
+    double dis2 = disp;
     // Coverage part
   	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
     double cov_par = getSettings().getHeurCoveragePar();
@@ -254,7 +254,7 @@ double dis2 = disp;
     // comp *= cov_par*train_sum_w/m_SumWeight;
     // comp *= cov_par*m_SumWeight/train_sum_w;
     disp *= Math.pow(m_SumWeight/train_sum_w, cov_par);
-double dis3 = disp;
+    double dis3 = disp;
     // Prototype distance part
     // Prefers rules that predict different class than the default rule
     if (getSettings().isHeurPrototypeDistPar()) {
@@ -278,7 +278,7 @@ double dis3 = disp;
     		}
     	}
     }
-//System.err.println("Disp: " + dis1 + " DDisp: " + def_disp + " RDisp: " + dis2 + " FDisp: " + dis3);
+    //System.err.println("Disp: " + dis1 + " DDisp: " + def_disp + " RDisp: " + dis2 + " FDisp: " + dis3);
     return disp;
   }
 

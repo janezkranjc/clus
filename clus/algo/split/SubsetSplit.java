@@ -120,7 +120,7 @@ public class SubsetSplit extends NominalSplit {
 						}
 						// Calc heuristic
 						double mheur = node.calcHeuristic(m_MStat, m_CStat);
-						// showTest(type, isin, j, mheur, m_MStat, m_CStat);
+						showTest(type, isin, j, mheur, m_MStat, m_CStat);
 						if (mheur > bheur) {
 							bheur = mheur;
 							bvalue = j;
@@ -136,7 +136,7 @@ public class SubsetSplit extends NominalSplit {
 				}
 //				Elisa 19/06/2007
 				//System.out.println("SubsetSplit : try to avoid the subset split");
-				if((getStatManager().getSettings()).isExhaustiveSearch()){break;}
+				//if((getStatManager().getSettings()).isExhaustiveSearch()){break;}
 			}
 		}
 		// Found better test :-)

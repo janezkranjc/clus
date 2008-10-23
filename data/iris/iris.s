@@ -5,8 +5,8 @@ Heuristic = RDispersionMlt
 CoveringWeight = 0.1
 RuleAddingMethod = Always
 PrintRuleWiseErrors = Yes
-%CoveringMethod = Standard
-CoveringMethod = WeightedError
+CoveringMethod = Standard
+%CoveringMethod = WeightedError
 ComputeDispersion = Yes
 
 [Attributes]

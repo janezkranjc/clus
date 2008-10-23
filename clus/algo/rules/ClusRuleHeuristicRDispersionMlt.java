@@ -28,8 +28,9 @@ public class ClusRuleHeuristicRDispersionMlt extends ClusRuleHeuristicDispersion
 			return Double.NEGATIVE_INFINITY;
 		}
 		double disp = ((CombStat)c_pstat).rDispersionMltHeur();
-double disp1 = disp;
-double ad = -1;
+		System.err.println("Disp: " + disp);
+		double disp1 = disp;
+		double ad = -1;
 		// Rule distance part
 		if (((CombStat)c_pstat).getSettings().isHeurRuleDist() &&
 				(m_CoveredBitVectArray.size() > 0)) {
@@ -56,11 +57,11 @@ double ad = -1;
 			avg_dist /= nb_rules;
 			double dist_par = ((CombStat)c_pstat).getSettings().getHeurRuleDistPar();
 			// double dist_part = avg_dist > 0 ? 1 / avg_dist * dist_par : 100; // 100 ???
-	    // disp *= 1.0 + dist_part;
+			// disp *= 1.0 + dist_part;
 			disp = avg_dist > 0 ? disp/Math.pow(avg_dist, dist_par) : 100; 
 			ad = avg_dist;
 		}
-// System.err.println("Avg.dist: " + ad + " Before: " + disp1 + " after: " + disp + "\n");
+		// System.err.println("Avg.dist: " + ad + " Before: " + disp1 + " after: " + disp + "\n");
 		return -disp;
 	}
 
