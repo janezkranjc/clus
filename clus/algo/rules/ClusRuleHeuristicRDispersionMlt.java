@@ -28,7 +28,7 @@ public class ClusRuleHeuristicRDispersionMlt extends ClusRuleHeuristicDispersion
 			return Double.NEGATIVE_INFINITY;
 		}
 		double disp = ((CombStat)c_pstat).rDispersionMltHeur();
-		System.err.println("Disp: " + disp);
+		// System.err.println("Disp: " + disp);
 		double disp1 = disp;
 		double ad = -1;
 		// Rule distance part

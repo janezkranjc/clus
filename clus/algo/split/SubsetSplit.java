@@ -84,7 +84,7 @@ public class SubsetSplit extends NominalSplit {
 		int card = 0;
 		double pos_freq = 0.0;
 		double bheur = Double.NEGATIVE_INFINITY;
-		/* Not working for rules! */
+		// Not working for rules!
 		if (nbvalues == 2 && !getStatManager().isRuleInduce()) {
 			// Handle binary splits efficiently
 			card = 1;

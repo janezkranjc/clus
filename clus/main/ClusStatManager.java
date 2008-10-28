@@ -156,7 +156,7 @@ public class ClusStatManager implements Serializable {
 		return m_ClusteringWeights;
 	}
 
-	public ClusNormalizedAttributeWeights getCompactnessWeights() {
+	public ClusNormalizedAttributeWeights getDispersionWeights() {
 		return m_DispersionWeights;
 	}
 
@@ -354,10 +354,8 @@ public class ClusStatManager implements Serializable {
 
 	public void check() throws ClusException {
 		int nb_types = 0;
-		int nb_nom = m_Schema
-				.getNbNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		int nb_num = m_Schema
-				.getNbNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		int nb_nom = m_Schema.getNbNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		int nb_num = m_Schema.getNbNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		if (nb_nom > 0 && nb_num > 0) {
 			m_Mode = MODE_CLASSIFY_AND_REGRESSION;
 			nb_types++;

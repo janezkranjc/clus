@@ -70,12 +70,12 @@ public class ClusRulesRandom {
     RowData data = (RowData)cr.getTrainingSet();
     RowData testdata;
     rset.addDataToRules(data);
-    rset.computeCompactness(ClusModel.TRAIN);
+    rset.computeDispersion(ClusModel.TRAIN);
     rset.removeDataFromRules();
     if (cr.getTestIter() != null) {
       testdata = (RowData)cr.getTestSet();
       rset.addDataToRules(testdata);
-      rset.computeCompactness(ClusModel.TEST);
+      rset.computeDispersion(ClusModel.TEST);
       rset.removeDataFromRules();
     }
     return rset;*/

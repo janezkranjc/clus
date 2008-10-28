@@ -167,7 +167,7 @@ public class DeProbl {
 				}
 			}
 			fitness = (1 - (acc / nb_covered)) + getSettings().getOptRegPar() *  reg_penalty;
-			// TODO: regularization penalty should include compactness, coverage?
+			// TODO: regularization penalty should include dispersion, coverage?
 		} else { // regression
 			System.err.println("Fitness function for regression not implemented yet!");
 		}

@@ -97,8 +97,8 @@ public class CombStat extends ClusStatistic {
     m_ClassStat.calcMean();
   }
 
-  /** Returns the compactness of all attributes. Used when outputing the compactness.
-   * @return combined compactness
+  /** Returns the dispersion of all attributes. Used when outputing the dispersion.
+   * @return combined dispersion
    */
   public double dispersionCalc() {
     return dispersion(IN_OUTPUT);
@@ -109,7 +109,7 @@ public class CombStat extends ClusStatistic {
    * @return heuristic value
    */
   public double dispersionAdtHeur() {
-    // double comp = 1.0 + compactness(IN_HEURISTIC);  // 1.0 - offset just in case?
+    // double comp = 1.0 + dispersion(IN_HEURISTIC);  // 1.0 - offset just in case?
   	double offset = getSettings().getHeurDispOffset();
   	double disp = dispersion(IN_HEURISTIC) + offset;
     // Coverage part
@@ -193,7 +193,7 @@ public class CombStat extends ClusStatistic {
    * @return heuristic value
    */
   public double dispersionMltHeur() {
-    // double comp = 1.0 + compactness(IN_HEURISTIC);
+    // double comp = 1.0 + dispersion(IN_HEURISTIC);
   	double offset = getSettings().getHeurDispOffset();
   	double disp = dispersion(IN_HEURISTIC) + offset;
 double dis1 = disp;
@@ -238,8 +238,8 @@ double dis2 = disp;
   public double rDispersionMltHeur() {
   	// Original
     /* double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
-    double comp = compactness(IN_HEURISTIC);
-    double def_comp = ((CombStat)m_StatManager.getTrainSetStat()).compactness(IN_HEURISTIC);
+    double comp = dispersion(IN_HEURISTIC);
+    double def_comp = ((CombStat)m_StatManager.getTrainSetStat()).dispersion(IN_HEURISTIC);
     return -m_SumWeight/train_sum_w*(def_comp-comp); */
   	double offset = getSettings().getHeurDispOffset();
   	double disp = dispersion(IN_HEURISTIC) + offset;
@@ -286,22 +286,22 @@ double dis2 = disp;
    *  @return dispersion score
    */
   public double dispersion(int use) {
-    // return compactnessNom(use) + compactnessNum(use);
+    // return dispersionNom(use) + dispersionNum(use);
   	return dispersionNom(use) + meanVariance(use);
   }
 
-  /** Returns the compactness of numeric attributes.
+  /** Returns the dispersion of numeric attributes.
    *
-   * @return compactness of numeric attributes
+   * @return dispersion of numeric attributes
    */
   public double dispersionNum(int use) {
   	// TODO: Try using mean abs distance instead of variance ...
     return meanVariance(use);
   }
 
-  /** Returns the compactness of nominal attributes.
+  /** Returns the dispersion of nominal attributes.
    *
-   * @return compactness of nominal attributes
+   * @return dispersion of nominal attributes
    */
   public double dispersionNom(int use) {
     // return meanEntropy();
@@ -323,7 +323,7 @@ double dis2 = disp;
       if (use == IN_HEURISTIC) {
         weight = m_StatManager.getClusteringWeights().getWeight(m_RegStat.getAttribute(i));
       } else { // use == IN_OUTPUT
-        weight = m_StatManager.getCompactnessWeights().getWeight(m_RegStat.getAttribute(i));
+        weight = m_StatManager.getDispersionWeights().getWeight(m_RegStat.getAttribute(i));
       }
       sumvar += m_RegStat.getVariance(i) * weight / (norm*norm);
     }
@@ -341,7 +341,7 @@ double dis2 = disp;
       if (use == IN_HEURISTIC) {
         weight = m_StatManager.getClusteringWeights().getWeight(m_ClassStat.getAttribute(i));
       } else { // use == IN_OUTPUT
-        weight = m_StatManager.getCompactnessWeights().getWeight(m_ClassStat.getAttribute(i));
+        weight = m_StatManager.getDispersionWeights().getWeight(m_ClassStat.getAttribute(i));
       }
       sumdist += meanDistNomOne(i) * weight;
     }

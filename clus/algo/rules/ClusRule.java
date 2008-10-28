@@ -369,13 +369,13 @@ public class ClusRule implements ClusModel, Serializable {
 			if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
 				wrt.println("\n   Rule weight        : " + fr.format(getOptWeight()));
 			}
-			wrt.println("   Compactness (train): " + m_CombStat[ClusModel.TRAIN].getDispersionString());
-			wrt.println("   Coverage    (train): " + fr.format(m_Coverage[ClusModel.TRAIN]));
-			wrt.println("   Cover*Comp  (train): " + fr.format((m_CombStat[ClusModel.TRAIN].dispersionCalc()*m_Coverage[ClusModel.TRAIN])));
+			wrt.println("   Dispersion (train): " + m_CombStat[ClusModel.TRAIN].getDispersionString());
+			wrt.println("   Coverage   (train): " + fr.format(m_Coverage[ClusModel.TRAIN]));
+			wrt.println("   Cover*Disp (train): " + fr.format((m_CombStat[ClusModel.TRAIN].dispersionCalc()*m_Coverage[ClusModel.TRAIN])));
 			if (m_CombStat[ClusModel.TEST] != null) {
-				wrt.println("   Compactness (test):  " + m_CombStat[ClusModel.TEST].getDispersionString());
-				wrt.println("   Coverage    (test):  " + fr.format(m_Coverage[ClusModel.TEST]));
-				wrt.println("   Cover*Comp  (test):  " + fr.format((m_CombStat[ClusModel.TEST].dispersionCalc()*m_Coverage[ClusModel.TEST])));
+				wrt.println("   Dispersion (test):  " + m_CombStat[ClusModel.TEST].getDispersionString());
+				wrt.println("   Coverage   (test):  " + fr.format(m_Coverage[ClusModel.TEST]));
+				wrt.println("   Cover*Disp (test):  " + fr.format((m_CombStat[ClusModel.TEST].dispersionCalc()*m_Coverage[ClusModel.TEST])));
 			}
 		}
 		if (hasErrors()) {

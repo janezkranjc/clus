@@ -769,7 +769,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
 			rset = optimizeRuleSet(rset, data);
 		}
-		// Computing compactness
+		// Computing dispersion
 		if (getSettings().computeDispersion()) {
 			rset.addDataToRules(data);
 			rset.computeDispersion(ClusModel.TRAIN);
@@ -989,7 +989,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 		rset.postProc();
-		// Computing compactness
+		// Computing dispersion
 		if (getSettings().computeDispersion()) {
 			rset.addDataToRules(data);
 			rset.computeDispersion(ClusModel.TRAIN);

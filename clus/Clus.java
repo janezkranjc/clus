@@ -149,6 +149,7 @@ public class Clus implements CMDLineArgsProvider {
 		// Preprocess and initialize induce
 		m_Sett.update(m_Schema);
 		// If not rule induction, reset some settings just to be sure
+		// in case rules from trees are used
 		if (!m_Induce.getStatManager().isRuleInduce())
 			m_Sett.disableRuleInduceParams();
 		// Set XVal field in Settings
