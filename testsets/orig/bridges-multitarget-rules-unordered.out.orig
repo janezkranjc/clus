@@ -1,17 +1,16 @@
 Clus run bridges
 ****************
 
-Date: 10/23/08 6:06 PM
-File: bridges-rules-unordered.out
+Date: 10/28/08 2:24 PM
+File: bridges-multitarget-rules-unordered.out
 Attributes: 13 (input: 7, output: 5)
 Missing values: Yes
-Memory usage: 12916 kB (initial), 13032 kB (data loaded)
 
 [General]
 Verbose = 1
 Compatibility = Latest
 RandomSeed = 0
-ResourceInfoLoaded = Yes
+ResourceInfoLoaded = No
 
 [Data]
 File = ../data/bridges/bridges.arff
@@ -130,8 +129,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 1.128 sec (CPU)
-Pruning Time: 0 sec (CPU)
+Induction Time: 0.847 sec
+Pruning Time: 0 sec
 Model information
      Default: Nodes = 1 (Leaves: 1)
      M2: No model available
@@ -289,9 +288,9 @@ IF clear-g = G AND
    location in {3,4,6,8,10,11,12,13,15,16,17,18,21,22,23,24,25,26,27,28,29,31,32,35,36,38,41,51,52} AND
    erected > 1876.0
 THEN [THROUGH,STEEL,MEDIUM,F,SIMPLE-T] [39.0,37.0,32.0,22.0,28.0]: 39
-   Compactness (train): [0.457915 : 0.003562 , 0.454353]
-   Coverage    (train): 39
-   Cover*Comp  (train): 17.858692
+   Dispersion (train): [0.457915 : 0.003562 , 0.454353]
+   Coverage   (train): 39
+   Cover*Disp (train): 17.858692
 
 Training error
 Number of examples: 85 (covered: 39)
@@ -365,9 +364,9 @@ Rule 2:
 IF erected > 1894.0 AND
    location in {1,2,6,7,9,13,14,19,21,24,36,37,40,41,42,43,44,47,48,49}
 THEN [THROUGH,STEEL,LONG,F,ARCH] [16.6,21.6,21.4,21.6,6.2]: 21.6
-   Compactness (train): [0.462988 : 0.006612 , 0.456376]
-   Coverage    (train): 28
-   Cover*Comp  (train): 12.963668
+   Dispersion (train): [0.462988 : 0.006612 , 0.456376]
+   Coverage   (train): 28
+   Cover*Disp (train): 12.963668
 
 Training error
 Number of examples: 85 (covered: 28)
@@ -441,9 +440,9 @@ Rule 3:
 IF location in {6,24,27,29,32} AND
    erected <= 1,892
 THEN [THROUGH,WOOD,MEDIUM,S,WOOD] [8.0,8.0,5.0,8.0,8.0]: 8
-   Compactness (train): [0.359137 : 0.001653 , 0.357484]
-   Coverage    (train): 9
-   Cover*Comp  (train): 3.232236
+   Dispersion (train): [0.359137 : 0.001653 , 0.357484]
+   Coverage   (train): 9
+   Cover*Disp (train): 3.232236
 
 Training error
 Number of examples: 85 (covered: 9)
@@ -520,9 +519,9 @@ IF clear-g = G AND
    erected <= 1,903 AND
    purpose = HIGHWAY
 THEN [THROUGH,IRON,MEDIUM,F,SIMPLE-T] [5.8,3.4,4.4,5.8,4.6]: 5.8
-   Compactness (train): [0.365353 : 0.000072 , 0.365281]
-   Coverage    (train): 14
-   Cover*Comp  (train): 5.114946
+   Dispersion (train): [0.365353 : 0.000072 , 0.365281]
+   Coverage   (train): 14
+   Cover*Disp (train): 5.114946
 
 Training error
 Number of examples: 85 (covered: 14)
@@ -596,9 +595,9 @@ Rule 5:
 IF location in {3,28} AND
    erected <= 1,864
 THEN [THROUGH,IRON,SHORT,S,SUSPEN] [3.0,3.0,3.0,3.0,2.0]: 3
-   Compactness (train): [0.253908 : 0.000676 , 0.253232]
-   Coverage    (train): 3
-   Cover*Comp  (train): 0.761725
+   Dispersion (train): [0.253908 : 0.000676 , 0.253232]
+   Coverage   (train): 3
+   Cover*Disp (train): 0.761725
 
 Training error
 Number of examples: 85 (covered: 3)
@@ -673,9 +672,9 @@ IF length > 1770.0 AND
    erected > 1924.0 AND
    erected <= 1,939
 THEN [DECK,STEEL,MEDIUM,S-F,CANTILEV] [4.0,4.2,4.2,2.0,3.0]: 4.2
-   Compactness (train): [0.451855 : 0.002919 , 0.448936]
-   Coverage    (train): 5
-   Cover*Comp  (train): 2.259276
+   Dispersion (train): [0.451855 : 0.002919 , 0.448936]
+   Coverage   (train): 5
+   Cover*Disp (train): 2.259276
 
 Training error
 Number of examples: 85 (covered: 5)
@@ -753,9 +752,9 @@ IF clear-g = G AND
    erected <= 1,928 AND
    river in {A,M}
 THEN [THROUGH,STEEL,MEDIUM,S,SIMPLE-T] [5.12,5.12,4.72,2.3200000000000003,1.7199999999999995]: 5.12
-   Compactness (train): [0.477884 : 0.002813 , 0.475071]
-   Coverage    (train): 30
-   Cover*Comp  (train): 14.336534
+   Dispersion (train): [0.477884 : 0.002813 , 0.475071]
+   Coverage   (train): 30
+   Cover*Disp (train): 14.336534
 
 Training error
 Number of examples: 85 (covered: 30)
@@ -830,9 +829,9 @@ IF river in {M,O} AND
    length > 900.0 AND
    erected <= 1,927
 THEN [THROUGH,STEEL,LONG,F,CANTILEV] [2.84,2.84,2.84,1.8399999999999996,1.64]: 2.84
-   Compactness (train): [0.561553 : 0.001333 , 0.56022]
-   Coverage    (train): 24
-   Cover*Comp  (train): 13.477261
+   Dispersion (train): [0.561553 : 0.001333 , 0.56022]
+   Coverage   (train): 24
+   Cover*Disp (train): 13.477261
 
 Training error
 Number of examples: 85 (covered: 24)
@@ -907,9 +906,9 @@ IF lanes > 2.0 AND
    erected > 1928.0 AND
    length > 900.0
 THEN [DECK,STEEL,LONG,S-F,CONT-T] [3.4,3.5999999999999996,2.4,2.0,3.1999999999999997]: 3.6
-   Compactness (train): [0.520164 : 0.00216 , 0.518004]
-   Coverage    (train): 13
-   Cover*Comp  (train): 6.762127
+   Dispersion (train): [0.520164 : 0.00216 , 0.518004]
+   Coverage   (train): 13
+   Cover*Disp (train): 6.762127
 
 Training error
 Number of examples: 85 (covered: 13)
@@ -983,9 +982,9 @@ Rule 10:
 IF river in {A,Y} AND
    erected <= 1,892
 THEN [THROUGH,WOOD,SHORT,S,WOOD] [2.8,1.5999999999999999,1.7999999999999998,1.7999999999999998,1.5999999999999999]: 2.8
-   Compactness (train): [0.553472 : 0.001219 , 0.552253]
-   Coverage    (train): 15
-   Cover*Comp  (train): 8.302081
+   Dispersion (train): [0.553472 : 0.001219 , 0.552253]
+   Coverage   (train): 15
+   Cover*Disp (train): 8.302081
 
 Training error
 Number of examples: 85 (covered: 15)
@@ -1058,9 +1057,9 @@ Rule 11:
 ========
 IF length <= 1,320
 THEN [THROUGH,STEEL,MEDIUM,S-F,SUSPEN] [2.0,1.4,1.8800000000000001,1.6800000000000002,1.48]: 2.2
-   Compactness (train): [0.679787 : 0.00587 , 0.673917]
-   Coverage    (train): 36
-   Cover*Comp  (train): 24.47233
+   Dispersion (train): [0.679787 : 0.00587 , 0.673917]
+   Coverage   (train): 36
+   Cover*Disp (train): 24.47233
 
 Training error
 Number of examples: 85 (covered: 36)
@@ -1133,9 +1132,9 @@ Rule 12:
 ========
 IF length > 1030.0
 THEN [DECK,STEEL,LONG,F,CANTILEV] [1.32,2.2800000000000002,1.4,1.8800000000000001,0.6799999999999999]: 2.28
-   Compactness (train): [0.684154 : 0.003466 , 0.680689]
-   Coverage    (train): 53
-   Cover*Comp  (train): 36.26017
+   Dispersion (train): [0.684154 : 0.003466 , 0.680689]
+   Coverage   (train): 53
+   Cover*Disp (train): 36.26017
 
 Training error
 Number of examples: 85 (covered: 53)
