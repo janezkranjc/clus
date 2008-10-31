@@ -776,7 +776,7 @@ public class Settings implements Serializable {
 	public final static int RULE_PREDICTION_METHOD_DECISION_LIST = 0;
 	// Each rule's prediction has a weight proportional to its coverage on the total learning set
 	public final static int RULE_PREDICTION_METHOD_TOT_COVERAGE_WEIGHTED = 1;
-	// Each rule's prediction has a weight proportional to its coverage on the curent learning set
+	// Each rule's prediction has a weight proportional to its coverage on the current learning set
 	// i.e., learning set on which the rule was learned
 	public final static int RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED = 2;
 	// Each rule's prediction has a weight proportional to its accuracy on the total learning set
@@ -922,6 +922,16 @@ public class Settings implements Serializable {
 
 	public boolean isHeurRuleDist() {
 	    return m_HeurRuleDistPar.getValue() > 0;
+	}
+
+	public boolean isWeightedCovering() {
+		if (m_CoveringMethod.getValue() == COVERING_METHOD_WEIGHTED_ADDITIVE ||
+			m_CoveringMethod.getValue() == COVERING_METHOD_WEIGHTED_MULTIPLICATIVE ||
+			m_CoveringMethod.getValue() == COVERING_METHOD_WEIGHTED_ERROR) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
   	public double getHeurPrototypeDistPar() {
@@ -1229,6 +1239,14 @@ public class Settings implements Serializable {
 
 	public void setSectionTimeSeriesEnabled(boolean enable) {
 		m_SectionTimeSeries.setEnabled(enable);
+	}
+
+	public static boolean isTimeSeriesProtoComlexityExact() {
+		if (m_TimeSeriesProtoComlexity.getValue() == 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 /***********************************************************************
@@ -1661,4 +1679,5 @@ public class Settings implements Serializable {
 		String path = getFileAbsolute(fname);
 		return new PrintWriter(new OutputStreamWriter(new FileOutputStream(path)));
 	}
+
 }

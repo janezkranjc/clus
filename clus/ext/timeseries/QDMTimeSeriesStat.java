@@ -25,6 +25,8 @@ package clus.ext.timeseries;
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
+import clus.data.type.TimeSeriesAttrType;
+import clus.main.ClusStatManager;
 import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 import clus.statistic.StatisticPrintInfo;
@@ -33,6 +35,10 @@ public class QDMTimeSeriesStat extends TimeSeriesStat {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
+	public QDMTimeSeriesStat(TimeSeriesAttrType attr) {
+		super(attr);
+	}
+	
 	public double calcDistance(TimeSeries t1, TimeSeries t2) {
 		// Ljupco's measure if the time series are the same length
 		// my proposal if they are not is cyclic, to be defined with Ljupco
@@ -74,7 +80,7 @@ public class QDMTimeSeriesStat extends TimeSeriesStat {
 	}
 
 	public ClusStatistic cloneStat() {
-		QDMTimeSeriesStat stat = new QDMTimeSeriesStat();
+		QDMTimeSeriesStat stat = new QDMTimeSeriesStat(m_Attr);
 		stat.cloneFrom(this);
 		return stat;
 	}

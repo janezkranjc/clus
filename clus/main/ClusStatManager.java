@@ -137,6 +137,10 @@ public class ClusStatManager implements Serializable {
 		return m_Mode;
 	}
 
+	public boolean isClassificationOrRegression() {
+		return m_Mode == MODE_CLASSIFY || m_Mode == MODE_REGRESSION || m_Mode == MODE_CLASSIFY_AND_REGRESSION;
+	}
+	
 	public final ClassHierarchy getHier() {
 		// System.out.println("ClusStatManager.getHier/0 called");
 		return m_Hier;
@@ -217,7 +221,8 @@ public class ClusStatManager implements Serializable {
 			// One single constant weight given
 			result.setAllWeights(winfo.getDouble());
 		}
-		if (isRuleInduce()) {  // Normalize the weights
+		// Normalize the weights for classification/regression rules only
+		if (isRuleInduce() && isClassificationOrRegression()) {
 			double sum = 0;
 			for (int i = 0; i < num.length; i++) {
 				NumericAttrType cr_num = num[i];
@@ -228,8 +233,7 @@ public class ClusStatManager implements Serializable {
 				sum += result.getWeight(cr_nom);
 			}
 			if (sum <= 0) {
-				throw new ClusException(
-						"initWeights(): Sum of clustering/dispersion weights must be > 0!");
+				throw new ClusException("initWeights(): Sum of clustering/dispersion weights must be > 0!");
 			}
 			for (int i = 0; i < num.length; i++) {
 				NumericAttrType cr_num = num[i];
@@ -249,10 +253,9 @@ public class ClusStatManager implements Serializable {
 				.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
 		initWeights(m_DispersionWeights, num, nom, getSettings()
 				.getDispersionWeights());
-		if (getSettings().getVerbose() >= 1 && isRuleInduce()) {
+		if (getSettings().getVerbose() >= 1 && isRuleInduce() && getSettings().computeDispersion()) {
 			System.out.println("Dispersion:   "
-					+ m_DispersionWeights.getName(m_Schema
-							.getAllAttrUse(ClusAttrType.ATTR_USE_ALL)));
+					+ m_DispersionWeights.getName(m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_ALL)));
 		}
 	}
 
@@ -281,7 +284,7 @@ public class ClusStatManager implements Serializable {
 		}
 	}
 
-	public void initNormalizationWeights(ClusStatistic stat)
+	public void initNormalizationWeights(ClusStatistic stat, ClusData data)
 			throws ClusException {
 		m_GlobalStat = stat;
 		m_TrainSetStat = stat; // When no XVal
@@ -318,8 +321,13 @@ public class ClusStatManager implements Serializable {
 			// Normalization is currently required for trees but not for rules
 			if (!isRuleInduce()) {
 				ClassificationStat cstat = cmb.getClassificationStat();
-				cstat.initNormalizationWeights(m_NormalizationWeights,
-						shouldNormalize);
+				cstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
+			}
+			if (m_Mode == MODE_TIME_SERIES) {
+				TimeSeriesStat tstat = (TimeSeriesStat)createStatistic(ClusAttrType.ATTR_USE_TARGET);
+				data.calcTotalStat(tstat);
+				tstat.optimizePreCalc((RowData)data);
+				tstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
 			}
 		}
 	}
@@ -463,24 +471,25 @@ public class ClusStatManager implements Serializable {
 			setTargetStatistic(new WHTDStatistic(m_Hier, getCompatibility()));
 			break;
 		case MODE_SSPD:
-			ClusAttrType[] target = m_Schema
-					.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
+			ClusAttrType[] target = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			setClusteringStatistic(new SSPDStatistic(m_SSPDMtrx, target));
 			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx, target));
 			break;
 		case MODE_TIME_SERIES:
+			ClusAttrType[] targets = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
+			TimeSeriesAttrType type = (TimeSeriesAttrType)targets[0];
 			switch (Settings.m_TimeSeriesDM.getValue()) {
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_DTW:
-				setClusteringStatistic(new DTWTimeSeriesStat());
-				setTargetStatistic(new DTWTimeSeriesStat());
+				setClusteringStatistic(new DTWTimeSeriesStat(type));
+				setTargetStatistic(new DTWTimeSeriesStat(type));
 				break;
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_QDM:
-				setClusteringStatistic(new QDMTimeSeriesStat());
-				setTargetStatistic(new QDMTimeSeriesStat());
+				setClusteringStatistic(new QDMTimeSeriesStat(type));
+				setTargetStatistic(new QDMTimeSeriesStat(type));
 				break;
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_TSC:
-				setClusteringStatistic(new TSCTimeSeriesStat());
-				setTargetStatistic(new TSCTimeSeriesStat());
+				setClusteringStatistic(new TSCTimeSeriesStat(type));
+				setTargetStatistic(new TSCTimeSeriesStat(type));
 				break;
 			}
 			break;
@@ -501,71 +510,68 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public void initRuleHeuristic() throws ClusException {
-		if ((getSettings().getHeuristic() == Settings.HEURISTIC_GAIN)) {
-			throw new ClusException(
-					"Gain heuristic not supported for rule induction!");
-		}
 		if (m_Mode == MODE_CLASSIFY) {
 			switch (getSettings().getHeuristic()) {
+			case Settings.HEURISTIC_DEFAULT:
+				m_Heuristic = new ClusRuleHeuristicRDispersionMlt(this,getClusteringWeights());
+				break;
 			case Settings.HEURISTIC_REDUCED_ERROR:
-				m_Heuristic = new ClusRuleHeuristicError(this,
-						getClusteringWeights());
+				m_Heuristic = new ClusRuleHeuristicError(this,getClusteringWeights());
 				break;
 			case Settings.HEURISTIC_MESTIMATE:
-				m_Heuristic = new ClusRuleHeuristicMEstimate(getSettings()
-						.getMEstimate());
+				m_Heuristic = new ClusRuleHeuristicMEstimate(getSettings().getMEstimate());
 				break;
 			case Settings.HEURISTIC_DISPERSION_ADT:
-				m_Heuristic = new ClusRuleHeuristicDispersionAdt(this,
-						getClusteringWeights());
+				m_Heuristic = new ClusRuleHeuristicDispersionAdt(this,getClusteringWeights());
 				break;
 			case Settings.HEURISTIC_DISPERSION_MLT:
-				m_Heuristic = new ClusRuleHeuristicDispersionMlt(this,
-						getClusteringWeights());
+				m_Heuristic = new ClusRuleHeuristicDispersionMlt(this,getClusteringWeights());
 				break;
 			case Settings.HEURISTIC_R_DISPERSION_ADT:
-				m_Heuristic = new ClusRuleHeuristicRDispersionAdt(this,
-						getClusteringWeights());
+				m_Heuristic = new ClusRuleHeuristicRDispersionAdt(this,getClusteringWeights());
 				break;
 			case Settings.HEURISTIC_R_DISPERSION_MLT:
-				m_Heuristic = new ClusRuleHeuristicRDispersionMlt(this,
-						getClusteringWeights());
+				m_Heuristic = new ClusRuleHeuristicRDispersionMlt(this,getClusteringWeights());
 				break;
-			case Settings.HEURISTIC_DEFAULT:
-				m_Heuristic = new ClusRuleHeuristicError(this,
-						getClusteringWeights());
-				break;
+			default: 
+				throw new ClusException("Unsupported heuristic for single target classification rules!");
 			}
-		} else {
+		} else if (m_Mode == MODE_REGRESSION || m_Mode == MODE_CLASSIFY_AND_REGRESSION)  {
 			switch (getSettings().getHeuristic()) {
-			case Settings.HEURISTIC_REDUCED_ERROR:
-				m_Heuristic = new ClusRuleHeuristicError(this,
-						getClusteringWeights());
+			case Settings.HEURISTIC_DEFAULT:
+				m_Heuristic = new ClusRuleHeuristicRDispersionMlt(this,getClusteringWeights());
 				break;
-			case Settings.HEURISTIC_MESTIMATE:
-				throw new ClusException(
-						"MEstimate heuristic: regression and/or classification with multiple clustering attributes not supported!");
+			case Settings.HEURISTIC_REDUCED_ERROR:
+				m_Heuristic = new ClusRuleHeuristicError(this,getClusteringWeights());
+				break;
 			case Settings.HEURISTIC_DISPERSION_ADT:
-				m_Heuristic = new ClusRuleHeuristicDispersionAdt(this,
-						getClusteringWeights());
+				m_Heuristic = new ClusRuleHeuristicDispersionAdt(this,getClusteringWeights());
 				break;
 			case Settings.HEURISTIC_DISPERSION_MLT:
-				m_Heuristic = new ClusRuleHeuristicDispersionMlt(this,
-						getClusteringWeights());
+				m_Heuristic = new ClusRuleHeuristicDispersionMlt(this,getClusteringWeights());
 				break;
 			case Settings.HEURISTIC_R_DISPERSION_ADT:
-				m_Heuristic = new ClusRuleHeuristicRDispersionAdt(this,
-						getClusteringWeights());
+				m_Heuristic = new ClusRuleHeuristicRDispersionAdt(this,getClusteringWeights());
 				break;
 			case Settings.HEURISTIC_R_DISPERSION_MLT:
-				m_Heuristic = new ClusRuleHeuristicRDispersionMlt(this,
-						getClusteringWeights());
+				m_Heuristic = new ClusRuleHeuristicRDispersionMlt(this,getClusteringWeights());
 				break;
-			case Settings.HEURISTIC_DEFAULT:
-				m_Heuristic = new ClusRuleHeuristicError(this,
-						getClusteringWeights());
-				break;
+			default: 
+				throw new ClusException("Unsupported heuristic for multiple target or regression rules!");
 			}
+		} else if (m_Mode == MODE_HIERARCHICAL) {
+			throw new ClusException("Hierarchical mode for rules not yet implemented!");
+			/* String name = "Weighted Hierarchical Tree Distance";
+			m_Heuristic = new ClusRuleHeuristicSSD(name, createClusteringStat(),getClusteringWeights());
+			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
+			return; */
+		} else if (m_Mode == MODE_TIME_SERIES) {
+			String name = "Time Series Intra-Cluster Variation Heuristic for Rules";
+			m_Heuristic = new ClusRuleHeuristicSSD(this, name, createClusteringStat(),getClusteringWeights());
+			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
+			return;
+		} else {
+			throw new ClusException("Unsupported mode for rules!");
 		}
 	}
 
@@ -584,6 +590,7 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public void initHeuristic() throws ClusException {
+		// All rule learning heuristics should go here
 		if (isRuleInduce()) {
 			initRuleHeuristic();
 			return;
@@ -819,7 +826,9 @@ public class ClusStatManager implements Serializable {
 	public ClusErrorList createExtraError(int train_err) {
 		ClusErrorList parent = new ClusErrorList();
 		if (m_Mode == MODE_TIME_SERIES) {
-			parent.addError(new SSPDICVError(parent, new QDMTimeSeriesStat()));
+			ClusAttrType[] targets = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
+			TimeSeriesAttrType type = (TimeSeriesAttrType)targets[0];
+			parent.addError(new SSPDICVError(parent, new QDMTimeSeriesStat(type)));
 		}
 		return parent;
 	}

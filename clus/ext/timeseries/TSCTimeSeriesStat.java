@@ -27,6 +27,8 @@ import java.text.NumberFormat;
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
+import clus.data.type.TimeSeriesAttrType;
+import clus.main.ClusStatManager;
 import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 import clus.statistic.StatisticPrintInfo;
@@ -36,6 +38,10 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
+	public TSCTimeSeriesStat(TimeSeriesAttrType attr) {
+		super(attr);
+	}
+	
 	public double calcDistance(TimeSeries t1, TimeSeries t2) {
 		//this calculates the Correlation coefficient of two TimeSeries
 		//the two TimeSeries have same length
@@ -97,7 +103,7 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 	}
 
 	public ClusStatistic cloneStat() {
-		TSCTimeSeriesStat stat = new TSCTimeSeriesStat();
+		TSCTimeSeriesStat stat = new TSCTimeSeriesStat(m_Attr);
 		stat.cloneFrom(this);
 		return stat;
 	}

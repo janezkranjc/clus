@@ -50,17 +50,12 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	protected ClusStatManager m_StatManager;
 	protected boolean m_HasRuleErrors;
 
-	/**
-	 * Constructor for this class.
-	 * @param statmanager
-	 */
 	public ClusRuleSet(ClusStatManager statmanager) {
 		m_StatManager = statmanager;
 	}
 
 	/**
 	 * Clones the rule set so that it points to the same rules.
-	 * @return cloned rule set
 	 */
 	public ClusRuleSet cloneRuleSet() {
 		ClusRuleSet new_ruleset = new ClusRuleSet(m_StatManager);
@@ -71,9 +66,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	}
 
 	public void add(ClusRule rule) {
-		if ((getSettings().getCoveringMethod() == Settings.COVERING_METHOD_WEIGHTED_ADDITIVE) ||
-				(getSettings().getCoveringMethod() == Settings.COVERING_METHOD_WEIGHTED_MULTIPLICATIVE) ||
-				(getSettings().getCoveringMethod() == Settings.COVERING_METHOD_WEIGHTED_ERROR)) {
+		if (getSettings().isWeightedCovering()) {
 			// Only add unique rules for weighted covering
 			if (unique(rule)) {
 				m_Rules.add(rule);
@@ -98,8 +91,6 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	/**
 	 * Tests if the rule is already in the rule set.
-	 * @param rule to test
-	 * @return
 	 */
 	public boolean unique(ClusRule rule) {
 		boolean res = true;
@@ -115,6 +106,84 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	 * Returns the statistic (prediction) for a given tuple.
 	 */
 	public ClusStatistic predictWeighted(DataTuple tuple) {
+		boolean covered = false;
+		int pred_method = getSettings().getRulePredictionMethod();
+		if (pred_method == Settings.RULE_PREDICTION_METHOD_DECISION_LIST) {
+			for (int i = 0; i < getModelSize(); i++) {
+				ClusRule rule = getRule(i);
+				if (rule.covers(tuple)) {
+					return rule.getTargetStat();
+				}
+			}
+			return m_TargetStat;
+		} else if (pred_method == Settings.RULE_PREDICTION_METHOD_UNION) {
+			// In multi-label classification: predicted set of classes is
+			// union of predictions by individual rules
+			// TODO: Check if this is obsolete/move/reuse for hierarchical MLC ...
+			
+			ClusStatistic stat = m_TargetStat.cloneSimple();
+			stat.unionInit();
+			for (int i = 0; i < getModelSize(); i++) {
+				ClusRule rule = getRule(i);
+				if (rule.covers(tuple)) {
+					stat.union(rule.getTargetStat());
+					covered = true;
+				}
+			}
+			stat.unionDone();
+			return covered ? stat : m_TargetStat;
+		} else {  // Unordered rules (with different weighting schemes)
+			ClusStatistic stat = m_TargetStat.cloneStat();
+			double weight_sum = 0;
+			for (int i = 0; i < getModelSize(); i++) {
+				ClusRule rule = getRule(i);
+				if (rule.covers(tuple)) {
+					weight_sum += getAppropriateWeight(rule);
+				}
+			}
+			for (int i = 0; i < getModelSize(); i++) {
+				ClusRule rule = getRule(i);
+				if (rule.covers(tuple)) {
+					ClusStatistic rulestat = rule.predictWeighted(tuple);
+					double weight = getAppropriateWeight(rule)/weight_sum;
+					ClusStatistic norm_rulestat = rulestat.normalizedCopy();
+					stat.addPrediction(norm_rulestat, weight); // or should it be addScaled?
+					covered = true;
+				}
+			}
+			if (covered) {
+				stat.calcMean();
+				return stat;
+			} else {
+				return m_TargetStat;
+			}
+		}
+	}
+			
+	public double getAppropriateWeight(ClusRule rule) {
+		switch (getSettings().getRulePredictionMethod()) {
+		case Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED:
+			return rule.m_TargetStat.m_SumWeight;
+		case Settings.RULE_PREDICTION_METHOD_TOT_COVERAGE_WEIGHTED:
+			return rule.getCoverage()[ClusModel.TRAIN];
+		case Settings.RULE_PREDICTION_METHOD_ACC_COV_WEIGHTED:
+			return rule.m_TargetStat.m_SumWeight*(1-rule.getTrainErrorScore());
+		case Settings.RULE_PREDICTION_METHOD_ACCURACY_WEIGHTED:
+			return 1-rule.getTrainErrorScore();
+		case Settings.RULE_PREDICTION_METHOD_OPTIMIZED:
+			return rule.getOptWeight();
+		default:
+			System.err.println("getAppropriateWeight(): Unknown weighted prediction method!");
+			return Double.NEGATIVE_INFINITY;
+		}
+	}
+
+	/**
+	 * Returns the statistic (prediction) for a given tuple.
+	 * Old version of this method.
+	 */
+	// TODO: To be deleted when new implementation is tested!
+	public ClusStatistic predictWeightedOld(DataTuple tuple) {
 		int prediction_method = getSettings().getRulePredictionMethod();
 		if (prediction_method == Settings.RULE_PREDICTION_METHOD_DECISION_LIST) {
 			for (int i = 0; i < getModelSize(); i++) {
@@ -322,7 +391,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
-		boolean headers = getSettings().computeDispersion() || hasRuleErrors();
+		// boolean headers = getSettings().computeDispersion() || hasRuleErrors();
+		boolean headers = true;
 		// [train/test][comb/num/nom]
 		double[][] avg_dispersion = new double[2][3];
 		double[] avg_coverage = new double[2];
@@ -533,16 +603,14 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 			result /= nb_tar;
 			return result;
-		} else { // Mixed classification and regresion not yet implemented
+		} else { // Mixed classification and regression not yet implemented
 			return -1;
 		}
 	}
 
 	/**
-	 * Adds the tuple to the rule which covers it.
-	 * @param tuple the data tuple
-	 * @return true if tuple is covered by any rule in this RuleSet,
-	 *         false otherwise
+	 * Adds tuple to the rule which covers it. Returns true if the
+	 * tuple is covered by any rule in this RuleSet and false otherwise.
 	 */
 	public boolean addDataToRules(DataTuple tuple) {
 		boolean covered = false;
@@ -560,9 +628,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	}
 
 	/**
-	 * Adds the data tuples to rules which cover them. Noncovered
+	 * Adds the data tuples to rules which cover them. Non-covered
 	 * tuples are added to the m_DefaultData array.
-	 * @param data the data
 	 */
 	public void addDataToRules(RowData data) {
 		for (int i = 0; i < data.getNbRows(); i++) {
@@ -628,8 +695,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	public ClusModel prune(int prunetype) {
 		return this;
-  }
+	}
 
-  public void retrieveStatistics(ArrayList list) {
-  }
+	public void retrieveStatistics(ArrayList list) {
+	}
 }

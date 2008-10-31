@@ -65,9 +65,9 @@ public abstract class ClusStatistic implements Serializable {
 	public void printDebug() {
 	}
 
-  public void setSumWeight(double weight){
-    m_SumWeight = weight;
-  }
+	public void setSumWeight(double weight){
+		m_SumWeight = weight;
+	}
 
 	public void setSDataSize(int nbex) {
 		m_nbEx = nbex;
@@ -175,11 +175,11 @@ public abstract class ClusStatistic implements Serializable {
 		return false;
 	}
 
-/*
- * getError() and getErrorDiff() methods
- * - with scaling
- * - without scaling (only works for classification now!)
- **/
+	/*
+	 * getError() and getErrorDiff() methods
+	 * - with scaling
+	 * - without scaling (only works for classification now!)
+	 **/
 
 	public double getError() {
 		return getError(null);
@@ -208,10 +208,10 @@ public abstract class ClusStatistic implements Serializable {
 		return Double.POSITIVE_INFINITY;
 	}
 
-/*
- * getSS() and getSSDiff() methods, always with scaling
- * also version available that needs access to the data
- **/
+	/*
+	 * getSS() and getSSDiff() methods, always with scaling
+	 * also version available that needs access to the data
+	 **/
 
 	public double getSS(ClusAttributeWeights scale) {
 		System.err.println(getClass().getName()+": getSS(): Not yet implemented");
@@ -229,6 +229,10 @@ public abstract class ClusStatistic implements Serializable {
 
 	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other, RowData data) {
 		return getSSDiff(scale, other);
+	}
+	
+	public double getAbsoluteDistance(DataTuple tuple, ClusAttributeWeights weights) {
+		return Double.POSITIVE_INFINITY;
 	}
 
 	public static void reset(ClusStatistic[] stat) {
@@ -288,4 +292,9 @@ public abstract class ClusStatistic implements Serializable {
 	}
 
 	public abstract void vote(ArrayList votes);
+
+	public ClusStatistic normalizedCopy() {
+		return null;
+	}
+
 }

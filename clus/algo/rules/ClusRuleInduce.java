@@ -120,11 +120,14 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 					}
 					((ClusRuleHeuristicDispersion)m_Heuristic).setDataIndexes(subset_idx);
 				}
-				double new_heur = sanityCheck(sel.m_BestHeur, ref_rule);
-				// if (Settings.VERBOSE > 0) System.out.println("  Sanity.check.exp: " + new_heur);
+				// Do a sanity check only for exact (non-approximative) heuristics
+				if (Settings.isTimeSeriesProtoComlexityExact()) {
+					double new_heur = sanityCheck(sel.m_BestHeur, ref_rule);
+					// if (Settings.VERBOSE > 0) System.out.println("  Sanity.check.exp: " + new_heur);
+				}
 				// Check for sure if _strictly_ better!
-				if (new_heur > beam_min_value) {
-					ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_rule);
+				if (sel.m_BestHeur > beam_min_value) {
+					ClusBeamModel new_model = new ClusBeamModel(sel.m_BestHeur, ref_rule);
 					new_model.setParentModelIndex(model_idx);
 					beam.addModel(new_model);
 					setBeamChanged(true);
@@ -233,8 +236,13 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		return result;
 	}
 
+	/**
+	 *  Standard covering algorithm for learning ordered rules.
+	 */
 	public void separateAndConquor(ClusRuleSet rset, RowData data) {
-		while (data.getNbRows() > 0) {
+		int max_rules = getSettings().getMaxRulesNb();
+		int i = 0;
+		while ((data.getNbRows() > 0) && (i < max_rules)) {
 			ClusRule rule = learnOneRule(data);
 			if (rule.isEmpty()) {
 				break;
@@ -244,6 +252,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				System.out.println();
 				rset.add(rule);
 				data = rule.removeCovered(data);
+				i++;
 			}
 		}
 		ClusStatistic left_over = createTotalTargetStat(data);
@@ -253,10 +262,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	}
 
 	/**
-	 * separateAndConquor method which uses re-weighting
-	 * @param rset
-	 * @param data
-	 * @throws ClusException
+	 *  Weighted covering algorithm for learning unordered rules.
 	 */
 	public void separateAndConquorWeighted(ClusRuleSet rset, RowData data) throws ClusException {
 		int max_rules = getSettings().getMaxRulesNb();
@@ -770,7 +776,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			rset = optimizeRuleSet(rset, data);
 		}
 		// Computing dispersion
-		if (getSettings().computeDispersion()) {
+		if (true) {
+		// if (getSettings().computeDispersion()) {
+		// Do this always because it is used in some rule weighting schemes?
 			rset.addDataToRules(data);
 			rset.computeDispersion(ClusModel.TRAIN);
 			rset.removeDataFromRules();
@@ -781,7 +789,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				rset.removeDataFromRules();
 			}
 		}
-		// Number rules (for output prupose in WritePredictions)
+		// Number rules (for output purpose in WritePredictions)
 		rset.numberRules();
 		return rset;
 	}

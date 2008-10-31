@@ -42,9 +42,10 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 
 	/*
 	 * Aco:
-	 * m_RepresentativeMean is the time series representing the claster
+	 * m_RepresentativeMean is the time series representing the cluster
 	*/
 
+	protected TimeSeriesAttrType m_Attr;
 	private ArrayList TimeSeriesStack = new ArrayList();
 	public TimeSeries m_RepresentativeMean = new TimeSeries("[]");
 	public TimeSeries m_RepresentativeMedian = new TimeSeries("[]");
@@ -54,7 +55,11 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	protected double m_Value;
 	protected double m_AvgDistances;
 	protected double m_AvgSqDistances;
-
+	
+	public TimeSeriesStat(TimeSeriesAttrType attr) {
+		m_Attr = attr;
+	}
+	
 	public double getSS(ClusAttributeWeights scale, RowData data) {
 		optimizePreCalc(data);
 		return m_Value;
@@ -209,7 +214,22 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		int lognb = (int)Math.floor(Math.log(nb)/Math.log(2))+1;
 		optimizeLinearPreCalc(data, lognb);
 	}
+	
+	public double getAbsoluteDistance(DataTuple tuple, ClusAttributeWeights weights) {
+		int idx = m_Attr.getIndex();
+		TimeSeries actual = (TimeSeries)tuple.getObjVal(0);
+		return calcDistance(m_RepresentativeMean, actual) * weights.getWeight(idx);
+	}
 
+	public void initNormalizationWeights(ClusAttributeWeights weights, boolean[] shouldNormalize) {
+		int idx = m_Attr.getIndex();
+		if (shouldNormalize[idx]) {
+			double var = m_Value / getTotalWeight();
+			double norm = var > 0 ? 1/var : 1; // No normalization if variance = 0;
+			weights.setWeight(m_Attr, norm);
+		}
+	}
+	
 	/*
 	 * [Aco]
 	 * a new timeseries comes, and we calculate something for it
@@ -392,4 +412,14 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	public TimeSeries getTimeSeriesPred() {
 		return m_RepresentativeMedian;
 	}
+	
+	public ClusStatistic normalizedCopy() {
+		System.err.println("Warning: This part not yet implemented!");
+		return null;
+	}
+
+	public void addPrediction(ClusStatistic other, double weight) {
+		System.err.println("Warning: This part not yet implemented!");
+	}
+
 }

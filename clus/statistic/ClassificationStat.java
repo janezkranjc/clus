@@ -51,7 +51,6 @@ public class ClassificationStat extends ClusStatistic {
 
 	/**
 	 * Constructor for this class.
-	 * @param nomAtts array of nominal attributes
 	 */
 	public ClassificationStat(NominalAttrType[] nomAtts) {
 		m_NbTarget = nomAtts.length;
@@ -126,6 +125,33 @@ public class ClassificationStat extends ClusStatistic {
 			System.arraycopy(your, 0, my, 0, my.length);
 		}
 	}
+	
+	// TODO: Just a temporary solution - should be done in a more elegant way
+	// use with care, e.g., on a ClassificationStat copy 
+	public void normalizeCounts() {
+		for (int i = 0; i < m_NbTarget; i++) {		
+			for (int j = 0; j < m_ClassCounts[i].length; j++) {
+				m_ClassCounts[i][j] /= m_SumWeight;
+			}
+		}
+		m_SumWeight = 1;		
+	}	
+
+	// Replacement for the above normalizeCounts method
+	/**
+	 * Used for combining weighted predictions. 
+	 */
+	public ClassificationStat normalizedCopy() {
+		ClassificationStat copy = (ClassificationStat)cloneStat();
+		copy.copy(this);
+		for (int i = 0; i < m_NbTarget; i++) {		
+			for (int j = 0; j < m_ClassCounts[i].length; j++) {
+				copy.m_ClassCounts[i][j] /= m_SumWeight;
+			}
+		}
+		copy.m_SumWeight = 1;
+		return copy;
+	}	
 
 	public boolean samePrediction(ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
@@ -184,17 +210,6 @@ public class ClassificationStat extends ClusStatistic {
 			for (int j = 0; j < my.length; j++) my[j] = your[j] - my[j];
 		}
 	}
-
-	// TODO: Just a temporary solution - should be done in a more elegant way
-	// use with care, e.g., on a ClassificationStat copy 
-	public void normalizeCounts() {
-		for (int i = 0; i < m_NbTarget; i++) {		
-			for (int j = 0; j < m_ClassCounts[i].length; j++) {
-				m_ClassCounts[i][j] /= m_SumWeight;
-			}
-		}
-		m_SumWeight = 1;		
-	}	
 
 	public void update(ColTarget target, int idx) {
 		m_SumWeight += 1.0;

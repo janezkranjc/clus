@@ -25,13 +25,20 @@ package clus.ext.timeseries;
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
+import clus.data.type.TimeSeriesAttrType;
+import clus.main.ClusStatManager;
 import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 import clus.statistic.StatisticPrintInfo;
 
 public class DTWTimeSeriesStat extends TimeSeriesStat {
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
+	public DTWTimeSeriesStat(TimeSeriesAttrType attr) {
+		super(attr);
+	}
+	
 	public double calcDistance(TimeSeries t1, TimeSeries t2, int adjustmentWindow){
 
 		int m = t1.length();
@@ -87,7 +94,7 @@ public class DTWTimeSeriesStat extends TimeSeriesStat {
 	}
 
 	public ClusStatistic cloneStat() {
-		DTWTimeSeriesStat stat = new DTWTimeSeriesStat();
+		DTWTimeSeriesStat stat = new DTWTimeSeriesStat(m_Attr);
 		stat.cloneFrom(this);
 		return stat;
 	}

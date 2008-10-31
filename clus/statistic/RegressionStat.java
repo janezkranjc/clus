@@ -101,6 +101,22 @@ public class RegressionStat extends ClusStatistic {
 		System.arraycopy(or.m_SumValues, 0, m_SumValues, 0, m_NbAttrs);
 		System.arraycopy(or.m_SumSqValues, 0, m_SumSqValues, 0, m_NbAttrs);
 	}
+	
+	/**
+	 * Used for combining weighted predictions. 
+	 */
+	public RegressionStat normalizedCopy() {
+		RegressionStat copy = (RegressionStat)cloneStat();
+		copy.copy(this);
+		copy.m_nbEx = 0;
+		for (int i = 0; i < m_NbAttrs; i++) {
+			copy.m_SumWeights[i] = 0.0;
+			copy.m_SumValues[i] = m_SumValues[i]/m_SumWeight;
+			copy.m_SumSqValues[i] = m_SumValues[i]*m_SumValues[i];
+		}
+		copy.m_SumWeight = 1;
+		return copy;
+	}	
 
 	public void addPrediction(ClusStatistic other, double weight) {
 

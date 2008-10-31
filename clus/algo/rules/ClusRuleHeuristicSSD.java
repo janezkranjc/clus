@@ -20,67 +20,58 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-/*
- * Created on August 4, 2006
- */
 package clus.algo.rules;
 
-import clus.main.ClusStatManager;
-import clus.main.Settings;
+import clus.main.*;
 import clus.statistic.*;
+import clus.data.rows.*;
+import clus.heuristic.*;
 import clus.data.attweights.*;
 
-public class ClusRuleHeuristicRDispersionAdt extends ClusRuleHeuristicDispersion {
-	
-	public ClusRuleHeuristicRDispersionAdt(ClusAttributeWeights prod) {
+public class ClusRuleHeuristicSSD extends ClusHeuristic {
+
+	protected RowData m_Data;
+	protected String m_BasicDist;
+	protected ClusStatistic m_NegStat;
+	protected ClusAttributeWeights m_TargetWeights;
+	protected ClusStatManager m_StatManager;
+
+	// Copied from SSDHeuristic.java
+	public ClusRuleHeuristicSSD(ClusStatManager statManager, String basicdist, 
+			ClusStatistic negstat, ClusAttributeWeights targetweights) {
+		m_StatManager = statManager;
+		m_BasicDist = basicdist;
+		m_NegStat = negstat;
+		m_TargetWeights = targetweights;
 	}
 
-	public ClusRuleHeuristicRDispersionAdt(ClusStatManager stat_mgr, ClusAttributeWeights prod) {
-		m_StatManager = stat_mgr;
+	// Copied from SSDHeuristic.java
+	public void setData(RowData data) {
+		m_Data = data;
 	}
 
-	/*
-	 *  Larger values are better!
-	 */
-  // We only need the second parameter for rules!
-	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
-		double n_pos = c_pstat.m_SumWeight;
+	// Larger values are better!
+	// Only the second parameter make sense for rules, i.e., statistic for covered examples
+	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
+		double n_pos = pstat.m_SumWeight;
 		// Acceptable?
-		if (n_pos-Settings.MINIMAL_WEIGHT < 1e-6) { // (n_pos < Settings.MINIMAL_WEIGHT)
+		if (n_pos < Settings.MINIMAL_WEIGHT) {
 			return Double.NEGATIVE_INFINITY;
 		}
-		double disp = ((CombStat)c_pstat).rDispersionAdtHeur();
-		// Rule distance part
-		if (((CombStat)c_pstat).getSettings().isHeurRuleDist() &&
-				(m_CoveredBitVectArray.size() > 0)) {
-			double avg_dist = 0.0;
-			int nb_rules = m_CoveredBitVectArray.size();
-			boolean[] bit_vect = new boolean[m_NbTuples];
-			for (int i = 0; i < m_DataIndexes.length; i++) {
-				bit_vect[m_DataIndexes[i]] = true;
-			}
-			boolean[] bit_vect_c = new boolean[m_NbTuples];
-			for (int j = 0; j < nb_rules; j++) {
-				bit_vect_c = ((boolean[])(m_CoveredBitVectArray.get(j)));
-				double single_dist = 0;
-				for (int i = 0; i < m_NbTuples; i++) {
-					if (bit_vect[i] != bit_vect_c[i]) {
-						single_dist++;
-					}
-				}
-				single_dist /= m_NbTuples;
-				avg_dist += single_dist;
-			}
-			avg_dist /= nb_rules;
-			double dist_par = ((CombStat)c_pstat).getSettings().getHeurRuleDistPar();
-			double dist_part = avg_dist * dist_par;
-			disp += 1.0 - dist_part; // TODO: Check if this offset is ok!
-		}
-		return -disp;
+		// Calculate value
+		// System.out.println("Inside calcHeuristic()");
+		double value = pstat.getSS(m_TargetWeights, m_Data);
+		//System.out.print("SS: "+value);
+	    // Coverage part
+	  	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
+	    double cov_par = m_StatManager.getSettings().getHeurCoveragePar();
+	    value *= Math.pow(n_pos/train_sum_w, cov_par);
+		//System.out.println(", cov: "+n_pos+"/"+train_sum_w+", val: "+value); //+" -> -"+value);
+	    if (value < 1e-6) return Double.NEGATIVE_INFINITY;
+		return -value;
 	}
 
 	public String getName() {
-		return "Rule Heuristic (Reduced Relative Dispersion, Additive ver.)";
+		return "SS Reduction for Rules ("+m_BasicDist+", "+m_TargetWeights.getName()+")";
 	}
-
 }

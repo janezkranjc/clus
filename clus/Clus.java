@@ -385,7 +385,7 @@ public class Clus implements CMDLineArgsProvider {
 			System.out.println("Loading: " + m_Sett.getPruneFile());
 			updateStatistic(m_Sett.getPruneFile(), stats);
 		}*/
-		mgr.initNormalizationWeights(allStat);
+		mgr.initNormalizationWeights(allStat, data);
 		mgr.initClusteringWeights();
 		mgr.initDispersionWeights();
 		mgr.initHeuristic();

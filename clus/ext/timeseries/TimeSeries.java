@@ -178,5 +178,4 @@ public class TimeSeries implements Serializable{
 		values[index]=value;
 	}
 
-
 }
