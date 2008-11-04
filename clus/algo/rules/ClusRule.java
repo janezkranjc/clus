@@ -240,7 +240,8 @@ public class ClusRule implements ClusModel, Serializable {
 			} else { // COVERING_METHOD_WEIGHTED_ERROR
 				// DONE: weighted by a proportion of incorrectly classified target attributes.
 				// TODO: weighted by a distance to a prototype of examples covered by this rule.
-				if (m_StatManager.getMode() == ClusStatManager.MODE_CLASSIFY) {
+				//if (m_StatManager.getMode() == ClusStatManager.MODE_CLASSIFY) {
+				if (m_TargetStat instanceof ClassificationStat) {
 					int[] predictions = predictWeighted(tuple).getNominalPred();
 					NominalAttrType[] targetAttrs = data.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 					if (predictions.length > 1) { // Multiple target
@@ -262,7 +263,8 @@ public class ClusRule implements ClusModel, Serializable {
 							new_weight = old_weight;
 						}
 					}
-				} else if (m_StatManager.getMode() == ClusStatManager.MODE_REGRESSION){
+				// } else if (m_StatManager.getMode() == ClusStatManager.MODE_REGRESSION){
+				} else if (m_TargetStat instanceof RegressionStat) {
 					double[] predictions = predictWeighted(tuple).getNumericPred();
 					NumericAttrType[] targetAttrs = data.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 					if (predictions.length > 1) { // Multiple target
@@ -301,7 +303,7 @@ public class ClusRule implements ClusModel, Serializable {
 				} else if (m_StatManager.getMode() == ClusStatManager.MODE_TIME_SERIES){
 					ClusStatistic prediction = predictWeighted(tuple);
 					ClusAttributeWeights weights = m_StatManager.getClusteringWeights();
-					double coef = cov_w_par * prediction.getAbsoluteDistance(tuple, weights); // Add /2 or /4 here?
+					double coef = cov_w_par * prediction.getAbsoluteDistance(tuple, weights);
 					if (coef > 1) { // Limit max weight to 1
 						coef = 1;
 					}
@@ -476,7 +478,7 @@ public class ClusRule implements ClusModel, Serializable {
 			return m_TrainErrorScore;
 		} else {
 			System.err.println("getTrainErrorScore(): Error score not initialized!");
-			return Double.NEGATIVE_INFINITY;
+			return Double.POSITIVE_INFINITY;
 		}
 	}	
 
@@ -485,6 +487,7 @@ public class ClusRule implements ClusModel, Serializable {
 	 *  i.e., the data that the rule was trained on and not the 
 	 *  entire training set (kind of ...).
 	 */
+	// TODO: Not used anymore - remove?
 	public void setTrainErrorScore() {
 		int nb_tar = m_TargetStat.getNbAttributes();
 		double sum_err = 0;
@@ -575,7 +578,7 @@ public class ClusRule implements ClusModel, Serializable {
 		  return m_OptWeight;
 		} else {
 			System.err.println("Warning: Optimal rule weight not initialized!");
-			return 0.0;
+			return -1.0;
 		}
 	}
 

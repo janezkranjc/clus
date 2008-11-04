@@ -120,14 +120,17 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 					}
 					((ClusRuleHeuristicDispersion)m_Heuristic).setDataIndexes(subset_idx);
 				}
+				double new_heur;
 				// Do a sanity check only for exact (non-approximative) heuristics
-				if (Settings.isTimeSeriesProtoComlexityExact()) {
-					double new_heur = sanityCheck(sel.m_BestHeur, ref_rule);
+				 if (Settings.isTimeSeriesProtoComlexityExact()) {
+					new_heur = sanityCheck(sel.m_BestHeur, ref_rule);
 					// if (Settings.VERBOSE > 0) System.out.println("  Sanity.check.exp: " + new_heur);
+				} else {
+					new_heur = sel.m_BestHeur;
 				}
 				// Check for sure if _strictly_ better!
-				if (sel.m_BestHeur > beam_min_value) {
-					ClusBeamModel new_model = new ClusBeamModel(sel.m_BestHeur, ref_rule);
+				if (new_heur > beam_min_value) {
+					ClusBeamModel new_model = new ClusBeamModel(new_heur, ref_rule);
 					new_model.setParentModelIndex(model_idx);
 					beam.addModel(new_model);
 					setBeamChanged(true);

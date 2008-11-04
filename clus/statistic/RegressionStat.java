@@ -106,15 +106,10 @@ public class RegressionStat extends ClusStatistic {
 	 * Used for combining weighted predictions. 
 	 */
 	public RegressionStat normalizedCopy() {
-		RegressionStat copy = (RegressionStat)cloneStat();
-		copy.copy(this);
+		RegressionStat copy = (RegressionStat)cloneSimple();
 		copy.m_nbEx = 0;
-		for (int i = 0; i < m_NbAttrs; i++) {
-			copy.m_SumWeights[i] = 0.0;
-			copy.m_SumValues[i] = m_SumValues[i]/m_SumWeight;
-			copy.m_SumSqValues[i] = m_SumValues[i]*m_SumValues[i];
-		}
 		copy.m_SumWeight = 1;
+		calcMean(copy.m_Means);
 		return copy;
 	}	
 
@@ -205,11 +200,15 @@ public class RegressionStat extends ClusStatistic {
 		// do not need to call calcmean here
 	}
 
+	public void calcMean(double[] means) {
+		for (int i = 0; i < m_NbAttrs; i++) {
+			means[i] = m_SumWeights[i] != 0.0 ? m_SumValues[i] / m_SumWeights[i] : 0.0;
+		}
+	}	
+	
 	public void calcMean() {
 		if (m_Means == null) m_Means = new double[m_NbAttrs];
-		for (int i = 0; i < m_NbAttrs; i++) {
-			m_Means[i] = m_SumWeights[i] != 0.0 ? m_SumValues[i] / m_SumWeights[i] : 0.0;
-		}
+		calcMean(m_Means);
 	}
 
 	public double getMean(int i) {

@@ -60,6 +60,15 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		m_Attr = attr;
 	}
 	
+	public ClusStatistic normalizedCopy() {
+		System.err.println("Warning: This part not yet implemented!");
+		return null;
+	}
+
+	public void addPrediction(ClusStatistic other, double weight) {
+		System.err.println("Warning: This part not yet implemented!");
+	}
+
 	public double getSS(ClusAttributeWeights scale, RowData data) {
 		optimizePreCalc(data);
 		return m_Value;
@@ -413,13 +422,4 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		return m_RepresentativeMedian;
 	}
 	
-	public ClusStatistic normalizedCopy() {
-		System.err.println("Warning: This part not yet implemented!");
-		return null;
-	}
-
-	public void addPrediction(ClusStatistic other, double weight) {
-		System.err.println("Warning: This part not yet implemented!");
-	}
-
 }

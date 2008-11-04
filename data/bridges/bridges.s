@@ -1,5 +1,6 @@
 [Tree]
 Heuristic = RDispersionMlt
+%AlternativeSplits = Yes
 
 [Rules]
 CoveringWeight = 0
@@ -7,6 +8,7 @@ PrintRuleWiseErrors = Yes
 %CoveringMethod = Standard
 CoveringMethod = WeightedError
 ComputeDispersion = Yes
+%MaxRulesNb = 2
 
 [Attributes]
 ClusteringWeights = 
