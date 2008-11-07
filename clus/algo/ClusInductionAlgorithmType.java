@@ -33,7 +33,11 @@ import clus.main.Settings;
 import clus.model.ClusModel;
 import clus.util.*;
 import clus.data.type.*;
-
+ 
+/**
+ * For each type of algorithm there should be a ClusClassifier object.
+ * 
+ */
 public abstract class ClusInductionAlgorithmType {
 
 	public final static int REGULAR_TREE = 0;
@@ -76,9 +80,16 @@ public abstract class ClusInductionAlgorithmType {
 		// should be implemented by subclass
 	}
 
+	/**
+	 * Calls the induce function for each of the learning algorithms of this TYPE.
+	 * Also collects the information about computational cost of training.
+	 * @param cr
+	 * @throws ClusException
+	 * @throws IOException
+	 */
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		long start_time = ResourceInfo.getTime();
-		getInduce().induceAll(cr);
+		getInduce().induceAll(cr); // Train the algorithms of this type.
 		long done_time = ResourceInfo.getTime();
 		cr.setInductionTime(done_time-start_time);
 		pruneAll(cr);

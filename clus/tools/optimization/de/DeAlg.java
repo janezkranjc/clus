@@ -49,9 +49,9 @@ public class DeAlg {
 
   /**
    * Constructor for classification optimization
-   * @param stat_mgr
-   * @param rule_pred
-   * @param true_val
+   * @param stat_mgr Statistics manager. Includes information about targets and weights etc.
+   * @param rule_pred Rule predictions for targets.
+   * @param true_val Target values given by the data..
    */
 	public DeAlg(ClusStatManager stat_mgr, double[][][] rule_pred, double[] true_val) {
 		m_StatMgr = stat_mgr;

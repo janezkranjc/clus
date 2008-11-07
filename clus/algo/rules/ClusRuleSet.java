@@ -39,6 +39,11 @@ import clus.model.processor.ClusModelProcessor;
 import clus.statistic.*;
 import clus.util.*;
 
+/**
+ * Set of predictive rules.
+ * 
+ *
+ */
 public class ClusRuleSet implements ClusModel, Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
@@ -356,6 +361,10 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		m_TargetStat = def;
 	}
 
+	/**
+	 * Post process the rule set rule by rule.
+	 * Post processing is only calculating the means for each of the target statistics. 
+	 */
 	public void postProc() {
 		m_TargetStat.calcMean();
 		for (int i = 0; i < m_Rules.size(); i++) {

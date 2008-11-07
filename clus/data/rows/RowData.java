@@ -38,6 +38,10 @@ import clus.error.*;
 import clus.selection.*;
 import clus.statistic.*;
 
+/**
+ * Multiple rows (tuples) of data.
+ * One row (DataTuple) is one instance of the data with target and description attributes.
+ */
 public class RowData extends ClusData implements MSortable {
 
 	public int m_Index;
@@ -349,8 +353,11 @@ public class RowData extends ClusData implements MSortable {
 		return res;
 	}
 
-	// Only used in efficient XVal code
-	// Could be a bug: changeWeight -> multiplyWeight
+	/**
+	 *  Only used in efficient XVal code
+	 * @todo Could be a bug: changeWeight -> multiplyWeight
+	 * @return
+	 */ 
 	public final RowData getFoldData2(int fold) {
 		int idx = 0;
 		int nbsel = 0;

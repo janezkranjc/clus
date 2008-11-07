@@ -278,6 +278,13 @@ public class Clus implements CMDLineArgsProvider {
 		System.out.println();
 	}
 
+	/**
+	 * Train the model for given algorithm type.
+	 * @param cr Information about this run.
+	 * @param clss Type of learning algorithm used.
+	 * @throws ClusException
+	 * @throws IOException
+	 */
 	public final void induce(ClusRun cr, ClusInductionAlgorithmType clss) throws ClusException, IOException {
 		if (Settings.VERBOSE > 0) {
 			System.out.println("Run: " + cr.getIndexString());
@@ -809,6 +816,8 @@ public class Clus implements CMDLineArgsProvider {
 
 	}
 
+	/* Run the prediction algorithm session once: train and possibly test and exit.
+	 */
 	public final ClusRun singleRunMain(ClusInductionAlgorithmType clss, ClusSummary summ)	throws IOException, ClusException {
 //		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".out", m_Schema, m_Sett);
 		ClusOutput output;
@@ -1168,6 +1177,17 @@ public class Clus implements CMDLineArgsProvider {
 				sett.setAppName(cargs.getMainArg(0));
 				clus.initSettings(cargs);
 				ClusInductionAlgorithmType clss = null;
+				
+				/** There are two groups of command line parameters of type -<parameter>.
+				 *  From both of them at most one can be used.
+				 *  The first group is the learning method.
+				 *  Options are knn, knnTree, rules, weka (for Weka workbench),
+				 *  tuneftest, tunesize, beam (beam search induction tree), exhaustive,
+				 *  sit (inductive transfer learning), forest (ensemble trees).
+				 *  If the parameter is not given, a single decision tree is used.
+				 *  @todo What do the other parameter values mean? (e.g. tuneftest, exhaustive)
+				 *  @todo There should be a command line help for these. For example with -help. 
+				 */
 				if (cargs.hasOption("knn")) {
 					clus.getSettings().setSectionKNNEnabled(true);
 					clus.getSettings().setSectionTreeEnabled(false);
@@ -1204,6 +1224,13 @@ public class Clus implements CMDLineArgsProvider {
 				} else {
 					clss = new ClusDecisionTree(clus);
 				}
+				
+				/** The second group of command line parameters is for miscellaneous action.
+				 *  The options are corrmatrix, info, writetargets, out2model, test, normalize, debug,
+				 *  xval (test error estimation via K-fold cross validation), fold, bag (originally bagging, may not be used)
+				 *  show, gui, tseries
+				 *  @todo What do these mean?
+				 */
 				if (cargs.hasOption("corrmatrix")) {
 					clus.initialize(cargs, clss);
 					CorrelationMatrixComputer cmp = new CorrelationMatrixComputer();
@@ -1227,7 +1254,7 @@ public class Clus implements CMDLineArgsProvider {
 				} else if (cargs.hasOption("debug")) {
 					clus.initialize(cargs, clss);
 					clus.showDebug();
-				} else if (cargs.hasOption("xval")) {
+				} else if (cargs.hasOption("xval")) { // cross validation
 					clus.isxval = true;
 					clus.initialize(cargs, clss);
 					clus.xvalRun(clss);

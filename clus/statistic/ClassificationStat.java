@@ -442,6 +442,9 @@ public class ClassificationStat extends ClusStatistic {
 		return buf.toString();
 
 	}
+	/**
+	 * Prints the statistics - predictions : weighted sum of all examples
+	 */
 	public String getString(StatisticPrintInfo info) {
 		StringBuffer buf = new StringBuffer();
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;

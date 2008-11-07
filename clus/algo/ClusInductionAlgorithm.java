@@ -34,7 +34,7 @@ import clus.model.modelio.*;
 
 import java.io.*;
 
-/*
+/**
  * Subclasses should implement:
  *
  *	public ClusModel induceSingleUnpruned(ClusRun cr);
@@ -43,7 +43,7 @@ import java.io.*;
  *
  * 	public void induceAll(ClusRun cr);
  *
- **/
+ */
 
 public abstract class ClusInductionAlgorithm {
 
@@ -68,6 +68,10 @@ public abstract class ClusInductionAlgorithm {
 		return m_StatManager;
 	}
 
+	/**
+	 * Returns the settings given in the settings file (.s).
+	 * @return The settings object.
+	 */
 	public Settings getSettings() {
 		return m_StatManager.getSettings();
 	}
@@ -110,6 +114,11 @@ public abstract class ClusInductionAlgorithm {
 		return stat;
 	}
 
+	/**
+	 * Compute the statistics for all the (rows in the) data.
+	 * @param data Data in rows.
+	 * @return
+	 */
 	public ClusStatistic createTotalTargetStat(RowData data) {
 		ClusStatistic stat = m_StatManager.createTargetStat();
 		stat.setSDataSize(data.getNbRows());

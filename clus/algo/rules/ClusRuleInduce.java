@@ -266,12 +266,17 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 
 	/**
 	 *  Weighted covering algorithm for learning unordered rules.
+	 *  Maximum number of rules can be given. Data is removed when it is covered. 
+	 *  Prints statistics for the data that were left over when maximum amount of rules was reached.
 	 */
+	 
 	public void separateAndConquorWeighted(ClusRuleSet rset, RowData data) throws ClusException {
 		int max_rules = getSettings().getMaxRulesNb();
 		int i = 0;
-		RowData data_copy = (RowData)data.deepCloneData(); // Probably not nice
+		RowData data_copy = (RowData)data.deepCloneData(); //Taking copy of data. Probably not nice
 		ArrayList bit_vect_array = new ArrayList();
+		
+		/// 
 		while ((data.getNbRows() > 0) && (i < max_rules)) {
 			ClusRule rule = learnOneRule(data);
 			if (rule.isEmpty()) {
@@ -300,6 +305,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				}
 			}
 		}
+		// The statistics for the data that were left over when maximum amount of rules was reached.
 		ClusStatistic left_over = createTotalTargetStat(data);
 		left_over.calcMean();
 		System.out.println("Left Over: "+left_over);
@@ -739,6 +745,15 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		return expected;
 	}
 
+	/**
+	 * Calls the appropriate rule learning method (e.g. beam rule, separate and conquer)
+	 * depending on parameters .s file. Default is weighted covering algorithm with unordered rules.
+	 * @param run The information about this run. Parameters etc.
+	 * @return
+	 * @throws ClusException
+	 * @throws IOException
+	 */
+	
 	public ClusModel induce(ClusRun run) throws ClusException, IOException {
 		int method = getSettings().getCoveringMethod();
 		int add_method = getSettings().getRuleAddingMethod();
@@ -755,6 +770,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			((ClusRuleHeuristicDispersion)m_Heuristic).setDataIndexes(data_idx);
 			((ClusRuleHeuristicDispersion)m_Heuristic).initCoveredBitVectArray(data.getNbRows());
 		}
+		
+		/// Actual rule learning is done here with the given method.
+		// Settings.* check if the given option is given on the command line
 		ClusRuleSet rset = new ClusRuleSet(getStatManager());
 		if (method == Settings.COVERING_METHOD_STANDARD) {
 			separateAndConquor(rset, data);
@@ -773,7 +791,10 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		} else {
 			separateAndConquorWeighted(rset, data);
 		}
+		
+		// The rule set was altered. Compute the means for rules again.
 		rset.postProc();
+		
 		// Optimizing rule set
 		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
 			rset = optimizeRuleSet(rset, data);
@@ -797,6 +818,14 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		return rset;
 	}
 
+	/**
+	 * Optimize the weights of rules.
+	 * @param rset Optimized rule set
+	 * @param data
+	 * @return
+	 * @throws ClusException
+	 * @throws IOException
+	 */
 	public ClusRuleSet optimizeRuleSet(ClusRuleSet rset, RowData data) throws ClusException, IOException {
 		String fname = getSettings().getDataFile();
 		PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
@@ -1086,7 +1115,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		// ClusRulesForAttrs rfa = new ClusRulesForAttrs();
 		// return rfa.constructRules(cr);
 		resetAll();
-		if (!getSettings().isRandomRules()) {
+		if (!getSettings().isRandomRules()) { // Is the random rules given in the .s file
 			return induce(cr);
 		} else {
 			return induceRandomly(cr);

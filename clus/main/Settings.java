@@ -35,6 +35,12 @@ import clus.heuristic.*;
 import clus.data.type.*;
 import clus.ext.hierarchical.*;
 
+/**
+ * All the settings. Includes the command line parameters as boolean class attributes.
+ * The settings file attributes are included by get* methods.
+ * @author User
+ *
+ */
 public class Settings implements Serializable {
 
 	public final static long SERIAL_VERSION_ID = 1L;

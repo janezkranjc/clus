@@ -33,11 +33,16 @@ import clus.ext.timeseries.TimeSeries;
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ * Statistics about the data set. Target attributes, nominal or real attributes, weights etc.
+ *
+ */
 public abstract class ClusStatistic implements Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-	public double m_SumWeight; // the weighted sum of all example
+	/**  The weighted sum of all examples */
+	public double m_SumWeight; 
 
 	public int m_nbEx;
 

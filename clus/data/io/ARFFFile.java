@@ -34,6 +34,7 @@ import clus.util.*;
 // FIXME - use plugin system
 import clus.ext.hierarchical.*;
 
+/// The ARFF files include the data and description of variable types.
 public class ARFFFile {
 
 	protected final static String TAG_ERROR = " tag not found in ARFF file, found instead: '";

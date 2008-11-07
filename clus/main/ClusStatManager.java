@@ -52,6 +52,11 @@ import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.ChiSquaredDistribution;
 import org.apache.commons.math.distribution.DistributionFactory;
 
+/** Statistics manager
+ * Includes information about target attributes and weights etc. 
+ * Also if the task is regression or classification.
+ */
+
 public class ClusStatManager implements Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;

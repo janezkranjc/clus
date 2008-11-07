@@ -349,9 +349,14 @@ public class ClusRule implements ClusModel, Serializable {
 		printModel(wrt, StatisticPrintInfo.getInstance());
 	}
 
+	/**
+	 * Prints first the values for nominal attributes, then the continual ones.
+	 */
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		wrt.print("IF ");
+		
+		// The If statement
 		if (m_Tests.size() == 0) {
 			wrt.print("true");
 		} else {
@@ -365,9 +370,13 @@ public class ClusRule implements ClusModel, Serializable {
 			}
 		}
 		wrt.println();
+		
+		// Then part
 		wrt.print("THEN "+m_TargetStat.getString(info));
 		if (getID() != 0 && info.SHOW_INDEX) wrt.println(" ("+getID()+")");
 		else wrt.println();
+		// Then part ends here.
+		
 		String extra = m_TargetStat.getExtraInfo();
 		if (extra != null) {
 			// Used, e.g., in hierarchical multi-classification
@@ -464,7 +473,11 @@ public class ClusRule implements ClusModel, Serializable {
 	public void setClusteringStat(ClusStatistic stat) {
 		m_ClusteringStat = stat;
 	}
-
+	
+	/**
+	 * Post process the rule.
+	 * Post processing is only calculating the means for each of the target statistics. 
+	 */
 	public void postProc() {
 		m_TargetStat.calcMean();
 	}

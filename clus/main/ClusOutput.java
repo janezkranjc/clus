@@ -39,6 +39,11 @@ import clus.ext.ensembles.ClusEnsembleInduce;
 import clus.data.rows.*;
 import clus.Clus;
 
+/**
+ * Class for outputting the training and testing results to .out file.
+ * All the information during the process is gathered here.
+ * 
+ */
 public class ClusOutput {
 
 	protected ClusSchema m_Schema;
