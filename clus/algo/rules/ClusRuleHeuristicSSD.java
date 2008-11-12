@@ -25,6 +25,7 @@ package clus.algo.rules;
 import clus.main.*;
 import clus.statistic.*;
 import clus.data.rows.*;
+import clus.data.type.ClusAttrType;
 import clus.heuristic.*;
 import clus.data.attweights.*;
 
@@ -63,7 +64,7 @@ public class ClusRuleHeuristicSSD extends ClusHeuristic {
 		double value = pstat.getSS(m_TargetWeights, m_Data);
 		//System.out.print("SS: "+value);
 	    // Coverage part
-	  	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
+	  	double train_sum_w = m_StatManager.getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING).getTotalWeight();
 	    double cov_par = m_StatManager.getSettings().getHeurCoveragePar();
 	    value *= Math.pow(n_pos/train_sum_w, cov_par);
 		//System.out.println(", cov: "+n_pos+"/"+train_sum_w+", val: "+value); //+" -> -"+value);

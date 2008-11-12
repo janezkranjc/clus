@@ -40,7 +40,7 @@ public class ClusRuleHeuristicHierarchical extends ClusHeuristic {
 		//System.out.println("Difference made by rule: " + totalValue + " - " + ruleValue);
 		
 		// Coverage(r) part
-	  	double train_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
+	  	double train_sum_w = m_StatManager.getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING).getTotalWeight();
 	    double coverage = (n_pos/train_sum_w);
 	    value = value * coverage;
 		

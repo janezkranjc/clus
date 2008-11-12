@@ -715,7 +715,7 @@ public class Clus implements CMDLineArgsProvider {
 
 	public final void normalizeData() throws IOException, ClusException {
 		RowData data = (RowData)m_Data;
-		CombStat cmb = (CombStat)getStatManager().getGlobalStat();
+		CombStat cmb = (CombStat)getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_ALL);
 		RegressionStat rstat = cmb.getRegressionStat();
 		NumericAttrType[] numtypes = getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
 		int tcnt = 0;
@@ -796,9 +796,7 @@ public class Clus implements CMDLineArgsProvider {
 		m_Induce.initialize();
 		initializeAttributeWeights(m_Data);
 		m_Induce.initializeHeuristic();
-		ClusStatistic tr_stat = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
-		cr.getTrainingSet().calcTotalStat(tr_stat);
-		getStatManager().setTrainSetStat(tr_stat);
+		getStatManager().computeTrainSetStat((RowData)cr.getTrainingSet());		
 		induce(cr, getClassifier());
 		return cr;
 	}

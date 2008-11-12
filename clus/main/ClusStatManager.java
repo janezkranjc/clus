@@ -61,8 +61,6 @@ public class ClusStatManager implements Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-	public final static int SUBM_DEFAULT = 0;
-
 	public final static int MODE_NONE = -1;
 
 	public final static int MODE_CLASSIFY = 0;
@@ -83,8 +81,6 @@ public class ClusStatManager implements Serializable {
 
 	protected transient ClusHeuristic m_Heuristic;
 
-	protected transient ClusStatistic m_TargetStatistic, m_AllStatistic;
-
 	protected ClusSchema m_Schema;
 
 	protected boolean m_BeamSearch;
@@ -93,9 +89,7 @@ public class ClusStatManager implements Serializable {
 
 	protected Settings m_Settings;
 
-	protected ClusStatistic m_GlobalStat;
-
-	protected ClusStatistic m_TrainSetStat;
+	protected ClusStatistic[] m_TrainSetStatAttrUse;
 
 	protected ClusStatistic[] m_StatisticAttrUse;
 
@@ -105,19 +99,17 @@ public class ClusStatManager implements Serializable {
 
 	protected ClusNormalizedAttributeWeights m_DispersionWeights;
 
-	protected ClassHierarchy m_HierN, m_HierF, m_Hier;
+	protected ClassHierarchy m_Hier;
 
 	protected SSPDMatrix m_SSPDMtrx;
 
 	protected double[] m_ChiSquareInvProb;
 
-	public ClusStatManager(ClusSchema schema, Settings sett)
-			throws ClusException, IOException {
+	public ClusStatManager(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		this(schema, sett, true);
 	}
 
-	public ClusStatManager(ClusSchema schema, Settings sett, boolean docheck)
-			throws ClusException, IOException {
+	public ClusStatManager(ClusSchema schema, Settings sett, boolean docheck) throws ClusException, IOException {
 		m_Schema = schema;
 		m_Settings = sett;
 		if (docheck) {
@@ -151,10 +143,6 @@ public class ClusStatManager implements Serializable {
 		return m_Hier;
 	}
 
-	public final ClassHierarchy getNormalHier() {
-		return m_HierN;
-	}
-
 	public void initSH() throws ClusException, IOException {
 		initWeights();
 		initStatistic();
@@ -181,35 +169,29 @@ public class ClusStatManager implements Serializable {
 		return false;
 	}
 
-	public void initWeights(ClusNormalizedAttributeWeights result,
-			NumericAttrType[] num, NominalAttrType[] nom,
-			INIFileNominalOrDoubleOrVector winfo) throws ClusException {
+	public void initWeights(ClusNormalizedAttributeWeights result, NumericAttrType[] num, NominalAttrType[] nom, INIFileNominalOrDoubleOrVector winfo) throws ClusException {
 		result.setAllWeights(0.0);
 		int nbattr = result.getNbAttributes();
 		if (winfo.hasArrayIndexNames()) {
 			// Weights given for target, non-target, numeric and nominal
 			double target_weight = winfo.getDouble(Settings.TARGET_WEIGHT);
-			double non_target_weight = winfo
-					.getDouble(Settings.NON_TARGET_WEIGHT);
+			double non_target_weight = winfo.getDouble(Settings.NON_TARGET_WEIGHT);
 			double num_weight = winfo.getDouble(Settings.NUMERIC_WEIGHT);
 			double nom_weight = winfo.getDouble(Settings.NOMINAL_WEIGHT);
 			if (getSettings().getVerbose() >= 2) {
 				System.out.println("  Target weight     = " + target_weight);
-				System.out
-						.println("  Non target weight = " + non_target_weight);
+				System.out.println("  Non target weight = " + non_target_weight);
 				System.out.println("  Numeric weight    = " + num_weight);
 				System.out.println("  Nominal weight    = " + nom_weight);
 			}
 			for (int i = 0; i < num.length; i++) {
 				NumericAttrType cr_num = num[i];
-				double tw = cr_num.getStatus() == ClusAttrType.STATUS_TARGET ? target_weight
-						: non_target_weight;
+				double tw = cr_num.getStatus() == ClusAttrType.STATUS_TARGET ? target_weight : non_target_weight;
 				result.setWeight(cr_num, num_weight * tw);
 			}
 			for (int i = 0; i < nom.length; i++) {
 				NominalAttrType cr_nom = nom[i];
-				double tw = cr_nom.getStatus() == ClusAttrType.STATUS_TARGET ? target_weight
-						: non_target_weight;
+				double tw = cr_nom.getStatus() == ClusAttrType.STATUS_TARGET ? target_weight : non_target_weight;
 				result.setWeight(cr_nom, nom_weight * tw);
 			}
 		} else if (winfo.isVector()) {
@@ -252,23 +234,18 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public void initDispersionWeights() throws ClusException {
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
-		initWeights(m_DispersionWeights, num, nom, getSettings()
-				.getDispersionWeights());
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+		initWeights(m_DispersionWeights, num, nom, getSettings().getDispersionWeights());
 		if (getSettings().getVerbose() >= 1 && isRuleInduce() && getSettings().computeDispersion()) {
-			System.out.println("Dispersion:   "
-					+ m_DispersionWeights.getName(m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_ALL)));
+			System.out.println("Dispersion:   "	+ m_DispersionWeights.getName(m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_ALL)));
 		}
 	}
 
 	public void initClusteringWeights() throws ClusException {
 		if (getMode() == MODE_HIERARCHICAL) {
 			int nb_attrs = m_Schema.getNbAttributes();
-			m_ClusteringWeights = new ClusAttributeWeights(nb_attrs
-					+ m_Hier.getTotal());
+			m_ClusteringWeights = new ClusAttributeWeights(nb_attrs	+ m_Hier.getTotal());
 			double[] weights = m_Hier.getWeights();
 			NumericAttrType[] dummy = m_Hier.getDummyAttrs();
 			for (int i = 0; i < weights.length; i++) {
@@ -276,28 +253,19 @@ public class ClusStatManager implements Serializable {
 			}
 			return;
 		}
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		initWeights((ClusNormalizedAttributeWeights) m_ClusteringWeights, num,
-				nom, getSettings().getClusteringWeights());
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		initWeights((ClusNormalizedAttributeWeights) m_ClusteringWeights, num, nom, getSettings().getClusteringWeights());
 		if (getSettings().getVerbose() >= 1) {
-			System.out.println("Clustering: "
-					+ m_ClusteringWeights.getName(m_Schema
-							.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING)));
+			System.out.println("Clustering: " + m_ClusteringWeights.getName(m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING)));
 		}
 	}
 
-	public void initNormalizationWeights(ClusStatistic stat, ClusData data)
-			throws ClusException {
-		m_GlobalStat = stat;
-		m_TrainSetStat = stat; // When no XVal
+	public void initNormalizationWeights(ClusStatistic stat, ClusData data)	throws ClusException {
 		int nbattr = m_Schema.getNbAttributes();
 		m_NormalizationWeights.setAllWeights(1.0);
 		boolean[] shouldNormalize = new boolean[nbattr];
-		INIFileNominalOrDoubleOrVector winfo = getSettings()
-				.getNormalizationWeights();
+		INIFileNominalOrDoubleOrVector winfo = getSettings().getNormalizationWeights();
 		if (winfo.isVector()) {
 			if (nbattr != winfo.getVectorLength()) {
 				throw new ClusException("Number of attributes is " + nbattr
@@ -305,14 +273,11 @@ public class ClusStatManager implements Serializable {
 						+ winfo.getVectorLength() + " components");
 			}
 			for (int i = 0; i < nbattr; i++) {
-				if (winfo.isNominal(i))
-					shouldNormalize[i] = true;
-				else
-					m_NormalizationWeights.setWeight(i, winfo.getDouble(i));
+				if (winfo.isNominal(i))	shouldNormalize[i] = true;
+				else m_NormalizationWeights.setWeight(i, winfo.getDouble(i));
 			}
 		} else {
-			if (winfo.isNominal()
-					&& winfo.getNominal() == Settings.NORMALIZATION_DEFAULT) {
+			if (winfo.isNominal() && winfo.getNominal() == Settings.NORMALIZATION_DEFAULT) {
 				Arrays.fill(shouldNormalize, true);
 			} else {
 				m_NormalizationWeights.setAllWeights(winfo.getDouble());
@@ -321,8 +286,7 @@ public class ClusStatManager implements Serializable {
 		if (hasBitEqualToOne(shouldNormalize)) {
 			CombStat cmb = (CombStat) stat;
 			RegressionStat rstat = cmb.getRegressionStat();
-			rstat.initNormalizationWeights(m_NormalizationWeights,
-					shouldNormalize);
+			rstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
 			// Normalization is currently required for trees but not for rules
 			if (!isRuleInduce()) {
 				ClassificationStat cstat = cmb.getClassificationStat();
@@ -341,28 +305,8 @@ public class ClusStatManager implements Serializable {
 		int nbattr = m_Schema.getNbAttributes();
 		m_NormalizationWeights = new ClusAttributeWeights(nbattr);
 		m_NormalizationWeights.setAllWeights(1.0);
-		m_ClusteringWeights = new ClusNormalizedAttributeWeights(
-				m_NormalizationWeights);
-		m_DispersionWeights = new ClusNormalizedAttributeWeights(
-				m_NormalizationWeights);
-	}
-
-	public ClusStatistic getGlobalStat() {
-		return m_GlobalStat;
-	}
-
-	public ClusStatistic getTrainSetStat() {
-		return m_TrainSetStat;
-	}
-
-	public void setTrainSetStat(ClusStatistic stat) {
-		m_TrainSetStat = stat;
-	}
-
-	public void computeTrainSetStat(RowData trainset) {
-		ClusStatistic tr_stat = createStatistic(ClusAttrType.ATTR_USE_ALL);
-		trainset.calcTotalStat(tr_stat);
-		setTrainSetStat(tr_stat);
+		m_ClusteringWeights = new ClusNormalizedAttributeWeights(m_NormalizationWeights);
+		m_DispersionWeights = new ClusNormalizedAttributeWeights(m_NormalizationWeights);
 	}
 
 	public void check() throws ClusException {
@@ -379,8 +323,7 @@ public class ClusStatManager implements Serializable {
 			m_Mode = MODE_REGRESSION;
 			nb_types++;
 		}
-		if (m_Schema.hasAttributeType(ClusAttrType.ATTR_USE_TARGET,
-				ClassesAttrType.THIS_TYPE)) {
+		if (m_Schema.hasAttributeType(ClusAttrType.ATTR_USE_TARGET, ClassesAttrType.THIS_TYPE)) {
 			m_Mode = MODE_HIERARCHICAL;
 			getSettings().setSectionHierarchicalEnabled(true);
 			nb_types++;
@@ -401,8 +344,7 @@ public class ClusStatManager implements Serializable {
 			System.err.println("No target value defined");
 		}
 		if (nb_types > 1) {
-			throw new ClusException(
-					"Incompatible combination of clustering attribute types");
+			throw new ClusException("Incompatible combination of clustering attribute types");
 		}
 	}
 
@@ -412,14 +354,12 @@ public class ClusStatManager implements Serializable {
 			createHierarchy();
 			break;
 		case MODE_SSPD:
-			m_SSPDMtrx = SSPDMatrix.read(getSettings().getFileAbsolute(
-					getSettings().getAppName() + ".dist"), getSettings());
+			m_SSPDMtrx = SSPDMatrix.read(getSettings().getFileAbsolute(getSettings().getAppName() + ".dist"), getSettings());
 			break;
 		}
 	}
 
-	public ClusStatistic createSuitableStat(NumericAttrType[] num,
-			NominalAttrType[] nom) {
+	public ClusStatistic createSuitableStat(NumericAttrType[] num, NominalAttrType[] nom) {
 		if (num.length == 0) {
 			return new ClassificationStat(nom);
 		} else if (nom.length == 0) {
@@ -436,8 +376,7 @@ public class ClusStatManager implements Serializable {
 			//}
 			return (getSettings().getHeuristic() == Settings.HEURISTIC_DISPERSION_ADT
 					|| getSettings().getHeuristic() == Settings.HEURISTIC_DISPERSION_MLT
-					|| getSettings().getHeuristic() == Settings.HEURISTIC_R_DISPERSION_ADT || getSettings()
-					.getHeuristic() == Settings.HEURISTIC_R_DISPERSION_MLT);
+					|| getSettings().getHeuristic() == Settings.HEURISTIC_R_DISPERSION_ADT || getSettings().getHeuristic() == Settings.HEURISTIC_R_DISPERSION_MLT);
 		} else {
 			return false;
 		}
@@ -446,31 +385,21 @@ public class ClusStatManager implements Serializable {
 	public void initStatistic() throws ClusException {
 		m_StatisticAttrUse = new ClusStatistic[ClusAttrType.NB_ATTR_USE];
 		// Statistic over all attributes
-		NumericAttrType[] num1 = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
-		NominalAttrType[] nom1 = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
-		m_StatisticAttrUse[ClusAttrType.ATTR_USE_ALL] = new CombStat(this,
-				num1, nom1);
+		NumericAttrType[] num1 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+		NominalAttrType[] nom1 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+		m_StatisticAttrUse[ClusAttrType.ATTR_USE_ALL] = new CombStat(this, num1, nom1);
 		// Statistic over all target attributes
-		NumericAttrType[] num2 = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom2 = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = createSuitableStat(
-				num2, nom2);
+		NumericAttrType[] num2 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom2 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = createSuitableStat(num2, nom2);
 		// Statistic over clustering attributes
-		NumericAttrType[] num3 = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		NominalAttrType[] nom3 = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NumericAttrType[] num3 = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NominalAttrType[] nom3 = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		if (num3.length != 0 || nom3.length != 0) {
 			if (heuristicNeedsCombStat()) {
-				m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = new CombStat(
-						this, num3, nom3);
+				m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = new CombStat(this, num3, nom3);
 			} else {
-				m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = createSuitableStat(
-						num3, nom3);
+				m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = createSuitableStat(num3, nom3);
 			}
 		}
 		switch (m_Mode) {
@@ -590,13 +519,11 @@ public class ClusStatManager implements Serializable {
 		if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
 			m_Heuristic = new ClusBeamHeuristicError(createClusteringStat());
 		} else if (getSettings().getHeuristic() == Settings.HEURISTIC_MESTIMATE) {
-			m_Heuristic = new ClusBeamHeuristicMEstimate(
-					createClusteringStat(), getSettings().getMEstimate());
+			m_Heuristic = new ClusBeamHeuristicMEstimate(createClusteringStat(), getSettings().getMEstimate());
 		} else if (getSettings().getHeuristic() == Settings.HEURISTIC_MORISHITA) {
 			m_Heuristic = new ClusBeamHeuristicMorishita(createClusteringStat());
 		} else {
-			m_Heuristic = new ClusBeamHeuristicSS(createClusteringStat(),
-					getClusteringWeights());
+			m_Heuristic = new ClusBeamHeuristicSS(createClusteringStat(), getClusteringWeights());
 		}
 	}
 
@@ -612,8 +539,7 @@ public class ClusStatManager implements Serializable {
 		}
 		if (m_Mode == MODE_HIERARCHICAL) {
 			String name = "Weighted Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createClusteringStat(),
-					getClusteringWeights());
+			m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 			return;
 		}
@@ -624,42 +550,28 @@ public class ClusStatManager implements Serializable {
 		}
 		if (m_Mode == MODE_TIME_SERIES) {
 			String name = "Time Series Intra-Cluster Variation Heuristic";
-			m_Heuristic = new SSDHeuristic(name, createClusteringStat(),
-					getClusteringWeights());
+			m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 			return;
 		}
 		/* Set heuristic for trees */
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		if (getSettings().getHeuristic() == Settings.HEURISTIC_SS_REDUCTION_MISSING) {
-			m_Heuristic = new SSReductionHeuristicMissing(
-					getClusteringWeights(), m_Schema
-							.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING),
-					createClusteringStat());
+			m_Heuristic = new SSReductionHeuristicMissing(getClusteringWeights(), m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING), createClusteringStat());
 			return;
 		}
 		if (num.length > 0 && nom.length > 0) {
-			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT
-					&& getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
-				throw new ClusException(
-						"Only SS-Reduction heuristic can be used for combined classification/regression trees!");
+			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
+				throw new ClusException("Only SS-Reduction heuristic can be used for combined classification/regression trees!");
 			}
-			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(),
-					m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
+			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 		} else if (num.length > 0) {
-			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT
-					&& getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
-				throw new ClusException(
-						"Only SS-Reduction heuristic can be used for regression trees!");
+			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
+				throw new ClusException("Only SS-Reduction heuristic can be used for regression trees!");
 			}
-			m_Heuristic = new SSReductionHeuristic(
-					getClusteringWeights(),
-					m_Schema
-							.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
+			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema .getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 		} else if (nom.length > 0) {
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_SEMI_SUPERVISED) {
@@ -672,17 +584,12 @@ public class ClusStatManager implements Serializable {
 				 * GeneticDistanceHeuristic(); }
 				 */
 			else if (getSettings().getHeuristic() == Settings.HEURISTIC_SS_REDUCTION) {
-				m_Heuristic = new SSReductionHeuristic(
-						getClusteringWeights(),
-						m_Schema
-								.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
+				m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {
 				m_Heuristic = new GainHeuristic(true);
 			} else {
-				if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT
-						&& getSettings().getHeuristic() != Settings.HEURISTIC_GAIN) {
-					throw new ClusException(
-							"Given heuristic not supported for classification trees!");
+				if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && getSettings().getHeuristic() != Settings.HEURISTIC_GAIN) {
+					throw new ClusException("Given heuristic not supported for classification trees!");
 				}
 				m_Heuristic = new GainHeuristic(false);
 				getSettings().setHeuristic(Settings.HEURISTIC_GAIN);
@@ -699,12 +606,10 @@ public class ClusStatManager implements Serializable {
 	 */
 	public void initSignifcanceTestingTable() {
 		int max_nom_val = 0;
-		int num_nom_atts = m_Schema
-				.getNbNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+		int num_nom_atts = m_Schema.getNbNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
 		for (int i = 0; i < num_nom_atts; i++) {
 			if (m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL)[i].m_NbValues > max_nom_val) {
-				max_nom_val = m_Schema
-						.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL)[i].m_NbValues;
+				max_nom_val = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL)[i].m_NbValues;
 			}
 		}
 		if (max_nom_val == 0) { // If no nominal attributes in data set
@@ -714,13 +619,10 @@ public class ClusStatManager implements Serializable {
 		table[0] = 1.0 - getSettings().getRuleSignificanceLevel();
 		// Not really used except below
 		for (int i = 1; i < table.length; i++) {
-			DistributionFactory distributionFactory = DistributionFactory
-					.newInstance();
-			ChiSquaredDistribution chiSquaredDistribution = distributionFactory
-					.createChiSquareDistribution(i);
+			DistributionFactory distributionFactory = DistributionFactory.newInstance();
+			ChiSquaredDistribution chiSquaredDistribution = distributionFactory.createChiSquareDistribution(i);
 			try {
-				table[i] = chiSquaredDistribution
-						.inverseCumulativeProbability(table[0]);
+				table[i] = chiSquaredDistribution.inverseCumulativeProbability(table[0]);
 			} catch (MathException e) {
 				e.printStackTrace();
 			}
@@ -730,24 +632,19 @@ public class ClusStatManager implements Serializable {
 
 	public ClusErrorList createErrorMeasure(MultiScore score) {
 		ClusErrorList parent = new ClusErrorList();
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		TimeSeriesAttrType[] ts = m_Schema
-				.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			parent.addError(new ContingencyTable(parent, nom));
-			parent.addError(new MSNominalError(parent, nom,
-					m_NormalizationWeights));
+			parent.addError(new MSNominalError(parent, nom,	m_NormalizationWeights));
 		}
 		if (num.length != 0) {
 			parent.addError(new AbsoluteError(parent, num));
 			parent.addError(new MSError(parent, num));
 			parent.addError(new RMSError(parent, num));
 			if (getSettings().hasNonTrivialWeights()) {
-				parent.addError(new RMSError(parent, num,
-						m_NormalizationWeights));
+				parent.addError(new RMSError(parent, num, m_NormalizationWeights));
 			}
 			parent.addError(new PearsonCorrelation(parent, num));
 		}
@@ -759,8 +656,7 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
 			break;
 		case MODE_ILEVELC:
-			NominalAttrType cls = (NominalAttrType) getSchema()
-					.getLastNonDisabledType();
+			NominalAttrType cls = (NominalAttrType) getSchema().getLastNonDisabledType();
 			parent.addError(new ILevelCRandIndex(parent, cls));
 			break;
 		}
@@ -769,12 +665,9 @@ public class ClusStatManager implements Serializable {
 
 	public ClusErrorList createEvalError() {
 		ClusErrorList parent = new ClusErrorList();
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		TimeSeriesAttrType[] ts = m_Schema
-				.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			parent.addError(new Accuracy(parent, nom));
 		}
@@ -789,10 +682,8 @@ public class ClusStatManager implements Serializable {
 
 	public ClusErrorList createDefaultError() {
 		ClusErrorList parent = new ClusErrorList();
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			parent.addError(new MisclassificationError(parent, nom));
 		}
@@ -810,10 +701,8 @@ public class ClusStatManager implements Serializable {
 	// additive and weighted targets
 	public ClusErrorList createAdditiveError() {
 		ClusErrorList parent = new ClusErrorList();
-		NumericAttrType[] num = m_Schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom = m_Schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			parent.addError(new MisclassificationError(parent, nom));
 		}
@@ -825,8 +714,7 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
 			break;
 		case MODE_TIME_SERIES:
-			TimeSeriesAttrType[] ts = m_Schema
-					.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
+			TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			parent.addError(new TSRMSError(parent, ts));
 			break;
 		}
@@ -848,8 +736,7 @@ public class ClusStatManager implements Serializable {
 		Settings sett = getSettings();
 		if (isBeamSearch() && sett.isBeamPostPrune()) {
 			sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
-			return new SizeConstraintPruning(sett.getBeamTreeMaxSize(),
-					getClusteringWeights());
+			return new SizeConstraintPruning(sett.getBeamTreeMaxSize(), getClusteringWeights());
 		}
 		int err_nb = sett.getMaxErrorConstraintNumber();
 		int size_nb = sett.getSizeConstraintPruningNumber();
@@ -859,8 +746,7 @@ public class ClusStatManager implements Serializable {
 				return new CartPruning(sizes, getClusteringWeights());
 			} else {
 				sett.setPruningMethod(Settings.PRUNING_METHOD_GAROFALAKIS);
-				SizeConstraintPruning sc_prune = new SizeConstraintPruning(
-						sizes, getClusteringWeights());
+				SizeConstraintPruning sc_prune = new SizeConstraintPruning(sizes, getClusteringWeights());
 				if (err_nb > 0) {
 					double[] max_err = sett.getMaxErrorConstraintVector();
 					sc_prune.setMaxError(max_err);
@@ -872,8 +758,7 @@ public class ClusStatManager implements Serializable {
 				return sc_prune;
 			}
 		}
-		INIFileNominalOrDoubleOrVector class_thr = sett
-				.getClassificationThresholds();
+		INIFileNominalOrDoubleOrVector class_thr = sett.getClassificationThresholds();
 		if (class_thr.hasVector()) {
 			return new HierClassTresholdPruner(class_thr.getDoubleVector());
 		}
@@ -882,14 +767,12 @@ public class ClusStatManager implements Serializable {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_M5_MULTI) {
 				return new M5PrunerMulti(getClusteringWeights(), mult);
 			}
-			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT
-					|| sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
+			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT || sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
 				sett.setPruningMethod(Settings.PRUNING_METHOD_M5);
 				return new M5Pruner(getClusteringWeights(), mult);
 			}
 		} else if (m_Mode == MODE_CLASSIFY) {
-			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT
-					|| sett.getPruningMethod() == Settings.PRUNING_METHOD_C45) {
+			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_DEFAULT || sett.getPruningMethod() == Settings.PRUNING_METHOD_C45) {
 				sett.setPruningMethod(Settings.PRUNING_METHOD_C45);
 				return new C45Pruner();
 			}
@@ -914,32 +797,27 @@ public class ClusStatManager implements Serializable {
 		if (m_Mode == MODE_HIERARCHICAL && pruneset != null) {
 			PruneTree pruner = getTreePrunerNoVSB();
 			boolean bonf = sett.isUseBonferroni();
-			HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(
-					pruneset, pruner, bonf, m_Hier);
+			HierRemoveInsigClasses hierpruner = new HierRemoveInsigClasses(pruneset, pruner, bonf, m_Hier);
 			hierpruner.setSignificance(sett.getHierPruneInSig());
 			hierpruner.setNoRootPreds(sett.isHierNoRootPreds());
 			sett.setPruningMethod(Settings.PRUNING_METHOD_DEFAULT);
 			return hierpruner;
 		}
 		if (pruneset != null) {
-			if (pm == Settings.PRUNING_METHOD_GAROFALAKIS_VSB
-					|| pm == Settings.PRUNING_METHOD_CART_VSB) {
+			if (pm == Settings.PRUNING_METHOD_GAROFALAKIS_VSB || pm == Settings.PRUNING_METHOD_CART_VSB) {
 				SequencePruningVSB pruner = new SequencePruningVSB(
 						(RowData) pruneset, getClusteringWeights());
 				if (pm == Settings.PRUNING_METHOD_GAROFALAKIS_VSB) {
 					int maxsize = sett.getMaxSize();
-					pruner.setSequencePruner(new SizeConstraintPruning(maxsize,
-							getClusteringWeights()));
+					pruner.setSequencePruner(new SizeConstraintPruning(maxsize,	getClusteringWeights()));
 				} else {
-					pruner.setSequencePruner(new CartPruning(
-							getClusteringWeights(), sett.isMSENominal()));
+					pruner.setSequencePruner(new CartPruning(getClusteringWeights(), sett.isMSENominal()));
 				}
 				pruner.setOutputFile(sett.getFileAbsolute("prune.dat"));
 				pruner.set1SERule(sett.get1SERule());
 				pruner.setHasMissing(m_Schema.hasMissing());
 				return pruner;
-			} else if (pm == Settings.PRUNING_METHOD_REDERR_VSB
-					|| pm == Settings.PRUNING_METHOD_DEFAULT) {
+			} else if (pm == Settings.PRUNING_METHOD_REDERR_VSB || pm == Settings.PRUNING_METHOD_DEFAULT) {
 				ClusErrorList parent = createEvalError();
 				sett.setPruningMethod(Settings.PRUNING_METHOD_REDERR_VSB);
 				return new BottomUpPruningVSB(parent, (RowData) pruneset);
@@ -952,14 +830,12 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public void setTargetStatistic(ClusStatistic stat) {
-		System.out.println("Setting target statistic: "
-				+ stat.getClass().getName());
+		System.out.println("Setting target statistic: "	+ stat.getClass().getName());
 		m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = stat;
 	}
 
 	public void setClusteringStatistic(ClusStatistic stat) {
-		System.out.println("Setting clustering statistic: "
-				+ stat.getClass().getName());
+		System.out.println("Setting clustering statistic: "	+ stat.getClass().getName());
 		m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = stat;
 	}
 
@@ -980,7 +856,6 @@ public class ClusStatManager implements Serializable {
 	 *            attribute use type (eg., ClusAttrType.ATTR_USE_TARGET)
 	 * @return the statistic
 	 */
-
 	public ClusStatistic createStatistic(int attType) {
 		return m_StatisticAttrUse[attType].cloneStat();
 	}
@@ -993,11 +868,27 @@ public class ClusStatManager implements Serializable {
 	public ClusStatistic getStatistic(int attType) {
 		return m_StatisticAttrUse[attType];
 	}
-
-	public ClusStatistic getStatistic() {
-		return m_TargetStatistic;
+	
+	public ClusStatistic getTrainSetStat() {
+		return getTrainSetStat(ClusAttrType.ATTR_USE_ALL);
 	}
+	
+	public ClusStatistic getTrainSetStat(int attType) {
+		return m_TrainSetStatAttrUse[attType];
+	}	
 
+	public void computeTrainSetStat(RowData trainset, int attType) {
+		m_TrainSetStatAttrUse[attType] = createStatistic(attType);
+		trainset.calcTotalStat(m_TrainSetStatAttrUse[attType]);
+	}
+	
+	public void computeTrainSetStat(RowData trainset) {
+		m_TrainSetStatAttrUse = new ClusStatistic[ClusAttrType.NB_ATTR_USE];
+		computeTrainSetStat(trainset, ClusAttrType.ATTR_USE_ALL);
+		computeTrainSetStat(trainset, ClusAttrType.ATTR_USE_CLUSTERING);
+		computeTrainSetStat(trainset, ClusAttrType.ATTR_USE_TARGET);
+	}
+	
 	public ClusHeuristic getHeuristic() {
 		return m_Heuristic;
 	}
@@ -1058,11 +949,10 @@ public class ClusStatManager implements Serializable {
 			if (!type.isDisabled() && type instanceof ClassesAttrType) {
 				ClassesAttrType cltype = (ClassesAttrType) type;
 				System.out.println("Classes type: " + type.getName());
-				m_HierN = cltype.getHier();
+				m_Hier = cltype.getHier();
 				idx++;
 			}
 		}
-		m_Hier = m_HierN;
 	}
 
 	public void initHierarchySettings() throws ClusException, IOException {
@@ -1089,8 +979,7 @@ public class ClusStatManager implements Serializable {
 		// General
 		if (((sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_ADT)
 				|| (sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_MLT)
-				|| (sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_ADT) || (sett
-				.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_MLT))
+				|| (sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_ADT) || (sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_MLT))
 				&& sett.isHeurRuleDist()) {
 			sett.setHeurRuleDistPar(0.0);
 		}
@@ -1112,20 +1001,17 @@ public class ClusStatManager implements Serializable {
 		} else if (covering == Settings.COVERING_METHOD_HEURISTIC_ONLY) {
 			if ((prediction == Settings.RULE_PREDICTION_METHOD_DECISION_LIST)
 					|| (prediction == Settings.RULE_PREDICTION_METHOD_UNION)) {
-				sett
-						.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
+				sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
 			}
 			sett.setCoveringWeight(0.0);
 			if (getSettings().getHeurRuleDistPar() < 0) {
-				throw new ClusException(
-						"Clus heuristic covering: HeurRuleDistPar must be >= 0!");
+				throw new ClusException("Clus heuristic covering: HeurRuleDistPar must be >= 0!");
 			}
 			if ((sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_ADT)
 					|| (sett.getHeuristic() != Settings.HEURISTIC_DISPERSION_MLT)
 					|| (sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_ADT)
 					|| (sett.getHeuristic() != Settings.HEURISTIC_R_DISPERSION_MLT)) {
-				throw new ClusException(
-						"Clus heuristic covering: Only dispersion-based heuristics supported!");
+				throw new ClusException("Clus heuristic covering: Only dispersion-based heuristics supported!");
 			}
 			// Unordered rules - Weighted coverings
 		} else if ((covering == Settings.COVERING_METHOD_WEIGHTED_ADDITIVE)
@@ -1135,17 +1021,14 @@ public class ClusStatManager implements Serializable {
 				|| (covering == Settings.COVERING_METHOD_RANDOM_RULE_SET)) {
 			if ((prediction == Settings.RULE_PREDICTION_METHOD_DECISION_LIST)
 					|| (prediction == Settings.RULE_PREDICTION_METHOD_UNION)) {
-				sett
-						.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
+				sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED);
 			}
 			if (sett.getCoveringWeight() < 0) {
-				throw new ClusException(
-						"Clus weighted covering: Covering weight must be >= 0!");
+				throw new ClusException("Clus weighted covering: Covering weight must be >= 0!");
 			}
 			// Rule induction from bootstrap sampled data, optimized ...
 		} else if (covering == Settings.COVERING_METHOD_STANDARD_BOOTSTRAP) {
-			sett
-					.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_OPTIMIZED);
+			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_OPTIMIZED);
 			// Multi-label classification
 		} else if (covering == Settings.COVERING_METHOD_UNION) {
 			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_UNION);

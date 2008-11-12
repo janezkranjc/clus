@@ -30,6 +30,7 @@ import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 import clus.main.ClusStatManager;
 import clus.data.attweights.*;
+import clus.data.type.ClusAttrType;
 
 public class ClusRuleHeuristicError extends ClusHeuristic {
 
@@ -54,7 +55,7 @@ public class ClusRuleHeuristicError extends ClusHeuristic {
 		}
 		double pos_error = c_pstat.getError(m_TargetWeights);
 		// Prefer rules that cover more examples
-		double global_sum_w = m_StatManager.getTrainSetStat().getTotalWeight();
+		double global_sum_w = m_StatManager.getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING).getTotalWeight();
 		double heur_par = getSettings().getHeurCoveragePar();
 		pos_error *= (1 + heur_par*global_sum_w/c_pstat.m_SumWeight);
 

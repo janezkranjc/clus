@@ -212,9 +212,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			}
 */
 			ClusOutput output = new ClusOutput("nodewise/out/" + name + ".out", cschema, m_Clus.getSettings());
-			ClusStatistic tr_stat = m_Clus.getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
-			cr.getTrainingSet().calcTotalStat(tr_stat);
-			m_Clus.getStatManager().setTrainSetStat(tr_stat);
+			m_Clus.getStatManager().computeTrainSetStat((RowData)cr.getTrainingSet());
 			m_Clus.induce(cr, clss); // Induce model
 			m_Clus.calcError(cr, null); // Calc error
 			output.writeHeader();
