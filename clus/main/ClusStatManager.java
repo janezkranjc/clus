@@ -431,6 +431,9 @@ public class ClusStatManager implements Serializable {
 
 	public boolean heuristicNeedsCombStat() {
 		if (isRuleInduce()) {
+			//if (m_Mode == MODE_HIERARCHICAL) {
+			//	return false;
+			//}
 			return (getSettings().getHeuristic() == Settings.HEURISTIC_DISPERSION_ADT
 					|| getSettings().getHeuristic() == Settings.HEURISTIC_DISPERSION_MLT
 					|| getSettings().getHeuristic() == Settings.HEURISTIC_R_DISPERSION_ADT || getSettings()
@@ -565,7 +568,10 @@ public class ClusStatManager implements Serializable {
 				throw new ClusException("Unsupported heuristic for multiple target or regression rules!");
 			}
 		} else if (m_Mode == MODE_HIERARCHICAL) {
-			throw new ClusException("Hierarchical mode for rules not yet implemented!");
+			m_Heuristic = new ClusRuleHeuristicHierarchical(this, getClusteringWeights());
+			return;
+			//getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
+			
 			/* String name = "Weighted Hierarchical Tree Distance";
 			m_Heuristic = new ClusRuleHeuristicSSD(name, createClusteringStat(),getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);

@@ -533,6 +533,11 @@ public class ClusRule implements ClusModel, Serializable {
 	// TODO: Should this one be used or setTrainErrorScore() above?
 	// TODO: Extend towards time series, HMLC ...
 	public void setErrorScore() {
+		if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
+			// Gives a problem with HMC; needs further investigation --ben
+			// (size of target_atts[] is 0)
+			return;
+		}
 		int nb_rows = m_Data.size();
 		int nb_tar = m_TargetStat.getNbAttributes();
 		if (m_TargetStat instanceof ClassificationStat) {
