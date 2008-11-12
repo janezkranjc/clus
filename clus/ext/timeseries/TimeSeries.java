@@ -33,7 +33,7 @@ public class TimeSeries implements Serializable{
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-	private double[] values;
+	private double[] m_Values;
 
 	public TimeSeries(String values){
 		values = values.trim();
@@ -42,57 +42,38 @@ public class TimeSeries implements Serializable{
 		//values = values.replaceAll("\\[", "");
 		//values = values.replaceAll("\\]", "");
 		StringTokenizer st = new StringTokenizer(values,",");
-		this.values = new double[st.countTokens()];
+		m_Values = new double[st.countTokens()];
 		int i=0;
 		while (st.hasMoreTokens()){
-			this.values[i++]=Double.parseDouble(st.nextToken());
+			m_Values[i++]=Double.parseDouble(st.nextToken());
 		}
 	}
-
-	/*
-	 * [Aco]
-	 * For easy printing of the series
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString(){
-		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
-		StringBuffer a = new StringBuffer("[");
-		for (int i=0; i<length()-1;i++){
-			a.append(fr.format(values[i]));
-			a.append(',');
-		}
-		if (length()>0)
-			a.append(fr.format(values[length()-1]));
-		a.append(']');
-		return a.toString();
-	}
-
 
 	public TimeSeries(double[] values){
-		this.values = new double[values.length];
-		System.arraycopy(values, 0, this.values, 0, values.length);
+		m_Values = new double[values.length];
+		System.arraycopy(values, 0, m_Values, 0, values.length);
 	}
 
 	public TimeSeries(int size){
-		this.values = new double[size];
-		for (int i=0; i<size;i++){this.values[i]=0;}
+		m_Values = new double[size];
+		for (int i=0; i<size;i++){m_Values[i]=0.0;}
 	}
 
 	public int length(){
-		if (values==null)
+		if (m_Values==null)
 			return 0;
-		return values.length;
+		return m_Values.length;
 	}
 
 
 	public double[] getValues() {
-		double[] result = new double[values.length];
-		System.arraycopy(values, 0, result, 0, values.length);
+		double[] result = new double[m_Values.length];
+		System.arraycopy(m_Values, 0, result, 0, m_Values.length);
 		return result;
 	}
 
 	public double[] getValuesNoCopy() {
-		return values;
+		return m_Values;
 	}
 
 	/*
@@ -100,7 +81,7 @@ public class TimeSeries implements Serializable{
 	 * Geting a single value
 	 */
 	public double getValue(int index) {
-		return values[index];
+		return m_Values[index];
 	}
 
 	/*
@@ -137,8 +118,8 @@ public class TimeSeries implements Serializable{
 	public void rescale(double min, double max){
 		double tmpMin=min();
 		double tmpMax=max();
-		if (tmpMax==tmpMin)	for (int i=0; i< length(); i++) values[i]=(max-min)/2;
-		else for (int i=0; i< length(); i++) values[i]=((values[i]-tmpMin)/(tmpMax-tmpMin))*(max-min)+min;
+		if (tmpMax==tmpMin)	for (int i=0; i< length(); i++) m_Values[i]=(max-min)/2;
+		else for (int i=0; i< length(); i++) m_Values[i]=((m_Values[i]-tmpMin)/(tmpMax-tmpMin))*(max-min)+min;
 	}
 
 	/*
@@ -148,7 +129,7 @@ public class TimeSeries implements Serializable{
 	public double min(){
 		double r = Double.POSITIVE_INFINITY;
 		for (int i=0; i<length();i++ ){
-			if (r > values[i]){r=values[i];}
+			if (r > m_Values[i]){r=m_Values[i];}
 		}
 		return r;
 	}
@@ -160,14 +141,14 @@ public class TimeSeries implements Serializable{
 	public double max(){
 		double r = Double.NEGATIVE_INFINITY;
 		for (int i=0; i<length();i++ ){
-			if (r < values[i]){r=values[i];}
+			if (r < m_Values[i]){r=m_Values[i];}
 		}
 		return r;
 
 	}
 
 	public void setValues(double[] values) {
-		System.arraycopy(values, 0, this.values, 0, values.length);
+		System.arraycopy(values, 0, this.m_Values, 0, values.length);
 	}
 
 	/*
@@ -175,7 +156,25 @@ public class TimeSeries implements Serializable{
 	 * seting a single value
 	 */
 	public void setValue(int index, double value) {
-		values[index]=value;
+		m_Values[index]=value;
+	}
+
+	/*
+	 * [Aco]
+	 * For easy printing of the series
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString(){
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+		StringBuffer a = new StringBuffer("[");
+		for (int i=0; i<length()-1;i++){
+			a.append(fr.format(m_Values[i]));
+			a.append(',');
+		}
+		if (length()>0)
+			a.append(fr.format(m_Values[length()-1]));
+		a.append(']');
+		return a.toString();
 	}
 
 }

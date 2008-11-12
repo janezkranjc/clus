@@ -102,7 +102,7 @@ public class BitVectorStat extends ClusStatistic {
 	}
 
 	public void addScaled(double scale, ClusStatistic other) {
-		System.err.println("addScaled not implemented");
+		System.err.println("BitVectorStat: addScaled not implemented");
 	}
 
 	public void subtractFromThis(ClusStatistic other) {
@@ -139,6 +139,6 @@ public class BitVectorStat extends ClusStatistic {
 	}
 
 	public void vote(ArrayList votes) {
-		System.err.println(getClass().getName() + "vote (): Not implemented");
+		System.err.println(getClass().getName() + "BitVectorStat: vote not implemented");
 	}
 }

@@ -29,13 +29,13 @@ import clus.ext.timeseries.TimeSeriesStat;
 import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
-public class QDMRMSError extends ClusTimeSeriesError {
+public class TSRMSError extends ClusTimeSeriesError {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double m_SumSqErr;
 
-	public QDMRMSError(ClusErrorList par, TimeSeriesAttrType[] ts) {
+	public TSRMSError(ClusErrorList par, TimeSeriesAttrType[] ts) {
 		super(par, ts);
 	}
 
@@ -44,7 +44,7 @@ public class QDMRMSError extends ClusTimeSeriesError {
 	}
 
 	public void add(ClusError other) {
-		QDMRMSError oe = (QDMRMSError)other;
+		TSRMSError oe = (TSRMSError)other;
 		m_SumSqErr += oe.m_SumSqErr;
 	}
 
@@ -80,7 +80,7 @@ public class QDMRMSError extends ClusTimeSeriesError {
 	}
 
 	public ClusError getErrorClone(ClusErrorList par) {
-		return new QDMRMSError(par, m_Attrs);
+		return new TSRMSError(par, m_Attrs);
 	}
 
 	public String getName() {

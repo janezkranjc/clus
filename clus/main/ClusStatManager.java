@@ -752,7 +752,7 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new PearsonCorrelation(parent, num));
 		}
 		if (ts.length != 0) {
-			parent.addError(new QDMRMSError(parent, ts));
+			parent.addError(new TSRMSError(parent, ts));
 		}
 		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
@@ -782,7 +782,7 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new RMSError(parent, num));
 		}
 		if (ts.length != 0) {
-			parent.addError(new QDMRMSError(parent, ts));
+			parent.addError(new TSRMSError(parent, ts));
 		}
 		return parent;
 	}
@@ -827,7 +827,7 @@ public class ClusStatManager implements Serializable {
 		case MODE_TIME_SERIES:
 			TimeSeriesAttrType[] ts = m_Schema
 					.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			parent.addError(new QDMRMSError(parent, ts));
+			parent.addError(new TSRMSError(parent, ts));
 			break;
 		}
 		parent.setWeights(getClusteringWeights());

@@ -99,6 +99,13 @@ public class DTWTimeSeriesStat extends TimeSeriesStat {
 		return stat;
 	}
 
+	public ClusStatistic cloneSimple() {
+		DTWTimeSeriesStat stat = new DTWTimeSeriesStat(m_Attr);
+		stat.m_RepresentativeMean = new TimeSeries(m_RepresentativeMean.length());
+		stat.m_RepresentativeMedian = new TimeSeries(m_RepresentativeMedian.length());
+		return stat;
+	}
+
 	public void copy(ClusStatistic other) {
 		DTWTimeSeriesStat or = (DTWTimeSeriesStat)other;
 		super.copy(or);

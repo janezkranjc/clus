@@ -799,10 +799,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
 			rset = optimizeRuleSet(rset, data);
 		}
+		rset.setTrainErrorScore(); // Not always needed?
 		// Computing dispersion
-		if (true) {
-		// if (getSettings().computeDispersion()) {
-		// Do this always because it is used in some rule weighting schemes?
+		if (getSettings().computeDispersion()) {
 			rset.addDataToRules(data);
 			rset.computeDispersion(ClusModel.TRAIN);
 			rset.removeDataFromRules();
@@ -1004,8 +1003,6 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 
 	/**
 	 * Method that induces a specified number of random rules.
-	 * @param cr ClusRun
-	 * @return RuleSet
 	 */
 	public ClusModel induceRandomly(ClusRun run) throws ClusException, IOException {
 		int number = getSettings().nbRandomRules();
@@ -1029,6 +1026,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 		rset.postProc();
+		rset.setTrainErrorScore(); // Not always needed?
 		// Computing dispersion
 		if (getSettings().computeDispersion()) {
 			rset.addDataToRules(data);

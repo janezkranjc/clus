@@ -114,7 +114,6 @@ public class RegressionStat extends ClusStatistic {
 	}	
 
 	public void addPrediction(ClusStatistic other, double weight) {
-
 		RegressionStat or = (RegressionStat)other;
 		for (int i = 0; i < m_NbAttrs; i++) {
 			m_Means[i] += weight*or.m_Means[i];

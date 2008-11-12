@@ -40,13 +40,12 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 	public final static Random m_Random = new Random(0);
 
-	/*
-	 * Aco:
-	 * m_RepresentativeMean is the time series representing the cluster
-	*/
+	// m_RepresentativeMean is the time series representing the cluster
+
+	// TODO: Investigate the usage of median vs. mean?
 
 	protected TimeSeriesAttrType m_Attr;
-	private ArrayList TimeSeriesStack = new ArrayList();
+	private ArrayList m_TimeSeriesStack = new ArrayList();
 	public TimeSeries m_RepresentativeMean = new TimeSeries("[]");
 	public TimeSeries m_RepresentativeMedian = new TimeSeries("[]");
 
@@ -60,15 +59,27 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		m_Attr = attr;
 	}
 	
-	public ClusStatistic normalizedCopy() {
-		System.err.println("Warning: This part not yet implemented!");
-		return null;
+	/**
+	 * Used for combining weighted predictions. 
+	 */
+	public TimeSeriesStat normalizedCopy() {
+		TimeSeriesStat copy = (TimeSeriesStat)cloneSimple();
+		copy.m_nbEx = 0;
+		copy.m_SumWeight = 1;
+		copy.m_RepresentativeMean.setValues(m_RepresentativeMean.getValues());
+		copy.m_RepresentativeMedian.setValues(m_RepresentativeMedian.getValues());
+		return copy;
 	}
 
 	public void addPrediction(ClusStatistic other, double weight) {
-		System.err.println("Warning: This part not yet implemented!");
+		TimeSeriesStat or = (TimeSeriesStat)other;
+		m_SumWeight += weight*or.m_SumWeight;
+		for (int i = 0; i < m_RepresentativeMean.length(); i++) {
+			m_RepresentativeMean.setValue(i, weight*or.getRepresentativeMean().getValue(i));
+			m_RepresentativeMedian.setValue(i, weight*or.getRepresentativeMedian().getValue(i));
+		}
 	}
-
+	
 	public double getSS(ClusAttributeWeights scale, RowData data) {
 		optimizePreCalc(data);
 		return m_Value;
@@ -266,15 +277,15 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	    	m_RepresentativeMean.setValue(i,m_RepresentativeMean.getValue(i)+newTimeSeries.getValue(i));
 	    }
 
-	    TimeSeriesStack.add(newTimeSeries);
+	    m_TimeSeriesStack.add(newTimeSeries);
 	}
 
 	public void calcSumAndSumSqDistances(TimeSeries prototype) {
 		m_AvgDistances = 0.0;
 		m_AvgSqDistances = 0.0;
-		int count = TimeSeriesStack.size();
+		int count = m_TimeSeriesStack.size();
 		for (int i = 0; i < count; i++){
-			double dist = calcDistance(prototype,(TimeSeries)TimeSeriesStack.get(i));
+			double dist = calcDistance(prototype,(TimeSeries)m_TimeSeriesStack.get(i));
 			m_AvgSqDistances += dist * dist;
 			m_AvgDistances += dist;
 		}
@@ -295,15 +306,15 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		// Median
 		m_RepresentativeMedian = null;
 		double minDistance = Double.POSITIVE_INFINITY;
-		for(int i=0; i<TimeSeriesStack.size();i++){
+		for(int i=0; i<m_TimeSeriesStack.size();i++){
 			double crDistance=0.0;
-			TimeSeries t1 = (TimeSeries)TimeSeriesStack.get(i);
-			for (int j=0; j<TimeSeriesStack.size();j++){
-				double dist = calcDistance(t1,(TimeSeries)TimeSeriesStack.get(j));
+			TimeSeries t1 = (TimeSeries)m_TimeSeriesStack.get(i);
+			for (int j=0; j<m_TimeSeriesStack.size();j++){
+				double dist = calcDistance(t1,(TimeSeries)m_TimeSeriesStack.get(j));
 				crDistance += dist * dist;
 			}
 			if (crDistance<minDistance) {
-				m_RepresentativeMedian=(TimeSeries)TimeSeriesStack.get(i);
+				m_RepresentativeMedian=(TimeSeries)m_TimeSeriesStack.get(i);
 				minDistance = crDistance;
 			}
 		}
@@ -342,7 +353,7 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 
 	public void reset() {
 		super.reset();
-		TimeSeriesStack.clear();
+		m_TimeSeriesStack.clear();
 	}
 
 	public double calcDistance(DataTuple d1, DataTuple d2) {
@@ -418,6 +429,14 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		return buf.toString();
 	}
 
+	public TimeSeries getRepresentativeMean() {
+		return m_RepresentativeMean;
+	}
+	
+	public TimeSeries getRepresentativeMedian() {
+		return m_RepresentativeMedian;
+	}
+	
 	public TimeSeries getTimeSeriesPred() {
 		return m_RepresentativeMedian;
 	}

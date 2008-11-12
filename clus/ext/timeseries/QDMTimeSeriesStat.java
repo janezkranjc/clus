@@ -55,7 +55,7 @@ public class QDMTimeSeriesStat extends TimeSeriesStat {
 				distance += Math.abs(diff(vt1[j],vt1[i]) - diff(vt2[j % n],vt2[i % n]));
 			}
 		}
-		distance =distance / (m * (m-1));
+		distance = distance / (m * (m-1));
 		return distance;
 	}
 
@@ -82,6 +82,13 @@ public class QDMTimeSeriesStat extends TimeSeriesStat {
 	public ClusStatistic cloneStat() {
 		QDMTimeSeriesStat stat = new QDMTimeSeriesStat(m_Attr);
 		stat.cloneFrom(this);
+		return stat;
+	}
+
+	public ClusStatistic cloneSimple() {
+		QDMTimeSeriesStat stat = new QDMTimeSeriesStat(m_Attr);
+		stat.m_RepresentativeMean = new TimeSeries(m_RepresentativeMean.length());
+		stat.m_RepresentativeMedian = new TimeSeries(m_RepresentativeMedian.length());
 		return stat;
 	}
 

@@ -50,16 +50,21 @@ public class ClusRule implements ClusModel, Serializable {
 	protected ClusStatistic m_TargetStat;
 	protected ClusStatistic m_ClusteringStat;
 	protected ArrayList m_Tests = new ArrayList();
+	protected ClusStatManager m_StatManager;
+	protected ClusErrorList[] m_Errors;
+	
 	/* Array of tuples covered by this rule */
 	protected ArrayList m_Data = new ArrayList();
-	protected ClusStatManager m_StatManager;
+	
 	/* Combined statistics for training and testing data */
 	protected CombStat[] m_CombStat = new CombStat[2];
+	
 	/* Number of examples covered by this rule */
 	protected double[] m_Coverage = new double[2];
-	protected ClusErrorList[] m_Errors;
+	
 	/* Average error score of the rule */
 	protected double m_TrainErrorScore;
+	
 	/* Optimized weight of the rule */
 	protected double m_OptWeight;
 
@@ -176,13 +181,6 @@ public class ClusRule implements ClusModel, Serializable {
 	 * i.e., rules that have weights below the threshold.
 	 */
 	public RowData removeCoveredEnough(RowData data) {
-		// double MAX_TIMES_COVERED = 5;
-		// double threshold;
-		// if ((getSettings().getCoveringMethod() == Settings.COVERING_METHOD_WEIGHTED_ERROR)){
-		// 	threshold = 0.01;
-		// } else {
-		// 	threshold = 1 / (MAX_TIMES_COVERED + 1 + 1);
-		// }
 		double threshold = getSettings().getInstCoveringWeightThreshold();
 		// if (!getSettings().isCompHeurRuleDist()) { // TODO: check if this is ok!
 		if (true) {
@@ -263,14 +261,13 @@ public class ClusRule implements ClusModel, Serializable {
 							new_weight = old_weight;
 						}
 					}
-				// } else if (m_StatManager.getMode() == ClusStatManager.MODE_REGRESSION){
+				// } else if (m_StatManager.getMode() == ClusStatManager.MODE_REGRESSION) {
 				} else if (m_TargetStat instanceof RegressionStat) {
 					double[] predictions = predictWeighted(tuple).getNumericPred();
 					NumericAttrType[] targetAttrs = data.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 					if (predictions.length > 1) { // Multiple target
 						double[] true_values = new double[predictions.length];
 						ClusStatistic stat = m_StatManager.getTrainSetStat();
-						int[] target_idx = new int[predictions.length];
 						double[] variance = new double[predictions.length];
 						double[] coef = new double[predictions.length];
 						for (int j = 0; j < true_values.length; j++) {
@@ -298,9 +295,9 @@ public class ClusRule implements ClusModel, Serializable {
 						}
 						new_weight = old_weight * coef;
 					}
-				} else if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL){
+				} else if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
 					throw new ClusException("reweighCovered(): Hierarchical mode not yet supported!");
-				} else if (m_StatManager.getMode() == ClusStatManager.MODE_TIME_SERIES){
+				} else if (m_StatManager.getMode() == ClusStatManager.MODE_TIME_SERIES) {
 					ClusStatistic prediction = predictWeighted(tuple);
 					ClusAttributeWeights weights = m_StatManager.getClusteringWeights();
 					double coef = cov_w_par * prediction.getAbsoluteDistance(tuple, weights);
@@ -349,14 +346,9 @@ public class ClusRule implements ClusModel, Serializable {
 		printModel(wrt, StatisticPrintInfo.getInstance());
 	}
 
-	/**
-	 * Prints first the values for nominal attributes, then the continual ones.
-	 */
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		wrt.print("IF ");
-		
-		// The If statement
 		if (m_Tests.size() == 0) {
 			wrt.print("true");
 		} else {
@@ -370,13 +362,9 @@ public class ClusRule implements ClusModel, Serializable {
 			}
 		}
 		wrt.println();
-		
-		// Then part
 		wrt.print("THEN "+m_TargetStat.getString(info));
 		if (getID() != 0 && info.SHOW_INDEX) wrt.println(" ("+getID()+")");
 		else wrt.println();
-		// Then part ends here.
-		
 		String extra = m_TargetStat.getExtraInfo();
 		if (extra != null) {
 			// Used, e.g., in hierarchical multi-classification
@@ -473,11 +461,7 @@ public class ClusRule implements ClusModel, Serializable {
 	public void setClusteringStat(ClusStatistic stat) {
 		m_ClusteringStat = stat;
 	}
-	
-	/**
-	 * Post process the rule.
-	 * Post processing is only calculating the means for each of the target statistics. 
-	 */
+
 	public void postProc() {
 		m_TargetStat.calcMean();
 	}
@@ -495,59 +479,22 @@ public class ClusRule implements ClusModel, Serializable {
 		}
 	}	
 
-	/** Calculates the error score - average of error rates
-	 *  across all target attributes on the current training set
-	 *  i.e., the data that the rule was trained on and not the 
-	 *  entire training set (kind of ...).
+	/** Calculates TrainErrorScore - average of error rates across all target
+	 *  attributes on the all training data covered by this rule (kind of ...).
+	 *  To be used in some schemes (AccuracyWeighted) for combining predictions
+	 *  of multiple (unordered) rules.
 	 */
-	// TODO: Not used anymore - remove?
 	public void setTrainErrorScore() {
-		int nb_tar = m_TargetStat.getNbAttributes();
-		double sum_err = 0;
-		if (m_TargetStat instanceof ClassificationStat) {
-			for (int i = 0; i < nb_tar; i++) {
-				int maj_class = ((ClassificationStat)m_TargetStat).getNominalPred()[i];
-				double err = 1 - ((ClassificationStat)m_TargetStat).getCount(i,maj_class) / m_TargetStat.m_SumWeight;
-				sum_err += err;
-			}
-			m_TrainErrorScore = sum_err / nb_tar;
-		} else { // if (m_TargetStat instanceof RegressionStat) {
-			double norm = getSettings().getNumCompNormWeight();
-			for (int i = 0; i < nb_tar; i++) {
-				double weight = m_StatManager.getClusteringWeights().getWeight(
-						((RegressionStat)m_TargetStat).getAttribute(i));
-				sum_err += ((RegressionStat)m_TargetStat).getVariance(i) * weight / (norm*norm);
-			}
-			m_TrainErrorScore = sum_err / nb_tar;
-		}
-		if (m_TrainErrorScore > 1) { // Limit the error store to 1 
-			m_TrainErrorScore = 1;
-		}
-	}
-
-	/** Calculates the error score - average of error rates
-	 *  across all target attributes on the all training data 
-	 *  covered by this rule (kind of ...).
-	 */
-	// TODO: Check if this works at all (for multi-target case)!
-	// TODO: Should this one be used or setTrainErrorScore() above?
-	// TODO: Extend towards time series, HMLC ...
-	public void setErrorScore() {
-		if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-			// Gives a problem with HMC; needs further investigation --ben
-			// (size of target_atts[] is 0)
-			return;
-		}
 		int nb_rows = m_Data.size();
 		int nb_tar = m_TargetStat.getNbAttributes();
 		if (m_TargetStat instanceof ClassificationStat) {
 			int[] true_counts = new int[nb_tar];
+			NominalAttrType[] targetAttrs = m_StatManager.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			for (int i = 0; i < nb_rows; i++) {
 				DataTuple tuple = (DataTuple)m_Data.get(i);
 				int[] prediction = predictWeighted(tuple).getNominalPred();
-				int[] true_value = tuple.m_Ints;
 				for (int j = 0; j < nb_tar; j++) {
-					if (prediction[j] == true_value[j]) {
+					if (prediction[j] == targetAttrs[j].getNominal(tuple)) { // predicted == true
 						true_counts[j]++;
 					}
 				}
@@ -557,35 +504,46 @@ public class ClusRule implements ClusModel, Serializable {
 				sum_err += (double)(nb_rows - true_counts[j]) / nb_rows;
 			}
 			m_TrainErrorScore = sum_err / nb_tar;
-		} else { // if (m_TargetStat instanceof RegressionStat) {
+		} else if (m_TargetStat instanceof RegressionStat) {
 			double norm = getSettings().getNumCompNormWeight();
 			ClusStatistic stat = m_StatManager.getTrainSetStat();
-			NumericAttrType[] target_atts = m_StatManager.getSchema().
-												getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+			NumericAttrType[] targetAttrs = m_StatManager.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			int[] target_idx = new int[nb_tar];
 			double[] variance = new double[nb_tar];
 			double[] diff = new double[nb_tar];
 			for (int j = 0; j < nb_tar; j++) {
-				target_idx[j] = target_atts[j].getArrayIndex();
+				target_idx[j] = targetAttrs[j].getArrayIndex();
 				variance[j] = ((CombStat)stat).getRegressionStat().getVariance(target_idx[j]);
 			}
 			for (int i = 0; i < nb_rows; i++) {
 				DataTuple tuple = (DataTuple)m_Data.get(i);
 				double[] prediction = predictWeighted(tuple).getNumericPred();
-				double[] true_value = tuple.m_Doubles;
 				for (int j = 0; j < nb_tar; j++) {
-					diff[j] += Math.abs(prediction[j] - true_value[j]);				
+					double true_value = targetAttrs[j].getNumeric(tuple);
+					diff[j] += Math.abs(prediction[j] - targetAttrs[j].getNumeric(tuple)); // |prediction-true|			
 				}
 			}
-			double sum_diff = 0;
+			double sum_diff = 0.0;
 			for (int j = 0; j < nb_tar; j++) {
 				sum_diff += diff[j] / nb_rows / Math.sqrt(variance[j]) / (norm*norm);
 			}
-			// Should this attribute weight below also be included above?
-			// double weight = m_StatManager.getClusteringWeights().getWeight(
-			// 		((RegressionStat)m_TargetStat).getAttribute(i));
 			m_TrainErrorScore = sum_diff / nb_tar;
-			if (m_TrainErrorScore > 1) { // Limit the error store to 1 
+			if (m_TrainErrorScore > 1) { // Limit the error score to 1 
+				m_TrainErrorScore = 1;
+			}
+		} else if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
+			System.err.println("reweighCovered(): Hierarchical mode not yet supported!");
+		} else if (m_StatManager.getMode() == ClusStatManager.MODE_TIME_SERIES) {
+			double sum_diff = 0.0;
+			ClusAttributeWeights weight = m_StatManager.getClusteringWeights();
+			// TODO: Figure out how should this weight be set ... any normalization etc ...
+			for (int i = 0; i < nb_rows; i++) {
+				DataTuple tuple = (DataTuple)m_Data.get(i);
+				ClusStatistic prediction = predictWeighted(tuple);
+				sum_diff = prediction.getAbsoluteDistance(tuple, weight);
+			}
+			m_TrainErrorScore = sum_diff / nb_tar;
+			if (m_TrainErrorScore > 1) { // Limit the error score to 1 
 				m_TrainErrorScore = 1;
 			}
 		}

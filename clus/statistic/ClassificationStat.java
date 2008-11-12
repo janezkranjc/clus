@@ -126,18 +126,6 @@ public class ClassificationStat extends ClusStatistic {
 		}
 	}
 	
-	// TODO: Just a temporary solution - should be done in a more elegant way
-	// use with care, e.g., on a ClassificationStat copy 
-	public void normalizeCounts() {
-		for (int i = 0; i < m_NbTarget; i++) {		
-			for (int j = 0; j < m_ClassCounts[i].length; j++) {
-				m_ClassCounts[i][j] /= m_SumWeight;
-			}
-		}
-		m_SumWeight = 1;		
-	}	
-
-	// Replacement for the above normalizeCounts method
 	/**
 	 * Used for combining weighted predictions. 
 	 */

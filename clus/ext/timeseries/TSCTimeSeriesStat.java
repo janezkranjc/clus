@@ -108,6 +108,13 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 		return stat;
 	}
 
+	public ClusStatistic cloneSimple() {
+		TSCTimeSeriesStat stat = new TSCTimeSeriesStat(m_Attr);
+		stat.m_RepresentativeMean = new TimeSeries(m_RepresentativeMean.length());
+		stat.m_RepresentativeMedian = new TimeSeries(m_RepresentativeMedian.length());
+		return stat;
+	}
+
 	public void copy(ClusStatistic other) {
 		TSCTimeSeriesStat or = (TSCTimeSeriesStat) other;
 		super.copy(or);

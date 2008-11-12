@@ -125,7 +125,6 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			// In multi-label classification: predicted set of classes is
 			// union of predictions by individual rules
 			// TODO: Check if this is obsolete/move/reuse for hierarchical MLC ...
-			
 			ClusStatistic stat = m_TargetStat.cloneSimple();
 			stat.unionInit();
 			for (int i = 0; i < getModelSize(); i++) {
@@ -152,7 +151,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 					ClusStatistic rulestat = rule.predictWeighted(tuple);
 					double weight = getAppropriateWeight(rule)/weight_sum;
 					ClusStatistic norm_rulestat = rulestat.normalizedCopy();
-					stat.addPrediction(norm_rulestat, weight); // or should it be addScaled?
+					stat.addPrediction(norm_rulestat, weight);
 					covered = true;
 				}
 			}
@@ -327,6 +326,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
 		addDataToRules(examples);
+		// setTrainErrorScore(); // Is this needed?
 		printModelAndExamples(wrt, info, examples.getSchema());
 		removeDataFromRules();
 	}
@@ -389,8 +389,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	}
 
 	/**
-	 * Computes the error score of the rule set.
-	 * @param data data to compute error score on
+	 * Computes the error score of the rule set. To be used for
+	 * deciding whether to add more rules to the rule set or not.
 	 */
 	// TODO: finish
 	public double computeErrorScore(RowData data) {
@@ -407,7 +407,6 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				int true_value;
 				NominalAttrType[] targetAttrs = data.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 				for (int j = 0; j < nb_tar; j++) {
-					// Target attributes are first in m_Ints[]
 					true_value = targetAttrs[j].getNominal(tuple);
 					if (predictions[j] == true_value) {
 						nb_right[j]++;
@@ -443,7 +442,18 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			return -1;
 		}
 	}
-
+	
+	/**
+	 * Sets TrainErrorScore in all rules which is to be used in some schemes
+	 * (AccuracyWeighted) for combining predictions of multiple  (unordered) rules.
+	 * COMPATIBILITY NOTE: This used to be in addDataToRules(DataTuple) ...
+	 */
+	public void setTrainErrorScore() {
+		for (int i = 0; i < m_Rules.size(); i++) {
+			((ClusRule)m_Rules.get(i)).setTrainErrorScore();
+		}
+	}
+	
 	/**
 	 * Adds tuple to the rule which covers it. Returns true if the
 	 * tuple is covered by any rule in this RuleSet and false otherwise.
@@ -457,9 +467,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				covered = true;
 			}
 		}
-		for (int i = 0; i < m_Rules.size(); i++) {
-			((ClusRule)m_Rules.get(i)).setErrorScore();
-		}
+		// COMPATIBILITY NOTE: Here used to be a call to set(Train)ErrorScore()
+		// for each rule - no idea why here ... moved outside.
 		return covered;
 	}
 
