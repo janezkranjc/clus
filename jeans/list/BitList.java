@@ -25,7 +25,7 @@ package jeans.list;
 import java.util.*;
 import java.io.*;
 
-public class BitList implements Serializable{
+public class BitList implements Serializable {
 
 	public final static long serialVersionUID = 1;
 
@@ -69,8 +69,8 @@ public class BitList implements Serializable{
 	}
 
 	public final void copy(BitList other) {
-                int olen = other.m_Bits.length;
-                if (m_Bits == null || olen != m_Bits.length) {
+		int olen = other.m_Bits.length;
+        if (m_Bits == null || olen != m_Bits.length) {
 			m_Bits = new long[olen];
 			m_Size = other.size();
 		}

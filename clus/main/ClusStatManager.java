@@ -879,7 +879,7 @@ public class ClusStatManager implements Serializable {
 
 	public void computeTrainSetStat(RowData trainset, int attType) {
 		m_TrainSetStatAttrUse[attType] = createStatistic(attType);
-		trainset.calcTotalStat(m_TrainSetStatAttrUse[attType]);
+		trainset.calcTotalStatBitVector(m_TrainSetStatAttrUse[attType]);
 	}
 	
 	public void computeTrainSetStat(RowData trainset) {
