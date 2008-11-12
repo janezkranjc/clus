@@ -828,9 +828,7 @@ public class Clus implements CMDLineArgsProvider {
 
 		ClusRun cr = partitionData();
 		// Compute statistic on training data
-		ClusStatistic tr_stat = getStatManager().createStatistic(ClusAttrType.ATTR_USE_ALL);
-		cr.getTrainingSet().calcTotalStat(tr_stat);
-		getStatManager().setTrainSetStat(tr_stat);
+		getStatManager().computeTrainSetStat((RowData)cr.getTrainingSet());
 		// Used for exporting data to CN2 and Orange formats
 		/* ARFFFile.writeCN2Data("train-all.exs", (RowData)cr.getTrainingSet());
 		   ARFFFile.writeOrangeData("train-all.tab", (RowData)cr.getTrainingSet());
