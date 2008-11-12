@@ -38,7 +38,12 @@ public class FindBestTestRules extends FindBestTest {
 	public FindBestTestRules(ClusStatManager mgr, NominalSplit split) {
 		super(mgr, split);
 	}
-
+	
+	/**
+	 * Generate nominal split value and rule (and inverse '<=') for that.
+	 * @param at
+	 * @param data Data the split is based on. Chooses one value from these.
+	 */
 	public void findNominal(NominalAttrType at, RowData data) {
 		// Reset positive statistic
 		int nbvalues = at.getNbValues();
@@ -91,8 +96,8 @@ public class FindBestTestRules extends FindBestTest {
 	/**
 	 * Randomly generates nominal split
 	 * @param at
-	 * @param data
-	 * @param rn
+	 * @param data Data the split is based on. Chooses one value from these.
+	 * @param rn Random number generator.
 	 */
 	public void findNominalRandom(NominalAttrType at, RowData data, Random rn) {
 		// Reset positive statistic
@@ -107,8 +112,16 @@ public class FindBestTestRules extends FindBestTest {
 		}
 		// Find the split
 		m_Split.findRandomSplit(m_BestTest, at, rn);
-	}
+		
+		//TODO inverse splits?
 
+	}
+	
+	/**
+	 * Generate numeric split value and rule (and inverse '<=') for that.
+	 * @param at
+	 * @param data Data the split is based on. Chooses one value from these.
+	 */
 	public void findNumeric(NumericAttrType at, RowData data) {
 		DataTuple tuple;
 		if (at.isSparse()) {
@@ -179,10 +192,11 @@ public class FindBestTestRules extends FindBestTest {
 	}
 
 	/**
-	 * Randomly generates numeric split value
+	 * Randomly generates numeric split value. Also randomly chooses
+	 * the > or inverse <= for the rule.
 	 * @param at
-	 * @param data
-	 * @param rn
+	 * @param data Data the split is based on. Chooses one value from these.
+	 * @param rn Random number generator.
 	 */
 	public void findNumericRandom(NumericAttrType at, RowData data, RowData orig_data, Random rn) { 
 		DataTuple tuple;
@@ -224,6 +238,7 @@ public class FindBestTestRules extends FindBestTest {
 				orig_first++;
 			}
 		}   
+		
 		// Generate the random split value based on the original data
 		double min_value = orig_data.getTuple(orig_nb_rows-1).getDoubleVal(idx);
 		double max_value = orig_data.getTuple(orig_first).getDoubleVal(idx);
@@ -235,7 +250,12 @@ public class FindBestTestRules extends FindBestTest {
 		}
 		m_BestTest.updateNumeric(split_value, at);
 		System.err.println("Inverse splits not yet included!");
-		// TODO: m_Selector.updateInverseNumeric(split_value, at);
+
+		if (rn.nextBoolean())
+		{
+			// Randomly take the inverse test
+			m_BestTest.updateInverseNumeric(split_value, at);
+		}
 	}
 
 }
