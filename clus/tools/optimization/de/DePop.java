@@ -56,7 +56,11 @@ public class DePop {
 		for (int i = 0; i < getSettings().getOptDEPopSize(); i++)
 			((DeInd)m_Inds.get(i)).setGenes(m_Probl.getRandVector(m_Rand));
 	}
-
+	/**
+	 *  Evaluate population fitness with the population's function.
+	 * @param num_eval How many individuals have already been evaluated? Usually 0.
+	 * @return num_eval + no. evaluated individuals. That is, number of evaluated individuals so far.
+	 */
 	public int evaluatePop(int num_eval) {
 		int result = num_eval;
 		for (int i = 0; i < m_Inds.size(); i++) {

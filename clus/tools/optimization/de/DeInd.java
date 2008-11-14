@@ -37,6 +37,9 @@ import clus.util.ClusFormat;
 public class DeInd {
 
 	private ArrayList m_Genes;
+	/**
+	 * Fitness of this DE individual. Smaller is better.
+	 */
 	public double m_Fitness;
 
 	public DeInd() {
@@ -51,6 +54,12 @@ public class DeInd {
 		return m_Genes;
 	}
 
+	/**
+	 * Re-evaluates this individuals fitness with the problems fitness function.
+	 * @param probl Optimization problem to be evaluated.
+	 * @param num_eval Tail recursive parameter for how many individuals evaluated.
+	 * @return Return num_eval+1 as in tail recursion.
+	 */
 	public int evaluate(DeProbl probl, int num_eval) {
 		m_Fitness = probl.calcFitness(m_Genes);
 		return (num_eval + 1);

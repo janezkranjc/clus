@@ -251,11 +251,11 @@ public class FindBestTestRules extends FindBestTest {
 		m_BestTest.updateNumeric(split_value, at);
 		System.err.println("Inverse splits not yet included!");
 
-		if (rn.nextBoolean())
-		{
-			// Randomly take the inverse test
-			m_BestTest.updateInverseNumeric(split_value, at);
-		}
+		//if (rn.nextBoolean())
+		//{
+		//	// Randomly take the inverse test
+		//	m_BestTest.updateInverseNumeric(split_value, at);
+		//}
 	}
 
 }

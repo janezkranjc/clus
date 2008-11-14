@@ -386,7 +386,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		ClusStatistic new_left_over = left_over;
 		left_over.calcMean();
 		rset.setTargetStat(left_over);
-		int nb_tar = left_over.getNbAttributes();
+		int nb_tar = left_over.getNbTargetAttributes();
 		boolean cls_task = false;
 		if (left_over instanceof ClassificationStat) {
 			cls_task = true;
@@ -528,8 +528,12 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		rset.setTargetStat(left_over);
 	}
 
-	/** Evaluates each rule in the context of a complete rule set.
-	 *  Individual rules are generated randomly.
+	/** 
+	 * Evaluates each rule in the context of a complete rule set. 
+	 * Generates random rules that are added if they improve the performance.
+	 * Maybe only candidate rules are generated randomly. Then the best one
+	 * of the candidate rules could be selected.
+	 * Is put on with CoveringMethod = RandomRuleSet in settings file.
 	 * @param rset
 	 * @param data
 	 */
@@ -550,7 +554,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		ClusStatistic new_left_over = left_over;
 		left_over.calcMean();
 		rset.setTargetStat(left_over);
-		int nb_tar = left_over.getNbAttributes();
+		int nb_tar = left_over.getNbTargetAttributes();
 		boolean cls_task = false;
 		if (left_over instanceof ClassificationStat) {
 			cls_task = true;
@@ -778,6 +782,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			separateAndConquor(rset, data);
 		} else if (method == Settings.COVERING_METHOD_BEAM_RULE_DEF_SET) { // Obsolete!
 			separateAndConquorAddRulesIfBetterFromBeam2(rset, data);
+			
+		/** Can be put on by CoveringMethod = RandomRuleSet
+		 */
 		} else if (method == Settings.COVERING_METHOD_RANDOM_RULE_SET) {
 			separateAndConquorRandomly(rset, data);
 		} else if (method == Settings.COVERING_METHOD_STANDARD_BOOTSTRAP) {
@@ -792,7 +799,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			separateAndConquorWeighted(rset, data);
 		}
 		
-		// The rule set was altered. Compute the means for rules again.
+		// The rule set was altered. Compute the means (predictions?) for rules again.
 		rset.postProc();
 		
 		// Optimizing rule set
@@ -819,9 +826,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 
 	/**
 	 * Optimize the weights of rules.
-	 * @param rset Optimized rule set
+	 * @param rset Rule set to be optimized
 	 * @param data
-	 * @return
+	 * @return Optimized rule set
 	 * @throws ClusException
 	 * @throws IOException
 	 */
@@ -830,71 +837,139 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
 		DecimalFormat mf = new DecimalFormat("###.000");
 		ClusSchema schema = data.getSchema();
+		
 		// Generate optimization input
-		//ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
-		DeAlg deAlg;
-		//int nb_tar = tar_stat.getNbAttributes();
+		ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
+		DeAlg deAlg = null;
+		int nb_target = tar_stat.getNbTargetAttributes();
 		int nb_rules = rset.getModelSize();
 		int nb_rows = data.getNbRows();
-		boolean classification = false;
+		boolean isClassification = false;
 		if (rset.m_TargetStat instanceof ClassificationStat) {
-			classification = true;
+			isClassification = true;
 		}
-		// TODO: more target atts
-		if (classification) {
-			NominalAttrType[] target = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			int nb_values = ((ClassificationStat)rset.m_TargetStat).getAttribute(0).getNbValues();
-			double[][][] rule_pred = new double[nb_rows][nb_rules][nb_values]; // [instance][rule][class_value]
-			double[] true_val = new double[nb_rows];
-			for (int i = 0; i < nb_rows; i++) {
-				DataTuple tuple = data.getTuple(i);
-				for (int j = 0; j < nb_rules; j++) {
-					ClusRule rule = rset.getRule(j);
-					if (rule.covers(tuple)) {
-						rule_pred[i][j] = (double[])((ClassificationStat)rule.predictWeighted(tuple)).
-						getClassCounts(0); // TODO:
+
+
+
+		ClusAttrType[] trueValuesTemp = new ClusAttrType[nb_target];
+		if (isClassification) {
+			//NominalAttrType[] 
+			trueValuesTemp = (ClusAttrType[])schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		} else { // regression
+			//NumericAttrType[]
+			trueValuesTemp = (ClusAttrType[])schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		}
+
+		/** 
+		 * True values for each target and instance
+		 */
+		double[][] trueValues = new double[nb_rows][nb_target];
+
+		// Index over the instances of data
+		for (int iRows = 0; iRows < nb_rows; iRows++) {
+			DataTuple tuple = data.getTuple(iRows);
+			
+			// Take the true values from the data target by target
+			for (int kTargets = 0; kTargets < nb_target; kTargets++)
+			{
+				if (isClassification){
+					trueValues[iRows][kTargets] = ((NominalAttrType)trueValuesTemp[kTargets]).getNominal(tuple);
+				} else {
+					trueValues[iRows][kTargets] = ((NumericAttrType)trueValuesTemp[kTargets]).getNumeric(tuple);
+				}
+			}
+		}
+		
+		
+		
+		
+		// Number of nominal values for each target. For regression, no number of nominal values needed, i.e. 1
+		int nb_values[] = new int[nb_target]; 
+
+		for (int iTarget=0; iTarget < nb_target;iTarget++) {
+			if (isClassification) {
+				nb_values[iTarget] = ((ClassificationStat)rset.m_TargetStat).getAttribute(0).getNbValues();		
+			} else { // regression
+				nb_values[iTarget] = 1; // Nominal values not needed
+			}
+		}
+		
+		// [instance][rule][target][class_value]
+		// For regression, class_value = 0 always.
+		//double[][][][] rule_pred = new double[nb_rows][nb_rules][nb_target][nb_values];
+		double[][][][] rule_pred = new double[nb_rows][nb_rules][nb_target][];
+		
+		// Index over the instances of data
+		for (int iRows = 0; iRows < nb_rows; iRows++) {
+			DataTuple tuple = data.getTuple(iRows);		
+			for (int jRules = 0; jRules < nb_rules; jRules++) {
+				ClusRule rule = rset.getRule(jRules);
+				
+				// Initialize rule predictions for this rule and instance combination
+				for (int iTarget=0; iTarget < nb_target;iTarget++) {
+					rule_pred[iRows][jRules][iTarget] = new double[nb_values[iTarget]];
+				}
+				
+				if (rule.covers(tuple)) {
+
+					// Returns the prediction for the data
+					if (isClassification) {
+						rule_pred[iRows][jRules] = 
+							((ClassificationStat)rule.predictWeighted(tuple)).getClassCounts();
 					} else {
-						for (int k = 0; k < nb_values; k++) {
-							rule_pred[i][j][k] = Double.NaN;
+						//Only one nominal value is used for regression.
+						rule_pred[iRows][jRules][0] =
+							((RegressionStat)rule.predictWeighted(tuple)).getNumericPred();
+					}
+				} else { // Rule does not cover the instance. Mark as NaN
+					for (int kTargets = 0; kTargets < nb_target; kTargets++)
+					{   for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
+							rule_pred[iRows][jRules][kTargets][lValues] = Double.NaN; 
 						}
 					}
-					wrt_pred.print(", [");
-					for (int k = 0; k < nb_values; k++) {
-						wrt_pred.print(", " + mf.format(rule_pred[i][j][k]));
-					}
-					wrt_pred.print("]");
 				}
-				//true_val[i] = (double)tuple.getIntVal(0); // TODO:
-				true_val[i] = target[0].getNominal(tuple);
-				wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
-			}
-			wrt_pred.close();
-			deAlg = new DeAlg(getStatManager(), rule_pred, true_val);
-		} else { // regression
-			NumericAttrType[] target = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			double[][] rule_pred = new double[nb_rows][nb_rules]; // [instance][rule]
-			double[] true_val = new double[nb_rows];
-			for (int i = 0; i < nb_rows; i++) {
-				DataTuple tuple = data.getTuple(i);
-				for (int j = 0; j < nb_rules; j++) {
-					ClusRule rule = rset.getRule(j);
-					if (rule.covers(tuple)) {
-						rule_pred[i][j] = ((RegressionStat)rule.predictWeighted(tuple)).getNumericPred()[0]; // TODO:
-					} else {
-						rule_pred[i][j] = Double.NaN;
+				// Print predictions to the file.
+				wrt_pred.print("[");
+				for (int kTargets = 0; kTargets < nb_target; kTargets++)
+				{
+					wrt_pred.print("{");
+					for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
+						wrt_pred.print(mf.format(rule_pred[iRows][jRules][kTargets][lValues]));
+						if (lValues < nb_values[kTargets]-1)	wrt_pred.print("; ");
 					}
-					wrt_pred.print(", " + mf.format(rule_pred[i][j]));
+					
+					if (kTargets < nb_target-1) wrt_pred.print("}; ");
+					else wrt_pred.print("}");
 				}
-				true_val[i] = target[0].getNumeric(tuple);
-				wrt_pred.print(" :: " + mf.format(true_val[i]) + "\n");
+				wrt_pred.print("]"); 
+			} // For rules
+
+			
+			// Print the real outputs
+			//wrt_pred.print(" :: {" + mf.format(true_val[iRows]) + "}\n");
+			wrt_pred.print(" :: [");
+			for (int kTargets = 0; kTargets < nb_target; kTargets++) {
+				wrt_pred.print(mf.format(trueValues[iRows][kTargets]));
+				if (kTargets < nb_target-1)	wrt_pred.print("; ");
 			}
-			wrt_pred.close();
-			deAlg = new DeAlg(getStatManager(), rule_pred, true_val);
-		}
+			wrt_pred.print("]\n"); 
+			
+		}// For instances of data		
+
+		wrt_pred.flush();
+
+
+		// Find the rule weights with evolutionary algorithm.
+		deAlg = new DeAlg(getStatManager(), rule_pred, trueValues, isClassification);
 		ArrayList weights = deAlg.evolution();
+		
+		// Print weights of rules
+		System.out.print("The weights for rules:");
 		for (int j = 0; j < nb_rules; j++) {
 			rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue());
+			System.out.print(mf.format(((Double)weights.get(j)).doubleValue())+ "; ");
 		}
+		System.out.print("\n");
 		rset.removeLowWeightRules();
 		RowData data_copy = (RowData)data.cloneData();
 		updateDefaultRule(rset, data_copy);
@@ -1003,6 +1078,10 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 
 	/**
 	 * Method that induces a specified number of random rules.
+	 * That is, the random attributes are chosen with random split points.
+	 * However, the predictions are the means of covered examples. 
+	 * @param cr ClusRun
+	 * @return RuleSet
 	 */
 	public ClusModel induceRandomly(ClusRun run) throws ClusException, IOException {
 		int number = getSettings().nbRandomRules();
@@ -1021,6 +1100,17 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				i--;
 			}
 		}
+		
+		// The rule set changed, compute predictions (?)
+		// This same may have been done on the rule.computePrediction() but not sure
+		// For this rule set, postProc is not implemented (abstract function)
+		//rset.postProc();
+		
+		// Optimizing rule set
+		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
+			rset = optimizeRuleSet(rset, data);
+		}
+		
 		ClusStatistic left_over = createTotalTargetStat(data);
 		left_over.calcMean();
 		System.out.println("Left Over: "+left_over);

@@ -80,7 +80,7 @@ public class ARFFFile {
 			}
 			if (expected < 3) token = tokens.getToken().toUpperCase();
 		}
-		// System.out.println("Number of attributes: "+schema.getNbAttributes());
+		// System.out.println("Number of attributes: "+schema.getNbTargetAttributes());
 		return schema;
 	}
 

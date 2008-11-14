@@ -190,6 +190,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 	}
 
+	/**
+	 * Remove rules that have less weight than OptRuleWeightThreshold set in .s file.
+	 */
 	public void removeLowWeightRules() {
 		double threshold = getSettings().getOptRuleWeightThreshold();
 		int nb_rules = getModelSize();
@@ -399,7 +402,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		if (tar_stat instanceof ClassificationStat) {
 			double result = 0;
 			int nb_rows = data.getNbRows();
-			int nb_tar = tar_stat.getNbNominalAttributes();
+			int nb_tar = tar_stat.getNbTargetNominalAttributes();
 			int[] nb_right = new int[nb_tar];
 			for (int i = 0; i < nb_rows; i++) {
 				DataTuple tuple = data.getTuple(i);
@@ -422,7 +425,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		} else if (tar_stat instanceof RegressionStat) {
 			double result = 0;
 			int nb_rows = data.getNbRows();
-			int nb_tar = tar_stat.getNbNumericAttributes();
+			int nb_tar = tar_stat.getNbTargetNumericAttributes();
 			double[] sum_sqr_err = new double[nb_tar];
 			NumericAttrType[] targetAttrs = data.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			for (int i = 0; i < nb_rows; i++) {

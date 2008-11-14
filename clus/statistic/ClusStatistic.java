@@ -55,15 +55,25 @@ public abstract class ClusStatistic implements Serializable {
 		return cloneStat();
 	}
 
-	public int getNbAttributes() {
-		return getNbNominalAttributes()+getNbNumericAttributes();
+	// The name of the method changed from getNbAttributes to getNbTargetAttributes by Timo Aho
+	/**
+	 * @return The number of target attributes
+	 */
+	public int getNbTargetAttributes() {
+		return getNbTargetNominalAttributes()+getNbTargetNumericAttributes();
 	}
 
-	public int getNbNominalAttributes() {
+	/**
+	 * @return The number of target nominal attributes.
+	 */
+	public int getNbTargetNominalAttributes() {
 		return 0;
 	}
-
-	public int getNbNumericAttributes() {
+	
+	/**
+	 * @return The number of target numeric attributes
+	 */
+	public int getNbTargetNumericAttributes() {
 		return 0;
 	}
 

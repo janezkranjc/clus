@@ -139,6 +139,6 @@ public class MSNominalError extends ClusNominalError {
 
 	public double computeLeafError(ClusStatistic stat) {
 		ClassificationStat cstat = (ClassificationStat)stat;
-		return cstat.getSS(m_Weights) * cstat.getNbAttributes();
+		return cstat.getSS(m_Weights) * cstat.getNbTargetAttributes();
 	}
 }

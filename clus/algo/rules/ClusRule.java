@@ -47,7 +47,9 @@ public class ClusRule implements ClusModel, Serializable {
 
 	protected int m_ID;
 	protected Object m_Visitor;
+	/** Target statistics of examples covered by the rule.*/
 	protected ClusStatistic m_TargetStat;
+	/** Clustering statistics of examples covered by the rule.*/
 	protected ClusStatistic m_ClusteringStat;
 	protected ArrayList m_Tests = new ArrayList();
 	protected ClusStatManager m_StatManager;
@@ -86,11 +88,15 @@ public class ClusRule implements ClusModel, Serializable {
 		return m_TargetStat;
 	}
 
+	/** 
+	 * Computes predictions for the rule by taking the mean of covered examples.
+	 */
 	public void computePrediction() {
 		m_TargetStat.calcMean();
 		m_ClusteringStat.calcMean();
 		// setTrainErrorScore();
 	}
+	
 
 	public ClusRule cloneRule() {
 		ClusRule new_rule = new ClusRule(m_StatManager);
@@ -461,7 +467,12 @@ public class ClusRule implements ClusModel, Serializable {
 	public void setClusteringStat(ClusStatistic stat) {
 		m_ClusteringStat = stat;
 	}
-
+	/**
+	 * Post process the rule.
+	 * Post processing is only calculating the means for each of the target statistics.
+	 * This mean is the target prediction. 
+	 * FIXME Could this be merged with computePrediction?
+	 */
 	public void postProc() {
 		m_TargetStat.calcMean();
 	}
@@ -486,7 +497,7 @@ public class ClusRule implements ClusModel, Serializable {
 	 */
 	public void setTrainErrorScore() {
 		int nb_rows = m_Data.size();
-		int nb_tar = m_TargetStat.getNbAttributes();
+		int nb_tar = m_TargetStat.getNbTargetAttributes();
 		if (m_TargetStat instanceof ClassificationStat) {
 			int[] true_counts = new int[nb_tar];
 			NominalAttrType[] targetAttrs = m_StatManager.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);

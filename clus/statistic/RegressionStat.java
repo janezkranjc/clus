@@ -75,7 +75,7 @@ public class RegressionStat extends ClusStatistic {
 		return new RegressionStat(m_Attrs, true);
 	}
 
-	public int getNbAttributes() {
+	public int getNbTargetAttributes() {
 		return m_NbAttrs;
 	}
 
@@ -247,7 +247,7 @@ public class RegressionStat extends ClusStatistic {
 	}
 
 	public double[] getRootScaledVariances(ClusAttributeWeights scale) {
-		int nb = getNbAttributes();
+		int nb = getNbTargetAttributes();
 		double[] res = new double[nb];
 		for (int i = 0; i < res.length; i++) {
 			res[i] = getRootScaledVariance(i, scale);
@@ -303,6 +303,9 @@ public class RegressionStat extends ClusStatistic {
 				(n2 * n2 * (n2 - 1d)));
 	}
 
+	/**
+	 * @return Array for all the attributes.
+	 */
 	public double[] getNumericPred() {
 		return m_Means;
 	}
@@ -311,7 +314,7 @@ public class RegressionStat extends ClusStatistic {
 		return "";
 	}
 
-	public int getNbNumericAttributes() {
+	public int getNbTargetNumericAttributes() {
 		return m_NbAttrs;
 	}
 
@@ -430,7 +433,7 @@ public class RegressionStat extends ClusStatistic {
 	}
 
 	public void printDebug() {
-		for (int i = 0; i < getNbAttributes(); i++) {
+		for (int i = 0; i < getNbTargetAttributes(); i++) {
 			double n_tot = m_SumWeight;
 			double k_tot = m_SumWeights[i];
 			double sv_tot = m_SumValues[i];

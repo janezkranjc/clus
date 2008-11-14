@@ -354,8 +354,8 @@ public class RowData extends ClusData implements MSortable {
 	}
 
 	/**
-	 *  Only used in efficient XVal code
-	 * @todo Could be a bug: changeWeight -> multiplyWeight
+	 * Only used in efficient XVal code
+	 * TODO Could be a bug: changeWeight -> multiplyWeight
 	 * @return
 	 */ 
 	public final RowData getFoldData2(int fold) {

@@ -84,7 +84,7 @@ public class M5PrunerMulti extends PruneTree {
 
 	// All targets more accurate than GlobalRMSE * F?
 	public boolean allAccurate(RegressionStat stat) {
-		for (int i = 0; i < stat.getNbAttributes(); i++) {
+		for (int i = 0; i < stat.getNbTargetAttributes(); i++) {
 			double E_leaf = stat.getRootScaledVariance(i, m_TargetWeights) *
 			                pruningFactor(stat.getTotalWeight(), 1);
 			if (E_leaf >= m_GlobalRMSE[i]*m_F) return false;
@@ -94,7 +94,7 @@ public class M5PrunerMulti extends PruneTree {
 
 	// All targets leaf more accurate than subtree
 	public boolean allBetterThanTree(ClusNode node, RegressionStat stat, int modelsize) {
-		for (int i = 0; i < stat.getNbAttributes(); i++) {
+		for (int i = 0; i < stat.getNbTargetAttributes(); i++) {
 			double E_leaf = stat.getRootScaledVariance(i, m_TargetWeights) *
 			                pruningFactor(stat.getTotalWeight(), 1);
 			double E_tree = estimateRootScaledVariance(node, i, m_TargetWeights) *

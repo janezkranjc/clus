@@ -73,7 +73,7 @@ public class COPKMeansCluster implements Serializable {
 	public double computeDistance(DataTuple tuple) {
 		double dist = 0.0;
 		double[] num = m_Center.getNumericPred();
-		for (int j = 0; j < m_Center.getNbAttributes(); j++) {
+		for (int j = 0; j < m_Center.getNbTargetAttributes(); j++) {
 			NumericAttrType att = m_Center.getAttribute(j);
 			double v1 = num[j];
 			double v2 = tuple.getDoubleVal(att.getArrayIndex());

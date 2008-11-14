@@ -154,6 +154,11 @@ public class ClusSchema implements Serializable {
 		return m_NominalAttrUse[attruse].length;
 	}
 
+	/**
+	 * Returns all the numeric attributes that are of the given type.
+	 * @param attruse The use type of attributes as defined in ClusAttrType. For example ATTR_USE_TARGET.
+	 * @return An array of numeric attributes.
+	 */
 	public final NumericAttrType[] getNumericAttrUse(int attruse) {
 		return m_NumericAttrUse[attruse];
 	}

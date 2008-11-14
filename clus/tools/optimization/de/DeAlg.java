@@ -38,6 +38,7 @@ import clus.util.ClusFormat;
  * Differential evolution algorithm.
  *
  * @author Tea Tusar
+ * @author Timo Aho Modified for multi target use 10.11.2008
  */
 public class DeAlg {
 
@@ -48,44 +49,42 @@ public class DeAlg {
 	private ClusStatManager m_StatMgr;
 
   /**
-   * Constructor for classification optimization
-   * @param stat_mgr Statistics manager. Includes information about targets and weights etc.
-   * @param rule_pred Rule predictions for targets.
-   * @param true_val Target values given by the data..
-   */
-	public DeAlg(ClusStatManager stat_mgr, double[][][] rule_pred, double[] true_val) {
+   * Constructor for classification and regression optimization.
+	 * @param stat_mgr Statistics
+	 * @param rule_pred Four dimensional array for the predictions. [instance][rule][target index][class_value]
+	 *                  For regression the class_value = 0 always.
+	 * @param true_val True values for instances. [instance][target index]
+	 * @param isClassification Is it classification or regression?
+     * TODO Only parameters are changed for multi target
+     */
+	public DeAlg(ClusStatManager stat_mgr, double[][][][] rule_pred, double[][] true_val,
+			     boolean isClassification) {
 		m_StatMgr = stat_mgr;
-		m_Probl = new DeProbl(stat_mgr, rule_pred, true_val);
+		m_Probl = new DeProbl(stat_mgr, rule_pred, true_val, isClassification);
 		m_Pop = new DePop(stat_mgr, m_Probl);
 		ClusStatistic tar_stat = m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
-		try {
-			if (tar_stat.getNbAttributes() > 1) {
-				throw new Exception("Not yet implemented: More than one target attribute!");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
-  /**
-   * Constructor for regression optimization
-   * @param stat_mgr
-   * @param rule_pred
-   * @param true_val
-   */
-	public DeAlg(ClusStatManager stat_mgr, double[][] rule_pred, double[] true_val) {
-		m_StatMgr = stat_mgr;
-		m_Probl = new DeProbl(stat_mgr, rule_pred, true_val);
-		m_Pop = new DePop(stat_mgr, m_Probl);
-		ClusStatistic tar_stat = m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
-		try {
-			if (tar_stat.getNbAttributes() > 1) {
-				throw new Exception("Not yet implemented: More than one target attribute!");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//  /**
+//   * Constructor for regression optimization
+//   * @param stat_mgr Statistics
+//   * @param rule_pred Three dimensional array for the predictions. [instance][rule][target index]
+//   * @param true_val True values for instances. [instance][target index]
+//   * TODO Only parameters are changed for multi target
+//   */
+//	public DeAlg(ClusStatManager stat_mgr, double[][][] rule_pred, double[][] true_val) {
+//		m_StatMgr = stat_mgr;
+//		m_Probl = new DeProbl(stat_mgr, rule_pred, true_val);
+//		m_Pop = new DePop(stat_mgr, m_Probl);
+//		ClusStatistic tar_stat = m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
+//		try {
+//			if (tar_stat.getNbTargetAttributes() > 1) {
+//				throw new Exception("Not yet implemented: More than one target attribute!");
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	public ArrayList evolution() {
 		int num_eval;
@@ -111,6 +110,7 @@ public class DeAlg {
 					candidate.setGenes(m_Pop.getCandidate(i));
 					num_eval = candidate.evaluate(m_Probl, num_eval);
 					OutputLog(candidate, num_eval, wrt_log);
+					// Smaller fitness is better
 					if (candidate.m_Fitness < ((DeInd)m_Pop.m_Inds.get(i)).m_Fitness) {
 						((DeInd)m_Pop.m_Inds.get(i)).copy(candidate);
 					}

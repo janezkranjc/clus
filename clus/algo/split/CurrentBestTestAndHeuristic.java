@@ -264,6 +264,12 @@ public class CurrentBestTestAndHeuristic {
 //		DebugFile.log(""+at.getType().getName()+">"+ClusFormat.TWO_AFTER_DOT.format(val)+","+heur);
 	}
 
+	
+	/**
+	 * Take the inverse test '<=' instead of the default '>'.
+	 * @param val Split value.
+	 * @param at Attribute
+	 */
 	public final void updateInverseNumeric(double val, ClusAttrType at) {
 		double heur = m_Heuristic.calcHeuristic(m_TotCorrStat, m_PosStat, m_MissingStat);
 		if (Settings.VERBOSE >= 2) System.err.println("Heur: " + heur + " nb: " + m_PosStat.m_SumWeight);

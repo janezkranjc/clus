@@ -42,7 +42,7 @@ public class ClusBeamHeuristicMorishita extends ClusBeamHeuristic {
 		RegressionStat stat_all = (RegressionStat)tstat;
 		// Compute half of formula from Definition 2 of Morishita paper
 		double result = 0.0;
-		for (int i = 0; i < stat_set.getNbAttributes(); i++) {
+		for (int i = 0; i < stat_set.getNbTargetAttributes(); i++) {
 				double term_i = stat_set.getMean(i) - stat_all.getMean(i);
 				result += term_i * term_i;
 		}

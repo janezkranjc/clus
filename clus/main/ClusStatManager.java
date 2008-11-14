@@ -861,9 +861,9 @@ public class ClusStatManager implements Serializable {
 	}
 
 	/**
-	 * @param attType
-	 *            attribute use type (eg., ClusAttrType.ATTR_USE_TARGET)
-	 * @return the statistic
+	 * 
+	 * @param attType attribute use type (eg., ClusAttrType.ATTR_USE_TARGET)
+	 * @return The statistic
 	 */
 	public ClusStatistic getStatistic(int attType) {
 		return m_StatisticAttrUse[attType];

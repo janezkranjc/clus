@@ -34,6 +34,9 @@ import clus.data.io.ClusReader;
 
 import clus.algo.kNN.NumericStatistic;
 
+/**
+ * Attribute of numeric (continuous) value.
+ */
 public class NumericAttrType extends ClusAttrType {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;

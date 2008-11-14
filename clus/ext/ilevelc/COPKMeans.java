@@ -85,7 +85,7 @@ public class COPKMeans {
 			/* create new tuple, copying avgs as values */
 			DataTuple tuple = new DataTuple(schema);
 			tuple.setWeight(avg.getTotalWeight());
-			for (int j = 0; j < avg.getNbAttributes(); j++) {
+			for (int j = 0; j < avg.getNbTargetAttributes(); j++) {
 				NumericAttrType att = avg.getAttribute(j);
 				tuple.setDoubleVal(avg.getMean(j), att.getArrayIndex());
 			}

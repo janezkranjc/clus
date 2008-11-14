@@ -56,6 +56,6 @@ public class MisclassificationError extends Accuracy {
 
 	public double computeLeafError(ClusStatistic stat) {
 		ClassificationStat cstat = (ClassificationStat)stat;
-		return cstat.getError(null) * cstat.getNbAttributes();
+		return cstat.getError(null) * cstat.getNbTargetAttributes();
 	}
 }

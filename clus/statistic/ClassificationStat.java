@@ -40,12 +40,18 @@ import clus.data.rows.*;
 import clus.data.type.*;
 import clus.data.attweights.*;
 
+/**
+ * Classification statistics about the data. A child of ClusStatistic.
+ *
+ */
 public class ClassificationStat extends ClusStatistic {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public int m_NbTarget;
 	public NominalAttrType[] m_Attrs;
+	
+	//* Class counts with [Target index][Class]
 	public double[][] m_ClassCounts;
 	public int[] m_MajorityClasses;
 
@@ -70,7 +76,7 @@ public class ClassificationStat extends ClusStatistic {
 		m_Attrs = nomAtts;
 	}*/
 
-	public int getNbNominalAttributes() {
+	public int getNbTargetNominalAttributes() {
 		return m_NbTarget;
 	}
 
@@ -86,7 +92,12 @@ public class ClassificationStat extends ClusStatistic {
 		}
 	}
 
-	// Added because RegressionStat has this method.
+	/**
+	 * Returns the nominal attribute.
+	 * Added because RegressionStat has this method.
+	 * @param idx index of attribute.
+	 * @return NominalAttrType
+	 */
 	public NominalAttrType getAttribute(int idx) {
 		return m_Attrs[idx];
 	}
@@ -614,10 +625,23 @@ public class ClassificationStat extends ClusStatistic {
 		}
 	}
 
+	/**
+	 * Returns class counts for given target
+	 * @param i Target index
+	 * @return [Class index]
+	 */
 	public double[] getClassCounts(int i) {
 		return m_ClassCounts[i];
 	}
-
+	
+	/**
+	 * Returns class counts for all targets
+	 * @return [Target index][Class index]
+	 */
+	public double[][] getClassCounts() {
+		return m_ClassCounts;
+	}
+	
 	public String toString() {
 		return getString();
 	}

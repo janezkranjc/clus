@@ -1181,8 +1181,8 @@ public class Clus implements CMDLineArgsProvider {
 				 *  tuneftest, tunesize, beam (beam search induction tree), exhaustive,
 				 *  sit (inductive transfer learning), forest (ensemble trees).
 				 *  If the parameter is not given, a single decision tree is used.
-				 *  @todo What do the other parameter values mean? (e.g. tuneftest, exhaustive)
-				 *  @todo There should be a command line help for these. For example with -help. 
+				 *  TODO What do the other parameter values mean? (e.g. tuneftest, exhaustive)
+				 *  TODO There should be a command line help for these. For example with -help. 
 				 */
 				if (cargs.hasOption("knn")) {
 					clus.getSettings().setSectionKNNEnabled(true);
@@ -1225,7 +1225,7 @@ public class Clus implements CMDLineArgsProvider {
 				 *  The options are corrmatrix, info, writetargets, out2model, test, normalize, debug,
 				 *  xval (test error estimation via K-fold cross validation), fold, bag (originally bagging, may not be used)
 				 *  show, gui, tseries
-				 *  @todo What do these mean?
+				 *  TODO What do these mean?
 				 */
 				if (cargs.hasOption("corrmatrix")) {
 					clus.initialize(cargs, clss);

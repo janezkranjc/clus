@@ -468,13 +468,13 @@ double dis2 = disp;
   public int signDifferent() {
     int sign_diff = 0;
     // Nominal attributes
-    for (int i = 0; i < m_ClassStat.getNbAttributes(); i++) {
+    for (int i = 0; i < m_ClassStat.getNbTargetAttributes(); i++) {
       if (SignDifferentNom(i)) {
         sign_diff++;
       }
     }
     // Numeric attributes
-     for (int i = 0; i < m_RegStat.getNbAttributes(); i++) {
+     for (int i = 0; i < m_RegStat.getNbTargetAttributes(); i++) {
       try {
         if (SignDifferentNum(i)) {
           sign_diff++;
@@ -500,9 +500,9 @@ double dis2 = disp;
     String att_name2;
     ClusStatistic targetStat = m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
     if (targetStat instanceof ClassificationStat) {
-      for (int i = 0; i < targetStat.getNbNominalAttributes(); i++) {
+      for (int i = 0; i < targetStat.getNbTargetNominalAttributes(); i++) {
         att_name = ((ClassificationStat)targetStat).getAttribute(i).getName();
-        for (int j = 0; j < m_ClassStat.getNbNominalAttributes(); j++) {
+        for (int j = 0; j < m_ClassStat.getNbTargetNominalAttributes(); j++) {
           att_name2 = m_ClassStat.getAttribute(j).getName();
           if (att_name.equals(att_name2)) {
             att = j;
@@ -517,9 +517,9 @@ double dis2 = disp;
       // System.out.println("Target sign. testing: " + res);
       return res;
     } else if (targetStat instanceof RegressionStat) {
-      for (int i = 0; i < targetStat.getNbNumericAttributes(); i++) {
+      for (int i = 0; i < targetStat.getNbTargetNumericAttributes(); i++) {
         att_name = ((RegressionStat)targetStat).getAttribute(i).getName();
-        for (int j = 0; j < m_RegStat.getNbNumericAttributes(); j++) {
+        for (int j = 0; j < m_RegStat.getNbTargetNumericAttributes(); j++) {
           att_name2 = m_RegStat.getAttribute(j).getName();
           if (att_name.equals(att_name2)) {
             att = j;
@@ -632,14 +632,14 @@ double dis2 = disp;
 	}
 
 	public double getSS(ClusAttributeWeights scale) {
-		int nbTargetNom = m_ClassStat.getNbNominalAttributes();
-		int nbTargetNum = m_RegStat.getNbNumericAttributes();
+		int nbTargetNom = m_ClassStat.getNbTargetNominalAttributes();
+		int nbTargetNum = m_RegStat.getNbTargetNumericAttributes();
 		return (m_ClassStat.getSS(scale)*nbTargetNom + m_RegStat.getSS(scale)*nbTargetNum) / (nbTargetNom+nbTargetNum);
 	}
 
 	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other) {
-		int nbTargetNom = m_ClassStat.getNbNominalAttributes();
-		int nbTargetNum = m_RegStat.getNbNumericAttributes();
+		int nbTargetNom = m_ClassStat.getNbTargetNominalAttributes();
+		int nbTargetNum = m_RegStat.getNbTargetNumericAttributes();
 		ClassificationStat ocls = ((CombStat)other).getClassificationStat();
 		RegressionStat oreg = ((CombStat)other).getRegressionStat();
 		return (m_ClassStat.getSSDiff(scale, ocls)*nbTargetNom + m_RegStat.getSSDiff(scale, oreg)*nbTargetNum) / (nbTargetNom+nbTargetNum);
@@ -690,16 +690,16 @@ double dis2 = disp;
     m_SumWeight = or.m_SumWeight - m_SumWeight;
   }
 
-  public int getNbNominalAttributes() {
-    return m_ClassStat.getNbNominalAttributes();
+  public int getNbTargetNominalAttributes() {
+    return m_ClassStat.getNbTargetNominalAttributes();
   }
 
   public String getPredictedClassName(int idx) {
 		return "";
   }
 
-  public int getNbNumericAttributes() {
-    return m_RegStat.getNbNumericAttributes();
+  public int getNbTargetNumericAttributes() {
+    return m_RegStat.getNbTargetNumericAttributes();
   }
 
   public double[] getNumericPred() {

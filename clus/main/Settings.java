@@ -746,8 +746,10 @@ public class Settings implements Serializable {
 	public final static int COVERING_METHOD_WEIGHTED_ADDITIVE = 2;
 	public final static int COVERING_METHOD_WEIGHTED_ERROR = 3;
 
-	// In multi-label classification: predicted set of classes is union
-	// of predictions of individual rules
+	/**
+	 *  In multi-label classification: predicted set of classes is union
+	 *  of predictions of individual rules
+	 */
 	public final static int COVERING_METHOD_UNION = 4;
 
 	// Evaluates rules in the context of complete rule set: unordered rules
@@ -757,22 +759,32 @@ public class Settings implements Serializable {
 	// in the beam: unordered rules
 	// public final static int COVERING_METHOD_BEAM_RULE_SET = 6;
 
-	// Evaluates rules in the context of complete rule set, builds default
-	// rule first, checks all rules in the beam: unordered rules
-	// Obsolete - should be deleted!
+	/** Evaluates rules in the context of complete rule set, builds default
+	 *  rule first, checks all rules in the beam: unordered rules
+	 *  FIXME Obsolete - should be deleted!
+	 */
 	public final static int COVERING_METHOD_BEAM_RULE_DEF_SET = 5;
 
-	// Evaluates rules in the context of complete rule set, separate rules
-	// are constructed randomly: unordered rules
+	/**
+	 *  Evaluates rules in the context of complete rule set, separate rules
+	 *  are constructed randomly: unordered rules.
+	 *  This is set only if the amount of RandomRules is greater than 0.
+	 */ 
 	public final static int COVERING_METHOD_RANDOM_RULE_SET = 6;
 
-	// Repeated standard covering on bootstraped data
+	/** 
+	 * Repeated standard covering on bootstraped data
+	 */
 	public final static int COVERING_METHOD_STANDARD_BOOTSTRAP = 7;
 
-	// No covering, only heuristic
+	/**
+	 *  No covering, only heuristic
+	 */
 	public final static int COVERING_METHOD_HEURISTIC_ONLY = 8;
 
-	// No covering, rules transcribed from tree
+	/**
+	 *  No covering, rules transcribed from tree
+	 */
 	public final static int COVERING_METHOD_RULES_FROM_TREE = 9;
 
 	public final static String[] RULE_PREDICTION_METHODS =
@@ -780,18 +792,33 @@ public class Settings implements Serializable {
 		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union"};
 
 	public final static int RULE_PREDICTION_METHOD_DECISION_LIST = 0;
-	// Each rule's prediction has a weight proportional to its coverage on the total learning set
+	
+	/**
+	 *  Each rule's prediction has a weight proportional to its coverage on the total learning set
+	 */
 	public final static int RULE_PREDICTION_METHOD_TOT_COVERAGE_WEIGHTED = 1;
-	// Each rule's prediction has a weight proportional to its coverage on the current learning set
-	// i.e., learning set on which the rule was learned
+	
+	/**
+	 *  Each rule's prediction has a weight proportional to its coverage on the current learning set
+	 *  i.e., learning set on which the rule was learned
+	 */
 	public final static int RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED = 2;
-	// Each rule's prediction has a weight proportional to its accuracy on the total learning set
-	// Not yet implemented.
+	
+	/**
+	 *  Each rule's prediction has a weight proportional to its accuracy on the total learning set
+	 *  TODO Not yet implemented.
+	 */
 	public final static int RULE_PREDICTION_METHOD_ACCURACY_WEIGHTED = 3;
-	// Each rule's prediction has a weight proportional a product of to its accuracy on
-	// the total learning set and its coverage
+
+	/**
+	 *  Each rule's prediction has a weight proportional a product of to its accuracy on
+	 *  the total learning set and its coverage
+	 */
 	public final static int RULE_PREDICTION_METHOD_ACC_COV_WEIGHTED = 4;
-	// Not yet implemented.
+	
+	/**
+	 *  TODO Not yet implemented.
+	 */
 	public final static int RULE_PREDICTION_METHOD_EQUALLY_WEIGHTED = 5;
 	public final static int RULE_PREDICTION_METHOD_OPTIMIZED = 6;
 	public final static int RULE_PREDICTION_METHOD_UNION = 7;
@@ -808,7 +835,7 @@ public class Settings implements Serializable {
 
 	public static boolean IS_RULE_SIG_TESTING = false;
 
-
+	// Settings in the settings file.
 	protected INIFileNominal m_CoveringMethod;
 	protected INIFileNominal m_PredictionMethod;
 	protected INIFileNominal m_RuleAddingMethod;
@@ -824,6 +851,7 @@ public class Settings implements Serializable {
 	protected INIFileBool m_ComputeDispersion;
 	protected INIFileDouble m_NumCompNormWeight;
 	protected INIFileNominalOrDoubleOrVector m_DispersionWeights;
+	/** How many random rules are wanted. If > 0 only random rules are generated */
 	protected INIFileInt m_RandomRules;
 	protected INIFileBool m_RuleWiseErrors;
 	protected INIFileInt m_OptDEPopSize;
@@ -831,6 +859,7 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_OptDECrossProb;
 	protected INIFileDouble m_OptDEWeight;
 	protected INIFileInt m_OptDESeed;
+	/** Optimization regularization parameter */
 	protected INIFileDouble m_OptRegPar;
 	protected INIFileDouble m_OptRuleWeightThreshold;
 
@@ -838,10 +867,16 @@ public class Settings implements Serializable {
 		return m_DispersionWeights;
 	}
 
+	/**
+	 * Returns if random rules are wanted. That is RandomRules in settings file is above 0.
+	 */
 	public boolean isRandomRules() {
 	    return (m_RandomRules.getValue() > 0);
 	}
 
+	/**
+	 * How many random rules are wanted by RandomRules in the settings file.
+	 */
 	public int nbRandomRules() {
 	    return m_RandomRules.getValue();
 	}
@@ -986,6 +1021,7 @@ public class Settings implements Serializable {
 		return m_OptDEWeight.getValue();
 	}
 
+	/** Optimization regularization parameter */
 	public double getOptRegPar() {
 		return m_OptRegPar.getValue();
 	}

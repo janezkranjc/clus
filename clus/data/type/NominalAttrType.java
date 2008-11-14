@@ -34,6 +34,9 @@ import clus.data.io.ClusReader;
 
 import clus.algo.kNN.NominalStatistic;
 
+/**
+ * Attribute of nominal value.
+ */
 public class NominalAttrType extends ClusAttrType {
 
 	public final static long serialVersionUID = 1L;
@@ -42,6 +45,9 @@ public class NominalAttrType extends ClusAttrType {
 	public final static int THIS_TYPE = 0;
 	public final static String THIS_TYPE_NAME = "Nominal";
 
+	/**
+	 * Number of possible values for nominal type.
+	 */
 	public int m_NbValues;
 	public String[] m_Values;
 	protected transient Hashtable m_Hash;
@@ -107,6 +113,9 @@ public class NominalAttrType extends ClusAttrType {
 		return VALUE_TYPE_INT;
 	}
 
+	/**
+	 * Number of possible values for nominal type.
+	 */
 	public final int getNbValues() {
 		return m_NbValues;
 	}
