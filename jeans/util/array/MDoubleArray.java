@@ -67,7 +67,6 @@ public class MDoubleArray {
 		return clone;
 	}
 
-
 	public void read(MStreamTokenizer tokens, char st, char ed) throws IOException {
 		tokens.readChar(st);
 		int idx = 0;
@@ -126,5 +125,13 @@ public class MDoubleArray {
 			str += String.valueOf(m_hArray[ctr]);
 		}
 		return str+ "]";
+	}
+	
+	public static double max(double[] values) {
+		double m = Double.NEGATIVE_INFINITY;
+		for (int i = 0; i < values.length; i++) {
+			if (values[i] > m) m = values[i]; 
+		}
+		return m;
 	}
 }

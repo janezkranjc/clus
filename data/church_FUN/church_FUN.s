@@ -5,6 +5,7 @@ TestSet = church_FUN.test.arff.zip
 [Tree]
 ConvertToRules = No
 FTest = 0.1
+%FTest = 0.001
 
 [Model]
 MinimalWeight = 5.0

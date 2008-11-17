@@ -78,7 +78,6 @@ public class DataTuple implements Serializable {
 		return res;
 	}
 
-
 	public double euclDistance(DataTuple other)
 	{
 		double result = 0;
@@ -90,6 +89,7 @@ public class DataTuple implements Serializable {
 		}
 		return Math.sqrt(result);
 	}
+
 	public final DataTuple deepCloneTuple() {
 		DataTuple res = new DataTuple();
 		if (m_Ints != null) {

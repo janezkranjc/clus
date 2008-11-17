@@ -31,6 +31,7 @@ import java.util.*;
 import org.apache.commons.math.distribution.*;
 import org.apache.commons.math.*;
 
+import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.main.*;
@@ -232,7 +233,24 @@ public class WHTDStatistic extends RegressionStat {
 	public double[] getDiscretePred() {
 		return m_DiscrMean;
 	}
-
+	
+	/*
+	 * Compute squared Euclidean distance between tuple's target attributes and this statistic's mean.
+	 **/
+	public double getSquaredDistance(DataTuple tuple, ClusAttributeWeights weights) {
+		double sum = 0.0;
+		boolean[] actual = new boolean[m_Hier.getTotal()];
+		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(m_Hier.getType().getArrayIndex());		
+		tp.fillBoolArrayNodeAndAncestors(actual);
+		for (int i = 0; i < m_Hier.getTotal(); i++) {
+			NumericAttrType type = getAttribute(i);
+			double actual_zo = actual[i] ? 1.0 : 0.0;
+			double dist = actual_zo - getMean(i);
+			sum += dist * dist * weights.getWeight(type);
+		}
+		return sum / getNbTargetAttributes();
+	}
+	
 	public void printTree() {
 		m_Hier.print(ClusFormat.OUT_WRITER, m_SumValues);
 		ClusFormat.OUT_WRITER.flush();

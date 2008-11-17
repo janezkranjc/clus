@@ -222,20 +222,7 @@ public class RegressionStat extends ClusStatistic {
 	public double getSumWeights(int i) {
 		return m_SumWeights[i];
 	}
-	
-	/*
-	 * Compute squared Euclidean distance between tuple's target attributes and this statistic's mean.
-	 **/
-	public double getSquaredDistance(DataTuple tuple, ClusAttributeWeights weights) {
-		double sum = 0.0;
-		for (int i = 0; i < getNbTargetAttributes(); i++) {
-			NumericAttrType type = getAttribute(i);
-			double dist = type.getNumeric(tuple) - getMean(i);
-			sum += dist * dist * weights.getWeight(type);
-		}
-		return sum / getNbTargetAttributes();
-	}
-	
+		
 	public double getSS(int i) {
 		double n_tot = m_SumWeight;
 		double k_tot = m_SumWeights[i];
@@ -381,7 +368,20 @@ public class RegressionStat extends ClusStatistic {
 			}
 		}
 	}
-
+	
+	/*
+	 * Compute squared Euclidean distance between tuple's target attributes and this statistic's mean.
+	 **/
+	public double getSquaredDistance(DataTuple tuple, ClusAttributeWeights weights) {
+		double sum = 0.0;
+		for (int i = 0; i < getNbTargetAttributes(); i++) {
+			NumericAttrType type = getAttribute(i);
+			double dist = type.getNumeric(tuple) - getMean(i);
+			sum += dist * dist * weights.getWeight(type);
+		}
+		return sum / getNbTargetAttributes();
+	}
+	
 	public String getArrayOfStatistic(){
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		StringBuffer buf = new StringBuffer();
