@@ -376,7 +376,7 @@ public class RegressionStat extends ClusStatistic {
 		double sum = 0.0;
 		for (int i = 0; i < getNbTargetAttributes(); i++) {
 			NumericAttrType type = getAttribute(i);
-			double dist = type.getNumeric(tuple) - getMean(i);
+			double dist = type.getNumeric(tuple) - m_Means[i];
 			sum += dist * dist * weights.getWeight(type);
 		}
 		return sum / getNbTargetAttributes();

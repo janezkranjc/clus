@@ -245,7 +245,7 @@ public class WHTDStatistic extends RegressionStat {
 		for (int i = 0; i < m_Hier.getTotal(); i++) {
 			NumericAttrType type = getAttribute(i);
 			double actual_zo = actual[i] ? 1.0 : 0.0;
-			double dist = actual_zo - getMean(i);
+			double dist = actual_zo - m_Means[i];
 			sum += dist * dist * weights.getWeight(type);
 		}
 		return sum / getNbTargetAttributes();
