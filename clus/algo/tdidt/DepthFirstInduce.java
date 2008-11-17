@@ -188,8 +188,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 		m_FindBestTest.cleanSplit();
 	}
 
-	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
-		RowData data = (RowData)cr.getTrainingSet();
+	public ClusNode induceSingleUnpruned(RowData data) throws ClusException, IOException {
 		ClusNode root = null;
 		// Begin of induction process
 		int nbr = 0;
@@ -209,5 +208,9 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 		root.postProc(null);
 		cleanSplit();
 		return root;
+	}
+	
+	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
+		return induceSingleUnpruned((RowData)cr.getTrainingSet());
 	}
 }

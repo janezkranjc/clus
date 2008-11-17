@@ -20,46 +20,30 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.ext.ensembles;
+package jeans.util.compound;
 
-import java.io.IOException;
+public class DoubleBoolean implements Comparable {
 
-import jeans.util.cmdline.CMDLineArgs;
+	protected double m_Double;
+	protected boolean m_Boolean;
 
-import clus.main.*;
-import clus.model.ClusModel;
-import clus.Clus;
-import clus.algo.*;
-import clus.data.type.*;
-import clus.util.ClusException;
-
-public class ClusEnsembleClassifier extends ClusInductionAlgorithmType {
-
-	public ClusEnsembleClassifier(Clus clus) {
-		super(clus);
-		// TODO Auto-generated constructor stub
+	public DoubleBoolean(double val, boolean bol) {
+		m_Double = val;
+		m_Boolean = bol;
 	}
 
-	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
-		if (sett.getEnsembleMethod() == Settings.ENSEMBLE_BOOSTING) {
-			return new ClusBoostingInduce(schema, sett);
-		} else {
-			return new ClusEnsembleInduce(schema, sett, m_Clus);
-		}
+	public double getDouble() {
+		return m_Double;
 	}
 
-	public ClusModel pruneSingle(ClusModel model, ClusRun cr)
-			throws ClusException, IOException {
-		// TODO Auto-generated method stub
-		return null;
+	public Boolean getBoolean() {
+		return m_Boolean;
 	}
 
-	public void pruneAll(ClusRun cr) throws ClusException, IOException {
-		// TODO Auto-generated method stub
+	public int compareTo(Object o) {
+		DoubleBoolean ot = (DoubleBoolean)o;
+		if (m_Double == ot.m_Double) return 0;
+		if (m_Double < ot.m_Double) return 1;
+		return -1;
 	}
-
-	public void printInfo() {
-		System.out.println("Ensemble Classifier");
-	}
-
 }

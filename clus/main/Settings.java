@@ -1344,12 +1344,13 @@ public class Settings implements Serializable {
  * Section: Ensemble methods                                           *
  ***********************************************************************/
 
-	public final static String[] ENSEMBLE_TYPE = {"Bagging", "RForest", "RSubspaces","BagSubspaces"};
+	public final static String[] ENSEMBLE_TYPE = {"Bagging", "RForest", "RSubspaces", "BagSubspaces", "Boosting"};
 
 	public final static int ENSEMBLE_BAGGING = 0;
 	public final static int ENSEMBLE_RFOREST = 1;
 	public final static int ENSEMBLE_RSUBSPACES = 2;
 	public final static int ENSEMBLE_BAGSUBSPACES = 3;
+	public final static int ENSEMBLE_BOOSTING = 4;
 
 	public final static String[] VOTING_TYPE={"Majority","ProbabilityDistribution"};
 

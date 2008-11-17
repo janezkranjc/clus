@@ -39,6 +39,7 @@ import clus.data.cols.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.data.attweights.*;
+import clus.error.ClusNumericError;
 
 public class RegressionStat extends ClusStatistic {
 
@@ -209,7 +210,7 @@ public class RegressionStat extends ClusStatistic {
 		if (m_Means == null) m_Means = new double[m_NbAttrs];
 		calcMean(m_Means);
 	}
-
+	
 	public double getMean(int i) {
 		return m_SumWeights[i] != 0.0 ? m_SumValues[i] / m_SumWeights[i] : 0.0;
 	}
@@ -220,6 +221,19 @@ public class RegressionStat extends ClusStatistic {
 	
 	public double getSumWeights(int i) {
 		return m_SumWeights[i];
+	}
+	
+	/*
+	 * Compute squared Euclidean distance between tuple's target attributes and this statistic's mean.
+	 **/
+	public double getSquaredDistance(DataTuple tuple, ClusAttributeWeights weights) {
+		double sum = 0.0;
+		for (int i = 0; i < getNbTargetAttributes(); i++) {
+			NumericAttrType type = getAttribute(i);
+			double dist = type.getNumeric(tuple) - getMean(i);
+			sum += dist * dist * weights.getWeight(type);
+		}
+		return sum / getNbTargetAttributes();
 	}
 	
 	public double getSS(int i) {

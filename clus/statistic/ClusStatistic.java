@@ -249,6 +249,10 @@ public abstract class ClusStatistic implements Serializable {
 	public double getAbsoluteDistance(DataTuple tuple, ClusAttributeWeights weights) {
 		return Double.POSITIVE_INFINITY;
 	}
+	
+	public double getSquaredDistance(DataTuple tuple, ClusAttributeWeights weights) {
+		return Double.POSITIVE_INFINITY;
+	}
 
 	public static void reset(ClusStatistic[] stat) {
 		for (int i = 0; i < stat.length; i++) stat[i].reset();

@@ -18,5 +18,8 @@ Type = TREE
 WType = ExpAvgParentWeight
 HSeparator = /
 
+[Ensemble]
+EnsembleMethod = Boosting
+
 [Output]
 WritePredictions = Test
