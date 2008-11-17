@@ -835,6 +835,20 @@ public class Settings implements Serializable {
 
 	public static boolean IS_RULE_SIG_TESTING = false;
 
+	/**
+	 * Possible loss functions for evolutionary algorithm optimization
+	 */
+	public final static String[] DE_LOSS_FUNCTIONS = {"Squared", "01Error", "RRMSE", "Huber"};
+	
+	/**	DE Loss function type. Default for regression: Square of differences. */
+	public final static int DE_LOSS_FUNCTIONS_SQUARED = 0;
+	/**	DE Loss function type. 0/1 error for classification. Zenko 2007, p. 26*/
+	public final static int DE_LOSS_FUNCTIONS_01ERROR = 1;
+	/**	DE Loss function type. Relative root mean squared error */
+	public final static int DE_LOSS_FUNCTIONS_RRMSE = 2;
+	/**	DE Loss function type. Huber 1962 error. Like squared but robust for outliers. Friedman&Popescu 2005, p. 7*/
+	public final static int DE_LOSS_FUNCTIONS_HUBER = 3;
+	
 	// Settings in the settings file.
 	protected INIFileNominal m_CoveringMethod;
 	protected INIFileNominal m_PredictionMethod;
@@ -854,15 +868,31 @@ public class Settings implements Serializable {
 	/** How many random rules are wanted. If > 0 only random rules are generated */
 	protected INIFileInt m_RandomRules;
 	protected INIFileBool m_RuleWiseErrors;
+
+	//	Differential evolution optimization
+	/**	DE Number of individuals (population) during every iteration */
 	protected INIFileInt m_OptDEPopSize;
+	/**	Differential evolution, number of iterations */
 	protected INIFileInt m_OptDENumEval;
+	/** DE Crossover probability */
 	protected INIFileDouble m_OptDECrossProb;
 	protected INIFileDouble m_OptDEWeight;
 	protected INIFileInt m_OptDESeed;
-	/** Optimization regularization parameter */
+	/** DE Optimization regularization parameter */
 	protected INIFileDouble m_OptRegPar;
+	/** DE The treshold for rule weights. If weight < this, rule is removed. */
 	protected INIFileDouble m_OptRuleWeightThreshold;
+	/** DE The loss function. The default is squared loss. */
+	protected INIFileNominal m_OptDELossFunction;
+	/** DE The power of regularization function. The default is 1, i.e. l1 norm. */
+	protected INIFileDouble m_OptDERegulPower;
+	/** DE For Huber 1962 loss function an alpha value for outliers has to be given. */
+	protected INIFileDouble m_OptDEHuberAlpha;
+	
+	
 
+	
+	
 	public INIFileNominalOrDoubleOrVector getDispersionWeights() {
 		return m_DispersionWeights;
 	}
@@ -1029,6 +1059,25 @@ public class Settings implements Serializable {
 	public double getOptRuleWeightThreshold() {
 		return m_OptRegPar.getValue();
 	}
+	
+	/** Type of Loss function for DE optimization */
+	public int getOptDELossFunction() {
+		return m_OptDELossFunction.getValue();
+	}
+	
+	/** Power for regularization parameter */
+	public double getOptDERegulPower() {
+		return m_OptDERegulPower.getValue();
+	}
+
+	/** DE For Huber 1962 loss function an alpha value for outliers has to be given. */
+	public double getOptDEHuberAlpha() {
+		return m_OptDEHuberAlpha.getValue();
+	}
+	
+//	protected INIFileNominal m_OptDELossFunction;
+	/** DE The power of regularization function. The default is 1, i.e. l1 norm. */
+//	protected INIFileDouble m_OptDERegulPower;
 
 /***********************************************************************
  * Section: Hierarchical multi-label classification                    *
@@ -1510,6 +1559,10 @@ public class Settings implements Serializable {
 		rules.addNode(m_OptDESeed = new INIFileInt("OptDESeed", 0));
 		rules.addNode(m_OptRegPar = new INIFileDouble("OptRegPar", 0.0));
 		rules.addNode(m_OptRuleWeightThreshold = new INIFileDouble("OptRuleWeightThreshold", 0.1));
+		rules.addNode(m_OptDELossFunction = new INIFileNominal("OptDELossFunction",DE_LOSS_FUNCTIONS, 0));
+		rules.addNode(m_OptDERegulPower = new INIFileDouble("OptDERegulPower", 1.0));
+		rules.addNode(m_OptDEHuberAlpha = new INIFileDouble("OptDEHuberAlpha", 0.9));
+		
 		rules.setEnabled(false);
 
 		m_SectionHierarchical = new INIFileSection("Hierarchical");

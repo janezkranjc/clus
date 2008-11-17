@@ -44,7 +44,9 @@ public class DeProbl {
 	/** Min value of each variable */
 	private ArrayList m_VarMin;			
 	/** Max value of each variable */
-	private ArrayList m_VarMax;			
+	private ArrayList m_VarMax;
+	
+
 	
 	/** 
 	 * Rule predictions [instance][rule index][target index][class_value] is for nominal attributes
@@ -87,15 +89,28 @@ public class DeProbl {
 	 * @param true_val True values for instances. [instance][target index]
 	 * @param isClassification Is it classification or regression?
 	 */
-	public DeProbl(ClusStatManager stat_mgr, double[][][][] rule_pred, double[][] true_val,
-			boolean isClassification) {
+	public DeProbl(ClusStatManager stat_mgr, double[][][][] rule_pred, double[][] true_val) {
 		m_NumVar = (rule_pred[0]).length;
 		m_VarMin = new ArrayList(m_NumVar);
 		m_VarMax = new ArrayList(m_NumVar);
 		m_RulePred = rule_pred;
 		m_TrueVal = true_val;
 		m_StatMgr = stat_mgr;
-		m_ClssTask = isClassification;
+		
+		try {
+			if (m_StatMgr.getMode() != m_StatMgr.MODE_REGRESSION &&  
+					m_StatMgr.getMode() != m_StatMgr.MODE_CLASSIFY)
+			{
+				throw new Exception("Differential evolution optimization:" +
+						"The targets are of different kind, i.e. they are not all for regression or for classifying." +
+				"Mixed targets are not yet implemented. The targets are considered as regression.");
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+			
+		m_ClssTask = (m_StatMgr.getMode() == ClusStatManager.MODE_CLASSIFY);
+		
 		for (int i = 0; i < m_NumVar; i++) {
 			m_VarMin.add(new Double(0));
 			m_VarMax.add(new Double(1));
@@ -123,6 +138,8 @@ public class DeProbl {
 //			m_VarMax.add(new Double(1));
 //		}
 //	}
+
+
 
 	/**
 	 * Generates a random solution.
@@ -154,15 +171,7 @@ public class DeProbl {
 		return result;
 	}
 
-//	public double calcFitness(ArrayList genes, int typeLossFunction, int typeRegularization) {
-// int LOSS_RRMSE = //Relative root mean squared error for regression, Zenko 2007, p. 27
-// int LOSS_CLASS_ERROR = //Multi targeted 0/1 classification error, Zenko 2007, p. 26
-// int LOSS_HUBER = // Huber 1962 Loss function. Robust for outliers. See Friedman&Popescu 2005, p. 7.
-// int LOSS_SQUARED = // Squared error loss
-// int REGUL_RIDGE = // Ridge regularization, i.e. sum of l_2 penalty.
-// int REGUL_LASSO = // Lasso regularization, i.e. sum of l_1 penalty.
-// int REGUL_GENERAL = // TODO : Give the regularization function as function object
-// int LOSS_GENERAL = // TODO: Give the loss function as function object  
+
 	/**
 	 * Fitness function.
 	 * The classification prediction is voting without weights.
@@ -227,7 +236,8 @@ public class DeProbl {
 				{
 					// An index over the possible values of nominal attribute. 1 for regression
 					for (int iClass = 0; iClass < nb_values[iTarget]; iClass++) {
-						if (m_RulePred[iInstance][iRule][iTarget][iClass] != Double.NaN) {
+					//	if (m_RulePred[iInstance][iRule][iTarget][iClass] != Double.N NaN) {
+						if (!Double.isNaN(m_RulePred[iInstance][iRule][iTarget][iClass]) ) {
 							covered = true;
 							// For each nominal value and target, add variable
 							// <current optimized parameter value>*<strenght of nominal value> OR
@@ -235,11 +245,6 @@ public class DeProbl {
 							// I.e. this is the real prediction function - weighted sum over the rules
 							pred_sum[iTarget][iClass] += ((Double)genes.get(iRule)).doubleValue()
 				            					* m_RulePred[iInstance][iRule][iTarget][iClass];			
-//							pred_sum[iTarget].set(iClass,
-//							pred_sum[iTarget].get(iClass) + genes.get(iRule)*
-//							m_RulePred[iInstance][iRule][iTarget].get(iClass));
-
-
 						}
 					}
 				}
@@ -265,17 +270,27 @@ public class DeProbl {
 		// Loss function Loss(prediction, true value)
 		// For classification the default is 0-1 loss
 		if (m_ClssTask) {
-			loss = loss01(m_TrueVal, pred);
-			loss = (loss*nb_rows)/nb_covered; //We want to care for covered instances only.
+			// Only one sensible loss type available for classification and it is not the default.
+			if (getSettings().getOptDELossFunction() != Settings.DE_LOSS_FUNCTIONS_01ERROR)
+			{
+				try{
+					throw new Exception("DE optimization task is for classification, but the chosen loss " +
+					"is mainly for regression. Use OptDELossFunction = 01Error to correct this.");
+				} catch (Exception e){
+					e.printStackTrace();
+				}
+				loss = loss(m_TrueVal, pred);
+			} else {
+				//We want to care for covered instances only.
+				loss = (loss(m_TrueVal, pred)*nb_rows)/nb_covered;
+			}
 		} else {	// For regression
-			//loss = lossSquared(m_TrueVal, pred);
-			loss = lossRRMSE(m_TrueVal, pred);
+			loss = loss(m_TrueVal, pred);
 		}
 		
 		
 		// Regularization for getting the weights as small as possible
-		// Default is lasso regularity
-		double reg_penalty = regulLasso(genes); 
+		double reg_penalty = regularization(genes); 
 
 		//fitness = (1 - (acc / nb_covered*nb_targets)) + getSettings().getOptRegPar() *  reg_penalty;
 		// TODO: regularization penalty should include dispersion, coverage?
@@ -284,12 +299,54 @@ public class DeProbl {
 		return loss+getSettings().getOptRegPar()* reg_penalty;
 		
 	}
-	
-	
 
+	// int REGUL_GENERAL = // TODO : Give the regularization function as function object
+	// int LOSS_GENERAL = // TODO: Give the loss function as function object  
+	
+	/**
+	 * Loss function for data set. Chooses the right loss function
+	 * based on the settings file.
+	 * @param trueValue The true values of targets. [Instance][Target]
+	 * @param prediction The prediction. [Instance][Target]
+	 * @return Loss for the data.
+	 */
+	protected double loss(double[][] trueValue, double[][] prediction){
+		
+		double loss = 0;
+		switch (getSettings().getOptDELossFunction()) {
+
+		case Settings.DE_LOSS_FUNCTIONS_01ERROR:
+			loss = loss01(trueValue, prediction);
+			break;
+		case Settings.DE_LOSS_FUNCTIONS_RRMSE:
+			loss = lossRRMSE(trueValue, prediction);
+			break;
+		case Settings.DE_LOSS_FUNCTIONS_HUBER:
+			loss = lossHuber(trueValue, prediction);
+			break;
+			//Default case
+		case Settings.DE_LOSS_FUNCTIONS_SQUARED:
+		default:
+			loss = lossSquared(trueValue, prediction);
+			break;
+		}
+		
+		// Just for debugging, loss should not be 0 (at least for regression)
+		try {
+			if (loss == 0)
+				throw new Exception("Loss function equals zero!! May be an error!");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		return loss;
+	}
 	
 	/**
 	 * Squared distance loss function for data set.
+	 * Is ok, because the data is normalized.
 	 * TODO Should add the weights for the target attributes
 	 * @param trueValue The true values of targets. [Instance][Target]
 	 * @param prediction The prediction. [Instance][Target]
@@ -310,7 +367,7 @@ public class DeProbl {
 				attributeLoss += Math.pow(trueValue[iInstance][jTarget]-prediction[iInstance][jTarget],2);
 			}
 			
-			loss += 1/numberOfTargets*attributeLoss; // TODO: the weights for attributes are now equal
+			loss += ((double)1)/numberOfTargets*attributeLoss; // TODO: the weights for attributes are now equal
 		}
 		
 		return loss/numberOfInstances; // Average loss over instances
@@ -319,6 +376,7 @@ public class DeProbl {
 	/**
 	 * Relative root mean squared error RRMSE loss function for data set.
 	 * RRMSE is sum of squared errors divided by the variance.
+	 * Relativeness is not useful, because the data is normalized.
 	 * TODO Should add the weights for the target attributes
 	 * @param trueValue The true values of targets. [Instance][Target]
 	 * @param prediction The prediction. [Instance][Target]
@@ -351,10 +409,90 @@ public class DeProbl {
 			}
 
 			// TODO: the weights for attributes are now equal
-			loss += 1/numberOfTargets*Math.sqrt(attributeLoss/attribVariance); 
+			loss += ((double)1)/numberOfTargets*Math.sqrt(attributeLoss/attribVariance); 
 		}
 		
 		return loss/numberOfInstances; // Average loss over instances
+	}
+	
+	/**
+	 * Huber 1962 loss function for data set.
+	 * This is mainly the squared distance error. However for great distances it is smoothed.
+	 * Thus it is robust to outliers.
+	 * TODO Should add the weights for the target attributes
+	 * @param trueValue The true values of targets. [Instance][Target]
+	 * @param prediction The prediction. [Instance][Target]
+	 * @return Loss for the data.
+	 */
+	//Suggested by Friedman&Popescu 2007, p. 7
+	protected double lossHuber(double[][] trueValue, double[][] prediction){
+		
+		double loss = 0;
+		int numberOfInstances = prediction.length;
+		
+		// If no instances given, jump out
+		if (numberOfInstances == 0)
+			return 0;
+		
+		int numberOfTargets = prediction[0].length;
+
+		/** For Huber 1962 loss function we need the the delta values for each target.
+		 * Delta value depends on the alpha quantiles of the data.
+		 */
+		double	deltas[] = computeHuberDeltas(trueValue, prediction);
+		
+		for (int jTarget = 0; jTarget < numberOfTargets; jTarget++)
+		{
+			double attributeLoss = 0; // Loss for one attribute.
+			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
+			{
+				if (Math.abs(trueValue[iInstance][jTarget]-prediction[iInstance][jTarget]) < deltas[jTarget]) {
+					attributeLoss += Math.pow(trueValue[iInstance][jTarget]-prediction[iInstance][jTarget],2);
+				} else { // Smoothed for distant objects
+					attributeLoss += deltas[jTarget]*(Math.abs(trueValue[iInstance][jTarget]-prediction[iInstance][jTarget])
+											-deltas[jTarget]/2);
+				}
+			}
+
+			loss += ((double)1)/numberOfTargets*attributeLoss; // TODO: the weights for attributes are now equal
+		}	
+
+		return loss/numberOfInstances; // Average loss over instances
+
+	}
+	
+	
+	/**
+	 * For Huber 1962 loss function we need the the delta values for each target.
+	 * Delta value depends on the alpha quantiles of the data
+	 * 
+	 */
+	private double[] computeHuberDeltas(double[][] trueValues,
+			double[][] predictions) {
+		
+		int numberOfInstances = trueValues.length;
+		int numberOfTargets = trueValues[0].length;
+		
+		// Alpha quantile for how much of data is considered potential outliers
+		double alpha = getSettings().getOptDEHuberAlpha();
+		double deltas[] = new double[numberOfTargets];
+		
+		double targetDistances[] = new double[numberOfInstances]; 
+		
+		for (int jTarget = 0; jTarget < numberOfTargets; jTarget++){
+			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
+			{
+				targetDistances[iInstance] = Math.abs(trueValues[iInstance][jTarget]
+				                                    - predictions[iInstance][jTarget]);
+			}
+			// Sort in ascending order
+			Arrays.sort(targetDistances); 
+ 
+			// Find the value for which not more than alpha amount of doubles are less
+			deltas[jTarget]= targetDistances[(int)Math.floor(numberOfInstances*alpha)];
+			
+		}
+		return deltas;
 	}
 	
 	/**
@@ -365,6 +503,7 @@ public class DeProbl {
 	 * @param prediction The prediction. [Instance][Target]
 	 * @return Loss for the data.
 	 */
+	// TODO Squared error ramp loss could also be used
 	//Suggested by Zenko 2007, p. 26
 	protected double loss01(double[][] trueValue, double[][] prediction)
 	{
@@ -392,16 +531,18 @@ public class DeProbl {
 	/**
 	 *  Regularization penalty for the optimization function.
 	 *  This reduces the size of genes so that they do not grow too much.
-	 *  In this case it is lasso penalty (sum of l1 norms of weights).
+	 *  The power for the differences can be changed in settings file.
+	 *  The default is lasso, power = 1. This keeps the weights zero if possible.
 	 *  @param genes The genes, i.e. the weights.
-	 *  @return Lasso penalty for the weights.
+	 *  @return Penalty for the weights.
 	 */
-	private double regulLasso(ArrayList genes) {
+	private double regularization(ArrayList genes) {
 		double reg_penalty = 0;
 		
 		for (int j = 0; j < genes.size(); j++) {
 			// Lasso penalty, i.e. sum of absolute values of weights
-			reg_penalty += Math.abs(((Double)(genes.get(j))).doubleValue());
+			reg_penalty += Math.pow(Math.abs( ((Double)(genes.get(j))).doubleValue() ),
+									getSettings().getOptDERegulPower());
 
 			// Changed by Timo: This was originally without absolute values! Why? I assume
 			// the weights are always positive.
@@ -473,7 +614,7 @@ public class DeProbl {
 		return fitness;
 	}	 */
 
-
+	
 	public int getNumVar() {
 		return m_NumVar;
 	}

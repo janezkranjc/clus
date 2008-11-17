@@ -849,8 +849,6 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			isClassification = true;
 		}
 
-
-
 		ClusAttrType[] trueValuesTemp = new ClusAttrType[nb_target];
 		if (isClassification) {
 			//NominalAttrType[] 
@@ -960,7 +958,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 
 
 		// Find the rule weights with evolutionary algorithm.
-		deAlg = new DeAlg(getStatManager(), rule_pred, trueValues, isClassification);
+		deAlg = new DeAlg(getStatManager(), rule_pred, trueValues);
 		ArrayList weights = deAlg.evolution();
 		
 		// Print weights of rules

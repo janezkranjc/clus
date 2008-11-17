@@ -57,10 +57,9 @@ public class DeAlg {
 	 * @param isClassification Is it classification or regression?
      * TODO Only parameters are changed for multi target
      */
-	public DeAlg(ClusStatManager stat_mgr, double[][][][] rule_pred, double[][] true_val,
-			     boolean isClassification) {
+	public DeAlg(ClusStatManager stat_mgr, double[][][][] rule_pred, double[][] true_val) {
 		m_StatMgr = stat_mgr;
-		m_Probl = new DeProbl(stat_mgr, rule_pred, true_val, isClassification);
+		m_Probl = new DeProbl(stat_mgr, rule_pred, true_val);
 		m_Pop = new DePop(stat_mgr, m_Probl);
 		ClusStatistic tar_stat = m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 	}
