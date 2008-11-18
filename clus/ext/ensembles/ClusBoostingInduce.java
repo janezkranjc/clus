@@ -81,22 +81,52 @@ public class ClusBoostingInduce extends ClusInductionAlgorithm {
 		}
 	}
 		
-	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException,	IOException {
-		ClusForest result = new ClusForest(getStatManager());		
+	public ClusBoostingForest induceSingleUnprunedBoosting(ClusRun cr) throws ClusException, IOException {
+		ClusBoostingForest result = new ClusBoostingForest(getStatManager());		
 		RowData trainData = ((RowData)cr.getTrainingSet()).shallowCloneData();		
 		DepthFirstInduce tdidt = new DepthFirstInduce(this);
-		for (int i = 0; i < 50; i++) {
+		int[] outputEnsembleAt = getSettings().getNbBaggingSets().getIntVectorSorted();
+		int nbTrees = outputEnsembleAt[outputEnsembleAt.length-1];
+		for (int i = 0; i < nbTrees; i++) {
 			System.out.println();
 			System.out.println("Tree: "+i);
 			RowData train = trainData.sampleWeighted(m_Random);		
 			ClusNode tree = tdidt.induceSingleUnpruned(train);		
 			double[] L = computeNormalizedLoss(trainData, tree);
 			double Lbar = computeAverageLoss(trainData, L);
+			if (Lbar >= 0.5) break;
 			double beta = Lbar / (1-Lbar);
 			System.out.println("Average loss: "+Lbar+" beta: "+beta);		
 			updateWeights(trainData, L, beta);
-			result.addModelToForest(tree);
-		}		
+			result.addModelToForest(tree, beta);			
+		}
 		return result;
+	}
+	
+	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
+		return induceSingleUnprunedBoosting(cr);
+	}
+	
+	public void induceAll(ClusRun cr) throws ClusException, IOException {
+		ClusBoostingForest model = induceSingleUnprunedBoosting(cr);		
+		ClusModelInfo default_model = cr.addModelInfo(ClusModel.DEFAULT);
+		ClusModel def = ClusDecisionTree.induceDefault(cr);
+		default_model.setModel(def);
+		default_model.setName("Default");		
+		ClusModelInfo model_info = cr.addModelInfo(ClusModel.ORIGINAL);
+		model_info.setName("Original");
+		model_info.setModel(model);
+		if (cr.getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL) {
+			double[] thresholds = cr.getStatManager().getSettings().getClassificationThresholds().getDoubleVector();
+			if (thresholds != null) {
+				for (int i = 0; i < thresholds.length; i++) {
+					ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
+					ClusBoostingForest new_forest = model.cloneBoostingForestWithThreshold(thresholds[i]);
+					new_forest.setPrintModels(Settings.isPrintEnsembleModels());
+					pruned_info.setModel(new_forest);
+					pruned_info.setName("T("+thresholds[i]+")");
+				}
+			}
+		}
 	}
 }

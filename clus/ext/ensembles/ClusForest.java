@@ -106,7 +106,7 @@ public class ClusForest implements ClusModel, Serializable{
 	public int getModelSize() {
 		return m_Forest.size();		//Maybe something else ?!
 	}
-
+	
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 
 		if (ClusEnsembleInduce.m_OOBCalculation)

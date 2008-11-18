@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
@@ -91,7 +92,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		//optimize if not XVAL and HMC
 		m_OptMode = (Settings.shouldOptimizeEnsemble() && !Settings.IS_XVAL && (m_Mode == ClusStatManager.MODE_HIERARCHICAL));
 //		m_OptMode = false;
-		m_OutEnsembleAt = getIntermediateEnsembles(sett.getNbBaggingSets());
+		m_OutEnsembleAt = sett.getNbBaggingSets().getIntVectorSorted();
 		m_NbMaxBags = m_OutEnsembleAt[m_OutEnsembleAt.length-1];
 //		m_OOBEstimate = Settings.shouldEstimateOOB() && (m_Mode == ClusStatManager.MODE_HIERARCHICAL);
 		m_OOBEstimate = Settings.shouldEstimateOOB();
@@ -847,22 +848,6 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		return result;
 	}
 	
-	public int[] getIntermediateEnsembles(INIFileNominalOrIntOrVector values){
-		int[] result = new int[values.getVectorLength()];
-		for (int i = 0; i < result.length; i++)
-			result[i] = values.getInt(i);
-		int swap;
-		//sorting the intermediate ensembles
-		for (int j = 0; j < result.length-1; j++)
-			for (int k = j+1; k < result.length; k++)
-				if (result[j] > result[k]){
-					swap = result[j];
-					result[j] = result[k];
-					result[k] = swap;
-				}
-		return result;
-	}
-
 	//Checks whether we reached a limit
 	public boolean checkToOutEnsemble(int idx){
 		for (int i = 0; i < m_OutEnsembleAt.length; i++)
