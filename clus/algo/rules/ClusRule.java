@@ -267,6 +267,8 @@ public class ClusRule implements ClusModel, Serializable {
 							new_weight = old_weight;
 						}
 					}
+				} else if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
+					throw new ClusException("reweighCovered(): Hierarchical mode not yet supported!");
 				// } else if (m_StatManager.getMode() == ClusStatManager.MODE_REGRESSION) {
 				} else if (m_TargetStat instanceof RegressionStat) {
 					double[] predictions = predictWeighted(tuple).getNumericPred();
@@ -301,8 +303,6 @@ public class ClusRule implements ClusModel, Serializable {
 						}
 						new_weight = old_weight * coef;
 					}
-				} else if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-					throw new ClusException("reweighCovered(): Hierarchical mode not yet supported!");
 				} else if (m_StatManager.getMode() == ClusStatManager.MODE_TIME_SERIES) {
 					ClusStatistic prediction = predictWeighted(tuple);
 					ClusAttributeWeights weights = m_StatManager.getClusteringWeights();
@@ -515,6 +515,8 @@ public class ClusRule implements ClusModel, Serializable {
 				sum_err += (double)(nb_rows - true_counts[j]) / nb_rows;
 			}
 			m_TrainErrorScore = sum_err / nb_tar;
+		} else if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
+			System.err.println("setTrainErrorScore(): Hierarchical mode not yet supported!");
 		} else if (m_TargetStat instanceof RegressionStat) {
 			double norm = getSettings().getNumCompNormWeight();
 			ClusStatistic stat = m_StatManager.getTrainSetStat();
@@ -542,8 +544,6 @@ public class ClusRule implements ClusModel, Serializable {
 			if (m_TrainErrorScore > 1) { // Limit the error score to 1 
 				m_TrainErrorScore = 1;
 			}
-		} else if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-			System.err.println("reweighCovered(): Hierarchical mode not yet supported!");
 		} else if (m_StatManager.getMode() == ClusStatManager.MODE_TIME_SERIES) {
 			double sum_diff = 0.0;
 			ClusAttributeWeights weight = m_StatManager.getClusteringWeights();
