@@ -28,6 +28,9 @@ import java.util.*;
 import jeans.util.MStreamTokenizer;
 import jeans.io.range.NominalType;
 
+/**
+ * Corresponds to a nominal settings file field.
+ */
 public class INIFileNominal extends INIFileEntry {
 
 	public final static long serialVersionUID = 1;
@@ -41,6 +44,12 @@ public class INIFileNominal extends INIFileEntry {
 		m_Type = new NominalType(values);
 	}
 
+	/**
+	 * Constructor for INIFileNominal
+	 * @param name Parameter name
+	 * @param values Possible values in strings
+	 * @param def The default value number
+	 */
 	public INIFileNominal(String name, String[] values, int def) {
 		super(name);
 		m_Type = new NominalType(values);
