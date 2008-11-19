@@ -157,7 +157,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 
 	public ClusSchema createChildSchema(ClusSchema oschema, ClassesAttrType ctype, String name) throws ClusException {
 		ClusSchema cschema = new ClusSchema(name);
-		for (int j = 0; j < oschema.getNbAttributes(); j++) {
+		for (int j = 0; j < oschema.getNbTargetAttributes(); j++) {
 			ClusAttrType atype = oschema.getAttrType(j);
 			if (!(atype instanceof ClassesAttrType)) {
 				ClusAttrType copy_atype = atype.cloneType();
