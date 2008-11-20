@@ -76,7 +76,7 @@ public class RegressionStat extends ClusStatistic {
 		return new RegressionStat(m_Attrs, true);
 	}
 
-	public int getNbTargetAttributes() {
+	public int getNbAttributes() {
 		return m_NbAttrs;
 	}
 
@@ -197,7 +197,7 @@ public class RegressionStat extends ClusStatistic {
 	}
 
 	public void computePrediction() {
-		// do not need to call calcmean here
+		// do not need to call calcMean() here
 	}
 
 	public void calcMean(double[] means) {
@@ -248,7 +248,7 @@ public class RegressionStat extends ClusStatistic {
 	}
 
 	public double[] getRootScaledVariances(ClusAttributeWeights scale) {
-		int nb = getNbTargetAttributes();
+		int nb = getNbAttributes();
 		double[] res = new double[nb];
 		for (int i = 0; i < res.length; i++) {
 			res[i] = getRootScaledVariance(i, scale);
@@ -264,9 +264,17 @@ public class RegressionStat extends ClusStatistic {
 		double var = (k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0;
 		return Math.sqrt(var / (n_tot - 1));
 	}
+	
+	/**
+	 * Currently only used to compute the default dispersion within rule heuristics.
+	 */
+	public double getDispersion(ClusAttributeWeights scale, RowData data) {
+		System.err.println(getClass().getName()+": getDispersion(): Not yet implemented!");
+		return Double.POSITIVE_INFINITY;
+	}
 
 	/**
-	 * Computes a 2-sample t statistic, without the hypothesis of equal subpopulation variances,
+	 * Computes a 2-sample t statistic, without the hypothesis of equal sub-population variances,
 	 * and returns the p-value of a t test.
 	 * t = (m1 - m2) / sqrt(var1/n1 + var2/n2);
 	 * @param att attribute index
@@ -300,8 +308,7 @@ public class RegressionStat extends ClusStatistic {
 	 */
 	protected double df(double v1, double v2, double n1, double n2) {
 		return (((v1 / n1) + (v2 / n2)) * ((v1 / n1) + (v2 / n2))) /
-		((v1 * v1) / (n1 * n1 * (n1 - 1d)) + (v2 * v2) /
-				(n2 * n2 * (n2 - 1d)));
+			((v1 * v1) / (n1 * n1 * (n1 - 1d)) + (v2 * v2) / (n2 * n2 * (n2 - 1d)));
 	}
 
 	/**
@@ -315,7 +322,7 @@ public class RegressionStat extends ClusStatistic {
 		return "";
 	}
 
-	public int getNbTargetNumericAttributes() {
+	public int getNbNumericAttributes() {
 		return m_NbAttrs;
 	}
 
@@ -374,12 +381,12 @@ public class RegressionStat extends ClusStatistic {
 	 **/
 	public double getSquaredDistance(DataTuple tuple, ClusAttributeWeights weights) {
 		double sum = 0.0;
-		for (int i = 0; i < getNbTargetAttributes(); i++) {
+		for (int i = 0; i < getNbAttributes(); i++) {
 			NumericAttrType type = getAttribute(i);
 			double dist = type.getNumeric(tuple) - m_Means[i];
 			sum += dist * dist * weights.getWeight(type);
 		}
-		return sum / getNbTargetAttributes();
+		return sum / getNbAttributes();
 	}
 	
 	public String getArrayOfStatistic(){
@@ -447,7 +454,7 @@ public class RegressionStat extends ClusStatistic {
 	}
 
 	public void printDebug() {
-		for (int i = 0; i < getNbTargetAttributes(); i++) {
+		for (int i = 0; i < getNbAttributes(); i++) {
 			double n_tot = m_SumWeight;
 			double k_tot = m_SumWeights[i];
 			double sv_tot = m_SumValues[i];

@@ -59,6 +59,18 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		m_Attr = attr;
 	}
 	
+	public void copy(ClusStatistic other) {
+		TimeSeriesStat or = (TimeSeriesStat)other;
+		super.copy(or);
+		//m_Value = or.m_Value;
+		//m_AvgDistances = or.m_AvgDistances;
+		//m_AvgSqDistances = or.m_AvgSqDistances;
+		m_TimeSeriesStack.clear();
+		m_TimeSeriesStack.addAll(or.m_TimeSeriesStack);
+		// m_RepresentativeMean = or.m_RepresentativeMean;
+		// m_RepresentativeMedian = or.m_RepresentativeMedian;		
+	}
+
 	/**
 	 * Used for combining weighted predictions. 
 	 */
@@ -66,6 +78,7 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		TimeSeriesStat copy = (TimeSeriesStat)cloneSimple();
 		copy.m_nbEx = 0;
 		copy.m_SumWeight = 1;
+		copy.m_TimeSeriesStack.add(getTimeSeriesPred());
 		copy.m_RepresentativeMean.setValues(m_RepresentativeMean.getValues());
 		copy.m_RepresentativeMedian.setValues(m_RepresentativeMedian.getValues());
 		return copy;
@@ -74,15 +87,31 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	public void addPrediction(ClusStatistic other, double weight) {
 		TimeSeriesStat or = (TimeSeriesStat)other;
 		m_SumWeight += weight*or.m_SumWeight;
-		for (int i = 0; i < m_RepresentativeMean.length(); i++) {
-			m_RepresentativeMean.setValue(i, weight*or.getRepresentativeMean().getValue(i));
-			m_RepresentativeMedian.setValue(i, weight*or.getRepresentativeMedian().getValue(i));
-		}
+		TimeSeries pred = new TimeSeries(or.getTimeSeriesPred());
+		pred.setTSWeight(weight);
+		m_TimeSeriesStack.add(pred);
 	}
 	
+	/*
+	 * Add a weighted time series to the statistic.
+	 */
+	public void updateWeighted(DataTuple tuple, int idx){
+		super.updateWeighted(tuple,idx);
+	    TimeSeries newTimeSeries = new TimeSeries((TimeSeries)tuple.m_Objects[0]);
+	    newTimeSeries.setTSWeight(tuple.getWeight());
+	    m_TimeSeriesStack.add(newTimeSeries);
+	}
+
 	public double getSS(ClusAttributeWeights scale, RowData data) {
 		optimizePreCalc(data);
 		return m_Value;
+	}
+	
+	/**
+	 * Currently only used to compute the default dispersion within rule heuristics.
+	 */
+	public double getDispersion(ClusAttributeWeights scale, RowData data) {
+		return getSS(scale, data);
 	}
 
 	public void optimizePreCalc(RowData data) {
@@ -250,36 +279,6 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 		}
 	}
 	
-	/*
-	 * [Aco]
-	 * a new timeseries comes, and we calculate something for it
-	 * @see clus.statistic.ClusStatistic#updateWeighted(clus.data.rows.DataTuple, int)
-	 */
-	public void updateWeighted(DataTuple tuple, int idx){
-
-		super.updateWeighted(tuple,idx);
-
-		//if different length we first resize it
-	    TimeSeries newTimeSeries= ((TimeSeries)tuple.m_Objects[0]);
-	    if (m_RepresentativeMean.length()<newTimeSeries.length()) {
-	    	if (m_RepresentativeMean.length()==0) {
-	    		m_RepresentativeMean = new TimeSeries(newTimeSeries.getValues());
-	    	}
-	    	else{
-	    		m_RepresentativeMean.resize(newTimeSeries.length(),"linear");
-	    	}
-	    }
-	    if (newTimeSeries.length()<m_RepresentativeMean.length()){
-	    	newTimeSeries.resize(m_RepresentativeMean.length(),"linear");
-	    }
-	    //and add to the representative (in calc mean we are going to devide)
-	    for (int i=0; i< m_RepresentativeMean.length();i++){
-	    	m_RepresentativeMean.setValue(i,m_RepresentativeMean.getValue(i)+newTimeSeries.getValue(i));
-	    }
-
-	    m_TimeSeriesStack.add(newTimeSeries);
-	}
-
 	public void calcSumAndSumSqDistances(TimeSeries prototype) {
 		m_AvgDistances = 0.0;
 		m_AvgSqDistances = 0.0;
@@ -299,27 +298,44 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	 * @see clus.statistic.ClusStatistic#calcMean()
 	 */
 	public void calcMean() {
-		// Mean
-		for (int i=0; i< m_RepresentativeMean.length();i++){
-	    	m_RepresentativeMean.setValue(i,m_RepresentativeMean.getValue(i)/m_SumWeight);
-	    }
 		// Median
 		m_RepresentativeMedian = null;
 		double minDistance = Double.POSITIVE_INFINITY;
-		for(int i=0; i<m_TimeSeriesStack.size();i++){
-			double crDistance=0.0;
+		for(int i=0; i<m_TimeSeriesStack.size(); i++){
+			double crDistance = 0.0;
 			TimeSeries t1 = (TimeSeries)m_TimeSeriesStack.get(i);
-			for (int j=0; j<m_TimeSeriesStack.size();j++){
-				double dist = calcDistance(t1,(TimeSeries)m_TimeSeriesStack.get(j));
-				crDistance += dist * dist;
+			for (int j=0; j<m_TimeSeriesStack.size(); j++){
+				TimeSeries t2 = (TimeSeries)m_TimeSeriesStack.get(j);
+				double dist = calcDistance(t1, t2);
+				crDistance += dist * dist * t2.geTSWeight();
 			}
 			if (crDistance<minDistance) {
-				m_RepresentativeMedian=(TimeSeries)m_TimeSeriesStack.get(i);
+				m_RepresentativeMedian = (TimeSeries)m_TimeSeriesStack.get(i);
 				minDistance = crDistance;
 			}
 		}
 		calcSumAndSumSqDistances(m_RepresentativeMedian);
-
+		// Mean
+		m_RepresentativeMean.setSize(m_RepresentativeMedian.length());
+		for (int i=0; i< m_RepresentativeMean.length(); i++){
+			double sum = 0.0;
+			for(int j=0; j<m_TimeSeriesStack.size(); j++){
+				TimeSeries t1 = (TimeSeries)m_TimeSeriesStack.get(j);
+				sum += t1.getValue(i) * t1.geTSWeight();
+			}
+	    	m_RepresentativeMean.setValue(i, sum/m_SumWeight);
+	    }
+		
+		double sumwi = 0.0;
+		for(int j=0; j<m_TimeSeriesStack.size(); j++){
+			TimeSeries t1 = (TimeSeries)m_TimeSeriesStack.get(j);
+			sumwi += t1.geTSWeight();
+		}
+		double diff = Math.abs(m_SumWeight-sumwi);
+		if (diff > 1e-6) {
+			System.err.println("Error: Sanity check failed! - "+diff);
+		}
+		
 		// Qualitative distance
 /*
 		double[][] m_RepresentativeQualitativeMatrix = new double[m_RepresentativeMean.length()][m_RepresentativeMean.length()];

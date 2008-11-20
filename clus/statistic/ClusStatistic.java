@@ -55,25 +55,25 @@ public abstract class ClusStatistic implements Serializable {
 		return cloneStat();
 	}
 
-	// The name of the method changed from getNbAttributes to getNbTargetAttributes by Timo Aho
 	/**
-	 * @return The number of target attributes
+	 * @return The number of all attributes in this statistic. If the statistic
+	 * 	is a target statistic, it returns the number of target attributes. 
 	 */
-	public int getNbTargetAttributes() {
-		return getNbTargetNominalAttributes()+getNbTargetNumericAttributes();
+	public int getNbAttributes() {
+		return getNbNominalAttributes()+getNbNumericAttributes();
 	}
 
 	/**
-	 * @return The number of target nominal attributes.
+	 * @return The number of all nominal attributes in a statistic.
 	 */
-	public int getNbTargetNominalAttributes() {
+	public int getNbNominalAttributes() {
 		return 0;
 	}
 	
 	/**
-	 * @return The number of target numeric attributes
+	 * @return The number of all numeric attributes in a statistic.
 	 */
-	public int getNbTargetNumericAttributes() {
+	public int getNbNumericAttributes() {
 		return 0;
 	}
 
@@ -247,6 +247,14 @@ public abstract class ClusStatistic implements Serializable {
 	}
 	
 	public double getAbsoluteDistance(DataTuple tuple, ClusAttributeWeights weights) {
+		return Double.POSITIVE_INFINITY;
+	}
+	
+	/**
+	 * Currently only used to compute the default dispersion within rule heuristics.
+	 */
+	public double getDispersion(ClusAttributeWeights scale, RowData data) {
+		System.err.println(getClass().getName()+": getDispersion(): Not implemented here!");
 		return Double.POSITIVE_INFINITY;
 	}
 	

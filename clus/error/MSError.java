@@ -219,6 +219,6 @@ public class MSError extends ClusNumericError {
 
 	public double computeLeafError(ClusStatistic stat) {
 		RegressionStat rstat = (RegressionStat)stat;
-		return rstat.getSS(m_Weights) * rstat.getNbTargetAttributes();
+		return rstat.getSS(m_Weights) * rstat.getNbAttributes();
 	}
 }

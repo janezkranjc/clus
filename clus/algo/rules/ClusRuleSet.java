@@ -54,6 +54,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	protected ArrayList m_DefaultData = new ArrayList();
 	protected ClusStatManager m_StatManager;
 	protected boolean m_HasRuleErrors;
+	protected String m_Comment;
 
 	public ClusRuleSet(ClusStatManager statmanager) {
 		m_StatManager = statmanager;
@@ -138,7 +139,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			return covered ? stat : m_TargetStat;
 		} else {  // Unordered rules (with different weighting schemes)
 			ClusStatistic stat = m_TargetStat.cloneSimple();
-			double weight_sum = 0;
+			double weight_sum = 0.0;
 			for (int i = 0; i < getModelSize(); i++) {
 				ClusRule rule = getRule(i);
 				if (rule.covers(tuple)) {
@@ -266,8 +267,13 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 		if (m_TargetStat != null && m_TargetStat.isValidPrediction()) {
 			if (headers) {
-				wrt.println("Default rule:");
-				wrt.println("=============");
+				if (m_Comment == null) {
+					wrt.println("Default rule:");
+					wrt.println("=============");
+				} else {
+					wrt.println("Default rule"+m_Comment+":");
+					wrt.println("=============");
+				}
 			}
 			wrt.println("Default = "+(m_TargetStat == null ? "N/A" : m_TargetStat.getString()));
 		}
@@ -402,7 +408,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		if (tar_stat instanceof ClassificationStat) {
 			double result = 0;
 			int nb_rows = data.getNbRows();
-			int nb_tar = tar_stat.getNbTargetNominalAttributes();
+			int nb_tar = tar_stat.getNbNominalAttributes();
 			int[] nb_right = new int[nb_tar];
 			for (int i = 0; i < nb_rows; i++) {
 				DataTuple tuple = data.getTuple(i);
@@ -425,7 +431,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		} else if (tar_stat instanceof RegressionStat) {
 			double result = 0;
 			int nb_rows = data.getNbRows();
-			int nb_tar = tar_stat.getNbTargetNumericAttributes();
+			int nb_tar = tar_stat.getNbNumericAttributes();
 			double[] sum_sqr_err = new double[nb_tar];
 			NumericAttrType[] targetAttrs = data.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			for (int i = 0; i < nb_rows; i++) {

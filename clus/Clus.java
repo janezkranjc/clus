@@ -832,12 +832,14 @@ public class Clus implements CMDLineArgsProvider {
 		   ARFFFile.writeOrangeData("train-all.tab", (RowData)cr.getTrainingSet());
 	       ARFFFile.writeFRSHead("header.pl", (RowData)cr.getTrainingSet(), true);
 	       ARFFFile.writeFRSData("train-all.pl", (RowData)cr.getTrainingSet(), true); */
-		induce(cr, clss); // Induce model
+		// Induce model
+		induce(cr, clss);
 		if (summ == null) {
 			// E.g., rule-wise error measures
 			addModelErrorMeasures(cr);
 		}
-		calcError(cr, null); // Calc error
+		// Calc error
+		calcError(cr, null);
 		if (summ != null) {
 			for (int i = 0; i < cr.getNbModels(); i++) {
 				ClusModelInfo info = cr.getModelInfo(i);

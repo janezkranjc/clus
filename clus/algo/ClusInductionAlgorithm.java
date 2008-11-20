@@ -116,8 +116,6 @@ public abstract class ClusInductionAlgorithm {
 
 	/**
 	 * Compute the statistics for all the (rows in the) data.
-	 * @param data Data in rows.
-	 * @return
 	 */
 	public ClusStatistic createTotalTargetStat(RowData data) {
 		ClusStatistic stat = m_StatManager.createTargetStat();

@@ -28,6 +28,12 @@ import clus.data.rows.*;
 public abstract class ClusHeuristic {
 
 	public final static double DELTA = 1e-6;
+	
+	// Access to the training data
+	protected RowData m_TrainData;
+	
+	// Value of the heuristic on the training data
+	protected double m_TrainDataHeurValue;
 
 	public void setData(RowData data) {
 	}
@@ -47,4 +53,21 @@ public abstract class ClusHeuristic {
 		if (val < 1e-6) return Double.NEGATIVE_INFINITY;
 		return val;
 	}
+
+	public RowData getTrainData() {
+		return m_TrainData;
+	}
+
+	public void setTrainData(RowData data) {
+		m_TrainData = data;
+	}
+
+	public double getTrainDataHeurValue() {
+		return m_TrainDataHeurValue;
+	}
+
+	public void setTrainDataHeurValue(double value) {
+		m_TrainDataHeurValue = value;
+	}
+	
 }

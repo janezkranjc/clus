@@ -248,7 +248,7 @@ public class WHTDStatistic extends RegressionStat {
 			double dist = actual_zo - m_Means[i];
 			sum += dist * dist * weights.getWeight(type);
 		}
-		return sum / getNbTargetAttributes();
+		return sum / getNbAttributes();
 	}
 	
 	public void printTree() {

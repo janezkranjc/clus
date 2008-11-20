@@ -863,7 +863,7 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_RuleSignificanceLevel;
 	protected INIFileInt m_RuleNbSigAtts;
 	protected INIFileBool m_ComputeDispersion;
-	protected INIFileDouble m_NumCompNormWeight;
+	protected INIFileDouble m_VarBasedDispNormWeight;
 	protected INIFileNominalOrDoubleOrVector m_DispersionWeights;
 	/** How many random rules are wanted. If > 0 only random rules are generated */
 	protected INIFileInt m_RandomRules;
@@ -1027,8 +1027,8 @@ public class Settings implements Serializable {
 		return m_ComputeDispersion.getValue();
   	}
 
-  	public double getNumCompNormWeight() {
-  		return m_NumCompNormWeight.getValue();
+  	public double getVarBasedDispNormWeight() {
+  		return m_VarBasedDispNormWeight.getValue();
   	}
 
 	public double getOptDECrossProb() {
@@ -1546,7 +1546,7 @@ public class Settings implements Serializable {
 		rules.addNode(m_RuleSignificanceLevel = new INIFileDouble("RuleSignificanceLevel", 0.05));
 		rules.addNode(m_RuleNbSigAtts = new INIFileInt("RuleNbSigAtts", 0));
 		rules.addNode(m_ComputeDispersion = new INIFileBool("ComputeDispersion", false));
-		rules.addNode(m_NumCompNormWeight = new INIFileDouble("NumCompNormWeight", 4.0));
+		rules.addNode(m_VarBasedDispNormWeight = new INIFileDouble("VarBasedDispNormWeight", 4.0));
 		rules.addNode(m_DispersionWeights = new INIFileNominalOrDoubleOrVector("DispersionWeights", EMPTY));
 		m_DispersionWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);
 		m_DispersionWeights.setDoubleArray(FOUR_ONES);

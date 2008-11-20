@@ -60,16 +60,27 @@ public class ClusRuleHeuristicSSD extends ClusHeuristic {
 			return Double.NEGATIVE_INFINITY;
 		}
 		// Calculate value
-		// System.out.println("Inside calcHeuristic()");
+	  	double offset = m_StatManager.getSettings().getHeurDispOffset();
+	  	double def_value = getTrainDataHeurValue();
+	  		//System.out.print("Inside calcHeuristic()");
+	  		//System.out.println(" - default SS: "+def_value);
 		double value = pstat.getSS(m_TargetWeights, m_Data);
-		//System.out.print("SS: "+value);
+			//System.out.print("raw SS: "+value);
+		// Normalization with the purpose of getting most of the single variances within the
+		// [0,1] interval. This weight is in stdev units,
+		// default value = 4 = (-2sigma,2sigma) should cover 95% of examples
+		// This will only be important when combining different types of atts
+		double norm = m_StatManager.getSettings().getVarBasedDispNormWeight();
+		value = 1 / (norm*norm) * (1 - value / def_value) + offset;
+			// Normalized version of 'value = def_value -value + offset'
+	  		//System.out.println(", combined disp. value: "+value);
 	    // Coverage part
 	  	double train_sum_w = m_StatManager.getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING).getTotalWeight();
 	    double cov_par = m_StatManager.getSettings().getHeurCoveragePar();
 	    value *= Math.pow(n_pos/train_sum_w, cov_par);
-		//System.out.println(", cov: "+n_pos+"/"+train_sum_w+", val: "+value); //+" -> -"+value);
+			//System.out.println("   cov: "+n_pos+"/"+train_sum_w+", final value: "+value); //+" -> -"+value);
 	    if (value < 1e-6) return Double.NEGATIVE_INFINITY;
-		return -value;
+		return value;
 	}
 
 	public String getName() {

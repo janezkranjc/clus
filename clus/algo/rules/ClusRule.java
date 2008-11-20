@@ -497,7 +497,7 @@ public class ClusRule implements ClusModel, Serializable {
 	 */
 	public void setTrainErrorScore() {
 		int nb_rows = m_Data.size();
-		int nb_tar = m_TargetStat.getNbTargetAttributes();
+		int nb_tar = m_TargetStat.getNbAttributes();
 		if (m_TargetStat instanceof ClassificationStat) {
 			int[] true_counts = new int[nb_tar];
 			NominalAttrType[] targetAttrs = m_StatManager.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -518,7 +518,7 @@ public class ClusRule implements ClusModel, Serializable {
 		} else if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
 			System.err.println("setTrainErrorScore(): Hierarchical mode not yet supported!");
 		} else if (m_TargetStat instanceof RegressionStat) {
-			double norm = getSettings().getNumCompNormWeight();
+			double norm = getSettings().getVarBasedDispNormWeight();
 			ClusStatistic stat = m_StatManager.getTrainSetStat();
 			NumericAttrType[] targetAttrs = m_StatManager.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			int[] target_idx = new int[nb_tar];

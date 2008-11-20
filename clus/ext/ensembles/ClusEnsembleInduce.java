@@ -763,7 +763,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	}
 
 	public void initPredictions(ClusForest forest){
-		ClusEnsembleInduce.m_AvgPredictions = new double[ClusEnsembleInduce.m_HashCodeTuple.length][forest.getStat().getNbTargetAttributes()];
+		ClusEnsembleInduce.m_AvgPredictions = new double[ClusEnsembleInduce.m_HashCodeTuple.length][forest.getStat().getNbAttributes()];
 	}
 
 	public void initModelPredictionForTuples(ClusModel model, TupleIterator train, TupleIterator test) throws IOException, ClusException{

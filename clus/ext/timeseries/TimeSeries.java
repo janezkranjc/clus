@@ -34,6 +34,7 @@ public class TimeSeries implements Serializable{
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	private double[] m_Values;
+	private double m_TSWeight;
 
 	public TimeSeries(String values){
 		values = values.trim();
@@ -59,6 +60,10 @@ public class TimeSeries implements Serializable{
 		for (int i=0; i<size;i++){m_Values[i]=0.0;}
 	}
 
+	public TimeSeries(TimeSeries series){
+		this(series.getValues());
+	}
+
 	public int length(){
 		if (m_Values==null)
 			return 0;
@@ -82,6 +87,13 @@ public class TimeSeries implements Serializable{
 	 */
 	public double getValue(int index) {
 		return m_Values[index];
+	}
+	
+	/**
+	 * Sets a new size for the time series 
+	 */
+	public void setSize(int size) {
+		m_Values = new double[size];
 	}
 
 	/*
@@ -175,6 +187,14 @@ public class TimeSeries implements Serializable{
 			a.append(fr.format(m_Values[length()-1]));
 		a.append(']');
 		return a.toString();
+	}
+
+	public double geTSWeight() {
+		return m_TSWeight;
+	}
+
+	public void setTSWeight(double weight) {
+		m_TSWeight = weight;
 	}
 
 }

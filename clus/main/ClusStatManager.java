@@ -880,6 +880,7 @@ public class ClusStatManager implements Serializable {
 	public void computeTrainSetStat(RowData trainset, int attType) {
 		m_TrainSetStatAttrUse[attType] = createStatistic(attType);
 		trainset.calcTotalStatBitVector(m_TrainSetStatAttrUse[attType]);
+		m_TrainSetStatAttrUse[attType].calcMean();
 	}
 	
 	public void computeTrainSetStat(RowData trainset) {

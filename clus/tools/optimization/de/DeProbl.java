@@ -191,7 +191,7 @@ public class DeProbl {
 		int nb_covered = 0; // Number of rule covered instances
 
 
-		int nb_targets = tar_stat.getNbTargetAttributes();
+		int nb_targets = tar_stat.getNbAttributes();
 		
 		/** Number of values for each target.  For regression classes are not needed, thus value is 1.*/
 		int[] nb_values = new int[nb_targets];

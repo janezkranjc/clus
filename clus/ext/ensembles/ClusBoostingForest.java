@@ -58,7 +58,7 @@ public class ClusBoostingForest extends ClusForest {
 		}
 		double medianThr = getMedianThreshold();		
 		double[][] preds = new double[getNbModels()][2];
-		int nbAttr = predicted.getNbTargetAttributes();
+		int nbAttr = predicted.getNbAttributes();
 		for (int i = 0; i < nbAttr; i++) {
 			// compute weighted median of predictions of individual trees
 			// weight of tree = log(1/beta)

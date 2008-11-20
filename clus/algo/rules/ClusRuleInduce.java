@@ -240,11 +240,13 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	}
 
 	/**
-	 *  Standard covering algorithm for learning ordered rules.
+	 *  Standard covering algorithm for learning ordered rules. Data is removed
+	 *  when it is covered. Default rule is added at the end.
 	 */
 	public void separateAndConquor(ClusRuleSet rset, RowData data) {
 		int max_rules = getSettings().getMaxRulesNb();
 		int i = 0;
+		// Learn the rules
 		while ((data.getNbRows() > 0) && (i < max_rules)) {
 			ClusRule rule = learnOneRule(data);
 			if (rule.isEmpty()) {
@@ -258,16 +260,29 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				i++;
 			}
 		}
-		ClusStatistic left_over = createTotalTargetStat(data);
-		left_over.calcMean();
+		// The default rule
+		// TODO: Investigate different possibilities for the default rule
+		ClusStatistic left_over;
+		if (data.getNbRows() > 0) {
+			left_over = createTotalTargetStat(data);
+			left_over.calcMean();
+		} else {
+			System.out.println("All training examples covered - default rule on entire training set!");
+			rset.m_Comment = new String(" (on entire training set)");
+			left_over = getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_TARGET).cloneStat();
+			left_over.copy(getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_TARGET));
+			left_over.calcMean();
+			//left_over.setSumWeight(0);
+			System.err.println(left_over.toString());
+		}
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 	}
 
 	/**
 	 *  Weighted covering algorithm for learning unordered rules.
-	 *  Maximum number of rules can be given. Data is removed when it is covered. 
-	 *  Prints statistics for the data that were left over when maximum amount of rules was reached.
+	 *  Maximum number of rules can be given. Data is re-weighted when it is covered,
+	 *  and removed when it is 'covered enough'. Default rule is added at the end.
 	 */
 	 
 	public void separateAndConquorWeighted(ClusRuleSet rset, RowData data) throws ClusException {
@@ -275,8 +290,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		int i = 0;
 		RowData data_copy = (RowData)data.deepCloneData(); //Taking copy of data. Probably not nice
 		ArrayList bit_vect_array = new ArrayList();
-		
-		/// 
+		// Learn the rules
 		while ((data.getNbRows() > 0) && (i < max_rules)) {
 			ClusRule rule = learnOneRule(data);
 			if (rule.isEmpty()) {
@@ -305,9 +319,21 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				}
 			}
 		}
-		// The statistics for the data that were left over when maximum amount of rules was reached.
-		ClusStatistic left_over = createTotalTargetStat(data);
-		left_over.calcMean();
+		// The default rule
+		// TODO: Investigate different possibilities for the default rule
+		ClusStatistic left_over;
+		if (data.getNbRows() > 0) {
+			left_over = createTotalTargetStat(data);
+			left_over.calcMean();
+		} else {
+			System.out.println("All training examples covered - default rule on entire training set!");
+			rset.m_Comment = new String(" (on entire training set)");
+			left_over = getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_TARGET).cloneStat();
+			left_over.copy(getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_TARGET));
+			left_over.calcMean();
+			//left_over.setSumWeight(0);
+			System.err.println(left_over.toString());
+		}
 		System.out.println("Left Over: "+left_over);
 		rset.setTargetStat(left_over);
 	}
@@ -386,7 +412,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		ClusStatistic new_left_over = left_over;
 		left_over.calcMean();
 		rset.setTargetStat(left_over);
-		int nb_tar = left_over.getNbTargetAttributes();
+		int nb_tar = left_over.getNbAttributes();
 		boolean cls_task = false;
 		if (left_over instanceof ClassificationStat) {
 			cls_task = true;
@@ -554,7 +580,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		ClusStatistic new_left_over = left_over;
 		left_over.calcMean();
 		rset.setTargetStat(left_over);
-		int nb_tar = left_over.getNbTargetAttributes();
+		int nb_tar = left_over.getNbAttributes();
 		boolean cls_task = false;
 		if (left_over instanceof ClassificationStat) {
 			cls_task = true;
@@ -750,7 +776,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	}
 
 	/**
-	 * Calls the appropriate rule learning method (e.g. beam rule, separate and conquer)
+	 * Calls the appropriate rule learning method (e.g. standard covering, weighted covering, ...)
 	 * depending on parameters .s file. Default is weighted covering algorithm with unordered rules.
 	 * @param run The information about this run. Parameters etc.
 	 * @return
@@ -775,7 +801,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			((ClusRuleHeuristicDispersion)m_Heuristic).initCoveredBitVectArray(data.getNbRows());
 		}
 		
-		/// Actual rule learning is done here with the given method.
+		/// Actual rule learning is called here with the given method.
 		// Settings.* check if the given option is given on the command line
 		ClusRuleSet rset = new ClusRuleSet(getStatManager());
 		if (method == Settings.COVERING_METHOD_STANDARD) {
@@ -841,7 +867,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		// Generate optimization input
 		ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 		DeAlg deAlg = null;
-		int nb_target = tar_stat.getNbTargetAttributes();
+		int nb_target = tar_stat.getNbAttributes();
 		int nb_rules = rset.getModelSize();
 		int nb_rows = data.getNbRows();
 		boolean isClassification = false;
@@ -1209,6 +1235,13 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	}
 
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
+		// Set the defaults for heuristic
+		RowData trainData = (RowData)cr.getTrainingSet();
+		getStatManager().getHeuristic().setTrainData(trainData);
+		ClusStatistic trainStat = getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING);
+		double value = trainStat.getDispersion(getStatManager().getClusteringWeights(), trainData);
+		getStatManager().getHeuristic().setTrainDataHeurValue(value);
+		// Induce the model
 		ClusModel model = induceSingleUnpruned(cr);
 		// FIXME: implement cloneModel();
 		// cr.getModelInfo(ClusModels.ORIGINAL).setModel(model);

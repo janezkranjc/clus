@@ -76,7 +76,7 @@ public class ClassificationStat extends ClusStatistic {
 		m_Attrs = nomAtts;
 	}*/
 
-	public int getNbTargetNominalAttributes() {
+	public int getNbNominalAttributes() {
 		return m_NbTarget;
 	}
 
@@ -360,6 +360,14 @@ public class ClassificationStat extends ClusStatistic {
 		for (int i = 0; i < m_NbTarget; i++) {
 			m_MajorityClasses[i] = getMajorityClass(i);
 		}
+	}
+	
+	/**
+	 * Currently only used to compute the default dispersion within rule heuristics.
+	 */
+	public double getDispersion(ClusAttributeWeights scale, RowData data) {
+		System.err.println(getClass().getName()+": getDispersion(): Not yet implemented!");
+		return Double.POSITIVE_INFINITY;
 	}
 
   /**

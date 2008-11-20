@@ -44,11 +44,6 @@ public class BitVectorStat extends ClusStatistic {
 	}
 
 	public void cloneFrom(BitVectorStat other) {
-		int nb = other.m_Bits.size();
-		if (nb > 0) {
-			System.out.println("Cloned nonzero size bitvector stat");
-			setSDataSize(nb);
-		}
 	}
 
 	public void setSDataSize(int nbex) {
