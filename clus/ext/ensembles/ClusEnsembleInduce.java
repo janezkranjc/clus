@@ -38,6 +38,7 @@ import jeans.resource.ResourceInfo;
 
 import clus.Clus;
 import clus.algo.*;
+import clus.algo.split.FindBestTest;
 import clus.algo.tdidt.*;
 import clus.main.*;
 import clus.model.ClusModel;
@@ -87,6 +88,15 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	
 	public ClusEnsembleInduce(ClusSchema schema, Settings sett, Clus clus) throws ClusException, IOException {
 		super(schema, sett);
+		initialize(schema, sett, clus);
+	}
+	
+	public ClusEnsembleInduce(ClusInductionAlgorithm other, Clus clus) throws ClusException, IOException {
+		super(other);
+		initialize(getSchema(), getSettings(), clus);
+	}
+
+	public void initialize(ClusSchema schema, Settings sett, Clus clus) throws ClusException, IOException {
 		m_BagClus = clus;
 		m_Mode = getStatManager().getMode();
 		//optimize if not XVAL and HMC
@@ -106,8 +116,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			m_FeatRank = false;
 		}
 		if (m_FeatRank)	initializeAttributes(schema.getDescriptiveAttributes());
+
 	}
-	
 	public void initializeAttributes(ClusAttrType[] descriptive){
 		m_AllAttributes = new HashMap();
 		int num = -1;

@@ -44,10 +44,15 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 	}
 
 	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
-		ClusRuleInduce induce = new ClusRuleInduce(schema, sett);
-		induce.getStatManager().setRuleInduce(true);
-		induce.getStatManager().initRuleSettings();
-		return induce;
+		if (sett.getCoveringMethod() == Settings.COVERING_METHOD_RULES_FROM_TREE) {
+			ClusRuleFromTreeInduce induce = new ClusRuleFromTreeInduce(schema, sett, getClus());
+			return induce;
+		} else {
+			ClusRuleInduce induce = new ClusRuleInduce(schema, sett);
+			induce.getStatManager().setRuleInduce(true);
+			induce.getStatManager().initRuleSettings();
+			return induce;
+		}
 	}
 
 	public void printInfo() {
