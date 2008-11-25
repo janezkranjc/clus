@@ -26,6 +26,7 @@
 package clus.algo.rules;
 
 import java.io.*;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
@@ -37,6 +38,7 @@ import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.processor.ClusModelProcessor;
 import clus.statistic.*;
+import clus.tools.optimization.de.DeAlg;
 import clus.util.*;
 
 /**
@@ -62,6 +64,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	/**
 	 * Clones the rule set so that it points to the same rules.
+	 * @return Clone of this rule set.
 	 */
 	public ClusRuleSet cloneRuleSet() {
 		ClusRuleSet new_ruleset = new ClusRuleSet(m_StatManager);
@@ -71,6 +74,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		return new_ruleset;
 	}
 
+	/** Add given rule to this rule set
+	 * @param rule Added rule
+	 */
 	public void add(ClusRule rule) {
 		if (getSettings().isWeightedCovering()) {
 			// Only add unique rules for weighted covering
@@ -85,7 +91,11 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	public void removeLastRule() {
 		m_Rules.remove(getModelSize()-1);
 	}
-
+	
+	/** Add given rule if it is not already in the rule set.
+	 * @param rule Added rule
+	 * @return True if the rule was unique.
+	 */
 	public boolean addIfUnique(ClusRule rule) {
 		if (unique(rule)) {
 			m_Rules.add(rule);
@@ -97,6 +107,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	/**
 	 * Tests if the rule is already in the rule set.
+	 * Rules are equal if their tests are same! 
 	 */
 	public boolean unique(ClusRule rule) {
 		boolean res = true;
@@ -345,6 +356,10 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem, boolean ex) {
 	}
+	
+	/**
+	 * How many rules in the set?
+	 */
 	public int getModelSize() {
 		return m_Rules.size();
 	}
@@ -357,6 +372,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		return (ClusRule)m_Rules.get(i);
 	}
 
+	/**
+	 * How many literals in all of the rules.
+	 */
 	public int getNbLiterals() {
 		int count = 0;
 		for (int i = 0; i < m_Rules.size(); i++) {
@@ -552,5 +570,162 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	}
 
 	public void retrieveStatistics(ArrayList list) {
+	}
+	
+	/**
+	 * Returns the form of this rule set that can be used
+	 * for weight optimization 
+	 * @param outLogFile File stream for outputs.
+	 * @param data Data the optimization is based on.
+	 * @return Parameters for optimization. Include true values and predictions for each of the data instances.
+	 */
+	public DeAlg.OptParam giveFormForWeightOptimization(PrintWriter outLogFile, RowData data){
+
+		DecimalFormat mf = new DecimalFormat("###.000");
+		ClusSchema schema = data.getSchema();
+
+		// Generate optimization input
+		ClusStatistic tar_stat = m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
+		int nb_target = tar_stat.getNbAttributes();
+		int nb_rules = getModelSize();
+		int nb_rows = data.getNbRows();
+		boolean isClassification = false;
+		if (m_TargetStat instanceof ClassificationStat) {
+			isClassification = true;
+		}
+
+		ClusAttrType[] trueValuesTemp = new ClusAttrType[nb_target];
+		if (isClassification) {
+			//NominalAttrType[] 
+			trueValuesTemp = (ClusAttrType[])schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		} else { // regression
+			//NumericAttrType[]
+			trueValuesTemp = (ClusAttrType[])schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		}
+
+		/** 
+		 * True values for each target and instance
+		 */
+		double[][] trueValues = new double[nb_rows][nb_target];
+
+		// Index over the instances of data
+		for (int iRows = 0; iRows < nb_rows; iRows++) {
+			DataTuple tuple = data.getTuple(iRows);
+
+			// Take the true values from the data target by target
+			for (int kTargets = 0; kTargets < nb_target; kTargets++)
+			{
+				if (isClassification){
+					trueValues[iRows][kTargets] = ((NominalAttrType)trueValuesTemp[kTargets]).getNominal(tuple);
+				} else {
+					trueValues[iRows][kTargets] = ((NumericAttrType)trueValuesTemp[kTargets]).getNumeric(tuple);
+				}
+			}
+		}
+
+
+
+
+		// Number of nominal values for each target. For regression, no number of nominal values needed, i.e. 1
+		int nb_values[] = new int[nb_target]; 
+
+		for (int iTarget=0; iTarget < nb_target;iTarget++) {
+			if (isClassification) {
+				nb_values[iTarget] = ((ClassificationStat)m_TargetStat).getAttribute(0).getNbValues();		
+			} else { // regression
+				nb_values[iTarget] = 1; // Nominal values not needed
+			}
+		}
+
+		// [instance][rule][target][class_value]
+		// For regression, class_value = 0 always.
+		//double[][][][] rule_pred = new double[nb_rows][nb_rules][nb_target][nb_values];
+		double[][][][] rule_pred = new double[nb_rows][nb_rules][nb_target][];
+
+		// Index over the instances of data
+		for (int iRows = 0; iRows < nb_rows; iRows++) {
+			DataTuple tuple = data.getTuple(iRows);		
+			for (int jRules = 0; jRules < nb_rules; jRules++) {
+				ClusRule rule = getRule(jRules);
+
+				// Initialize rule predictions for this rule and instance combination
+				for (int iTarget=0; iTarget < nb_target;iTarget++) {
+					rule_pred[iRows][jRules][iTarget] = new double[nb_values[iTarget]];
+				}
+
+				if (rule.covers(tuple)) {
+
+					// Returns the prediction for the data
+					if (isClassification) {
+						rule_pred[iRows][jRules] = 
+							((ClassificationStat)rule.predictWeighted(tuple)).getClassCounts();
+					} else {
+						//Only one nominal value is used for regression.
+						rule_pred[iRows][jRules][0] =
+							((RegressionStat)rule.predictWeighted(tuple)).getNumericPred();
+					}
+				} else { // Rule does not cover the instance. Mark as NaN
+					for (int kTargets = 0; kTargets < nb_target; kTargets++)
+					{   for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
+						rule_pred[iRows][jRules][kTargets][lValues] = Double.NaN; 
+					}
+					}
+				}
+
+				// The output does not necessarily have to be given
+				if (outLogFile != null)
+				{
+					// Print predictions to the file.
+					outLogFile.print("[");
+					for (int kTargets = 0; kTargets < nb_target; kTargets++)
+					{
+						outLogFile.print("{");
+						for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
+							outLogFile.print(mf.format(rule_pred[iRows][jRules][kTargets][lValues]));
+							if (lValues < nb_values[kTargets]-1)	outLogFile.print("; ");
+						}
+	
+						if (kTargets < nb_target-1) outLogFile.print("}; ");
+						else outLogFile.print("}");
+					}
+					outLogFile.print("]"); 
+				}
+			} // For rules
+
+
+			if (outLogFile != null) {
+				// Print the real outputs
+				//wrt_pred.print(" :: {" + mf.format(true_val[iRows]) + "}\n");
+				outLogFile.print(" :: [");
+				for (int kTargets = 0; kTargets < nb_target; kTargets++) {
+					outLogFile.print(mf.format(trueValues[iRows][kTargets]));
+					if (kTargets < nb_target-1)	outLogFile.print("; ");
+				}
+				outLogFile.print("]\n"); 
+			}
+		}// For instances of data		
+
+		if (outLogFile != null) {
+			outLogFile.flush();
+		}
+
+		DeAlg.OptParam param = new DeAlg.OptParam(rule_pred, trueValues); 
+		return param;
+	}
+
+	/** 
+	 * Add rules in the given set to this rule set.
+	 * Uniqueness is not checked because it is based on the test only.
+	 * Thus different predictions for rules do not make rules different. 
+	 * @param newRules Rules to be added.
+	 * @return How many rules were added.
+	 */
+	public int addRuleSet(ClusRuleSet newRules) {
+		for (int iRule = 0; iRule < newRules.getModelSize(); iRule++)
+		{
+			// Add a rule from addRules to this rule set
+			add(newRules.getRule(iRule));
+		}
+		return newRules.getModelSize();
 	}
 }
