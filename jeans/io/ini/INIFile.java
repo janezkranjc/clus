@@ -77,7 +77,7 @@ public class INIFile extends INIFileSection {
 			String name = tokens.readTillEol();
 			// Kill trailing ']'
 			int idx1 = name.indexOf(']');
-			if (idx1 == -1) throw new IOException("Character ']' expected at line: "+saveline);
+			if (idx1 == -1) throw new IOException("Error in the settings file. Character ']' expected at line: "+saveline);
 			// Check for sectiongroup ','
 			int idx2 = name.indexOf(',');
 			if (idx2 != -1) {

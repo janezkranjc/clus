@@ -135,7 +135,7 @@ public class INIFileSection extends INIFileNode {
 			group.addSection(sec);
 			sec.load(tokens);
 		} else {
-			throw new IOException("Don't know about group '"+groupName+"' at line: "+tokens.getLine());
+			throw new IOException("Error in the settings file. Don't know about group '"+groupName+"' at line: "+tokens.getLine());
 		}
 	}
 
@@ -145,7 +145,7 @@ public class INIFileSection extends INIFileNode {
 			INIFileSection section = (INIFileSection)node;
 			section.load(tokens);
 		} else {
-			throw new IOException("Don't know about section '"+name+"' at line: "+tokens.getLine());
+			throw new IOException("Error in the settings file. Don't know about section '"+name+"' at line: "+tokens.getLine());
 		}
 	}
 
@@ -168,7 +168,7 @@ public class INIFileSection extends INIFileNode {
 				String name = tokens.readTillEol();
 				// Kill trailing '>'
 				int idx1 = name.indexOf('>');
-				if (idx1 == -1) throw new IOException("Character '>' expected at line: "+saveline);
+				if (idx1 == -1) throw new IOException("Error in the settings file. Character '>' expected at line: "+saveline);
 				// Check for sectiongroup ','
 				int idx2 = name.indexOf(',');
 				if (idx2 != -1) {
@@ -187,7 +187,7 @@ public class INIFileSection extends INIFileNode {
 				if (entry != null && entry instanceof INIFileEntry) {
 					((INIFileEntry)entry).build(tokens);
 				} else {
-					throw new IOException("Don't know about entry '"+name+"' at line: "+tokens.getLine());
+					throw new IOException("Error in the settings file. Don't know about entry '"+name+"' at line: "+tokens.getLine());
 				}
 			}
 		}
