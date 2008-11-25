@@ -34,10 +34,16 @@ import java.util.*;
 
 public interface ClusModel {
 
+	// MODEL TYPES, used at least for ClusModelInfoList functions
+	/** The type of model returned. Default = the model that always predicts the mean of data set. */
 	public static int DEFAULT = 0;
+	/** The type of model returned. Original = the real model but without pruning. 
+	 * Often stored for comparison*/
 	public static int ORIGINAL = 1;
+	/** The type of model returned. PRUNED = the real model after pruning. */
 	public static int PRUNED = 2;
 
+	// SOMETHING ELSE
 	public static int PRUNE_INVALID = 0;
 
     public static int TRAIN = 0;

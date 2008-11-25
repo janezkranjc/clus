@@ -102,8 +102,10 @@ public class DeProbl {
 					m_StatMgr.getMode() != m_StatMgr.MODE_CLASSIFY)
 			{
 				throw new Exception("Differential evolution optimization:" +
-						"The targets are of different kind, i.e. they are not all for regression or for classifying." +
-				"Mixed targets are not yet implemented. The targets are considered as regression.");
+				"The targets are of different kind, i.e. they are not all for regression or for classifying." +
+				"Mixed targets are not yet implemented. The targets are considered as regression. " +
+				"This error message may be due the clustering variables also. " +
+				"The optimization may not work in this case also.");
 			}
 		} catch (Exception e){
 			e.printStackTrace();
@@ -182,11 +184,7 @@ public class DeProbl {
 		// Only the target attributes are returned?
 		ClusStatistic tar_stat = m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 
-		// TODO mixture of nominal and numberic attributes
-		// TODO: For multi target case some of the targets may be nominal, some numerical
-		// Thus we check the targets one by one.
-
-
+		// TODO mixture of nominal and numberic attributes. For multi target case some of the targets may be nominal, some numerical
 		int nb_rows = m_TrueVal.length; // Number of instances
 		int nb_covered = 0; // Number of rule covered instances
 
@@ -199,7 +197,7 @@ public class DeProbl {
 
 		for (int iTarget = 0; iTarget < nb_targets; iTarget++){
 			if (m_ClssTask) {
-				// Number of different values for the first attribute (assuming single target?). TODO
+				// Number of different values for the attribute
 				nb_values[iTarget] = ((ClassificationStat)tar_stat).getAttribute(iTarget).getNbValues(); 
 			} else {// regression
 				nb_values[iTarget] = 1; // No classes are needed
@@ -332,13 +330,13 @@ public class DeProbl {
 		}
 		
 		// Just for debugging, loss should not be 0 (at least for regression)
-		try {
-			if (loss == 0)
-				throw new Exception("Loss function equals zero!! May be an error!");
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			if (loss == 0)
+//				throw new Exception("Loss function equals zero!! May be an error!");
+//			
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		
 		
 		return loss;
@@ -363,7 +361,7 @@ public class DeProbl {
 			double attributeLoss = 0; // Loss for one attribute.
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
-			
+				// TODO: Missing values? if (!Double.isNaN(trueValue[iInstance][jTarget])) {
 				attributeLoss += Math.pow(trueValue[iInstance][jTarget]-prediction[iInstance][jTarget],2);
 			}
 			

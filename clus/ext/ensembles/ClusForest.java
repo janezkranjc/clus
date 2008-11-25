@@ -38,10 +38,15 @@ import clus.util.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Ensemble of decision trees.
+ *
+ */
 public class ClusForest implements ClusModel, Serializable{
 
 	private static final long serialVersionUID = 1L;
 
+	/** List of decision trees */
 	ArrayList m_Forest;
 	ClusStatistic m_Stat;
 	boolean m_PrintModels;
@@ -299,11 +304,18 @@ public class ClusForest implements ClusModel, Serializable{
 			System.out.println("***************************");
 		}
 	}
-
+	
+	/**
+	 * @param idx The index of the decision tree. Thus this is NOT the type enumeration introduced in ClusModel.
+	 * @return
+	 */
 	public ClusModel getModel(int idx){
 		return (ClusModel)m_Forest.get(idx);
 	}
 
+	/**
+	 * @return Number of decision trees in the ensemble.
+	 */
 	public int getNbModels(){
 		//for now same as getModelSize();
 		return m_Forest.size();
@@ -327,6 +339,9 @@ public class ClusForest implements ClusModel, Serializable{
 		}
 	}
 
+	/**
+	 * Return the list of decision trees = the ensemble.
+	 */
 	public ArrayList getModels(){
 		return m_Forest;
 	}

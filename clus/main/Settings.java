@@ -676,6 +676,9 @@ public class Settings implements Serializable {
 		return m_M5PruningMult.getValue();
 	}
 
+	/**
+	 * If we transform the induced trees to rules.
+	 */
 	public int rulesFromTree() {
 		return m_RulesFromTree.getValue();
 	}

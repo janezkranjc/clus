@@ -67,7 +67,9 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	ClusForest m_DForest;//Forest with stumps (default models)
 	static int m_Mode;
 	
-	//memory optimization
+	/**
+	 * Memory optimization
+	 */
 	static boolean m_OptMode;
 	static int[] m_HashCodeTuple;
 	static double[][] m_AvgPredictions;
@@ -144,6 +146,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}		
 	}
 
+	/** Memory optimization
+	 */
 	public static boolean isOptimized(){
 		return m_OptMode;
 	}
@@ -152,6 +156,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		return m_OOBCalculation;
 	}
 
+	/** Train a decision tree ensemble with an algorithm given in settings  */
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		System.out.println("Memory And Time Optimization = " + m_OptMode);
 		System.out.println("Out-Of-Bag Estimate of the error = " + m_OOBEstimate);
@@ -890,6 +895,9 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 //		cr.deleteDataAndModels();
 	}
 
+	/**
+	 * Maximum number of bags for memory optimization 
+	 */
 	public static int getMaxNbBags(){
 		return ClusEnsembleInduce.m_NbMaxBags;
 	}

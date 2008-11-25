@@ -146,12 +146,18 @@ public class Clus implements CMDLineArgsProvider {
 			m_Data = CriterionBasedSelection.removeMissingTarget(m_Data);
 			CriterionBasedSelection.clearMissingFlagTargetAttrs(m_Schema);
 		}
+		
 		// Preprocess and initialize induce
 		m_Sett.update(m_Schema);
+		
 		// If not rule induction, reset some settings just to be sure
-		// in case rules from trees are used
-		if (!m_Induce.getStatManager().isRuleInduce())
+		// in case rules from trees are used.
+		// I.e. this is used if the command line parameter is for decision trees
+		// but the transformation for rules is used.
+		// It is also possible to use command line parameter -rules and use trees as a covering method.
+		if (!m_Induce.getStatManager().isRuleInduce() )
 			m_Sett.disableRuleInduceParams();
+		
 		// Set XVal field in Settings
 		if (isxval) Settings.IS_XVAL = true;
 		preprocess(); // necessary in order to link the labels to the class hierarchy in HMC (needs to be before m_Induce.initialize())

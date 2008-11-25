@@ -69,14 +69,23 @@ public class DePop {
 		return result;
 	}
 
+	/** 
+	 * Create a new candidate rule out of parent gene. The new candidate rule is made
+	 * with crossing over. At least one variable is changed compared to the parent but probably more.
+	 * @param parent Index of parent gene.
+	 * @return New candidate gene.
+	 */
 	public ArrayList getCandidate(int parent) {
 	  int i1, i2, i3;
 	  int i, i_rand;
+	  
+	  /** Result candidate gene */
 	  ArrayList result = new ArrayList(m_Probl.getNumVar());
 	  for (int k = 0; k < m_Probl.getNumVar(); k++) {
 	  	result.add(k, (new Double(0.0)));
 	  }
 
+	  // Find separate random indexes i1 and i2 and i3 that are not the parent gene
 	  do i1 = (int)(getSettings().getOptDEPopSize() * m_Rand.nextDouble());
 	  while (i1 == parent);
 
@@ -86,25 +95,35 @@ public class DePop {
 	  do i3 = (int)(getSettings().getOptDEPopSize() * m_Rand.nextDouble());
 	  while ((i3 == parent) || (i3 == i1) || (i3 == i2));
 
+	  // Get a random index for gene array. That is, random variable in gene
 	  i_rand = (int)(m_Probl.getNumVar() * m_Rand.nextDouble());
 	  i = i_rand;
-	  for (int k = 0; k < m_Probl.getNumVar(); k++) {
-	  	if (m_Rand.nextDouble() < (getSettings().getOptDECrossProb()) || (i == i_rand))
+	  
+	  // I cycles through the variables. The alteration is made at least for i_rand but
+	  // also randomly for other variables. For alteration we take the new value of (i1-i2)+i3.
+	  for (int kVariable = 0; kVariable < m_Probl.getNumVar(); kVariable++) {
+	  	if (m_Rand.nextDouble() < (getSettings().getOptDECrossProb()) || (i == i_rand)) {
 	    	result.set(i,new Double(
 	    			getSettings().getOptDEWeight() *
 				(((Double)((DeInd)m_Inds.get(i1)).getGenes().get(i)).doubleValue() -
 				 ((Double)((DeInd)m_Inds.get(i2)).getGenes().get(i)).doubleValue()) +
 				 ((Double)((DeInd)m_Inds.get(i3)).getGenes().get(i)).doubleValue()));
-	    else
+	  	} else {
 	      result.set(i,((DeInd)m_Inds.get(parent)).getGenes().get(i));
-	    i = ++i % m_Probl.getNumVar();
+	  	}
+	    i = ++i % m_Probl.getNumVar(); // i = i mod variables.
 	  }
 	  return m_Probl.getRoundVector(result);
 	}
 
+	/**
+	 * Take a new random permutation of population individuals. 
+	 */
 	public void sortPopRandom() {
 	  int i;
+	  /** The result: Array of individuals with random permutation. */
 	  ArrayList inds = new ArrayList(getSettings().getOptDEPopSize());
+	  /** Array of old indexes of these individuals */
 	  ArrayList indexes = new ArrayList(getSettings().getOptDEPopSize());
 
 	  for (i = 0; i < getSettings().getOptDEPopSize(); i++) {
@@ -114,14 +133,17 @@ public class DePop {
 
 	  int n;
 
+	  // Take the random permutation of m_Inds to inds
 	  for (i = 0; i < getSettings().getOptDEPopSize(); i++) {
 	  	 n = (int)(indexes.size() * m_Rand.nextDouble());
+	  	 // Copy to inds array the individual in random index
 	  	 ((DeInd)inds.get(i)).copy(
 	  	 	(DeInd)m_Inds.get(
 	  	 		((Integer)indexes.get(n)).intValue()));
 	  	 indexes.remove(n);
 	  }
 
+	  // Copy the new permutation to m_Inds
 	  for (i = 0; i < getSettings().getOptDEPopSize(); i++) {
 	  	((DeInd)m_Inds.get(i)).copy((DeInd)inds.get(i));
 	  }

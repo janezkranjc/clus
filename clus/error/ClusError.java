@@ -49,6 +49,7 @@ public abstract class ClusError implements Serializable {
 	protected final static String TREE_POSTFIX     = "    ";
 	protected final static String RELATIVE_POSTFIX = "";
 
+	/** Number of dimensions to compute the error for */
 	protected int m_Dim;
 	protected ClusErrorList m_Parent;
 

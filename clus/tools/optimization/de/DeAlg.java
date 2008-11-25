@@ -42,6 +42,21 @@ import clus.util.ClusFormat;
  */
 public class DeAlg {
 
+	/**
+	 * Parameters for optimization algorithm. 
+	 * Predictions and true values for all the instances of data.
+	 *
+	 */
+	static public class OptParam {
+		public OptParam(double[][][][] predictions, double[][] trueValues ){
+			m_predictions = predictions;
+			m_trueValues = trueValues;
+		}
+		public double[][][][] m_predictions;
+		public double[][] m_trueValues;
+	}
+
+	
 	// private DeParams m_Params;
 	private DeProbl m_Probl;
 	private DePop m_Pop;
@@ -57,9 +72,10 @@ public class DeAlg {
 	 * @param isClassification Is it classification or regression?
      * TODO Only parameters are changed for multi target
      */
-	public DeAlg(ClusStatManager stat_mgr, double[][][][] rule_pred, double[][] true_val) {
+	//public DeAlg(ClusStatManager stat_mgr, double[][][][] rule_pred, double[][] true_val) {
+	public DeAlg(ClusStatManager stat_mgr, OptParam parameters) {
 		m_StatMgr = stat_mgr;
-		m_Probl = new DeProbl(stat_mgr, rule_pred, true_val);
+		m_Probl = new DeProbl(stat_mgr, parameters.m_predictions, parameters.m_trueValues);
 		m_Pop = new DePop(stat_mgr, m_Probl);
 		ClusStatistic tar_stat = m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 	}
@@ -105,8 +121,10 @@ public class DeAlg {
 				System.out.print(".");
 				m_Pop.sortPopRandom();
 				DeInd candidate = new DeInd();
+				
+				// Go trough all the population and try to find a candidate with crossing over.
 				for (int i = 0; i < getSettings().getOptDEPopSize(); i++) {
-					candidate.setGenes(m_Pop.getCandidate(i));
+					candidate.setGenes(m_Pop.getCandidate(i)); // Get a crossed over candidate.
 					num_eval = candidate.evaluate(m_Probl, num_eval);
 					OutputLog(candidate, num_eval, wrt_log);
 					// Smaller fitness is better

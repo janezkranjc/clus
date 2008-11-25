@@ -106,6 +106,10 @@ public class ClusRule implements ClusModel, Serializable {
 		return new_rule;
 	}
 
+	
+	/**
+	 * Equality is based on the tests only.
+	 */
 	public boolean equals(Object other) {
 		ClusRule o = (ClusRule)other;
 		if (o.getModelSize() != getModelSize()) return false;

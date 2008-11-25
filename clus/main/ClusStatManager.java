@@ -529,7 +529,9 @@ public class ClusStatManager implements Serializable {
 
 	public void initHeuristic() throws ClusException {
 		// All rule learning heuristics should go here
-		if (isRuleInduce()) {
+
+		// If rules are created with tree heuristic, do not change the heuristic. 
+		if (isRuleInduce() && m_Settings.getCoveringMethod() != Settings.COVERING_METHOD_RULES_FROM_TREE) {
 			initRuleHeuristic();
 			return;
 		}

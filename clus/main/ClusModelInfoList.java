@@ -49,6 +49,11 @@ public abstract class ClusModelInfoList implements Serializable {
 		return m_Models.size();
 	}
 
+	/**
+	 * @param i Usually ClusModel model type (Default, Original, Pruned). 
+	 * 			However, can also be something else. For example for ClusForest this is the index of decision tree.
+	 * @return
+	 */
 	public ClusModelInfo getModelInfo(int i) {
 		return (ClusModelInfo)m_Models.get(i);
 	}
@@ -57,14 +62,29 @@ public abstract class ClusModelInfoList implements Serializable {
 		return m_AllModelsMI;
 	}
 
+	/**
+	 * @param i Usually ClusModel model type (Default, Original, Pruned). 
+	 * 			However, can also be something else. For example for ClusForest this is the index of decision tree.
+	 * @return
+	 */
 	public void setModelInfo(int i, ClusModelInfo info) {
 		m_Models.set(i, info);
 	}
 
+	/**
+	 * @param i Usually ClusModel model type (Default, Original, Pruned). 
+	 * 			However, can also be something else. For example for ClusForest this is the index of decision tree.
+	 * @return
+	 */
 	public ClusModel getModel(int i) {
 		return getModelInfo(i).getModel();
 	}
 
+	/**
+	 * @param i Usually ClusModel model type (Default, Original, Pruned). 
+	 * 			However, can also be something else. For example for ClusForest this is the index of decision tree.
+	 * @return
+	 */
 	public String getModelName(int i) {
 		return getModelInfo(i).getName();
 	}
