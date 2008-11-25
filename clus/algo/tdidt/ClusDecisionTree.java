@@ -77,16 +77,27 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 		node.makeLeaf();
 		return node;
 	}
-
+	
+	/**
+	 * Convert the tree to rules
+	 * @param cr
+	 * @param tree ClusModel tree type (default, pruned, original). 
+	 * @throws ClusException
+	 * @throws IOException
+	 */
 	public void convertToRules(ClusRun cr, int tree) throws ClusException, IOException {
 		ClusNode tree_root = (ClusNode)cr.getModel(tree);
 		ClusRulesFromTree rft = new ClusRulesFromTree(true);
 		ClusRuleSet rule_set = null;
-		if (getSettings().computeDispersion()) {
-			rule_set = rft.constructRules(cr, tree_root, getStatManager());
-		} else {
-			rule_set = rft.constructRules(tree_root, getStatManager());
-		}
+		boolean compDis = getSettings().computeDispersion(); // Do we want to compute dispersion
+		
+		// Do we want to optimize the rule weights for prediction.
+		boolean optRuleWeigths = 
+			(getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED);
+
+		rule_set = rft.constructRules(cr, tree_root, getStatManager(), compDis, optRuleWeigths);
+//		rule_set = rft.constructRules(tree_root, getStatManager());
+	
 		ClusModelInfo rules_info = cr.addModelInfo();
 		rules_info.setModel(rule_set);
 		rules_info.setName("Rules - "+cr.getModelName(tree));
@@ -116,6 +127,10 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 		return pruned;
 	}
 
+	/**
+	 * Post processing decision tree. E.g. converting to rules. 
+	 * 
+	 */
 	public void postProcess(ClusRun cr) throws ClusException, IOException {
 		ClusNode orig = (ClusNode)cr.getModel(ClusModel.ORIGINAL);
 		ClusModelInfo orig_info = cr.getModelInfo(ClusModel.ORIGINAL);
