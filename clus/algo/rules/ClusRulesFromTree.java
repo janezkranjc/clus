@@ -26,53 +26,114 @@
 package clus.algo.rules;
 
 import java.io.*;
+import java.util.ArrayList;
 
 import clus.algo.tdidt.ClusNode;
 import clus.data.rows.RowData;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.test.*;
+import clus.tools.optimization.de.DeAlg;
 import clus.util.*;
 
+/** Rule set created from a tree. Use by decision tree command line parameter.
+ *
+ */
 public class ClusRulesFromTree {
 
+	/** Has something to do with prediction validity. 
+	 * If true, we only want to validate the rule construction if no other reason for creating is stated?
+ 	 * Currently always true. This is also the only reason the class is not static...
+	 */
 	protected boolean m_Validated;
 
+	/** The parameter seems to be always true? */
 	public ClusRulesFromTree(boolean onlyValidated) {
 		m_Validated = onlyValidated;
 	}
 
 	/**
-	 * Same as constructRules(ClusNode node, ClusStatManager mgr) but
+ 	 * Same as constructRules(ClusNode node, ClusStatManager mgr) but
 	 * with additional parameter - ClusRun to get access to the data set.
+	 * This is for computing the data set dispersion.
+	 * 
+	 * @param cr ClusRun
+	 * @param node The root node of the tree
+	 * @param mgr The data in statistics manager may be used.
+	 * @param computeDispersion Do we want to compute dispersion (and include the data to rule set).
+	 * @param optimizeRuleWeights Do we want to optimize the rule weight.
+	 * @return The created rule set.
+	 * @throws ClusException
+	 * @throws IOException
 	 */
-	public ClusRuleSet constructRules(ClusRun cr, ClusNode node, ClusStatManager mgr)
+	public ClusRuleSet constructRules(ClusRun cr, ClusNode node, ClusStatManager mgr,
+									  boolean computeDispersion, boolean optimizeRuleWeights)
 	throws ClusException, IOException {
-		ClusRuleSet res = constructRules(node, mgr);
+		
+		ClusRuleSet ruleSet = constructRules(node, mgr);
+		
 		RowData data = (RowData)cr.getTrainingSet();
-		RowData testdata;
-		res.addDataToRules(data);
-		// res.setTrainErrorScore();
-		res.computeDispersion(ClusModel.TRAIN);
-		res.removeDataFromRules();
-		if (cr.getTestIter() != null) {
-			testdata = (RowData)cr.getTestSet();
-			res.addDataToRules(testdata);
-			// res.setTrainErrorScore();
-			res.computeDispersion(ClusModel.TEST);
-			res.removeDataFromRules();
+		
+		// Optimizing rule set if needed
+		if (optimizeRuleWeights) {
+			DeAlg deAlg = null;
+			
+			// TODO: Add the file name for the parameter, not null
+			DeAlg.OptParam param = ruleSet.giveFormForWeightOptimization(null, data);
+			// Find the rule weights with evolutionary algorithm.
+			deAlg = new DeAlg(mgr, param);
+			ArrayList weights = deAlg.evolution();
+			
+			// Print weights of rules
+			System.out.print("The weights for rules from trees:");
+			for (int j = 0; j < ruleSet.getModelSize(); j++) {
+				ruleSet.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue());
+				System.out.print(((Double)weights.get(j)).doubleValue()+ "; ");
+			}
+			System.out.print("\n");
+			ruleSet.removeLowWeightRules();
+			RowData data_copy = (RowData)data.cloneData();
+			// updateDefaultRule(rset, data_copy);
 		}
-		return res;
+		
+		if (computeDispersion)
+		{
+			// For some kind of reason all that is here was not done if dispersion was not computed
+			RowData testdata;
+			ruleSet.addDataToRules(data);
+			// res.setTrainErrorScore();
+
+			ruleSet.computeDispersion(ClusModel.TRAIN);
+			ruleSet.removeDataFromRules();
+			if (cr.getTestIter() != null) {
+				testdata = (RowData)cr.getTestSet();
+				ruleSet.addDataToRules(testdata);
+				// res.setTrainErrorScore();
+				ruleSet.computeDispersion(ClusModel.TEST);
+				ruleSet.removeDataFromRules();
+			}
+		}
+		
+		return ruleSet;
 	}
 
+	/**
+	 * Construct rules from the given tree. Does not do any processing
+	 * like dispersion or weight optimization. Especially used
+	 * when transforming multiple trees to rules.
+	 * @param node The root node of the tree
+	 * @param mgr The data in statistics manager may be used
+	 * @return Rule set.
+	 */
 	public ClusRuleSet constructRules(ClusNode node, ClusStatManager mgr) {
-		ClusRuleSet res = new ClusRuleSet(mgr);
+		ClusRuleSet ruleSet = new ClusRuleSet(mgr);
 		ClusRule init = new ClusRule(mgr);
-		constructRecursive(node, init, res);
-		res.removeEmptyRules();
-		res.simplifyRules();
-		res.setTargetStat(node.getTargetStat());
-		return res;
+		System.out.println("Constructing rules from a tree.");
+		constructRecursive(node, init, ruleSet);
+		ruleSet.removeEmptyRules();
+		ruleSet.simplifyRules();
+		ruleSet.setTargetStat(node.getTargetStat());
+		return ruleSet;
 	}
 
 	public void constructRecursive(ClusNode node, ClusRule rule, ClusRuleSet set) {
