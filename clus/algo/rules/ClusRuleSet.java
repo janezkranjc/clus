@@ -34,6 +34,7 @@ import jeans.util.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.error.ClusErrorList;
+import clus.ext.hierarchical.WHTDStatistic;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.processor.ClusModelProcessor;
@@ -70,6 +71,26 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		ClusRuleSet new_ruleset = new ClusRuleSet(m_StatManager);
 		for (int i = 0; i < getModelSize(); i++) {
 			new_ruleset.add(getRule(i));
+		}
+		return new_ruleset;
+	}
+	
+	/**
+	 * Deep clones this ruleset, so that it points to different rules that
+	 * have target statistics with the given threshold.
+	 * @return Clone of this ruleset with rules with the given treshold.
+	 */
+	public ClusRuleSet cloneRuleSetWithThreshold(double threshold) {
+		ClusRuleSet new_ruleset = new ClusRuleSet(m_StatManager);
+		for (int i = 0; i < getModelSize(); i++) {
+			ClusRule newRule = getRule(i).cloneRule();
+			WHTDStatistic stat = (WHTDStatistic)getRule(i).getTargetStat();
+			WHTDStatistic new_stat = (WHTDStatistic)stat.cloneStat();
+			new_stat.copyAll(stat);
+			new_stat.setThreshold(threshold);
+			new_stat.calcMean();
+			newRule.setTargetStat(new_stat);
+			new_ruleset.add(newRule);
 		}
 		return new_ruleset;
 	}

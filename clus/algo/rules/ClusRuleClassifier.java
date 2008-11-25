@@ -27,6 +27,7 @@ package clus.algo.rules;
 
 import java.io.*;
 
+import jeans.io.ini.INIFileNominalOrDoubleOrVector;
 import jeans.util.cmdline.CMDLineArgs;
 import clus.*;
 import clus.data.type.*;
@@ -66,6 +67,18 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 	}
 
 	public void pruneAll(ClusRun cr) throws ClusException, IOException {
+		ClusRuleSet model = (ClusRuleSet) cr.getModel(ClusModel.PRUNED);
+		if (model.m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
+			// Clone the ruleset model for each treshold value specified in the settings
+			INIFileNominalOrDoubleOrVector class_thr = getSettings().getClassificationThresholds();
+			double[] tresholds = class_thr.getDoubleVector();
+			for (int t=0; t<tresholds.length; t++) {
+				ClusRuleSet model2 = model.cloneRuleSetWithThreshold(t);
+				ClusModelInfo modelInfo2 = cr.addModelInfo();
+				modelInfo2.setModel(model2);
+				modelInfo2.setName("T(" + tresholds[t] + ")");
+			}
+		}
 	}
 
 	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
