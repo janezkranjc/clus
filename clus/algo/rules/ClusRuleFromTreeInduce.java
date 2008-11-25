@@ -52,7 +52,8 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		
 		ensemble.induceAll(cr);
 		
-		/** The real trained ensemble model without pruning */  
+		/** The real trained ensemble model without pruning. Use unpruned tree because weight optimizing
+		 * should get rid of bad rules anyway. */  
 		ClusForest forestModel = (ClusForest)cr.getModel(ClusModel.ORIGINAL);
 
 		/** 
@@ -80,10 +81,10 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		// Just a stupid check
 		if (numberOfRules != ruleSet.getModelSize())
 		{
-			System.out.println("Error: The rule set size is invalid. Something wrong in transformation!");
+			System.out.println("Error: The rule set size is invalid. Something wrong in transformation from trees!");
 		}
 		
-		System.out.println("Transforming tree ensemble into rules. " + ruleSet.getModelSize()
+		System.out.println("Transformed tree ensemble into rules. " + ruleSet.getModelSize()
 	            +  " rules created.");	
 		
 		
@@ -148,15 +149,34 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		return ruleSet;
 	}
 	
+	/**
+	 * Induces the rule models. ClusModel.PRUNED = the optimized rule model
+	 * ClusModel.DEFAULT = the ensemble tree model.
+	 */
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
-		ClusModel model = induceSingleUnpruned(cr);		
+		RowData trainData = (RowData)cr.getTrainingSet();
+		getStatManager().getHeuristic().setTrainData(trainData);
+		ClusStatistic trainStat = getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING);
+		double value = trainStat.getDispersion(getStatManager().getClusteringWeights(), trainData);
+		getStatManager().getHeuristic().setTrainDataHeurValue(value);
+		
 		ClusModelInfo default_model = cr.addModelInfo(ClusModel.DEFAULT);
 		ClusModel def = ClusDecisionTree.induceDefault(cr);
 		default_model.setModel(def);
-		default_model.setName("Default");		
-		ClusModelInfo model_info = cr.addModelInfo(ClusModel.ORIGINAL);
-		model_info.setName("Original");
-		model_info.setModel(model);
+		default_model.setName("Default");	
+		
+//		ClusModelInfo model_info = cr.addModelInfo(ClusModel.ORIGINAL);
+//		model_info.setName("Original");
+//		model_info.setModel(model);
+		
+		// Only pruned used for rules.	
+		ClusModel model = induceSingleUnpruned(cr);
+		ClusModelInfo pruned_model = cr.addModelInfo(ClusModel.PRUNED);
+		pruned_model.setModel(model);
+		pruned_model.setName("Pruned");
+		
+		
+		
 	}
 
 }
