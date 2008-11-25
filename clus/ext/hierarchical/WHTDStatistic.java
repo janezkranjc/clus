@@ -383,5 +383,12 @@ public class WHTDStatistic extends RegressionStat {
 		}
 		computePrediction();
 	}
+	
+	/**
+	 * Used for the hierarchical rules heuristic
+	 */
+	public double getDispersion(ClusAttributeWeights scale, RowData data) {
+		return getSS(scale);
+	}
 
 }
