@@ -40,6 +40,8 @@ import clus.statistic.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.ext.beamsearch.*;
+import clus.ext.ensembles.ClusEnsembleInduce;
+import clus.ext.ensembles.ClusForest;
 import clus.util.*;
 import clus.tools.optimization.de.*;
 
@@ -783,7 +785,6 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	 * @throws ClusException
 	 * @throws IOException
 	 */
-	
 	public ClusModel induce(ClusRun run) throws ClusException, IOException {
 		int method = getSettings().getCoveringMethod();
 		int add_method = getSettings().getRuleAddingMethod();
@@ -861,137 +862,18 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	public ClusRuleSet optimizeRuleSet(ClusRuleSet rset, RowData data) throws ClusException, IOException {
 		String fname = getSettings().getDataFile();
 		PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
-		DecimalFormat mf = new DecimalFormat("###.000");
-		ClusSchema schema = data.getSchema();
 		
-		// Generate optimization input
-		ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 		DeAlg deAlg = null;
-		int nb_target = tar_stat.getNbAttributes();
-		int nb_rules = rset.getModelSize();
-		int nb_rows = data.getNbRows();
-		boolean isClassification = false;
-		if (rset.m_TargetStat instanceof ClassificationStat) {
-			isClassification = true;
-		}
-
-		ClusAttrType[] trueValuesTemp = new ClusAttrType[nb_target];
-		if (isClassification) {
-			//NominalAttrType[] 
-			trueValuesTemp = (ClusAttrType[])schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		} else { // regression
-			//NumericAttrType[]
-			trueValuesTemp = (ClusAttrType[])schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		}
-
-		/** 
-		 * True values for each target and instance
-		 */
-		double[][] trueValues = new double[nb_rows][nb_target];
-
-		// Index over the instances of data
-		for (int iRows = 0; iRows < nb_rows; iRows++) {
-			DataTuple tuple = data.getTuple(iRows);
-			
-			// Take the true values from the data target by target
-			for (int kTargets = 0; kTargets < nb_target; kTargets++)
-			{
-				if (isClassification){
-					trueValues[iRows][kTargets] = ((NominalAttrType)trueValuesTemp[kTargets]).getNominal(tuple);
-				} else {
-					trueValues[iRows][kTargets] = ((NumericAttrType)trueValuesTemp[kTargets]).getNumeric(tuple);
-				}
-			}
-		}
-		
-		
-		
-		
-		// Number of nominal values for each target. For regression, no number of nominal values needed, i.e. 1
-		int nb_values[] = new int[nb_target]; 
-
-		for (int iTarget=0; iTarget < nb_target;iTarget++) {
-			if (isClassification) {
-				nb_values[iTarget] = ((ClassificationStat)rset.m_TargetStat).getAttribute(0).getNbValues();		
-			} else { // regression
-				nb_values[iTarget] = 1; // Nominal values not needed
-			}
-		}
-		
-		// [instance][rule][target][class_value]
-		// For regression, class_value = 0 always.
-		//double[][][][] rule_pred = new double[nb_rows][nb_rules][nb_target][nb_values];
-		double[][][][] rule_pred = new double[nb_rows][nb_rules][nb_target][];
-		
-		// Index over the instances of data
-		for (int iRows = 0; iRows < nb_rows; iRows++) {
-			DataTuple tuple = data.getTuple(iRows);		
-			for (int jRules = 0; jRules < nb_rules; jRules++) {
-				ClusRule rule = rset.getRule(jRules);
-				
-				// Initialize rule predictions for this rule and instance combination
-				for (int iTarget=0; iTarget < nb_target;iTarget++) {
-					rule_pred[iRows][jRules][iTarget] = new double[nb_values[iTarget]];
-				}
-				
-				if (rule.covers(tuple)) {
-
-					// Returns the prediction for the data
-					if (isClassification) {
-						rule_pred[iRows][jRules] = 
-							((ClassificationStat)rule.predictWeighted(tuple)).getClassCounts();
-					} else {
-						//Only one nominal value is used for regression.
-						rule_pred[iRows][jRules][0] =
-							((RegressionStat)rule.predictWeighted(tuple)).getNumericPred();
-					}
-				} else { // Rule does not cover the instance. Mark as NaN
-					for (int kTargets = 0; kTargets < nb_target; kTargets++)
-					{   for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
-							rule_pred[iRows][jRules][kTargets][lValues] = Double.NaN; 
-						}
-					}
-				}
-				// Print predictions to the file.
-				wrt_pred.print("[");
-				for (int kTargets = 0; kTargets < nb_target; kTargets++)
-				{
-					wrt_pred.print("{");
-					for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
-						wrt_pred.print(mf.format(rule_pred[iRows][jRules][kTargets][lValues]));
-						if (lValues < nb_values[kTargets]-1)	wrt_pred.print("; ");
-					}
-					
-					if (kTargets < nb_target-1) wrt_pred.print("}; ");
-					else wrt_pred.print("}");
-				}
-				wrt_pred.print("]"); 
-			} // For rules
-
-			
-			// Print the real outputs
-			//wrt_pred.print(" :: {" + mf.format(true_val[iRows]) + "}\n");
-			wrt_pred.print(" :: [");
-			for (int kTargets = 0; kTargets < nb_target; kTargets++) {
-				wrt_pred.print(mf.format(trueValues[iRows][kTargets]));
-				if (kTargets < nb_target-1)	wrt_pred.print("; ");
-			}
-			wrt_pred.print("]\n"); 
-			
-		}// For instances of data		
-
-		wrt_pred.flush();
-
-
+		DeAlg.OptParam param = rset.giveFormForWeightOptimization(wrt_pred, data);
 		// Find the rule weights with evolutionary algorithm.
-		deAlg = new DeAlg(getStatManager(), rule_pred, trueValues);
+		deAlg = new DeAlg(getStatManager(), param);
 		ArrayList weights = deAlg.evolution();
 		
 		// Print weights of rules
 		System.out.print("The weights for rules:");
-		for (int j = 0; j < nb_rules; j++) {
+		for (int j = 0; j < rset.getModelSize(); j++) {
 			rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue());
-			System.out.print(mf.format(((Double)weights.get(j)).doubleValue())+ "; ");
+			System.out.print(((Double)weights.get(j)).doubleValue()+ "; ");
 		}
 		System.out.print("\n");
 		rset.removeLowWeightRules();
@@ -1090,6 +972,10 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			}
 */
 
+	/**
+	 * Updates the default rule. Is this the one one reported in .out and .xval files 
+	 * with the "default error"?
+	 */
 	public void updateDefaultRule(ClusRuleSet rset, RowData data) {
 		for (int i = 0; i < rset.getModelSize(); i++) {
 			data = rset.getRule(i).removeCovered(data);
