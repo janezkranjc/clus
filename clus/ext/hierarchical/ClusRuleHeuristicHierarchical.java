@@ -30,10 +30,14 @@ public class ClusRuleHeuristicHierarchical extends ClusHeuristic {
 		}
 		
 		// Calculate |S|.Var(S) - |Sr|.Var(Sr)
+		
 		//WHTDStatistic tstat = (WHTDStatistic) m_StatManager.getTrainSetStat(); // Geeft classcastexception (is blijkbaar een CombStat)
 		//WHTDStatistic tstat = (WHTDStatistic) m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET); // (is altijd 0...)
-		WHTDStatistic tstat = (WHTDStatistic) m_StatManager.getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING);
-		double totalValue = tstat.getSS(m_TargetWeights);
+		
+		//WHTDStatistic tstat = (WHTDStatistic) m_StatManager.getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING);
+		//double totalValue = tstat.getSS(m_TargetWeights);
+		double totalValue = getTrainDataHeurValue(); // optimization of the previous two lines
+		
 		double ruleValue = c_pstat.getSS(m_TargetWeights);
 		double value = totalValue - ruleValue;
 		

@@ -1125,7 +1125,13 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		RowData trainData = (RowData)cr.getTrainingSet();
 		getStatManager().getHeuristic().setTrainData(trainData);
 		ClusStatistic trainStat = getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING);
-		double value = trainStat.getDispersion(getStatManager().getClusteringWeights(), trainData);
+		double value;
+		if (getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL) {
+			value = trainStat.getSS(getStatManager().getClusteringWeights());
+		}
+		else {
+			value = trainStat.getDispersion(getStatManager().getClusteringWeights(), trainData);
+		}
 		getStatManager().getHeuristic().setTrainDataHeurValue(value);
 		// Induce the model
 		ClusModel model = induceSingleUnpruned(cr);
