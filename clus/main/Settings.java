@@ -698,6 +698,7 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_GAIN_RATIO = 3;	
 
 	public final static int HEURISTIC_SSPD = 4;
+	/** Sum of Squared Distances, the default for ensemble tree regression learning */
 	public final static int HEURISTIC_SS_REDUCTION = 5;
 	public final static int HEURISTIC_MESTIMATE = 6;
 	public final static int HEURISTIC_MORISHITA = 7;
@@ -875,7 +876,8 @@ public class Settings implements Serializable {
 	//	Differential evolution optimization
 	/**	DE Number of individuals (population) during every iteration */
 	protected INIFileInt m_OptDEPopSize;
-	/**	Differential evolution, number of iterations */
+	/**	Differential evolution, number of individual evaluations to be done. Divide this with m_OptDEPopSize 
+	 * to get the number of 'iterations' */
 	protected INIFileInt m_OptDENumEval;
 	/** DE Crossover probability */
 	protected INIFileDouble m_OptDECrossProb;
@@ -1060,7 +1062,7 @@ public class Settings implements Serializable {
 	}
 
 	public double getOptRuleWeightThreshold() {
-		return m_OptRegPar.getValue();
+		return m_OptRuleWeightThreshold.getValue();
 	}
 	
 	/** Type of Loss function for DE optimization */
