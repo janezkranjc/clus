@@ -21,7 +21,7 @@ HSeparator = /
 
 [Ensemble]
 EnsembleMethod = Boosting
-Iterations = 50
+Iterations = 100
 
 % [Output]
 % WritePredictions = Test

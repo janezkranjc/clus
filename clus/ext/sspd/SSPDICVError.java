@@ -25,8 +25,11 @@ package clus.ext.sspd;
 import java.io.*;
 
 import clus.error.*;
+import clus.algo.rules.ClusRule;
+import clus.algo.rules.ClusRuleSet;
 import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
+import clus.data.type.ClusSchema;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.test.*;
@@ -35,7 +38,7 @@ public class SSPDICVError extends ClusError {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-	protected double m_Value;
+	protected double m_Value, m_ValueWithDefault;
 	protected SSPDDistance m_Dist;
 
 	public SSPDICVError(ClusErrorList par, SSPDDistance dist) {
@@ -58,17 +61,48 @@ public class SSPDICVError extends ClusError {
 			}
 		}
 	}
+	
+	public void computeForRule(ClusRule rule, ClusSchema schema) {
+		RowData covered = new RowData(rule.getData(), schema);
+		m_Value = SSPD.computeSSPDVariance(m_Dist, covered);
+	}
+
+	public void computeForRuleSet(ClusRuleSet set, ClusSchema schema) {
+		double sumWeight = 0.0;
+		for (int i = 0; i < set.getModelSize(); i++) {
+			RowData covered = new RowData(set.getRule(i).getData(), schema);
+			double weight = covered.getSumWeights();
+			m_Value += weight*SSPD.computeSSPDVariance(m_Dist, covered);
+			sumWeight += weight;
+		}
+		m_ValueWithDefault = m_Value;		
+		m_Value /= sumWeight;
+		RowData defaultData = new RowData(set.getDefaultData(), schema);
+		double defWeight = defaultData.getSumWeights();
+		m_ValueWithDefault += defWeight * SSPD.computeSSPDVariance(m_Dist, defaultData);
+		sumWeight += defWeight;
+		m_ValueWithDefault /= sumWeight;
+	}
 
 	public void compute(RowData data, ClusModel model) {
 		if (model instanceof ClusNode) {
 			ClusNode tree = (ClusNode)model;
 			computeRecursive(tree, data);
 			m_Value /= data.getSumWeights();
+		} else if (model instanceof ClusRuleSet) {
+			computeForRuleSet((ClusRuleSet)model, data.getSchema());
+		} else if (model instanceof ClusRule) {
+			computeForRule((ClusRule)model, data.getSchema());
 		}
 	}
 
 	public void showModelError(PrintWriter wrt, int detail) {
-		wrt.println("SSPD-ICV: "+m_Value);
+		StringBuffer res = new StringBuffer();
+		res.append("SSPD-ICV: "+m_Value);
+		if (m_ValueWithDefault != 0.0) {
+			res.append(" (with default: "+m_ValueWithDefault+")");
+		}		
+		wrt.println(res.toString());
 	}
 
 	public ClusError getErrorClone(ClusErrorList par) {

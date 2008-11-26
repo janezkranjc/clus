@@ -542,6 +542,10 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 		m_DefaultData.clear();
 	}
+	
+	public ArrayList getDefaultData() {
+		return m_DefaultData;		
+	}
 
 	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException {
 		for (int i = 0; i < getModelSize(); i++) {

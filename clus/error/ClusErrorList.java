@@ -107,6 +107,13 @@ public class ClusErrorList implements Serializable {
 	public void addError(ClusError err) {
 		m_Error.addElement(err);
 	}
+	
+	public void addErrors(ClusErrorList error) {
+		for (int i = 0; i < error.getNbErrors(); i++) {
+			addError(error.getError(i));
+		}		
+	}
+
 
 	public int getNbErrors() {
 		return m_Error.size();

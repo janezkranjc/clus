@@ -294,8 +294,7 @@ public class ClusStatManager implements Serializable {
 			}
 			if (m_Mode == MODE_TIME_SERIES) {
 				TimeSeriesStat tstat = (TimeSeriesStat)createStatistic(ClusAttrType.ATTR_USE_TARGET);
-				data.calcTotalStat(tstat);
-				tstat.optimizePreCalc((RowData)data);
+				((RowData)data).calcTotalStatBitVector(tstat);
 				tstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
 			}
 		}
@@ -510,6 +509,9 @@ public class ClusStatManager implements Serializable {
 			m_Heuristic = new ClusRuleHeuristicSSD(this, name, createClusteringStat(),getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 			return;
+		} else if (m_Mode == MODE_ILEVELC) {
+			String name = "Intra-Cluster Variation Heuristic for Rules";
+			m_Heuristic = new ClusRuleHeuristicSSD(this, name, createClusteringStat(),getClusteringWeights());
 		} else {
 			throw new ClusException("Unsupported mode for rules!");
 		}

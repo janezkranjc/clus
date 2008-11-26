@@ -834,9 +834,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			rset = optimizeRuleSet(rset, data);
 		}
 		rset.setTrainErrorScore(); // Not always needed?
+		rset.addDataToRules(data);		
 		// Computing dispersion
 		if (getSettings().computeDispersion()) {
-			rset.addDataToRules(data);
 			rset.computeDispersion(ClusModel.TRAIN);
 			rset.removeDataFromRules();
 			if (run.getTestIter() != null) {

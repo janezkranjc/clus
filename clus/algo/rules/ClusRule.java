@@ -618,12 +618,17 @@ public class ClusRule implements ClusModel, Serializable {
 		if (m_Errors == null) m_Errors = new ClusErrorList[2];
 		m_Errors[subset] = error;
 	}
-
+	
+	public void addError(ClusErrorList error, int subset) {
+		if (m_Errors == null) m_Errors = new ClusErrorList[2];
+		m_Errors[subset].addErrors(error);
+	}	
+	
 	public ClusErrorList getError(int subset) {
 		if (m_Errors == null) return null;
 		return m_Errors[subset];
 	}
-
+	
 	public boolean hasErrors() {
 		return m_Errors != null;
 	}
@@ -651,5 +656,4 @@ public class ClusRule implements ClusModel, Serializable {
 
 	public void retrieveStatistics(ArrayList list) {
 	}
-
 }

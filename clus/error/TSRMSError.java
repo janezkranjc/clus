@@ -84,7 +84,7 @@ public class TSRMSError extends ClusTimeSeriesError {
 	}
 
 	public String getName() {
-		return "QDMRMSError";
+		return "TSRMSError";
 	}
 
 	public double getModelErrorComponent(int i) {
