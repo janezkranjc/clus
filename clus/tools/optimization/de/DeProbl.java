@@ -39,6 +39,23 @@ import clus.statistic.*;
  */
 public class DeProbl {
 
+	
+	/**
+	 * Parameters for optimization algorithm. 
+	 * Predictions and true values for all the instances of data.
+	 * The default prediction is used, if no other rule covers the instance.
+	 */
+	static public class OptParam {
+		public OptParam(double[][][][] predictions, double[] defaultPrediction, double[][] trueValues ){
+			m_predictions = predictions;
+			m_defaultPrediction = defaultPrediction;
+			m_trueValues = trueValues;
+		}
+		public double[][][][] m_predictions;
+		double[] m_defaultPrediction;
+		public double[][] m_trueValues;
+	}
+	
 	/** Number of weights/variables to optimize */
 	private int m_NumVar;				
 	/** Min value of each variable */
@@ -46,6 +63,11 @@ public class DeProbl {
 	/** Max value of each variable */
 	private ArrayList m_VarMax;
 	
+	/** A regression prediction for initialization.
+	 * It is negative so that this class is not selected in classification.
+	 * Because default rule is used, this value should never go to loss function.
+	 */
+	private final double INVALID_PREDICTION = Double.NEGATIVE_INFINITY; 
 
 	
 	/** 
@@ -55,6 +77,12 @@ public class DeProbl {
 	 * The class value dimension is dynamic for each target index.  
 	 */
 	private double[][][][] m_RulePred;
+	
+	/**
+	 * Default prediction if no rule covers the instance.
+	 */
+	private double[] m_defaultPred;
+	
 	//private ArrayList<Double>[][][] m_RulePred;
 //	private double[] m_TrueVal;			/** True target values for the data points */
 
@@ -89,12 +117,13 @@ public class DeProbl {
 	 * @param true_val True values for instances. [instance][target index]
 	 * @param isClassification Is it classification or regression?
 	 */
-	public DeProbl(ClusStatManager stat_mgr, double[][][][] rule_pred, double[][] true_val) {
-		m_NumVar = (rule_pred[0]).length;
+	public DeProbl(ClusStatManager stat_mgr, OptParam optInfo) {
+		m_NumVar = (optInfo.m_predictions[0]).length;
 		m_VarMin = new ArrayList(m_NumVar);
 		m_VarMax = new ArrayList(m_NumVar);
-		m_RulePred = rule_pred;
-		m_TrueVal = true_val;
+		m_RulePred = optInfo.m_predictions;
+		m_TrueVal = optInfo.m_trueValues;
+		m_defaultPred = optInfo.m_defaultPrediction;
 		m_StatMgr = stat_mgr;
 		
 		try {
@@ -141,23 +170,43 @@ public class DeProbl {
 //		}
 //	}
 
-
-
 	/**
-	 * Generates a random solution.
+	 * Generates a zero vector if possible. 
+	 * If the minimum value for the variable is more than zero, the minimum value is used.
+	 * This can be used to create zero weight gene.
 	 */
-	public ArrayList getRandVector(Random rand)	{
+	ArrayList getZeroVector()
+	{
 		ArrayList result = new ArrayList(m_NumVar);
 		for (int i = 0; i < m_NumVar; i++) {
 			result.add(new Double(
-			  ((Double)m_VarMin.get(i)).doubleValue() +
-			  (((Double)m_VarMax.get(i)).doubleValue() -
-			   ((Double)m_VarMin.get(i)).doubleValue()) *
-			  (double)rand.nextDouble()));
+			  Math.max(((Double)m_VarMin.get(i)).doubleValue(),0.0)));
 		}
 		return result;
 	}
 
+	/**
+	 * Generates a random solution. A vector of random values.
+	 */
+	public ArrayList getRandVector(Random rand)	{
+		ArrayList result = new ArrayList(m_NumVar);
+		for (int i = 0; i < m_NumVar; i++) {
+			result.add(new Double(getRandValueInRange(rand,i)));
+		}
+		return result;
+	}
+
+	/**
+	 * Single random value within the range of variables.
+	 */
+	public double getRandValueInRange(Random rand, int indexOfValue) {
+		// min + (max-min)*random
+		return ((Double)m_VarMin.get(indexOfValue)).doubleValue() +
+		       (((Double)m_VarMax.get(indexOfValue)).doubleValue() -
+				((Double)m_VarMin.get(indexOfValue)).doubleValue()) *
+				(double)rand.nextDouble();
+
+	}
 	public ArrayList getRoundVector(ArrayList genes) {
 		ArrayList result = new ArrayList(m_NumVar);
 		for (int i = 0; i < m_NumVar; i++) {
@@ -215,13 +264,20 @@ public class DeProbl {
 			double[][] pred_sum = new double[nb_targets][];
 
 			for (int iTarget=0; iTarget < nb_targets;iTarget++) {
+				pred_sum[iTarget] = new double[nb_values[iTarget]];
+				
 				if (m_ClssTask) {
-					pred[iInstance][iTarget]= -1; // Initialize for invalid? class
+					//pred[iInstance][iTarget]= -1; // Initialize for invalid? class
+					pred[iInstance][iTarget]= INVALID_PREDICTION; // Initialize for invalid? class
+					for (int iValue = 0; iValue < nb_values[iTarget]; iValue++) {
+						pred_sum[iTarget][iValue] = INVALID_PREDICTION;
+					}
 				} else 
 				{
-					pred[iInstance][iTarget]= 0; // For regression initialize to zero
+					// For regression initialize to unallowed prediction.
+					pred[iInstance][iTarget]= INVALID_PREDICTION;
+					pred_sum[iTarget][0] = INVALID_PREDICTION;
 				}
-				pred_sum[iTarget] = new double[nb_values[iTarget]];
 			}
 
 			boolean covered = false; // Is the instance covered
@@ -237,6 +293,12 @@ public class DeProbl {
 					//	if (m_RulePred[iInstance][iRule][iTarget][iClass] != Double.N NaN) {
 						if (!Double.isNaN(m_RulePred[iInstance][iRule][iTarget][iClass]) ) {
 							covered = true;
+							
+							// To create lots of loss, undefined predictions have special value
+							if (pred_sum[iTarget][iClass] == INVALID_PREDICTION &&
+								((Double)genes.get(iRule)).doubleValue() != 0) {
+								pred_sum[iTarget][iClass] = 0;
+							}
 							// For each nominal value and target, add variable
 							// <current optimized parameter value>*<strenght of nominal value> OR
 							// <current optimized parameter value>*<regression prediction for rule>
@@ -566,8 +628,17 @@ public class DeProbl {
 		double[] prediction = new double[nbOfTargets];
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++)
 		{
-			// For regression there is only one class and the prediction is the given value.
-			prediction[iTarget] = predictionSums[iTarget][0];
+			
+			if (predictionSums[iTarget][0] == INVALID_PREDICTION) {
+				// No prediction is given (none of the nonzero weight rules cover the instance)
+				// Use the default rule instead
+				prediction[iTarget] = m_defaultPred[iTarget];
+				
+			} else {
+				// For regression there is only one class and the prediction is the given value.
+				prediction[iTarget] = predictionSums[iTarget][0];
+			}
+			
 		}
 		
 		return prediction;
@@ -587,16 +658,27 @@ public class DeProbl {
 				
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++)
 		{
-			double max = 0; // Search for maximum
+			double max = 0; // Maximum value so far
+			int iMaxClass = 0; // The class with maximum value so far.  
 			
 			// Which one of the classes has the highest voting, i.e. maximum value
-			for (int iClass = 0; iClass < predictionSums[iTarget].length; iClass++) {
-			
+			for (int iClass = 0; iClass < predictionSums[iTarget].length; iClass++) {	
 				if (predictionSums[iTarget][iClass] > max) 
 				{
-					prediction[iTarget] = (double)iClass;   
+					//prediction[iTarget] = (double)iClass;
+					iMaxClass = iClass;
 					max = predictionSums[iTarget][iClass];
 				}
+			}
+				
+			if (predictionSums[iTarget][iMaxClass] == INVALID_PREDICTION) {
+				// We should come here only if for all the classes have INVALID_PREDICTION
+				// (This is because maximum value is -infinity = INVALID_PREDICTION)
+				// Thus no prediction is given (none of the nonzero weight rules cover the instance)
+				// Use the default rule instead
+				prediction[iTarget] = m_defaultPred[iTarget];
+			} else {
+				prediction[iTarget] = (double)iMaxClass;
 			}
 		}	
 		return prediction;

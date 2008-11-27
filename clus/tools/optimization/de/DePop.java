@@ -53,6 +53,10 @@ public class DePop {
 	}
 
 	public void createFirstPop() {
+		// Add a zero vector there also. As many zero weights as possible would be good.
+//		if (getSettings().getOptDEPopSize() > 0)
+//			((DeInd)m_Inds.get(0)).setGenes(m_Probl.getZeroVector());
+			
 		for (int i = 0; i < getSettings().getOptDEPopSize(); i++)
 			((DeInd)m_Inds.get(i)).setGenes(m_Probl.getRandVector(m_Rand));
 	}
@@ -102,17 +106,32 @@ public class DePop {
 	  // I cycles through the variables. The alteration is made at least for i_rand but
 	  // also randomly for other variables. For alteration we take the new value of (i1-i2)+i3.
 	  for (int kVariable = 0; kVariable < m_Probl.getNumVar(); kVariable++) {
+
+	    result.set(i,((DeInd)m_Inds.get(parent)).getGenes().get(i));
+	     
+        // ****** Crossing over
 	  	if (m_Rand.nextDouble() < (getSettings().getOptDECrossProb()) || (i == i_rand)) {
 	    	result.set(i,new Double(
 	    			getSettings().getOptDEWeight() *
 				(((Double)((DeInd)m_Inds.get(i1)).getGenes().get(i)).doubleValue() -
 				 ((Double)((DeInd)m_Inds.get(i2)).getGenes().get(i)).doubleValue()) +
 				 ((Double)((DeInd)m_Inds.get(i3)).getGenes().get(i)).doubleValue()));
-	  	} else {
-	      result.set(i,((DeInd)m_Inds.get(parent)).getGenes().get(i));
 	  	}
+	  	
+	  	// ******** Mutations
+	  	// If we are searching for lots of zero weights, there should be a mutation for putting the value to zero
+	  	if (m_Rand.nextDouble() < getSettings().getDEProbMutationZero()) {
+	  		result.set(i,new Double(0.0));
+	  	}
+
+	  	// We should also have a undo for the previous. Put a random number for it.
+	  	if (m_Rand.nextDouble() < getSettings().getDEProbMutationNonZero()) {
+			result.set(i,new Double(m_Probl.getRandValueInRange(m_Rand,i)));
+	  	}	  	
+	  	
 	    i = ++i % m_Probl.getNumVar(); // i = i mod variables.
 	  }
+	  
 	  return m_Probl.getRoundVector(result);
 	}
 

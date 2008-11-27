@@ -42,21 +42,6 @@ import clus.util.ClusFormat;
  */
 public class DeAlg {
 
-	/**
-	 * Parameters for optimization algorithm. 
-	 * Predictions and true values for all the instances of data.
-	 *
-	 */
-	static public class OptParam {
-		public OptParam(double[][][][] predictions, double[][] trueValues ){
-			m_predictions = predictions;
-			m_trueValues = trueValues;
-		}
-		public double[][][][] m_predictions;
-		public double[][] m_trueValues;
-	}
-
-	
 	// private DeParams m_Params;
 	private DeProbl m_Probl;
 	private DePop m_Pop;
@@ -66,16 +51,12 @@ public class DeAlg {
   /**
    * Constructor for classification and regression optimization.
 	 * @param stat_mgr Statistics
-	 * @param rule_pred Four dimensional array for the predictions. [instance][rule][target index][class_value]
-	 *                  For regression the class_value = 0 always.
-	 * @param true_val True values for instances. [instance][target index]
-	 * @param isClassification Is it classification or regression?
-     * TODO Only parameters are changed for multi target
+	 * @param parameters The true values and predictions for the instances. These are used by DeProbl.
      */
 	//public DeAlg(ClusStatManager stat_mgr, double[][][][] rule_pred, double[][] true_val) {
-	public DeAlg(ClusStatManager stat_mgr, OptParam parameters) {
+	public DeAlg(ClusStatManager stat_mgr, DeProbl.OptParam parameters) {
 		m_StatMgr = stat_mgr;
-		m_Probl = new DeProbl(stat_mgr, parameters.m_predictions, parameters.m_trueValues);
+		m_Probl = new DeProbl(stat_mgr, parameters);
 		m_Pop = new DePop(stat_mgr, m_Probl);
 		ClusStatistic tar_stat = m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 	}
@@ -114,9 +95,11 @@ public class DeAlg {
 			m_Best = new DeInd();
 			m_Best.copy((DeInd)m_Pop.m_Inds.get(0));
 			for (int i = 0; i < getSettings().getOptDEPopSize(); i++) {
+				checkIfBest((DeInd)m_Pop.m_Inds.get(i));
 				OutputLog((DeInd)m_Pop.m_Inds.get(i), i, wrt_log);
 			}
 			OutputPop();
+			// The while loop is over number of individual evaluations, not separate iterations!
 			while (num_eval < getSettings().getOptDENumEval()) {
 				System.out.print(".");
 				m_Pop.sortPopRandom();
@@ -126,6 +109,7 @@ public class DeAlg {
 				for (int i = 0; i < getSettings().getOptDEPopSize(); i++) {
 					candidate.setGenes(m_Pop.getCandidate(i)); // Get a crossed over candidate.
 					num_eval = candidate.evaluate(m_Probl, num_eval);
+					checkIfBest((DeInd)m_Pop.m_Inds.get(i));
 					OutputLog(candidate, num_eval, wrt_log);
 					// Smaller fitness is better
 					if (candidate.m_Fitness < ((DeInd)m_Pop.m_Inds.get(i)).m_Fitness) {
@@ -150,11 +134,17 @@ public class DeAlg {
 		}*/
 	}
 
-	public void OutputLog(DeInd ind, int index, PrintWriter wrt) {
-		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+	/** Checks if the individual is the new best. Replaces
+	 * if this is the case.
+	 */
+	public void checkIfBest(DeInd ind) {
 		if (m_Best.m_Fitness > ind.m_Fitness) {
 			m_Best.copy(ind);
 		}
+	}
+	/** Print the gene to output file. */
+	public void OutputLog(DeInd ind, int index, PrintWriter wrt) {
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		wrt.print("" + fr.format(index));
 		wrt.print("\t");
 		wrt.print("" + fr.format(m_Best.m_Fitness));
