@@ -893,6 +893,11 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_OptDERegulPower;
 	/** DE For Huber 1962 loss function an alpha value for outliers has to be given. */
 	protected INIFileDouble m_OptDEHuberAlpha;
+	/** DE A probability to mutate certain value to zero. Useful if zero weights are wanted */
+	protected INIFileDouble m_DEProbMutationZero;
+	/** DE A reverse for the zeroing. A probability to mutate certain value to nonzero random value.
+	 * Could be used if zeroing is used. */
+	protected INIFileDouble m_DEProbMutationNonZero;	
 	
 	
 
@@ -1078,6 +1083,17 @@ public class Settings implements Serializable {
 	/** DE For Huber 1962 loss function an alpha value for outliers has to be given. */
 	public double getOptDEHuberAlpha() {
 		return m_OptDEHuberAlpha.getValue();
+	}
+	
+	/** DE A probability to mutate certain value to zero. Useful if zero weights are wanted */
+	public double getDEProbMutationZero()	{
+		return m_DEProbMutationZero.getValue();
+	}
+
+	/** DE A reverse for the zeroing. A probability to mutate certain value to nonzero random value.
+	 * Could be used if zeroing is used. */
+	public double getDEProbMutationNonZero() {
+		return m_DEProbMutationNonZero.getValue();
 	}
 	
 //	protected INIFileNominal m_OptDELossFunction;
@@ -1568,6 +1584,8 @@ public class Settings implements Serializable {
 		rules.addNode(m_OptDELossFunction = new INIFileNominal("OptDELossFunction",DE_LOSS_FUNCTIONS, 0));
 		rules.addNode(m_OptDERegulPower = new INIFileDouble("OptDERegulPower", 1.0));
 		rules.addNode(m_OptDEHuberAlpha = new INIFileDouble("OptDEHuberAlpha", 0.9));
+		rules.addNode(m_DEProbMutationZero = new INIFileDouble("DEProbMutationZero", 0.0));
+		rules.addNode(m_DEProbMutationNonZero = new INIFileDouble("DEProbMutationNonZero", 0.0));
 		
 		rules.setEnabled(false);
 
