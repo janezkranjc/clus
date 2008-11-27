@@ -65,7 +65,7 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		//ClusRuleSet ruleSet = new ClusRuleSet(m_Clus.getStatManager());
 				
 		// Get the trees and transform to rules
-		int numberOfRules = 0;
+		int numberOfUniqueRules = 0;
 
 		for (int iTree = 0; iTree < forestModel.getNbModels(); iTree++)
 		{
@@ -73,19 +73,13 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 			ClusNode treeRootNode = (ClusNode)forestModel.getModel(iTree);
 
 			// Transform the tree into rules and add them to current rule set
-			numberOfRules += 
+			numberOfUniqueRules += 
 				ruleSet.addRuleSet(treeTransform.constructRules(treeRootNode,
 						getStatManager()));
 		}
-				
-		// Just a stupid check
-		if (numberOfRules != ruleSet.getModelSize())
-		{
-			System.out.println("Error: The rule set size is invalid. Something wrong in transformation from trees!");
-		}
-		
+						
 		System.out.println("Transformed tree ensemble into rules. " + ruleSet.getModelSize()
-	            +  " rules created.");	
+	            +  " rules created. (" + numberOfUniqueRules + " of them had unique descriptions.)");	
 		
 		
 		RowData trainingData = (RowData)cr.getTrainingSet();
@@ -157,8 +151,9 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		RowData trainData = (RowData)cr.getTrainingSet();
 		getStatManager().getHeuristic().setTrainData(trainData);
 		ClusStatistic trainStat = getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING);
-		double value = trainStat.getDispersion(getStatManager().getClusteringWeights(), trainData);
-		getStatManager().getHeuristic().setTrainDataHeurValue(value);
+		// TODO: Are these needed?
+//		double value = trainStat.getDispersion(getStatManager().getClusteringWeights(), trainData);
+//		getStatManager().getHeuristic().setTrainDataHeurValue(value);
 		
 		ClusModelInfo default_model = cr.addModelInfo(ClusModel.DEFAULT);
 		ClusModel def = ClusDecisionTree.induceDefault(cr);

@@ -864,7 +864,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
 		
 		DeAlg deAlg = null;
-		DeAlg.OptParam param = rset.giveFormForWeightOptimization(wrt_pred, data);
+		DeProbl.OptParam param = rset.giveFormForWeightOptimization(wrt_pred, data);
 		// Find the rule weights with evolutionary algorithm.
 		deAlg = new DeAlg(getStatManager(), param);
 		ArrayList weights = deAlg.evolution();

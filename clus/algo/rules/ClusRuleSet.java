@@ -40,6 +40,7 @@ import clus.model.ClusModel;
 import clus.model.processor.ClusModelProcessor;
 import clus.statistic.*;
 import clus.tools.optimization.de.DeAlg;
+import clus.tools.optimization.de.DeProbl; // Optimization information (data, predictions)
 import clus.util.*;
 
 /**
@@ -51,6 +52,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
+	/** Default prediction if no other rule covers the instance. */
 	protected ClusStatistic m_TargetStat;
 	protected ArrayList m_Rules = new ArrayList();
 	/* Array of tuples covered by the default rule. */
@@ -604,7 +606,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	 * @param data Data the optimization is based on.
 	 * @return Parameters for optimization. Include true values and predictions for each of the data instances.
 	 */
-	public DeAlg.OptParam giveFormForWeightOptimization(PrintWriter outLogFile, RowData data){
+	public DeProbl.OptParam giveFormForWeightOptimization(PrintWriter outLogFile, RowData data){
 
 		DecimalFormat mf = new DecimalFormat("###.000");
 		ClusSchema schema = data.getSchema();
@@ -619,6 +621,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			isClassification = true;
 		}
 
+		// ***************** TRUE VALUES
+		
 		ClusAttrType[] trueValuesTemp = new ClusAttrType[nb_target];
 		if (isClassification) {
 			//NominalAttrType[] 
@@ -626,13 +630,12 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		} else { // regression
 			//NumericAttrType[]
 			trueValuesTemp = (ClusAttrType[])schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		}
-
+		}		
+		
 		/** 
 		 * True values for each target and instance
 		 */
 		double[][] trueValues = new double[nb_rows][nb_target];
-
 		// Index over the instances of data
 		for (int iRows = 0; iRows < nb_rows; iRows++) {
 			DataTuple tuple = data.getTuple(iRows);
@@ -648,8 +651,26 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 		}
 
+		// ***************** DEFAULT PREDICTION
+		// Used if no other rule cover the instance
+		/**
+		 * Default predictions for each target
+		 */
+		double[] defaultPred = new double[nb_target];
+		if (isClassification){
+			int[] tempDefaults = ((ClassificationStat)m_TargetStat).getNominalPred();
 
+			// Casting from int[] to double[]
+			for (int kTargets = 0; kTargets < nb_target; kTargets++)
+			{
+				defaultPred[kTargets] = (double)tempDefaults[kTargets];
+			}
+		} else {
+			defaultPred = ((RegressionStat)m_TargetStat).getNumericPred();
+		}
+		
 
+		// ************ PREDICTIONS
 
 		// Number of nominal values for each target. For regression, no number of nominal values needed, i.e. 1
 		int nb_values[] = new int[nb_target]; 
@@ -734,7 +755,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			outLogFile.flush();
 		}
 
-		DeAlg.OptParam param = new DeAlg.OptParam(rule_pred, trueValues); 
+		DeProbl.OptParam param = new DeProbl.OptParam(rule_pred, defaultPred, trueValues); 
 		return param;
 	}
 
@@ -743,14 +764,19 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	 * Uniqueness is not checked because it is based on the test only.
 	 * Thus different predictions for rules do not make rules different. 
 	 * @param newRules Rules to be added.
-	 * @return How many rules were added.
+	 * @return How many added rules were unique when only descriptions are considered.
 	 */
 	public int addRuleSet(ClusRuleSet newRules) {
+		int numberOfUnique = 0;
 		for (int iRule = 0; iRule < newRules.getModelSize(); iRule++)
 		{
+			if (unique(newRules.getRule(iRule))) {
+				numberOfUnique++;
+			}
+			
 			// Add a rule from addRules to this rule set
 			add(newRules.getRule(iRule));
 		}
-		return newRules.getModelSize();
+		return numberOfUnique;
 	}
 }

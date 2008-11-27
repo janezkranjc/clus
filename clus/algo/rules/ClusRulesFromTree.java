@@ -34,6 +34,7 @@ import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.test.*;
 import clus.tools.optimization.de.DeAlg;
+import clus.tools.optimization.de.DeProbl;
 import clus.util.*;
 
 /** Rule set created from a tree. Use by decision tree command line parameter.
@@ -79,7 +80,7 @@ public class ClusRulesFromTree {
 			DeAlg deAlg = null;
 			
 			// TODO: Add the file name for the parameter, not null
-			DeAlg.OptParam param = ruleSet.giveFormForWeightOptimization(null, data);
+			DeProbl.OptParam param = ruleSet.giveFormForWeightOptimization(null, data);
 			// Find the rule weights with evolutionary algorithm.
 			deAlg = new DeAlg(mgr, param);
 			ArrayList weights = deAlg.evolution();
@@ -118,7 +119,7 @@ public class ClusRulesFromTree {
 	}
 
 	/**
-	 * Construct rules from the given tree. Does not do any processing
+	 * Construct rules from terminal nodes of the given tree. Does not do any processing
 	 * like dispersion or weight optimization. Especially used
 	 * when transforming multiple trees to rules.
 	 * @param node The root node of the tree
@@ -136,6 +137,7 @@ public class ClusRulesFromTree {
 		return ruleSet;
 	}
 
+	/** Only terminal nodes are added to rule set */
 	public void constructRecursive(ClusNode node, ClusRule rule, ClusRuleSet set) {
 		if (node.atBottomLevel()) {
 			if (!m_Validated || node.getTargetStat().isValidPrediction()) {
