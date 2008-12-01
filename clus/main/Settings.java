@@ -1402,8 +1402,16 @@ public class Settings implements Serializable {
 		return m_EnsembleMethod.getValue();
 	}
 
+	public void setEnsembleMethod(String value){
+		m_EnsembleMethod.setValue(value);
+	}
+	
 	public boolean shouldPerformRanking(){
 		return m_FeatureRanking.getValue();
+	}
+	
+	public void setFeatureRanking(boolean value){
+		m_FeatureRanking.setValue(value);
 	}
 	
 	public INIFileNominalOrIntOrVector getNbBaggingSets(){
@@ -1411,6 +1419,10 @@ public class Settings implements Serializable {
 		return m_NbBags;
 	}
 
+	public void setNbBags(int value){
+		m_NbBags.setInt(value);
+	}
+	
 	public int getNbRandomAttrSelected() {
 		return m_RandomAttrSelected.getValue();
 	}
@@ -1431,6 +1443,9 @@ public class Settings implements Serializable {
 		return m_EnsembleOOBestimate.getValue();
 	}
 
+	public void setOOBestimate(boolean value){
+		m_EnsembleOOBestimate.setValue(value);
+	}
 
 /***********************************************************************
  * Section: KNN                                                        *
