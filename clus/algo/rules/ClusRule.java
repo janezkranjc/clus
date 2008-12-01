@@ -615,13 +615,18 @@ public class ClusRule implements ClusModel, Serializable {
 	 * For computation of rule-wise error measures
 	 */
 	public void setError(ClusErrorList error, int subset) {
-		if (m_Errors == null) m_Errors = new ClusErrorList[2];
+		if (m_Errors == null){
+			m_Errors = new ClusErrorList[2];
+		}
 		m_Errors[subset] = error;
 	}
 	
 	public void addError(ClusErrorList error, int subset) {
-		if (m_Errors == null) m_Errors = new ClusErrorList[2];
-		m_Errors[subset].addErrors(error);
+		if (m_Errors == null){
+			setError(error, subset);
+		} else {
+			m_Errors[subset].addErrors(error);
+		}
 	}	
 	
 	public ClusErrorList getError(int subset) {
