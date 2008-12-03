@@ -3,7 +3,6 @@ VERS="2.5"
 rm -rf release
 mkdir -p release
 mkdir -p release/Clus-$VERS
-mkdir -p release/Clus-$VERS/bin
 cp addon/script/compile.sh release/Clus-$VERS/
 cp addon/script/clus.sh release/Clus-$VERS/
 cp -r clus addon data docs jars jeans sit LICENSE.txt README.txt release/Clus-$VERS/
@@ -24,6 +23,7 @@ jar xvf ../jars/jgap.jar
 jar cvfm ../Clus.jar ../../../addon/script/manifest *
 cd ../../
 rm -rf Clus-$VERS/bin
+mkdir -p Clus-$VERS/bin
 zip -r Clus-$VERS.zip Clus-$VERS
 cd ..
 ls -al release

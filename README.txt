@@ -49,12 +49,12 @@ Compiling Clus
 (Windows)
 
 cd C:\Clus\src
-javac -cp ".;jars\commons-math-1.0.jar;jars\jgap.jar" clus/Clus.java
+javac -d "bin" -cp ".;jars\commons-math-1.0.jar;jars\jgap.jar" clus/Clus.java
 
 (Unix)
 
 cd /home/john/Clus
-javac -cp ".:jars/commons-math-1.0.jar:jars/jgap.jar" clus/Clus.java
+javac -d "bin" -cp ".:jars/commons-math-1.0.jar:jars/jgap.jar" clus/Clus.java
 
 Alternatively, use the "./compile.sh" script provided in the Clus main directory.
 
@@ -70,15 +70,15 @@ Select "Java Project" in the dialog box.
 In the "New Java Project" dialog box:
    * Enter "Clus" in the field "Project Name".
    * Choose "Create project from existing source" and browse to the location where you unzipped Clus.
-     E.g., /home/jan/Clus or C:\Clus.
+     E.g., /home/john/Clus or C:\Clus.
    * Click "Next".
    * Select the "Source" tab of the build settings dialog box.
-     Change "Default output folder" (where the class files are generated) to: "Clus/bin"   
+     Change "Default output folder" (where the class files are generated) to: "Clus/bin".
    * Select the "Libraries" tab of the build settings dialog box.
      Click "Add external jars" and add in this way these three jars:
-        Clus-1.3/jars/commons-math-1.0.jar
-        Clus-1.3/jars/jgap.jar
-        Clus-1.3/jars/weka.jar
+        Clus/jars/commons-math-1.0.jar
+        Clus/jars/jgap.jar
+        Clus/jars/weka.jar
    * Click "Finish".
 
 Select the "Navigator" view (Choose Window | Show View | Navigator)
@@ -91,11 +91,13 @@ Now Clus should be automatically compiled by Eclipse.
 
 To run Clus from Eclipse:
    * Set as main class "clus.Clus".
-   * Set as arguments the name of your settings file (.s).
-   * Set as working directory, the directory on the file system where your data set is.
+   * Set as arguments the name of your settings file (appfile.s).
+   * Set as working directory, the directory on the file system where your data set is located.
 
 Running Clus (if you compiled from the source code)
 ---------------------------------------------------
+
+Note: The following instructions are for running Clus after you compiled it from its source (using the instructions "Compiling Clus" or "Compiling Clus with Eclipse"). To run the pre-compiled version that is available in the file "Clus.jar", use the instructions at the top of this README.
 
 (Windows)
 
@@ -107,6 +109,7 @@ java -cp "C:\Clus\bin;C:\Clus\jars\commons-math-1.0.jar;C:\Clus\jars\jgap.jar" c
 cd path/to/appfile.s
 java -cp "$HOME/Clus/bin:$HOME/Clus/jars/commons-math-1.0.jar:$HOME/Clus/jars/jgap.jar" clus.Clus appfile
 
+Alternatively, use the "./clus.sh" script provided in the Clus main directory after adjusting the line that defines CLUS_DIR in the script.
 
 Settings overview
 -----------------
@@ -115,80 +118,77 @@ All settings with their default values are set in "dataset.s" with "dataset" the
 
 [General]
 RandomSeed = 0
- 	// Initializes the random number generator, used e.g. for
- 	// computing the cross-validation partition.
-XVal = 10
- 	// Sets the number of folds for cross-validation
- 	// To perform cross-validation, run: clus -xval appname
+         % Initializes the random number generator, used e.g. for
+         % computing the cross-validation partition.
 
 [Data]
-File = weather.arff
- 	// Sets the training data file
+File = iris.arff
+         % Sets the training data file
 TestSet = None
- 	// Sets the test data file (if it is a valid file name)
- 	// or test set proportion (if it is a number, e.g., 0.33)
+         % Sets the test data file (if it is a valid file name)
+         % or test set proportion (if it is a number, e.g., 0.33)
 PruneSet = None
- 	// Sets the prune data file (if it is a valid file name)
- 	// or prune set proportion (if it is a number, e.g., 0.33)
+         % Sets the prune data file (if it is a valid file name)
+         % or prune set proportion (if it is a number, e.g., 0.33)
+XVal = 10
+         % Sets the number of folds for cross-validation
+         % To perform cross-validation, run: clus -xval appfile
 
 [Attributes]
 Target = 5
- 	// Sets the index of the target attribute
- 	// (Run clus -info appname to list all attributes.)
-Disable = 6
- 	// Disables some attributes (e.g., "5,7-8")
+         % Sets the index of the target attribute
+         % (Run clus -info appfile to list all attributes.)
+Disable = 4
+         % Disables some attributes (e.g., "5,7-8")
 Key = None
- 	// Sets the index of the key attribute
+         % Sets the index of the key attribute
 Weights = Normalize
- 	// Normalize numeric attributes
+         % Normalize numeric attributes
 
 [Model]
 MinimalWeight = 2.0
- 	// Do not generate splits with less than 2 examples in
- 	// one of the subtrees
+         % Do not generate splits with less than 2 examples in
+         % one of the subtrees
 
 [Tree]
-MaxDepth = Infinity
- 	// Stop building the tree at the given depth
-ConvertToRules = No
- 	// Convert the tree to a set of rules
-
-[Numeric]
 FTest = 1.0
- 	// Sets the f-test stopping criterion for multi-objective
- 	// regression
+         % Sets the f-test stopping criterion for multi-objective
+         % regression
+MaxDepth = Infinity
+         % Stop building the tree at the given depth
+ConvertToRules = No
+         % Convert the tree to a set of rules
 
 [Constraints]
 Syntactic = None
- 	// Sets the file with syntactic constraints
- 	// (i.e., a partial tree)
+         % Sets the file with syntactic constraints
+         % (i.e., a partial tree)
 MaxSize = Infinity
- 	// Sets the maximum size for Garofalakis pruning
+         % Sets the maximum size for Garofalakis pruning
 MaxError = Infinity
- 	// Sets the maximum error for Garofalakis pruning
+         % Sets the maximum error for Garofalakis pruning
 
 [Output]
 AllFoldModels = Yes
- 	// Output the model built in each of the cross-validation folds
+         % Output the model built in each of the cross-validation folds
 AllFoldErrors = No
- 	// Output error measures for each fold
+         % Output error measures for each fold
 TrainErrors = Yes
- 	// Output training error measures
+         % Output training error measures
 UnknownFrequency = No
- 	// Show in each node of the tree the proportion of examples
- 	// that had a missing value for the test stored in the node
+         % Show in each node of the tree the proportion of examples
+         % that had a missing value for the test stored in the node
 BranchFrequency = No
- 	// Show in each node, the proportion of examples for which
- 	// the test stored in the node succeeds
-WriteTestSetPredictions = No
- 	// Write the predictions obtained on the test set to a
- 	// file
+         % Show in each node, the proportion of examples for which
+         % the test stored in the node succeeds
+WritePredictions = {Train,Test}
+         % Write the predictions obtained on the test set to a
+         % file
 
 [Beam]
 SizePenalty = 0.1
- 	// Sets the size penalty parameter used in the beam heuristic
+         % Sets the size penalty parameter used in the beam heuristic
 BeamWidth = 10
- 	// Sets the width of the beam (number of trees)
+         % Sets the width of the beam (number of trees)
 MaxSize = Infinity
- 	// Sets the maximum size constraint
-
+         % Sets the maximum size constraint
