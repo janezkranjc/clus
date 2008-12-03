@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import jeans.util.array.MDoubleArrayComparator;
 
+import clus.algo.tdidt.ClusNode;
 import clus.data.rows.DataTuple;
 import clus.ext.hierarchical.WHTDStatistic;
 import clus.main.ClusStatManager;
@@ -43,8 +44,11 @@ public class ClusBoostingForest extends ClusForest {
 	}	
 	
 	public ClusStatistic predictWeighted(DataTuple tuple) {
-		ClusStatistic predicted = m_Stat.cloneSimple();
-		predictWeightedRegression((RegressionStat)predicted, tuple);
+		ClusStatistic predicted = m_Stat.cloneSimple();		
+		//predictWeightedRegression((RegressionStat)predicted, tuple);
+		for (int i = 0; i < getNbModels(); i++) {
+			predicted.addPrediction(getModel(i).predictWeighted(tuple), 1.0/getNbModels());
+		}
 		predicted.computePrediction();
 		return predicted;
 	}

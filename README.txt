@@ -7,44 +7,47 @@ Copyright (C) 2007
     Katholieke Universiteit Leuven, Leuven, Belgium
     Jozef Stefan Institute, Ljubljana, Slovenia    
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.
 
 Running Clus
 ------------
 
-Clus is based on Java from <http://java.sun.com>. You will need Java 2 version 1.5.x or above to run Clus. Clus is a command line application and should be started from a command prompt (Windows) or X-Terminal (Unix).
+Clus is based on Java from <http://java.sun.com>. You will need Java 2 version 1.5.x or above to run Clus. Clus is a command line application and should be started from the command prompt (Windows) or a console/terminal (Unix).
 
 To start Clus, enter the command:
 
-java -jar /path/to/Clus.jar dataset
+java -jar $CLUS_DIR/Clus.jar appfile.s
 
-With /path/to/Clus.jar the location of Clus.jar in your Clus distribution and "dataset" the name of your settings file. The settings are briefly discussed below.
+With $CLUS_DIR/Clus.jar the location of Clus.jar in your Clus distribution and "appfile.s" the name of your settings file. E.g.,
 
-Try Clus first on the examples in the "data" folder.
+(Windows)
 
-E.g., as follows:
+cd C:\Clus\data\iris
+java -jar ..\..\Clus.jar iris.s
 
-cd data/iris
-clus -jar ../../Clus.jar iris
+(Unix)
 
-More information about Clus is available here:
-<http://www.cs.kuleuven.be/~dtai/clus/>
+cd /home/john/Clus/data/iris
+java -jar ../../Clus.jar iris.s
+
+The input to Clus is always a settings file (used to set various parameters of the algorithms in Clus) and a data set in Weka's ARFF format. The settings are briefly discussed below.
+
+In the example above, Clus will read its settings from the input file "iris.s" and its input data from the file "iris.arff". It will then construct (with these settings) a classification tree, which it will write to the output file "iris.out".
+
+Try Clus first on the example data sets in the "data" directory.
+
+Note: The above instructions are for running the pre-compiled version of Clus (Clus.jar), which is included with the Clus download. If you have modified and recompiled Clus, or if you are using the CVS version, then you should run Clus in a different way, which is explained below.
 
 Compiling Clus
 --------------
+
+Note: The Clus download comes with a pre-compiled version of Clus stored in the file Clus.jar. So, if you just want to run Clus as it is on a data set, then you do not need to compile Clus. You can run it using the above instructions. On the other hand, if you wish to modify the source code of Clus, or if you are using the CVS version, then you will need to compile the source code of Clus. This can be done using the commands below or using the IDE called Eclispe as pointed out in the next section.
 
 (Windows)
 
@@ -94,27 +97,27 @@ To run Clus from Eclipse:
    * Set as arguments the name of your settings file (appfile.s).
    * Set as working directory, the directory on the file system where your data set is located.
 
-Running Clus (if you compiled from the source code)
+Running Clus (If you compiled from the source code)
 ---------------------------------------------------
 
-Note: The following instructions are for running Clus after you compiled it from its source (using the instructions "Compiling Clus" or "Compiling Clus with Eclipse"). To run the pre-compiled version that is available in the file "Clus.jar", use the instructions at the top of this README.
+Note: The following instructions are for running Clus after you compiled it from its source code (using the instructions "Compiling Clus" or "Compiling Clus with Eclipse"). To run the pre-compiled version that is available in the file "Clus.jar", use the instructions at the top of this README file.
 
 (Windows)
 
 cd path\to\appfile.s
-java -cp "C:\Clus\bin;C:\Clus\jars\commons-math-1.0.jar;C:\Clus\jars\jgap.jar" clus.Clus appfile
+java -cp "C:\Clus\bin;C:\Clus\jars\commons-math-1.0.jar;C:\Clus\jars\jgap.jar" clus.Clus appfile.s
 
 (Unix)
 
 cd path/to/appfile.s
-java -cp "$HOME/Clus/bin:$HOME/Clus/jars/commons-math-1.0.jar:$HOME/Clus/jars/jgap.jar" clus.Clus appfile
+java -cp "$HOME/Clus/bin:$HOME/Clus/jars/commons-math-1.0.jar:$HOME/Clus/jars/jgap.jar" clus.Clus appfile.s
 
-Alternatively, use the "./clus.sh" script provided in the Clus main directory after adjusting the line that defines CLUS_DIR in the script.
+Alternatively, use the "./clus.sh" script provided in the Clus main directory after adjusting the line that defines CLUS_DIR at the top of the script.
 
 Settings overview
 -----------------
 
-All settings with their default values are set in "dataset.s" with "dataset" the name of your data set (assuming your data set is "dataset.arff"). The resulting model is written to "dataset.out". The file "dataset.out" also contains the values of all settings; these can be copy & pasted to "dataset.s".
+The parameters of the algorithms in Clus can be assigned specific values by means of the settings file "appfile.s". In most cases you only need to include a few settings in this file; all other settings will be set to their default values. If your settings file is named "appfile.s", then Clus will assume the data is in a file called "appfile.arff" (unless specfied otherwise with the "File" setting). The resulting model is written to "appfile.out". The file "appfile.out" also contains the values of all settings; these can be copy & pasted to "dataset.s" and modified. Below is a brief description of the most common settings.
 
 [General]
 RandomSeed = 0
@@ -192,3 +195,4 @@ BeamWidth = 10
          % Sets the width of the beam (number of trees)
 MaxSize = Infinity
          % Sets the maximum size constraint
+		 

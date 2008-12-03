@@ -94,10 +94,10 @@ public class ClusBoostingInduce extends ClusInductionAlgorithm {
 			ClusNode tree = tdidt.induceSingleUnpruned(train);		
 			double[] L = computeNormalizedLoss(trainData, tree);
 			double Lbar = computeAverageLoss(trainData, L);
-			if (Lbar >= 0.5) break;
+			//if (Lbar >= 0.5) break;
 			double beta = Lbar / (1-Lbar);
 			System.out.println("Average loss: "+Lbar+" beta: "+beta);		
-			updateWeights(trainData, L, beta);
+			//updateWeights(trainData, L, beta);
 			result.addModelToForest(tree, beta);			
 		}
 		return result;
