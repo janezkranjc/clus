@@ -1406,6 +1406,10 @@ public class Settings implements Serializable {
 		m_EnsembleMethod.setValue(value);
 	}
 	
+	public void setEnsembleMethod(int value){
+		m_EnsembleMethod.setSingleValue(value);
+	}
+	
 	public boolean shouldPerformRanking(){
 		return m_FeatureRanking.getValue();
 	}

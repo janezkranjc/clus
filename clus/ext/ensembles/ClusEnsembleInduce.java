@@ -87,6 +87,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	//FeatureRanking
 	HashMap m_AllAttributes;//key is the AttributeName, and the value is array with the order in the file and the rank
 	boolean m_FeatRank;
+	TreeMap m_FeatureRanks;
 	
 	public ClusEnsembleInduce(ClusSchema schema, Settings sett, Clus clus) throws ClusException, IOException {
 		super(schema, sett);
@@ -122,6 +123,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	}
 	public void initializeAttributes(ClusAttrType[] descriptive){
 		m_AllAttributes = new HashMap();
+		m_FeatureRanks = new TreeMap();
 		int num = -1;
 		int nom = -1;
 //		System.out.println("NB = "+descriptive.length);
@@ -179,7 +181,10 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			break;
 			}
 		}
-		if (m_FeatRank) printRanking(cr.getStatManager().getSettings().getFileAbsolute(cr.getStatManager().getSettings().getAppName()));
+		if (m_FeatRank) {
+			sortFeatureRanks();
+			printRanking(cr.getStatManager().getSettings().getFileAbsolute(cr.getStatManager().getSettings().getAppName()));
+		}
 		postProcessForest(cr);
 		
 //		This section is for calculation of the similarity in the ensemble
@@ -258,19 +263,35 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			m_OOBCalculation = false;
 		}
 
-	public void printRanking(String fname) throws IOException{
+	
+	public void sortFeatureRanks(){
 		Set attributes = m_AllAttributes.keySet();
 		Iterator iter = attributes.iterator();
-		TreeMap sorted = new TreeMap();
 		while (iter.hasNext()){
 			String attr = (String)iter.next();
 			double score = ((double[])m_AllAttributes.get(attr))[2]/m_NbMaxBags;
 			ArrayList attrs = new ArrayList();
-			if (sorted.containsKey(score))
-				attrs = (ArrayList)sorted.get(score);
+			if (m_FeatureRanks.containsKey(score))
+				attrs = (ArrayList)m_FeatureRanks.get(score);
 			attrs.add(attr);
-			sorted.put(score, attrs);
+			m_FeatureRanks.put(score, attrs);
 		}
+	}	
+	
+	public void printRanking(String fname) throws IOException{
+//		Set attributes = m_AllAttributes.keySet();
+//		Iterator iter = attributes.iterator();
+//		TreeMap sorted = new TreeMap();
+//		while (iter.hasNext()){
+//			String attr = (String)iter.next();
+//			double score = ((double[])m_AllAttributes.get(attr))[2]/m_NbMaxBags;
+//			ArrayList attrs = new ArrayList();
+//			if (sorted.containsKey(score))
+//				attrs = (ArrayList)sorted.get(score);
+//			attrs.add(attr);
+//			sorted.put(score, attrs);
+//		}
+		TreeMap sorted = (TreeMap)m_FeatureRanks.clone();
 		File franking = new File(fname+".fimp");
 		FileWriter wrtr = new FileWriter(franking);
 		wrtr.write("Ranking via Random Forests\n");
@@ -996,6 +1017,11 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 		}
 		cr.termModelProcessors(type);
+	}
+	
+	//returns sorted feature ranking
+	public TreeMap getFeatureRanks(){
+		return m_FeatureRanks;
 	}
 
 }
