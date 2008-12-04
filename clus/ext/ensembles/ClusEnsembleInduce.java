@@ -87,7 +87,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	//FeatureRanking
 	HashMap m_AllAttributes;//key is the AttributeName, and the value is array with the order in the file and the rank
 	boolean m_FeatRank;
-	TreeMap m_FeatureRanks;
+	TreeMap m_FeatureRanks;//sorted by the rank
+	HashMap m_FeatureRankByName;
 	
 	public ClusEnsembleInduce(ClusSchema schema, Settings sett, Clus clus) throws ClusException, IOException {
 		super(schema, sett);
@@ -124,6 +125,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	public void initializeAttributes(ClusAttrType[] descriptive){
 		m_AllAttributes = new HashMap();
 		m_FeatureRanks = new TreeMap();
+		m_FeatureRankByName = new HashMap();
+		
 		int num = -1;
 		int nom = -1;
 //		System.out.println("NB = "+descriptive.length);
@@ -184,6 +187,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		if (m_FeatRank) {
 			sortFeatureRanks();
 			printRanking(cr.getStatManager().getSettings().getFileAbsolute(cr.getStatManager().getSettings().getAppName()));
+			convertRanksByName();
 		}
 		postProcessForest(cr);
 		
@@ -277,6 +281,18 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			m_FeatureRanks.put(score, attrs);
 		}
 	}	
+	
+	public void convertRanksByName(){
+		TreeMap sorted = (TreeMap)m_FeatureRanks.clone();
+		while (!sorted.isEmpty()){
+			double score = (Double)sorted.lastKey();
+			ArrayList attrs = new ArrayList();
+			attrs = (ArrayList) sorted.get(sorted.lastKey());
+			for (int i = 0; i < attrs.size(); i++)
+				m_FeatureRankByName.put(attrs.get(i), score);
+			sorted.remove(sorted.lastKey());
+		}
+	}
 	
 	public void printRanking(String fname) throws IOException{
 //		Set attributes = m_AllAttributes.keySet();
@@ -1024,4 +1040,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		return m_FeatureRanks;
 	}
 
+//	returns feature ranking
+	public HashMap getFeatureRanksByName(){
+		return m_FeatureRankByName;
+	}
 }
