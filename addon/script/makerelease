@@ -2,28 +2,32 @@
 VERS="2.5"
 rm -rf release
 mkdir -p release
-mkdir -p release/Clus-$VERS
-cp addon/script/compile.sh release/Clus-$VERS/
-cp addon/script/clus.sh release/Clus-$VERS/
-cp -r clus addon data docs jars jeans sit LICENSE.txt README.txt release/Clus-$VERS/
-rm -rf release/Clus-$VERS/jeans/graph/trayicon
-rm -rf release/Clus-$VERS/data/test_m5_prune
-find release/Clus-$VERS/ -name "CVS" -exec rm -rf {} \;
-find release/Clus-$VERS/ -name ".svn" -exec rm -rf {} \;
-find release/Clus-$VERS/ -name ".cvsignore" -exec rm -f {} \;
-find release/Clus-$VERS/data -name "debug.txt" -exec rm -f {} \;
-find release/Clus-$VERS/data -name "*.model" -exec rm -f {} \;
-find release/Clus-$VERS/data -name "*.xval" -exec rm -f {} \;
-find release/Clus-$VERS/data -name ".gle" -exec rm -rf {} \;
-cd release/Clus-$VERS/
+mkdir -p release/Clus
+cp addon/script/compile.sh release/Clus/
+cp addon/script/clus.sh release/Clus/
+cp -r clus addon data docs jars jeans sit LICENSE.txt README.txt release/Clus/
+rm -rf release/Clus/jeans/graph/trayicon
+rm -rf release/Clus/data/test_m5_prune
+cd release/Clus/data
+perl cleanall
+cd ../../../
+find release/Clus/ -name "CVS" -exec rm -rf {} \;
+find release/Clus/ -name ".svn" -exec rm -rf {} \;
+find release/Clus/ -name ".cvsignore" -exec rm -f {} \;
+find release/Clus/data -name "debug.txt" -exec rm -f {} \;
+find release/Clus/data -name "*.model" -exec rm -f {} \;
+find release/Clus/data -name "*.xval" -exec rm -f {} \;
+find release/Clus/data -name ".gle" -exec rm -rf {} \;
+cd release/Clus/
 . compile.sh
 cd bin
 jar xvf ../jars/commons-math-1.0.jar
 jar xvf ../jars/jgap.jar
 jar cvfm ../Clus.jar ../../../addon/script/manifest *
 cd ../../
-rm -rf Clus-$VERS/bin
-mkdir -p Clus-$VERS/bin
-zip -r Clus-$VERS.zip Clus-$VERS
+rm -rf Clus/bin
+mkdir -p Clus/bin
+echo $VERS > Clus/VERSION.txt
+zip -r Clus-$VERS.zip Clus
 cd ..
 ls -al release

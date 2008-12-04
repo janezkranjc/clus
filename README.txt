@@ -47,7 +47,7 @@ Note: The above instructions are for running the pre-compiled version of Clus (C
 Compiling Clus
 --------------
 
-Note: The Clus download comes with a pre-compiled version of Clus stored in the file Clus.jar. So, if you just want to run Clus as it is on a data set, then you do not need to compile Clus. You can run it using the above instructions. On the other hand, if you wish to modify the source code of Clus, or if you are using the CVS version, then you will need to compile the source code of Clus. This can be done using the commands below or using the IDE called Eclispe as pointed out in the next section.
+Note: The Clus download comes with a pre-compiled version of Clus stored in the file Clus.jar. So, if you just want to run Clus as it is on a data set, then you do not need to compile Clus. You can run it using the above instructions. On the other hand, if you wish to modify the source code of Clus, or if you are using the CVS version, then you will need to compile the source code of Clus. This can be done using the commands below or using the Eclipse IDE as pointed out in the next section.
 
 (Windows)
 
@@ -59,12 +59,14 @@ javac -d "bin" -cp ".;jars\commons-math-1.0.jar;jars\jgap.jar" clus/Clus.java
 cd /home/john/Clus
 javac -d "bin" -cp ".:jars/commons-math-1.0.jar:jars/jgap.jar" clus/Clus.java
 
+This will compile Clus and write the resulting .class files (Java executable byte code) to the "bin" subdirectory.
+
 Alternatively, use the "./compile.sh" script provided in the Clus main directory.
 
 Compiling Clus with Eclipse
 ---------------------------
 
-In Eclips, create a new project for Clus as follows:
+In Eclipse, create a new project for Clus as follows:
 
 Choose File | New | Project.
 
@@ -97,10 +99,10 @@ To run Clus from Eclipse:
    * Set as arguments the name of your settings file (appfile.s).
    * Set as working directory, the directory on the file system where your data set is located.
 
-Running Clus (If you compiled from the source code)
----------------------------------------------------
+Running Clus (If you compiled the source code)
+----------------------------------------------
 
-Note: The following instructions are for running Clus after you compiled it from its source code (using the instructions "Compiling Clus" or "Compiling Clus with Eclipse"). To run the pre-compiled version that is available in the file "Clus.jar", use the instructions at the top of this README file.
+Note: The following instructions are for running Clus after you compiled its source code (using the instructions "Compiling Clus" or "Compiling Clus with Eclipse"). To run the pre-compiled version that is available in the file "Clus.jar", use the instructions at the top of this README file.
 
 (Windows)
 
@@ -114,10 +116,10 @@ java -cp "$HOME/Clus/bin:$HOME/Clus/jars/commons-math-1.0.jar:$HOME/Clus/jars/jg
 
 Alternatively, use the "./clus.sh" script provided in the Clus main directory after adjusting the line that defines CLUS_DIR at the top of the script.
 
-Settings overview
+Settings Overview
 -----------------
 
-The parameters of the algorithms in Clus can be assigned specific values by means of the settings file "appfile.s". In most cases you only need to include a few settings in this file; all other settings will be set to their default values. If your settings file is named "appfile.s", then Clus will assume the data is in a file called "appfile.arff" (unless specfied otherwise with the "File" setting). The resulting model is written to "appfile.out". The file "appfile.out" also contains the values of all settings; these can be copy & pasted to "dataset.s" and modified. Below is a brief description of the most common settings.
+The parameters of the algorithms in Clus can be assigned specific values by means of the settings file "appfile.s". In most cases you only need to include a few settings in this file; all other settings will be set to their default values. If your settings file is named "appfile.s", then Clus will assume the data is in a file called "appfile.arff" (unless specified otherwise with the "File" setting). The resulting model is written to "appfile.out". The file "appfile.out" also contains the values of all settings; these can be copy & pasted to "dataset.s" and modified. Below is a brief description of the most common settings.
 
 [General]
 RandomSeed = 0
@@ -196,3 +198,15 @@ BeamWidth = 10
 MaxSize = Infinity
          % Sets the maximum size constraint
 		 
+Using Clus on Specific Types of Data
+------------------------------------
+
+Hierarchical Multi-label Classification (HMC) Data
+--------------------------------------------------
+
+There are data sets and example settings files for hierarchical multi-label classification available at this URL:
+
+<http://www.cs.kuleuven.be/~dtai/clus/hmcdatasets>
+
+The Clus download also comes with an HMC data set in the subdirectory "data/church_FUN". This directory contains a suitable settings file and scripts to create precision-recall curves from the output of Clus.
+
