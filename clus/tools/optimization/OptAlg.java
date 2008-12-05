@@ -1,6 +1,6 @@
 /*************************************************************************
  * Clus - Software for Predictive Clustering                             *
- * Copyright (C) 2007                                                    *
+ * Copyright (C) 2008                                                    *
  *    Katholieke Universiteit Leuven, Leuven, Belgium                    *
  *    Jozef Stefan Institute, Ljubljana, Slovenia                        *
  *                                                                       *
@@ -21,65 +21,47 @@
  *************************************************************************/
 
 /*
- * Created on 2006.3.29
+ * Created on 27.11.2008
  */
-package clus.tools.optimization.de;
+package clus.tools.optimization;
 
-import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
 
-import clus.util.ClusFormat;
+import clus.main.ClusStatManager;
+import clus.main.Settings;
+import clus.tools.optimization.de.DeProbl;
 
 /**
- * Class representing a DE individual
- * @author Tea Tusar
+ * Abstract super class for optimization of weights of base learners.
+ * @author Timo Aho
  */
-public class DeInd {
+public abstract class OptAlg {
 
-	private ArrayList<Double> m_Genes;
+	private ClusStatManager m_StatMgr;
+		
 	/**
-	 * Fitness of this DE individual. Smaller is better.
+	 * Constructor for classification and regression optimization.
+	 * @param stat_mgr Statistics
+	 * @param dataInformation The true values and predictions for the instances. These are used by OptimProbl.
+	 *                        The optimization procedure is based on this data information
 	 */
-	public double m_Fitness;
-
-	public DeInd() {
-		m_Genes = new ArrayList<Double>();
+	public OptAlg(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation) {
+		m_StatMgr = stat_mgr;
+//		m_Probl = new DeProbl(stat_mgr, dataInformation);
 	}
-
-	public void setGenes(ArrayList<Double> genes) {
-		m_Genes = genes;
-	}
-
-	public ArrayList<Double> getGenes() {
-		return m_Genes;
-	}
-
+	
 	/**
-	 * Re-evaluates this individuals fitness with the problems fitness function.
-	 * @param probl Optimization problem to be evaluated.
-	 * @param num_eval Tail recursive parameter for how many individuals evaluated.
-	 * @return Return num_eval+1 as in tail recursion.
+	 * Start the actual optimization.
+	 * @return The weights for the base learners.
 	 */
-	public int evaluate(DeProbl probl, int num_eval) {
-		m_Fitness = probl.calcFitness(m_Genes);
-		return (num_eval + 1);
+	abstract public ArrayList<Double> optimize();
+	
+	protected Settings getSettings() {
+		return m_StatMgr.getSettings();
 	}
-
-	public String getIndString() {
-		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
-		int i;
-		String result = "";
-		result += fr.format(m_Fitness) + "\t";
-		for (i = 0; i < m_Genes.size(); i++) {
-			result += fr.format(m_Genes.get(i)) + "\t";
-		}
-	  return result;
-	}
-
-	public DeInd copy(DeInd original) {
-		m_Fitness = original.m_Fitness;
-		m_Genes = original.m_Genes;
-		return this;
-	}
+	
+//	protected OptProbl getProbl() {
+//		return m_Probl;
+//	}
 
 }

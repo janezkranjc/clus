@@ -30,8 +30,8 @@ import java.text.NumberFormat;
 import java.util.*;
 
 import clus.main.*;
-import clus.data.type.*;
-import clus.statistic.*;
+import clus.tools.optimization.OptProbl;
+import clus.tools.optimization.OptAlg;
 import clus.util.ClusFormat;
 
 /**
@@ -40,51 +40,33 @@ import clus.util.ClusFormat;
  * @author Tea Tusar
  * @author Timo Aho Modified for multi target use 10.11.2008
  */
-public class DeAlg {
+public class DeAlg extends OptAlg {
 
-	// private DeParams m_Params;
-	private DeProbl m_Probl;
+	private DeProbl m_DeProbl;
 	private DePop m_Pop;
 	private DeInd m_Best;
-	private ClusStatManager m_StatMgr;
+
 
   /**
    * Constructor for classification and regression optimization.
 	 * @param stat_mgr Statistics
-	 * @param parameters The true values and predictions for the instances. These are used by DeProbl.
-     */
-	//public DeAlg(ClusStatManager stat_mgr, double[][][][] rule_pred, double[][] true_val) {
-	public DeAlg(ClusStatManager stat_mgr, DeProbl.OptParam parameters) {
-		m_StatMgr = stat_mgr;
-		m_Probl = new DeProbl(stat_mgr, parameters);
-		m_Pop = new DePop(stat_mgr, m_Probl);
-		ClusStatistic tar_stat = m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
+	 * @param dataInformation The true values and predictions for the instances. These are used by OptimProbl.
+	 *                        The optimization procedure is based on this data information
+	 *
+	 */
+	public DeAlg(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation) {
+		super(stat_mgr, dataInformation);
+		m_DeProbl = new DeProbl(stat_mgr, dataInformation);
+		m_Pop = new DePop(stat_mgr, m_DeProbl);
+		//		m_StatMgr = stat_mgr;
+//		m_Probl = new OptimProbl(stat_mgr, parameters);
+//		ClusStatistic tar_stat = m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 	}
 
-//  /**
-//   * Constructor for regression optimization
-//   * @param stat_mgr Statistics
-//   * @param rule_pred Three dimensional array for the predictions. [instance][rule][target index]
-//   * @param true_val True values for instances. [instance][target index]
-//   * TODO Only parameters are changed for multi target
-//   */
-//	public DeAlg(ClusStatManager stat_mgr, double[][][] rule_pred, double[][] true_val) {
-//		m_StatMgr = stat_mgr;
-//		m_Probl = new DeProbl(stat_mgr, rule_pred, true_val);
-//		m_Pop = new DePop(stat_mgr, m_Probl);
-//		ClusStatistic tar_stat = m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
-//		try {
-//			if (tar_stat.getNbTargetAttributes() > 1) {
-//				throw new Exception("Not yet implemented: More than one target attribute!");
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
 
-	public ArrayList evolution() {
+	public ArrayList<Double> optimize() {
 		int num_eval;
-		System.out.print("\nOptimizing rule weights (" + getSettings().getOptDENumEval() + ") ");
+		System.out.print("\nDifferential evolution: Optimizing rule weights (" + getSettings().getOptDENumEval() + ") ");
 		try {
 			PrintWriter wrt_log = new PrintWriter(new OutputStreamWriter
                                 (new FileOutputStream("evol.log")));
@@ -108,7 +90,7 @@ public class DeAlg {
 				// Go trough all the population and try to find a candidate with crossing over.
 				for (int i = 0; i < getSettings().getOptDEPopSize(); i++) {
 					candidate.setGenes(m_Pop.getCandidate(i)); // Get a crossed over candidate.
-					num_eval = candidate.evaluate(m_Probl, num_eval);
+					num_eval = candidate.evaluate(m_DeProbl, num_eval);
 					checkIfBest((DeInd)m_Pop.m_Inds.get(i));
 					OutputLog(candidate, num_eval, wrt_log);
 					// Smaller fitness is better
@@ -142,6 +124,7 @@ public class DeAlg {
 			m_Best.copy(ind);
 		}
 	}
+	
 	/** Print the gene to output file. */
 	public void OutputLog(DeInd ind, int index, PrintWriter wrt) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
@@ -152,9 +135,4 @@ public class DeAlg {
 		wrt.print(ind.getIndString());
 		wrt.print("\n");
 	}
-
-	public Settings getSettings() {
-		return m_StatMgr.getSettings();
-	}
-
 }

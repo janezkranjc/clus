@@ -382,7 +382,8 @@ public class ClusRule implements ClusModel, Serializable {
 			wrt.print(extra);
 		}
 		if (getSettings().computeDispersion() && (m_CombStat[ClusModel.TRAIN] != null)) {
-			if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
+			//if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
+			if (getSettings().isRulePredictionOptimized()) {
 				wrt.println("\n   Rule weight        : " + fr.format(getOptWeight()));
 			}
 			wrt.println("   Dispersion (train): " + m_CombStat[ClusModel.TRAIN].getDispersionString());

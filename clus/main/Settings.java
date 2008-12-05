@@ -793,7 +793,7 @@ public class Settings implements Serializable {
 
 	public final static String[] RULE_PREDICTION_METHODS =
 	{"DecisionList", "TotCoverageWeighted", "CoverageWeighted", "AccuracyWeighted",
-		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union"};
+		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union", "GDOptimized"};
 
 	public final static int RULE_PREDICTION_METHOD_DECISION_LIST = 0;
 	
@@ -824,8 +824,11 @@ public class Settings implements Serializable {
 	 *  TODO Not yet implemented.
 	 */
 	public final static int RULE_PREDICTION_METHOD_EQUALLY_WEIGHTED = 5;
+	/** Differential evolution optimization of rule weights */
 	public final static int RULE_PREDICTION_METHOD_OPTIMIZED = 6;
 	public final static int RULE_PREDICTION_METHOD_UNION = 7;
+	/** Gradient descent optimization of rule weights */
+	public final static int RULE_PREDICTION_METHOD_GD_OPTIMIZED = 8;
 
 	public final static String[] RULE_ADDING_METHODS =	{"Always", "IfBetter", "IfBetterBeam"};
 
@@ -839,9 +842,10 @@ public class Settings implements Serializable {
 
 	public static boolean IS_RULE_SIG_TESTING = false;
 
-	/**
-	 * Possible loss functions for evolutionary algorithm optimization
-	 */
+	// ***************** WEIGHT OPTIMIZATION
+	
+	// Differential evolution algorithm
+	/**Possible loss functions for evolutionary algorithm optimization */
 	public final static String[] DE_LOSS_FUNCTIONS = {"Squared", "01Error", "RRMSE", "Huber"};
 	
 	/**	DE Loss function type. Default for regression: Square of differences. */
@@ -852,6 +856,18 @@ public class Settings implements Serializable {
 	public final static int DE_LOSS_FUNCTIONS_RRMSE = 2;
 	/**	DE Loss function type. Huber 1962 error. Like squared but robust for outliers. Friedman&Popescu 2005, p. 7*/
 	public final static int DE_LOSS_FUNCTIONS_HUBER = 3;
+	
+	// Gradient descent optimization algorithm
+	/**Possible loss functions for gradient descent optimization */
+	public final static String[] GD_LOSS_FUNCTIONS = {"Squared", "01Error", "Huber"};
+	/**GD Loss function type. Default for regression: Square of differences. */
+	public final static int GD_LOSS_FUNCTIONS_SQUARED = 0;
+	/**GD Loss function type. 0/1 error for classification. Zenko 2007, p. 26*/
+	public final static int GD_LOSS_FUNCTIONS_01ERROR = 1;
+	/**GD Loss function type. Huber 1962 error. Like squared but robust for outliers. Friedman&Popescu 2005, p. 7*/
+	public final static int GD_LOSS_FUNCTIONS_HUBER = 3;
+	
+	
 	
 	// Settings in the settings file.
 	protected INIFileNominal m_CoveringMethod;
@@ -883,25 +899,39 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_OptDECrossProb;
 	protected INIFileDouble m_OptDEWeight;
 	protected INIFileInt m_OptDESeed;
-	/** DE Optimization regularization parameter */
-	protected INIFileDouble m_OptRegPar;
-	/** DE The treshold for rule weights. If weight < this, rule is removed. */
-	protected INIFileDouble m_OptRuleWeightThreshold;
-	/** DE The loss function. The default is squared loss. */
-	protected INIFileNominal m_OptDELossFunction;
 	/** DE The power of regularization function. The default is 1, i.e. l1 norm. */
 	protected INIFileDouble m_OptDERegulPower;
-	/** DE For Huber 1962 loss function an alpha value for outliers has to be given. */
-	protected INIFileDouble m_OptDEHuberAlpha;
 	/** DE A probability to mutate certain value to zero. Useful if zero weights are wanted */
-	protected INIFileDouble m_DEProbMutationZero;
+	protected INIFileDouble m_OptDEProbMutationZero;
 	/** DE A reverse for the zeroing. A probability to mutate certain value to nonzero random value.
 	 * Could be used if zeroing is used. */
-	protected INIFileDouble m_DEProbMutationNonZero;	
-	
-	
+	protected INIFileDouble m_OptDEProbMutationNonZero;
 
+	// For all the optimization
+	/** Optimization regularization parameter */
+	protected INIFileDouble m_OptRegPar;
+	/** The treshold for rule weights. If weight < this, rule is removed. */
+	protected INIFileDouble m_OptRuleWeightThreshold;
+	/** DE The loss function. The default is squared loss. */
+	protected INIFileNominal m_OptLossFunction;
+	/** Optimization For Huber 1962 loss function an alpha value for outliers has to be given. */
+	protected INIFileDouble m_OptHuberAlpha;
 	
+	// Gradient descent optimization
+	/** GD Maximum amount of iterations */
+	protected INIFileInt m_OptGDMaxIter;
+	/** GD Treshold [0,1] for changing the gradient. This portion of maximum gradients are affecting.
+ 	 * A value between [0,1].If 1 (default) this is simliar to L1 regularization (Lasso) and 0 similar to L2.*/
+	protected INIFileDouble m_OptGDGradTreshold;
+	/** GD Step size ]0,1] for each iteration. */
+	protected INIFileDouble m_OptGDStepSize;
+	/** GD Maximum number of nonzero weights. If the number reached, only old ones are altered.
+	 * If = 0, no limit for nonzero weights.*/
+	protected INIFileInt m_OptGDMaxNbWeights;
+	/** GD User early stopping criteria for this amount of data. If 0, no early stopping used. */
+	protected INIFileDouble m_OptGDEarlyStopAmount;
+	/** GD Early stopping criteria treshold. Value should be greater than 1.*/
+	protected INIFileDouble m_OptGDEarlyStopTreshold;	
 	
 	public INIFileNominalOrDoubleOrVector getDispersionWeights() {
 		return m_DispersionWeights;
@@ -935,6 +965,11 @@ public class Settings implements Serializable {
 
 	public int getRulePredictionMethod() {
 	    return m_PredictionMethod.getValue();
+	}
+	
+	public boolean isRulePredictionOptimized() {
+		return (getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED ||
+				getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED );
 	}
 
 	public void setRulePredictionMethod(int method) {
@@ -1065,6 +1100,12 @@ public class Settings implements Serializable {
 	public double getOptRegPar() {
 		return m_OptRegPar.getValue();
 	}
+	
+	/** Optimization regularization parameter */
+	public void setOptRegPar(double newValue) {
+		m_OptRegPar.setValue(newValue);
+	}
+
 
 	public double getOptRuleWeightThreshold() {
 		return m_OptRuleWeightThreshold.getValue();
@@ -1072,7 +1113,7 @@ public class Settings implements Serializable {
 	
 	/** Type of Loss function for DE optimization */
 	public int getOptDELossFunction() {
-		return m_OptDELossFunction.getValue();
+		return m_OptLossFunction.getValue();
 	}
 	
 	/** Power for regularization parameter */
@@ -1080,26 +1121,61 @@ public class Settings implements Serializable {
 		return m_OptDERegulPower.getValue();
 	}
 
-	/** DE For Huber 1962 loss function an alpha value for outliers has to be given. */
-	public double getOptDEHuberAlpha() {
-		return m_OptDEHuberAlpha.getValue();
-	}
-	
 	/** DE A probability to mutate certain value to zero. Useful if zero weights are wanted */
-	public double getDEProbMutationZero()	{
-		return m_DEProbMutationZero.getValue();
+	public double getOptDEProbMutationZero()	{
+		return m_OptDEProbMutationZero.getValue();
 	}
 
 	/** DE A reverse for the zeroing. A probability to mutate certain value to nonzero random value.
 	 * Could be used if zeroing is used. */
-	public double getDEProbMutationNonZero() {
-		return m_DEProbMutationNonZero.getValue();
+	public double getOptDEProbMutationNonZero() { 
+		return m_OptDEProbMutationNonZero.getValue();
 	}
 	
-//	protected INIFileNominal m_OptDELossFunction;
-	/** DE The power of regularization function. The default is 1, i.e. l1 norm. */
-//	protected INIFileDouble m_OptDERegulPower;
+	/** For Huber 1962 loss function an alpha value for outliers has to be given. */
+	public double getOptDEHuberAlpha() {
+		return m_OptHuberAlpha.getValue();
+	}
+	
+	/** GD Maximum amount of iterations */
+	public int getOptGDMaxIter(){
+		return m_OptGDMaxIter.getValue();
+	}
+	
+	/** GD The used loss function */
+	public int getOptGDLossFunction() {
+		return m_OptLossFunction.getValue();
+	}
+		
+	/** GD Treshold [0,1] for changing the gradient. This portion of maximum gradients are affecting.
+	 * This can be considered as the regularization parameter, if this is 1 it is similar to L1 (Lasso) penalty.
+	 */
+	public double getOptGDGradTreshold() {
+		return m_OptGDGradTreshold.getValue();
+	}
+	
+	/** GD Step size ]0,1] for each iteration. */
+	public double getOptGDStepSize(){
+		return m_OptGDStepSize.getValue();
+	}
+	
+	/** Amount of data used for early stopping check. If zero, not used. */
+	public double getOptGDEarlyStopAmount() {
+		return m_OptGDEarlyStopAmount.getValue();
+	}
 
+	/** Early stopping criterion treshold */
+	public double getOptGDEarlyStopTreshold() {
+		return m_OptGDEarlyStopTreshold.getValue();
+	}
+	
+
+	/** GD Maximum number of nonzero weights. If the number reached, only old ones are altered.
+	 * If = 0, no limit for nonzero weights.*/
+	public int getOptGDMaxNbWeights(){
+		return m_OptGDMaxNbWeights.getValue();
+	}
+	
 /***********************************************************************
  * Section: Hierarchical multi-label classification                    *
  ***********************************************************************/
@@ -1600,12 +1676,18 @@ public class Settings implements Serializable {
 		rules.addNode(m_OptDESeed = new INIFileInt("OptDESeed", 0));
 		rules.addNode(m_OptRegPar = new INIFileDouble("OptRegPar", 0.0));
 		rules.addNode(m_OptRuleWeightThreshold = new INIFileDouble("OptRuleWeightThreshold", 0.1));
-		rules.addNode(m_OptDELossFunction = new INIFileNominal("OptDELossFunction",DE_LOSS_FUNCTIONS, 0));
+		rules.addNode(m_OptLossFunction = new INIFileNominal("OptDELossFunction",DE_LOSS_FUNCTIONS, 0));
 		rules.addNode(m_OptDERegulPower = new INIFileDouble("OptDERegulPower", 1.0));
-		rules.addNode(m_OptDEHuberAlpha = new INIFileDouble("OptDEHuberAlpha", 0.9));
-		rules.addNode(m_DEProbMutationZero = new INIFileDouble("DEProbMutationZero", 0.0));
-		rules.addNode(m_DEProbMutationNonZero = new INIFileDouble("DEProbMutationNonZero", 0.0));
-		
+		rules.addNode(m_OptDEProbMutationZero = new INIFileDouble("OptDEProbMutationZero", 0.0));
+		rules.addNode(m_OptDEProbMutationNonZero = new INIFileDouble("OptDEProbMutationNonZero", 0.0));
+		rules.addNode(m_OptHuberAlpha = new INIFileDouble("OptHuberAlpha", 0.9));
+		rules.addNode(m_OptGDMaxIter = new INIFileInt("OptGDMaxIter", 1000));
+//		rules.addNode(m_OptGDLossFunction = new INIFileNominal("OptGDLossFunction", GD_LOSS_FUNCTIONS, 0));
+		rules.addNode(m_OptGDGradTreshold = new INIFileDouble("OptGDGradTreshold", 1));		
+		rules.addNode(m_OptGDStepSize = new INIFileDouble("OptGDStepSize", 0.01));
+		rules.addNode(m_OptGDMaxNbWeights = new INIFileInt("OptGDMaxNbWeights", 0));
+		rules.addNode(m_OptGDEarlyStopAmount = new INIFileDouble("OptGDEarlyStopAmount", 0.0));
+		rules.addNode(m_OptGDEarlyStopTreshold = new INIFileDouble("OptGDEarlyStopTreshold", 1.1));		
 		rules.setEnabled(false);
 
 		m_SectionHierarchical = new INIFileSection("Hierarchical");

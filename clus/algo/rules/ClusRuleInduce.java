@@ -43,6 +43,9 @@ import clus.ext.beamsearch.*;
 import clus.ext.ensembles.ClusEnsembleInduce;
 import clus.ext.ensembles.ClusForest;
 import clus.util.*;
+import clus.tools.optimization.GDAlg;
+import clus.tools.optimization.OptAlg;
+import clus.tools.optimization.OptProbl;
 import clus.tools.optimization.de.*;
 
 public class ClusRuleInduce extends ClusInductionAlgorithm {
@@ -830,7 +833,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		rset.postProc();
 		
 		// Optimizing rule set
-		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
+		if (getSettings().isRulePredictionOptimized()) {
 			rset = optimizeRuleSet(rset, data);
 		}
 		rset.setTrainErrorScore(); // Not always needed?
@@ -863,11 +866,18 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		String fname = getSettings().getDataFile();
 		PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
 		
-		DeAlg deAlg = null;
-		DeProbl.OptParam param = rset.giveFormForWeightOptimization(wrt_pred, data);
-		// Find the rule weights with evolutionary algorithm.
-		deAlg = new DeAlg(getStatManager(), param);
-		ArrayList weights = deAlg.evolution();
+		OptAlg optAlg = null;
+		
+		OptProbl.OptParam param = rset.giveFormForWeightOptimization(wrt_pred, data);
+		
+		// Find the rule weights with optimization algorithm.
+		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {	
+			optAlg = (OptAlg) new GDAlg(getStatManager(), param);
+		} else {
+			optAlg = (OptAlg) new DeAlg(getStatManager(), param);
+		}
+
+		ArrayList weights = optAlg.optimize();
 		
 		// Print weights of rules
 		System.out.print("The weights for rules:");
@@ -1017,7 +1027,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		//rset.postProc();
 		
 		// Optimizing rule set
-		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
+		if (getSettings().isRulePredictionOptimized()) {
 			rset = optimizeRuleSet(rset, data);
 		}
 		

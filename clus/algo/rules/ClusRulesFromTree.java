@@ -33,8 +33,10 @@ import clus.data.rows.RowData;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.test.*;
+import clus.tools.optimization.GDAlg;
+import clus.tools.optimization.OptAlg;
+import clus.tools.optimization.OptProbl;
 import clus.tools.optimization.de.DeAlg;
-import clus.tools.optimization.de.DeProbl;
 import clus.util.*;
 
 /** Rule set created from a tree. Use by decision tree command line parameter.
@@ -68,7 +70,7 @@ public class ClusRulesFromTree {
 	 * @throws IOException
 	 */
 	public ClusRuleSet constructRules(ClusRun cr, ClusNode node, ClusStatManager mgr,
-									  boolean computeDispersion, boolean optimizeRuleWeights)
+									  boolean computeDispersion, int optimizeRuleWeights)
 	throws ClusException, IOException {
 		
 		ClusRuleSet ruleSet = constructRules(node, mgr);
@@ -76,14 +78,21 @@ public class ClusRulesFromTree {
 		RowData data = (RowData)cr.getTrainingSet();
 		
 		// Optimizing rule set if needed
-		if (optimizeRuleWeights) {
-			DeAlg deAlg = null;
+		if (optimizeRuleWeights == Settings.RULE_PREDICTION_METHOD_OPTIMIZED ||
+				optimizeRuleWeights == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {
+			OptAlg optAlg = null;
 			
-			// TODO: Add the file name for the parameter, not null
-			DeProbl.OptParam param = ruleSet.giveFormForWeightOptimization(null, data);
-			// Find the rule weights with evolutionary algorithm.
-			deAlg = new DeAlg(mgr, param);
-			ArrayList weights = deAlg.evolution();
+			// TODO: Add the file name for the parameter, not null. It is an output file.
+			OptProbl.OptParam param = ruleSet.giveFormForWeightOptimization(null, data);
+			
+			// Find the rule weights with optimization algorithm.
+			if (optimizeRuleWeights == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {	
+				optAlg = (OptAlg) new GDAlg(mgr, param);
+			} else {
+				optAlg = (OptAlg) new DeAlg(mgr, param);
+			}
+			
+			ArrayList<Double> weights = optAlg.optimize();
 			
 			// Print weights of rules
 			System.out.print("The weights for rules from trees:");
@@ -93,7 +102,7 @@ public class ClusRulesFromTree {
 			}
 			System.out.print("\n");
 			ruleSet.removeLowWeightRules();
-			RowData data_copy = (RowData)data.cloneData();
+			// RowData data_copy = (RowData)data.cloneData();
 			// updateDefaultRule(rset, data_copy);
 		}
 		

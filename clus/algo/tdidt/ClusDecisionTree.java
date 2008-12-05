@@ -91,11 +91,9 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 		ClusRuleSet rule_set = null;
 		boolean compDis = getSettings().computeDispersion(); // Do we want to compute dispersion
 		
-		// Do we want to optimize the rule weights for prediction.
-		boolean optRuleWeigths = 
-			(getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED);
 
-		rule_set = rft.constructRules(cr, tree_root, getStatManager(), compDis, optRuleWeigths);
+		rule_set = rft.constructRules(cr, tree_root, getStatManager(), compDis,
+				getSettings().getRulePredictionMethod());
 //		rule_set = rft.constructRules(tree_root, getStatManager());
 	
 		ClusModelInfo rules_info = cr.addModelInfo();

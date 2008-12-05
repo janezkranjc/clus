@@ -36,7 +36,7 @@ import clus.main.*;
  */
 public class DePop {
 
-	public ArrayList m_Inds;
+	public ArrayList<DeInd> m_Inds;
 	private DeProbl m_Probl;
 	private Random m_Rand;
 	private ClusStatManager m_StatMgr;
@@ -45,7 +45,7 @@ public class DePop {
 		m_Probl = probl;
 		m_StatMgr = stat_mgr;
 		m_Rand = new Random(getSettings().getOptDESeed());
-		m_Inds = new ArrayList(getSettings().getOptDEPopSize());
+		m_Inds = new ArrayList<DeInd>(getSettings().getOptDEPopSize());
 		for (int i = 0; i < getSettings().getOptDEPopSize(); i++) {
 			DeInd ind = new DeInd();
 			m_Inds.add(ind);
@@ -53,13 +53,10 @@ public class DePop {
 	}
 
 	public void createFirstPop() {
-		// Add a zero vector there also. As many zero weights as possible would be good.
-//		if (getSettings().getOptDEPopSize() > 0)
-//			((DeInd)m_Inds.get(0)).setGenes(m_Probl.getZeroVector());
-			
 		for (int i = 0; i < getSettings().getOptDEPopSize(); i++)
 			((DeInd)m_Inds.get(i)).setGenes(m_Probl.getRandVector(m_Rand));
 	}
+	
 	/**
 	 *  Evaluate population fitness with the population's function.
 	 * @param num_eval How many individuals have already been evaluated? Usually 0.
@@ -79,12 +76,12 @@ public class DePop {
 	 * @param parent Index of parent gene.
 	 * @return New candidate gene.
 	 */
-	public ArrayList getCandidate(int parent) {
+	public ArrayList<Double> getCandidate(int parent) {
 	  int i1, i2, i3;
 	  int i, i_rand;
 	  
 	  /** Result candidate gene */
-	  ArrayList result = new ArrayList(m_Probl.getNumVar());
+	  ArrayList<Double> result = new ArrayList<Double>(m_Probl.getNumVar());
 	  for (int k = 0; k < m_Probl.getNumVar(); k++) {
 	  	result.add(k, (new Double(0.0)));
 	  }
@@ -120,12 +117,12 @@ public class DePop {
 	  	
 	  	// ******** Mutations
 	  	// If we are searching for lots of zero weights, there should be a mutation for putting the value to zero
-	  	if (m_Rand.nextDouble() < getSettings().getDEProbMutationZero()) {
+	  	if (m_Rand.nextDouble() < getSettings().getOptDEProbMutationZero()) {
 	  		result.set(i,new Double(0.0));
 	  	}
 
 	  	// We should also have a undo for the previous. Put a random number for it.
-	  	if (m_Rand.nextDouble() < getSettings().getDEProbMutationNonZero()) {
+	  	if (m_Rand.nextDouble() < getSettings().getOptDEProbMutationNonZero()) {
 			result.set(i,new Double(m_Probl.getRandValueInRange(m_Rand,i)));
 	  	}	  	
 	  	
@@ -141,9 +138,9 @@ public class DePop {
 	public void sortPopRandom() {
 	  int i;
 	  /** The result: Array of individuals with random permutation. */
-	  ArrayList inds = new ArrayList(getSettings().getOptDEPopSize());
+	  ArrayList<DeInd> inds = new ArrayList<DeInd>(getSettings().getOptDEPopSize());
 	  /** Array of old indexes of these individuals */
-	  ArrayList indexes = new ArrayList(getSettings().getOptDEPopSize());
+	  ArrayList<Integer> indexes = new ArrayList<Integer>(getSettings().getOptDEPopSize());
 
 	  for (i = 0; i < getSettings().getOptDEPopSize(); i++) {
 	  	inds.add(new DeInd());

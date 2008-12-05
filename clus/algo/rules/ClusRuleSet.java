@@ -39,6 +39,7 @@ import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.processor.ClusModelProcessor;
 import clus.statistic.*;
+import clus.tools.optimization.OptProbl;
 import clus.tools.optimization.de.DeAlg;
 import clus.tools.optimization.de.DeProbl; // Optimization information (data, predictions)
 import clus.util.*;
@@ -210,6 +211,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		case Settings.RULE_PREDICTION_METHOD_ACCURACY_WEIGHTED:
 			return 1-rule.getTrainErrorScore();
 		case Settings.RULE_PREDICTION_METHOD_OPTIMIZED:
+		case Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED:
 			return rule.getOptWeight();
 		default:
 			System.err.println("getAppropriateWeight(): Unknown weighted prediction method!");
@@ -232,7 +234,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		double threshold = getSettings().getOptRuleWeightThreshold();
 		int nb_rules = getModelSize();
 		for (int i = nb_rules-1; i >= 0; i--) {
-			if (getRule(i).getOptWeight() < threshold) {
+			if (getRule(i).getOptWeight() < threshold || getRule(i).getOptWeight() == 0.0) {
 				m_Rules.remove(i);
 			}
 		}
@@ -606,7 +608,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	 * @param data Data the optimization is based on.
 	 * @return Parameters for optimization. Include true values and predictions for each of the data instances.
 	 */
-	public DeProbl.OptParam giveFormForWeightOptimization(PrintWriter outLogFile, RowData data){
+	public OptProbl.OptParam giveFormForWeightOptimization(PrintWriter outLogFile, RowData data){
 
 		DecimalFormat mf = new DecimalFormat("###.000");
 		ClusSchema schema = data.getSchema();
@@ -683,37 +685,37 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 		}
 
-		// [instance][rule][target][class_value]
+		// [rule][instance][target][class_value]
 		// For regression, class_value = 0 always.
-		//double[][][][] rule_pred = new double[nb_rows][nb_rules][nb_target][nb_values];
-		double[][][][] rule_pred = new double[nb_rows][nb_rules][nb_target][];
+		//double[][][][] rule_pred = new double[nb_rules][nb_rows][nb_target][nb_values];
+		double[][][][] rule_pred = new double[nb_rules][nb_rows][nb_target][];
 
 		// Index over the instances of data
 		for (int iRows = 0; iRows < nb_rows; iRows++) {
-			DataTuple tuple = data.getTuple(iRows);		
+			DataTuple tuple = data.getTuple(iRows);
 			for (int jRules = 0; jRules < nb_rules; jRules++) {
 				ClusRule rule = getRule(jRules);
 
 				// Initialize rule predictions for this rule and instance combination
 				for (int iTarget=0; iTarget < nb_target;iTarget++) {
-					rule_pred[iRows][jRules][iTarget] = new double[nb_values[iTarget]];
+					rule_pred[jRules][iRows][iTarget] = new double[nb_values[iTarget]];
 				}
 
 				if (rule.covers(tuple)) {
 
 					// Returns the prediction for the data
 					if (isClassification) {
-						rule_pred[iRows][jRules] = 
+						rule_pred[jRules][iRows] = 
 							((ClassificationStat)rule.predictWeighted(tuple)).getClassCounts();
 					} else {
 						//Only one nominal value is used for regression.
-						rule_pred[iRows][jRules][0] =
+						rule_pred[jRules][iRows][0] =
 							((RegressionStat)rule.predictWeighted(tuple)).getNumericPred();
 					}
 				} else { // Rule does not cover the instance. Mark as NaN
 					for (int kTargets = 0; kTargets < nb_target; kTargets++)
 					{   for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
-						rule_pred[iRows][jRules][kTargets][lValues] = Double.NaN; 
+						rule_pred[jRules][iRows][kTargets][lValues] = Double.NaN; 
 					}
 					}
 				}
@@ -727,7 +729,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 					{
 						outLogFile.print("{");
 						for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
-							outLogFile.print(mf.format(rule_pred[iRows][jRules][kTargets][lValues]));
+							outLogFile.print(mf.format(rule_pred[jRules][iRows][kTargets][lValues]));
 							if (lValues < nb_values[kTargets]-1)	outLogFile.print("; ");
 						}
 	
@@ -755,7 +757,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			outLogFile.flush();
 		}
 
-		DeProbl.OptParam param = new DeProbl.OptParam(rule_pred, defaultPred, trueValues); 
+		OptProbl.OptParam param = new OptProbl.OptParam(rule_pred, defaultPred, trueValues); 
 		return param;
 	}
 

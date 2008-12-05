@@ -116,25 +116,24 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		
 
 		// Optimizing rule set
-		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
+		if (getSettings().isRulePredictionOptimized()) {
 			ruleSet = optimizeRuleSet(ruleSet, (RowData)cr.getTrainingSet());
 		}
 		ruleSet.setTrainErrorScore(); // Not always needed?
+		ruleSet.addDataToRules(trainingData);
 
-		// TODO Is this needed?
 		// Computing dispersion
 		if (getSettings().computeDispersion()) {
-			ruleSet.addDataToRules((trainingData));
 			ruleSet.computeDispersion(ClusModel.TRAIN);
 			ruleSet.removeDataFromRules();
 			if (cr.getTestIter() != null) {
-				RowData testdata = trainingData;
+				RowData testdata = (RowData)cr.getTestSet(); // or trainingData?
 				ruleSet.addDataToRules(testdata);
 				ruleSet.computeDispersion(ClusModel.TEST);
 				ruleSet.removeDataFromRules();
 			}
 		}
-		
+
 		// Number rules (for output purpose in WritePredictions)
 		ruleSet.numberRules();
 		
