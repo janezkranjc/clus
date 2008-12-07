@@ -549,8 +549,7 @@ public class ClusStatManager implements Serializable {
 			return;
 		}
 		if (m_Mode == MODE_HIERARCHICAL) {
-			String name = "Weighted Hierarchical Tree Distance";
-			m_Heuristic = new VarianceReductionHeuristic(name, createClusteringStat(), getClusteringWeights());
+			m_Heuristic = new VarianceReductionHeuristic(createClusteringStat(), getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_VARIANCE_REDUCTION);
 			return;
 		}

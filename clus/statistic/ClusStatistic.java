@@ -324,4 +324,7 @@ public abstract class ClusStatistic implements Serializable {
 		return null;
 	}
 
+	public String getDistanceName() {
+		return "Unknown Distance";
+	}
 }

@@ -68,4 +68,8 @@ public class HierSumPairwiseDistancesStat extends WHTDStatistic {
 		super.subtractFromOther(other);
 		m_PairwiseDistStat.subtractFromOther(or.m_PairwiseDistStat);
 	}
+	
+	public String getDistanceName() {
+		return m_PairwiseDistStat.getDistanceName();
+	}	
 }

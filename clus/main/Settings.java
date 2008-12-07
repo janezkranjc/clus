@@ -699,7 +699,7 @@ public class Settings implements Serializable {
 
 	public final static int HEURISTIC_SSPD = 4;
 	/** Sum of Squared Distances, the default for ensemble tree regression learning */
-	public final static int HEURISTIC_SS_REDUCTION = 5;
+	public final static int HEURISTIC_VARIANCE_REDUCTION = 5;
 	public final static int HEURISTIC_MESTIMATE = 6;
 	public final static int HEURISTIC_MORISHITA = 7;
 	public final static int HEURISTIC_DISPERSION_ADT = 8;
@@ -1195,10 +1195,15 @@ public class Settings implements Serializable {
     public final static int HIERWEIGHT_EXP_MAX_PARENT_WEIGHT = 3;
     public final static int HIERWEIGHT_NO_WEIGHT = 4;
 
-
+    public final static String[] HIERDIST = { "WeightedEuclidean", "Jaccard" };
+    
+    public final static int HIERDIST_WEIGHTED_EUCLIDEAN = 0;
+    public final static int HIERDIST_JACCARD = 1;
+    
 	INIFileSection m_SectionHierarchical;
 	protected INIFileNominal m_HierType;
 	protected INIFileNominal m_HierWType;
+	protected INIFileNominal m_HierDistance;
 	protected INIFileDouble m_HierWParam;
 	protected INIFileString m_HierSep;
 	protected INIFileString m_HierEmptySetIndicator;
@@ -1216,6 +1221,10 @@ public class Settings implements Serializable {
 	public int getHierType() {
 		return m_HierType.getValue();
 	}
+	
+	public int getHierDistance() {
+		return m_HierDistance.getValue();
+	}	
 
 	public int getHierWType() {
 		return m_HierWType.getValue();
@@ -1692,6 +1701,7 @@ public class Settings implements Serializable {
 
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
 		m_SectionHierarchical.addNode(m_HierType = new INIFileNominal("Type", HIERTYPES, 0));
+		m_SectionHierarchical.addNode(m_HierDistance = new INIFileNominal("Distance", HIERDIST, 0));		
 		m_SectionHierarchical.addNode(m_HierWType = new INIFileNominal("WType", HIERWEIGHT, 0));
 		m_SectionHierarchical.addNode(m_HierWParam = new INIFileDouble("WParam", 0.75));
 		m_SectionHierarchical.addNode(m_HierSep = new INIFileString("HSeparator", "."));
@@ -1871,7 +1881,7 @@ public class Settings implements Serializable {
 		m_PruneSetMax.setEnabled(!m_PruneSet.isString(NONE));
 		m_1SERule.setEnabled(pruning == PRUNING_METHOD_GAROFALAKIS_VSB);
 		int heur = getHeuristic();
-		m_FTest.setEnabled(heur == HEURISTIC_SSPD || heur == HEURISTIC_SS_REDUCTION);
+		m_FTest.setEnabled(heur == HEURISTIC_SSPD || heur == HEURISTIC_VARIANCE_REDUCTION);
 		if (ResourceInfo.isLibLoaded()) m_ResourceInfoLoaded.setSingleValue(RESOURCE_INFO_LOAD_YES);
 		else m_ResourceInfoLoaded.setSingleValue(RESOURCE_INFO_LOAD_NO);
 	}

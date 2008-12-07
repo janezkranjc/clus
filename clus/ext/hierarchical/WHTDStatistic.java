@@ -390,5 +390,8 @@ public class WHTDStatistic extends RegressionStat {
 	public double getDispersion(ClusAttributeWeights scale, RowData data) {
 		return getSVarS(scale);
 	}
-
+	
+	public String getDistanceName() {
+		return "Hierarchical Weighted Euclidean Distance";
+	}
 }
