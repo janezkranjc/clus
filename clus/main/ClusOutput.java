@@ -273,16 +273,9 @@ public class ClusOutput {
 		double psec = (double)summary.getPrepareTime()/1000.0;
 		m_Writer.println("Preprocessing time: "+ClusFormat.ONE_AFTER_DOT.format(psec)+" sec");
 		m_Writer.println("Mean number of tests");
-
-		//Currently implemented ensemble methods don't have pruned models
-		int end_model;
-		if (!Settings.m_EnsembleMode)end_model = ClusModel.PRUNED;
-		else end_model = ClusModel.ORIGINAL;
-
-//		for (int i = ClusModels.ORIGINAL; i <= ClusModels.PRUNED; i++) {
-		for (int i = ClusModel.ORIGINAL; i <= end_model; i++) {
+		for (int i = ClusModel.ORIGINAL; i <= ClusModel.PRUNED; i++) {
 			ClusModelInfo mi = summary.getModelInfo(i);
-			m_Writer.println("     "+mi.getName()+": "+getQuotient(mi.getModelSize(), runs));
+			if (mi != null)	m_Writer.println("     "+mi.getName()+": "+getQuotient(mi.getModelSize(), runs));
 		}
 		m_Writer.println();
 		ClusErrorList tr_err = summary.getTrainError();

@@ -980,9 +980,7 @@ public class Clus implements CMDLineArgsProvider {
 			output.writeOutput(cr, false);
 			if (!Settings.m_EnsembleMode) {
 				ClusModelInfo mi = cr.getModelInfo(ClusModel.PRUNED);
-				// Commented out because otherwise error: combining errors of different models
-				// mi.setName("Fold: " + (fold + 1));
-				io.addModel(mi);
+				if (mi != null) io.addModel(mi);
 			}
 		} else {
 			output.writeBrief(cr);

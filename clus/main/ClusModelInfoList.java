@@ -55,6 +55,7 @@ public abstract class ClusModelInfoList implements Serializable {
 	 * @return
 	 */
 	public ClusModelInfo getModelInfo(int i) {
+		if (i >= m_Models.size()) return null;
 		return (ClusModelInfo)m_Models.get(i);
 	}
 
