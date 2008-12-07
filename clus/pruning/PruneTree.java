@@ -40,7 +40,7 @@ public class PruneTree {
 
 // Methods for pruners that may return more than one result
 	public int getNbResults() {
-		return 1;
+		return 0;
 	}
 
 	public String getPrunedName(int i) {

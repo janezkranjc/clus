@@ -38,6 +38,10 @@ public class BottomUpPruningVSB extends PruneTree {
 		m_NodeErr = m_TreeErr.getErrorClone(parent);
 		m_Data = data;
 	}
+	
+	public int getNbResults() {
+		return 1;
+	}	
 
 	public void prune(ClusNode node) {
 		prune(node, m_Data);

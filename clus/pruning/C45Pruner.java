@@ -49,6 +49,10 @@ public class C45Pruner extends PruneTree {
 		// System.out.println("Performing test of C45 pruning");
 		// TestC45PruningRuleNode.performTest(orig, node, m_TrainingData);
 	}
+	
+	public int getNbResults() {
+		return 1;
+	}	
 
 	public void pruneC45Recursive(ClusNode node, RowData data) throws ClusException {
 		if (!node.atBottomLevel()) {

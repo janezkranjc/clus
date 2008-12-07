@@ -47,6 +47,10 @@ public class HierRemoveInsigClasses extends PruneTree {
 		m_Hier = hier;
 		m_UseBonferroni = bonf;
 	}
+	
+	public int getNbResults() {
+		return 1;
+	}		
 
 	public void setNoRootPreds(boolean noroot) {
 		m_NoRoot = noroot;

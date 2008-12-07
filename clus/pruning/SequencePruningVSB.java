@@ -47,6 +47,10 @@ public class SequencePruningVSB extends PruneTree {
 			m_HasMissing = true;
 	}
 
+	public int getNbResults() {
+		return 1;
+	}	
+	
 	public void setSequencePruner(PruneTree pruner) {
 		m_SeqPruner = pruner;
 		m_Error = pruner.createErrorMeasure(m_VSB, m_Weights);
