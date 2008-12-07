@@ -33,7 +33,7 @@ import clus.main.*;
 import clus.statistic.*;
 import clus.util.*;
 
-public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistance {
+public abstract class TimeSeriesStat extends BitVectorStat implements ClusDistance {
 
 	public final static int linearParameter = 10;
 

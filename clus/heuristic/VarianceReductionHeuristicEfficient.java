@@ -55,7 +55,7 @@ public class VarianceReductionHeuristicEfficient extends ClusHeuristic {
 		double ss_pos = pstat.getSVarS(m_ClusteringWeights);
 		double ss_neg = tstat.getSVarSDiff(m_ClusteringWeights, pstat);
 		// printInfo(ss_tot, ss_pos, ss_neg, pstat);
-		return FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos+ss_neg);
+		return FTest.calcVarianceReductionHeuristic(n_tot, ss_tot, ss_pos+ss_neg);
 	}
 	
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic[] pstat, int nbsplit) {
@@ -72,7 +72,7 @@ public class VarianceReductionHeuristicEfficient extends ClusHeuristic {
 		}
 		double ss_tot = tstat.getSVarS(m_ClusteringWeights);
 		double n_tot = tstat.getTotalWeight();
-		return FTest.calcSSHeuristic(n_tot, ss_tot, ss_sum);
+		return FTest.calcVarianceReductionHeuristic(n_tot, ss_tot, ss_sum);
 	}
 
 	public String getName() {

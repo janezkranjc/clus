@@ -39,6 +39,12 @@ public class VarianceReductionHeuristic extends ClusHeuristic {
 		m_NegStat = negstat;
 		m_TargetWeights = targetweights;
 	}
+	
+	public VarianceReductionHeuristic(ClusStatistic negstat, ClusAttributeWeights targetweights) {
+		m_BasicDist = negstat.getDistanceName();		
+		m_NegStat = negstat;
+		m_TargetWeights = targetweights;
+	}	
 
 	public void setData(RowData data) {
 		m_Data = data;
@@ -63,7 +69,7 @@ public class VarianceReductionHeuristic extends ClusHeuristic {
 		double ss_neg = m_NegStat.getSVarS(m_TargetWeights, m_Data);
 		//System.out.println("SS-neg: "+ss_neg);
 		//System.out.println("DONE.");
-		double value = FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos+ss_neg);
+		double value = FTest.calcVarianceReductionHeuristic(n_tot, ss_tot, ss_pos+ss_neg);
 		if (Settings.VERBOSE >= 10) {
 			System.out.println("TOT: "+tstat.getDebugString());
 			System.out.println("POS: "+pstat.getDebugString());

@@ -33,15 +33,16 @@ import clus.data.type.ClusSchema;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.test.*;
+import clus.statistic.*;
 
 public class SSPDICVError extends ClusError {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double m_Value, m_ValueWithDefault;
-	protected SSPDDistance m_Dist;
+	protected ClusDistance m_Dist;
 
-	public SSPDICVError(ClusErrorList par, SSPDDistance dist) {
+	public SSPDICVError(ClusErrorList par, ClusDistance dist) {
 		super(par);
 		m_Dist = dist;
 	}

@@ -23,10 +23,11 @@
 package clus.ext.sspd;
 
 import clus.data.rows.*;
+import clus.statistic.*;
 
 public class SSPD {
 
-	public static double computeSSPDVariance(SSPDDistance dist, RowData data) {
+	public static double computeSSPDVariance(ClusDistance dist, RowData data) {
 		double sum = 0.0;
 		double sumWiDiag = 0.0;
 		double sumWiTria = 0.0;

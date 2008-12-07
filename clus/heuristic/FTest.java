@@ -187,7 +187,7 @@ public class FTest {
 		}
 	}
 
-	public static double calcSSHeuristic(double n_tot, double ss_tot, double ss_sum) {
+	public static double calcVarianceReductionHeuristic(double n_tot, double ss_tot, double ss_sum) {
 		int n_2 = (int)Math.floor(n_tot - 2.0 + 0.5);
 		double value = ss_tot - ss_sum;
 		if (value < MathUtil.C1E_9) return Double.NEGATIVE_INFINITY;

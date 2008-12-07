@@ -79,6 +79,10 @@ public class ClassesAttrType extends ClusAttrType {
 	public int getValueType() {
 		return VALUE_TYPE_OBJECT;
 	}
+	
+	public ClassesTuple getValue(DataTuple t1) {
+		return (ClassesTuple)t1.getObjVal(getArrayIndex());
+	}	
 
 	public String getString(DataTuple tuple) {
 		ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_ArrayIndex];
