@@ -597,7 +597,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	public static double estimateClusteringSSRecursive(ClusNode tree, ClusAttributeWeights scale) {
 		if (tree.atBottomLevel()) {
 			ClusStatistic total = tree.getClusteringStat();
-			return total.getSS(scale);
+			return total.getSVarS(scale);
 		} else {
 			double result = 0.0;
 			for (int i = 0; i < tree.getNbChildren(); i++) {

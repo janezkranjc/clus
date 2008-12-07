@@ -646,18 +646,18 @@ public class CombStat extends ClusStatistic {
 	}
 
 	// TODO: Not sure this makes sense in CombStat - Check!
-	public double getSS(ClusAttributeWeights scale) {
+	public double getSVarS(ClusAttributeWeights scale) {
 		int nbTargetNom = m_ClassStat.getNbNominalAttributes();
 		int nbTargetNum = m_RegStat.getNbNumericAttributes();
-		return (m_ClassStat.getSS(scale)*nbTargetNom + m_RegStat.getSS(scale)*nbTargetNum) / (nbTargetNom+nbTargetNum);
+		return (m_ClassStat.getSVarS(scale)*nbTargetNom + m_RegStat.getSVarS(scale)*nbTargetNum) / (nbTargetNom+nbTargetNum);
 	}
 
-	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other) {
+	public double getSVarSDiff(ClusAttributeWeights scale, ClusStatistic other) {
 		int nbTargetNom = m_ClassStat.getNbNominalAttributes();
 		int nbTargetNum = m_RegStat.getNbNumericAttributes();
 		ClassificationStat ocls = ((CombStat)other).getClassificationStat();
 		RegressionStat oreg = ((CombStat)other).getRegressionStat();
-		return (m_ClassStat.getSSDiff(scale, ocls)*nbTargetNom + m_RegStat.getSSDiff(scale, oreg)*nbTargetNum) / (nbTargetNom+nbTargetNum);
+		return (m_ClassStat.getSVarSDiff(scale, ocls)*nbTargetNom + m_RegStat.getSVarSDiff(scale, oreg)*nbTargetNum) / (nbTargetNom+nbTargetNum);
 	}
 
 	public void reset() {

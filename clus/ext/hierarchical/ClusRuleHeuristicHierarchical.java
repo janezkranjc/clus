@@ -38,7 +38,7 @@ public class ClusRuleHeuristicHierarchical extends ClusHeuristic {
 		//double totalValue = tstat.getSS(m_TargetWeights);
 		double totalValue = getTrainDataHeurValue(); // optimization of the previous two lines
 		
-		double ruleValue = c_pstat.getSS(m_TargetWeights);
+		double ruleValue = c_pstat.getSVarS(m_TargetWeights);
 		double value = totalValue - ruleValue;
 		
 		

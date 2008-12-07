@@ -102,7 +102,7 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	    m_TimeSeriesStack.add(newTimeSeries);
 	}
 
-	public double getSS(ClusAttributeWeights scale, RowData data) {
+	public double getSVarS(ClusAttributeWeights scale, RowData data) {
 		optimizePreCalc(data);
 		return m_Value;
 	}
@@ -111,7 +111,7 @@ public abstract class TimeSeriesStat extends BitVectorStat implements SSPDDistan
 	 * Currently only used to compute the default dispersion within rule heuristics.
 	 */
 	public double getDispersion(ClusAttributeWeights scale, RowData data) {
-		return getSS(scale, data);
+		return getSVarS(scale, data);
 	}
 
 	public void optimizePreCalc(RowData data) {

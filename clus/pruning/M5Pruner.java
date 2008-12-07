@@ -46,7 +46,7 @@ public class M5Pruner extends PruneTree {
 
 	public void prune(ClusNode node) {
 		RegressionStat stat = (RegressionStat)node.getClusteringStat();
-		m_GlobalDeviation = Math.sqrt(stat.getSS(m_ClusteringWeights)/stat.getTotalWeight());
+		m_GlobalDeviation = Math.sqrt(stat.getSVarS(m_ClusteringWeights)/stat.getTotalWeight());
 		pruneRecursive(node);
 		// System.out.println("Performing test of M5 pruning");
 		// TestM5PruningRuleNode.performTest(orig, node, m_GlobalDeviation, m_TargetWeights, m_TrainingData);

@@ -178,7 +178,7 @@ public class COPKMeans {
 	public double computeVariance() {
 		double variance = 0;
 		for (int i = 0; i < m_K; i++) {
-			variance += m_Clusters[i].getCenter().getSS(m_Scale);
+			variance += m_Clusters[i].getCenter().getSVarS(m_Scale);
 		}
 		return variance;
 	}

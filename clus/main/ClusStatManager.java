@@ -541,7 +541,7 @@ public class ClusStatManager implements Serializable {
 		}
 		if (m_Mode == MODE_HIERARCHICAL) {
 			String name = "Weighted Hierarchical Tree Distance";
-			m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights());
+			m_Heuristic = new VarianceReductionHeuristic(name, createClusteringStat(), getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 			return;
 		}
@@ -552,7 +552,7 @@ public class ClusStatManager implements Serializable {
 		}
 		if (m_Mode == MODE_TIME_SERIES) {
 			String name = "Time Series Intra-Cluster Variation Heuristic";
-			m_Heuristic = new SSDHeuristic(name, createClusteringStat(), getClusteringWeights());
+			m_Heuristic = new VarianceReductionHeuristic(name, createClusteringStat(), getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 			return;
 		}
@@ -560,20 +560,20 @@ public class ClusStatManager implements Serializable {
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		if (getSettings().getHeuristic() == Settings.HEURISTIC_SS_REDUCTION_MISSING) {
-			m_Heuristic = new SSReductionHeuristicMissing(getClusteringWeights(), m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING), createClusteringStat());
+			m_Heuristic = new VarianceReductionHeuristicInclMissingValues(getClusteringWeights(), m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING), createClusteringStat());
 			return;
 		}
 		if (num.length > 0 && nom.length > 0) {
 			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
 				throw new ClusException("Only SS-Reduction heuristic can be used for combined classification/regression trees!");
 			}
-			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
+			m_Heuristic = new VarianceReductionHeuristicEfficient(getClusteringWeights(), m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 		} else if (num.length > 0) {
 			if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && getSettings().getHeuristic() != Settings.HEURISTIC_SS_REDUCTION) {
 				throw new ClusException("Only SS-Reduction heuristic can be used for regression trees!");
 			}
-			m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema .getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
+			m_Heuristic = new VarianceReductionHeuristicEfficient(getClusteringWeights(), m_Schema .getNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
 		} else if (nom.length > 0) {
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_SEMI_SUPERVISED) {
@@ -586,7 +586,7 @@ public class ClusStatManager implements Serializable {
 				 * GeneticDistanceHeuristic(); }
 				 */
 			else if (getSettings().getHeuristic() == Settings.HEURISTIC_SS_REDUCTION) {
-				m_Heuristic = new SSReductionHeuristic(getClusteringWeights(), m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
+				m_Heuristic = new VarianceReductionHeuristicEfficient(getClusteringWeights(), m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {
 				m_Heuristic = new GainHeuristic(true);
 			} else {

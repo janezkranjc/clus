@@ -327,14 +327,14 @@ public class RegressionStat extends ClusStatistic {
 	}
 
 	public double getError(ClusAttributeWeights scale) {
-		return getSS(scale);
+		return getSVarS(scale);
 	}
 
 	public double getErrorDiff(ClusAttributeWeights scale, ClusStatistic other) {
-		return getSSDiff(scale, other);
+		return getSVarSDiff(scale, other);
 	}
 
-	public double getSS(ClusAttributeWeights scale) {
+	public double getSVarS(ClusAttributeWeights scale) {
 		double result = 0.0;
 		for (int i = 0; i < m_NbAttrs; i++) {
 			double n_tot = m_SumWeight;
@@ -348,10 +348,10 @@ public class RegressionStat extends ClusStatistic {
 	}
 
 	public double getRMSE(ClusAttributeWeights scale) {
-		return Math.sqrt(getSS(scale)/getTotalWeight());
+		return Math.sqrt(getSVarS(scale)/getTotalWeight());
 	}
 
-	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other) {
+	public double getSVarSDiff(ClusAttributeWeights scale, ClusStatistic other) {
 		double result = 0.0;
 		RegressionStat or = (RegressionStat)other;
 		for (int i = 0; i < m_NbAttrs; i++) {

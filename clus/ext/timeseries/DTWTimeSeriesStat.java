@@ -83,9 +83,9 @@ public class DTWTimeSeriesStat extends TimeSeriesStat {
 		return calcDistance(t1,t2,Math.max(t1.length(),t2.length())/2);
 	}
 
-	public double getSS(ClusAttributeWeights scale, RowData data) {
+	public double getSVarS(ClusAttributeWeights scale, RowData data) {
 		// TODO Auto-generated method stub
-		return super.getSS(scale, data);
+		return super.getSVarS(scale, data);
 	}
 
 	public void optimizePreCalc(RowData data) {

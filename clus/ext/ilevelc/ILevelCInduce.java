@@ -141,8 +141,8 @@ public class ILevelCInduce extends DepthFirstInduce {
 		} else {
 			nb_violated += Math.min(v1, v2);
 		}
-		double ss_pos = pos.getSS(m_Scale);
-		double ss_neg = neg.getSS(m_Scale);
+		double ss_pos = pos.getSVarS(m_Scale);
+		double ss_neg = neg.getSVarS(m_Scale);
 		double ss = ss_offset + ss_pos + ss_neg;
 		return computeHeuristic(nb_violated, ss);
 	}
@@ -227,7 +227,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 			return;
 		}
 		RowData leaf_data = (RowData)leaf.getVisitor();
-		double ss_leaf = stat.getSS(m_Scale);
+		double ss_leaf = stat.getSVarS(m_Scale);
 		double ss_offset = ss - ss_leaf;
 		int[] v_info = countViolatedConstaints(leaf_data, clusters);
 		int violated_offset = violated - v_info[0];
@@ -568,7 +568,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 			ilevels.setClusterID(0);
 			/* initialize scale */
 			m_Scale = (ClusNormalizedAttributeWeights)getStatManager().getClusteringWeights();
-			m_GlobalSS = ilevels.getSS(m_Scale);
+			m_GlobalSS = ilevels.getSVarS(m_Scale);
 			System.out.println("Global SS: "+m_GlobalSS);
 			/* induce tree now */
 			initSelectorAndSplit(root.getClusteringStat());

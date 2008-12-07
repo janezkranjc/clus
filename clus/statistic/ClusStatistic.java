@@ -228,22 +228,22 @@ public abstract class ClusStatistic implements Serializable {
 	 * also version available that needs access to the data
 	 **/
 
-	public double getSS(ClusAttributeWeights scale) {
+	public double getSVarS(ClusAttributeWeights scale) {
 		System.err.println(getClass().getName()+": getSS(): Not yet implemented");
 		return Double.POSITIVE_INFINITY;
 	}
 
-	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other) {
+	public double getSVarSDiff(ClusAttributeWeights scale, ClusStatistic other) {
 		System.err.println(getClass().getName()+": getSSDiff(): Not yet implemented");
 		return Double.POSITIVE_INFINITY;
 	}
 
-	public double getSS(ClusAttributeWeights scale, RowData data) {
-		return getSS(scale);
+	public double getSVarS(ClusAttributeWeights scale, RowData data) {
+		return getSVarS(scale);
 	}
 
-	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other, RowData data) {
-		return getSSDiff(scale, other);
+	public double getSVarSDiff(ClusAttributeWeights scale, ClusStatistic other, RowData data) {
+		return getSVarSDiff(scale, other);
 	}
 	
 	public double getAbsoluteDistance(DataTuple tuple, ClusAttributeWeights weights) {

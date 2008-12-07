@@ -24,57 +24,52 @@ package clus.heuristic;
 
 import clus.main.*;
 import clus.statistic.*;
-import clus.data.rows.*;
 import clus.data.attweights.*;
+import clus.data.type.*;
 
-public class SSDHeuristic extends ClusHeuristic {
-
-	protected RowData m_Data;
-	protected String m_BasicDist;
-	protected ClusStatistic m_NegStat;
-	protected ClusAttributeWeights m_TargetWeights;
-
-	public SSDHeuristic(String basicdist, ClusStatistic negstat, ClusAttributeWeights targetweights) {
-		m_BasicDist = basicdist;
-		m_NegStat = negstat;
-		m_TargetWeights = targetweights;
+public class VarianceReductionHeuristicInclMissingValues extends ClusHeuristic {
+	
+	private ClusAttributeWeights m_TargetWeights;
+	private ClusAttrType[] m_Attrs;
+	protected ClusStatistic m_Pos, m_Neg, m_Tot;
+	
+	public VarianceReductionHeuristicInclMissingValues(ClusAttributeWeights prod, ClusAttrType[] attrs, ClusStatistic stat) {
+		m_TargetWeights = prod;
+		m_Attrs = attrs;
+		m_Pos = stat.cloneStat();
+		m_Neg = stat.cloneStat();
+		m_Tot = stat.cloneStat();		
 	}
-
-	public void setData(RowData data) {
-		m_Data = data;
-	}
-
+	
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
 		double n_tot = tstat.m_SumWeight;
-		double n_pos = pstat.m_SumWeight;
+		double n_pos = pstat.m_SumWeight; 
 		double n_neg = n_tot - n_pos;
-		// Acceptable?
+		// Acceptable?		
 		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
 			return Double.NEGATIVE_INFINITY;
 		}
-		// Calculate value
-		//System.out.println("Inside calcHeuristic()");
-		double ss_tot = tstat.getSS(m_TargetWeights, m_Data);
-		//System.out.println("SS-tot: "+ss_tot);
-		double ss_pos = pstat.getSS(m_TargetWeights, m_Data);
-		//System.out.println("SS-pos: "+ss_pos);
-		m_NegStat.copy(tstat);
-		m_NegStat.subtractFromThis(pstat);
-		double ss_neg = m_NegStat.getSS(m_TargetWeights, m_Data);
-		//System.out.println("SS-neg: "+ss_neg);
-		//System.out.println("DONE.");
-		double value = FTest.calcSSHeuristic(n_tot, ss_tot, ss_pos+ss_neg);
-		if (Settings.VERBOSE >= 10) {
-			System.out.println("TOT: "+tstat.getDebugString());
-			System.out.println("POS: "+pstat.getDebugString());
-			System.out.println("NEG: "+m_NegStat.getDebugString());
-			System.out.println("-> ("+ss_tot+", "+ss_pos+", "+ss_neg+") "+value);
+		/*
+		if(pstat.m_nbEx <= 2 || (tstat.m_nbEx - pstat.m_nbEx) <= 2){
+			return Double.NEGATIVE_INFINITY;
 		}
-		if (value < 1e-6) return Double.NEGATIVE_INFINITY;
-		return value;
+		*/
+		// Compute SS		
+		double pos_freq = n_pos / n_tot;
+		m_Pos.copy(pstat);
+		m_Neg.copy(tstat);
+		m_Tot.copy(tstat);
+		m_Tot.add(missing);
+		m_Neg.subtractFromThis(pstat);
+		m_Pos.addScaled(pos_freq, missing);			
+		m_Neg.addScaled(1.0-pos_freq, missing);
+		double s_ss_pos = m_Pos.getSVarS(m_TargetWeights);
+		double s_ss_neg = m_Neg.getSVarS(m_TargetWeights);		
+		double s_ss_tot = m_Tot.getSVarS(m_TargetWeights);		
+		return FTest.calcSSHeuristic(n_tot, s_ss_tot, s_ss_pos+s_ss_neg);
 	}
-
+	
 	public String getName() {
-		return "SS Reduction ("+m_BasicDist+", "+m_TargetWeights.getName()+") (FTest = "+FTest.getSettingSig()+")";
+		return "Variance Reduction Including Missing Values (ftest: "+Settings.FTEST_VALUE+", "+m_TargetWeights.getName(m_Attrs)+")";
 	}
 }

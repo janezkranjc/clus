@@ -48,8 +48,8 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 			return Double.NEGATIVE_INFINITY;
 		}
 		if (missing.m_SumWeight == 0.0) {
-			double pos_error = c_pstat.getSS(m_TargetWeights);
-			double neg_error = c_tstat.getSSDiff(m_TargetWeights, c_pstat);
+			double pos_error = c_pstat.getSVarS(m_TargetWeights);
+			double neg_error = c_tstat.getSVarSDiff(m_TargetWeights, c_pstat);
 			return m_TreeOffset - (pos_error + neg_error)/m_NbTrain - 2*Settings.SIZE_PENALTY;
 		} else {
 			double pos_freq = n_pos / n_tot;
@@ -58,8 +58,8 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 			m_Neg.subtractFromThis(c_pstat);
 			m_Pos.addScaled(pos_freq, missing);
 			m_Neg.addScaled(1.0-pos_freq, missing);
-			double pos_error = m_Pos.getSS(m_TargetWeights);
-			double neg_error = m_Neg.getSS(m_TargetWeights);
+			double pos_error = m_Pos.getSVarS(m_TargetWeights);
+			double neg_error = m_Neg.getSVarS(m_TargetWeights);
 			return m_TreeOffset - (pos_error + neg_error)/m_NbTrain - 2*Settings.SIZE_PENALTY;
 		}
 	}
@@ -67,7 +67,7 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 	public double estimateBeamMeasure(ClusNode tree) {
 		if (tree.atBottomLevel()) {
 			ClusStatistic total = tree.getClusteringStat();
-			return -total.getSS(m_TargetWeights)/m_NbTrain - Settings.SIZE_PENALTY;
+			return -total.getSVarS(m_TargetWeights)/m_NbTrain - Settings.SIZE_PENALTY;
 		} else {
 			double result = 0.0;
 			for (int i = 0; i < tree.getNbChildren(); i++) {
@@ -79,7 +79,7 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 	}
 
 	public double computeLeafAdd(ClusNode leaf) {
-		return -leaf.getClusteringStat().getSS(m_TargetWeights)/m_NbTrain;
+		return -leaf.getClusteringStat().getSVarS(m_TargetWeights)/m_NbTrain;
 	}
 
 	public String getName() {

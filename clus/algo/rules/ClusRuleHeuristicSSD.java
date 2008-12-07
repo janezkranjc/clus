@@ -64,7 +64,7 @@ public class ClusRuleHeuristicSSD extends ClusHeuristic {
 	  	double def_value = getTrainDataHeurValue();
 	  		//System.out.print("Inside calcHeuristic()");
 	  		//System.out.println(" - default SS: "+def_value);
-		double value = pstat.getSS(m_TargetWeights, m_Data);
+		double value = pstat.getSVarS(m_TargetWeights, m_Data);
 			//System.out.print("raw SS: "+value);
 		// Normalization with the purpose of getting most of the single variances within the
 		// [0,1] interval. This weight is in stdev units,

@@ -602,7 +602,7 @@ public class ClassificationStat extends ClusStatistic {
 		return nbTarget;
 	}
 
-	public double getSS(ClusAttributeWeights scale) {
+	public double getSVarS(ClusAttributeWeights scale) {
 		double result = 0.0;
 		double sum = m_SumWeight;
 		for (int i = 0; i < m_NbTarget; i++) {
@@ -611,7 +611,7 @@ public class ClassificationStat extends ClusStatistic {
 		return result / m_NbTarget;
 	}
 
-	public double getSSDiff(ClusAttributeWeights scale, ClusStatistic other) {
+	public double getSVarSDiff(ClusAttributeWeights scale, ClusStatistic other) {
 		double result = 0.0;
 		double sum = m_SumWeight - other.m_SumWeight;
 		ClassificationStat cother = (ClassificationStat)other;

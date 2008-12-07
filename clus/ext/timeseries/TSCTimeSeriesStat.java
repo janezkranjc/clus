@@ -92,9 +92,9 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 		return cc;
 	}*/
 
-	public double getSS(ClusAttributeWeights scale, RowData data) {
+	public double getSVarS(ClusAttributeWeights scale, RowData data) {
 		// TODO Auto-generated method stub
-		return super.getSS(scale, data);
+		return super.getSVarS(scale, data);
 	}
 
 	public void optimizePreCalc(RowData data) {
