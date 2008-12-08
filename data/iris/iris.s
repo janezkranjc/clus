@@ -39,7 +39,7 @@ FTest = 1.0
          % regression
 MaxDepth = Infinity
          % Stop building the tree at the given depth
-ConvertToRules = No
+ConvertToRules = AllNodes
          % Convert the tree to a set of rules
 
 [Constraints]

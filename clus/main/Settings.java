@@ -578,11 +578,11 @@ public class Settings implements Serializable {
 
 	public final static int[] SHOW_INFO_VALUES = {0};
 
-	public final static String[] CONVERT_RULES = { "No", "Pruned", "All" };
+	public final static String[] CONVERT_RULES = { "No", "Leaves", "AllNodes" };
 
 	public final static int CONVERT_RULES_NONE = 0;
-	public final static int CONVERT_RULES_PRUNED = 1;
-	public final static int CONVERT_RULES_ALL = 2;
+	public final static int CONVERT_RULES_LEAVES = 1;
+	public final static int CONVERT_RULES_ALLNODES = 2;
 
 	public static boolean SHOW_UNKNOWN_FREQ;
 	public static boolean SHOW_BRANCH_FREQ;

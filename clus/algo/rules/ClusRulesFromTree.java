@@ -49,10 +49,20 @@ public class ClusRulesFromTree {
  	 * Currently always true. This is also the only reason the class is not static...
 	 */
 	protected boolean m_Validated;
+	
+	/** 
+	 * Currently two modes are supported:
+	 * Settings.CONVERT_RULES_LEAVES:
+	 *   Generate one rule for each leaf of the tree
+	 * Settings.CONVERT_RULES_ALLNODES:
+	 *   Generate one rule for each node of the tree (including internal nodes) except for the root
+	 */	
+	protected int m_Mode;
 
 	/** The parameter seems to be always true? */
-	public ClusRulesFromTree(boolean onlyValidated) {
+	public ClusRulesFromTree(boolean onlyValidated, int mode) {
 		m_Validated = onlyValidated;
+		m_Mode = mode;
 	}
 
 	/**
@@ -148,21 +158,20 @@ public class ClusRulesFromTree {
 
 	/** Only terminal nodes are added to rule set */
 	public void constructRecursive(ClusNode node, ClusRule rule, ClusRuleSet set) {
-		if (node.atBottomLevel()) {
+		if (node.atBottomLevel() || m_Mode == Settings.CONVERT_RULES_ALLNODES) {
 			if (!m_Validated || node.getTargetStat().isValidPrediction()) {
 				rule.setTargetStat(node.getTargetStat());
 				rule.setID(node.getID());
 				set.add(rule);
 			}
-		} else {
-			NodeTest test = node.getTest();
-			for (int i = 0; i < node.getNbChildren(); i++) {
-				ClusNode child = (ClusNode)node.getChild(i);
-				NodeTest branchTest = test.getBranchTest(i);
-				ClusRule child_rule = rule.cloneRule();
-				child_rule.addTest(branchTest);
-				constructRecursive(child, child_rule, set);
-			}
+		}
+		NodeTest test = node.getTest();
+		for (int i = 0; i < node.getNbChildren(); i++) {
+			ClusNode child = (ClusNode)node.getChild(i);
+			NodeTest branchTest = test.getBranchTest(i);
+			ClusRule child_rule = rule.cloneRule();
+			child_rule.addTest(branchTest);
+			constructRecursive(child, child_rule, set);
 		}
 	}
 }

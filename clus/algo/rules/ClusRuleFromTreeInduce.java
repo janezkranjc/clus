@@ -59,7 +59,7 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		/** 
 		 * The class for transforming single trees to rules
 		 */
-		ClusRulesFromTree treeTransform = new ClusRulesFromTree(true); // Parameter always true
+		ClusRulesFromTree treeTransform = new ClusRulesFromTree(true, getSettings().rulesFromTree()); // Parameter always true
 		ClusRuleSet ruleSet = new ClusRuleSet(getStatManager()); // Manager from super class
 		
 		//ClusRuleSet ruleSet = new ClusRuleSet(m_Clus.getStatManager());

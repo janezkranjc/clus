@@ -87,14 +87,12 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 	 */
 	public void convertToRules(ClusRun cr, int tree) throws ClusException, IOException {
 		ClusNode tree_root = (ClusNode)cr.getModel(tree);
-		ClusRulesFromTree rft = new ClusRulesFromTree(true);
+		ClusRulesFromTree rft = new ClusRulesFromTree(true, getSettings().rulesFromTree());
 		ClusRuleSet rule_set = null;
 		boolean compDis = getSettings().computeDispersion(); // Do we want to compute dispersion
 		
-
-		rule_set = rft.constructRules(cr, tree_root, getStatManager(), compDis,
-				getSettings().getRulePredictionMethod());
-//		rule_set = rft.constructRules(tree_root, getStatManager());
+		rule_set = rft.constructRules(cr, tree_root, getStatManager(), compDis, getSettings().getRulePredictionMethod());
+		rule_set.addDataToRules((RowData)cr.getTrainingSet());
 	
 		ClusModelInfo rules_info = cr.addModelInfo();
 		rules_info.setModel(rule_set);
@@ -137,15 +135,8 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 		ClusModelInfo def_info = cr.addModelInfo(ClusModel.DEFAULT);
 		def_info.setModel(defmod);
 		def_info.setName("Default");
-		if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_PRUNED) {
+		if (getSettings().rulesFromTree() != Settings.CONVERT_RULES_NONE) {
 			convertToRules(cr, ClusModel.PRUNED);
-		} else if (getSettings().rulesFromTree() == Settings.CONVERT_RULES_ALL) {
-			int cr_nb = cr.getNbModels();
-			for (int i = 0; i < cr_nb; i++) {
-				if (i != ClusModel.DEFAULT) {
-					convertToRules(cr, i);
-				}
-			}
 		}
 	}
 }
