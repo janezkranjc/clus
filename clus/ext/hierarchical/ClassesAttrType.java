@@ -85,8 +85,20 @@ public class ClassesAttrType extends ClusAttrType {
 	}	
 
 	public String getString(DataTuple tuple) {
+		//ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_ArrayIndex];
+		//return ct.toStringData(m_Hier);
+		return getVectorString(tuple);
+	}
+	
+	public String getVectorString(DataTuple tuple) {
 		ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_ArrayIndex];
-		return ct.toStringData(m_Hier);
+		double[] vec = ct.getVectorNodeAndAncestors(m_Hier);
+		String str = "[" + vec[0];
+		for (int i=1; i<vec.length; i++) {
+			str = str + "," + vec[i];
+		}
+		str = str + "]";
+		return str;
 	}
 
 	public ClusSerializable createRowSerializable() throws ClusException {
