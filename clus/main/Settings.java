@@ -1661,7 +1661,7 @@ public class Settings implements Serializable {
 		rules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));
 		rules.addNode(m_PredictionMethod = new INIFileNominal("PredictionMethod", RULE_PREDICTION_METHODS, 0));
 		rules.addNode(m_RuleAddingMethod = new INIFileNominal("RuleAddingMethod", RULE_ADDING_METHODS, 0));
-		rules.addNode(m_CoveringWeight = new INIFileDouble("CoveringWeight", 0.9));
+		rules.addNode(m_CoveringWeight = new INIFileDouble("CoveringWeight", 0.1));
 		rules.addNode(m_InstCoveringWeightThreshold = new INIFileDouble("InstCoveringWeightThreshold", 0.1));
 		rules.addNode(m_MaxRulesNb = new INIFileInt("MaxRulesNb", 1000));
 	    rules.addNode(m_HeurDispOffset = new INIFileDouble("HeurDispOffset", 0.0));
