@@ -55,8 +55,13 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	/** Default prediction if no other rule covers the instance. */
 	protected ClusStatistic m_TargetStat;
-	protected ArrayList m_Rules = new ArrayList();
-	/* Array of tuples covered by the default rule. */
+	
+	/** If we have created an all examples covering rule that is in the first position of rules 
+	 * Used for weight optimization.*/
+	protected boolean m_allCoveringRuleExists = false;
+	
+	protected ArrayList<ClusRule> m_Rules = new ArrayList<ClusRule>();
+	/** Array of tuples covered by the default rule. */
 	protected ArrayList m_DefaultData = new ArrayList();
 	protected ClusStatManager m_StatManager;
 	protected boolean m_HasRuleErrors;
@@ -171,16 +176,47 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				}
 			}
 			stat.unionDone();
+			
+			// If covered, return stat, else default prediction
 			return covered ? stat : m_TargetStat;
+			
+		} else if (getSettings().isRulePredictionOptimized()) {
+			// Optimized weights 
+			// The rules are considered as base predictors of ensemble
+			
+			// Get the weighted prediction of the rule that covers all the 
+			// instances (former default rule)
+			ClusRule firstRule = getRule(0);
+			ClusStatistic prediction = (firstRule.predictWeighted(tuple)).normalizedCopy()
+										.cloneWeighted(getAppropriateWeight(firstRule));
+		
+			for (int iBaseRule = 1; iBaseRule < getModelSize(); iBaseRule++) {
+				ClusRule rule = getRule(iBaseRule);
+				
+				// If the rule covers tuple (indicator function is nonzero)
+				if (rule.covers(tuple)) {
+					ClusStatistic rulestat = rule.predictWeighted(tuple);
+					ClusStatistic norm_rulestat = rulestat.normalizedCopy();
+					prediction.addPrediction(norm_rulestat, getAppropriateWeight(rule));
+				}
+			}
+			
+			// Is always covered because default rule is used
+			return prediction;
+			
 		} else {  // Unordered rules (with different weighting schemes)
 			ClusStatistic stat = m_TargetStat.cloneSimple();
 			double weight_sum = 0.0;
+			
+			// Get the overall sum of weights for all the rules that cover the example
 			for (int i = 0; i < getModelSize(); i++) {
 				ClusRule rule = getRule(i);
 				if (rule.covers(tuple)) {
 					weight_sum += getAppropriateWeight(rule);
 				}
 			}
+			
+			// Take the prediction. Normalise
 			for (int i = 0; i < getModelSize(); i++) {
 				ClusRule rule = getRule(i);
 				if (rule.covers(tuple)) {
@@ -195,6 +231,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				stat.computePrediction();
 				return stat;
 			} else {
+				// If not covered, return default prediction
 				return m_TargetStat;
 			}
 		}
@@ -234,7 +271,13 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		double threshold = getSettings().getOptRuleWeightThreshold();
 		int nb_rules = getModelSize();
 		for (int i = nb_rules-1; i >= 0; i--) {
+			
+			// If the first rule is all covering, it is not removed (can predict just 0 if that is the weight)
+			if (m_allCoveringRuleExists && i == 0)
+				break;
+			
 			if (getRule(i).getOptWeight() < threshold || getRule(i).getOptWeight() == 0.0) {
+				// If optimization is used, the last rule covers all the instances. This should not be removed 
 				m_Rules.remove(i);
 			}
 		}
@@ -311,7 +354,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 					wrt.println("=============");
 				}
 			}
-			wrt.println("Default = "+(m_TargetStat == null ? "N/A" : m_TargetStat.getString()));
+			wrt.println("Default = "+(m_TargetStat == null ? "N/A" : m_TargetStat.getString()));			
 		}
 		if (headers && getSettings().computeDispersion()) {
 			wrt.println("\n\nRule set dispersion:");
@@ -613,6 +656,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		DecimalFormat mf = new DecimalFormat("###.000");
 		ClusSchema schema = data.getSchema();
 
+		// We need to transform the default rule to ordinary rule. We want to optimize it also.
+		addDefaultRuleToRuleSet();
+
 		// Generate optimization input
 		ClusStatistic tar_stat = m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 		int nb_target = tar_stat.getNbAttributes();
@@ -653,23 +699,23 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 		}
 
-		// ***************** DEFAULT PREDICTION
-		// Used if no other rule cover the instance
-		/**
-		 * Default predictions for each target
-		 */
-		double[] defaultPred = new double[nb_target];
-		if (isClassification){
-			int[] tempDefaults = ((ClassificationStat)m_TargetStat).getNominalPred();
-
-			// Casting from int[] to double[]
-			for (int kTargets = 0; kTargets < nb_target; kTargets++)
-			{
-				defaultPred[kTargets] = (double)tempDefaults[kTargets];
-			}
-		} else {
-			defaultPred = ((RegressionStat)m_TargetStat).getNumericPred();
-		}
+//		// ***************** DEFAULT PREDICTION
+//		// Used if no other rule cover the instance
+//		/**
+//		 * Default predictions for each target
+//		 */
+//		double[] defaultPred = new double[nb_target];
+//		if (isClassification){
+//			int[] tempDefaults = ((ClassificationStat)m_TargetStat).getNominalPred();
+//
+//			// Casting from int[] to double[]
+//			for (int kTargets = 0; kTargets < nb_target; kTargets++)
+//			{
+//				defaultPred[kTargets] = (double)tempDefaults[kTargets];
+//			}
+//		} else {
+//			defaultPred = ((RegressionStat)m_TargetStat).getNumericPred();
+//		}
 		
 
 		// ************ PREDICTIONS
@@ -757,7 +803,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			outLogFile.flush();
 		}
 
-		OptProbl.OptParam param = new OptProbl.OptParam(rule_pred, defaultPred, trueValues); 
+//		OptProbl.OptParam param = new OptProbl.OptParam(rule_pred, defaultPred, trueValues); 
+		OptProbl.OptParam param = new OptProbl.OptParam(rule_pred, trueValues);
 		return param;
 	}
 
@@ -780,5 +827,15 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			add(newRules.getRule(iRule));
 		}
 		return numberOfUnique;
+	}
+
+	/** For optimization, we need to make the default rule a real rule. We need a weight for it etc. 
+	 * This rule is the rule that covers all the examples (no test statement) */
+	public void addDefaultRuleToRuleSet() {
+		ClusRule defaultRuleForEnsembles = new ClusRule(m_StatManager);
+		defaultRuleForEnsembles.m_TargetStat = m_TargetStat;
+		m_Rules.add(0, defaultRuleForEnsembles); // Adds the default rule to the first position.
+		m_TargetStat = null; // To make sure this is not used anymore
+		m_allCoveringRuleExists = true;
 	}
 }

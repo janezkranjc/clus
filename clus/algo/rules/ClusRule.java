@@ -67,7 +67,7 @@ public class ClusRule implements ClusModel, Serializable {
 	/* Average error score of the rule */
 	protected double m_TrainErrorScore;
 	
-	/* Optimized weight of the rule */
+	/** Optimized weight of the rule */
 	protected double m_OptWeight;
 
 	public ClusRule(ClusStatManager statManager) {
@@ -131,6 +131,7 @@ public class ClusRule implements ClusModel, Serializable {
 		return hashCode;
 	}
 
+	/** Does the rule tests cover the given tuple */
 	public boolean covers(DataTuple tuple) {
 		for (int i = 0; i < getModelSize(); i++) {
 			NodeTest test = getTest(i);
@@ -566,7 +567,7 @@ public class ClusRule implements ClusModel, Serializable {
 	}
 
 	public double getOptWeight() {
-		if (m_OptWeight != -1) {
+		if (m_OptWeight != -1) { // FIXME this is not any more the sign for uninitialized weight
 		  return m_OptWeight;
 		} else {
 			System.err.println("Warning: Optimal rule weight not initialized!");
