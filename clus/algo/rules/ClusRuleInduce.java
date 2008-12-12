@@ -1142,9 +1142,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		// FIXME: implement cloneModel();
 		// cr.getModelInfo(ClusModels.ORIGINAL).setModel(model);
 		// ClusModel pruned = model.cloneModel();
-		ClusModel pruned = model;
-		ClusModelInfo pruned_model = cr.addModelInfo(ClusModel.PRUNED);
-		pruned_model.setModel(pruned);
-		pruned_model.setName("Pruned");
+		ClusModelInfo pruned_model = cr.addModelInfo(ClusModel.ORIGINAL);
+		pruned_model.setModel(model);
+		pruned_model.setName("Original");
 	}
 }

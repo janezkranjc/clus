@@ -58,6 +58,18 @@ public abstract class ClusModelInfoList implements Serializable {
 		if (i >= m_Models.size()) return null;
 		return (ClusModelInfo)m_Models.get(i);
 	}
+	
+	/**
+	 * @param i Usually ClusModel model type (Default, Original, Pruned).
+	 * @param j If model "i" does not exist, return model "j".
+	 *          Typical use: getModelInfoFallback(ClusModel.PRUNED, ClusModel.ORIGINAL);  
+	 * @return
+	 */
+	public ClusModelInfo getModelInfoFallback(int i, int j) {
+		ClusModelInfo info = getModelInfo(i);
+		if (info == null) info = getModelInfo(j);
+		return info;
+	}	
 
 	public ClusModelInfo getAllModelsMI() {
 		return m_AllModelsMI;

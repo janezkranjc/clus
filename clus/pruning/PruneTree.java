@@ -38,9 +38,9 @@ public class PruneTree {
 	public void setTrainingData(RowData data) {
 	}
 
-// Methods for pruners that may return more than one result
+	// Methods for pruners that may return more than one result
 	public int getNbResults() {
-		return 1;
+		return 0;
 	}
 
 	public String getPrunedName(int i) {
@@ -55,7 +55,7 @@ public class PruneTree {
 		prune(node);
 	}
 
-// Methods for sequence based pruners, such as CartPruning and SizeConstraintPruning
+	// Methods for sequence based pruners, such as CartPruning and SizeConstraintPruning
 	public void sequenceInitialize(ClusNode node) {
 	}
 
