@@ -25,6 +25,7 @@ package clus;
 import clus.tools.debug.Debug;
 
 import clus.gui.*;
+import clus.io.ClusSerializable;
 import clus.algo.ClusInductionAlgorithm;
 import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.tdidt.*;
@@ -138,6 +139,13 @@ public class Clus implements CMDLineArgsProvider {
 		m_Data = view.readData(reader, m_Schema);
 		reader.close();
 		System.out.println("Found " + m_Data.getNbRows() + " rows");
+		
+		if (getSettings().getNormalizeData() != Settings.NORMALIZE_DATA_NONE) {
+			System.out.println("Normalizing numerical data");
+			System.err.println("Normalizing data before use does not seem to work. Use the -norm command line parameter for saving the data into a file.");
+			m_Data = returnNormalizedData();
+		}
+		
 		m_Schema.printInfo();
 		if (ResourceInfo.isLibLoaded()) {
 			ClusStat.m_LoadedMemory = ResourceInfo.getMemory();
@@ -612,6 +620,7 @@ public class Clus implements CMDLineArgsProvider {
 		return err;
 	}
 
+	/** Compute either test or train error */
 	public final void calcError(TupleIterator iter, int type, ClusRun cr) throws IOException, ClusException {
 		iter.init();
 		ClusSchema mschema = iter.getSchema();
@@ -728,8 +737,88 @@ public class Clus implements CMDLineArgsProvider {
 		io.addModel(orig_info);
 		io.save(model_name);
 	}
+	
 
-	public final void normalizeData() throws IOException, ClusException {
+	/** Normalize the data.
+	 * TODO also for nominal attributes
+	 * @throws IOException
+	 * @throws ClusException
+	 */
+	public final RowData returnNormalizedData() throws IOException, ClusException {
+		RowData data = m_Data;
+			
+		NumericAttrType[] numTypes = getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+		NominalAttrType[] nomTypes = getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+		
+		// Variance and mean for numeric types.
+		double[] variance = new double[numTypes.length];
+		double[] mean = new double[numTypes.length];
+
+		// Computing the means
+		for (int iRow = 0; iRow < data.getNbRows(); iRow++) {
+			DataTuple tuple = data.getTuple(iRow);
+	
+			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+				double value = numTypes[jNumAttrib].getNumeric(tuple);
+				if (!Double.isNaN(value) && !Double.isInfinite(value)) // Value not given
+					mean[jNumAttrib] += value;
+			}
+		}
+		
+		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+			mean[jNumAttrib] /= numTypes.length;
+		}
+		
+		// Computing the variances
+		for (int iRow = 0; iRow < data.getNbRows(); iRow++) {
+			DataTuple tuple = data.getTuple(iRow);
+	
+			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+				double value = numTypes[jNumAttrib].getNumeric(tuple);
+				if (!Double.isNaN(value) && !Double.isInfinite(value)) // Value not given
+					variance[jNumAttrib] += Math.pow(value - mean[jNumAttrib], 2.0);
+			}
+		}
+		
+		ArrayList<DataTuple> normalized = new ArrayList<DataTuple>();
+		// Make the alterations
+		for (int iRow = 0; iRow < data.getNbRows(); iRow++) {
+			DataTuple tuple = data.getTuple(iRow).deepCloneTuple();
+			
+//			if (getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_ALL) {
+//				for (int jNomAttrib = 0; jNomAttrib < tuple.m_Ints.length; jNomAttrib++) {
+//				NominalAttrType type = nomTypes[jNomAttrib];
+//				int value = type.getNominal(tuple);
+//				
+////				value -= median[jNomAttrib];
+////				value /= Math.sqrt(variance[jNomAttrib]);
+//				type.setNominal(tuple, value);
+//				}
+//			}
+			
+			for (int jNumAttrib = 0; jNumAttrib < tuple.m_Doubles.length; jNumAttrib++) {
+				NumericAttrType type = numTypes[jNumAttrib];
+
+				double value = type.getNumeric(tuple);
+				if (!Double.isNaN(value) && !Double.isInfinite(value)) {// Value not given
+					value -= mean[jNumAttrib];
+					value /= Math.sqrt(variance[jNumAttrib]);
+				}
+				type.setNumeric(tuple, value);
+				
+			}
+			normalized.add(tuple);
+		}
+
+
+		RowData normalized_data = new RowData(normalized, getSchema());
+		System.out.println("Size: "+normalized_data.getNbRows());
+		
+		return normalized_data;
+	}
+	
+	
+	public final void normalizeDataAndWriteToFile() throws IOException, ClusException {
 		RowData data = (RowData)m_Data;
 		CombStat cmb = (CombStat)getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_ALL);
 		RegressionStat rstat = cmb.getRegressionStat();
@@ -763,6 +852,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		RowData normalized_data = new RowData(normalized, getSchema());
 		System.out.println("Size: "+normalized_data.getNbRows());
+		
 		String fname = m_Sett.getFileAbsolute(FileUtil.getName(m_Sett.getDataFile())+"_norm.arff");
 		ARFFFile.writeArff(fname, normalized_data);
 	}
@@ -1262,7 +1352,7 @@ public class Clus implements CMDLineArgsProvider {
 					clus.testModel(cargs.getOptionValue("test"));
 				} else if (cargs.hasOption("normalize")) {
 					clus.initialize(cargs, clss);
-					clus.normalizeData();
+					clus.normalizeDataAndWriteToFile();
 				} else if (cargs.hasOption("debug")) {
 					clus.initialize(cargs, clss);
 					clus.showDebug();
