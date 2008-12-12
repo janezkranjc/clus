@@ -159,6 +159,18 @@ public class Settings implements Serializable {
 	protected INIFileStringOrInt m_XValFolds;
 	protected INIFileBool m_RemoveMissingTarget;
 
+	// Gradient descent optimization algorithm
+	/** Possible values for normalizeData */
+	public final static String[] NORMALIZE_DATA_VALUES = {"None", "Numeric"};
+	/** Do not normalize data. DEFAULT */
+	public final static int NORMALIZE_DATA_NONE = 0;
+	/** Normalize only numeric variables */
+	public final static int NORMALIZE_DATA_NUMERIC = 1;
+	/** Normalize all the variables Not implemented*/
+//	public final static int NORMALIZE_DATA_ALL = 3;
+	/** Do normalization for the data in the beginning. Done by dividing with the variance. */
+	protected INIFileNominal m_NormalizeData;
+
 	public String getDataFile() {
 		return m_DataFile.getValue();
 	}
@@ -224,6 +236,11 @@ public class Settings implements Serializable {
 
 	public boolean isRemoveMissingTarget() {
 		return m_RemoveMissingTarget.getValue();
+	}
+	
+	/** Do we want to normalize the data */
+	public int getNormalizeData() {
+		return m_NormalizeData.getValue();
 	}
 	
 /***********************************************************************
@@ -910,6 +927,8 @@ public class Settings implements Serializable {
 	// For all the optimization
 	/** Optimization regularization parameter */
 	protected INIFileDouble m_OptRegPar;
+	/** Optimization regularization parameter - number of zeroes. Especially useful for DE optimization. */
+	protected INIFileDouble m_OptNbZeroesPar;
 	/** The treshold for rule weights. If weight < this, rule is removed. */
 	protected INIFileDouble m_OptRuleWeightThreshold;
 	/** DE The loss function. The default is squared loss. */
@@ -1104,6 +1123,16 @@ public class Settings implements Serializable {
 	/** Optimization regularization parameter */
 	public void setOptRegPar(double newValue) {
 		m_OptRegPar.setValue(newValue);
+	}
+	
+	/** Optimization regularization parameter - number of zeroes */
+	public double getOptNbZeroesPar() {
+		return m_OptNbZeroesPar.getValue();
+	}
+	
+	/** Optimization regularization parameter - number of zeroes */
+	public void setOptNbZeroesPar(double newValue) {
+		m_OptNbZeroesPar.setValue(newValue);
 	}
 
 
@@ -1593,6 +1622,7 @@ public class Settings implements Serializable {
 		data.addNode(m_XValFolds = new INIFileStringOrInt("XVal"));
 		m_XValFolds.setIntValue(10);
 		data.addNode(m_RemoveMissingTarget = new INIFileBool("RemoveMissingTarget", false));
+		data.addNode(m_NormalizeData = new INIFileNominal("NormalizeData", NORMALIZE_DATA_VALUES, 0));
 
 		INIFileSection attrs = new INIFileSection("Attributes");
 		attrs.addNode(m_Target = new INIFileString("Target", DEFAULT));
@@ -1684,6 +1714,7 @@ public class Settings implements Serializable {
 		rules.addNode(m_OptDEWeight = new INIFileDouble("OptDEWeight", 0.5));
 		rules.addNode(m_OptDESeed = new INIFileInt("OptDESeed", 0));
 		rules.addNode(m_OptRegPar = new INIFileDouble("OptRegPar", 0.0));
+		rules.addNode(m_OptNbZeroesPar = new INIFileDouble("OptNbZeroesPar", 0.0));
 		rules.addNode(m_OptRuleWeightThreshold = new INIFileDouble("OptRuleWeightThreshold", 0.1));
 		rules.addNode(m_OptLossFunction = new INIFileNominal("OptDELossFunction",DE_LOSS_FUNCTIONS, 0));
 		rules.addNode(m_OptDERegulPower = new INIFileDouble("OptDERegulPower", 1.0));
@@ -1693,7 +1724,7 @@ public class Settings implements Serializable {
 		rules.addNode(m_OptGDMaxIter = new INIFileInt("OptGDMaxIter", 1000));
 //		rules.addNode(m_OptGDLossFunction = new INIFileNominal("OptGDLossFunction", GD_LOSS_FUNCTIONS, 0));
 		rules.addNode(m_OptGDGradTreshold = new INIFileDouble("OptGDGradTreshold", 1));		
-		rules.addNode(m_OptGDStepSize = new INIFileDouble("OptGDStepSize", 0.01));
+		rules.addNode(m_OptGDStepSize = new INIFileDouble("OptGDStepSize", 0.1));
 		rules.addNode(m_OptGDMaxNbWeights = new INIFileInt("OptGDMaxNbWeights", 0));
 		rules.addNode(m_OptGDEarlyStopAmount = new INIFileDouble("OptGDEarlyStopAmount", 0.0));
 		rules.addNode(m_OptGDEarlyStopTreshold = new INIFileDouble("OptGDEarlyStopTreshold", 1.1));		
