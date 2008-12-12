@@ -49,10 +49,16 @@ public abstract class ClusStatistic implements Serializable {
 
 	public abstract ClusStatistic cloneStat();
 
+	/** Statistic with only memory allocated for storing mean
+	/ not variance, see e.g. RegressionStat.java */
 	public ClusStatistic cloneSimple() {
-		// Statistic with only memory allocated for storing mean
-		// not variance, see e.g. RegressionStat.java
 		return cloneStat();
+	}
+	
+	/** Clone this statistic by taking the given weight into account */
+	public ClusStatistic cloneWeighted(double weight) {	
+		System.err.println(getClass().getName()+": cloneWeighted(): Not yet implemented");
+		return null;
 	}
 
 	/**
@@ -129,6 +135,7 @@ public abstract class ClusStatistic implements Serializable {
 
 	public abstract void copy(ClusStatistic other);
 
+	/** Adds to this target prediction the effect of other statistics with weight considered */
 	public abstract void addPrediction(ClusStatistic other, double weight);
 
 	public abstract void add(ClusStatistic other);
@@ -142,6 +149,7 @@ public abstract class ClusStatistic implements Serializable {
 	public void addScaled(double scale, ClusStatistic other) {
 		System.err.println(getClass().getName()+": addScaled(): Not yet implemented");
 	}
+
 
 	public void resetToSimple(double weight) {
 		System.err.println(getClass().getName()+": resetToSimple(): Not yet implemented");
