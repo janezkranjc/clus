@@ -1,16 +1,17 @@
 Clus run 'cpu'
 **************
 
-Date: 10/28/08 3:46 PM
+Date: 12/12/08 7:50 PM
 File: cpu-singletarget-rules-unordered.out
 Attributes: 8 (input: 7, output: 1)
 Missing values: No
+Memory usage: 12800 kB (initial), 12908 kB (data loaded)
 
 [General]
 Verbose = 1
 Compatibility = Latest
 RandomSeed = 0
-ResourceInfoLoaded = No
+ResourceInfoLoaded = Yes
 
 [Data]
 File = ../data/cpu/cpu.arff
@@ -18,6 +19,7 @@ TestSet = None
 PruneSet = None
 XVal = 10
 RemoveMissingTarget = Yes
+NormalizeData = None
 
 [Attributes]
 Target = 8
@@ -85,7 +87,7 @@ HeurPrototypeDistPar = 0.0
 RuleSignificanceLevel = 0.05
 RuleNbSigAtts = 0
 ComputeDispersion = Yes
-NumCompNormWeight = 4.0
+VarBasedDispNormWeight = 4.0
 DispersionWeights = 
   TargetWeight = 1.0
   NonTargetWeight = 1.0
@@ -99,7 +101,19 @@ OptDECrossProb = 0.3
 OptDEWeight = 0.5
 OptDESeed = 0
 OptRegPar = 0.0
+OptNbZeroesPar = 0.0
 OptRuleWeightThreshold = 0.1
+OptDELossFunction = Squared
+OptDERegulPower = 1.0
+OptDEProbMutationZero = 0.0
+OptDEProbMutationNonZero = 0.0
+OptHuberAlpha = 0.9
+OptGDMaxIter = 1000
+OptGDGradTreshold = 1.0
+OptGDStepSize = 0.1
+OptGDMaxNbWeights = 0
+OptGDEarlyStopAmount = 0.0
+OptGDEarlyStopTreshold = 1.1
 
 [Beam]
 SizePenalty = 0.1
@@ -129,43 +143,39 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.341 sec
-Pruning Time: 0 sec
+Induction Time: 0.412 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
-     M2: No model available
-     Pruned: Rules = 3 (Tests: 6)
+     Original: Rules = 3 (Tests: 6)
 
 Training error
 --------------
 
 Number of examples: 209
-Coverage:
-  Default: 209
-  Pruned: 209
 Mean absolute error (MAE)
    Default        : [87.3828], Avg: 18263.0048
-   Pruned         : [40.0552], Avg: 8371.5266
+   Original       : [49.2053], Avg: 10283.9021
 Mean squared error (MSE)
    Default        : [23835.1685]
-   Pruned         : [4706.9053]
+   Original       : [5290.8419]
 Root mean squared error (RMSE)
    Default        : [154.3864]
-   Pruned         : [68.6069]
+   Original       : [72.7382]
 Weighted root mean squared error (RMSE) (Weights [0])
    Default        : [1]
-   Pruned         : [0.4444]
+   Original       : [0.4711]
 Pearson correlation coefficient
    Default        : [0], Avg r^2: 0
-   Pruned         : [0.8971], Avg r^2: 0.8048
+   Original       : [0.8958], Avg r^2: 0.8024
 
 Default Model
 *************
 
 [99.330144]: 209
 
-Pruned Model
-************
+Original Model
+**************
 
 Rule 1:
 =======

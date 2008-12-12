@@ -1,16 +1,17 @@
 Clus run iris
 *************
 
-Date: 10/28/08 2:22 PM
+Date: 12/12/08 7:50 PM
 File: iris-singletarget-rules-unordered.out
 Attributes: 5 (input: 4, output: 1)
 Missing values: No
+Memory usage: 12792 kB (initial), 12876 kB (data loaded)
 
 [General]
 Verbose = 1
 Compatibility = Latest
 RandomSeed = 0
-ResourceInfoLoaded = No
+ResourceInfoLoaded = Yes
 
 [Data]
 File = ../data/iris/iris.arff
@@ -18,6 +19,7 @@ TestSet = None
 PruneSet = None
 XVal = 10
 RemoveMissingTarget = Yes
+NormalizeData = None
 
 [Attributes]
 Target = 5
@@ -85,7 +87,7 @@ HeurPrototypeDistPar = 0.0
 RuleSignificanceLevel = 0.05
 RuleNbSigAtts = 0
 ComputeDispersion = Yes
-NumCompNormWeight = 4.0
+VarBasedDispNormWeight = 4.0
 DispersionWeights = 
   TargetWeight = 1.0
   NonTargetWeight = 1.0
@@ -99,7 +101,19 @@ OptDECrossProb = 0.3
 OptDEWeight = 0.5
 OptDESeed = 0
 OptRegPar = 0.0
+OptNbZeroesPar = 0.0
 OptRuleWeightThreshold = 0.1
+OptDELossFunction = Squared
+OptDERegulPower = 1.0
+OptDEProbMutationZero = 0.0
+OptDEProbMutationNonZero = 0.0
+OptHuberAlpha = 0.9
+OptGDMaxIter = 1000
+OptGDGradTreshold = 1.0
+OptGDStepSize = 0.1
+OptGDMaxNbWeights = 0
+OptGDEarlyStopAmount = 0.0
+OptGDEarlyStopTreshold = 1.1
 
 [Beam]
 SizePenalty = 0.1
@@ -129,20 +143,16 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.103 sec
-Pruning Time: 0 sec
+Induction Time: 0.1 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
-     M2: No model available
-     Pruned: Rules = 4 (Tests: 7)
+     Original: Rules = 4 (Tests: 7)
 
 Training error
 --------------
 
 Number of examples: 150
-Coverage:
-  Default: 150
-  Pruned: 150
 Classification Error
    Default: 
    Attribute: class
@@ -156,7 +166,7 @@ Classification Error
      Accuracy: 0.333333
      Cramer's coefficient: 0
 
-   Pruned: 
+   Original: 
    Attribute: class
            REAL\PRED | Iris-setosa | Iris-versicolor | Iris-virginica |
      ----------------------------------------------------------------------
@@ -170,15 +180,15 @@ Classification Error
 
 Weighted mean squared error (MSE) for Nominal Attributes (Weights [1])
    Default        : [0.6667]
-   Pruned         : [0.1794]
+   Original       : [0.1794]
 
 Default Model
 *************
 
 [Iris-setosa] [50.0]: 150
 
-Pruned Model
-************
+Original Model
+**************
 
 Rule 1:
 =======

@@ -1,11 +1,11 @@
 Clus run iris
 *************
 
-Date: 7/25/08 5:03 PM
+Date: 12/12/08 7:50 PM
 File: iris-ilevelc.xval
 Attributes: 5 (input: 4, output: 4)
 Missing values: No
-Memory usage: 12980 kB (initial), 13132 kB (data loaded)
+Memory usage: 12760 kB (initial), 12848 kB (data loaded)
 
 [General]
 Verbose = 1
@@ -18,6 +18,8 @@ File = ../data/iris/iris.arff
 TestSet = None
 PruneSet = None
 XVal = 10
+RemoveMissingTarget = No
+NormalizeData = None
 
 [Attributes]
 Target = 1-4
@@ -56,6 +58,7 @@ MEstimate = 1.0
 MinimalWeight = 2.0
 ParamTuneNumberFolds = 10
 ClassWeights = 0.0
+NominalSubsetTests = Yes
 
 [Tree]
 Heuristic = SSReduction
@@ -88,12 +91,11 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.056 sec (CPU)
+Induction Time: 0.044 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
@@ -102,15 +104,6 @@ Default Model
 
 Original Model
 **************
-
-petallength > 3.15
-+--yes: petallength > 5.05
-|       +--yes: [6.721429,3.033333,5.688095,2.061905]: 42 L=0
-|       +--no:  [5.94386,2.759649,4.363158,1.401754]: 57 L=2
-+--no:  [5.007843,3.4,1.494118,0.260784]: 51 L=1
-
-Pruned Model
-************
 
 petallength > 3.15
 +--yes: petallength > 5.05
@@ -130,7 +123,6 @@ Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
@@ -139,15 +131,6 @@ Default Model
 
 Original Model
 **************
-
-petallength > 3.4
-+--yes: petallength > 5.05
-|       +--yes: [6.721429,3.033333,5.688095,2.061905]: 42 L=0
-|       +--no:  [5.98,2.774545,4.401818,1.416364]: 55 L=2
-+--no:  [5.00566,3.360377,1.562264,0.288679]: 53 L=1
-
-Pruned Model
-************
 
 petallength > 3.4
 +--yes: petallength > 5.05
@@ -162,12 +145,11 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.008 sec (CPU)
-Pruning Time: 0.004 sec (CPU)
+Induction Time: 0.012 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
@@ -176,15 +158,6 @@ Default Model
 
 Original Model
 **************
-
-petallength > 3.4
-+--yes: petallength > 4.95
-|       +--yes: [6.673913,2.991304,5.628261,2.036957]: 46 L=0
-|       +--no:  [5.964706,2.792157,4.354902,1.388235]: 51 L=2
-+--no:  [5.00566,3.360377,1.562264,0.288679]: 53 L=1
-
-Pruned Model
-************
 
 petallength > 3.4
 +--yes: petallength > 4.95
@@ -204,7 +177,6 @@ Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
@@ -213,15 +185,6 @@ Default Model
 
 Original Model
 **************
-
-petallength > 3.15
-+--yes: petallength > 4.95
-|       +--yes: [6.673913,2.991304,5.628261,2.036957]: 46 L=0
-|       +--no:  [5.926415,2.775472,4.315094,1.373585]: 53 L=2
-+--no:  [5.007843,3.4,1.494118,0.260784]: 51 L=1
-
-Pruned Model
-************
 
 petallength > 3.15
 +--yes: petallength > 4.95
@@ -236,12 +199,11 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.004 sec (CPU)
+Induction Time: 0 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
@@ -250,15 +212,6 @@ Default Model
 
 Original Model
 **************
-
-petallength > 3.15
-+--yes: petalwidth > 1.65
-|       +--yes: [6.591667,3.00625,5.539583,2.058333]: 48 L=0
-|       +--no:  [5.97451,2.752941,4.347059,1.327451]: 51 L=2
-+--no:  [5.007843,3.4,1.494118,0.260784]: 51 L=1
-
-Pruned Model
-************
 
 petallength > 3.15
 +--yes: petalwidth > 1.65
@@ -278,7 +231,6 @@ Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
@@ -287,15 +239,6 @@ Default Model
 
 Original Model
 **************
-
-petallength > 3.4
-+--yes: petallength > 5.15
-|       +--yes: [6.861765,3.070588,5.826471,2.094118]: 34 L=0
-|       +--no:  [5.998413,2.787302,4.490476,1.480952]: 63 L=2
-+--no:  [5.00566,3.360377,1.562264,0.288679]: 53 L=1
-
-Pruned Model
-************
 
 petallength > 3.4
 +--yes: petallength > 5.15
@@ -315,7 +258,6 @@ Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
@@ -324,15 +266,6 @@ Default Model
 
 Original Model
 **************
-
-petallength > 3.4
-+--yes: petallength > 4.65
-|       +--yes: [6.588333,2.98,5.435,1.936667]: 60 L=0
-|       +--no:  [5.835135,2.735135,4.186486,1.305405]: 37 L=2
-+--no:  [5.00566,3.360377,1.562264,0.288679]: 53 L=1
-
-Pruned Model
-************
 
 petallength > 3.4
 +--yes: petallength > 4.65
@@ -347,12 +280,11 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.004 sec (CPU)
+Induction Time: 0.008 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
@@ -361,15 +293,6 @@ Default Model
 
 Original Model
 **************
-
-petallength > 2.45
-+--yes: petallength > 5.15
-|       +--yes: [6.861765,3.070588,5.826471,2.094118]: 34 L=0
-|       +--no:  [5.95303,2.769697,4.431818,1.460606]: 66 L=2
-+--no:  [5.006,3.418,1.464,0.244]: 50 L=1
-
-Pruned Model
-************
 
 petallength > 2.45
 +--yes: petallength > 5.15
@@ -384,12 +307,11 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.012 sec (CPU)
+Induction Time: 0.004 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
@@ -398,15 +320,6 @@ Default Model
 
 Original Model
 **************
-
-petallength > 2.45
-+--yes: petallength > 5.15
-|       +--yes: [6.861765,3.070588,5.826471,2.094118]: 34 L=0
-|       +--no:  [5.95303,2.769697,4.431818,1.460606]: 66 L=2
-+--no:  [5.006,3.418,1.464,0.244]: 50 L=1
-
-Pruned Model
-************
 
 petallength > 2.45
 +--yes: petallength > 5.15
@@ -426,7 +339,6 @@ Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Default Model
 *************
@@ -442,24 +354,14 @@ petallength > 3.4
 |       +--no:  [5.934783,2.78913,4.295652,1.352174]: 46 L=2
 +--no:  [5.00566,3.360377,1.562264,0.288679]: 53 L=1
 
-Pruned Model
-************
-
-petallength > 3.4
-+--yes: petallength > 4.85
-|       +--yes: [6.631373,2.97451,5.556863,2.005882]: 51 L=0
-|       +--no:  [5.934783,2.78913,4.295652,1.352174]: 46 L=2
-+--no:  [5.00566,3.360377,1.562264,0.288679]: 53 L=1
-
 Summary
 *******
 
 Runs: 10
-Induction time: 0.124 sec
+Induction time: 0.108 sec
 Preprocessing time: 0 sec
 Mean number of tests
      Original: 5
-     Pruned: 5
 
 Testing error
 -------------
@@ -468,21 +370,16 @@ Number of examples: 150
 Mean absolute error (MAE)
    Default        : [0.6876,0.3331,1.5619,0.6589], Avg: 121.5563
    Original       : [0.365,0.2582,0.3143,0.1735], Avg: 41.6639
-   Pruned         : [0.365,0.2582,0.3143,0.1735], Avg: 41.6639
 Mean squared error (MSE)
    Default        : [0.6811,0.1868,3.0924,0.5785]: 1.1347
    Original       : [0.2165,0.1117,0.1768,0.0534]: 0.1396
-   Pruned         : [0.2165,0.1117,0.1768,0.0534]: 0.1396
 Root mean squared error (RMSE)
    Default        : [0.8253,0.4321,1.7585,0.7606]: 1.0652
    Original       : [0.4652,0.3342,0.4204,0.2311]: 0.3736
-   Pruned         : [0.4652,0.3342,0.4204,0.2311]: 0.3736
 Pearson correlation coefficient
    Default        : [0,0,?,?], Avg r^2: ?
    Original       : [0.8261,0.6354,0.9712,0.9532], Avg r^2: 0.7345
-   Pruned         : [0.8261,0.6354,0.9712,0.9532], Avg r^2: 0.7345
 Rand index
    Default        : 0.40857142857142853 (cnt = 10)
    Original       : 0.9285714285714285 (cnt = 10)
-   Pruned         : 0.9285714285714285 (cnt = 10)
 

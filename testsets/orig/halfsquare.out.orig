@@ -1,22 +1,25 @@
 Clus run "2DData"
 *****************
 
-Date: 7/23/08 11:16 AM
+Date: 12/12/08 7:50 PM
 File: halfsquare.out
 Attributes: 3 (input: 2, output: 2)
 Missing values: No
+Memory usage: 12756 kB (initial), 12816 kB (data loaded)
 
 [General]
 Verbose = 1
 Compatibility = Latest
 RandomSeed = 0
-ResourceInfoLoaded = No
+ResourceInfoLoaded = Yes
 
 [Data]
 File = ../data/ilevelc/halfsquare/halfsquare.arff
 TestSet = None
 PruneSet = None
 XVal = 10
+RemoveMissingTarget = No
+NormalizeData = None
 
 [Attributes]
 Target = 1-2
@@ -55,6 +58,7 @@ MEstimate = 1.0
 MinimalWeight = 1.0
 ParamTuneNumberFolds = 10
 ClassWeights = 0.0
+NominalSubsetTests = Yes
 
 [Tree]
 Heuristic = SSReduction
@@ -87,12 +91,11 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.373 sec
-Pruning Time: 0.002 sec
+Induction Time: 0.032 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Training error
 --------------
@@ -101,23 +104,18 @@ Number of examples: 78
 Mean absolute error (MAE)
    Default        : [46.4043,51.9888], Avg: 3837.3308
    Original       : [24.9876,13.9542], Avg: 1518.7309
-   Pruned         : [24.9876,13.9542], Avg: 1518.7309
 Mean squared error (MSE)
    Default        : [2480.1967,3041.5464]: 2760.8716
    Original       : [1173.0353,330.5969]: 751.8161
-   Pruned         : [1173.0353,330.5969]: 751.8161
 Root mean squared error (RMSE)
    Default        : [49.8016,55.1502]: 52.544
    Original       : [34.2496,18.1823]: 27.4193
-   Pruned         : [34.2496,18.1823]: 27.4193
 Pearson correlation coefficient
    Default        : [0,0], Avg r^2: 0
    Original       : [0.726,0.9441], Avg r^2: 0.7092
-   Pruned         : [0.726,0.9441], Avg r^2: 0.7092
 Rand index
    Default        : 0.6013986013986014
    Original       : 1.0
-   Pruned         : 1.0
 
 Default Model
 *************
@@ -126,15 +124,6 @@ Default Model
 
 Original Model
 **************
-
-Y > 103.5
-+--yes: X > 113.5
-|       +--yes: [160.058824,155.858824]: 17 L=1
-|       +--no:  [55.904762,163.114286]: 21 L=0
-+--no:  [104,55.8225]: 40 L=1
-
-Pruned Model
-************
 
 Y > 103.5
 +--yes: X > 113.5
