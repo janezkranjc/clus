@@ -156,4 +156,13 @@ public class StringUtils {
 			return str;
 		}
 	}
+
+	public static String removeSingleQuote(String str) {
+		int len = str.length();
+		if (len >= 2 && str.charAt(0) == '\'' && str.charAt(len-1) == '\'') {
+			return str.substring(1, len-1);
+		} else {
+			return str;			
+		}
+	}
 }

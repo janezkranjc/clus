@@ -514,13 +514,13 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		if (writetest) {
 			if (m_Sett.isWriteModelIDPredictions()) {
-				String tname = FileUtil.removePath(FileUtil.getName(test_fname));
+				String tname = FileUtil.removePath(StringUtils.removeSuffix(FileUtil.getName(test_fname), ".arff"));
 				ClusModelInfo mi = cr.addModelInfo(ClusModel.ORIGINAL);
 				mi.addModelProcessor(ClusModelInfo.TEST_ERR, new NodeIDWriter(tname + ".id", hasMissing, m_Sett));
 			}
 			if (m_Sett.isWriteTestSetPredictions()) {
-				String tname = FileUtil.getName(test_fname);
 				ClusModelInfo allmi = cr.getAllModelsMI();
+				String tname = StringUtils.removeSuffix(FileUtil.getName(test_fname), ".arff");
 				allmi.addModelProcessor(ClusModelInfo.TEST_ERR, new PredictionWriter(tname + ".pred.arff", m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
 			}
 		}

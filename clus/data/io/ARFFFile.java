@@ -145,7 +145,7 @@ public class ARFFFile {
 	}
 
 	public static void writeArffHeader(PrintWriter wrt, ClusSchema schema) throws IOException, ClusException {
-		wrt.println("@RELATION "+schema.getRelationName());
+		wrt.println("@RELATION '"+StringUtils.removeSingleQuote(schema.getRelationName())+"'");
 		wrt.println();
 		for (int i = 0; i < schema.getNbAttributes(); i++) {
 			ClusAttrType type = schema.getAttrType(i);

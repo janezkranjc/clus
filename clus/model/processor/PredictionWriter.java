@@ -151,7 +151,7 @@ public class PredictionWriter extends ClusModelProcessor {
 	private void doInitialize(ClusSchema schema) throws IOException, ClusException {
 		m_Attrs = new MyArray();
 		int nb = schema.getNbAttributes();
-		m_OutSchema = new ClusSchema(schema.getRelationName()+"-predictions");
+		m_OutSchema = new ClusSchema(StringUtils.removeSingleQuote(schema.getRelationName())+"-predictions");
 		m_OutSchema.setSettings(schema.getSettings());
 		for (int i = 0; i < nb; i++) {
 			ClusAttrType at = schema.getAttrType(i);
