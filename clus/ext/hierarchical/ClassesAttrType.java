@@ -82,23 +82,41 @@ public class ClassesAttrType extends ClusAttrType {
 	
 	public ClassesTuple getValue(DataTuple t1) {
 		return (ClassesTuple)t1.getObjVal(getArrayIndex());
-	}	
+	}
+	
+	public void updatePredictWriterSchema(ClusSchema schema) {
+		String name = getName();
+		schema.addAttrType(new StringAttrType(name+"-a"));
+		ClassHierarchy hier = getHier();
+		String[] vals = {"1", "0"};
+		for (int i = 0; i < hier.getTotal(); i++) {
+			ClassTerm term = hier.getTermAt(i);
+			schema.addAttrType(new NominalAttrType(name+"-a-"+term.toStringHuman(hier), vals));
+		}		
+	}
+	
+	public String getPredictionWriterString(DataTuple tuple) {
+		StringBuffer buf = new StringBuffer();
+		buf.append(getString(tuple));
+		buf.append(",");
+		buf.append(getVectorString(tuple));
+		return buf.toString();
+	}
 
 	public String getString(DataTuple tuple) {
-		//ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_ArrayIndex];
-		//return ct.toStringData(m_Hier);
-		return getVectorString(tuple);
+		ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_ArrayIndex];
+		return ct.toStringData(m_Hier);
 	}
 	
 	public String getVectorString(DataTuple tuple) {
 		ClassesTuple ct = (ClassesTuple)tuple.m_Objects[m_ArrayIndex];
-		double[] vec = ct.getVectorNodeAndAncestors(m_Hier);
-		String str = "[" + vec[0];
-		for (int i=1; i<vec.length; i++) {
-			str = str + "," + vec[i];
+		boolean[] vec = ct.getVectorBooleanNodeAndAncestors(m_Hier);
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < vec.length; i++) {
+			if (i != 0)	buf.append(",");
+			buf.append(vec[i] ? "1" : "0");
 		}
-		str = str + "]";
-		return str;
+		return buf.toString();
 	}
 
 	public ClusSerializable createRowSerializable() throws ClusException {

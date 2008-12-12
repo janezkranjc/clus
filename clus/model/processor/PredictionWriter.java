@@ -127,7 +127,7 @@ public class PredictionWriter extends ClusModelProcessor {
 		for (int j = 0; j < m_Attrs.size(); j++) {
 			if (j != 0) m_Writer.print(",");
 			ClusAttrType at = (ClusAttrType)m_Attrs.elementAt(j);
-			m_Writer.print(at.getString(tuple));
+			m_Writer.print(at.getPredictionWriterString(tuple));
 		}
 	}
 
@@ -164,7 +164,7 @@ public class PredictionWriter extends ClusModelProcessor {
 			ClusAttrType at = schema.getAttrType(i);
 			if (at.getStatus() == ClusAttrType.STATUS_TARGET) {
 				m_Attrs.addElement(at);
-				m_OutSchema.addAttrType(at.cloneType());
+				at.updatePredictWriterSchema(m_OutSchema);
 			}
 		}
 		m_Writer = m_Sett.getFileAbsoluteWriter(m_Fname);

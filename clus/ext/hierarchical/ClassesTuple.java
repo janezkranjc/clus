@@ -144,6 +144,12 @@ public class ClassesTuple implements Serializable {
 		return vec;
 	}
 
+	public final boolean[] getVectorBooleanNodeAndAncestors(ClassHierarchy hier) {
+		boolean[] vec = new boolean[hier.getTotal()];
+		fillBoolArrayNodeAndAncestors(vec);
+		return vec;
+	}	
+	
 	public final double[] getVectorNodeAndAncestors(ClassHierarchy hier) {
 		double[] vec = new double[hier.getTotal()];
 		for (int i = 0; i < getNbClasses(); i++) {

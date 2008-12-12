@@ -214,6 +214,14 @@ public abstract class ClusAttrType implements Serializable, Comparable {
 		return true;
 	}
 
+	public void updatePredictWriterSchema(ClusSchema schema) {
+		schema.addAttrType(cloneType());		
+	}
+	
+	public String getPredictionWriterString(DataTuple tuple) {
+		return getString(tuple);
+	}
+	
 	public String getString(DataTuple tuple) {
 		return "err";
 	}
