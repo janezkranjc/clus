@@ -221,7 +221,7 @@ public class ClusOutput {
 					if (te_err != null) pex = (RowData)cr.getTestSet();
 					root.printModelAndExamples(m_Writer, info, pex);
 				} else {
-					root.printModel(m_Writer, info);
+					if (root != null) root.printModel(m_Writer, info);
 				}
 				m_Writer.println();
 				if (getSettings().isOutputPythonModel()) {

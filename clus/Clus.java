@@ -515,7 +515,7 @@ public class Clus implements CMDLineArgsProvider {
 		if (writetest) {
 			if (m_Sett.isWriteModelIDPredictions()) {
 				String tname = FileUtil.removePath(FileUtil.getName(test_fname));
-				ClusModelInfo mi = cr.addModelInfo(ClusModel.PRUNED);
+				ClusModelInfo mi = cr.addModelInfo(ClusModel.ORIGINAL);
 				mi.addModelProcessor(ClusModelInfo.TEST_ERR, new NodeIDWriter(tname + ".id", hasMissing, m_Sett));
 			}
 			if (m_Sett.isWriteTestSetPredictions()) {
@@ -530,7 +530,7 @@ public class Clus implements CMDLineArgsProvider {
 			allmi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new PredictionWriter(tr_name, m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
 		}
 		if (m_Sett.isWriteModelIDPredictions()) {
-			ClusModelInfo mi = cr.addModelInfo(ClusModel.PRUNED);
+			ClusModelInfo mi = cr.addModelInfo(ClusModel.ORIGINAL);
 			String id_tr_name = m_Sett.getAppName() + ".train." + idx + ".id";
 			mi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new NodeExampleCollector(id_tr_name, hasMissing, m_Sett));
 		}
@@ -631,7 +631,7 @@ public class Clus implements CMDLineArgsProvider {
 			allcoll.exampleUpdate(tuple);
 			for (int i = 0; i < cr.getNbModels(); i++) {
 				ClusModelInfo mi = cr.getModelInfo(i);
-				if (mi != null) {
+				if (mi != null && mi.getModel() != null) {
 					ClusModel model = mi.getModel();
 					ClusStatistic pred = model.predictWeighted(tuple);
 					ClusErrorList err = mi.getError(type);

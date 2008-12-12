@@ -1,23 +1,24 @@
 Clus run sspd
 *************
 
-Date: 7/25/08 6:34 PM
+Date: 12/12/08 8:05 PM
 File: sspd.out
 Attributes: 5 (input: 3, output: 1)
 Missing values: No
-Memory usage: 13040 kB (initial), 13052 kB (data loaded)
 
 [General]
 Verbose = 1
 Compatibility = Latest
 RandomSeed = 0
-ResourceInfoLoaded = Yes
+ResourceInfoLoaded = No
 
 [Data]
 File = ../data/sspd/sspd.arff
 TestSet = ../data/sspd/sspd_test.arff
 PruneSet = None
 XVal = 10
+RemoveMissingTarget = No
+NormalizeData = None
 
 [Attributes]
 Target = 5
@@ -56,6 +57,7 @@ MEstimate = 1.0
 MinimalWeight = 2.0
 ParamTuneNumberFolds = 10
 ClassWeights = 0.0
+NominalSubsetTests = Yes
 
 [Tree]
 Heuristic = SSPD
@@ -81,12 +83,11 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.016 sec (CPU)
-Pruning Time: 0 sec (CPU)
+Induction Time: 0.007 sec
+Pruning Time: 0.001 sec
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 5 (Leaves: 3)
-     Pruned: Nodes = 5 (Leaves: 3)
 
 Training error
 --------------
@@ -105,15 +106,6 @@ Default Model
 
 Original Model
 **************
-
-attr_a = a
-+--yes: 4.0 (1)
-+--no:  attr_b = 1
-        +--yes: 2.0 (2)
-        +--no:  2.0 (3)
-
-Pruned Model
-************
 
 attr_a = a
 +--yes: 4.0 (1)
