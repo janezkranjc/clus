@@ -59,10 +59,8 @@ public class PredictionWriter extends ClusModelProcessor {
 	}
 
 	public boolean shouldProcessModel(ClusModelInfo info) {
-		//if (info.getName().equals("Default")) return false;
-		//else return true;
-		if (info.getName().equals("Original")) return true;
-		else return false;
+		if (info.getName().equals("Default")) return false;
+		else return true;
 	}
 
 	public void addModelInfo(ClusModelInfo info) {
@@ -139,15 +137,14 @@ public class PredictionWriter extends ClusModelProcessor {
 	}
 
 	public void exampleUpdate(DataTuple tuple, ClusStatistic distr) {
-		m_Writer.print(",[");
+		m_Writer.print(",");
 		if (distr == null) {
 			m_Writer.print("???");
 		} else {
 			// TODO: do this as a function of predictTuple
 			m_Writer.print(distr.getPredictWriterString(tuple));
 		}
-		m_Writer.print("]");
-		//m_Writer.print(",\""+m_ModelParts+"\"");
+		m_Writer.print(",\""+m_ModelParts+"\"");
 		m_ModelParts.setLength(0);
 	}
 

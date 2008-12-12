@@ -181,7 +181,6 @@ public class ClusErrorList implements Serializable {
 		}
 	}
 
-
 	public void addExample() {
 		m_NbExamples++;
 		m_NbCover++;
@@ -252,8 +251,10 @@ public class ClusErrorList implements Serializable {
 	public static boolean checkCoverage(ClusModelInfoList models, int type, int nb) {
 		int nb_models = models.getNbModels();
 		for (int j = 0; j < nb_models; j++) {
-			ClusErrorList parent = models.getModelInfo(j).getError(type);
-			if (parent.getNbCover() != nb) return false;
+			if (models.getModelInfo(j) != null) {
+				ClusErrorList parent = models.getModelInfo(j).getError(type);
+				if (parent.getNbCover() != nb) return false;
+			}
 		}
 		return true;
 	}
@@ -268,7 +269,7 @@ public class ClusErrorList implements Serializable {
 			out.println("Coverage:");
 			for (int j = 0; j < nb_models; j++) {
 				ClusModelInfo inf = models.getModelInfo(j);
-				if (inf.getModel() != null) {
+				if (inf != null) {
 					ClusErrorList parent = inf.getError(type);
 					out.println("  "+inf.getName()+": "+parent.getNbCover());
 				}
@@ -279,9 +280,9 @@ public class ClusErrorList implements Serializable {
 			out.println(err1.getName());
 			for (int j = 0; j < nb_models; j++) {
 				ClusModelInfo inf = models.getModelInfo(j);
-				ClusErrorList parent = inf.getError(type);
-				ClusError err2 = parent.getError(i);
-				if (inf.hasModel()) {
+				if (inf != null) {
+					ClusErrorList parent = inf.getError(type);
+					ClusError err2 = parent.getError(i);
 					if (err2.isMultiLine()) {
 						out.print("   "+inf.getName()+": ");
 					} else {
@@ -298,14 +299,16 @@ public class ClusErrorList implements Serializable {
 		int nb_models = models.getNbModels();
 		for (int j = 0; j < nb_models; j++) {
 			ClusModelInfo inf = models.getModelInfo(j);
-			ClusErrorList parent = inf.getExtraError(type);
-			if (parent != null && inf.hasModel()) {
-				int nb_err = parent.getNbErrors();
-				for (int i = 0; i < nb_err; i++) {
-					out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
-					ClusError err = parent.getError(i);
-					err.showModelError(out, ClusError.DETAIL_SMALL);
-					ctr++;
+			if (inf != null) {
+				ClusErrorList parent = inf.getExtraError(type);
+				if (parent != null && inf.hasModel()) {
+					int nb_err = parent.getNbErrors();
+					for (int i = 0; i < nb_err; i++) {
+						out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
+						ClusError err = parent.getError(i);
+						err.showModelError(out, ClusError.DETAIL_SMALL);
+						ctr++;
+					}
 				}
 			}
 		}

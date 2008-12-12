@@ -145,13 +145,15 @@ public class ClusOutput {
 		// Prepare models for printing if required
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			ClusModelInfo mi = cr.getModelInfo(i);
-			ClusModel root = mi.getModel();
-			if (root != null) {
+			if (mi != null) {
+				ClusModel root = mi.getModel();
 				if (mi.shouldPruneInvalid()) {
 					root = root.prune(ClusModel.PRUNE_INVALID);
 				}
+				models.add(root);				
+			} else {
+				models.add(null);
 			}
-			models.add(root);
 		}
 		// Compute statistics
 	    String cpu = ResourceInfo.isLibLoaded() ? " (CPU)" : "";
@@ -160,13 +162,15 @@ public class ClusOutput {
 		m_Writer.println("Model information");
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			ClusModelInfo mi = cr.getModelInfo(i);
-			m_Writer.print("     "+mi.getName()+": ");
-			ClusModel model = (ClusModel)models.get(i);
-			String info_str = model == null ? "No model available" : model.getModelInfo();
-			String[] info = info_str.split("\\s*\\,\\s*");
-			for (int j = 0; j < info.length; j++) {
-				if (j > 0) m_Writer.print(StringUtils.makeString(' ', mi.getName().length()+7));
-				m_Writer.println(info[j]);
+			if (mi != null) {
+				m_Writer.print("     "+mi.getName()+": ");
+				ClusModel model = (ClusModel)models.get(i);
+				String info_str = model == null ? "No model available" : model.getModelInfo();
+				String[] info = info_str.split("\\s*\\,\\s*");
+				for (int j = 0; j < info.length; j++) {
+					if (j > 0) m_Writer.print(StringUtils.makeString(' ', mi.getName().length()+7));
+					m_Writer.println(info[j]);
+				}
 			}
 		}
 		m_Writer.println();
@@ -204,41 +208,38 @@ public class ClusOutput {
 		StatisticPrintInfo info = m_Sett.getStatisticPrintInfo();
 
 		for (int i = 0; i < cr.getNbModels(); i++) {
-			if (shouldShowModel(i)) {
+			if (cr.getModelInfo(i) != null && shouldShowModel(i)) {
 				ClusModelInfo mi = cr.getModelInfo(i);
 				ClusModel root = (ClusModel)models.get(i);
-				if (root != null) {
-					String modelname = mi.getName() + " Model";
-					m_Writer.println(modelname);
-					m_Writer.println(StringUtils.makeString('*', modelname.length()));
-					m_Writer.println();
-					if (m_Sett.isPrintModelAndExamples()) {
-						RowData pex = (RowData)cr.getTrainingSet();
-						System.out.println(te_err);
-						if (te_err != null) pex = (RowData)cr.getTestSet();
-						root.printModelAndExamples(m_Writer, info, pex);
-					} else {
-						root.printModel(m_Writer, info);
+				String modelname = mi.getName() + " Model";
+				m_Writer.println(modelname);
+				m_Writer.println(StringUtils.makeString('*', modelname.length()));
+				m_Writer.println();
+				if (m_Sett.isPrintModelAndExamples()) {
+					RowData pex = (RowData)cr.getTrainingSet();
+					System.out.println(te_err);
+					if (te_err != null) pex = (RowData)cr.getTestSet();
+					root.printModelAndExamples(m_Writer, info, pex);
+				} else {
+					root.printModel(m_Writer, info);
+				}
+				m_Writer.println();
+				if (getSettings().isOutputPythonModel()) {
+					if (getSettings().isEnsembleMode() && (i == ClusModel.ORIGINAL)){
+						root.printModelToPythonScript(m_Writer);//root is a forest
 					}
-					m_Writer.println();
-					if (getSettings().isOutputPythonModel()) {
-						if (getSettings().isEnsembleMode() && (i == ClusModel.ORIGINAL)){
-							root.printModelToPythonScript(m_Writer);//root is a forest
+					else {
+						// use following lines for getting tree as Python function
+						m_Writer.print("def clus_tree( ");
+						ClusAttrType[] cat = ClusSchema.vectorToAttrArray(m_Schema.collectAttributes(ClusAttrType.ATTR_USE_DESCRIPTIVE, ClusAttrType.THIS_TYPE));
+						for (int ii=0;ii<cat.length-1;ii++){
+							m_Writer.print(cat[ii].getName()+",");
 						}
-						else {
-							// use following lines for getting tree as Python function
-							m_Writer.print("def clus_tree( ");
-							ClusAttrType[] cat = ClusSchema.vectorToAttrArray(m_Schema.collectAttributes(ClusAttrType.ATTR_USE_DESCRIPTIVE, ClusAttrType.THIS_TYPE));
-							for (int ii=0;ii<cat.length-1;ii++){
-								m_Writer.print(cat[ii].getName()+",");
-							}
-							m_Writer.println(cat[cat.length-1].getName()+" ):");
-							root.printModelToPythonScript(m_Writer);
-							m_Writer.println();
-						}
+						m_Writer.println(cat[cat.length-1].getName()+" ):");
+						root.printModelToPythonScript(m_Writer);
+						m_Writer.println();
 					}
-
-				}//end if (root != null)
+				}
 			}//end if (shouldShowModel(i))
 		}// end for
 		if (getSettings().isOutputDatabaseQueries()) {

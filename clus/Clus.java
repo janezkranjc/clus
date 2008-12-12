@@ -623,8 +623,8 @@ public class Clus implements CMDLineArgsProvider {
 			allcoll.exampleUpdate(tuple);
 			for (int i = 0; i < cr.getNbModels(); i++) {
 				ClusModelInfo mi = cr.getModelInfo(i);
-				ClusModel model = mi.getModel();
-				if (model != null) {
+				if (mi != null) {
+					ClusModel model = mi.getModel();
 					ClusStatistic pred = model.predictWeighted(tuple);
 					ClusErrorList err = mi.getError(type);
 					if (err != null) err.addExample(tuple, pred);
@@ -663,15 +663,17 @@ public class Clus implements CMDLineArgsProvider {
 		ClusErrorList parent = getStatManager().createExtraError(ClusModelInfo.TRAIN_ERR);
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			ClusModelInfo info = cr.getModelInfo(i);
-			ClusErrorList parent_cl = parent.getErrorClone();
-			parent_cl.compute((RowData)cr.getTrainingSet(), info.getModel());
-			info.setExtraError(ClusModelInfo.TRAIN_ERR, parent_cl);			
-			if (info != null && info.getModel() instanceof ClusRuleSet && m_Sett.isRuleWiseErrors()) {
-				ClusRuleSet ruleset = (ClusRuleSet) info.getModel();
-				for (int j = 0; j < ruleset.getModelSize(); j++) {
-					ClusErrorList rule_error = parent.getErrorClone();
-					rule_error.compute((RowData)cr.getTrainingSet(), ruleset.getRule(j));
-					ruleset.getRule(j).addError(rule_error, ClusModelInfo.TRAIN_ERR);
+			if (info != null) {
+				ClusErrorList parent_cl = parent.getErrorClone();
+				parent_cl.compute((RowData)cr.getTrainingSet(), info.getModel());
+				info.setExtraError(ClusModelInfo.TRAIN_ERR, parent_cl);			
+				if (info.getModel() instanceof ClusRuleSet && m_Sett.isRuleWiseErrors()) {
+					ClusRuleSet ruleset = (ClusRuleSet) info.getModel();
+					for (int j = 0; j < ruleset.getModelSize(); j++) {
+						ClusErrorList rule_error = parent.getErrorClone();
+						rule_error.compute((RowData)cr.getTrainingSet(), ruleset.getRule(j));
+						ruleset.getRule(j).addError(rule_error, ClusModelInfo.TRAIN_ERR);
+					}
 				}
 			}
 		}

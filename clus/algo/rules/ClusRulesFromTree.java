@@ -134,6 +134,8 @@ public class ClusRulesFromTree {
 			}
 		}
 		
+		// Give each rule a unique number (1..nbRules)
+		ruleSet.numberRules();		
 		return ruleSet;
 	}
 

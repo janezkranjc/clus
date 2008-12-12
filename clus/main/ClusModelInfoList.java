@@ -105,18 +105,28 @@ public abstract class ClusModelInfoList implements Serializable {
 	 * Adding models to it
 	 ***************************************************************************/
 
-	public ClusModelInfo addModelInfo() {
-		String name = "M" + (m_Models.size() + 1);
+	public ClusModelInfo initModelInfo(int i) {
+		String name = "M" + (i + 1);
 		ClusModelInfo inf = new ClusModelInfo(name);
 		inf.setAllErrorsClone(getTrainError(), getTestError(), getValidationError());
 		inf.setStatManager(getStatManager());
+		return inf;
+	}	
+	
+	public ClusModelInfo addModelInfo() {
+		ClusModelInfo inf = initModelInfo(m_Models.size());
 		m_Models.add(inf);
 		return inf;
 	}
-
+	
 	public ClusModelInfo addModelInfo(int i) {
-		while (i >= m_Models.size()) addModelInfo();
-		return (ClusModelInfo)m_Models.get(i);
+		while (i >= m_Models.size()) m_Models.add(null);
+		ClusModelInfo inf = (ClusModelInfo)m_Models.get(i);
+		if (inf == null) {
+			inf = initModelInfo(i);		
+			m_Models.set(i, inf);
+		}		
+		return inf;
 	}
 
 	public abstract ClusStatManager getStatManager();
@@ -167,7 +177,7 @@ public abstract class ClusModelInfoList implements Serializable {
 		int nb_models = getNbModels();
 		for (int i = 0; i < nb_models; i++) {
 			ClusModelInfo my = getModelInfo(i);
-			allmi.copyModelProcessors(my);
+			if (my != null) allmi.copyModelProcessors(my);
 		}
 	}
 
@@ -176,7 +186,7 @@ public abstract class ClusModelInfoList implements Serializable {
 		allmi.initAllModelProcessors(type, schema);
 		for (int i = 0; i < getNbModels(); i++) {
 			ClusModelInfo mi = getModelInfo(i);
-			mi.initModelProcessors(type, schema);
+			if (mi != null) mi.initModelProcessors(type, schema);
 		}
 	}
 
@@ -185,7 +195,7 @@ public abstract class ClusModelInfoList implements Serializable {
 		allmi.termAllModelProcessors(type);
 		for (int i = 0; i < getNbModels(); i++) {
 			ClusModelInfo mi = getModelInfo(i);
-			mi.termModelProcessors(type);
+			if (mi != null) mi.termModelProcessors(type);
 		}
 	}
 
