@@ -34,9 +34,21 @@ public class IndexMergeSorter
     private static double[] m_workArray, m_tempArray;
     private static int[] m_indOfSorted, m_indTemp;
 
-    public static int[] sort(double[] targetArray)
+    /*
+    * if useAbsoluteValues = true, use absolute values, not real values.
+    */
+    public static int[] sort(double[] targetArray, boolean useAbsoluteValues)
     {
-        m_workArray=targetArray.clone();
+    	m_workArray = new double[targetArray.length];
+    	
+		if (useAbsoluteValues) {
+	        for (int iEl = 0; iEl < targetArray.length; iEl++) {
+	        	m_workArray[iEl]= Math.abs(targetArray[iEl]);
+	        }
+		} else {
+			m_workArray = targetArray.clone();
+		}
+
         int nbOfEl=m_workArray.length;
         // according to variant either/or:
         //b=new int[nbOfEl];
@@ -47,25 +59,16 @@ public class IndexMergeSorter
         m_indTemp = new int[(nbOfEl+1)/2];
         m_tempArray=new double[(nbOfEl+1)/2];
         mergesort(0, nbOfEl-1);
-        
-//        for (int i=1; i < m_workArray.length; i++){
-//        	if (m_workArray[i-1]>m_workArray[i]) {
-//        		boolean a = false;
-//        	}
-//        	if (targetArray[m_indOfSorted[i-1]]>targetArray[m_indOfSorted[i]]) {
-//        		boolean a = false;
-//        	}
-//
-//        }
-
-        
+               
         return m_indOfSorted;
     }
 
     /** Consider only the elements that are true in subArray. However, returned indexes
      * are for the WHOLE array, not for subarray.
+     * if useAbsoluteValues = true, use absolute values, not real values.
      */
-    public static int[] sortSubArray(double[] targetArray, boolean[] subArray, int nbOfTrueInSubArray)
+    public static int[] sortSubArray(double[] targetArray, boolean[] subArray, int nbOfTrueInSubArray,
+    		boolean useAbsoluteValues)
     {
         int nbOfEl=m_workArray.length;
         
@@ -75,7 +78,12 @@ public class IndexMergeSorter
     	int iSubArray = 0;
         for (int iWholeArray = 0; iWholeArray < nbOfEl; iWholeArray++) {
         	if (subArray[iWholeArray]) {
-        		m_workArray[iSubArray]=targetArray[iWholeArray];
+        		if (useAbsoluteValues) {
+        			m_workArray[iSubArray]= Math.abs(targetArray[iWholeArray]);
+        		} else {
+        			m_workArray[iSubArray]=targetArray[iWholeArray];
+        		}
+        		
         		m_indOfSorted[iSubArray] = iWholeArray;
         		iSubArray++;
         	}

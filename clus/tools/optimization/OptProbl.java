@@ -55,19 +55,21 @@ public class OptProbl {
 	 * See m_RulePred and m_TrueVal for what the indices mean.
 	 */
 	static public class OptParam {
-		public OptParam(double[][][][] predictions, double[] defaultPrediction, double[][] trueValues ){
+		public OptParam(double[][][][] predictions,
+//				double[] defaultPrediction,
+				double[][] trueValues ){
 			m_predictions = predictions;
-			m_defaultPrediction = defaultPrediction;
+//			m_defaultPrediction = defaultPrediction;
 			m_trueValues = trueValues;
 		}
 		/** An empty class */ 
 		public OptParam(int nbRule, int nbInst, int nbTarg){
 			m_predictions = new double[nbRule][nbInst][nbTarg][1];
-			m_defaultPrediction = new double[nbTarg];
+//			m_defaultPrediction = new double[nbTarg];
 			m_trueValues = new double[nbInst][nbTarg];
 		}
 		public double[][][][] m_predictions;
-		double[] m_defaultPrediction;
+//		double[] m_defaultPrediction;
 		public double[][] m_trueValues;
 	}
 	
@@ -85,7 +87,7 @@ public class OptProbl {
 	/**
 	 * Default prediction if no rule covers the instance.
 	 */
-	private double[] m_defaultPred;
+//	private double[] m_defaultPred;
 	
 	/** True target values for the data points. [instance][target index] */
 	private double[][] m_TrueVal;			
@@ -103,22 +105,22 @@ public class OptProbl {
 		m_NumVar = (optInfo.m_predictions).length;
 		m_RulePred = optInfo.m_predictions;
 		m_TrueVal = optInfo.m_trueValues;
-		m_defaultPred = optInfo.m_defaultPrediction;
+//		m_defaultPred = optInfo.m_defaultPrediction;
 		m_StatMgr = stat_mgr;
 		
-		try {
+//		try {
 			if (m_StatMgr.getMode() != ClusStatManager.MODE_REGRESSION &&  
 					m_StatMgr.getMode() != ClusStatManager.MODE_CLASSIFY)
 			{
-				throw new Exception("Classifier weight optimization:\n" +
-				"The targets are of different kind, i.e. they are not all for regression or for classifying.\n" +
-				"Mixed targets are not yet implemented. The targets are considered as regression.\n" +
-				"This error message may be due the clustering variables also.\n" +
-				"The optimization may not work in this case also.\n");
+System.err.println("Weight optimization: Mixed types of targets (reg/clas) not implemented. Assuming regression.\n ");
+//				"The targets are of different kind, i.e. they are not all for regression or for classifying.\n" +
+//				"Mixed targets are not yet implemented. The targets are considered as regression.\n" +
+//				"This error message may be due the clustering variables also.\n" +
+//				"The optimization may not work in this case also.\n");
 			}
-		} catch (Exception e){
-			e.printStackTrace();
-		}
+		//} catch (Exception e){
+//			e.printStackTrace();
+//		}
 			
 		m_ClssTask = (m_StatMgr.getMode() == ClusStatManager.MODE_CLASSIFY);
 	}
@@ -175,9 +177,9 @@ public class OptProbl {
 					}
 				} else 
 				{
-					// For regression initialize to unallowed prediction.
-					pred[iInstance][iTarget]= INVALID_PREDICTION;
-					pred_sum[iTarget][0] = INVALID_PREDICTION;
+					// For regression initialize to zero.
+					pred[iInstance][iTarget]= 0;
+					pred_sum[iTarget][0] = 0;
 				}
 			}
 
@@ -196,6 +198,8 @@ public class OptProbl {
 							covered = true;
 							
 							// To create lots of loss, undefined predictions have special value
+							// Initially pred_sum = INVALID_PREDICTION. For the first time nonzero
+							// prediction comes, we put this to zero.
 							if (pred_sum[iTarget][iClass] == INVALID_PREDICTION &&
 								((Double)genes.get(iRule)).doubleValue() != 0) {
 								pred_sum[iTarget][iClass] = 0;
@@ -253,15 +257,32 @@ public class OptProbl {
 		// Regularization for getting the weights as small as possible
 		double reg_penalty = regularization(genes); 
 
+		
+		// Second Regularization (especially for DE): how many zeroes
+		int nbOfZeroes = returnNbOfZeroes(genes);
+		
 		//fitness = (1 - (acc / nb_covered*nb_targets)) + getSettings().getOptRegPar() *  reg_penalty;
 		// TODO: regularization penalty should include dispersion, coverage?
 
 		
-		return loss+getSettings().getOptRegPar()* reg_penalty;
+		return loss+getSettings().getOptRegPar()* reg_penalty + getSettings().getOptNbZeroesPar()* nbOfZeroes;
 		
 	}
 	
-	
+	/** Number of zeroes for regularization purposes */
+	private int returnNbOfZeroes(ArrayList<Double> genes) {
+		
+		int nbOfZeroes = 0;
+
+		for (int j = 0; j < genes.size(); j++) {
+			if (genes.get(j).doubleValue() == 0.0)
+				nbOfZeroes++;
+		}
+
+		
+		return nbOfZeroes;
+	}
+
 	/**
 	 * Regression prediction.
 	 * @param predictionSums The weighted sum of rules for all targets. 
@@ -277,15 +298,15 @@ public class OptProbl {
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++)
 		{
 			
-			if (predictionSums[iTarget][0] == INVALID_PREDICTION) {
-				// No prediction is given (none of the nonzero weight rules cover the instance)
-				// Use the default rule instead
-				prediction[iTarget] = getDefaultPrediction(iTarget);
-				
-			} else {
+//			if (predictionSums[iTarget][0] == INVALID_PREDICTION) {
+//				// No prediction is given (none of the nonzero weight rules cover the instance)
+//				// Use the default rule instead
+//				prediction[iTarget] = getDefaultPrediction(iTarget);
+//				
+//			} else {
 				// For regression there is only one class and the prediction is the given value.
 				prediction[iTarget] = predictionSums[iTarget][0];
-			}
+//			}
 			
 		}
 		
@@ -319,15 +340,17 @@ public class OptProbl {
 				}
 			}
 				
-			if (predictionSums[iTarget][iMaxClass] == INVALID_PREDICTION) {
-				// We should come here only if for all the classes have INVALID_PREDICTION
-				// (This is because maximum value is -infinity = INVALID_PREDICTION)
-				// Thus no prediction is given (none of the nonzero weight rules cover the instance)
-				// Use the default rule instead
-				prediction[iTarget] = getDefaultPrediction(iTarget);
-			} else {
-				prediction[iTarget] = (double)iMaxClass;
-			}
+//			if (predictionSums[iTarget][iMaxClass] == INVALID_PREDICTION) {
+//				// We should come here only if for all the classes have INVALID_PREDICTION
+//				// (This is because maximum value is -infinity = INVALID_PREDICTION)
+//				// Thus no prediction is given (none of the nonzero weight rules cover the instance)
+//				// Use the default rule instead
+//				prediction[iTarget] = getDefaultPrediction(iTarget);
+//			} else {
+			
+			// The default rule is included in the rule set. At least it always covers all the examples.
+			prediction[iTarget] = (double)iMaxClass;
+//			}
 		}	
 		return prediction;
 	}
@@ -614,9 +637,9 @@ public class OptProbl {
 //	}
 	
 	
-	protected double getDefaultPrediction(int iTarget) {
-		return m_defaultPred[iTarget];
-	}
+//	protected double getDefaultPrediction(int iTarget) {
+//		return m_defaultPred[iTarget];
+//	}
 	
 	protected double getTrueValue(int iInstance, int iTarget)  {
 		return m_TrueVal[iInstance][iTarget];			
@@ -653,10 +676,11 @@ public class OptProbl {
 		return getTargetStat().getNbAttributes();
 	}
 
-	/** Change the data used for learning */
+	/** Change the data used for learning. This is used if part of the data
+	 * is used for e.g. testing. */
 	protected void changeData(OptParam newData) {
 		m_RulePred = newData.m_predictions;
-		m_defaultPred = newData.m_defaultPrediction;
+//		m_defaultPred = newData.m_defaultPrediction;
 		m_TrueVal = newData.m_trueValues;			 		
 	}	
 }

@@ -27,7 +27,6 @@ package clus.tools.optimization;
 
 import java.util.*;
 import clus.main.*;
-import clus.tools.optimization.OptProbl.OptParam;
 
 // Created 28.11.2008 from previous DeProbl class
 
@@ -127,18 +126,19 @@ public class GDProbl extends OptProbl {
 					
 					
 		
-			for (int iTarget = 0; iTarget < optInfo.m_predictions[0][0].length; iTarget++){
-				m_dataEarlyStop.m_defaultPrediction[iTarget] = 
-					optInfo.m_defaultPrediction[iTarget];
-				rest.m_defaultPrediction[iTarget] = 
-					optInfo.m_defaultPrediction[iTarget];
-			}
+//			for (int iTarget = 0; iTarget < optInfo.m_predictions[0][0].length; iTarget++){
+//				m_dataEarlyStop.m_defaultPrediction[iTarget] = 
+//					optInfo.m_defaultPrediction[iTarget];
+//				rest.m_defaultPrediction[iTarget] = 
+//					optInfo.m_defaultPrediction[iTarget];
+//			}
 
 			changeData(rest);  // Change data for super class
 			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop);
 			// We are using Fitness function of  the problem. Let us put the reg penalty to 0 because we do not
 			// want to use it
 			getSettings().setOptRegPar(0);
+			getSettings().setOptNbZeroesPar(0);
 			
 			m_oldFitnesses = new ArrayList<Double>();
 			
@@ -169,15 +169,18 @@ public class GDProbl extends OptProbl {
 	 * We just take the average over the target covariances because that is what we are
 	 * minimizing in the loss functions also.
 	 */
-	protected double getPredictionCov(int iPred) {
+	protected double getCovForPrediction(int iPred) {
 
 		double[] covs = new double[getNbOfTargets()];
 		double sumOfCovs = 0;
 		
 		for (int iTarget = 0; iTarget < getNbOfTargets(); iTarget++) {
 			for (int iInstance = 0; iInstance < getNbOfInstances(); iInstance++) {
-				covs[iTarget] += getTrueValue(iInstance,iTarget)*predictWithRule(iPred, iInstance)[iTarget];
+				double trueVal = getTrueValue(iInstance,iTarget);
+				if (isValidValue(trueVal)) // Not a valid true value, rare but happens
+					covs[iTarget] += trueVal*predictWithRule(iPred, iInstance)[iTarget];
 			}
+
 			covs[iTarget] /= getNbOfInstances();
 			sumOfCovs += covs[iTarget];
 		}
@@ -185,6 +188,11 @@ public class GDProbl extends OptProbl {
 		return sumOfCovs/getNbOfTargets();
 	}
 	
+	private boolean isValidValue(double pred) {
+		return !Double.isInfinite(pred) && !Double.isNaN(pred);
+	}
+
+
 	/**
 	 * Return the right stored covariance value.
 	 */
@@ -206,18 +214,18 @@ public class GDProbl extends OptProbl {
 		// The weights with index lower than this
 		for (int iMin = 0; iMin < dimension; iMin++) {
 			if (!m_isCovComputed[iMin]) { // Is this covariance computed already
-				if (!Double.isNaN(m_covariances[iMin][dimension]))  //TODO REMOVE
-					System.err.println("WARNING: Covariances are recalculated, waste of computation!");
-				m_covariances[iMin][dimension] = computePredCov(iMin, dimension);
+//				if (!Double.isNaN(m_covariances[iMin][dimension]))
+//					System.err.println("WARNING: Covariances are recalculated, waste of computation!");
+				m_covariances[iMin][dimension] = computeCovFor2Preds(iMin, dimension);
 			}
 		}
 
-		m_covariances[dimension][dimension] = computePredCov(dimension, dimension);
+		m_covariances[dimension][dimension] = computeCovFor2Preds(dimension, dimension);
 		for (int iMax = dimension+1; iMax < getNumVar(); iMax++) {
 			if (!m_isCovComputed[iMax]) {
-				if (!Double.isNaN(m_covariances[iMax][dimension])) //TODO REMOVE
-					System.err.println("WARNING: Covariances are recalculated, waste of computation!");
-				m_covariances[dimension][iMax] = computePredCov(dimension, iMax);
+//				if (!Double.isNaN(m_covariances[iMax][dimension]))
+//					System.err.println("WARNING: Covariances are recalculated, waste of computation!");
+				m_covariances[dimension][iMax] = computeCovFor2Preds(dimension, iMax);
 			}
 		}		
 	}
@@ -229,14 +237,14 @@ public class GDProbl extends OptProbl {
 	 * @param iSecond Base learner index.
 	 * @return
 	 */
-	private double computePredCov(int iFirstRule, int iSecondRule) {
+	private double computeCovFor2Preds(int iFirstRule, int iSecondRule) {
 		double[] covs = new double[getNbOfTargets()];
 		double sumOfCovs = 0;
 		
 		for (int iTarget = 0; iTarget < getNbOfTargets(); iTarget++) {
 			for (int iInstance = 0; iInstance < getNbOfInstances(); iInstance++) {
-				covs[iTarget] += predictWithRule(iFirstRule,iInstance)[iTarget]*
-								predictWithRule(iSecondRule, iInstance)[iTarget];
+				covs[iTarget] += predictWithRule(iFirstRule,iInstance)[iTarget] * 
+				                 predictWithRule(iSecondRule, iInstance)[iTarget];
 			}
 			covs[iTarget] /= getNbOfInstances();
 			sumOfCovs += covs[iTarget];
@@ -268,8 +276,9 @@ public class GDProbl extends OptProbl {
 		double[] prediction = new double[getNbOfTargets()];
 		
 		for (int iTarget= 0; iTarget < getNbOfTargets(); iTarget++) {
-			if (Double.isNaN(getPredictions(iRule,iInstance,iTarget)))
-				prediction[iTarget] = getDefaultPrediction(iTarget);
+			if (!isValidValue(getPredictions(iRule,iInstance,iTarget)))
+				// If the instance is not covered, zero is the prediction. TODO: change for classification
+				prediction[iTarget] = 0; // getDefaultPrediction(iTarget);
 			else
 				prediction[iTarget] = getPredictions(iRule,iInstance,iTarget);
 		}
@@ -321,7 +330,7 @@ public class GDProbl extends OptProbl {
 	private double gradientSquared(int iGradWeightDim, ArrayList<Double> weights) {
 		double gradient = 0;
 
-		gradient =  getPredictionCov(iGradWeightDim);
+		gradient =  getCovForPrediction(iGradWeightDim);
 		
 		for (int iWeight = 0; iWeight < getNumVar(); iWeight++){
 			if (weights.get(iWeight).doubleValue() != 0) // Covariance not computed.
@@ -331,6 +340,7 @@ public class GDProbl extends OptProbl {
 		return gradient;
 	}
 	
+
 	/** Recompute the gradients new iteration.
 	 * This is lot of faster than computing everything from the scratch.
 	 * @param changedWeightIndex The index of weights that have changed. Only these affect the change in the new gradient.
@@ -353,7 +363,7 @@ public class GDProbl extends OptProbl {
 
 	/** Recomputation of gradients for least squares loss function */
 	public void modifyGradientSquared(int[] changedWeightIndex) {
-		
+				
 		// New gradients are computed with the old gradients.
 		// Only the changed gradients are stored here
 		double[] oldGradsOfChanged = new double[changedWeightIndex.length];
@@ -383,9 +393,7 @@ public class GDProbl extends OptProbl {
 //		}
 //
 	
-	/** Return the maximum gradients. For the weights we want to change */
-	//TODO change so that all the dimensions greater than treshold gradient are changed
-	// use getSettings().getOptGDGradTreshold();
+	/** Return the gradients with maximum absolute value. For the weights we want to change */
 	public int[] getMaxGradients() {
 		/** Maximum number of nonzero elements. Can we add more? */
 		int maxElements = getSettings().getOptGDMaxNbWeights();
@@ -397,7 +405,7 @@ public class GDProbl extends OptProbl {
 			// If maximum number of nonzero elements is reached, 
 			// search for the biggest one among the nonzero weights
 
-			iSorted = IndexMergeSorter.sortSubArray(m_gradients, m_isCovComputed, m_nbOfNonZeroRules); 
+			iSorted = IndexMergeSorter.sortSubArray(m_gradients, m_isCovComputed, m_nbOfNonZeroRules, true); 
 			/**
 			 * We need to store the maxGradient because we do not know if 0 or any other weight
 			 * is nonzero (if it is allowed to use)
@@ -414,7 +422,7 @@ public class GDProbl extends OptProbl {
 //			}
 		} else { 
 			// All the weights are used
-			iSorted = IndexMergeSorter.sort(m_gradients);
+			iSorted = IndexMergeSorter.sort(m_gradients, true);
 			
 //			for (int iWeight = 0; iWeight < getNumVar(); iWeight++) {
 //				if (Math.abs(m_gradients[iMaxGrad]) < Math.abs(m_gradients[iWeight])) 
@@ -425,17 +433,18 @@ public class GDProbl extends OptProbl {
 		// iSorted is sorted in descending order
 		int iiLastIndex = iSorted.length-1; 
 		// The least allowed item.
-		double minAllowed = getSettings().getOptGDGradTreshold() * m_gradients[iSorted[iiLastIndex]];
+		double minAllowed = Math.abs(getSettings().getOptGDGradTreshold() * m_gradients[iSorted[iiLastIndex]]);
 		
 		int iiLastAllowed = 0;
 		// binarySearch does not work because the array is not sorted.
 		for (int iiSearch = iiLastIndex; iiSearch >=0 ; iiSearch--) {
 			// TODO: Just check if the sorting works
-			if (iiSearch > 0 && m_gradients[iSorted[iiSearch]] < m_gradients[iSorted[iiSearch-1]]) {
+			if (iiSearch > 0 && (Math.abs(m_gradients[iSorted[iiSearch]]) < Math.abs(m_gradients[iSorted[iiSearch-1]])
+					|| iSorted[iiSearch] == iSorted[iiSearch-1])) {
 				System.err.println("ERROR: IndexMergeSorter does not work.");
 			}
 				
-			if (m_gradients[iSorted[iiSearch]] < minAllowed) {
+			if (Math.abs(m_gradients[iSorted[iiSearch]]) < minAllowed) {
 				iiLastAllowed = iiSearch +1; // Last allowed item. We are going the reverse direction.
 				break;
 			}
@@ -451,35 +460,7 @@ public class GDProbl extends OptProbl {
 		return maxGradients;
 	}
 
-	private int[] returnIndexesOfMaxElements(double[] array) {
-		return returnIndexesOfMaxElements(array, false);		
-	}
 
-	/** Returns an array of indexes for parameter. The indexes refer in a descending order
-	 * to the maximum elements of array.
-	 * @param array Target array, not modified.
-	 * @param onlyForPreviousCov Only those array elements are considered for which covariance is computed. 
-	 * @return
-	 */
-	private int[] returnIndexesOfMaxElements(double[] array, boolean onlyForPreviousCov) {
-		/** Maximum indexes sorted descending */
-		int[] iMaxIndexes;
-		if (onlyForPreviousCov)
-			iMaxIndexes = new int[m_nbOfNonZeroRules];
-		else
-			iMaxIndexes = new int[array.length];
-		
-		
-		for (int iIndex = 0; iIndex < array.length; iIndex++) {
-			
-		}
-		
-		return iMaxIndexes;
-	}
-
-
-	
-	
 	/**
 	 * Compute the change of target weight because of the gradient
 	 * @param iTargetWeight Weight index we want to change. 
@@ -496,9 +477,14 @@ public class GDProbl extends OptProbl {
 			m_nbOfNonZeroRules++;
 		}	
 	}
-	/** In case of oscillation, make the step size shorter */
-	public void dropStepSize() {
-		m_stepSize *= 0.1;
+	/** In case of oscillation, make the step size shorter
+	 * We should be changing the step size just enough not to prevent further oscillation */
+	public void dropStepSize(double amount) {
+		if (amount >=1)
+			System.err.println("Something wrong with dropStepSize. Argument >= 1.");
+		
+		//m_stepSize *= 0.1;
+		m_stepSize *= (amount*0.99); // We make the new step size a little smaller than is limit (because of rounding mistakes)
 	}
 
 	/** List of old fitnesses */
@@ -510,9 +496,12 @@ public class GDProbl extends OptProbl {
 	public boolean isEarlyStop(ArrayList<Double> weights) {
 		double newFitness = m_earlyStopProbl.calcFitness(weights);
 		
-		if (m_oldFitnesses.size() == 100) {
-			boolean b = false;
-		}
+		m_oldFitnesses.add(new Double(newFitness));
+//		if (m_oldFitnesses.size() == 100) {
+//			boolean b = false;
+//			b=true;
+//			if (b){}	
+//		}
 		boolean stop = false;
 		
 		int lastIndex = m_oldFitnesses.size()-1;
@@ -541,21 +530,19 @@ public class GDProbl extends OptProbl {
 			// If the difference is too small, we are most likely on plateau and should stop.
 			if (max-min < 0.001*m_stepSize*Math.abs(min)) {
 				stop = true;
+				System.err.println("\nGD: Plateau detected.\n");
 			}
 		}
-
-
-			
+		
 		for (int iFitness = 0; iFitness < m_oldFitnesses.size() && !stop; iFitness++) {
 			if (newFitness > getSettings().getOptGDEarlyStopTreshold()*
 					m_oldFitnesses.get(iFitness).doubleValue()) {
 				stop = true;
+				System.err.println("\nGD: Independent test set error increase detected - overfitting.\n");
 			}	
 		}
 
-		
-		m_oldFitnesses.add(new Double(newFitness));
-		
+
 		return stop;
 	}
 }
