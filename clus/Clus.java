@@ -142,7 +142,6 @@ public class Clus implements CMDLineArgsProvider {
 		
 		if (getSettings().getNormalizeData() != Settings.NORMALIZE_DATA_NONE) {
 			System.out.println("Normalizing numerical data");
-			System.err.println("Normalizing data before use does not seem to work. Use the -norm command line parameter for saving the data into a file.");
 			m_Data = returnNormalizedData();
 		}
 		
@@ -739,7 +738,7 @@ public class Clus implements CMDLineArgsProvider {
 	}
 	
 
-	/** Normalize the data.
+	/** Normalize the data so that most of the variables are within [-1,1] range. Using Zenko, 2007 suggestion.
 	 * TODO also for nominal attributes
 	 * @throws IOException
 	 * @throws ClusException
@@ -753,6 +752,8 @@ public class Clus implements CMDLineArgsProvider {
 		// Variance and mean for numeric types.
 		double[] variance = new double[numTypes.length];
 		double[] mean = new double[numTypes.length];
+		//** Some of the values are not valid. These should not be used for computing variance etc. *//
+		double[] nbOfValidValues = new double[numTypes.length];
 
 		// Computing the means
 		for (int iRow = 0; iRow < data.getNbRows(); iRow++) {
@@ -760,13 +761,16 @@ public class Clus implements CMDLineArgsProvider {
 	
 			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
 				double value = numTypes[jNumAttrib].getNumeric(tuple);
-				if (!Double.isNaN(value) && !Double.isInfinite(value)) // Value not given
+				if (!Double.isNaN(value) && !Double.isInfinite(value)) {// Value not given
 					mean[jNumAttrib] += value;
+					nbOfValidValues[jNumAttrib]++;
+				}
 			}
 		}
 		
+		// Divide with the number of examples
 		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
-			mean[jNumAttrib] /= numTypes.length;
+			mean[jNumAttrib] /= nbOfValidValues[jNumAttrib];
 		}
 		
 		// Computing the variances
@@ -778,6 +782,11 @@ public class Clus implements CMDLineArgsProvider {
 				if (!Double.isNaN(value) && !Double.isInfinite(value)) // Value not given
 					variance[jNumAttrib] += Math.pow(value - mean[jNumAttrib], 2.0);
 			}
+		}
+
+		// Divide with the number of examples
+		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+			variance[jNumAttrib] /= nbOfValidValues[jNumAttrib];
 		}
 		
 		ArrayList<DataTuple> normalized = new ArrayList<DataTuple>();
@@ -801,8 +810,14 @@ public class Clus implements CMDLineArgsProvider {
 
 				double value = type.getNumeric(tuple);
 				if (!Double.isNaN(value) && !Double.isInfinite(value)) {// Value not given
-					value -= mean[jNumAttrib];
-					value /= Math.sqrt(variance[jNumAttrib]);
+					value -= mean[jNumAttrib]; // Putting the mean to 0
+					// Suggestion by Zenko 2007  p. 22 4*standard deviation. However we are also moving the data to 
+					// zero mean. Thus we take only 2 * standard deviation.
+					value /= 2*Math.sqrt(variance[jNumAttrib]); 
+					value += 0.5; // Putting the mean to 0.5
+					
+					// After this transformation the mean should be about 0.5 and variance about 0.25
+					// (and standard deviation 0.5). Thus 95% of values should be between [0,1]
 				}
 				type.setNumeric(tuple, value);
 				
@@ -812,12 +827,14 @@ public class Clus implements CMDLineArgsProvider {
 
 
 		RowData normalized_data = new RowData(normalized, getSchema());
-		System.out.println("Size: "+normalized_data.getNbRows());
+		System.out.println("Normalized number of examples: "+normalized_data.getNbRows());
+		
 		
 		return normalized_data;
 	}
 	
-	
+	/** Does not necessarily do the same as returnNormalizedData. However, stores
+	 * the normalized data to file. Kept (and not modified) for compatibility purposes.*/
 	public final void normalizeDataAndWriteToFile() throws IOException, ClusException {
 		RowData data = (RowData)m_Data;
 		CombStat cmb = (CombStat)getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_ALL);
