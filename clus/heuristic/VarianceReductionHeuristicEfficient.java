@@ -57,7 +57,7 @@ public class VarianceReductionHeuristicEfficient extends ClusHeuristic {
 		// printInfo(ss_tot, ss_pos, ss_neg, pstat);
 		return FTest.calcVarianceReductionHeuristic(n_tot, ss_tot, ss_pos+ss_neg);
 	}
-	
+
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic[] pstat, int nbsplit) {
 		// Acceptable?
 		for (int i = 0; i < nbsplit; i++) {

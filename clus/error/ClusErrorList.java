@@ -45,7 +45,8 @@ public class ClusErrorList implements Serializable {
 	protected int m_NbTotal;
 	protected int m_NbExamples;
 	protected int m_NbCover;
-	protected Vector m_Error = new Vector();
+	protected ArrayList m_Error = new ArrayList();
+	protected ArrayList m_ErrorWithNulls = new ArrayList();
 
 	public ClusErrorList() {
 		m_NbTotal = -1;
@@ -70,7 +71,7 @@ public class ClusErrorList implements Serializable {
 
 	public void setWeights(ClusAttributeWeights weights) {
 		for (int i = 0; i < m_Error.size(); i++) {
-			ClusError err = (ClusError)m_Error.elementAt(i);
+			ClusError err = (ClusError)m_Error.get(i);
 			err.setWeights(weights);
 		}
 	}
@@ -78,7 +79,7 @@ public class ClusErrorList implements Serializable {
 	public void checkChildren() {
 		int nb_e = m_Error.size();
 		for (int i = 0; i < nb_e; i++) {
-			ClusError err = (ClusError)m_Error.elementAt(i);
+			ClusError err = (ClusError)m_Error.get(i);
 			if (err.getParent() != this) System.out.println("Child: "+err+" has incorrect parent: "+err.getParent()+" "+this);
 		}
 	}
@@ -98,22 +99,37 @@ public class ClusErrorList implements Serializable {
 		ClusErrorList res = new ClusErrorList();
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
-			ClusError err = (ClusError)m_Error.elementAt(i);
+			ClusError err = (ClusError)m_Error.get(i);
 			res.addError(err.getErrorClone(res));
 		}
 		return res;
 	}
 
-	public void addError(ClusError err) {
-		m_Error.addElement(err);
+	public ClusErrorList getErrorClone(String model) {
+		ClusErrorList res = new ClusErrorList();
+		int nb = m_Error.size();
+		for (int i = 0; i < nb; i++) {
+			ClusError err = (ClusError)m_Error.get(i);
+			if (err.isComputeForModel(model)) {
+				res.addError(err.getErrorClone(res));
+			} else {
+				res.addError(null);
+			}
+		}
+		return res;
 	}
-	
+
+	public void addError(ClusError err) {
+		// If error list is sublist of other list, still allow indexing by introducing nulls
+		if (err != null) m_Error.add(err);
+		m_ErrorWithNulls.add(err);
+	}
+
 	public void addErrors(ClusErrorList error) {
 		for (int i = 0; i < error.getNbErrors(); i++) {
 			addError(error.getError(i));
-		}		
+		}
 	}
-
 
 	public int getNbErrors() {
 		return m_Error.size();
@@ -124,13 +140,17 @@ public class ClusErrorList implements Serializable {
 	}
 
 	public ClusError getError(int idx) {
-		return (ClusError)m_Error.elementAt(idx);
+		return (ClusError)m_Error.get(idx);
+	}
+
+	public ClusError getErrorOrNull(int idx) {
+		return (ClusError)m_ErrorWithNulls.get(idx);
 	}
 
 	public ClusError getErrorByName(String name) {
 		int nb_e = m_Error.size();
 		for (int i = 0; i < nb_e; i++) {
-			ClusError err = (ClusError)m_Error.elementAt(i);
+			ClusError err = (ClusError)m_Error.get(i);
 			if (err.getName().equals(name)) return err;
 		}
 		return null;
@@ -139,7 +159,7 @@ public class ClusErrorList implements Serializable {
 	public void compute(RowData data, ClusModel model) {
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
-			ClusError err = (ClusError)m_Error.elementAt(i);
+			ClusError err = (ClusError)m_Error.get(i);
 			err.compute(data, model);
 		}
 		m_NbExamples = data.getNbRows();
@@ -149,7 +169,7 @@ public class ClusErrorList implements Serializable {
 	public void reset() {
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
-			ClusError err = (ClusError)m_Error.elementAt(i);
+			ClusError err = (ClusError)m_Error.get(i);
 			err.reset();
 		}
 		m_NbExamples = 0;
@@ -162,12 +182,12 @@ public class ClusErrorList implements Serializable {
 		if (stat != null && stat.isValidPrediction()) {
 			m_NbCover++;
 			for (int i = 0; i < nb; i++) {
-				ClusError err = (ClusError)m_Error.elementAt(i);
+				ClusError err = (ClusError)m_Error.get(i);
 				err.addExample(tuple, stat);
 			}
 		} else {
 			for (int i = 0; i < nb; i++) {
-				ClusError err = (ClusError)m_Error.elementAt(i);
+				ClusError err = (ClusError)m_Error.get(i);
 				err.addInvalid(tuple);
 			}
 		}
@@ -176,7 +196,7 @@ public class ClusErrorList implements Serializable {
 		m_NbExamples++;
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
-			ClusError err = (ClusError)m_Error.elementAt(i);
+			ClusError err = (ClusError)m_Error.get(i);
 			err.addExample(real,pred);
 		}
 	}
@@ -189,7 +209,7 @@ public class ClusErrorList implements Serializable {
 	public void add(ClusErrorList par) {
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
-			ClusError err = (ClusError)m_Error.elementAt(i);
+			ClusError err = (ClusError)m_Error.get(i);
 			err.add(par.getError(i));
 		}
 		m_NbExamples += par.getNbExamples();
@@ -199,19 +219,12 @@ public class ClusErrorList implements Serializable {
 	public void updateFromGlobalMeasure(ClusErrorList par) {
 		int nb = m_Error.size();
 		for (int i = 0; i < nb; i++) {
-			ClusError err = (ClusError)m_Error.elementAt(i);
+			ClusError err = (ClusError)m_Error.get(i);
 			err.updateFromGlobalMeasure(par.getError(i));
 		}
 		setNbTotal(par.getNbExamples());
 	}
 
-	/*
-	public double get_errorclassif(){
-		System.out.println("le nomre d'exemple est"+getNbExamples());
-		System.out.println("le nomre d'exemple couvert est"+getNbCover());
-			return (getNbExamples()-getNbCover());
-	}
-	*/
 	public double getErrorClassif(){
 		ClusError err = getError(0);
 		return err.get_error_classif();
@@ -277,18 +290,28 @@ public class ClusErrorList implements Serializable {
 		}
 		for (int i = 0; i < nb; i++) {
 			ClusError err1 = getError(i);
-			out.println(err1.getName());
+			boolean has_models = false;
 			for (int j = 0; j < nb_models; j++) {
 				ClusModelInfo inf = models.getModelInfo(j);
-				if (inf != null) {
-					ClusErrorList parent = inf.getError(type);
-					ClusError err2 = parent.getError(i);
-					if (err2.isMultiLine()) {
-						out.print("   "+inf.getName()+": ");
-					} else {
-						out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
+				if (inf != null && inf.getError(type).getErrorOrNull(i) != null) {
+					has_models = true;
+				}
+			}
+			if (has_models) {
+				out.println(err1.getName());
+				for (int j = 0; j < nb_models; j++) {
+					ClusModelInfo inf = models.getModelInfo(j);
+					if (inf != null) {
+						ClusError err2 = inf.getError(type).getErrorOrNull(i);
+						if (err2 != null) {
+							if (err2.isMultiLine()) {
+								out.print("   "+inf.getName()+": ");
+							} else {
+								out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
+							}
+							err2.showModelError(out, ClusError.DETAIL_SMALL);
+						}
 					}
-					err2.showModelError(out, ClusError.DETAIL_SMALL);
 				}
 			}
 		}

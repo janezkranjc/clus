@@ -233,14 +233,14 @@ public class WHTDStatistic extends RegressionStat {
 	public double[] getDiscretePred() {
 		return m_DiscrMean;
 	}
-	
+
 	/*
 	 * Compute squared Euclidean distance between tuple's target attributes and this statistic's mean.
 	 **/
 	public double getSquaredDistance(DataTuple tuple, ClusAttributeWeights weights) {
 		double sum = 0.0;
 		boolean[] actual = new boolean[m_Hier.getTotal()];
-		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(m_Hier.getType().getArrayIndex());		
+		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(m_Hier.getType().getArrayIndex());
 		tp.fillBoolArrayNodeAndAncestors(actual);
 		for (int i = 0; i < m_Hier.getTotal(); i++) {
 			NumericAttrType type = getAttribute(i);
@@ -250,7 +250,7 @@ public class WHTDStatistic extends RegressionStat {
 		}
 		return sum / getNbAttributes();
 	}
-	
+
 	public void printTree() {
 		m_Hier.print(ClusFormat.OUT_WRITER, m_SumValues);
 		ClusFormat.OUT_WRITER.flush();
@@ -270,9 +270,9 @@ public class WHTDStatistic extends RegressionStat {
 		return "["+m_MeanTuple.toStringHuman(getHier())+"]";
 	}
 
-	public boolean isValidPrediction() {
-		return !m_MeanTuple.isRoot();
-	}
+	//public boolean isValidPrediction() {
+	//	return !m_MeanTuple.isRoot();
+	//}
 
 	public void showRootInfo() {
 		try {
@@ -383,14 +383,14 @@ public class WHTDStatistic extends RegressionStat {
 		}
 		computePrediction();
 	}
-	
+
 	/**
 	 * Used for the hierarchical rules heuristic
 	 */
 	public double getDispersion(ClusAttributeWeights scale, RowData data) {
 		return getSVarS(scale);
 	}
-	
+
 	public String getDistanceName() {
 		return "Hierarchical Weighted Euclidean Distance";
 	}

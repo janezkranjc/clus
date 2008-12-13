@@ -33,10 +33,10 @@ import clus.main.Settings;
 import clus.model.ClusModel;
 import clus.util.*;
 import clus.data.type.*;
- 
+
 /**
  * For each type of algorithm there should be a ClusClassifier object.
- * 
+ *
  */
 public abstract class ClusInductionAlgorithmType {
 

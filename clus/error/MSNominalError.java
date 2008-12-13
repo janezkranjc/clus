@@ -10,7 +10,7 @@ import clus.statistic.ClassificationStat;
 import clus.statistic.ClusStatistic;
 
 public class MSNominalError extends ClusNominalError {
-	
+
 	public final static long serialVersionUID = 1L;
 
 	protected ClusAttributeWeights m_Weights;

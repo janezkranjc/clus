@@ -126,11 +126,11 @@ public class MDoubleArray {
 		}
 		return str+ "]";
 	}
-	
+
 	public static double max(double[] values) {
 		double m = Double.NEGATIVE_INFINITY;
 		for (int i = 0; i < values.length; i++) {
-			if (values[i] > m) m = values[i]; 
+			if (values[i] > m) m = values[i];
 		}
 		return m;
 	}

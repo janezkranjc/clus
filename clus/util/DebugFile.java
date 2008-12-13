@@ -37,13 +37,13 @@ public class DebugFile {
 	public static void close() {
 		if (m_Writer != null) m_Writer.close();
 	}
-	
+
 	public static void exit() {
 		close();
 		System.exit(-1);
 	}
 
-	protected static PrintWriter makeWriter() {		
+	protected static PrintWriter makeWriter() {
 		m_TryCreate = true;
 		try {
 			return new PrintWriter(new OutputStreamWriter(new FileOutputStream("debug.txt")));

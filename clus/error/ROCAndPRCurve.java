@@ -1,38 +1,62 @@
 package clus.error;
 
+import java.io.Serializable;
 import java.util.*;
+
+import clus.main.Settings;
 
 import jeans.util.compound.DoubleBoolean;
 
-public class ROCAndPRCurve {
+public class ROCAndPRCurve implements Serializable {
 
-	protected int m_NbPos, m_NbNeg;
-	protected ArrayList m_Values = new ArrayList();
-	protected ArrayList m_ROC = new ArrayList();
-	protected ArrayList m_PR = new ArrayList();	
-	protected double m_AreaROC;
-	
-	public void addExample(boolean actual, double predicted) {
-		DoubleBoolean value = new DoubleBoolean(predicted, actual);
-		m_Values.add(value);
-		if (actual) m_NbPos++;
-		else m_NbNeg++;
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+
+	protected boolean m_ExtendPR;
+	protected int m_PrevTP, m_PrevFP;
+	protected ArrayList m_ROC;
+	protected ArrayList m_PR;
+	protected double m_AreaROC, m_AreaPR;
+	protected BinaryPredictionList m_Values;
+
+	public ROCAndPRCurve(BinaryPredictionList list) {
+		m_Values = list;
 	}
-	
+
+	public double getAreaROC() {
+		return m_AreaROC;
+	}
+
+	public double getAreaPR() {
+		return m_AreaPR;
+	}
+
 	public void computeCurves() {
-		enumerateThresholds();
-		m_AreaROC = computeArea(m_ROC);
+		// Create new curves
+		m_ROC = new ArrayList();
+		m_PR = new ArrayList();
+		m_AreaPR = 0.0;
+		m_AreaROC = 0.5;
+		if (m_Values.getNbPos() != 0) {
+			enumerateThresholds();
+			m_AreaPR = computeArea(m_PR);
+			if (m_Values.getNbNeg() != 0) {
+				m_AreaROC = computeArea(m_ROC);
+			}
+		}
 	}
-	
+
 	public void enumerateThresholds() {
-		Collections.sort(m_Values);
 		boolean first = true;
 		int TP_cnt = 0, FP_cnt = 0;
 		double prev = Double.NaN;
-		addOutput(0, 0);
+		// Should extend PR curve to recall zero?
+		m_ExtendPR = true;
+		// Point (0,0) does not help building PR curve
+		addOutputROC(0, 0);
 		for (int i = 0; i < m_Values.size(); i++) {
-			DoubleBoolean val = (DoubleBoolean)m_Values.get(i);
+			DoubleBoolean val = m_Values.get(i);
 			if (val.getDouble() != prev && !first) {
+				// System.out.println("Thr: "+((val.getDouble()+prev)/2)+" TP: "+TP_cnt+" FP: "+FP_cnt);
 				addOutput(TP_cnt, FP_cnt);
 			}
 			if (val.getBoolean()) {
@@ -43,20 +67,24 @@ public class ROCAndPRCurve {
 			prev = val.getDouble();
 			first = false;
 		}
+		// System.out.println("Thr: 0.0 TP: "+TP_cnt+" FP: "+FP_cnt);
+		// addOutput(TP_cnt, FP_cnt) -> curve will always include point with recall = 1.0
 		addOutput(TP_cnt, FP_cnt);
 	}
-	
+
 	public double computeArea(ArrayList curve) {
 		double area = 0.0;
-		double[] prev = (double[])curve.get(0);
-		for (int i = 1; i < curve.size(); i++) {
-			double[] pt = (double[])curve.get(i);
-			area += 0.5*(pt[1]+prev[1])/(prev[0]-pt[0]);
-			prev = pt;
+		if (curve.size() > 0) {
+			double[] prev = (double[])curve.get(0);
+			for (int i = 1; i < curve.size(); i++) {
+				double[] pt = (double[])curve.get(i);
+				area += 0.5*(pt[1]+prev[1])*(pt[0]-prev[0]);
+				prev = pt;
+			}
 		}
 		return area;
 	}
-	
+
 	public void addOutput(int TP, int FP) {
 		addOutputROC(TP, FP);
 		addOutputPR(TP, FP);
@@ -64,17 +92,60 @@ public class ROCAndPRCurve {
 
 	public void addOutputROC(int TP, int FP) {
 		double[] point = new double[2];
-		point[0] = (double)FP / m_NbNeg;
-		point[1] = (double)TP / m_NbPos;
+		point[0] = (double)FP / m_Values.getNbNeg();
+		point[1] = (double)TP / m_Values.getNbPos();
 		m_ROC.add(point);
 	}
 
 	public void addOutputPR(int TP, int FP) {
 		int P = TP + FP;
 		if (P != 0) {
-			double Prec = (double)TP / P;	
-			double Reca = (double)TP / m_NbPos;
-
+			double prec = (double)TP / P;
+			double recall = (double)TP / m_Values.getNbPos();
+			if (m_ExtendPR) {
+				// First "real" point on curve -> extend to zero recall
+				addPointPR(prec, 0.0);
+				m_ExtendPR = false;
+			} else {
+				for (int crTP = m_PrevTP+1; crTP < TP; crTP++) {
+					double crFP = (double)m_PrevFP + ((double)FP-m_PrevFP)/(TP-m_PrevTP)*(crTP-m_PrevTP);
+					double crPrec = (double)crTP / (crTP + crFP);
+					double crRecall = (double)crTP / m_Values.getNbPos();
+					addPointPROptimized(crPrec, crRecall);
+				}
+			}
+			addPointPROptimized(prec, recall);
+			m_PrevTP = TP;
+			m_PrevFP = FP;
 		}
-	}	
+	}
+
+	public void addPointPR(double prec, double recall) {
+		double[] point = new double[2];
+		point[0] = recall;
+		point[1] = prec;
+		m_PR.add(point);
+	}
+
+	public void addPointPROptimized(double prec, double recall) {
+		int size = m_PR.size();
+		double[] prev = (double[])m_PR.get(size-1);
+		if (!(prev[0] == recall && prev[1] == prec)) {
+			if (size <= 1) {
+				addPointPR(prec, recall);
+			} else {
+				double[] prev2 = (double[])m_PR.get(size-2);
+				if (Math.abs(prev[1]-prec) < 1e-15 && Math.abs(prev2[1]-prec) < 1e-15) {
+					// Constant precision (horizontal line)
+					prev[0] = recall;
+				} else if (Math.abs(prev[0]-recall) < 1e-15 && Math.abs(prev2[0]-recall) < 1e-15) {
+					// Constant recall (vertical line)
+					prev[1] = prec;
+				} else {
+					addPointPR(prec, recall);
+				}
+			}
+		}
+	}
 }
+

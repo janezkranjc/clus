@@ -264,7 +264,7 @@ public class CurrentBestTestAndHeuristic {
 //		DebugFile.log(""+at.getType().getName()+">"+ClusFormat.TWO_AFTER_DOT.format(val)+","+heur);
 	}
 
-	
+
 	/**
 	 * Take the inverse test '<=' instead of the default '>'.
 	 * @param val Split value.

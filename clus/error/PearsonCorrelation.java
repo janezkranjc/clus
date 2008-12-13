@@ -155,7 +155,7 @@ public class PearsonCorrelation extends ClusNumericError {
 	}
 
 	/**
-	 *  Compute Pearson correlation coefficient  
+	 *  Compute Pearson correlation coefficient
 	 */
 	public void showModelError(PrintWriter out, int detail) {
 		NumberFormat fr = getFormat();

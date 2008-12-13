@@ -25,8 +25,8 @@ package clus.statistic;
 public class StatisticPrintInfo {
 
 	public boolean SHOW_EXAMPLE_COUNT = true;
-	
-	public boolean SHOW_EXAMPLE_COUNT_BYTARGET = false;	
+
+	public boolean SHOW_EXAMPLE_COUNT_BYTARGET = false;
 
 	public boolean SHOW_DISTRIBUTION = false;
 

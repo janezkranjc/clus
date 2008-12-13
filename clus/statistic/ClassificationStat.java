@@ -50,7 +50,7 @@ public class ClassificationStat extends ClusStatistic {
 
 	public int m_NbTarget;
 	public NominalAttrType[] m_Attrs;
-	
+
 	//* Class counts with [Target index][Class]
 	public double[][] m_ClassCounts;
 	public int[] m_MajorityClasses;
@@ -136,21 +136,21 @@ public class ClassificationStat extends ClusStatistic {
 			System.arraycopy(your, 0, my, 0, my.length);
 		}
 	}
-	
+
 	/**
-	 * Used for combining weighted predictions. 
+	 * Used for combining weighted predictions.
 	 */
 	public ClassificationStat normalizedCopy() {
 		ClassificationStat copy = (ClassificationStat)cloneStat();
 		copy.copy(this);
-		for (int i = 0; i < m_NbTarget; i++) {		
+		for (int i = 0; i < m_NbTarget; i++) {
 			for (int j = 0; j < m_ClassCounts[i].length; j++) {
 				copy.m_ClassCounts[i][j] /= m_SumWeight;
 			}
 		}
 		copy.m_SumWeight = 1;
 		return copy;
-	}	
+	}
 
 	public boolean samePrediction(ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
@@ -275,7 +275,7 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		return sum;
 	}
-	
+
 	public double entropy(int attr, double total) {
 		if (total < 1e-6) {
 			return 0.0;
@@ -300,7 +300,7 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		return sum;
 	}
-		
+
 	public double entropyDifference(int attr, ClassificationStat other, double total) {
 		double acc = 0.0;
 		double[] clcts = m_ClassCounts[attr];
@@ -361,7 +361,7 @@ public class ClassificationStat extends ClusStatistic {
 			m_MajorityClasses[i] = getMajorityClass(i);
 		}
 	}
-	
+
 	/**
 	 * Currently only used to compute the default dispersion within rule heuristics.
 	 */
@@ -641,7 +641,7 @@ public class ClassificationStat extends ClusStatistic {
 	public double[] getClassCounts(int i) {
 		return m_ClassCounts[i];
 	}
-	
+
 	/**
 	 * Returns class counts for all targets
 	 * @return [Target index][Class index]
@@ -649,7 +649,7 @@ public class ClassificationStat extends ClusStatistic {
 	public double[][] getClassCounts() {
 		return m_ClassCounts;
 	}
-	
+
 	public String toString() {
 		return getString();
 	}
@@ -726,7 +726,7 @@ public class ClassificationStat extends ClusStatistic {
 	public ClassificationStat getClassificationStat() {
 		return this;
 	}
-	
+
 	public double[][] getProbabilityPrediction(){
 		double[][] result = new double[m_NbTarget][];
 		for (int i = 0; i < m_NbTarget; i++) {//for each target
@@ -734,10 +734,10 @@ public class ClassificationStat extends ClusStatistic {
 			for (int k = 0; k < m_ClassCounts[i].length; k++)
 				total += m_ClassCounts[i][k]; //get the number of instances
 			result[i] = new double[m_ClassCounts[i].length];
-			for (int j = 0; j < result[i].length; j++) 
+			for (int j = 0; j < result[i].length; j++)
 				result[i][j] = m_ClassCounts[i][j]/total;//store the frequencies
-		}		
+		}
 		return result;
 	}
-	
+
 }

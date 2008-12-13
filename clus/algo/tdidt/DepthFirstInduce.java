@@ -209,7 +209,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 		cleanSplit();
 		return root;
 	}
-	
+
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 		return induceSingleUnpruned((RowData)cr.getTrainingSet());
 	}

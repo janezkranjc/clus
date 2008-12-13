@@ -258,13 +258,13 @@ public class ARFFFile {
             label = label.replace(".","");
            	wrt.print("a"+label);
 					} else {
-						wrt.print(type.getString(tuple));						
+						wrt.print(type.getString(tuple));
 					}
 					aidx++;
 				}
 			}
 			wrt.println(")).");
-		}		
+		}
 		wrt.close();
 	}
 

@@ -10,11 +10,11 @@ import clus.main.Settings;
 import clus.util.ClusException;
 
 public class SparseNumericAttrType extends NumericAttrType {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected Integer m_IntIndex;
-	
+
 	public SparseNumericAttrType(String name) {
 		super(name);
 		setSparse(true);
@@ -32,7 +32,7 @@ public class SparseNumericAttrType extends NumericAttrType {
 		at.setIndex(getIndex());
 		return at;
 	}
-	
+
 	public void setIndex(int idx) {
 		m_Index = idx;
 		m_IntIndex = new Integer(idx);
@@ -41,7 +41,7 @@ public class SparseNumericAttrType extends NumericAttrType {
 	public int getValueType() {
 		return VALUE_TYPE_NONE;
 	}
-	
+
 	public double getNumeric(DataTuple tuple) {
 		return ((SparseDataTuple)tuple).getDoubleValueSparse(getIndex());
 	}

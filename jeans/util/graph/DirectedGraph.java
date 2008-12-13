@@ -28,8 +28,8 @@ public class DirectedGraph {
 
 	protected int m_NbNodes;
 	protected boolean[][] m_AdjacencyMatrix;
-	protected MyListIter[] m_Edges;	
-	
+	protected MyListIter[] m_Edges;
+
 	public DirectedGraph(int nbNodes) {
 		m_NbNodes = nbNodes;
 		m_AdjacencyMatrix = new boolean[nbNodes][nbNodes];
@@ -38,22 +38,22 @@ public class DirectedGraph {
 			m_Edges[i] = new MyListIter();
 		}
 	}
-	
+
 	public void addEdge(int i, int j) {
 		if (!m_AdjacencyMatrix[i][j]) {
 			m_AdjacencyMatrix[i][j] = true;
 			m_Edges[i].addEnd(new MyIntList(j));
 		}
 	}
-		
+
 	public int size() {
 		return m_NbNodes;
 	}
-	
+
 	public MyListIter getEdges(int i) {
 		return m_Edges[i];
-	}	
-	
+	}
+
 	public void print() {
 		for (int i = 0; i < size(); i++) {
 			MyListIter iter = getEdges(i);
@@ -63,7 +63,7 @@ public class DirectedGraph {
 				System.out.print(String.valueOf(i)+": ");
 				int idx = 0;
 				while (elem != null) {
-					if (idx != 0) System.out.print(", ");				
+					if (idx != 0) System.out.print(", ");
 					System.out.print(String.valueOf(((MyIntList)elem).getValue()));
 					elem = iter.getNext();
 					idx++;

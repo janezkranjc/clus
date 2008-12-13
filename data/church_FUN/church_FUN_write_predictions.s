@@ -4,8 +4,8 @@ TestSet = church_FUN.test.arff.zip
 
 [Tree]
 ConvertToRules = No
+% 0.1 is the optimal value according to our HMC paper!
 FTest = 0.1
-% FTest = 0.01
 
 [Model]
 MinimalWeight = 5.0
@@ -18,9 +18,8 @@ Type = TREE
 WType = ExpAvgParentWeight
 HSeparator = /
 
-[Ensemble]
-EnsembleMethod = Boosting
-Iterations = 100
-
 [Output]
 WritePredictions = {Test}
+
+
+

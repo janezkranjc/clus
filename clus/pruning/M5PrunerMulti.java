@@ -57,8 +57,8 @@ public class M5PrunerMulti extends PruneTree {
 
 	public int getNbResults() {
 		return 1;
-	}	
-	
+	}
+
 	private double pruningFactor(double num_instances, int num_params) {
 		if (num_instances <= num_params) {
 			return 10.0;    // Caution says Yong in his code

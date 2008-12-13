@@ -162,7 +162,7 @@ public class StringUtils {
 		if (len >= 2 && str.charAt(0) == '\'' && str.charAt(len-1) == '\'') {
 			return str.substring(1, len-1);
 		} else {
-			return str;			
+			return str;
 		}
 	}
 }

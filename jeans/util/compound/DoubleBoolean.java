@@ -22,7 +22,13 @@
 
 package jeans.util.compound;
 
-public class DoubleBoolean implements Comparable {
+import java.io.Serializable;
+
+import clus.main.Settings;
+
+public class DoubleBoolean implements Comparable, Serializable {
+
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double m_Double;
 	protected boolean m_Boolean;

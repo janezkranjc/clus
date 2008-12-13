@@ -8,28 +8,28 @@ import clus.main.Settings;
 import clus.statistic.*;
 
 public class HierSumPairwiseDistancesStat extends WHTDStatistic {
-	
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
-	
+
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+
 	protected SumPairwiseDistancesStat m_PairwiseDistStat;
-	
+
 	public HierSumPairwiseDistancesStat(ClassHierarchy hier, ClusDistance dist, int comp) {
 		super(hier, comp);
 		m_PairwiseDistStat = new SumPairwiseDistancesStat(dist);
 	}
-	
+
 	public ClusStatistic cloneStat() {
 		ClusDistance dist = m_PairwiseDistStat.getDistance();
 		return new HierSumPairwiseDistancesStat(m_Hier, dist, m_Compatibility);
 	}
-	
+
 	public void setSDataSize(int nbex) {
 		m_PairwiseDistStat.setSDataSize(nbex);
 	}
-	
+
 	public double getSVarS(ClusAttributeWeights scale, RowData data) {
 		return m_PairwiseDistStat.getSVarS(scale, data);
-	}	
+	}
 
 	public void updateWeighted(DataTuple tuple, int idx) {
 		super.updateWeighted(tuple, idx);
@@ -68,8 +68,8 @@ public class HierSumPairwiseDistancesStat extends WHTDStatistic {
 		super.subtractFromOther(other);
 		m_PairwiseDistStat.subtractFromOther(or.m_PairwiseDistStat);
 	}
-	
+
 	public String getDistanceName() {
 		return m_PairwiseDistStat.getDistanceName();
-	}	
+	}
 }

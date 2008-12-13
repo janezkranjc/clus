@@ -42,7 +42,7 @@ public abstract class ClusStatistic implements Serializable {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	/**  The weighted sum of all examples */
-	public double m_SumWeight; 
+	public double m_SumWeight;
 
 	public int m_nbEx;
 
@@ -54,16 +54,16 @@ public abstract class ClusStatistic implements Serializable {
 	public ClusStatistic cloneSimple() {
 		return cloneStat();
 	}
-	
+
 	/** Clone this statistic by taking the given weight into account */
-	public ClusStatistic cloneWeighted(double weight) {	
+	public ClusStatistic cloneWeighted(double weight) {
 		System.err.println(getClass().getName()+": cloneWeighted(): Not yet implemented");
 		return null;
 	}
 
 	/**
 	 * @return The number of all attributes in this statistic. If the statistic
-	 * 	is a target statistic, it returns the number of target attributes. 
+	 * 	is a target statistic, it returns the number of target attributes.
 	 */
 	public int getNbAttributes() {
 		return getNbNominalAttributes()+getNbNumericAttributes();
@@ -75,7 +75,7 @@ public abstract class ClusStatistic implements Serializable {
 	public int getNbNominalAttributes() {
 		return 0;
 	}
-	
+
 	/**
 	 * @return The number of all numeric attributes in a statistic.
 	 */
@@ -253,11 +253,11 @@ public abstract class ClusStatistic implements Serializable {
 	public double getSVarSDiff(ClusAttributeWeights scale, ClusStatistic other, RowData data) {
 		return getSVarSDiff(scale, other);
 	}
-	
+
 	public double getAbsoluteDistance(DataTuple tuple, ClusAttributeWeights weights) {
 		return Double.POSITIVE_INFINITY;
 	}
-	
+
 	/**
 	 * Currently only used to compute the default dispersion within rule heuristics.
 	 */
@@ -265,7 +265,7 @@ public abstract class ClusStatistic implements Serializable {
 		System.err.println(getClass().getName()+": getDispersion(): Not implemented here!");
 		return Double.POSITIVE_INFINITY;
 	}
-	
+
 	public double getSquaredDistance(DataTuple tuple, ClusAttributeWeights weights) {
 		return Double.POSITIVE_INFINITY;
 	}

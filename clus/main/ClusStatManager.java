@@ -53,7 +53,7 @@ import org.apache.commons.math.distribution.ChiSquaredDistribution;
 import org.apache.commons.math.distribution.DistributionFactory;
 
 /** Statistics manager
- * Includes information about target attributes and weights etc. 
+ * Includes information about target attributes and weights etc.
  * Also if the task is regression or classification.
  */
 
@@ -137,7 +137,7 @@ public class ClusStatManager implements Serializable {
 	public boolean isClassificationOrRegression() {
 		return m_Mode == MODE_CLASSIFY || m_Mode == MODE_REGRESSION || m_Mode == MODE_CLASSIFY_AND_REGRESSION;
 	}
-	
+
 	public final ClassHierarchy getHier() {
 		// System.out.println("ClusStatManager.getHier/0 called");
 		return m_Hier;
@@ -412,7 +412,7 @@ public class ClusStatManager implements Serializable {
 					dist = new HierJaccardDistance(m_Hier.getType());
 				}
 				setClusteringStatistic(new HierSumPairwiseDistancesStat(m_Hier, dist, getCompatibility()));
-				setTargetStatistic(new HierSumPairwiseDistancesStat(m_Hier, dist, getCompatibility()));			
+				setTargetStatistic(new HierSumPairwiseDistancesStat(m_Hier, dist, getCompatibility()));
 			}
 			break;
 		case MODE_SSPD:
@@ -478,7 +478,7 @@ public class ClusStatManager implements Serializable {
 			case Settings.HEURISTIC_R_DISPERSION_MLT:
 				m_Heuristic = new ClusRuleHeuristicRDispersionMlt(this,getClusteringWeights());
 				break;
-			default: 
+			default:
 				throw new ClusException("Unsupported heuristic for single target classification rules!");
 			}
 		} else if (m_Mode == MODE_REGRESSION || m_Mode == MODE_CLASSIFY_AND_REGRESSION)  {
@@ -501,14 +501,14 @@ public class ClusStatManager implements Serializable {
 			case Settings.HEURISTIC_R_DISPERSION_MLT:
 				m_Heuristic = new ClusRuleHeuristicRDispersionMlt(this,getClusteringWeights());
 				break;
-			default: 
+			default:
 				throw new ClusException("Unsupported heuristic for multiple target or regression rules!");
 			}
 		} else if (m_Mode == MODE_HIERARCHICAL) {
 			m_Heuristic = new ClusRuleHeuristicHierarchical(this, getClusteringWeights());
 			return;
 			//getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
-			
+
 			/* String name = "Weighted Hierarchical Tree Distance";
 			m_Heuristic = new ClusRuleHeuristicSSD(name, createClusteringStat(),getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_SS_REDUCTION);
@@ -610,9 +610,9 @@ public class ClusStatManager implements Serializable {
 	/**
 	 * Initializes a table with Chi Squared inverse probabilities used in
 	 * significance testing of rules.
-	 * 
+	 *
 	 * @throws MathException
-	 * 
+	 *
 	 */
 	public void initSignifcanceTestingTable() {
 		int max_nom_val = 0;
@@ -664,6 +664,7 @@ public class ClusStatManager implements Serializable {
 		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
 			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
+			parent.addError(new HierErrorMeasures(parent, m_Hier));
 			break;
 		case MODE_ILEVELC:
 			NominalAttrType cls = (NominalAttrType) getSchema().getLastNonDisabledType();
@@ -871,35 +872,35 @@ public class ClusStatManager implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param attType attribute use type (eg., ClusAttrType.ATTR_USE_TARGET)
 	 * @return The statistic
 	 */
 	public ClusStatistic getStatistic(int attType) {
 		return m_StatisticAttrUse[attType];
 	}
-	
+
 	public ClusStatistic getTrainSetStat() {
 		return getTrainSetStat(ClusAttrType.ATTR_USE_ALL);
 	}
-	
+
 	public ClusStatistic getTrainSetStat(int attType) {
 		return m_TrainSetStatAttrUse[attType];
-	}	
+	}
 
 	public void computeTrainSetStat(RowData trainset, int attType) {
 		m_TrainSetStatAttrUse[attType] = createStatistic(attType);
 		trainset.calcTotalStatBitVector(m_TrainSetStatAttrUse[attType]);
 		m_TrainSetStatAttrUse[attType].calcMean();
 	}
-	
+
 	public void computeTrainSetStat(RowData trainset) {
 		m_TrainSetStatAttrUse = new ClusStatistic[ClusAttrType.NB_ATTR_USE];
 		computeTrainSetStat(trainset, ClusAttrType.ATTR_USE_ALL);
 		computeTrainSetStat(trainset, ClusAttrType.ATTR_USE_CLUSTERING);
 		computeTrainSetStat(trainset, ClusAttrType.ATTR_USE_TARGET);
 	}
-	
+
 	public ClusHeuristic getHeuristic() {
 		return m_Heuristic;
 	}
@@ -979,9 +980,9 @@ public class ClusStatManager implements Serializable {
 	/**
 	 * Initializes/checks/overrides some inter-dependent settings for rule
 	 * induction.
-	 * 
+	 *
 	 * @throws ClusException
-	 * 
+	 *
 	 */
 	public void initRuleSettings() throws ClusException {
 		Settings sett = getSettings();

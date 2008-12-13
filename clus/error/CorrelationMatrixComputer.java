@@ -22,7 +22,7 @@
 
 /*
  * Created on May 10, 2005
- * 
+ *
  * 27.02.2007 Added the 'nominal correlation', i.e., Cramer V coefficient
  * or mutual information for use within the -corrmatrix option only
  * (bernard.zenko@ijs.si)
@@ -38,7 +38,7 @@ public class CorrelationMatrixComputer {
 	PearsonCorrelation[][] m_MatrixPC;
 	NominalCorrelation[][] m_MatrixNC;
 	boolean m_IsRegression = true;
-	
+
 	public void compute(RowData data) {
 		if (data.getSchema().isRegression()) {
       computeNum(data);
@@ -47,7 +47,7 @@ public class CorrelationMatrixComputer {
       computeNom(data);
 		}
 	}
-	
+
 	public void computeNum(RowData data) {
 		ClusSchema schema = data.getSchema();
 		NumericAttrType[] attrs = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -57,7 +57,7 @@ public class CorrelationMatrixComputer {
 		crtype[0] = new NumericAttrType("corr");
 		ClusErrorList par = new ClusErrorList();
 		for (int i = 0; i < nb_num; i++) {
-			for (int j = 0; j < nb_num; j++) {				
+			for (int j = 0; j < nb_num; j++) {
 				m_MatrixPC[i][j] = new PearsonCorrelation(par, crtype);
 			}
 		}
@@ -72,10 +72,10 @@ public class CorrelationMatrixComputer {
 					a2[0] = attrs[k].getNumeric(tuple);
 					m_MatrixPC[j][k].addExample(a1, a2);
 				}
-			}				
+			}
 		}
 	}
-	
+
 	public void computeNom(RowData data) {
 		ClusSchema schema = data.getSchema();
 		NominalAttrType[] attrs = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -85,16 +85,16 @@ public class CorrelationMatrixComputer {
 		// crtype[0] = new NominalAttrType("corr");
 		ClusErrorList par = new ClusErrorList();
 		for (int i = 0; i < nb_nom; i++) {
-			for (int j = 0; j < nb_nom; j++) {				
+			for (int j = 0; j < nb_nom; j++) {
 				// m_MatrixCV[i][j] = new CramerV(par, crtype, i, j);
 				m_MatrixNC[i][j] = new NominalCorrelation(par, attrs, i, j);
 			}
 		}
 		int a1;
-		int a2;		
+		int a2;
 		par.setNbExamples(data.getNbRows());
 		for (int i = 0; i < data.getNbRows(); i++) {
-			DataTuple tuple = data.getTuple(i);			
+			DataTuple tuple = data.getTuple(i);
 			for (int j = 0; j < nb_nom; j++) {
 				for (int k = 0; k < nb_nom; k++) {
 					a1 = attrs[j].getNominal(tuple);

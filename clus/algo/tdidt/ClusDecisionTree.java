@@ -77,11 +77,11 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 		node.makeLeaf();
 		return node;
 	}
-	
+
 	/**
 	 * Convert the tree to rules
 	 * @param cr
-	 * @param model ClusModelInfo to convert to rules (default, pruned, original). 
+	 * @param model ClusModelInfo to convert to rules (default, pruned, original).
 	 * @throws ClusException
 	 * @throws IOException
 	 */
@@ -90,16 +90,15 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 		ClusRulesFromTree rft = new ClusRulesFromTree(true, getSettings().rulesFromTree());
 		ClusRuleSet rule_set = null;
 		boolean compDis = getSettings().computeDispersion(); // Do we want to compute dispersion
-		
+
 		rule_set = rft.constructRules(cr, tree_root, getStatManager(), compDis, getSettings().getRulePredictionMethod());
 		rule_set.addDataToRules((RowData)cr.getTrainingSet());
-	
-		ClusModelInfo rules_info = cr.addModelInfo();
+
+		ClusModelInfo rules_info = cr.addModelInfo("Rules-"+model.getName());
 		rules_info.setModel(rule_set);
-		rules_info.setName("Rules-"+model.getName());
 	}
 
-	public void pruneAll(ClusRun cr)	throws ClusException, IOException {
+	public void pruneAll(ClusRun cr) throws ClusException, IOException {
 		ClusNode orig = (ClusNode)cr.getModel(ClusModel.ORIGINAL);
 		orig.numberTree();
 		PruneTree pruner = getStatManager().getTreePruner(cr.getPruneSet());
@@ -109,9 +108,8 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 			ClusNode pruned = (ClusNode) orig.cloneTree();
 			pruner.prune(i, pruned);
 			pruned.numberTree();
-			ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
+			ClusModelInfo pruned_info = cr.addModelInfo(pruner.getPrunedName(i));
 			pruned_info.setModel(pruned);
-			pruned_info.setName(pruner.getPrunedName(i));
 		}
 	}
 
@@ -124,17 +122,15 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 	}
 
 	/**
-	 * Post processing decision tree. E.g. converting to rules. 
-	 * 
+	 * Post processing decision tree. E.g. converting to rules.
+	 *
 	 */
 	public void postProcess(ClusRun cr) throws ClusException, IOException {
 		ClusNode orig = (ClusNode)cr.getModel(ClusModel.ORIGINAL);
 		ClusModelInfo orig_info = cr.getModelInfo(ClusModel.ORIGINAL);
-		orig_info.setName("Original");
 		ClusNode defmod = pruneToRoot(orig);
 		ClusModelInfo def_info = cr.addModelInfo(ClusModel.DEFAULT);
 		def_info.setModel(defmod);
-		def_info.setName("Default");
 		if (getSettings().rulesFromTree() != Settings.CONVERT_RULES_NONE) {
 			ClusModelInfo model = cr.getModelInfoFallback(ClusModel.PRUNED, ClusModel.ORIGINAL);
 			convertToRules(cr, model);

@@ -201,5 +201,5 @@ public class FTest {
 				return Double.NEGATIVE_INFINITY;
 			}
 		}
-	}	
+	}
 }

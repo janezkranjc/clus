@@ -39,12 +39,12 @@ public class VarianceReductionHeuristic extends ClusHeuristic {
 		m_NegStat = negstat;
 		m_TargetWeights = targetweights;
 	}
-	
+
 	public VarianceReductionHeuristic(ClusStatistic negstat, ClusAttributeWeights targetweights) {
-		m_BasicDist = negstat.getDistanceName();		
+		m_BasicDist = negstat.getDistanceName();
 		m_NegStat = negstat;
 		m_TargetWeights = targetweights;
-	}	
+	}
 
 	public void setData(RowData data) {
 		m_Data = data;

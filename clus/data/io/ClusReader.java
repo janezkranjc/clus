@@ -170,7 +170,7 @@ public class ClusReader {
 			} else if (ch == '%') {
 				allowall = true;
 			} else if (ch != ' ' && ch != '\t' && allowall == false) {
-				int cnt = 0;				
+				int cnt = 0;
 				StringBuffer err = new StringBuffer();
 				while (ch != 10 && ch != 13 && cnt < 100) {
 					err.append((char)ch);
@@ -301,14 +301,14 @@ public class ClusReader {
 		} else {
 			m_Scratch.append((char)ch);
 		}
-		ch = getNextChar(reader);		
+		ch = getNextChar(reader);
 		while (ch != -1) {
 			if (ch != '\t') {
 				m_Scratch.append((char)ch);
 			}
 			if (ch == ']') break;
 			ch = getNextChar(reader);
-		}		
+		}
 		String result = m_Scratch.toString().trim();
 		if (result.length() > 0) {
 			m_Attr++;

@@ -42,7 +42,7 @@ import clus.Clus;
 /**
  * Class for outputting the training and testing results to .out file.
  * All the information during the process is gathered here.
- * 
+ *
  */
 public class ClusOutput {
 
@@ -150,7 +150,7 @@ public class ClusOutput {
 				if (mi.shouldPruneInvalid()) {
 					root = root.prune(ClusModel.PRUNE_INVALID);
 				}
-				models.add(root);				
+				models.add(root);
 			} else {
 				models.add(null);
 			}

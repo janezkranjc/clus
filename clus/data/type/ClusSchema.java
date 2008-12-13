@@ -223,7 +223,7 @@ public class ClusSchema implements Serializable {
 		if (nb >= 0) return getAttrType(nb);
 		else return null;
 	}
-	
+
 /***********************************************************************
  * Methods for adding attributes to the schema                         *
  ***********************************************************************/
@@ -547,7 +547,7 @@ public class ClusSchema implements Serializable {
 	public void initializeFrom(ClusSchema schema) throws ClusException {
 		if (schema.isSparse())
 			this.ensureSparse();
-		
+
 		int this_nb = getNbAttributes();
 		int other_nb = schema.getNbAttributes();
 		if (other_nb > this_nb) {

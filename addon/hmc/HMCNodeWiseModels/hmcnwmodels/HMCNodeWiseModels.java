@@ -55,7 +55,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			m_Clus = new Clus();
 			Settings sett = m_Clus.getSettings();
 			m_Cargs = new CMDLineArgs(this);
-			
+
 			m_Cargs.process(args);
 
 /*			String[] newargs = new String[args.length-1];
@@ -72,7 +72,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				(new File("nodewise")).mkdir();
 				(new File("nodewise/out")).mkdir();
 				(new File("nodewise/model")).mkdir();
-				sett.setDate(new Date());		
+				sett.setDate(new Date());
 				sett.setAppName(m_Cargs.getMainArg(0));
 				m_Clus.initSettings(m_Cargs);
 				ClusDecisionTree clss = new ClusDecisionTree(m_Clus);
@@ -105,7 +105,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public RowData getNodeData(RowData train, int nodeid) {
 		ArrayList selected = new ArrayList();
 		for (int i = 0; i < train.getNbRows(); i++) {
@@ -187,7 +187,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			else {
 				clss = new ClusDecisionTree(m_Clus);
 			}
-			
+
 			m_Clus.recreateInduce(m_Cargs, clss, cschema, childData);
 			String name = m_Clus.getSettings().getAppName() + "-" + nodeName + "-" + childName;
 			ClusRun cr = new ClusRun(childData.cloneData(), m_Clus.getSummary());

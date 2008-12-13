@@ -103,7 +103,7 @@ public class CombStat extends ClusStatistic {
 		return dispersionCalc();
 	}
 
-	/** 
+	/**
 	 * Returns the dispersion of all attributes. Used when outputting the dispersion.
 	 */
 	public double dispersionCalc() {

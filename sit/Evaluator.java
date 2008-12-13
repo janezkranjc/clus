@@ -91,9 +91,9 @@ public final class Evaluator {
 		return err;
 
 	}
-	
+
 	public final static MSError getMSE(RowData[] data){
-		
+
 		ClusSchema schema = data[0].getSchema();
 		ClusErrorList parent = new ClusErrorList();
 		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
@@ -103,13 +103,13 @@ public final class Evaluator {
 			DataTuple tuple_real = data[0].getTuple(t);
 			DataTuple tuple_prediction = data[1].getTuple(t);
 			parent.addExample(tuple_real, tuple_prediction);
-				
+
 		}
-		
-		
+
+
 		return error;
 	}
-	
+
 	public final static double getMSE(final ArrayList<RowData[]> folds, final int errorIdx){
 		RowData[] temp = (RowData[]) folds.get(0);
 		ClusSchema schema = temp[0].getSchema();

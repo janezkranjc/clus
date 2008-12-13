@@ -50,7 +50,7 @@ public class SSPDStatistic extends BitVectorStat {
 		m_Matrix = mtrx;
 		m_Target = (IntegerAttrType)target[0];
 	}
-	
+
 	public SSPDStatistic(SSPDMatrix mtrx, IntegerAttrType target) {
 		m_Matrix = mtrx;
 		m_Target = target;

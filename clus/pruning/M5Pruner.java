@@ -51,10 +51,10 @@ public class M5Pruner extends PruneTree {
 		// System.out.println("Performing test of M5 pruning");
 		// TestM5PruningRuleNode.performTest(orig, node, m_GlobalDeviation, m_TargetWeights, m_TrainingData);
 	}
-	
+
 	public int getNbResults() {
 		return 1;
-	}	
+	}
 
 	private double pruningFactor(double num_instances, int num_params) {
 		if (num_instances <= num_params) {

@@ -74,9 +74,8 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 			double[] tresholds = class_thr.getDoubleVector();
 			for (int t=0; t<tresholds.length; t++) {
 				ClusRuleSet model2 = model.cloneRuleSetWithThreshold(t);
-				ClusModelInfo modelInfo2 = cr.addModelInfo();
+				ClusModelInfo modelInfo2 = cr.addModelInfo("T(" + tresholds[t] + ")");
 				modelInfo2.setModel(model2);
-				modelInfo2.setName("T(" + tresholds[t] + ")");
 			}
 		}
 	}

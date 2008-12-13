@@ -3,7 +3,7 @@ import clus.data.rows.DataTuple;
 import java.lang.Math;
 
 public class BitwiseNominalAttrType extends NominalAttrType {
-	
+
 	public final static long serialVersionUID = 1L;
 
 	protected int m_BitPosition;

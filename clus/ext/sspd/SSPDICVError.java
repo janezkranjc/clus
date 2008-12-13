@@ -62,7 +62,7 @@ public class SSPDICVError extends ClusError {
 			}
 		}
 	}
-	
+
 	public void computeForRule(ClusRule rule, ClusSchema schema) {
 		RowData covered = new RowData(rule.getData(), schema);
 		m_Value = SSPD.computeSSPDVariance(m_Dist, covered);
@@ -76,7 +76,7 @@ public class SSPDICVError extends ClusError {
 			m_Value += weight*SSPD.computeSSPDVariance(m_Dist, covered);
 			sumWeight += weight;
 		}
-		m_ValueWithDefault = m_Value;		
+		m_ValueWithDefault = m_Value;
 		m_Value /= sumWeight;
 		RowData defaultData = new RowData(set.getDefaultData(), schema);
 		double defWeight = defaultData.getSumWeights();
@@ -102,7 +102,7 @@ public class SSPDICVError extends ClusError {
 		res.append("SSPD-ICV: "+m_Value);
 		if (m_ValueWithDefault != 0.0) {
 			res.append(" (with default: "+m_ValueWithDefault+")");
-		}		
+		}
 		wrt.println(res.toString());
 	}
 

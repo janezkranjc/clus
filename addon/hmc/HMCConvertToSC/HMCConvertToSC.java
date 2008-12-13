@@ -16,7 +16,7 @@ import clus.data.type.*;
 import clus.ext.hierarchical.*;
 
 public class HMCConvertToSC {
-	
+
 	public void convert(String input, String output, boolean binary, boolean split) throws Exception {
 		Clus clus = new Clus();
 		String appname = FileUtil.getName(input)+".s";
@@ -30,7 +30,7 @@ public class HMCConvertToSC {
 		for (int i=0; i < hier.getTotal(); i++) {
 			ClassTerm term = hier.getTermAt(i);
 			classterms[i] = term.toStringHuman(hier);
-		}		
+		}
 
 		boolean[][] classes;
 		if (split) {
@@ -43,7 +43,7 @@ public class HMCConvertToSC {
 	   			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
 	   			Arrays.fill(classes[i], false);
 	   			tp.fillBoolArrayNodeAndAncestors(classes[i]);
-	   		}		
+	   		}
 			writeArffToSC(output+".train.arff", train, classterms, classes, binary);
 
 			if (!sett.isNullTestFile()) {
@@ -54,33 +54,33 @@ public class HMCConvertToSC {
 		   			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
 		   			Arrays.fill(classes[i], false);
 		   			tp.fillBoolArrayNodeAndAncestors(classes[i]);
-		   		}		
+		   		}
 				writeArffToSC(output+".test.arff", test, classterms, classes, binary);
 			}
 			if (!sett.isNullPruneFile()) {
-				RowData tune  = (RowData)run.getPruneSet();	
+				RowData tune  = (RowData)run.getPruneSet();
 				classes = new boolean[tune.getNbRows()][hier.getTotal()];
 				for (int i = 0; i < tune.getNbRows(); i++) {
 		   			DataTuple tuple = tune.getTuple(i);
 		   			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
 		   			Arrays.fill(classes[i], false);
 		   			tp.fillBoolArrayNodeAndAncestors(classes[i]);
-		   		}		
-				writeArffToSC(output+".valid.arff", tune, classterms, classes, binary);			
-			}		
+		   		}
+				writeArffToSC(output+".valid.arff", tune, classterms, classes, binary);
+			}
 		} else {
-			RowData data = (RowData)clus.getData();		
+			RowData data = (RowData)clus.getData();
 			classes = new boolean[data.getNbRows()][hier.getTotal()];
 			for (int i = 0; i < data.getNbRows(); i++) {
 	   			DataTuple tuple = data.getTuple(i);
 	   			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(sidx);
 	   			Arrays.fill(classes[i], false);
 	   			tp.fillBoolArrayNodeAndAncestors(classes[i]);
-	   		}		
+	   		}
 			writeArffToSC(output+".arff", data, classterms, classes, binary);
 		}
 	}
-	
+
 	public static void writeArffHeaderToSC(PrintWriter wrt, ClusSchema schema, String[] classterms, boolean binary) throws IOException, ClusException {
 		wrt.println("@RELATION "+schema.getRelationName());
 		wrt.println();
@@ -144,7 +144,7 @@ public class HMCConvertToSC {
 		}
 		wrt.close();
 	}
-		
+
 	public static void main(String[] args) {
 		int mainargs = 0;
 		boolean binary = false;
@@ -177,5 +177,5 @@ public class HMCConvertToSC {
 			System.err.println("Error: "+e);
 			e.printStackTrace();
 		}
-	}	
+	}
 }

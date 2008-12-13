@@ -170,14 +170,14 @@ public class RowData extends ClusData implements MSortable {
 		System.arraycopy(m_Data, 0, res.m_Data, 0, m_NbRows);
 		return res;
 	}
-	
+
 	public RowData shallowCloneData() {
 		RowData res = new RowData(m_Schema, m_NbRows);
 		for (int i = 0; i < m_NbRows; i++) {
 			res.setTuple(m_Data[i].cloneTuple(), i);
 		}
 		return res;
-	}	
+	}
 
 	public ClusData deepCloneData() {
 		RowData res = new RowData(m_Schema, m_NbRows);
@@ -365,7 +365,7 @@ public class RowData extends ClusData implements MSortable {
 	 * Only used in efficient XVal code
 	 * TODO Could be a bug: changeWeight -> multiplyWeight
 	 * @return
-	 */ 
+	 */
 	public final RowData getFoldData2(int fold) {
 		int idx = 0;
 		int nbsel = 0;
@@ -643,8 +643,8 @@ public class RowData extends ClusData implements MSortable {
 	public RowData sampleWeighted(Random random) {
 		return sampleWeighted(random, getNbRows());
 	}
-	
-	public RowData sampleWeighted(Random random, int N) {		
+
+	public RowData sampleWeighted(Random random, int N) {
 		double[] weight_acc = new double[getNbRows()];
 		weight_acc[0] = getTuple(0).getWeight();
 		for (int i = 1; i < getNbRows(); i++) {
@@ -654,11 +654,11 @@ public class RowData extends ClusData implements MSortable {
 		double tot_w = weight_acc[getNbRows()-1];
 		ArrayList res = new ArrayList();
 		for (int i = 0; i < N; i++) {
-			double rnd = random.nextDouble()*tot_w;		
-			// Index of the search key, if it is contained in the list; otherwise, (-(insertion point) - 1). 
-			// The insertion point is defined as the point at which the key would be inserted into the list: 
+			double rnd = random.nextDouble()*tot_w;
+			// Index of the search key, if it is contained in the list; otherwise, (-(insertion point) - 1).
+			// The insertion point is defined as the point at which the key would be inserted into the list:
 			// the index of the first element greater than the key, or list.size(), if all elements in the list
-			// are less than the specified key		
+			// are less than the specified key
 			int loc = Arrays.binarySearch(weight_acc, rnd);
 			if (loc < 0) {
 				loc = -loc - 1;
@@ -667,8 +667,8 @@ public class RowData extends ClusData implements MSortable {
 			res.add(restuple);
 		}
 		return new RowData(res, getSchema());
-	}	
-	
+	}
+
 	public class MySortableArray implements MSortable {
 
 		DoubleObject[] tuples;

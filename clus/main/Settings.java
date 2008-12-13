@@ -237,12 +237,12 @@ public class Settings implements Serializable {
 	public boolean isRemoveMissingTarget() {
 		return m_RemoveMissingTarget.getValue();
 	}
-	
+
 	/** Do we want to normalize the data */
 	public int getNormalizeData() {
 		return m_NormalizeData.getValue();
 	}
-	
+
 /***********************************************************************
  * Section: Attribute                                                  *
  ***********************************************************************/
@@ -414,7 +414,7 @@ public class Settings implements Serializable {
 	public double[] getClassWeight() {
 		return m_ClassWeight.getDoubleVector();
 	}
-	
+
 	public boolean isNominalSubsetTests() {
 		return m_NominalSubsetTests.getValue();
 	}
@@ -540,7 +540,7 @@ public class Settings implements Serializable {
 	public boolean isWriteTrainSetPredictions() {
 		return m_WritePredictions.contains(WRITE_PRED_TRAIN);
 	}
-	
+
 	public boolean isWriteErrorFile() {
 		return m_WriteErrorFile.getValue();
 	}
@@ -568,7 +568,7 @@ public class Settings implements Serializable {
 	public StatisticPrintInfo getStatisticPrintInfo() {
 		StatisticPrintInfo info = new StatisticPrintInfo();
 		info.SHOW_EXAMPLE_COUNT = m_ShowInfo.contains(0);
-		info.SHOW_EXAMPLE_COUNT_BYTARGET = m_ShowInfo.contains(1);		
+		info.SHOW_EXAMPLE_COUNT_BYTARGET = m_ShowInfo.contains(1);
 		info.SHOW_DISTRIBUTION = m_ShowInfo.contains(2);
 		info.SHOW_INDEX = m_ShowInfo.contains(3);
 		info.INTERNAL_DISTR = m_ShowInfo.contains(4);
@@ -708,11 +708,11 @@ public class Settings implements Serializable {
 		"Gain", "GainRatio", "SSPD", "SSReduction", "MEstimate", "Morishita",
 		"DispersionAdt", "DispersionMlt", "RDispersionAdt", "RDispersionMlt",
 		"GeneticDistance", "SemiSupervised", "SSReductionMissing"};
-	
-	public final static int HEURISTIC_DEFAULT = 0;	
-	public final static int HEURISTIC_REDUCED_ERROR = 1;	
-	public final static int HEURISTIC_GAIN = 2;	
-	public final static int HEURISTIC_GAIN_RATIO = 3;	
+
+	public final static int HEURISTIC_DEFAULT = 0;
+	public final static int HEURISTIC_REDUCED_ERROR = 1;
+	public final static int HEURISTIC_GAIN = 2;
+	public final static int HEURISTIC_GAIN_RATIO = 3;
 
 	public final static int HEURISTIC_SSPD = 4;
 	/** Sum of Squared Distances, the default for ensemble tree regression learning */
@@ -725,7 +725,7 @@ public class Settings implements Serializable {
 	public final static int HEURISTIC_R_DISPERSION_MLT = 11;
 	public final static int HEURISTIC_GENETIC_DISTANCE = 12;
 	public final static int HEURISTIC_SEMI_SUPERVISED = 13;
-	public final static int HEURISTIC_SS_REDUCTION_MISSING = 14;	
+	public final static int HEURISTIC_SS_REDUCTION_MISSING = 14;
 
 	public static int FTEST_LEVEL;
 	public static double FTEST_VALUE;
@@ -790,10 +790,10 @@ public class Settings implements Serializable {
 	 *  Evaluates rules in the context of complete rule set, separate rules
 	 *  are constructed randomly: unordered rules.
 	 *  This is set only if the amount of RandomRules is greater than 0.
-	 */ 
+	 */
 	public final static int COVERING_METHOD_RANDOM_RULE_SET = 6;
 
-	/** 
+	/**
 	 * Repeated standard covering on bootstraped data
 	 */
 	public final static int COVERING_METHOD_STANDARD_BOOTSTRAP = 7;
@@ -813,18 +813,18 @@ public class Settings implements Serializable {
 		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union", "GDOptimized"};
 
 	public final static int RULE_PREDICTION_METHOD_DECISION_LIST = 0;
-	
+
 	/**
 	 *  Each rule's prediction has a weight proportional to its coverage on the total learning set
 	 */
 	public final static int RULE_PREDICTION_METHOD_TOT_COVERAGE_WEIGHTED = 1;
-	
+
 	/**
 	 *  Each rule's prediction has a weight proportional to its coverage on the current learning set
 	 *  i.e., learning set on which the rule was learned
 	 */
 	public final static int RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED = 2;
-	
+
 	/**
 	 *  Each rule's prediction has a weight proportional to its accuracy on the total learning set
 	 *  TODO Not yet implemented.
@@ -836,7 +836,7 @@ public class Settings implements Serializable {
 	 *  the total learning set and its coverage
 	 */
 	public final static int RULE_PREDICTION_METHOD_ACC_COV_WEIGHTED = 4;
-	
+
 	/**
 	 *  TODO Not yet implemented.
 	 */
@@ -860,11 +860,11 @@ public class Settings implements Serializable {
 	public static boolean IS_RULE_SIG_TESTING = false;
 
 	// ***************** WEIGHT OPTIMIZATION
-	
+
 	// Differential evolution algorithm
 	/**Possible loss functions for evolutionary algorithm optimization */
 	public final static String[] DE_LOSS_FUNCTIONS = {"Squared", "01Error", "RRMSE", "Huber"};
-	
+
 	/**	DE Loss function type. Default for regression: Square of differences. */
 	public final static int DE_LOSS_FUNCTIONS_SQUARED = 0;
 	/**	DE Loss function type. 0/1 error for classification. Zenko 2007, p. 26*/
@@ -873,7 +873,7 @@ public class Settings implements Serializable {
 	public final static int DE_LOSS_FUNCTIONS_RRMSE = 2;
 	/**	DE Loss function type. Huber 1962 error. Like squared but robust for outliers. Friedman&Popescu 2005, p. 7*/
 	public final static int DE_LOSS_FUNCTIONS_HUBER = 3;
-	
+
 	// Gradient descent optimization algorithm
 	/**Possible loss functions for gradient descent optimization */
 	public final static String[] GD_LOSS_FUNCTIONS = {"Squared", "01Error", "Huber"};
@@ -883,9 +883,9 @@ public class Settings implements Serializable {
 	public final static int GD_LOSS_FUNCTIONS_01ERROR = 1;
 	/**GD Loss function type. Huber 1962 error. Like squared but robust for outliers. Friedman&Popescu 2005, p. 7*/
 	public final static int GD_LOSS_FUNCTIONS_HUBER = 3;
-	
-	
-	
+
+
+
 	// Settings in the settings file.
 	protected INIFileNominal m_CoveringMethod;
 	protected INIFileNominal m_PredictionMethod;
@@ -909,7 +909,7 @@ public class Settings implements Serializable {
 	//	Differential evolution optimization
 	/**	DE Number of individuals (population) during every iteration */
 	protected INIFileInt m_OptDEPopSize;
-	/**	Differential evolution, number of individual evaluations to be done. Divide this with m_OptDEPopSize 
+	/**	Differential evolution, number of individual evaluations to be done. Divide this with m_OptDEPopSize
 	 * to get the number of 'iterations' */
 	protected INIFileInt m_OptDENumEval;
 	/** DE Crossover probability */
@@ -935,7 +935,7 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_OptLossFunction;
 	/** Optimization For Huber 1962 loss function an alpha value for outliers has to be given. */
 	protected INIFileDouble m_OptHuberAlpha;
-	
+
 	// Gradient descent optimization
 	/** GD Maximum amount of iterations */
 	protected INIFileInt m_OptGDMaxIter;
@@ -950,8 +950,8 @@ public class Settings implements Serializable {
 	/** GD User early stopping criteria for this amount of data. If 0, no early stopping used. */
 	protected INIFileDouble m_OptGDEarlyStopAmount;
 	/** GD Early stopping criteria treshold. Value should be greater than 1.*/
-	protected INIFileDouble m_OptGDEarlyStopTreshold;	
-	
+	protected INIFileDouble m_OptGDEarlyStopTreshold;
+
 	public INIFileNominalOrDoubleOrVector getDispersionWeights() {
 		return m_DispersionWeights;
 	}
@@ -985,7 +985,7 @@ public class Settings implements Serializable {
 	public int getRulePredictionMethod() {
 	    return m_PredictionMethod.getValue();
 	}
-	
+
 	public boolean isRulePredictionOptimized() {
 		return (getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED ||
 				getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED );
@@ -1119,17 +1119,17 @@ public class Settings implements Serializable {
 	public double getOptRegPar() {
 		return m_OptRegPar.getValue();
 	}
-	
+
 	/** Optimization regularization parameter */
 	public void setOptRegPar(double newValue) {
 		m_OptRegPar.setValue(newValue);
 	}
-	
+
 	/** Optimization regularization parameter - number of zeroes */
 	public double getOptNbZeroesPar() {
 		return m_OptNbZeroesPar.getValue();
 	}
-	
+
 	/** Optimization regularization parameter - number of zeroes */
 	public void setOptNbZeroesPar(double newValue) {
 		m_OptNbZeroesPar.setValue(newValue);
@@ -1139,12 +1139,12 @@ public class Settings implements Serializable {
 	public double getOptRuleWeightThreshold() {
 		return m_OptRuleWeightThreshold.getValue();
 	}
-	
+
 	/** Type of Loss function for DE optimization */
 	public int getOptDELossFunction() {
 		return m_OptLossFunction.getValue();
 	}
-	
+
 	/** Power for regularization parameter */
 	public double getOptDERegulPower() {
 		return m_OptDERegulPower.getValue();
@@ -1157,37 +1157,37 @@ public class Settings implements Serializable {
 
 	/** DE A reverse for the zeroing. A probability to mutate certain value to nonzero random value.
 	 * Could be used if zeroing is used. */
-	public double getOptDEProbMutationNonZero() { 
+	public double getOptDEProbMutationNonZero() {
 		return m_OptDEProbMutationNonZero.getValue();
 	}
-	
+
 	/** For Huber 1962 loss function an alpha value for outliers has to be given. */
 	public double getOptDEHuberAlpha() {
 		return m_OptHuberAlpha.getValue();
 	}
-	
+
 	/** GD Maximum amount of iterations */
 	public int getOptGDMaxIter(){
 		return m_OptGDMaxIter.getValue();
 	}
-	
+
 	/** GD The used loss function */
 	public int getOptGDLossFunction() {
 		return m_OptLossFunction.getValue();
 	}
-		
+
 	/** GD Treshold [0,1] for changing the gradient. This portion of maximum gradients are affecting.
 	 * This can be considered as the regularization parameter, if this is 1 it is similar to L1 (Lasso) penalty.
 	 */
 	public double getOptGDGradTreshold() {
 		return m_OptGDGradTreshold.getValue();
 	}
-	
+
 	/** GD Step size ]0,1] for each iteration. */
 	public double getOptGDStepSize(){
 		return m_OptGDStepSize.getValue();
 	}
-	
+
 	/** Amount of data used for early stopping check. If zero, not used. */
 	public double getOptGDEarlyStopAmount() {
 		return m_OptGDEarlyStopAmount.getValue();
@@ -1197,14 +1197,14 @@ public class Settings implements Serializable {
 	public double getOptGDEarlyStopTreshold() {
 		return m_OptGDEarlyStopTreshold.getValue();
 	}
-	
+
 
 	/** GD Maximum number of nonzero weights. If the number reached, only old ones are altered.
 	 * If = 0, no limit for nonzero weights.*/
 	public int getOptGDMaxNbWeights(){
 		return m_OptGDMaxNbWeights.getValue();
 	}
-	
+
 /***********************************************************************
  * Section: Hierarchical multi-label classification                    *
  ***********************************************************************/
@@ -1225,10 +1225,10 @@ public class Settings implements Serializable {
     public final static int HIERWEIGHT_NO_WEIGHT = 4;
 
     public final static String[] HIERDIST = { "WeightedEuclidean", "Jaccard" };
-    
+
     public final static int HIERDIST_WEIGHTED_EUCLIDEAN = 0;
     public final static int HIERDIST_JACCARD = 1;
-    
+
 	INIFileSection m_SectionHierarchical;
 	protected INIFileNominal m_HierType;
 	protected INIFileNominal m_HierWType;
@@ -1250,10 +1250,10 @@ public class Settings implements Serializable {
 	public int getHierType() {
 		return m_HierType.getValue();
 	}
-	
+
 	public int getHierDistance() {
 		return m_HierDistance.getValue();
-	}	
+	}
 
 	public int getHierWType() {
 		return m_HierWType.getValue();
@@ -1519,19 +1519,19 @@ public class Settings implements Serializable {
 	public void setEnsembleMethod(String value){
 		m_EnsembleMethod.setValue(value);
 	}
-	
+
 	public void setEnsembleMethod(int value){
 		m_EnsembleMethod.setSingleValue(value);
 	}
-	
+
 	public boolean shouldPerformRanking(){
 		return m_FeatureRanking.getValue();
 	}
-	
+
 	public void setFeatureRanking(boolean value){
 		m_FeatureRanking.setValue(value);
 	}
-	
+
 	public INIFileNominalOrIntOrVector getNbBaggingSets(){
 		if (!m_NbBags.isVector()&&(m_NbBags.getInt() == 0))m_NbBags.setInt(10);
 		return m_NbBags;
@@ -1540,7 +1540,7 @@ public class Settings implements Serializable {
 	public void setNbBags(int value){
 		m_NbBags.setInt(value);
 	}
-	
+
 	public int getNbRandomAttrSelected() {
 		return m_RandomAttrSelected.getValue();
 	}
@@ -1723,16 +1723,16 @@ public class Settings implements Serializable {
 		rules.addNode(m_OptHuberAlpha = new INIFileDouble("OptHuberAlpha", 0.9));
 		rules.addNode(m_OptGDMaxIter = new INIFileInt("OptGDMaxIter", 1000));
 //		rules.addNode(m_OptGDLossFunction = new INIFileNominal("OptGDLossFunction", GD_LOSS_FUNCTIONS, 0));
-		rules.addNode(m_OptGDGradTreshold = new INIFileDouble("OptGDGradTreshold", 1));		
+		rules.addNode(m_OptGDGradTreshold = new INIFileDouble("OptGDGradTreshold", 1));
 		rules.addNode(m_OptGDStepSize = new INIFileDouble("OptGDStepSize", 0.1));
 		rules.addNode(m_OptGDMaxNbWeights = new INIFileInt("OptGDMaxNbWeights", 0));
 		rules.addNode(m_OptGDEarlyStopAmount = new INIFileDouble("OptGDEarlyStopAmount", 0.0));
-		rules.addNode(m_OptGDEarlyStopTreshold = new INIFileDouble("OptGDEarlyStopTreshold", 1.1));		
+		rules.addNode(m_OptGDEarlyStopTreshold = new INIFileDouble("OptGDEarlyStopTreshold", 1.1));
 		rules.setEnabled(false);
 
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
 		m_SectionHierarchical.addNode(m_HierType = new INIFileNominal("Type", HIERTYPES, 0));
-		m_SectionHierarchical.addNode(m_HierDistance = new INIFileNominal("Distance", HIERDIST, 0));		
+		m_SectionHierarchical.addNode(m_HierDistance = new INIFileNominal("Distance", HIERDIST, 0));
 		m_SectionHierarchical.addNode(m_HierWType = new INIFileNominal("WType", HIERWEIGHT, 0));
 		m_SectionHierarchical.addNode(m_HierWParam = new INIFileDouble("WParam", 0.75));
 		m_SectionHierarchical.addNode(m_HierSep = new INIFileString("HSeparator", "."));

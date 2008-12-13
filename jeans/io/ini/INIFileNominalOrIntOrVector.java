@@ -125,7 +125,7 @@ public class INIFileNominalOrIntOrVector extends INIFileEntry {
 	public int getVectorLength() {
 		return m_ArrayNominal == null ? 1 : m_ArrayNominal.length;
 	}
-	
+
 	public int[] getIntVector() {
 		if (isVector()) {
 			int[] res = new int[m_ArrayInt.length];
@@ -137,12 +137,12 @@ public class INIFileNominalOrIntOrVector extends INIFileEntry {
 			return res;
 		}
 	}
-	
+
 	public int[] getIntVectorSorted(){
 		int[] result = getIntVector();
 		Arrays.sort(result);
 		return result;
-	}	
+	}
 
 	public void build(MStreamTokenizer tokens) throws IOException {
 		m_Type.setReader(true);

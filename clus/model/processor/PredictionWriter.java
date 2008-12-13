@@ -74,7 +74,7 @@ public class PredictionWriter extends ClusModelProcessor {
 		for (int i = 0; i < m_ModelNames.size(); i++) {
 			String mn = (String)m_ModelNames.get(i);
 			m_Target.addPredictWriterSchema(mn, m_OutSchema);
-			m_OutSchema.addAttrType(new StringAttrType(mn+"-p-models"));
+			m_OutSchema.addAttrType(new StringAttrType(mn+"-models"));
 		}
 	}
 

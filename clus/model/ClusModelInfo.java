@@ -62,6 +62,13 @@ public class ClusModelInfo implements Serializable {
 		if (valid != null) m_ValidErr = valid.getErrorClone();
 	}
 
+	public void setAllErrorsClone(ClusErrorList train, ClusErrorList test, ClusErrorList valid, String model) {
+		m_TrainErr = null; m_TestErr = null; m_ValidErr = null;
+		if (train != null) m_TrainErr = train.getErrorClone(model);
+		if (test != null) m_TestErr = test.getErrorClone(model);
+		if (valid != null) m_ValidErr = valid.getErrorClone(model);
+	}
+
 	public final String getName() {
 		return m_Name;
 	}

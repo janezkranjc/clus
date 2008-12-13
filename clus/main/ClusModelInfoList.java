@@ -50,7 +50,7 @@ public abstract class ClusModelInfoList implements Serializable {
 	}
 
 	/**
-	 * @param i Usually ClusModel model type (Default, Original, Pruned). 
+	 * @param i Usually ClusModel model type (Default, Original, Pruned).
 	 * 			However, can also be something else. For example for ClusForest this is the index of decision tree.
 	 * @return
 	 */
@@ -58,25 +58,25 @@ public abstract class ClusModelInfoList implements Serializable {
 		if (i >= m_Models.size()) return null;
 		return (ClusModelInfo)m_Models.get(i);
 	}
-	
+
 	/**
 	 * @param i Usually ClusModel model type (Default, Original, Pruned).
 	 * @param j If model "i" does not exist, return model "j".
-	 *          Typical use: getModelInfoFallback(ClusModel.PRUNED, ClusModel.ORIGINAL);  
+	 *          Typical use: getModelInfoFallback(ClusModel.PRUNED, ClusModel.ORIGINAL);
 	 * @return
 	 */
 	public ClusModelInfo getModelInfoFallback(int i, int j) {
 		ClusModelInfo info = getModelInfo(i);
 		if (info == null) info = getModelInfo(j);
 		return info;
-	}	
+	}
 
 	public ClusModelInfo getAllModelsMI() {
 		return m_AllModelsMI;
 	}
 
 	/**
-	 * @param i Usually ClusModel model type (Default, Original, Pruned). 
+	 * @param i Usually ClusModel model type (Default, Original, Pruned).
 	 * 			However, can also be something else. For example for ClusForest this is the index of decision tree.
 	 * @return
 	 */
@@ -85,7 +85,7 @@ public abstract class ClusModelInfoList implements Serializable {
 	}
 
 	/**
-	 * @param i Usually ClusModel model type (Default, Original, Pruned). 
+	 * @param i Usually ClusModel model type (Default, Original, Pruned).
 	 * 			However, can also be something else. For example for ClusForest this is the index of decision tree.
 	 * @return
 	 */
@@ -94,7 +94,7 @@ public abstract class ClusModelInfoList implements Serializable {
 	}
 
 	/**
-	 * @param i Usually ClusModel model type (Default, Original, Pruned). 
+	 * @param i Usually ClusModel model type (Default, Original, Pruned).
 	 * 			However, can also be something else. For example for ClusForest this is the index of decision tree.
 	 * @return
 	 */
@@ -119,25 +119,44 @@ public abstract class ClusModelInfoList implements Serializable {
 
 	public ClusModelInfo initModelInfo(int i) {
 		String name = "M" + (i + 1);
+		if (i == ClusModel.DEFAULT) name = "Default";
+		if (i == ClusModel.ORIGINAL) name = "Original";
+		if (i == ClusModel.PRUNED) name = "Pruned";
+		return initModelInfo(i, name);
+	}
+
+	public ClusModelInfo initModelInfo(int i, String name) {
 		ClusModelInfo inf = new ClusModelInfo(name);
-		inf.setAllErrorsClone(getTrainError(), getTestError(), getValidationError());
+		inf.setAllErrorsClone(getTrainError(), getTestError(), getValidationError(), name);
 		inf.setStatManager(getStatManager());
 		return inf;
-	}	
-	
-	public ClusModelInfo addModelInfo() {
-		ClusModelInfo inf = initModelInfo(m_Models.size());
+	}
+
+	public ClusModelInfo addModelInfo(String name) {
+		ClusModelInfo inf = initModelInfo(m_Models.size(), name);
 		m_Models.add(inf);
 		return inf;
 	}
-	
+
+	public ClusModelInfo addModelInfo(int i, String name) {
+		while (i >= m_Models.size()) m_Models.add(null);
+		ClusModelInfo inf = (ClusModelInfo)m_Models.get(i);
+		if (inf == null) {
+			inf = initModelInfo(i, name);
+			m_Models.set(i, inf);
+		} else {
+			inf.setName(name);
+		}
+		return inf;
+	}
+
 	public ClusModelInfo addModelInfo(int i) {
 		while (i >= m_Models.size()) m_Models.add(null);
 		ClusModelInfo inf = (ClusModelInfo)m_Models.get(i);
 		if (inf == null) {
-			inf = initModelInfo(i);		
+			inf = initModelInfo(i);
 			m_Models.set(i, inf);
-		}		
+		}
 		return inf;
 	}
 

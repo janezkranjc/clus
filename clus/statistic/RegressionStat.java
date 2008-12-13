@@ -75,10 +75,10 @@ public class RegressionStat extends ClusStatistic {
 	public ClusStatistic cloneSimple() {
 		return new RegressionStat(m_Attrs, true);
 	}
-	
+
 	/** Clone this statistic by taking the given weight into account.
 	 *  This is used for example to get the weighted prediction of default rule. */
-	public ClusStatistic cloneWeighted(double weight) {	
+	public ClusStatistic cloneWeighted(double weight) {
 		RegressionStat newStat = (RegressionStat) cloneSimple();
 		for (int iTarget = 0; iTarget < newStat.getNbAttributes(); iTarget++ ){
 			newStat.m_Means[iTarget] = weight * newStat.m_Means[iTarget];
@@ -112,9 +112,9 @@ public class RegressionStat extends ClusStatistic {
 		System.arraycopy(or.m_SumValues, 0, m_SumValues, 0, m_NbAttrs);
 		System.arraycopy(or.m_SumSqValues, 0, m_SumSqValues, 0, m_NbAttrs);
 	}
-	
+
 	/**
-	 * Used for combining weighted predictions. 
+	 * Used for combining weighted predictions.
 	 */
 	public RegressionStat normalizedCopy() {
 		RegressionStat copy = (RegressionStat)cloneSimple();
@@ -122,7 +122,7 @@ public class RegressionStat extends ClusStatistic {
 		copy.m_SumWeight = 1;
 		calcMean(copy.m_Means);
 		return copy;
-	}	
+	}
 
 	public void addPrediction(ClusStatistic other, double weight) {
 		RegressionStat or = (RegressionStat)other;
@@ -211,17 +211,17 @@ public class RegressionStat extends ClusStatistic {
 	}
 
 	public void calcMean(double[] means) {
-		for (int i = 0; i < m_NbAttrs; i++) {	
+		for (int i = 0; i < m_NbAttrs; i++) {
 			// If divider zero, return zero
 			means[i] = m_SumWeights[i] != 0.0 ? m_SumValues[i] / m_SumWeights[i] : 0.0;
 		}
-	}	
-	
+	}
+
 	public void calcMean() {
 		if (m_Means == null) m_Means = new double[m_NbAttrs];
 		calcMean(m_Means);
 	}
-	
+
 	public double getMean(int i) {
 		return m_SumWeights[i] != 0.0 ? m_SumValues[i] / m_SumWeights[i] : 0.0;
 	}
@@ -229,11 +229,11 @@ public class RegressionStat extends ClusStatistic {
 	public double getSumValues(int i) {
 		return m_SumValues[i];
 	}
-	
+
 	public double getSumWeights(int i) {
 		return m_SumWeights[i];
 	}
-		
+
 	public double getSS(int i) {
 		double n_tot = m_SumWeight;
 		double k_tot = m_SumWeights[i];
@@ -275,7 +275,7 @@ public class RegressionStat extends ClusStatistic {
 		double var = (k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0;
 		return Math.sqrt(var / (n_tot - 1));
 	}
-	
+
 	/**
 	 * Currently only used to compute the default dispersion within rule heuristics.
 	 */
@@ -386,7 +386,7 @@ public class RegressionStat extends ClusStatistic {
 			}
 		}
 	}
-	
+
 	/*
 	 * Compute squared Euclidean distance between tuple's target attributes and this statistic's mean.
 	 **/
@@ -399,7 +399,7 @@ public class RegressionStat extends ClusStatistic {
 		}
 		return sum / getNbAttributes();
 	}
-	
+
 	public String getArrayOfStatistic(){
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		StringBuffer buf = new StringBuffer();

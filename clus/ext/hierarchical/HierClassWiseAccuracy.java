@@ -40,9 +40,6 @@ public class HierClassWiseAccuracy extends ClusError {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected boolean m_NoTrivialClasses = false;
-	//Leander bijgevoegd 11/12/07
-	protected boolean m_NoClassesOnUpperLevels = true;
-	//
 	protected ClassHierarchy m_Hier;
 	protected double[] m_NbPosPredictions;
 	protected double[] m_TP;
@@ -55,7 +52,6 @@ public class HierClassWiseAccuracy extends ClusError {
 		m_EvalClass = hier.getEvalClassesVector();
 		m_NbPosPredictions = new double[m_Dim];
 		m_TP = new double[m_Dim];
-		//m_Perfect = new double[m_Dim];
 		m_NbPosActual = new double[m_Dim];
 	}
 
@@ -64,8 +60,8 @@ public class HierClassWiseAccuracy extends ClusError {
 		double[] predarr = ((WHTDStatistic)pred).getDiscretePred();
 		for (int i = 0; i < m_Dim; i++) {
 			if (predarr[i] > 0.5) {
-				//System.out.println("Ex: "+tuple.toString());
 				/* Predicted this class, was it correct? */
+				//System.out.println("Ex: "+tuple.toString());
 				//System.out.println(pred.getClassString()+" "+m_Hier.getTermAt(i).toStringHuman(m_Hier));
 				m_NbPosPredictions[i] += 1.0;
 				if (tp.hasClass(i)) {
@@ -80,39 +76,15 @@ public class HierClassWiseAccuracy extends ClusError {
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
 		tp.updateDistribution(m_NbPosActual, 1.0);
 	}
-	/*
-	public double getModelError() {
-		return 1.0 - getPrecision();
-	}
 
-	*/
-
-	public double getModelError() {
-		return getAUC();
-	}
-
-	public double getAUC() {
-		double fp =  getFP();
-//		System.out.println("FP = "+fp);
-		double totpos =  getSumNbPosActual();
-//		System.out.println("tot = "+totpos);
-		double ratefp = fp/totpos;
-//		System.out.println("FP/totPos = " +ratefp);
-		double auc = 0.5 - (ratefp/2) + (getRecall()/2);
-	//	System.out.println("the AUC is : "+auc);
-		return auc;
-	}
-
-	public boolean shouldBeLow() {
+	public boolean isComputeForModel(String name) {
+		if (name.equals("Default")) return false;
+		if (name.equals("Original")) return false;
 		return true;
 	}
 
 	public boolean isNoTrivialClasses() {
 		return m_NoTrivialClasses;
-	}
-
-	public boolean noClassesOnUpperLevels() {
-		return m_NoClassesOnUpperLevels;
 	}
 
 	public boolean isEvalClass(int idx) {
@@ -122,14 +94,6 @@ public class HierClassWiseAccuracy extends ClusError {
 				return false;
 			}
 		}
-		/*if (noClassesOnUpperLevels()) {
-			//Leander: doe iets
-			ClassTerm ct = m_Hier.getTermAt(idx);
-			//System.out.println(ct.getMaxDepth());
-			if (ct.getMaxDepth() != 3) { //hardcoded: moet veranderd worden
-				return false;
-			}
-		}*/
 		return m_EvalClass[idx];
 	}
 
@@ -220,8 +184,8 @@ public class HierClassWiseAccuracy extends ClusError {
 		System.arraycopy(other.m_NbPosActual, 0, m_NbPosActual, 0, m_NbPosActual.length);
 	}
 
-	//prints the evaluation results for each single predicted class
-	//added a value for recall (next to def and acc)
+	// prints the evaluation results for each single predicted class
+	// added a value for recall (next to def and acc)
 	public void printNonZeroAccuraciesRec(NumberFormat fr, PrintWriter out, ClassTerm node, boolean[] printed) {
 		int idx = node.getIndex();
 		// avoid printing a given node several times
@@ -242,11 +206,8 @@ public class HierClassWiseAccuracy extends ClusError {
 			//adapted output somewhat for clarity
 			out.print("      "+val.toStringWithDepths(m_Hier));
 			out.print(", def: "+fr.format(def));
-//			out.print(" ("+m_Default[idx]+"/"+nb+")");
 			out.print(", prec: "+fr.format(prec));
-//			out.print(" ("+m_Correct[idx]+"/"+m_Predicted[idx]+")");
 			out.print(", rec: "+fr.format(rec));
-//			out.print(" ("+m_Correct[idx]+"/"+m_Default[idx]+")");
 			out.print(", TP: "+fr.format(TP)+", FP: "+fr.format(FP)+", nbPos: "+fr.format(nbPos));
 			out.println();
 		}
@@ -271,7 +232,6 @@ public class HierClassWiseAccuracy extends ClusError {
 		out.print(", recall: "+fr2.format(getRecall()));
 		out.print(", coverage: "+fr2.format(getCoverage()));
 		out.print(", TP: "+getTP()+", FP: "+getFP()+", nbPos: "+getSumNbPosActual());
-		// out.print(", AUC: "+getAUC());
 		out.println();
 		printNonZeroAccuracies(fr1, out, m_Hier);
 	}
@@ -284,8 +244,7 @@ public class HierClassWiseAccuracy extends ClusError {
 		return new HierClassWiseAccuracy(par, m_Hier);
 	}
 
-	//Leander added 15/11/06
-	public void nextPrediction(int cls, boolean predicted_class, boolean actually_has_class){
+	public void nextPrediction(int cls, boolean predicted_class, boolean actually_has_class) {
 		if (predicted_class) {
 			/* Predicted this class, was it correct? */
 			m_NbPosPredictions[cls] += 1.0;

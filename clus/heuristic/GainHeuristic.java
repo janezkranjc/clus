@@ -74,7 +74,7 @@ public class GainHeuristic extends ClusHeuristic {
 		}
 		// Total Entropy
 		ClassificationStat tstat = (ClassificationStat)c_tstat;
-		double n_tot = tstat.getTotalWeight();		
+		double n_tot = tstat.getTotalWeight();
 		double value = tstat.entropy();
 		// Subset entropy
 		for (int i = 0; i < nbsplit; i++) {

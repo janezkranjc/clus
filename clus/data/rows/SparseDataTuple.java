@@ -40,9 +40,9 @@ public class SparseDataTuple extends DataTuple {
 	public void setDoubleValueSparse(double val, Integer index) {
 		map.put(index, new Double(val));
 	}
-	
+
 	public double getDoubleValueSparse(Integer index) {
 		Double value = (Double)map.get(index);
 		return value != null ? value.doubleValue() : 0.0;
-	}	
+	}
 }

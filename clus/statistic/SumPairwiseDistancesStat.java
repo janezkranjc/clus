@@ -10,14 +10,14 @@ import clus.main.Settings;
 public class SumPairwiseDistancesStat extends BitVectorStat {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 	public final static int linearParameter = 10;
 	public final static Random m_Random = new Random(0);
 
 	protected double m_SVarS;
-	protected ClusDistance m_Distance;	
-	protected int m_Efficiency = 2;	
-	
+	protected ClusDistance m_Distance;
+	protected int m_Efficiency = 2;
+
 	public SumPairwiseDistancesStat(ClusDistance dist) {
 		m_Distance = dist;
 	}
@@ -25,21 +25,21 @@ public class SumPairwiseDistancesStat extends BitVectorStat {
 	public SumPairwiseDistancesStat(ClusDistance dist, int efflvl) {
 		m_Distance = dist;
 		m_Efficiency = efflvl;
-	}	
-	
+	}
+
 	public ClusStatistic cloneStat() {
 		return new SumPairwiseDistancesStat(m_Distance, m_Efficiency);
 	}
-	
+
 	public double getSVarS(ClusAttributeWeights scale, RowData data) {
 		optimizePreCalc(data);
 		return m_SVarS;
 	}
-	
+
 	public int getEfficiencyLevel() {
 		return m_Efficiency;
 	}
-	
+
 	public void optimizePreCalc(RowData data) {
 		if (!m_Modified) return;
 		switch (getEfficiencyLevel()) {
@@ -59,7 +59,7 @@ public class SumPairwiseDistancesStat extends BitVectorStat {
 	public double calcDistance(DataTuple t1, DataTuple t2) {
 		return m_Distance.calcDistance(t1, t2);
 	}
-	
+
 	public void optimizePreCalcExact(RowData data) {
 		m_SVarS = 0.0;
 		double sumWiDiag = 0.0;
@@ -170,7 +170,7 @@ public class SumPairwiseDistancesStat extends BitVectorStat {
 		int lognb = (int)Math.floor(Math.log(nb)/Math.log(2))+1;
 		optimizeLinearPreCalc(data, lognb);
 	}
-		
+
 	/*
 	 * [Aco]
 	 * this is executed in the end
@@ -182,8 +182,8 @@ public class SumPairwiseDistancesStat extends BitVectorStat {
 	public ClusDistance getDistance() {
 		return m_Distance;
 	}
-	
+
 	public String getDistanceName() {
 		return getDistance().getDistanceName();
-	}	
+	}
 }

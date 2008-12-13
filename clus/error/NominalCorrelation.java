@@ -1,6 +1,6 @@
 /*
  * Created on Feb 27, 2007
- */ 
+ */
 
 package clus.error;
 
@@ -9,8 +9,8 @@ import clus.main.*;
 
 public class NominalCorrelation extends ClusNominalError {
 
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;	
-	
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+
 	protected int[][] m_ContTable;
 
 	public NominalCorrelation(ClusErrorList par, NominalAttrType[] nom, int ind1, int ind2) {
@@ -19,7 +19,7 @@ public class NominalCorrelation extends ClusNominalError {
 		int size2 = m_Attrs[ind2].getNbValues();
 		m_ContTable = new int[size1][size2];
 	}
-	
+
 	public int calcNbCorrect(int[][] table) {
 		int sum = 0;
 		int size = table.length;
@@ -28,13 +28,13 @@ public class NominalCorrelation extends ClusNominalError {
 		}
 		return sum;
 	}
-	
+
 	public double calcXSquare() {
 		int size1 = m_ContTable.length;
 		int size2 = m_ContTable[0].length;
 		int n = getNbExamples();
 		int[] ni = new int[size1];
-		int[] nj = new int[size2];		
+		int[] nj = new int[size2];
 		for (int i = 0; i < size1; i++) {
 			ni[i] = sumJ(i);
 		}
@@ -49,9 +49,9 @@ public class NominalCorrelation extends ClusNominalError {
 				if (mij != 0.0)	xsquare += err*err/mij;
 			}
 		}
-		return xsquare;		
+		return xsquare;
 	}
-	
+
 	public double calcCramerV() {
 		int size1 = m_ContTable.length;
 		int size2 = m_ContTable[0].length;
@@ -65,7 +65,7 @@ public class NominalCorrelation extends ClusNominalError {
 		int size2 = m_ContTable[0].length;
 		int n = getNbExamples();
 		int[] ni = new int[size1];
-		int[] nj = new int[size2];		
+		int[] nj = new int[size2];
 		for (int i = 0; i < size1; i++) {
 			ni[i] = sumJ(i);
 		}
@@ -84,7 +84,7 @@ public class NominalCorrelation extends ClusNominalError {
 		}
 		return m_info;
 	}
-	
+
 	public int sumI(int j) {
 		int sum = 0;
 		int size = m_ContTable.length;
@@ -99,7 +99,7 @@ public class NominalCorrelation extends ClusNominalError {
 		for (int j = 0; j < size; j++)
 			sum += m_ContTable[i][j];
 		return sum;
-	}	
+	}
 
 	public boolean hasSummary() {
 		return false;
@@ -112,7 +112,7 @@ public class NominalCorrelation extends ClusNominalError {
 	public ClusError getErrorClone(ClusErrorList par) {
 		return new NominalCorrelation(par, m_Attrs, 0, 0);
 	}
-	
+
 	public String getName() {
 		return "Cramer's V coefficient or Mutual information";
 	}

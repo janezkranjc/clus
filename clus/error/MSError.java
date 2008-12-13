@@ -38,8 +38,8 @@ import clus.statistic.*;
 public class MSError extends ClusNumericError {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
-	
+
+
 	protected int[]	   m_nbEx;
 
 	protected double[] m_SumErr;
@@ -77,7 +77,7 @@ public class MSError extends ClusNumericError {
 	}
 
 	public double getModelErrorComponent(int i) {
-		
+
 		//int nb = getNbExamples();
 		int nb = m_nbEx[i];
 
@@ -124,7 +124,7 @@ public class MSError extends ClusNumericError {
 		for(int i=0;i<m_Dim;i++){
 			n+= m_nbEx[i];
 		}
-		
+
 		if (n <= 1) {
 			return Double.POSITIVE_INFINITY;
 		} else {
@@ -152,13 +152,13 @@ public class MSError extends ClusNumericError {
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		double[] predicted = pred.getNumericPred();
 		for (int i = 0; i < m_Dim; i++) {
-			double err = sqr(getAttr(i).getNumeric(tuple) - predicted[i]);			
+			double err = sqr(getAttr(i).getNumeric(tuple) - predicted[i]);
 			if(!Double.isInfinite(err) && !Double.isNaN(err)){
 				m_SumErr[i] += err;
 				m_SumSqErr[i] += sqr(err);
 				m_nbEx[i]++;
 			}
-		}		
+		}
 	}
 
 	public void addExample(DataTuple real, DataTuple pred) {
@@ -171,8 +171,8 @@ public class MSError extends ClusNumericError {
 					m_SumSqErr[i] += sqr(err);
 					m_nbEx[i]++;
 				}
-		}		
-	}	
+		}
+	}
 	public void addInvalid(DataTuple tuple) {
 	}
 

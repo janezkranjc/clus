@@ -123,7 +123,7 @@ public abstract class ClusAttrType implements Serializable, Comparable {
 	public void incNbMissing() {
 		m_NbMissing++;
 	}
-	
+
 	public void setNbMissing(int nb) {
 		m_NbMissing = nb;
 	}
@@ -215,13 +215,13 @@ public abstract class ClusAttrType implements Serializable, Comparable {
 	}
 
 	public void updatePredictWriterSchema(ClusSchema schema) {
-		schema.addAttrType(cloneType());		
+		schema.addAttrType(cloneType());
 	}
-	
+
 	public String getPredictionWriterString(DataTuple tuple) {
 		return getString(tuple);
 	}
-	
+
 	public String getString(DataTuple tuple) {
 		return "err";
 	}
