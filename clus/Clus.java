@@ -43,6 +43,8 @@ import java.io.*;
 import java.text.NumberFormat;
 import java.util.*;
 
+import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
+
 import clus.main.*;
 import clus.util.*;
 import clus.data.ClusData;
@@ -566,7 +568,7 @@ public class Clus implements CMDLineArgsProvider {
 			RandomSelection prunesel = new RandomSelection(nbtot, nbsel);
 
 			cr.setPruneSet(train.select(prunesel), prunesel);
-			if (Settings.VERBOSE > 0)	System.out.println("Selecting pruning set: " + nbsel);
+			if (Settings.VERBOSE > 0) System.out.println("Selecting pruning set: " + nbsel);
 		}
 		if (!m_Sett.isNullPruneFile()) {
 			String prset = m_Sett.getPruneFile();
@@ -1342,6 +1344,7 @@ public class Clus implements CMDLineArgsProvider {
 					clss = new ClusEnsembleClassifier(clus);
 				} else {
 					clss = new ClusDecisionTree(clus);
+					if (sett.getFTestArray().isVector()) clss = new CDTTuneFTest(clss, sett.getFTestArray().getDoubleVector()); 
 				}
 
 				/** The second group of command line parameters is for miscellaneous action.

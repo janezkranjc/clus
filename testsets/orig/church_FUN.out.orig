@@ -1,7 +1,7 @@
 Clus run 'church0.names'
 ************************
 
-Date: 12/13/08 4:53 PM
+Date: 12/13/08 7:18 PM
 File: church_FUN.out
 Attributes: 28 (input: 27, output: 1)
 Missing values: Yes
@@ -97,8 +97,8 @@ Statistics
 ----------
 
 FTValue (FTest): 0.125
-Induction Time: 1.438 sec
-Pruning Time: 0.039 sec
+Induction Time: 1.386 sec
+Pruning Time: 0.052 sec
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 53 (Leaves: 27)
@@ -126,7 +126,7 @@ Hierarchical accuracy by class
       12/01, def: 0.0671, prec: 1, rec: 0.2892, TP: 48, FP: 0, nbPos: 166
       12/01/01, def: 0.0566, prec: 1, rec: 0.3071, TP: 43, FP: 0, nbPos: 140
 Hierarchical error measures
-   Original: Average AUROC: 0.734965, Average AURPC: 0.043809, Average AURPC (weighted): 0.156247
+   Original: Average AUROC: 0.734965, Average AURPC: 0.043809, Average AURPC (weighted): 0.156247, Average AURPC (pooled): 0.206301
       0: 01, AUROC: 0.600067, AUPRC: 0.450613, Freq: 0.353274
       1: 01/01, AUROC: 0.662119, AUPRC: 0.118105, Freq: 0.061035
       2: 01/01/03, AUROC: 0.706867, AUPRC: 0.049706, Freq: 0.010914
@@ -648,7 +648,7 @@ Hierarchical accuracy by class
       12/01, def: 0.0703, prec: 0.8125, rec: 0.1444, TP: 13, FP: 3, nbPos: 90
       12/01/01, def: 0.0593, prec: 0.8, rec: 0.1579, TP: 12, FP: 3, nbPos: 76
 Hierarchical error measures
-   Original: Average AUROC: 0.549866, Average AURPC: 0.025559, Average AURPC (weighted): 0.128976
+   Original: Average AUROC: 0.549866, Average AURPC: 0.025559, Average AURPC (weighted): 0.128976, Average AURPC (pooled): 0.167811
       0: 01, AUROC: 0.567746, AUPRC: 0.414219, Freq: 0.352849
       1: 01/01, AUROC: 0.575234, AUPRC: 0.104579, Freq: 0.062451
       2: 01/01/03, AUROC: 0.568709, AUPRC: 0.024894, Freq: 0.014832

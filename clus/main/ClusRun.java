@@ -198,6 +198,15 @@ public class ClusRun extends ClusModelInfoList {
 			my.setTestError(par.getErrorClone());
 		}
 	}
+	
+	public void changePruneError(ClusErrorList par) {
+		m_Summary.setValidationError(par);
+		int nb_models = getNbModels();
+		for (int i = 0; i < nb_models; i++) {
+			ClusModelInfo my = getModelInfo(i);			
+			my.setValidationError(par != null ? par.getErrorClone() : null);
+		}
+	}
 
 	public void deleteData() {
 		m_Train = null;

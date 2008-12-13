@@ -131,7 +131,7 @@ public class INIFileNominalOrDoubleOrVector extends INIFileEntry {
 		m_ArrayNominal = new int[len];
 		m_ArrayDouble = new double[len];
 	}
-
+	
 	public int getVectorLength() {
 		return m_ArrayNominal == null ? 1 : m_ArrayNominal.length;
 	}

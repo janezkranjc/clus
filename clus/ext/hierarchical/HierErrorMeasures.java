@@ -21,6 +21,11 @@ public class HierErrorMeasures extends ClusError {
 	protected BinaryPredictionList[] m_ClassWisePredictions;
 	protected ROCAndPRCurve[] m_ROCAndPRCurves;
 
+	protected double m_AverageAUROC;
+	protected double m_AverageAUPRC;
+	protected double m_WAvgAUPRC;
+	protected double m_PAvgAUPRC;
+
 	public HierErrorMeasures(ClusErrorList par, ClassHierarchy hier) {
 		super(par, hier.getTotal());
 		m_Hier = hier;
@@ -60,7 +65,12 @@ public class HierErrorMeasures extends ClusError {
 	}
 
 	public boolean shouldBeLow() {
-		return true;
+		return false;
+	}
+	
+	public double getModelError() {
+		computeAll();
+		return m_PAvgAUPRC;
 	}
 
 	public boolean isEvalClass(int idx) {
@@ -121,17 +131,19 @@ public class HierErrorMeasures extends ClusError {
 	public boolean isMultiLine() {
 		return true;
 	}
-
-	public void showModelError(PrintWriter out, int detail) {
-		NumberFormat fr1 = ClusFormat.SIX_AFTER_DOT;
-		NumberFormat fr2 = ClusFormat.SIX_AFTER_DOT;
-		System.out.println("Recomputing all curve based error measures ...");
+	
+	public void computeAll() {
+		BinaryPredictionList pooled = new BinaryPredictionList();
+		ROCAndPRCurve pooledCurve = new ROCAndPRCurve(pooled);		
 		for (int i = 0; i < m_Dim; i++) {
 			if (isEvalClass(i)) {
 				m_ClassWisePredictions[i].sort();
 				m_ROCAndPRCurves[i].computeCurves();
+				pooled.add(m_ClassWisePredictions[i]);
 			}
 		}
+		pooled.sort();
+		pooledCurve.computeCurves();
 		// Compute averages
 		int cnt = 0;
 		double sumAUROC = 0.0;
@@ -148,11 +160,20 @@ public class HierErrorMeasures extends ClusError {
 				cnt++;
 			}
 		}
-		double averageAUROC = sumAUROC / cnt;
-		double averageAUPRC = sumAUPRC / cnt;
-		double wavgAUPRC = sumAUPRCw / sumFrequency;
-		out.println("Average AUROC: "+fr2.format(averageAUROC)+", Average AURPC: "+fr2.format(averageAUPRC)+", Average AURPC (weighted): "+fr2.format(wavgAUPRC));
-		printResults(fr1, out, m_Hier);
+		m_AverageAUROC = sumAUROC / cnt;
+		m_AverageAUPRC = sumAUPRC / cnt;
+		m_WAvgAUPRC = sumAUPRCw / sumFrequency;
+		m_PAvgAUPRC = pooledCurve.getAreaPR();
+	}
+
+	public void showModelError(PrintWriter out, int detail) {
+		NumberFormat fr1 = ClusFormat.SIX_AFTER_DOT;
+		NumberFormat fr2 = ClusFormat.SIX_AFTER_DOT;
+		computeAll();
+		out.println("Average AUROC: "+fr2.format(m_AverageAUROC)+", Average AURPC: "+fr2.format(m_AverageAUPRC)+", Average AURPC (weighted): "+fr2.format(m_WAvgAUPRC)+", Average AURPC (pooled): "+fr2.format(m_PAvgAUPRC));
+		if (detail != ClusError.DETAIL_VERY_SMALL) {
+			printResults(fr1, out, m_Hier);
+		}
 	}
 
 	public String getName() {

@@ -103,8 +103,11 @@ public class ClusSummary extends ClusModelInfoList {
 		m_PrepTime += cr.getPrepareTime();
 		int nb_models = cr.getNbModels();
 		for (int i = 0; i < nb_models; i++) {
-			ClusModelInfo my = addModelInfo(i);
-			my.add(cr.getModelInfo(i));
+			ClusModelInfo mi = cr.getModelInfo(i);
+			if (mi != null) {
+				ClusModelInfo my = addModelInfo(i);
+				my.add(mi);
+			}
 		}
 	}
 }

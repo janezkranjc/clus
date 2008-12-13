@@ -33,6 +33,7 @@ import clus.selection.*;
 import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.tdidt.ClusDecisionTree;
 import clus.data.ClusData;
+import clus.data.rows.RowData;
 import clus.data.type.ClusAttrType;
 import clus.data.type.NominalAttrType;
 import clus.data.type.NumericAttrType;
@@ -41,6 +42,7 @@ import clus.error.ClusError;
 import clus.error.ClusErrorList;
 import clus.error.RMSError;
 import clus.ext.hierarchical.HierClassWiseAccuracy;
+import clus.ext.hierarchical.HierErrorMeasures;
 import clus.heuristic.*;
 
 //added 18-05-06
@@ -49,10 +51,17 @@ import clus.heuristic.*;
 public class CDTTuneFTest extends ClusDecisionTree {
 
 	protected ClusInductionAlgorithmType m_Class;
+	protected double[] m_FTests;
 
 	public CDTTuneFTest(ClusInductionAlgorithmType clss) {
 		super(clss.getClus());
 		m_Class = clss;
+	}
+
+	public CDTTuneFTest(ClusInductionAlgorithmType clss, double[] ftests) {
+		super(clss.getClus());
+		m_Class = clss;
+		m_FTests = ftests;
 	}
 
 	public void printInfo() {
@@ -69,7 +78,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 	public ClusErrorList createTuneError(ClusStatManager mgr) {
 		ClusErrorList parent = new ClusErrorList();
 		if (mgr.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-			parent.addError(new HierClassWiseAccuracy(parent, mgr.getHier()));
+			parent.addError(new HierErrorMeasures(parent, mgr.getHier()));
 			return parent;
 		}
 		NumericAttrType[] num = mgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -84,49 +93,51 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		return parent;
 	}
 
-	public double doParamXVal(ClusData trset, ClusData pruneset) throws ClusException, IOException {
+	public double doParamXVal(RowData trset, RowData pruneset) throws ClusException, IOException {
 		int prevVerb = Settings.enableVerbose(0);
 		ClusStatManager mgr = getStatManager();
 		ClusSummary summ = new ClusSummary();
-		summ.setTestError(createTuneError(mgr));
-//      Next does not always use same partition!
-//		Random random = ClusRandom.getRandom(ClusRandom.RANDOM_PARAM_TUNE);
-		Random random = new Random(0);
-		int nbfolds = Integer.parseInt(getSettings().getTuneFolds());
-		XValMainSelection sel = new XValRandomSelection(trset.getNbRows(), nbfolds, random);
-		for (int i = 0; i < nbfolds; i++) {
-			showFold(i);
-			XValSelection msel = new XValSelection(sel, i);
-			ClusRun cr = m_Clus.partitionDataBasic(trset, msel, pruneset, summ, i+1);
+		summ.addModelInfo(ClusModel.PRUNED).setTestError(createTuneError(mgr));
+		if (pruneset != null && getSettings().getPruningMethod() == Settings.PRUNING_METHOD_NONE) {
+			ClusRun cr = new ClusRun(trset.cloneData(), summ);
 			ClusModel pruned = m_Class.induceSingle(cr);
 			cr.addModelInfo(ClusModel.PRUNED).setModel(pruned);
-			m_Clus.calcError(cr, summ);
-/*			System.out.println();
-			System.out.println("Model:");
-			((ClusNode)pruned).printTree(); */
+			cr.addModelInfo(ClusModel.PRUNED).setTestError(createTuneError(mgr));
+			m_Clus.calcError(pruneset.getIterator(), ClusModelInfo.TEST_ERR, cr);
+			summ.addSummary(cr);
+		} else {
+			// Next does not always use same partition!
+			// Random random = ClusRandom.getRandom(ClusRandom.RANDOM_PARAM_TUNE);
+			Random random = new Random(0);
+			int nbfolds = Integer.parseInt(getSettings().getTuneFolds());
+			XValMainSelection sel = new XValRandomSelection(trset.getNbRows(), nbfolds, random);
+			for (int i = 0; i < nbfolds; i++) {
+				showFold(i);
+				XValSelection msel = new XValSelection(sel, i);
+				ClusRun cr = m_Clus.partitionDataBasic(trset, msel, pruneset, summ, i+1);
+				ClusModel pruned = m_Class.induceSingle(cr);
+				cr.addModelInfo(ClusModel.PRUNED).setModel(pruned);
+				m_Clus.calcError(cr, summ);
+			}
 		}
 		ClusModelInfo mi = summ.getModelInfo(ClusModel.PRUNED);
 		Settings.enableVerbose(prevVerb);
 		ClusError err = mi.getTestError().getFirstError();
-		System.out.println();
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(System.out));
-		// wrt.print("Error:"); err.showModelError(wrt, 1);
+		wrt.print("Error: "); err.showModelError(wrt, ClusError.DETAIL_VERY_SMALL);
 		wrt.flush();
 		return err.getModelError();
 	}
 
-//	public final static double[] FTEST_SIG = {1.0, 0.1, 0.05, 0.01, 0.005, 0.001};
-
-	public void findBestFTest(ClusData trset, ClusData pruneset) throws ClusException, IOException {
+	public void findBestFTest(RowData trset, RowData pruneset) throws ClusException, IOException {
 		int best_value = 0;
 		boolean low = createTuneError(getStatManager()).getFirstError().shouldBeLow();
 		double best_error = low ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
-//		System.out.println("best error is"+best_error);
-		for (int i = 0; i < 6; i++) {
-			Settings.FTEST_LEVEL = i;
-			System.out.println("Try for: "+FTest.FTEST_SIG[i]);
+		for (int i = 0; i < m_FTests.length; i++) {
+			getSettings().setFTest(m_FTests[i]);
+			System.out.println("Try for F-test value = "+m_FTests[i]);
 			double err = doParamXVal(trset, pruneset);
-			System.out.print(" -> "+err);
+			System.out.print("-> "+err);
 			if (low) {
 				if (err <= best_error) {
 					best_error = err;
@@ -144,19 +155,29 @@ public class CDTTuneFTest extends ClusDecisionTree {
 					System.out.println();
 				}
 			}
+			System.out.println();
 		}
-		double best_f = FTest.FTEST_SIG[best_value];
-		getSettings().setFTest(best_f);
-		System.out.println("Best was: "+best_f);
+		getSettings().setFTest(m_FTests[best_value]);		
+		System.out.println("Best F-test value is: "+m_FTests[best_value]);
 	}
-
 
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		try {
 			// Find optimal F-test value
-			findBestFTest(cr.getTrainingSet(), cr.getPruneSet());
+			RowData valid = (RowData)cr.getPruneSet();
+			RowData train = (RowData)cr.getTrainingSet();
+			findBestFTest(train, valid);
 			System.out.println();
 			// Induce final model
+			if (valid != null && getSettings().getPruningMethod() == Settings.PRUNING_METHOD_NONE) {
+				// Tuning based on prune = validation set, learn final tree on all data (train + prune)
+				ArrayList lst = train.toArrayList();
+				lst.addAll(valid.toArrayList());
+				cr.setTrainingSet(new RowData(lst, train.getSchema()));
+				cr.setPruneSet(null, null);
+				cr.changePruneError(null);
+				cr.createTrainIter();
+			}
 			m_Class.induceAll(cr);
 		} catch (ClusException e) {
 		    System.err.println("Error: "+e);

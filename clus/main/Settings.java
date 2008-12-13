@@ -624,7 +624,7 @@ public class Settings implements Serializable {
 	protected INIFileInt m_TreeMaxDepth;
 	protected INIFileBool m_BinarySplit;
 	protected INIFileBool m_AlternativeSplits;
-	protected INIFileDouble m_FTest;
+	protected INIFileNominalOrDoubleOrVector m_FTest;
 	protected INIFileNominal m_PruningMethod;
 	protected INIFileBool m_1SERule;
 	protected INIFileBool m_MSENominal;
@@ -658,15 +658,19 @@ public class Settings implements Serializable {
 	public boolean showAlternativeSplits() {
 		return m_AlternativeSplits.getValue();
 	}
+	
+	public INIFileNominalOrDoubleOrVector getFTestArray() {
+		return m_FTest;
+	}
 
 	public double getFTest() {
-		return m_FTest.getValue();
+		return m_FTest.getDouble();
 	}
 
 	public void setFTest(double ftest) {
 		FTEST_VALUE = ftest;
 		FTEST_LEVEL = FTest.getLevelAndComputeArray(ftest);
-		m_FTest.setValue(ftest);
+		m_FTest.setDouble(ftest);
 	}
 
 	public int getPruningMethod() {
@@ -1677,7 +1681,8 @@ public class Settings implements Serializable {
 
 		m_SectionTree = new INIFileSection("Tree");
 		m_SectionTree.addNode(m_Heuristic = new INIFileNominal("Heuristic", HEURISTICS, 0));
-		m_SectionTree.addNode(m_FTest = new INIFileDouble("FTest", 1.0));
+		m_SectionTree.addNode(m_FTest = new INIFileNominalOrDoubleOrVector("FTest", NONELIST));
+		m_FTest.setDouble(1.0);
 		m_SectionTree.addNode(m_TreeMaxDepth = new INIFileInt("MaxDepth", -1));
 		m_SectionTree.addNode(m_BinarySplit = new INIFileBool("BinarySplit", true));
 		m_SectionTree.addNode(m_PruningMethod = new INIFileNominal("PruningMethod", PRUNING_METHODS, 0));
