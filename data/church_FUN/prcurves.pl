@@ -129,7 +129,6 @@ sub read_class_pr_values {
    open(RES, "$file") || die "read_class_pr_values: can't open '$file'";
    skip_till("^Testing error");
    skip_till("Hierarchical accuracy by class");
-   skip_till("^\\s+Original");   
    $done = 0;
    $thres = -1;
    @allthres = ();
@@ -137,6 +136,8 @@ sub read_class_pr_values {
    while (($line = <RES>) && ($done != 1)) {
       chomp($line);
       if ($line =~ /^\s*$/) {
+         $done = 1;
+      } elsif ($line =~ /^Hierarchical error measures/) {
          $done = 1;
       } elsif ($line =~ /^\s+T\(([0-9\.]+)\)/) {
          $thres = $1;
