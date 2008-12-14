@@ -1,24 +1,22 @@
 #!/bin/sh
-VERS="2.5"
+VERS="2.6"
 rm -rf release
 mkdir -p release
 mkdir -p release/Clus
 cp addon/script/compile.sh release/Clus/
 cp addon/script/clus.sh release/Clus/
-cp -r clus addon data docs jars jeans sit LICENSE.txt README.txt release/Clus/
+cp -r clus addon jars jeans sit LICENSE.txt README.txt release/Clus/
 rm -rf release/Clus/jeans/graph/trayicon
 rm -rf release/Clus/data/test_m5_prune
-cd release/Clus/data
-perl cleanall
-cd ../../../
+rm -rf release/Clus/jars/weka.jar
 find release/Clus/ -name "CVS" -exec rm -rf {} \;
 find release/Clus/ -name ".svn" -exec rm -rf {} \;
 find release/Clus/ -name ".cvsignore" -exec rm -f {} \;
-find release/Clus/data -name "debug.txt" -exec rm -f {} \;
-find release/Clus/data -name "*.model" -exec rm -f {} \;
-find release/Clus/data -name "*.xval" -exec rm -f {} \;
-find release/Clus/data -name ".gle" -exec rm -rf {} \;
+perl addon/script/makereleasedata.pl
+cp data/cleanall release/Clus/data/
+cp data/.cvsignore release/Clus/data/
 cd release/Clus/
+. addon/script/killspace
 . compile.sh
 cd bin
 jar xvf ../jars/commons-math-1.0.jar

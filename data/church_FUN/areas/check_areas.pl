@@ -7,6 +7,14 @@ while (($found == 0) && ($line = <A>)) {
 		$found = 1;
 	}
 }
+while ($line = <A>) {
+	chomp($line);
+	@arr = split(/\,/, $line);
+	$cls = $arr[0];
+	$AUROCB{$cls} = $arr[2];
+	$AUPRCB{$cls} = $arr[4];
+}
+close(A);
 $found = 0;
 while (($found == 0) && ($line = <B>)) {
 	chomp($line);
@@ -38,22 +46,19 @@ if ($found == 0) {
 	print "ERROR: Can't find 'Original'\n";
 }
 while ($line = <B>) {
-	if ($line =~ /AUROC\:\s*([^\,]+)\,\s*AUPRC\:\s*(.+)$/) {
-		$auroc_a = $1;
-		$auprc_a = $2;
-		$line = <A>;
-		chomp($line);
-		@arr = split(/\,/, $line);
-		$auroc_b = $arr[2];
-		$auprc_b = $arr[4];
+	if ($line =~ /\s+(\S+)\,\s*AUROC\:\s*([^\,]+)\,\s*AUPRC\:\s*([^\,]+)\,\s*Freq\:\s*(\S+)/) {
+		$cls = $1;
+		$auroc_a = $2;
+		$auprc_a = $3;
+		$auroc_b = $AUROCB{$cls};
+		$auprc_b = $AUPRCB{$cls};
 		$tol = 1e-6;
 		if ((abs($auroc_a - $auroc_b) > $tol) || (abs($auprc_a - $auprc_b) > $tol)) {
-			print "ERROR: $arr[0]: $auroc_a <> $auroc_b, $auprc_a <> $auprc_b\n";
+			print "ERROR: $cls: $auroc_a <> $auroc_b, $auprc_a <> $auprc_b\n";
 		} else {
-			print "OK: $arr[0]: $auroc_a = $auroc_b, $auprc_a = $auprc_b\n";
+			print "OK: $cls: $auroc_a = $auroc_b, $auprc_a = $auprc_b\n";
 		}
 	}
 }
 close(B);
-close(A);
 
