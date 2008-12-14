@@ -20,18 +20,20 @@ public class HierErrorMeasures extends ClusError {
 	protected boolean[] m_EvalClass;
 	protected BinaryPredictionList[] m_ClassWisePredictions;
 	protected ROCAndPRCurve[] m_ROCAndPRCurves;
+	protected int m_Compatibility;
 
 	protected double m_AverageAUROC;
 	protected double m_AverageAUPRC;
 	protected double m_WAvgAUPRC;
 	protected double m_PAvgAUPRC;
 
-	public HierErrorMeasures(ClusErrorList par, ClassHierarchy hier) {
+	public HierErrorMeasures(ClusErrorList par, ClassHierarchy hier, int compat) {
 		super(par, hier.getTotal());
 		m_Hier = hier;
+		m_Compatibility = compat;
 		m_EvalClass = hier.getEvalClassesVector();
 		// m_EvalClass = new boolean[hier.getTotal()];
-		// m_EvalClass[35] = true;
+		// m_EvalClass[19] = true;
 		m_ClassWisePredictions = new BinaryPredictionList[hier.getTotal()];
 		m_ROCAndPRCurves = new ROCAndPRCurve[hier.getTotal()];
 		for (int i = 0; i < hier.getTotal(); i++) {
@@ -67,7 +69,7 @@ public class HierErrorMeasures extends ClusError {
 	public boolean shouldBeLow() {
 		return false;
 	}
-	
+
 	public double getModelError() {
 		computeAll();
 		return m_PAvgAUPRC;
@@ -75,7 +77,7 @@ public class HierErrorMeasures extends ClusError {
 
 	public boolean isEvalClass(int idx) {
 		// Don't include trivial classes (with only pos or only neg examples)
-		return m_EvalClass[idx]; // && m_ClassWisePredictions[idx].hasBothPosAndNegEx();
+		return m_EvalClass[idx] && includeZeroFreqClasses(idx); // && m_ClassWisePredictions[idx].hasBothPosAndNegEx();
 	}
 
 	public void reset() {
@@ -131,10 +133,30 @@ public class HierErrorMeasures extends ClusError {
 	public boolean isMultiLine() {
 		return true;
 	}
-	
+
+	public void compatibility(ROCAndPRCurve[] curves, ROCAndPRCurve pooled) {
+		double[] thr = null;
+		if (m_Compatibility <= Settings.COMPATIBILITY_MLJ08) {
+			thr = new double[51];
+			for (int i = 0; i <= 50; i++) {
+				thr[i] = (double)2*i/100.0;
+			}
+		}
+		for (int i = 0; i < curves.length; i++) {
+			curves[i].setThresholds(thr);
+		}
+		pooled.setThresholds(thr);
+	}
+
+	public boolean includeZeroFreqClasses(int idx) {
+		// Averages never include classes with zero frequency in test set
+		return m_ClassWisePredictions[idx].getNbPos() > 0;
+	}
+
 	public void computeAll() {
 		BinaryPredictionList pooled = new BinaryPredictionList();
-		ROCAndPRCurve pooledCurve = new ROCAndPRCurve(pooled);		
+		ROCAndPRCurve pooledCurve = new ROCAndPRCurve(pooled);
+		compatibility(m_ROCAndPRCurves, pooledCurve);
 		for (int i = 0; i < m_Dim; i++) {
 			if (isEvalClass(i)) {
 				m_ClassWisePredictions[i].sort();
@@ -151,6 +173,7 @@ public class HierErrorMeasures extends ClusError {
 		double sumAUPRCw = 0.0;
 		double sumFrequency = 0.0;
 		for (int i = 0; i < m_Dim; i++) {
+			// In compatibility mode, averages never include classes with zero frequency in test set
 			if (isEvalClass(i)) {
 				double freq = m_ClassWisePredictions[i].getFrequency();
 				sumAUROC += m_ROCAndPRCurves[i].getAreaROC();
@@ -168,9 +191,8 @@ public class HierErrorMeasures extends ClusError {
 
 	public void showModelError(PrintWriter out, int detail) {
 		NumberFormat fr1 = ClusFormat.SIX_AFTER_DOT;
-		NumberFormat fr2 = ClusFormat.SIX_AFTER_DOT;
 		computeAll();
-		out.println("Average AUROC: "+fr2.format(m_AverageAUROC)+", Average AURPC: "+fr2.format(m_AverageAUPRC)+", Average AURPC (weighted): "+fr2.format(m_WAvgAUPRC)+", Average AURPC (pooled): "+fr2.format(m_PAvgAUPRC));
+		out.println("Average AUROC: "+m_AverageAUROC+", Average AURPC: "+m_AverageAUPRC+", Average AURPC (weighted): "+m_WAvgAUPRC+", Pooled AURPC: "+m_PAvgAUPRC);
 		if (detail != ClusError.DETAIL_VERY_SMALL) {
 			printResults(fr1, out, m_Hier);
 		}
@@ -181,6 +203,6 @@ public class HierErrorMeasures extends ClusError {
 	}
 
 	public ClusError getErrorClone(ClusErrorList par) {
-		return new HierErrorMeasures(par, m_Hier);
+		return new HierErrorMeasures(par, m_Hier, m_Compatibility);
 	}
 }

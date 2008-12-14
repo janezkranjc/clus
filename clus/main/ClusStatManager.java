@@ -664,7 +664,7 @@ public class ClusStatManager implements Serializable {
 		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
 			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
-			parent.addError(new HierErrorMeasures(parent, m_Hier));
+			parent.addError(new HierErrorMeasures(parent, m_Hier, getSettings().getCompatibility()));
 			break;
 		case MODE_ILEVELC:
 			NominalAttrType cls = (NominalAttrType) getSchema().getLastNonDisabledType();

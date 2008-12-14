@@ -134,9 +134,11 @@ public class Settings implements Serializable {
  * Section: General - Compatibility mode                               *
  ***********************************************************************/
 
-	public final static String[] COMPATIBILITY = { "Latest", "CMB05" };
-	public final static int COMPATIBILITY_LATEST = 0;
-	public final static int COMPATIBILITY_CMB05 = 1;
+	public final static String[] COMPATIBILITY = { "CMB05", "MLJ08", "Latest"};
+		
+	public final static int COMPATIBILITY_CMB05 = 0;
+	public final static int COMPATIBILITY_MLJ08 = 1;
+	public final static int COMPATIBILITY_LATEST = 2;	
 
 /***********************************************************************
  * Section: General - ResourceInfo loaded                              *
@@ -1614,7 +1616,7 @@ public class Settings implements Serializable {
 	public void create() {
 		INIFileSection settings = new INIFileSection("General");
 		settings.addNode(m_Verbose = new INIFileInt("Verbose", 1));
-		settings.addNode(m_Compatibility = new INIFileNominal("Compatibility", COMPATIBILITY, 0));
+		settings.addNode(m_Compatibility = new INIFileNominal("Compatibility", COMPATIBILITY, COMPATIBILITY_LATEST));
 		settings.addNode(m_RandomSeed = new INIFileString("RandomSeed", "0"));
 		settings.addNode(m_ResourceInfoLoaded = new INIFileNominal("ResourceInfoLoaded", RESOURCE_INFO_LOAD, 1));
 

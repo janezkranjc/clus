@@ -17,6 +17,7 @@ public class ROCAndPRCurve implements Serializable {
 	protected ArrayList m_PR;
 	protected double m_AreaROC, m_AreaPR;
 	protected BinaryPredictionList m_Values;
+	protected double[] m_Thresholds;
 
 	public ROCAndPRCurve(BinaryPredictionList list) {
 		m_Values = list;
@@ -44,15 +45,24 @@ public class ROCAndPRCurve implements Serializable {
 			}
 		}
 	}
-
+	
+	public void setThresholds(double[] thr) {
+		m_Thresholds = thr;
+	}
+	
 	public void enumerateThresholds() {
-		boolean first = true;
-		int TP_cnt = 0, FP_cnt = 0;
-		double prev = Double.NaN;
+		if (m_Thresholds == null) enumerateThresholdsAll();
+		else enumerateThresholdsSelected(m_Thresholds);
+	}
+	
+	public void enumerateThresholdsAll() {
 		// Should extend PR curve to recall zero?
 		m_ExtendPR = true;
 		// Point (0,0) does not help building PR curve
 		addOutputROC(0, 0);
+		boolean first = true;
+		int TP_cnt = 0, FP_cnt = 0;
+		double prev = Double.NaN;
 		for (int i = 0; i < m_Values.size(); i++) {
 			DoubleBoolean val = m_Values.get(i);
 			if (val.getDouble() != prev && !first) {
@@ -71,13 +81,44 @@ public class ROCAndPRCurve implements Serializable {
 		// addOutput(TP_cnt, FP_cnt) -> curve will always include point with recall = 1.0
 		addOutput(TP_cnt, FP_cnt);
 	}
+	
+	public void enumerateThresholdsSelected(double[] thr) {
+		// Should extend PR curve to recall zero?
+		m_ExtendPR = true;
+		// Point (0,0) does not help building PR curve
+		addOutputROC(0, 0);
+		int idx = 0;
+		int TP_cnt = 0, FP_cnt = 0;
+		int prevTP_cnt = 0, prevFP_cnt = 0;
+		for (int i = thr.length-1; i >= 0; i--) {
+			DoubleBoolean val = null;
+			while (idx < m_Values.size() && (val = m_Values.get(idx)).getDouble() >= thr[i]) {
+				if (val.getBoolean()) {
+					TP_cnt++;
+				} else {
+					FP_cnt++;
+				}
+				idx++;
+			}
+			if (TP_cnt != prevTP_cnt || FP_cnt != prevFP_cnt) {
+				addOutput(TP_cnt, FP_cnt);
+			}
+			prevTP_cnt = TP_cnt;
+			prevFP_cnt = FP_cnt;
+		}
+		// addOutput(TP_cnt, FP_cnt) -> curve will always include point with recall = 1.0
+		addOutput(TP_cnt, FP_cnt);
+	}
 
 	public double computeArea(ArrayList curve) {
 		double area = 0.0;
-		if (curve.size() > 0) {
+		// System.out.println("Computing areas");
+		if (curve.size() > 0) {			
 			double[] prev = (double[])curve.get(0);
+			// System.out.println("PT: "+prev[0]+","+prev[1]);
 			for (int i = 1; i < curve.size(); i++) {
 				double[] pt = (double[])curve.get(i);
+				// System.out.println("PT: "+pt[0]+","+pt[1]);
 				area += 0.5*(pt[1]+prev[1])*(pt[0]-prev[0]);
 				prev = pt;
 			}

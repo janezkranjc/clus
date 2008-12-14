@@ -55,4 +55,5 @@ while ($line = <B>) {
 	}
 }
 close(B);
-close(a);
+close(A);
+

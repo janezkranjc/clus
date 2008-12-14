@@ -100,10 +100,14 @@ sub get_all_classes {
          $cls = $1;
          $def = $2;
          $nbpc = $3;
+	 # Compute class frequency (default) more accurately
+	 $def = 1.0*$nbpc/$NBEXAMPLES;
       } elsif ($line =~ /^\s+([^\s\,]+)\,\s+def\:\s*(\S+)\,.+nbPos\:\s*(\S+)/) {
          $cls = $1;
          $def = $2;
          $nbpc = $3;
+	 # Compute class frequency (default) more accurately
+	 $def = 1.0*$nbpc/$NBEXAMPLES;
       } else {
          die "get_all_classes: illegal line: '$line'";
       }
@@ -225,7 +229,7 @@ sub compute_other_avg_curves {
          $area  = $2;
          $def   = $3;
          $cls   = $4;
-         $DEF{$cls} = $def;
+         $DEF{$cls} = $default{$cls};
          $AREA{$cls} = $area;
          $COUNT{$cls} = 0;
          $ALLCLS{$cls} = 1;

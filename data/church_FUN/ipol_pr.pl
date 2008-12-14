@@ -18,9 +18,12 @@ while ($line = <IN>) {
 	$line =~ s/[\n\r]//g;
 	if (!($line =~ /^\s*$/)) {
 		# Each line is of the form RECALL, PRECISION, TP, FP, THRESHOLD
-		if ($line =~ /^([0-9\.e\+\-]+)\,\s*([0-9\.e\+\-]+)\,\s*([0-9\.e\+\-]+)\,\s*([0-9\.e\+\-]+)\,/) {
+		if ($line =~ /^([0-9\.e\+\-]+)\,\s*([0-9\.e\+\-]+)\,\s*([0-9\.e\+\-]+)\,\s*([0-9\.e\+\-]+)/) {
 			$reca = $1; $prec = $2;
 			$tp   = $3; $fp   = $4;
+			# Recompute recall and precision more accurately
+			$reca = 1.0*$tp/$POS;
+			$prec = 1.0*$tp/($tp+$fp);
 			if (($nb == 0) && ($reca > 0)) {
 				# Add a first point with zero recall!
 				$PREC[$nb] = $prec;
