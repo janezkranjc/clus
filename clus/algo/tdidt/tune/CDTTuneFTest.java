@@ -163,7 +163,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 			double err = doParamXVal(trset, pruneset);
 			System.out.print("-> "+err);
 			if (low) {
-				if (err <= best_error) {
+				if (err < best_error - 1e-16) {
 					best_error = err;
 					best_value = i;
 					System.out.println(" *");
@@ -171,7 +171,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 					System.out.println();
 				}
 			} else {
-				if (err >= best_error) {
+				if (err > best_error + 1e-16) {
 					best_error = err;
 					best_value = i;
 					System.out.println(" *");
