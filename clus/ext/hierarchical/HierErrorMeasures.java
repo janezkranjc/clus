@@ -21,16 +21,18 @@ public class HierErrorMeasures extends ClusError {
 	protected BinaryPredictionList[] m_ClassWisePredictions;
 	protected ROCAndPRCurve[] m_ROCAndPRCurves;
 	protected int m_Compatibility;
+	protected int m_OptimizeMeasure;
 
 	protected double m_AverageAUROC;
 	protected double m_AverageAUPRC;
 	protected double m_WAvgAUPRC;
-	protected double m_PAvgAUPRC;
+	protected double m_PooledAUPRC;
 
-	public HierErrorMeasures(ClusErrorList par, ClassHierarchy hier, int compat) {
+	public HierErrorMeasures(ClusErrorList par, ClassHierarchy hier, int compat, int optimize) {
 		super(par, hier.getTotal());
 		m_Hier = hier;
 		m_Compatibility = compat;
+		m_OptimizeMeasure = optimize;
 		m_EvalClass = hier.getEvalClassesVector();
 		// m_EvalClass = new boolean[hier.getTotal()];
 		// m_EvalClass[19] = true;
@@ -72,7 +74,17 @@ public class HierErrorMeasures extends ClusError {
 
 	public double getModelError() {
 		computeAll();
-		return m_PAvgAUPRC;
+		switch (m_OptimizeMeasure) {
+			case Settings.HIERMEASURE_AUROC:
+				return m_AverageAUROC;
+			case Settings.HIERMEASURE_AUPRC:
+				return m_AverageAUPRC;
+			case Settings.HIERMEASURE_WEIGHTED_AUPRC:
+				return m_WAvgAUPRC;				
+			case Settings.HIERMEASURE_POOLED_AUPRC:
+				return m_PooledAUPRC;
+		}
+		return 0.0;
 	}
 
 	public boolean isEvalClass(int idx) {
@@ -186,13 +198,13 @@ public class HierErrorMeasures extends ClusError {
 		m_AverageAUROC = sumAUROC / cnt;
 		m_AverageAUPRC = sumAUPRC / cnt;
 		m_WAvgAUPRC = sumAUPRCw / sumFrequency;
-		m_PAvgAUPRC = pooledCurve.getAreaPR();
+		m_PooledAUPRC = pooledCurve.getAreaPR();
 	}
 
 	public void showModelError(PrintWriter out, int detail) {
 		NumberFormat fr1 = ClusFormat.SIX_AFTER_DOT;
 		computeAll();
-		out.println("Average AUROC: "+m_AverageAUROC+", Average AURPC: "+m_AverageAUPRC+", Average AURPC (weighted): "+m_WAvgAUPRC+", Pooled AURPC: "+m_PAvgAUPRC);
+		out.println("Average AUROC: "+m_AverageAUROC+", Average AURPC: "+m_AverageAUPRC+", Average AURPC (weighted): "+m_WAvgAUPRC+", Pooled AURPC: "+m_PooledAUPRC);
 		if (detail != ClusError.DETAIL_VERY_SMALL) {
 			printResults(fr1, out, m_Hier);
 		}
@@ -203,6 +215,6 @@ public class HierErrorMeasures extends ClusError {
 	}
 
 	public ClusError getErrorClone(ClusErrorList par) {
-		return new HierErrorMeasures(par, m_Hier, m_Compatibility);
+		return new HierErrorMeasures(par, m_Hier, m_Compatibility, m_OptimizeMeasure);
 	}
 }

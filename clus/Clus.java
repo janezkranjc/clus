@@ -564,7 +564,6 @@ public class Clus implements CMDLineArgsProvider {
 			int nbsel = (int)Math.round((double)vsb*nbtot);
 			if (nbsel > pruning_max) nbsel = pruning_max;
 			RandomSelection prunesel = new RandomSelection(nbtot, nbsel);
-
 			cr.setPruneSet(train.select(prunesel), prunesel);
 			if (Settings.VERBOSE > 0) System.out.println("Selecting pruning set: " + nbsel);
 		}

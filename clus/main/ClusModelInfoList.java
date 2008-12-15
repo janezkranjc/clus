@@ -122,33 +122,26 @@ public abstract class ClusModelInfoList implements Serializable {
 		if (i == ClusModel.DEFAULT) name = "Default";
 		if (i == ClusModel.ORIGINAL) name = "Original";
 		if (i == ClusModel.PRUNED) name = "Pruned";
-		return initModelInfo(i, name);
+		ClusModelInfo inf = new ClusModelInfo(name);
+		initModelInfo(inf);
+		return inf;
 	}
 
-	public ClusModelInfo initModelInfo(int i, String name) {
-		ClusModelInfo inf = new ClusModelInfo(name);
-		inf.setAllErrorsClone(getTrainError(), getTestError(), getValidationError(), name);
+	public void initModelInfo(ClusModelInfo inf) {
+		inf.setSelectedErrorsClone(getTrainError(), getTestError(), getValidationError());
 		inf.setStatManager(getStatManager());
-		return inf;
 	}
 
 	public ClusModelInfo addModelInfo(String name) {
-		ClusModelInfo inf = initModelInfo(m_Models.size(), name);
+		ClusModelInfo inf = new ClusModelInfo(name);
+		addModelInfo(inf);
+		return inf;
+	}
+	
+	public void addModelInfo(ClusModelInfo inf) {
+		initModelInfo(inf);
 		m_Models.add(inf);
-		return inf;
-	}
-
-	public ClusModelInfo addModelInfo(int i, String name) {
-		while (i >= m_Models.size()) m_Models.add(null);
-		ClusModelInfo inf = (ClusModelInfo)m_Models.get(i);
-		if (inf == null) {
-			inf = initModelInfo(i, name);
-			m_Models.set(i, inf);
-		} else {
-			inf.setName(name);
-		}
-		return inf;
-	}
+	}	
 
 	public ClusModelInfo addModelInfo(int i) {
 		while (i >= m_Models.size()) m_Models.add(null);

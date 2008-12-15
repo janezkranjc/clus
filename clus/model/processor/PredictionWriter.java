@@ -59,8 +59,7 @@ public class PredictionWriter extends ClusModelProcessor {
 	}
 
 	public boolean shouldProcessModel(ClusModelInfo info) {
-		if (info.getName().equals("Default")) return false;
-		else return true;
+		return info.shouldWritePredictions() && !info.getName().equals("Default");
 	}
 
 	public void addModelInfo(ClusModelInfo info) {

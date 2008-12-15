@@ -42,6 +42,7 @@ public class ClusModelInfo implements Serializable {
 	protected String m_Name;
 	protected boolean m_HasName = false;
 	protected boolean m_ShouldSave = true;
+	protected boolean m_ShouldWritePredictions = true;
 	protected boolean m_ShouldPruneInvalid;
 	protected int m_ModelSize, m_NbModels;
 	protected double m_Score;
@@ -62,11 +63,11 @@ public class ClusModelInfo implements Serializable {
 		if (valid != null) m_ValidErr = valid.getErrorClone();
 	}
 
-	public void setAllErrorsClone(ClusErrorList train, ClusErrorList test, ClusErrorList valid, String model) {
+	public void setSelectedErrorsClone(ClusErrorList train, ClusErrorList test, ClusErrorList valid) {
 		m_TrainErr = null; m_TestErr = null; m_ValidErr = null;
-		if (train != null) m_TrainErr = train.getErrorClone(model);
-		if (test != null) m_TestErr = test.getErrorClone(model);
-		if (valid != null) m_ValidErr = valid.getErrorClone(model);
+		if (train != null) m_TrainErr = train.getErrorClone(getName());
+		if (test != null) m_TestErr = test.getErrorClone(getName());
+		if (valid != null) m_ValidErr = valid.getErrorClone(getName());
 	}
 
 	public final String getName() {
@@ -196,6 +197,7 @@ public class ClusModelInfo implements Serializable {
 		ClusModelInfo clone = new ClusModelInfo(m_Name);
 		clone.setAllErrorsClone(m_TrainErr, m_TestErr, m_ValidErr);
 		clone.setShouldSave(m_ShouldSave);
+		clone.setShouldWritePredictions(m_ShouldWritePredictions);
 		clone.setPruneInvalid(m_ShouldPruneInvalid);
 		return clone;
 	}
@@ -249,6 +251,14 @@ public class ClusModelInfo implements Serializable {
 		return m_ShouldSave;
 	}
 
+	public boolean shouldWritePredictions() {
+		return m_ShouldWritePredictions;
+	}
+
+	public void setShouldWritePredictions(boolean value) {
+		m_ShouldWritePredictions = value;
+	}	
+	
 	public final void setPruneInvalid(boolean prune) {
 		m_ShouldPruneInvalid = prune;
 	}

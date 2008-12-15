@@ -78,7 +78,8 @@ public class CDTTuneFTest extends ClusDecisionTree {
 	public ClusErrorList createTuneError(ClusStatManager mgr) {
 		ClusErrorList parent = new ClusErrorList();
 		if (mgr.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-			parent.addError(new HierErrorMeasures(parent, mgr.getHier(), getSettings().getCompatibility()));
+			int optimize = getSettings().getHierOptimizeErrorMeasure();			
+			parent.addError(new HierErrorMeasures(parent, mgr.getHier(), getSettings().getCompatibility(), optimize));
 			return parent;
 		}
 		NumericAttrType[] num = mgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -93,16 +94,33 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		return parent;
 	}
 
+	public final ClusRun partitionDataBasic(ClusData data, ClusSelection sel, ClusSummary summary, int idx) throws IOException, ClusException {
+		ClusRun cr = new ClusRun(data.cloneData(), summary);
+		if (sel != null) {
+			if (sel.changesDistribution()) {
+				((RowData) cr.getTrainingSet()).update(sel);
+			} else {
+				ClusData val = cr.getTrainingSet().select(sel);
+				cr.setTestSet(((RowData) val).getIterator());
+			}
+		}
+		cr.setIndex(idx);
+		cr.createTrainIter();
+		return cr;
+	}
+
 	public double doParamXVal(RowData trset, RowData pruneset) throws ClusException, IOException {
 		int prevVerb = Settings.enableVerbose(0);
 		ClusStatManager mgr = getStatManager();
 		ClusSummary summ = new ClusSummary();
-		summ.addModelInfo(ClusModel.PRUNED).setTestError(createTuneError(mgr));
-		if (pruneset != null && getSettings().getPruningMethod() == Settings.PRUNING_METHOD_NONE) {
+		summ.addModelInfo(ClusModel.ORIGINAL).setTestError(createTuneError(mgr));
+		double avgSize = 0.0;
+		if (pruneset != null) {
 			ClusRun cr = new ClusRun(trset.cloneData(), summ);
-			ClusModel pruned = m_Class.induceSingle(cr);
-			cr.addModelInfo(ClusModel.PRUNED).setModel(pruned);
-			cr.addModelInfo(ClusModel.PRUNED).setTestError(createTuneError(mgr));
+			ClusModel model = m_Class.induceSingleUnpruned(cr);
+			avgSize = model.getModelSize();
+			cr.addModelInfo(ClusModel.ORIGINAL).setModel(model);
+			cr.addModelInfo(ClusModel.ORIGINAL).setTestError(createTuneError(mgr));
 			m_Clus.calcError(pruneset.getIterator(), ClusModelInfo.TEST_ERR, cr);
 			summ.addSummary(cr);
 		} else {
@@ -114,16 +132,22 @@ public class CDTTuneFTest extends ClusDecisionTree {
 			for (int i = 0; i < nbfolds; i++) {
 				showFold(i);
 				XValSelection msel = new XValSelection(sel, i);
-				ClusRun cr = m_Clus.partitionDataBasic(trset, msel, pruneset, summ, i+1);
-				ClusModel pruned = m_Class.induceSingle(cr);
-				cr.addModelInfo(ClusModel.PRUNED).setModel(pruned);
-				m_Clus.calcError(cr, summ);
+				ClusRun cr = partitionDataBasic(trset, msel, summ, i+1);
+				ClusModel model = m_Class.induceSingleUnpruned(cr);
+				avgSize += model.getModelSize();
+				cr.addModelInfo(ClusModel.ORIGINAL).setModel(model);
+				cr.addModelInfo(ClusModel.ORIGINAL).setTestError(createTuneError(mgr));
+				m_Clus.calcError(cr.getTestIter(), ClusModelInfo.TEST_ERR, cr);
+				summ.addSummary(cr);
 			}
+			avgSize /= nbfolds;
+			System.out.println();
 		}
-		ClusModelInfo mi = summ.getModelInfo(ClusModel.PRUNED);
+		ClusModelInfo mi = summ.getModelInfo(ClusModel.ORIGINAL);
 		Settings.enableVerbose(prevVerb);
 		ClusError err = mi.getTestError().getFirstError();
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(System.out));
+		wrt.print("Size: "+avgSize+", ");
 		wrt.print("Error: "); err.showModelError(wrt, ClusError.DETAIL_VERY_SMALL);
 		wrt.flush();
 		return err.getModelError();
@@ -157,7 +181,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 			}
 			System.out.println();
 		}
-		getSettings().setFTest(m_FTests[best_value]);		
+		getSettings().setFTest(m_FTests[best_value]);
 		System.out.println("Best F-test value is: "+m_FTests[best_value]);
 	}
 
@@ -169,7 +193,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 			findBestFTest(train, valid);
 			System.out.println();
 			// Induce final model
-			if (valid != null && getSettings().getPruningMethod() == Settings.PRUNING_METHOD_NONE) {
+			if (valid != null) {
 				// Tuning based on prune = validation set, learn final tree on all data (train + prune)
 				ArrayList lst = train.toArrayList();
 				lst.addAll(valid.toArrayList());

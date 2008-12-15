@@ -75,6 +75,7 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 			for (int t=0; t<tresholds.length; t++) {
 				ClusRuleSet model2 = model.cloneRuleSetWithThreshold(t);
 				ClusModelInfo modelInfo2 = cr.addModelInfo("T(" + tresholds[t] + ")");
+				modelInfo2.setShouldWritePredictions(false);
 				modelInfo2.setModel(model2);
 			}
 		}

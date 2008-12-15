@@ -226,6 +226,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 					ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
 					ClusForest new_forest = m_OForest.cloneForestWithThreshold(thresholds[i]);
 					new_forest.setPrintModels(Settings.isPrintEnsembleModels());
+					pruned_info.setShouldWritePredictions(false);
 					pruned_info.setModel(new_forest);
 					pruned_info.setName("T("+thresholds[i]+")");
 				}

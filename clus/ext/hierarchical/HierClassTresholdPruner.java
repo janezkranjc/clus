@@ -27,6 +27,7 @@
 package clus.ext.hierarchical;
 
 import clus.algo.tdidt.ClusNode;
+import clus.model.ClusModelInfo;
 import clus.pruning.PruneTree;
 import clus.util.ClusException;
 
@@ -52,6 +53,10 @@ public class HierClassTresholdPruner extends PruneTree {
 
 	public double getThreshold(int i) {
 		return m_Thresholds[i];
+	}
+
+	public void updatePrunedModelInfo(ClusModelInfo info) {
+		info.setShouldWritePredictions(false);
 	}
 
 	public void prune(int result, ClusNode node) throws ClusException {

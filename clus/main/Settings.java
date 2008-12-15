@@ -1235,6 +1235,13 @@ public class Settings implements Serializable {
     public final static int HIERDIST_WEIGHTED_EUCLIDEAN = 0;
     public final static int HIERDIST_JACCARD = 1;
 
+    public final static String[] HIERMEASURES = { "AverageAUROC", "AverageAUPRC", "WeightedAverageAUPRC", "PooledAUPRC" };
+    
+    public final static int HIERMEASURE_AUROC  = 0;
+    public final static int HIERMEASURE_AUPRC  = 1;
+    public final static int HIERMEASURE_WEIGHTED_AUPRC = 2;
+    public final static int HIERMEASURE_POOLED_AUPRC = 3;    
+    
 	INIFileSection m_SectionHierarchical;
 	protected INIFileNominal m_HierType;
 	protected INIFileNominal m_HierWType;
@@ -1242,6 +1249,7 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_HierWParam;
 	protected INIFileString m_HierSep;
 	protected INIFileString m_HierEmptySetIndicator;
+	protected INIFileNominal m_HierOptimizeErrorMeasure;
 	protected INIFileString m_DefinitionFile;
 	protected INIFileBool m_HierNoRootPreds;
 	protected INIFileDouble m_HierPruneInSig;
@@ -1291,6 +1299,10 @@ public class Settings implements Serializable {
 
 	public String getHierEvalClasses() {
 		return m_HierEvalClasses.getValue();
+	}
+	
+	public int getHierOptimizeErrorMeasure() {
+		return m_HierOptimizeErrorMeasure.getValue();
 	}
 
 	public boolean hasDefinitionFile() {
@@ -1744,6 +1756,7 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierWParam = new INIFileDouble("WParam", 0.75));
 		m_SectionHierarchical.addNode(m_HierSep = new INIFileString("HSeparator", "."));
 		m_SectionHierarchical.addNode(m_HierEmptySetIndicator = new INIFileString("EmptySetIndicator", "n"));
+		m_SectionHierarchical.addNode(m_HierOptimizeErrorMeasure = new INIFileNominal("OptimizeErrorMeasure", HIERMEASURES, HIERMEASURE_POOLED_AUPRC));
 		m_SectionHierarchical.addNode(m_DefinitionFile = new INIFileString("DefinitionFile", NONE));
 		m_SectionHierarchical.addNode(m_HierNoRootPreds = new INIFileBool("NoRootPredictions", false));
 		m_SectionHierarchical.addNode(m_HierPruneInSig = new INIFileDouble("PruneInSig", 0.0));

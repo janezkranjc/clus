@@ -105,11 +105,8 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 		pruner.setTrainingData((RowData) cr.getTrainingSet());
 		int nb = pruner.getNbResults();
 		for (int i = 0; i < nb; i++) {
-			ClusNode pruned = (ClusNode) orig.cloneTree();
-			pruner.prune(i, pruned);
-			pruned.numberTree();
-			ClusModelInfo pruned_info = cr.addModelInfo(pruner.getPrunedName(i));
-			pruned_info.setModel(pruned);
+			ClusModelInfo pruned_info = pruner.getPrunedModelInfo(i, orig);
+			cr.addModelInfo(pruned_info);
 		}
 	}
 

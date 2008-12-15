@@ -26,6 +26,7 @@ import clus.algo.tdidt.*;
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.*;
 import clus.error.ClusErrorList;
+import clus.model.ClusModelInfo;
 import clus.util.*;
 
 public class PruneTree {
@@ -49,6 +50,19 @@ public class PruneTree {
 		} else {
 			return "P"+(i+1);
 		}
+	}
+
+	public void updatePrunedModelInfo(ClusModelInfo info) {
+	}
+
+	public ClusModelInfo getPrunedModelInfo(int i, ClusNode orig) throws ClusException {
+		ClusNode pruned = (ClusNode)orig.cloneTree();
+		prune(i, pruned);
+		pruned.numberTree();
+		ClusModelInfo pruned_info = new ClusModelInfo(getPrunedName(i));
+		pruned_info.setModel(pruned);
+		updatePrunedModelInfo(pruned_info);
+		return pruned_info;
 	}
 
 	public void prune(int result, ClusNode node) throws ClusException {
