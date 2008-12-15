@@ -497,6 +497,7 @@ public class Settings implements Serializable {
 
 	protected INIFileInt m_SetsData;
 	protected INIFileBool m_OutFoldErr;
+	protected INIFileBool m_OutFoldData;
 	protected INIFileBool m_OutFoldModels;
 	protected INIFileBool m_OutTrainErr;
 	protected INIFileBool m_ShowForest;
@@ -529,6 +530,10 @@ public class Settings implements Serializable {
 
 	public boolean isOutFoldError() {
 		return m_OutFoldErr.getValue();
+	}
+	
+	public boolean isOutFoldData() {
+		return m_OutFoldData.getValue();
 	}
 
 	public boolean isOutputFoldModels() {
@@ -1484,6 +1489,41 @@ public class Settings implements Serializable {
 	public void setSectionTimeSeriesEnabled(boolean enable) {
 		m_SectionTimeSeries.setEnabled(enable);
 	}
+	
+	
+/***********************************************************************
+ * Section: Phylogeny                                             	   *
+ ***********************************************************************/
+	
+	public final static String[] PHYLOGENY_DISTANCE_MEASURE={"JC","Kimura","PDist"};
+	
+	public final static int PHYLOGENY_DISTANCE_MEASURE_JC = 0;
+	public final static int PHYLOGENY_DISTANCE_MEASURE_KIMURA = 1;
+	public final static int PHYLOGENY_DISTANCE_MEASURE_PDIST = 2;
+
+	public final static String[] PHYLOGENY_PROTOTYPE_COMPLEXITY={"Pairwise","Prototype"};
+	
+	public final static int PHYLOGENY_PROTOTYPE_COMPLEXITY_PAIRWISE = 0;
+	public final static int PHYLOGENY_PROTOTYPE_COMPLEXITY_PROTO = 1;
+	
+	public final static String[] PHYLOGENY_LINKAGE={"Single","Complete","Average"};
+	
+	public final static int PHYLOGENY_LINKAGE_SINGLE = 0;
+	public final static int PHYLOGENY_LINKAGE_COMPLETE = 1;
+	public final static int PHYLOGENY_LINKAGE_AVERAGE = 2;
+	
+	INIFileSection m_SectionPhylogeny;
+	public static INIFileNominal m_PhylogenyDM;
+	public static INIFileNominal m_PhylogenyProtoComlexity;
+	public static INIFileNominal m_PhylogenyLinkage;
+	
+	public boolean isSectionPhylogenyEnabled() {
+		return m_SectionPhylogeny.isEnabled();
+	}
+	
+	public void setSectionPhylogenyEnabled(boolean enable) {
+		m_SectionPhylogeny.setEnabled(enable);
+	}
 
 	public static boolean isTimeSeriesProtoComlexityExact() {
 		if (m_TimeSeriesProtoComlexity.getValue() == 0) {
@@ -1674,6 +1714,7 @@ public class Settings implements Serializable {
 		output.addNode(m_OutTrainErr = new INIFileBool("TrainErrors", true));
 		output.addNode(m_OutFoldModels = new INIFileBool("AllFoldModels", true));
 		output.addNode(m_OutFoldErr = new INIFileBool("AllFoldErrors", false));
+		output.addNode(m_OutFoldData = new INIFileBool("AllFoldDatasets", false));
 		output.addNode(m_WriteErrorFile = new INIFileBool("WriteErrorFile", false));
 		output.addNode(m_ShowUnknown = new INIFileBool("UnknownFrequency", false));
 		output.addNode(m_ShowBrFreq = new INIFileBool("BranchFrequency", false));
@@ -1800,6 +1841,13 @@ public class Settings implements Serializable {
 		m_SectionTimeSeries.addNode(m_TimeSeriesDM=new INIFileNominal("DistanceMeasure", TIME_SERIES_DISTANCE_MEASURE,0));
 		m_SectionTimeSeries.addNode(m_TimeSeriesProtoComlexity=new INIFileNominal("PrototypeComlexity", TIME_SERIES_PROTOTYPE_COMPLEXITY,0));
 		m_SectionTimeSeries.setEnabled(false);
+		
+		m_SectionPhylogeny = new INIFileSection("Phylogeny");
+		m_SectionPhylogeny.addNode(m_PhylogenyDM=new INIFileNominal("DistanceMeasure", PHYLOGENY_DISTANCE_MEASURE,0));
+		m_SectionPhylogeny.addNode(m_PhylogenyProtoComlexity=new INIFileNominal("Prototype_or_Pairwise", PHYLOGENY_PROTOTYPE_COMPLEXITY,0));
+		m_SectionPhylogeny.addNode(m_PhylogenyLinkage=new INIFileNominal("Linkage", PHYLOGENY_LINKAGE,0));
+		m_SectionPhylogeny.setEnabled(false);
+
 
 		m_SectionEnsembles = new INIFileSection("Ensemble");
 		m_SectionEnsembles.addNode(m_NbBags = new INIFileNominalOrIntOrVector("Iterations", NONELIST));
@@ -1847,6 +1895,7 @@ public class Settings implements Serializable {
 		m_Ini.addNode(m_SectionBeam);
 		m_Ini.addNode(m_SectionExhaustive);
 		m_Ini.addNode(m_SectionTimeSeries);
+		m_Ini.addNode(m_SectionPhylogeny);
 		m_Ini.addNode(m_SectionEnsembles);
 		m_Ini.addNode(m_SectionKNN);
 		m_Ini.addNode(m_SectionKNNT);
