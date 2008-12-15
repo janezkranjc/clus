@@ -24,9 +24,6 @@ ModelIDFiles = TRUE
 
 $$FILE: data/church_FUN/church_FUN_tune_Ftest.s
 
-[General]
-Compatibility = MLJ08
-
 [Data]
 File = church_FUN.train.arff.zip
 PruneSet = church_FUN.valid.arff.zip

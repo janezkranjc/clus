@@ -137,11 +137,11 @@ public abstract class ClusModelInfoList implements Serializable {
 		addModelInfo(inf);
 		return inf;
 	}
-	
+
 	public void addModelInfo(ClusModelInfo inf) {
 		initModelInfo(inf);
 		m_Models.add(inf);
-	}	
+	}
 
 	public ClusModelInfo addModelInfo(int i) {
 		while (i >= m_Models.size()) m_Models.add(null);

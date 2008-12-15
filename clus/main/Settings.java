@@ -135,10 +135,10 @@ public class Settings implements Serializable {
  ***********************************************************************/
 
 	public final static String[] COMPATIBILITY = { "CMB05", "MLJ08", "Latest"};
-		
+
 	public final static int COMPATIBILITY_CMB05 = 0;
 	public final static int COMPATIBILITY_MLJ08 = 1;
-	public final static int COMPATIBILITY_LATEST = 2;	
+	public final static int COMPATIBILITY_LATEST = 2;
 
 /***********************************************************************
  * Section: General - ResourceInfo loaded                              *
@@ -660,7 +660,7 @@ public class Settings implements Serializable {
 	public boolean showAlternativeSplits() {
 		return m_AlternativeSplits.getValue();
 	}
-	
+
 	public INIFileNominalOrDoubleOrVector getFTestArray() {
 		return m_FTest;
 	}
@@ -1236,12 +1236,12 @@ public class Settings implements Serializable {
     public final static int HIERDIST_JACCARD = 1;
 
     public final static String[] HIERMEASURES = { "AverageAUROC", "AverageAUPRC", "WeightedAverageAUPRC", "PooledAUPRC" };
-    
+
     public final static int HIERMEASURE_AUROC  = 0;
     public final static int HIERMEASURE_AUPRC  = 1;
     public final static int HIERMEASURE_WEIGHTED_AUPRC = 2;
-    public final static int HIERMEASURE_POOLED_AUPRC = 3;    
-    
+    public final static int HIERMEASURE_POOLED_AUPRC = 3;
+
 	INIFileSection m_SectionHierarchical;
 	protected INIFileNominal m_HierType;
 	protected INIFileNominal m_HierWType;
@@ -1300,7 +1300,7 @@ public class Settings implements Serializable {
 	public String getHierEvalClasses() {
 		return m_HierEvalClasses.getValue();
 	}
-	
+
 	public int getHierOptimizeErrorMeasure() {
 		return m_HierOptimizeErrorMeasure.getValue();
 	}

@@ -45,16 +45,16 @@ public class ROCAndPRCurve implements Serializable {
 			}
 		}
 	}
-	
+
 	public void setThresholds(double[] thr) {
 		m_Thresholds = thr;
 	}
-	
+
 	public void enumerateThresholds() {
 		if (m_Thresholds == null) enumerateThresholdsAll();
 		else enumerateThresholdsSelected(m_Thresholds);
 	}
-	
+
 	public void enumerateThresholdsAll() {
 		// Should extend PR curve to recall zero?
 		m_ExtendPR = true;
@@ -81,7 +81,7 @@ public class ROCAndPRCurve implements Serializable {
 		// addOutput(TP_cnt, FP_cnt) -> curve will always include point with recall = 1.0
 		addOutput(TP_cnt, FP_cnt);
 	}
-	
+
 	public void enumerateThresholdsSelected(double[] thr) {
 		// Should extend PR curve to recall zero?
 		m_ExtendPR = true;
@@ -113,7 +113,7 @@ public class ROCAndPRCurve implements Serializable {
 	public double computeArea(ArrayList curve) {
 		double area = 0.0;
 		// System.out.println("Computing areas");
-		if (curve.size() > 0) {			
+		if (curve.size() > 0) {
 			double[] prev = (double[])curve.get(0);
 			// System.out.println("PT: "+prev[0]+","+prev[1]);
 			for (int i = 1; i < curve.size(); i++) {
