@@ -190,7 +190,7 @@ public class ClusErrorList implements Serializable {
 				ClusError err = (ClusError)m_Error.get(i);
 				err.addInvalid(tuple);
 			}
-		}
+		} 
 	}
 	public void addExample(DataTuple real, DataTuple pred) {
 		m_NbExamples++;

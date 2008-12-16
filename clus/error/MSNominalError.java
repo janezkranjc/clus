@@ -83,7 +83,7 @@ public class MSNominalError extends ClusNominalError {
 	}
 
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
-		ClassificationStat stat = pred.getClassificationStat();
+		ClusStatistic stat = pred.getClassificationStat();
 		for (int i = 0; i < m_Dim; i++) {
 			NominalAttrType type = m_Attrs[i];
 			int value = type.getNominal(tuple);

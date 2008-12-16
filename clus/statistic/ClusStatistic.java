@@ -311,7 +311,7 @@ public abstract class ClusStatistic implements Serializable {
 		return null;
 	}
 
-	public ClassificationStat getClassificationStat() {
+	public ClusStatistic getClassificationStat() {
 		return null;
 	}
 
@@ -330,6 +330,11 @@ public abstract class ClusStatistic implements Serializable {
 
 	public ClusStatistic normalizedCopy() {
 		return null;
+	}
+	
+	public double getCount(int idx, int cls) {
+		System.err.println(getClass().getName()+" does not implement predictTuple()");
+		return Double.POSITIVE_INFINITY;
 	}
 
 	public String getDistanceName() {
