@@ -165,11 +165,10 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		
 		// Only pruned used for rules.	
 		ClusModel model = induceSingleUnpruned(cr);
-		ClusModelInfo pruned_model = cr.addModelInfo(ClusModel.PRUNED);
-		pruned_model.setModel(model);
-		pruned_model.setName("Pruned");
-		
-		
+		ClusModelInfo rules_model = cr.addModelInfo(ClusModel.RULES);
+		rules_model.setModel(model);
+		rules_model.setName("Rules");
+				
 		
 	}
 

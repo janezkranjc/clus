@@ -66,10 +66,10 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 		}
 	}
 
-	public void pruneAll(ClusRun cr) throws ClusException, IOException {
-		ClusRuleSet model = (ClusRuleSet) cr.getModel(ClusModel.ORIGINAL);
-		if (model.m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
+	public void pruneAll(ClusRun cr) throws ClusException, IOException {		
+		if (getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL) {
 			// Clone the ruleset model for each treshold value specified in the settings
+			ClusRuleSet model = (ClusRuleSet)cr.getModelInfoFallback(ClusModel.PRUNED, ClusModel.ORIGINAL).getModel();
 			INIFileNominalOrDoubleOrVector class_thr = getSettings().getClassificationThresholds();
 			double[] tresholds = class_thr.getDoubleVector();
 			for (int t=0; t<tresholds.length; t++) {

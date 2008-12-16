@@ -42,6 +42,7 @@ public interface ClusModel {
 	public static int ORIGINAL = 1;
 	/** The type of model returned. PRUNED = the real model after pruning. */
 	public static int PRUNED = 2;
+	public static int RULES = 2;
 
 	// SOMETHING ELSE
 	public static int PRUNE_INVALID = 0;
