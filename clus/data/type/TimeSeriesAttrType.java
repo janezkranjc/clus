@@ -39,6 +39,9 @@ public class TimeSeriesAttrType extends ClusAttrType {
 	public final static String THIS_TYPE_NAME = "TimeSeries";
 	public final static int THIS_TYPE = 5;
 
+	public static boolean m_isEqualLength = true;
+	int m_Length = -1;
+	
 	public TimeSeriesAttrType(String name) {
 		super(name);
 	}
@@ -77,6 +80,10 @@ public class TimeSeriesAttrType extends ClusAttrType {
 		return new MySerializable();
 	}
 
+	public boolean isEqualLength(){
+		return m_isEqualLength;
+	}
+	
 	public class MySerializable extends ClusSerializable {
 
 		public String getString(DataTuple tuple){
@@ -96,6 +103,9 @@ public class TimeSeriesAttrType extends ClusAttrType {
 			if (str == null) return false;
 			TimeSeries value = new TimeSeries(str);
 			tuple.setObjectVal(value, 0);
+			if (m_Length != -1){
+				if (m_Length != value.length())m_isEqualLength = false;
+			}else m_Length = value.length();
 			return true;
 		}
 	}

@@ -316,16 +316,17 @@ public abstract class TimeSeriesStat extends BitVectorStat implements ClusDistan
 		}
 		calcSumAndSumSqDistances(m_RepresentativeMedian);
 		// Mean
-		m_RepresentativeMean.setSize(m_RepresentativeMedian.length());
-		for (int i=0; i< m_RepresentativeMean.length(); i++){
-			double sum = 0.0;
-			for(int j=0; j<m_TimeSeriesStack.size(); j++){
-				TimeSeries t1 = (TimeSeries)m_TimeSeriesStack.get(j);
-				sum += t1.getValue(i) * t1.geTSWeight();
-			}
-	    	m_RepresentativeMean.setValue(i, sum/m_SumWeight);
-	    }
-		
+		if (m_Attr.isEqualLength()){
+			m_RepresentativeMean.setSize(m_RepresentativeMedian.length());
+			for (int i=0; i< m_RepresentativeMean.length(); i++){
+				double sum = 0.0;
+				for(int j=0; j<m_TimeSeriesStack.size(); j++){
+					TimeSeries t1 = (TimeSeries)m_TimeSeriesStack.get(j);
+					sum += t1.getValue(i) * t1.geTSWeight();
+				}
+		    	m_RepresentativeMean.setValue(i, sum/m_SumWeight);
+		    }
+		}
 		double sumwi = 0.0;
 		for(int j=0; j<m_TimeSeriesStack.size(); j++){
 			TimeSeries t1 = (TimeSeries)m_TimeSeriesStack.get(j);
