@@ -115,9 +115,7 @@ public class BitVectorStat extends ClusStatistic {
 	}
 
 	public int getNbTuples() {
-		//this gave an error:
-		//return m_Bits.getNbOnes();
-		return -10;
+		return m_Bits.getNbOnes();
 	}
 
 	public double[] getNumericPred() {

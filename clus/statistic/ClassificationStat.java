@@ -540,11 +540,12 @@ public class ClassificationStat extends ClusStatistic {
 		return m_ClassCounts[idx][cls];
 	}
 
-	//changed elisa 13/06/2007
+	//changed elisa 13/06/2007, changed back by celine 16/12/2008
 	public String getPredictedClassName(int idx) {
-		return m_Attrs[idx].getName()+" = "+m_Attrs[idx].getValue(m_MajorityClasses[idx]);
-		// return m_Attrs[idx].getValue(getMajorityClass(idx));
-	}
+		//return m_Attrs[idx].getName()+" = "+m_Attrs[idx].getValue(m_MajorityClasses[idx]);
+		return m_Attrs[idx].getValue(getMajorityClass(idx));
+	} 
+	
 
 	public String getClassName(int idx, int cls) {
 		return m_Attrs[idx].getValue(cls);
