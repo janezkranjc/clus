@@ -429,8 +429,15 @@ public class ClusStatManager implements Serializable {
 				setTargetStatistic(new DTWTimeSeriesStat(type));
 				break;
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_QDM:
-				setClusteringStatistic(new QDMTimeSeriesStat(type));
-				setTargetStatistic(new QDMTimeSeriesStat(type));
+				if (type.isEqualLength()){
+					setClusteringStatistic(new QDMTimeSeriesStat(type));
+					setTargetStatistic(new QDMTimeSeriesStat(type));
+				}else{
+					System.err.println("QDM Distance is not implemented for time series with different length");
+					Settings.m_TimeSeriesDM.setSingleValue(Settings.TIME_SERIES_DISTANCE_MEASURE_DTW);
+					setClusteringStatistic(new DTWTimeSeriesStat(type));
+					setTargetStatistic(new DTWTimeSeriesStat(type));					
+				}
 				break;
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_TSC:
 				setClusteringStatistic(new TSCTimeSeriesStat(type));
@@ -737,8 +744,17 @@ public class ClusStatManager implements Serializable {
 		ClusErrorList parent = new ClusErrorList();
 		if (m_Mode == MODE_TIME_SERIES) {
 			ClusAttrType[] targets = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			TimeSeriesAttrType type = (TimeSeriesAttrType)targets[0];
-			parent.addError(new SSPDICVError(parent, new QDMTimeSeriesStat(type)));
+			TimeSeriesAttrType type = (TimeSeriesAttrType)targets[0];			
+			TimeSeriesStat tstat = null;
+			if (Settings.m_TimeSeriesDM.getValue() == Settings.TIME_SERIES_DISTANCE_MEASURE_DTW){
+				tstat = new DTWTimeSeriesStat(type);
+			}else if (Settings.m_TimeSeriesDM.getValue() == Settings.TIME_SERIES_DISTANCE_MEASURE_QDM){
+				if (type.isEqualLength()) tstat = new QDMTimeSeriesStat(type);//QDM for different length not implemented
+				else tstat = new DTWTimeSeriesStat(type);
+			}else if (Settings.m_TimeSeriesDM.getValue() == Settings.TIME_SERIES_DISTANCE_MEASURE_TSC){
+				tstat = new TSCTimeSeriesStat(type);
+			}
+			parent.addError(new SSPDICVError(parent, tstat));
 		}
 		return parent;
 	}
