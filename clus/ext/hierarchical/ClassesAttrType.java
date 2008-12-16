@@ -41,6 +41,7 @@ public class ClassesAttrType extends ClusAttrType {
 	public final static int THIS_TYPE = 2;
 	public final static String THIS_TYPE_NAME = "Classes";
 
+	protected transient String[] m_Labels;
 	protected transient StringTable m_Table = new StringTable();
 	protected ClassHierarchy m_Hier;
 
@@ -52,6 +53,13 @@ public class ClassesAttrType extends ClusAttrType {
 	public ClassesAttrType(String name, ClassHierarchy hier) {
 		super(name);
 		m_Hier = hier;
+	}
+
+	public ClassesAttrType(String name, String atype) {
+		super(name);
+		String classes = atype.substring("HIERARCHICAL".length()).trim();
+		m_Labels = classes.split("\\s*\\,\\s*");
+		m_Hier = new ClassHierarchy(this);
 	}
 
 	public StringTable getTable() {
@@ -128,28 +136,31 @@ public class ClassesAttrType extends ClusAttrType {
 		// and adds intermediate class nodes to each example
 		pps.addPreproc(new ClassHierarchyPreproc(this, true));
 	}
-
-	public void initializeHierarchy(String atype) throws ClusException, IOException {
-		// hierarchy is given in @attribute specification in .arff
-		// this means we can initialize the hierarchy and lock it
-		// so that no classes can be added afterwards
-		String classes = atype.substring("HIERARCHICAL".length()).trim();
-		String[] cls = classes.split("\\s*\\,\\s*");
+	
+	public void initializeBeforeLoadingData() throws IOException, ClusException {
+		if (isDisabled()) {
+			// No need to initialize class hierarchy of disabled attributes 
+			return;
+		}
 		if (getSettings().hasDefinitionFile()) {
+			// Load hierarchy definition from a file
 			m_Hier.loadDAG(getSettings().getDefinitionFile());
-		} else {
+			m_Hier.initialize();
+		}
+		if (m_Labels != null) {
+			// Load definition from labels in type specification in .arff
 			if (getSettings().getHierType() == Settings.HIERTYPE_DAG) {
-				m_Hier.loadDAG(cls);
+				m_Hier.loadDAG(m_Labels);
 			} else {
-				for (int i = 0; i < cls.length; i++) {
-					if (!cls[i].equals(ClassesValue.EMPTY_SET_INDICATOR)) {
-						ClassesValue val = new ClassesValue(cls[i], m_Table);
+				for (int i = 0; i < m_Labels.length; i++) {
+					if (!m_Labels[i].equals(ClassesValue.EMPTY_SET_INDICATOR)) {
+						ClassesValue val = new ClassesValue(m_Labels[i], m_Table);
 						m_Hier.addClass(val);
 					}
 				}
 			}
+			m_Hier.initialize();
 		}
-		m_Hier.initialize();
 	}
 
 	public void initializeFrom(ClusAttrType other_type) {

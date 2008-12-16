@@ -22,10 +22,12 @@
 
 package clus.data.type;
 
+import java.io.IOException;
+
 import clus.util.ClusException;
 
 public interface ClusSchemaInitializer {
 
-	public void initSchema(ClusSchema schema) throws ClusException;
+	public void initSchema(ClusSchema schema) throws ClusException, IOException;
 
 }

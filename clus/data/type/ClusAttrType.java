@@ -244,13 +244,15 @@ public abstract class ClusAttrType implements Serializable, Comparable {
 	public String toString() {
 		return getName();
 	}
+	
+	public void initializeBeforeLoadingData() throws IOException, ClusException {
+		// This method is called before loading the data, but after setting the attribute's status
+		// For example, ext.hierarchical.ClassesAttrType uses this to initialize the class hierarchy.
+	}
 
 	public void initializeFrom(ClusAttrType other_type) {
 		// Currently does nothing, but could copy status etc.
-	}
-
-	// Some attributes initialize differently based on some user settings
-	public void initSettings(Settings sett) {
+		// For example, ext.hierarchical.ClassesAttrType uses this to copy the class hierarchy.
 	}
 
 	public void writeARFFType(PrintWriter wrt) throws ClusException {

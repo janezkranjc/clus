@@ -49,7 +49,7 @@ public class ILevelCGUI extends JFrame {
 	protected JFileChooser m_Chooser;
 	protected NominalAttrType m_ClassAttr;
 
-	public ILevelCGUI() throws ClusException {
+	public ILevelCGUI() throws ClusException, IOException {
 		super("ILevelCGUI");
 		m_Chooser = new JFileChooser();
 		m_Chooser.setCurrentDirectory(new File("."));
@@ -283,6 +283,9 @@ public class ILevelCGUI extends JFrame {
 		} catch (ClusException e) {
 			System.out.println("Exception: "+e);
 			e.printStackTrace();
-		}
+		} catch (IOException e) {
+			System.out.println("IOException: "+e);
+			e.printStackTrace();
+		}	
 	}
 }

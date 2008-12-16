@@ -1168,7 +1168,7 @@ public class Clus implements CMDLineArgsProvider {
 
 	private class MyClusInitializer implements ClusSchemaInitializer {
 
-		public void initSchema(ClusSchema schema) throws ClusException {
+		public void initSchema(ClusSchema schema) throws ClusException, IOException {
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_SSPD) {
 				schema.addAttrType(new IntegerAttrType("SSPD"));
 			}

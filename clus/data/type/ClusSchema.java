@@ -74,7 +74,7 @@ public class ClusSchema implements Serializable {
 		m_Settings = sett;
 	}
 
-	public void initializeSettings(Settings sett) throws ClusException {
+	public void initializeSettings(Settings sett) throws ClusException, IOException {
 		setSettings(sett);
 		setTestSet(-1); /* Support ID for XVAL attribute later on? */
 		setTarget(new IntervalCollection(sett.getTarget()));
@@ -86,7 +86,7 @@ public class ClusSchema implements Serializable {
 		addIndices(ClusSchema.ROWS);
 	}
 
-	public void initialize() throws ClusException {
+	public void initialize() throws ClusException, IOException {
 		updateAttributeUse();
 		addIndices(ClusSchema.ROWS);
 	}
@@ -314,7 +314,7 @@ public class ClusSchema implements Serializable {
 		m_Key = coll;
 	}
 
-	public final void updateAttributeUse() throws ClusException {
+	public final void updateAttributeUse() throws ClusException, IOException {
 		boolean[] keys = new boolean[getNbAttributes()+1];
 		for (int i = 0; i < getNbAttributes(); i++) {
 			ClusAttrType type = getAttrType(i);
@@ -364,6 +364,10 @@ public class ClusSchema implements Serializable {
 		setDescriptive(m_Descriptive, true);
 		setClusteringAll(false);
 		setClustering(m_Clustering, true);
+		for (int i = 0; i < getNbAttributes(); i++) {
+			ClusAttrType at = getAttrType(i);
+			at.initializeBeforeLoadingData();
+		}
 	}
 
 	public void clearAttributeStatusClusteringAndTarget() {
