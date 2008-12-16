@@ -639,6 +639,49 @@ public class RowData extends ClusData implements MSortable {
 		}
 		return false;
 	}
+	
+	
+	/*
+	 * This method fills m_Data with the complement of large and small, i.e., it takes all data that is in large and not in small, and assigns it to this object.
+	 * This is used when constructing phylogenetic trees.
+	 * Everything in small should be in large, in the same order.
+	 */
+	public void addComplement(RowData large, RowData small) {
+		int size = large.getNbRows() - small.getNbRows();
+//		System.out.println("large: " + large.getNbRows() + " small: " + small.getNbRows() + " -> size: " + size);
+		setNbRows(size);
+		int index = 0;
+		m_Data = new DataTuple[size];
+		int j=0;	
+		for (int i = 0; i < large.getNbRows(); i++) {
+//			System.out.println("i: " + i + " j: " + j); 
+			if (j < small.getNbRows() && large.getTuple(i).toString().equals(small.getTuple(j).toString())) {
+				j++; // toString() bijgezet, anders werkte equals niet met ? in de data
+			}
+			else {
+//				if (index == size) {System.out.println("i: " + i + " j: " + j); System.out.println(small.getTuple(j).toString());}
+				m_Data[index] = large.getTuple(i).cloneTuple();
+				index++;
+			}
+		}
+		if (index != size) {
+			System.out.println("Error in Rowdata.addComplement : index: " + index + " size: " + size);
+		}
+	}
+	
+	public void addAll(RowData data1, RowData data2) {
+		int size = data1.getNbRows() + data2.getNbRows();
+		setNbRows(size);
+		m_Data = new DataTuple[size];
+		for (int i = 0; i < data1.getNbRows(); i++) {
+			m_Data[i] = data1.getTuple(i).cloneTuple();
+		}
+		for (int i = 0; i < data2.getNbRows(); i++) {
+			data2.getTuple(i).cloneTuple();
+			m_Data[i+data1.getNbRows()] = data2.getTuple(i).cloneTuple();
+		}
+	}
+	
 
 	public RowData sampleWeighted(Random random) {
 		return sampleWeighted(random, getNbRows());

@@ -76,6 +76,8 @@ public class ClusStatManager implements Serializable {
 	public final static int MODE_TIME_SERIES = 5;
 
 	public final static int MODE_ILEVELC = 6;
+	
+	public final static int MODE_PHYLO = 7;
 
 	protected int m_Mode = MODE_NONE;
 
@@ -332,6 +334,9 @@ public class ClusStatManager implements Serializable {
 			m_Mode = MODE_SSPD;
 			nb_types++;
 		}
+		if (m_Settings.checkHeuristic("GeneticDistance")) {
+			m_Mode = MODE_PHYLO;
+		}
 		if (m_Settings.isSectionTimeSeriesEnabled()) {
 			m_Mode = MODE_TIME_SERIES;
 			nb_types++;
@@ -359,7 +364,16 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public ClusStatistic createSuitableStat(NumericAttrType[] num, NominalAttrType[] nom) {
-		if (num.length == 0) {
+		System.out.println("creating stat");
+		if (num.length == 0) {			
+			if (m_Mode == MODE_PHYLO) {
+				switch (Settings.m_PhylogenyProtoComlexity.getValue()) {
+				case Settings.PHYLOGENY_PROTOTYPE_COMPLEXITY_PAIRWISE:
+					return new GeneticDistanceStat(nom);
+				case Settings.PHYLOGENY_PROTOTYPE_COMPLEXITY_PROTO:
+					return new ClassificationStat(nom);
+				}
+			}
 			return new ClassificationStat(nom);
 		} else if (nom.length == 0) {
 			return new RegressionStat(num);
@@ -595,19 +609,18 @@ public class ClusStatManager implements Serializable {
 				m_Heuristic = new ModifiedGainHeuristic(createClusteringStat());
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
 				m_Heuristic = new ReducedErrorHeuristic(createClusteringStat());
-			} /*
-				 * else if (getSettings().getHeuristic() ==
-				 * Settings.HEURISTIC_GENETIC_DISTANCE) { m_Heuristic = new
-				 * GeneticDistanceHeuristic(); }
-				 */
-			else if (getSettings().getHeuristic() == Settings.HEURISTIC_VARIANCE_REDUCTION) {
+			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GENETIC_DISTANCE) {
+				m_Heuristic = new GeneticDistanceHeuristic();
+			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_VARIANCE_REDUCTION) {
 				m_Heuristic = new VarianceReductionHeuristicEfficient(getClusteringWeights(), m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {
 				m_Heuristic = new GainHeuristic(true);
 			} else {
-				if (getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && getSettings().getHeuristic() != Settings.HEURISTIC_GAIN) {
-					throw new ClusException("Given heuristic not supported for classification trees!");
-				}
+				if ((getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && 
+				    getSettings().getHeuristic() != Settings.HEURISTIC_GAIN) &&
+				    getSettings().getHeuristic() != Settings.HEURISTIC_GENETIC_DISTANCE) {
+						throw new ClusException("Given heuristic not supported for classification trees!");
+				}				
 				m_Heuristic = new GainHeuristic(false);
 				getSettings().setHeuristic(Settings.HEURISTIC_GAIN);
 			}
