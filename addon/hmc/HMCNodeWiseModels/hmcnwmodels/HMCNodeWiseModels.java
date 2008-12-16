@@ -157,7 +157,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 
 	public ClusSchema createChildSchema(ClusSchema oschema, ClassesAttrType ctype, String name) throws ClusException, IOException {
 		ClusSchema cschema = new ClusSchema(name);
-		for (int j = 0; j < oschema.getNbTargetAttributes(); j++) {
+		for (int j = 0; j < oschema.getNbAttributes(); j++) {
 			ClusAttrType atype = oschema.getAttrType(j);
 			if (!(atype instanceof ClassesAttrType)) {
 				ClusAttrType copy_atype = atype.cloneType();
@@ -280,6 +280,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			System.out.println("IO Error: "+io.getMessage());
 		} catch (ClusException cl) {
 			System.out.println("Error: "+cl.getMessage());
+			cl.printStackTrace();
 		} catch (ClassNotFoundException cn) {
 			System.out.println("Error: "+cn.getMessage());
 		}
