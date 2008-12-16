@@ -56,20 +56,16 @@ public class OptProbl {
 	 */
 	static public class OptParam {
 		public OptParam(double[][][][] predictions,
-//				double[] defaultPrediction,
 				double[][] trueValues ){
 			m_predictions = predictions;
-//			m_defaultPrediction = defaultPrediction;
 			m_trueValues = trueValues;
 		}
 		/** An empty class */ 
 		public OptParam(int nbRule, int nbInst, int nbTarg){
 			m_predictions = new double[nbRule][nbInst][nbTarg][1];
-//			m_defaultPrediction = new double[nbTarg];
 			m_trueValues = new double[nbInst][nbTarg];
 		}
 		public double[][][][] m_predictions;
-//		double[] m_defaultPrediction;
 		public double[][] m_trueValues;
 	}
 	
@@ -83,11 +79,6 @@ public class OptProbl {
 	 * The class value dimension is dynamic for each target index.  
 	 */
 	private double[][][][] m_RulePred;
-	
-	/**
-	 * Default prediction if no rule covers the instance.
-	 */
-//	private double[] m_defaultPred;
 	
 	/** True target values for the data points. [instance][target index] */
 	private double[][] m_TrueVal;			
@@ -105,29 +96,26 @@ public class OptProbl {
 		m_NumVar = (optInfo.m_predictions).length;
 		m_RulePred = optInfo.m_predictions;
 		m_TrueVal = optInfo.m_trueValues;
-//		m_defaultPred = optInfo.m_defaultPrediction;
+
 		m_StatMgr = stat_mgr;
 		
-//		try {
-			if (m_StatMgr.getMode() != ClusStatManager.MODE_REGRESSION &&  
-					m_StatMgr.getMode() != ClusStatManager.MODE_CLASSIFY)
-			{
-System.err.println("Weight optimization: Mixed types of targets (reg/clas) not implemented. Assuming regression.\n ");
-//				"The targets are of different kind, i.e. they are not all for regression or for classifying.\n" +
-//				"Mixed targets are not yet implemented. The targets are considered as regression.\n" +
-//				"This error message may be due the clustering variables also.\n" +
-//				"The optimization may not work in this case also.\n");
-			}
-		//} catch (Exception e){
-//			e.printStackTrace();
-//		}
-			
+		if (m_StatMgr.getMode() != ClusStatManager.MODE_REGRESSION &&  
+				m_StatMgr.getMode() != ClusStatManager.MODE_CLASSIFY)
+		{
+			System.err.println("Weight optimization: Mixed types of targets (reg/clas) not implemented. Assuming regression.\n ");
+			//				"The targets are of different kind, i.e. they are not all for regression or for classifying.\n" +
+			//				"Mixed targets are not yet implemented. The targets are considered as regression.\n" +
+			//				"This error message may be due the clustering variables also.\n" +
+			//				"The optimization may not work in this case also.\n");
+		}
+
 		m_ClssTask = (m_StatMgr.getMode() == ClusStatManager.MODE_CLASSIFY);
 	}
 
 	/**
 	 * Fitness function.
 	 * The classification prediction is voting without weights.
+	 * Smaller is better.
 	 * @param genes The current generation (population).
 	 * @param dataEarlyStop 
 	 * @return fitness score
@@ -259,7 +247,7 @@ System.err.println("Weight optimization: Mixed types of targets (reg/clas) not i
 
 		
 		// Second Regularization (especially for DE): how many zeroes
-		int nbOfZeroes = returnNbOfZeroes(genes);
+		int nbOfZeroes = returnNbNonZeroes(genes);
 		
 		//fitness = (1 - (acc / nb_covered*nb_targets)) + getSettings().getOptRegPar() *  reg_penalty;
 		// TODO: regularization penalty should include dispersion, coverage?
@@ -269,18 +257,18 @@ System.err.println("Weight optimization: Mixed types of targets (reg/clas) not i
 		
 	}
 	
-	/** Number of zeroes for regularization purposes */
-	private int returnNbOfZeroes(ArrayList<Double> genes) {
+	/** Number of non zero weights for regularization purposes */
+	private int returnNbNonZeroes(ArrayList<Double> genes) {
 		
-		int nbOfZeroes = 0;
+		int nbNonZeroes = 0;
 
 		for (int j = 0; j < genes.size(); j++) {
-			if (genes.get(j).doubleValue() == 0.0)
-				nbOfZeroes++;
+			if (genes.get(j).doubleValue() != 0.0)
+				nbNonZeroes++;
 		}
 
 		
-		return nbOfZeroes;
+		return nbNonZeroes;
 	}
 
 	/**

@@ -136,9 +136,6 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 
 		// Number rules (for output purpose in WritePredictions)
 		ruleSet.numberRules();
-		
-		//TODO Do you need to compute the default rule again?
-		
 		return ruleSet;
 	}
 	

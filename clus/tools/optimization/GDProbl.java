@@ -37,6 +37,8 @@ import clus.main.*;
  */
 public class GDProbl extends OptProbl {
 
+	/** Do we print debugging information. */
+	static protected boolean m_printGDDebugInformation = true;
 
 	/**
 	 * Covariances between weights. Are computed only if needed.
@@ -76,71 +78,53 @@ public class GDProbl extends OptProbl {
 	 */
 	public GDProbl(ClusStatManager stat_mgr, OptParam optInfo) {
 		super(stat_mgr, optInfo);
+		
 		// If early stopping criteria is chosen, reserve part of the training set for early stop testing.
 		if (getSettings().getOptGDEarlyStopAmount() > 0) {
+			
 			double amountData = getSettings().getOptGDEarlyStopAmount();
+			
+			// Create the early stopping data variables.
 			m_dataEarlyStop = new OptParam(optInfo.m_predictions.length,
 					(int)Math.ceil(amountData*optInfo.m_predictions[0].length), 
 					optInfo.m_predictions[0][0].length);
 			OptParam rest = new OptParam(optInfo.m_predictions.length,
 					(int)Math.floor((1-amountData)*optInfo.m_predictions[0].length), 
 					optInfo.m_predictions[0][0].length);
+
+			// Copy the prediction and true value references (no cloning)
 			for (int iRule = 0; iRule < optInfo.m_predictions.length;iRule++){
-				for (int iInstance = 0; iInstance < optInfo.m_predictions[0].length; iInstance++){
+				for (int iInstance = 0; iInstance < optInfo.m_predictions[0].length; iInstance++){					
 
-//					if (iInstance < (int)Math.ceil(amountData*optInfo.m_predictions[0].length)) {
-//						m_dataEarlyStop.m_predictions[iRule][iInstance] = 
-//							optInfo.m_predictions[iRule][iInstance];
-//						if (iRule == 0) // Only once for each rule
-//							m_dataEarlyStop.m_trueValues[iInstance] =
-//								optInfo.m_trueValues[iInstance];
-//					} else {
-//						rest.m_predictions[iRule][iInstance] = 
-//							optInfo.m_predictions[iRule][iInstance];
-//						if (iRule == 0) // Only once for each rule
-//							rest.m_trueValues[iInstance] =
-//								optInfo.m_trueValues[iInstance];							
-//					}
-//	
-//					
-					
-					for (int iTarget = 0; iTarget < optInfo.m_predictions[0][0].length; iTarget++){
-
-						if (iInstance < (int)Math.ceil(amountData*optInfo.m_predictions[0].length)) {
-							m_dataEarlyStop.m_predictions[iRule][iInstance][iTarget][0] = 
-								optInfo.m_predictions[iRule][iInstance][iTarget][0];
-							if (iRule == 0) // Only once for each rule
-								m_dataEarlyStop.m_trueValues[iInstance][iTarget] =
-									optInfo.m_trueValues[iInstance][iTarget];
-						} else {
-							int changeInstance = iInstance - (int)Math.ceil(amountData*optInfo.m_predictions[0].length);
-							rest.m_predictions[iRule][changeInstance][iTarget][0] = 
-								optInfo.m_predictions[iRule][changeInstance][iTarget][0];
-							if (iRule == 0) // Only once for each rule
-								rest.m_trueValues[changeInstance][iTarget] =
-									optInfo.m_trueValues[changeInstance][iTarget];							
-						}
+					if (iInstance < (int)Math.ceil(amountData*optInfo.m_predictions[0].length)) {
+						m_dataEarlyStop.m_predictions[iRule][iInstance] = 
+							optInfo.m_predictions[iRule][iInstance];
+						if (iRule == 0) // Only once for each rule
+							m_dataEarlyStop.m_trueValues[iInstance] =
+								optInfo.m_trueValues[iInstance];
+					} else {
+						int changeInstance = iInstance - (int)Math.ceil(amountData*optInfo.m_predictions[0].length);
+						rest.m_predictions[iRule][changeInstance] = 
+							optInfo.m_predictions[iRule][iInstance];
+						if (iRule == 0) // Only once for each rule
+							rest.m_trueValues[changeInstance] =
+								optInfo.m_trueValues[iInstance];							
 					}
+
 				}
 			}
-					
-					
-		
-//			for (int iTarget = 0; iTarget < optInfo.m_predictions[0][0].length; iTarget++){
-//				m_dataEarlyStop.m_defaultPrediction[iTarget] = 
-//					optInfo.m_defaultPrediction[iTarget];
-//				rest.m_defaultPrediction[iTarget] = 
-//					optInfo.m_defaultPrediction[iTarget];
-//			}
-
+			
 			changeData(rest);  // Change data for super class
+						
 			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop);
+
 			// We are using Fitness function of  the problem. Let us put the reg penalty to 0 because we do not
 			// want to use it
 			getSettings().setOptRegPar(0);
 			getSettings().setOptNbZeroesPar(0);
 			
 			m_oldFitnesses = new ArrayList<Double>();
+			m_minFitness = Double.POSITIVE_INFINITY;
 			
 
 		}
@@ -178,7 +162,7 @@ public class GDProbl extends OptProbl {
 			for (int iInstance = 0; iInstance < getNbOfInstances(); iInstance++) {
 				double trueVal = getTrueValue(iInstance,iTarget);
 				if (isValidValue(trueVal)) // Not a valid true value, rare but happens
-					covs[iTarget] += trueVal*predictWithRule(iPred, iInstance)[iTarget];
+					covs[iTarget] += trueVal*predictWithRule(iPred, iInstance,iTarget);
 			}
 
 			covs[iTarget] /= getNbOfInstances();
@@ -243,8 +227,8 @@ public class GDProbl extends OptProbl {
 		
 		for (int iTarget = 0; iTarget < getNbOfTargets(); iTarget++) {
 			for (int iInstance = 0; iInstance < getNbOfInstances(); iInstance++) {
-				covs[iTarget] += predictWithRule(iFirstRule,iInstance)[iTarget] * 
-				                 predictWithRule(iSecondRule, iInstance)[iTarget];
+				covs[iTarget] += predictWithRule(iFirstRule,iInstance,iTarget) * 
+				                 predictWithRule(iSecondRule,iInstance,iTarget);
 			}
 			covs[iTarget] /= getNbOfInstances();
 			sumOfCovs += covs[iTarget];
@@ -272,17 +256,13 @@ public class GDProbl extends OptProbl {
 	 * not give prediction for some target, default rule is used.
 	 * ONLY FOR REGRESSION! Classification not implemented.
 	 */
-	protected double[] predictWithRule(int iRule, int iInstance) {
-		double[] prediction = new double[getNbOfTargets()];
-		
-		for (int iTarget= 0; iTarget < getNbOfTargets(); iTarget++) {
+	protected double predictWithRule(int iRule, int iInstance, int iTarget) {
+
 			if (!isValidValue(getPredictions(iRule,iInstance,iTarget)))
 				// If the instance is not covered, zero is the prediction. TODO: change for classification
-				prediction[iTarget] = 0; // getDefaultPrediction(iTarget);
+				return 0; // getDefaultPrediction(iTarget);
 			else
-				prediction[iTarget] = getPredictions(iRule,iInstance,iTarget);
-		}
-		return prediction;
+				return getPredictions(iRule,iInstance,iTarget);
 	}
 
 	/** Compute the gradients for weights */
@@ -291,7 +271,6 @@ public class GDProbl extends OptProbl {
 		for (int iWeight = 0; iWeight < m_weights.size(); iWeight++ ) {
 			m_gradients[iWeight] = getGradient(iWeight, m_weights);
 		}
-		
 	}
 
 
@@ -406,39 +385,22 @@ public class GDProbl extends OptProbl {
 			// search for the biggest one among the nonzero weights
 
 			iSorted = IndexMergeSorter.sortSubArray(m_gradients, m_isCovComputed, m_nbOfNonZeroRules, true); 
-			/**
-			 * We need to store the maxGradient because we do not know if 0 or any other weight
-			 * is nonzero (if it is allowed to use)
-			 */
-//			double maxGradient = 0;
-//			for (int iWeight = 0; iWeight < getNumVar(); iWeight++)
-//			{
-//				if (m_isCovComputed[iWeight]){ // weight is nonzero
-//					if (maxGradient < Math.abs(m_gradients[iWeight])) {
-//						iMaxGrad = iWeight;
-//						maxGradient = Math.abs(m_gradients[iWeight]);
-//					}
-//				}
-//			}
 		} else { 
 			// All the weights are used
 			iSorted = IndexMergeSorter.sort(m_gradients, true);
-			
-//			for (int iWeight = 0; iWeight < getNumVar(); iWeight++) {
-//				if (Math.abs(m_gradients[iMaxGrad]) < Math.abs(m_gradients[iWeight])) 
-//					iMaxGrad = iWeight;
-//			}
 		}
 		
 		// iSorted is sorted in descending order
 		int iiLastIndex = iSorted.length-1; 
+			
 		// The least allowed item.
 		double minAllowed = Math.abs(getSettings().getOptGDGradTreshold() * m_gradients[iSorted[iiLastIndex]]);
 		
 		int iiLastAllowed = 0;
-		// binarySearch does not work because the array is not sorted.
+
+
+		// Search for the last allowed index in iSorted
 		for (int iiSearch = iiLastIndex; iiSearch >=0 ; iiSearch--) {
-			// TODO: Just check if the sorting works
 			if (iiSearch > 0 && (Math.abs(m_gradients[iSorted[iiSearch]]) < Math.abs(m_gradients[iSorted[iiSearch-1]])
 					|| iSorted[iiSearch] == iSorted[iiSearch-1])) {
 				System.err.println("ERROR: IndexMergeSorter does not work.");
@@ -456,7 +418,7 @@ public class GDProbl extends OptProbl {
 		for (int iCopy = 0; iCopy < maxGradients.length; iCopy++) {
 			maxGradients[iCopy] = iSorted[iiLastIndex-iCopy];
 		}
-//		maxGradients[0] = iMaxGrad;
+		
 		return maxGradients;
 	}
 
@@ -487,8 +449,10 @@ public class GDProbl extends OptProbl {
 		m_stepSize *= (amount*0.99); // We make the new step size a little smaller than is limit (because of rounding mistakes)
 	}
 
-	/** List of old fitnesses */
+	/** List of old fitnesses for plateau detection (andy for debugging) */
 	protected ArrayList<Double> m_oldFitnesses;
+	protected double m_minFitness;
+	
 	
 	/** Early stopping is needed if the error rate is too much bigger than the smallest error rate
 	 * we have had. */
@@ -496,14 +460,18 @@ public class GDProbl extends OptProbl {
 	public boolean isEarlyStop(ArrayList<Double> weights) {
 		double newFitness = m_earlyStopProbl.calcFitness(weights);
 		
-		m_oldFitnesses.add(new Double(newFitness));
-//		if (m_oldFitnesses.size() == 100) {
+		if (newFitness < m_minFitness)
+			m_minFitness = newFitness;
+
+//		if (m_oldFitnesses.size() >= 100) {
 //			boolean b = false;
 //			b=true;
 //			if (b){}	
 //		}
 		boolean stop = false;
 		
+/*
+ 		//m_oldFitnesses.add(new Double(newFitness));		
 		int lastIndex = m_oldFitnesses.size()-1;
 		// For some data sets this still seems to go forever. If the change is too small, stop anyway
 		// PLATEAU DETECTION
@@ -530,18 +498,16 @@ public class GDProbl extends OptProbl {
 			// If the difference is too small, we are most likely on plateau and should stop.
 			if (max-min < 0.001*m_stepSize*Math.abs(min)) {
 				stop = true;
-				System.err.println("\nGD: Plateau detected.\n");
+				if (printDebugInformation)
+				    System.err.println("\nGD: Plateau detected.\n");
 			}
-		}
+		}*/
 		
-		for (int iFitness = 0; iFitness < m_oldFitnesses.size() && !stop; iFitness++) {
-			if (newFitness > getSettings().getOptGDEarlyStopTreshold()*
-					m_oldFitnesses.get(iFitness).doubleValue()) {
-				stop = true;
+		if (newFitness > getSettings().getOptGDEarlyStopTreshold()*m_minFitness) {
+			stop = true;
+			if (m_printGDDebugInformation)
 				System.err.println("\nGD: Independent test set error increase detected - overfitting.\n");
-			}	
-		}
-
+		}	
 
 		return stop;
 	}

@@ -54,7 +54,8 @@ public class GDAlg extends OptAlg{
 	 * Constructor for classification and regression optimization.
 	 * @param stat_mgr Statistics
 	 * @param dataInformation The true values and predictions for the instances. These are used by OptimProbl.
-	 *                        The optimization procedure is based on this data information
+	 *                        The optimization procedure is based on this data information.
+	 *                        Warning: The parameter may be modified!
 	 */
 	public GDAlg(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation) {
 		super(stat_mgr, dataInformation);
@@ -292,7 +293,15 @@ public class GDAlg extends OptAlg{
 	/** Print the current weights output file. */
 	public void OutputLog(int iterNro, PrintWriter wrt) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
-		wrt.print("Iteration " + iterNro + ": ");
+		double trainingFitness = m_GDProbl.calcFitness(m_weights);
+		double testFitness = 0;
+		if (getSettings().getOptGDEarlyStopAmount() > 0)
+			testFitness = m_GDProbl.m_earlyStopProbl.calcFitness(m_weights);
+		
+		if (GDProbl.m_printGDDebugInformation)
+			wrt.print("Iteration " + iterNro + " (" + fr.format(trainingFitness) + ", " + fr.format(testFitness) +  "): ");
+		else
+			wrt.print("Iteration " + iterNro + ": ");
 		for (int i = 0; i < m_weights.size(); i++) {
 			wrt.print(fr.format((double)m_weights.get(i))+"\t");
 		}

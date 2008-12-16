@@ -983,8 +983,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 */
 
 	/**
-	 * Updates the default rule. Is this the one one reported in .out and .xval files 
-	 * with the "default error"?
+	 * Updates the default rule. This is the rule that is used if no other rule covers the example.
 	 */
 	public void updateDefaultRule(ClusRuleSet rset, RowData data) {
 		for (int i = 0; i < rset.getModelSize(); i++) {

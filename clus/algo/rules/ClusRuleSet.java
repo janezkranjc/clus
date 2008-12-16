@@ -196,6 +196,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				// If the rule covers tuple (indicator function is nonzero)
 				if (rule.covers(tuple)) {
 					ClusStatistic rulestat = rule.predictWeighted(tuple);
+					
+					// For regression normalization does not do anything. 
+					// For classification the values are normalized over the the counts.
 					ClusStatistic norm_rulestat = rulestat.normalizedCopy();
 					prediction.addPrediction(norm_rulestat, getAppropriateWeight(rule));
 				}
@@ -273,8 +276,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		for (int i = nb_rules-1; i >= 0; i--) {
 			
 			// If the first rule is all covering, it is not removed (can predict just 0 if that is the weight)
+			// This is used instead of default rule if the weights are optimized.
 			if (m_allCoveringRuleExists && i == 0)
-				break;
+				continue;
 			
 			if (getRule(i).getOptWeight() < threshold || getRule(i).getOptWeight() == 0.0) {
 				// If optimization is used, the last rule covers all the instances. This should not be removed 
@@ -736,7 +740,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		//double[][][][] rule_pred = new double[nb_rules][nb_rows][nb_target][nb_values];
 		double[][][][] rule_pred = new double[nb_rules][nb_rows][nb_target][];
 
-		// Index over the instances of data
+		// Index over the instances of data. This loop is first because getting tuples may be slower.
 		for (int iRows = 0; iRows < nb_rows; iRows++) {
 			DataTuple tuple = data.getTuple(iRows);
 			for (int jRules = 0; jRules < nb_rules; jRules++) {
@@ -750,19 +754,22 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				if (rule.covers(tuple)) {
 
 					// Returns the prediction for the data
-					if (isClassification) {
+					if (isClassification) {					
 						rule_pred[jRules][iRows] = 
-							((ClassificationStat)rule.predictWeighted(tuple)).getClassCounts();
+							((ClassificationStat)rule.predictWeighted(tuple)).normalizedCopy().getClassCounts();
 					} else {
 						//Only one nominal value is used for regression.
-						rule_pred[jRules][iRows][0] =
-							((RegressionStat)rule.predictWeighted(tuple)).getNumericPred();
+						double[] targets = ((RegressionStat)rule.predictWeighted(tuple)).normalizedCopy()
+											.getNumericPred();
+						for (int kTargets = 0; kTargets < nb_target; kTargets++) {
+							rule_pred[jRules][iRows][kTargets][0] = targets[kTargets];
+						}
 					}
 				} else { // Rule does not cover the instance. Mark as NaN
 					for (int kTargets = 0; kTargets < nb_target; kTargets++)
 					{   for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
-						rule_pred[jRules][iRows][kTargets][lValues] = Double.NaN; 
-					}
+							rule_pred[jRules][iRows][kTargets][lValues] = Double.NaN; 
+					    }
 					}
 				}
 
@@ -773,14 +780,14 @@ public class ClusRuleSet implements ClusModel, Serializable {
 					outLogFile.print("[");
 					for (int kTargets = 0; kTargets < nb_target; kTargets++)
 					{
-						outLogFile.print("{");
+						if (isClassification) outLogFile.print("{");
 						for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
 							outLogFile.print(mf.format(rule_pred[jRules][iRows][kTargets][lValues]));
 							if (lValues < nb_values[kTargets]-1)	outLogFile.print("; ");
 						}
 	
-						if (kTargets < nb_target-1) outLogFile.print("}; ");
-						else outLogFile.print("}");
+						if (isClassification) outLogFile.print("}");
+						if (kTargets < nb_target-1) outLogFile.print("; ");
 					}
 					outLogFile.print("]"); 
 				}
