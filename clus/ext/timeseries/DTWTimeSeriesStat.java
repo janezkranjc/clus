@@ -76,11 +76,14 @@ public class DTWTimeSeriesStat extends TimeSeriesStat {
 				}
 			}
 		}
+//		if ( wrappingPathMatrix[m-1][n-1] == Double.POSITIVE_INFINITY){
+//			System.out.println("SD");
+//		}
 		return wrappingPathMatrix[m-1][n-1]/(m+n);
 	}
 
 	public double calcDistance(TimeSeries t1, TimeSeries t2) {
-		return calcDistance(t1,t2,Math.max(t1.length(),t2.length())/2);
+		return calcDistance(t1,t2,Math.max(Math.max(Math.abs(t1.length()-t2.length())+1,t1.length()/2),t2.length()/2));
 	}
 
 	public double getSVarS(ClusAttributeWeights scale, RowData data) {
