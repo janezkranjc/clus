@@ -31,6 +31,7 @@ import jeans.util.cmdline.*;
 import clus.Clus;
 import clus.algo.*;
 import clus.algo.tdidt.*;
+import clus.algo.tdidt.tune.CDTTuneFTest;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.ext.ensembles.ClusEnsembleClassifier;
@@ -76,6 +77,9 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				sett.setAppName(m_Cargs.getMainArg(0));
 				m_Clus.initSettings(m_Cargs);
 				ClusDecisionTree clss = new ClusDecisionTree(m_Clus);
+				
+				if (sett.getFTestArray().isVector()) clss = new CDTTuneFTest(clss, sett.getFTestArray().getDoubleVector());
+				
 				m_Clus.initialize(m_Cargs, clss);
 				doRun();
 			}
@@ -169,7 +173,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 		return cschema;
 	}
 
-	public void doOneNode(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid) throws ClusException, IOException {
+	public void doOneNode(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid, RowData test) throws ClusException, IOException {
 		// get data relevant to node
 		RowData nodeData = getNodeData(train, node.getIndex());
 		String nodeName = node.toPathString("=");
@@ -196,11 +200,19 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			if (valid!=null) {
 				RowData validNodeData = getNodeData(valid, node.getIndex());
 				RowData validChildData = createChildData(validNodeData, ctype, child.getIndex());
-				TupleIterator iter = validChildData.getIterator();
-				cr.setTestSet(iter);
-				m_Clus.initializeSummary(clss);
+				//TupleIterator iter = validChildData.getIterator();
+				cr.setPruneSet(validChildData,null);
+				//m_Clus.initializeSummary(clss);
 			}
-
+			
+			if (test!=null) { 
+				RowData testNodeData = getNodeData(test, node.getIndex());
+				RowData testChildData = createChildData(testNodeData, ctype, child.getIndex());
+				TupleIterator iter = testChildData.getIterator();
+				cr.setTestSet(iter);
+				//m_Clus.initializeSummary(clss);
+			}
+			m_Clus.initializeSummary(clss);
 /*			String fstr = (String) m_Mappings.get(parentChildName);
 			if (fstr==null) {
 				System.out.println("geen ftest gevonden voor "+ parentChildName);
@@ -225,36 +237,37 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 		}
 	}
 
-	public void computeRecursive(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid, boolean[] computed) throws ClusException, IOException {
+	public void computeRecursive(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid, RowData test, boolean[] computed) throws ClusException, IOException {
 		if (!computed[node.getIndex()]) {
 			// remember that we did this one
 			computed[node.getIndex()] = true;
-			doOneNode(node, hier, train, valid);
+			doOneNode(node, hier, train, valid, test);
 			// recursively do children
 			for (int i = 0; i < node.getNbChildren(); i++) {
 				ClassTerm child = (ClassTerm)node.getChild(i);
-				computeRecursive(child, hier, train, valid, computed);
+				computeRecursive(child, hier, train, valid, test, computed);
 			}
 		}
 	}
 
-	public void computeRecursiveRoot(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid, boolean[] computed) throws ClusException, IOException {
-		doOneNode(node, hier, train, valid);
+	public void computeRecursiveRoot(ClassTerm node, ClassHierarchy hier, RowData train, RowData valid, RowData test, boolean[] computed) throws ClusException, IOException {
+		doOneNode(node, hier, train, valid, test);
 		for (int i = 0; i < node.getNbChildren(); i++) {
 			ClassTerm child = (ClassTerm)node.getChild(i);
-			computeRecursive(child, hier, train, valid, computed);
+			computeRecursive(child, hier, train, valid, test, computed);
 		}
 	}
 
 	public void doRun() throws IOException, ClusException, ClassNotFoundException {
 		ClusRun cr = m_Clus.partitionData();
 		RowData train = (RowData)cr.getTrainingSet();
-		RowData valid = (RowData)cr.getTestSet();
+		RowData valid = (RowData)cr.getPruneSet();
+		RowData test = (RowData)cr.getTestSet();
 		ClusStatManager mgr = m_Clus.getStatManager();
 		ClassHierarchy hier = mgr.getHier();
 		ClassTerm root = hier.getRoot();
 		boolean[] computed = new boolean[hier.getTotal()];
-		computeRecursiveRoot(root, hier, train, valid, computed);
+		computeRecursiveRoot(root, hier, train, valid, test, computed);
 	}
 
 	public String[] getOptionArgs() {

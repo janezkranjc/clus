@@ -84,7 +84,7 @@ public class HMCConvertToSC {
 	public static void writeArffHeaderToSC(PrintWriter wrt, ClusSchema schema, String[] classterms, boolean binary) throws IOException, ClusException {
 		wrt.println("@RELATION "+schema.getRelationName());
 		wrt.println();
-		for (int i = 0; i < schema.getNbTargetAttributes(); i++) {
+		for (int i = 0; i < schema.getNbAttributes(); i++) {
 			ClusAttrType type = schema.getAttrType(i);
 			if (!type.isDisabled() && !type.getName().equals("class")) {
 					wrt.print("@ATTRIBUTE ");
@@ -121,7 +121,7 @@ public class HMCConvertToSC {
 		for (int j = 0; j < data.getNbRows(); j++) {
 			DataTuple tuple = data.getTuple(j);
 			int aidx = 0;
-			for (int i = 0; i < schema.getNbTargetAttributes(); i++) {
+			for (int i = 0; i < schema.getNbAttributes(); i++) {
 				ClusAttrType type = schema.getAttrType(i);
 				if (!type.isDisabled() && !type.getName().equals("class")) {
 					if (aidx != 0) wrt.print(",");
@@ -165,7 +165,7 @@ public class HMCConvertToSC {
 			if (match) mainargs++;
 		}
 		if (args.length-mainargs != 2) {
-			System.out.println("Usage: HMCConvertToSC input.arff output.arff");
+			System.out.println("Usage: HMCConvertToSC input output");
 			System.exit(0);
 		}
 		String input = args[mainargs];

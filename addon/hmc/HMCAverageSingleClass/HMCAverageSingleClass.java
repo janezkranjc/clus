@@ -294,12 +294,14 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		double total = stat.getTotalWeight();
 		double[] classCounts = new double[2];
 		countClasses(train, classCounts);
-		countClasses(valid, classCounts);
-		countClasses(test, classCounts);
+		if (valid != null) countClasses(valid, classCounts);
+		if (test != null) countClasses(test, classCounts);
+		int nbDescriptiveAttrs = m_Clus.getSchema().getNbDescriptiveAttributes();
 		wrt.println();
 		wrt.println("% Number of examples: "+total);
+		wrt.println("% Number of descriptive attributes: "+nbDescriptiveAttrs);
 		wrt.println("% Number of classes: "+hier.getTotal());
-		wrt.println("% Number of labels/example: "+classCounts[0]+" (most specific: "+classCounts[1]+")");
+		wrt.println("% Avg number of labels/example: "+ (classCounts[0]/total)+" (most specific: "+(classCounts[1]/total)+")");
 		wrt.println("% Hierarchy depth: "+hier.getDepth());
 		wrt.println();
 		ARFFFile.writeArffHeader(wrt, schema);
