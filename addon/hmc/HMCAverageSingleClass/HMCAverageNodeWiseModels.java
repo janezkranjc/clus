@@ -130,7 +130,7 @@ public class HMCAverageNodeWiseModels {
 			// Load model on arc between parent and this node "term"
 			String nodeName = parent.toPathString("=");
 			String name = getSettings().getAppName() + "-" + nodeName + "-" + childName;
-			String toload = "nodewise/model/" + name + ".model";
+			String toload = "hsc/model/" + name + ".model";
 			System.out.println("Loading: "+toload);
 			ClusModelCollectionIO io = ClusModelCollectionIO.load(toload);
 			ClusModel model = io.getModel("Original");

@@ -25,17 +25,17 @@ run_clus("addon.hmc.HMCNodeWiseModels.hmcnwmodels.HMCNodeWiseModels ${sfile}.s")
 
 # Combine the output
 # ------------------
-run_clus("addon.hmc.HMCAverageSingleClass.HMCAverageSingleClass -nodewise -models nodewise/model ${sfile}.s");
+run_clus("addon.hmc.HMCAverageSingleClass.HMCAverageSingleClass -hsc -models hsc/model ${sfile}.s");
 
 
 # Run clus
 sub run_clus {
     my($args) = @_;
     if (-f "$clusdir/bin/clus/Clus.class") {
-	# Using the CVS version or a self-compiled Clus
+        # Using the CVS version or a self-compiled Clus
         $clus_cp = "$clusdir/bin:$clusdir/jars/commons-math-1.0.jar:$clusdir/jars/jgap.jar";
     } else {
-	# If Clus was downloaded, then use included pre-compiled .jar file
+        # If Clus was downloaded, then use included pre-compiled .jar file
         $clus_cp = "$clusdir/Clus.jar";
     }
     $cmd = "java -Xmx$clusmem -cp $clus_cp $args";

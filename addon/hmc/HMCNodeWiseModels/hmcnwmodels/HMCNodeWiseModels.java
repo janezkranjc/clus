@@ -57,23 +57,18 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			m_Clus = new Clus();
 			Settings sett = m_Clus.getSettings();
 			m_Cargs = new CMDLineArgs(this);
-
 			m_Cargs.process(args);
-
 /*			String[] newargs = new String[args.length-1];
 			for (int i=0; i<newargs.length; i++)
 			{
 				newargs[i] = args[i];
 			}
 			readFtests(args[args.length-1]);
-			m_Cargs.process(newargs);
-\*/
-
-
+			m_Cargs.process(newargs); */
 			if (m_Cargs.allOK()) {
-				(new File("nodewise")).mkdir();
-				(new File("nodewise/out")).mkdir();
-				(new File("nodewise/model")).mkdir();
+				(new File("hsc")).mkdir();
+				(new File("hsc/out")).mkdir();
+				(new File("hsc/model")).mkdir();
 				sett.setDate(new Date());
 				sett.setAppName(m_Cargs.getMainArg(0));
 				m_Clus.initSettings(m_Cargs);
@@ -84,9 +79,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				}
 				m_Clus.initialize(m_Cargs, clss);
 				doRun();
-			}
-			else
-			{
+			} else {
 				System.out.println("m_Cargs nok");
 			}
 	}
@@ -99,15 +92,12 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			s = in.readLine();
 			String[] parts;
 			m_Mappings = new Hashtable();
-			while (s!=null)
-			{
+			while (s != null) {
 				parts = s.split("\t");
 				m_Mappings.put(parts[0], parts[1]);
 				s = in.readLine();
 			}
-		}
-		catch (java.io.IOException e)
-		{
+		} catch (java.io.IOException e)	{
 			e.printStackTrace();
 		}
 	}
@@ -118,8 +108,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			DataTuple tuple;
 			if (m_Clus.getSchema().isSparse()) {
 				tuple = (SparseDataTuple)train.getTuple(i);
-			}
-			else {
+			} else {
 				tuple = train.getTuple(i);
 			}
 			ClassesTuple target = (ClassesTuple)tuple.getObjVal(0);
@@ -143,8 +132,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			DataTuple tuple;
 			if (m_Clus.getSchema().isSparse()) {
 				tuple = (SparseDataTuple)nodeData.getTuple(j);
-			}
-			else {
+			} else {
 				tuple = nodeData.getTuple(j);
 			}
 			ClassesTuple target = (ClassesTuple)tuple.getObjVal(0);
@@ -189,28 +177,23 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			ClusInductionAlgorithmType clss;
 			if (m_Cargs.hasOption("forest")) {
 				clss = new ClusEnsembleClassifier(m_Clus);
-			}
-			else {
+			} else {
 				clss = new ClusDecisionTree(m_Clus);
 			}
-			
 			if (m_FTests != null) {
 				clss = new CDTTuneFTest(clss, m_FTests);
-			}
-			
+			}			
 			m_Clus.recreateInduce(m_Cargs, clss, cschema, childData);
 			String name = m_Clus.getSettings().getAppName() + "-" + nodeName + "-" + childName;
 			ClusRun cr = new ClusRun(childData.cloneData(), m_Clus.getSummary());
 			cr.createTrainIter();
-
 			if (valid!=null) {
 				RowData validNodeData = getNodeData(valid, node.getIndex());
 				RowData validChildData = createChildData(validNodeData, ctype, child.getIndex());
 				//TupleIterator iter = validChildData.getIterator();
 				cr.setPruneSet(validChildData,null);
 				//m_Clus.initializeSummary(clss);
-			}
-			
+			}			
 			if (test!=null) { 
 				RowData testNodeData = getNodeData(test, node.getIndex());
 				RowData testChildData = createChildData(testNodeData, ctype, child.getIndex());
@@ -227,9 +210,8 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				System.out.println("fstr: "+ fstr);
 				float ft = Float.valueOf(fstr);
 				m_Clus.getSettings().setFTest(ft);
-			}
-*/
-			ClusOutput output = new ClusOutput("nodewise/out/" + name + ".out", cschema, m_Clus.getSettings());
+			} */
+			ClusOutput output = new ClusOutput("hsc/out/" + name + ".out", cschema, m_Clus.getSettings());
 			m_Clus.getStatManager().computeTrainSetStat((RowData)cr.getTrainingSet());
 			m_Clus.induce(cr, clss); // Induce model
 			m_Clus.calcError(cr, null); // Calc error
@@ -238,7 +220,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			output.close();
 			ClusModelCollectionIO io = new ClusModelCollectionIO();
 			io.addModel(cr.addModelInfo(ClusModel.ORIGINAL));
-			io.save("nodewise/model/" + name + ".model");
+			io.save("hsc/model/" + name + ".model");
 
 		}
 	}

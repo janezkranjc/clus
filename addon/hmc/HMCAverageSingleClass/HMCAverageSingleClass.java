@@ -50,7 +50,7 @@ import clus.error.*;
 
 public class HMCAverageSingleClass implements CMDLineArgsProvider {
 
-	private static String[] g_Options = {"models", "nodewise", "stats"};
+	private static String[] g_Options = {"models", "hsc", "stats"};
 	private static int[] g_OptionArities = {1, 0, 0};
 
 	protected Clus m_Clus;
@@ -76,7 +76,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				computeStats();
 				System.exit(0);
 			}
-			if (cargs.hasOption("models") || cargs.hasOption("nodewise")) {
+			if (cargs.hasOption("models") || cargs.hasOption("hsc")) {
 				//initializing m_EvalArray
 				HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
 				m_EvalArray = new ClusErrorList[2][pruner.getNbResults()];
@@ -92,7 +92,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				}
 				//load models and update statistics
 				ClusRun cr = m_Clus.partitionData();
-				if (cargs.hasOption("nodewise")) {
+				if (cargs.hasOption("hsc")) {
 					HMCAverageNodeWiseModels avg = new HMCAverageNodeWiseModels(this);
 					avg.processModels(cr);
 				} else {
