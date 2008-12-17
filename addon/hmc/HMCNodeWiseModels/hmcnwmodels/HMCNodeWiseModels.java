@@ -51,6 +51,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 	protected CMDLineArgs m_Cargs;
 	protected StringTable m_Table = new StringTable();
 	protected Hashtable m_Mappings;
+	protected double[] m_FTests;
 
 	public void run(String[] args) throws IOException, ClusException, ClassNotFoundException {
 			m_Clus = new Clus();
@@ -76,10 +77,11 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				sett.setDate(new Date());
 				sett.setAppName(m_Cargs.getMainArg(0));
 				m_Clus.initSettings(m_Cargs);
-				ClusDecisionTree clss = new ClusDecisionTree(m_Clus);
-				
-				if (sett.getFTestArray().isVector()) clss = new CDTTuneFTest(clss, sett.getFTestArray().getDoubleVector());
-				
+				ClusDecisionTree clss = new ClusDecisionTree(m_Clus);		
+				if (sett.getFTestArray().isVector()) {
+					m_FTests = sett.getFTestArray().getDoubleVector();
+					clss = new CDTTuneFTest(clss, sett.getFTestArray().getDoubleVector());
+				}
 				m_Clus.initialize(m_Cargs, clss);
 				doRun();
 			}
@@ -191,7 +193,11 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			else {
 				clss = new ClusDecisionTree(m_Clus);
 			}
-
+			
+			if (m_FTests != null) {
+				clss = new CDTTuneFTest(clss, m_FTests);
+			}
+			
 			m_Clus.recreateInduce(m_Cargs, clss, cschema, childData);
 			String name = m_Clus.getSettings().getAppName() + "-" + nodeName + "-" + childName;
 			ClusRun cr = new ClusRun(childData.cloneData(), m_Clus.getSummary());
@@ -259,6 +265,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 	}
 
 	public void doRun() throws IOException, ClusException, ClassNotFoundException {
+		Settings sett = m_Clus.getSettings();
 		ClusRun cr = m_Clus.partitionData();
 		RowData train = (RowData)cr.getTrainingSet();
 		RowData valid = (RowData)cr.getPruneSet();
