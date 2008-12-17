@@ -126,7 +126,6 @@ foreach $cln (@classnames) {
 	run_clus("clus.Clus ${sfile}_${cln}.s");
 }
 
-
 # Subroutines
 # -----------
 sub read_settings {

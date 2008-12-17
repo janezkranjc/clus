@@ -297,7 +297,10 @@ public class WHTDStatistic extends RegressionStat {
 
 	public void printDistribution(PrintWriter wrt) throws IOException {
 		wrt.println("Total: "+m_SumWeight);
-		printDistributionRec(wrt, m_Hier.getRoot());
+		ClassTerm root = m_Hier.getRoot();
+		for (int i = 0; i < root.getNbChildren(); i++) {
+			printDistributionRec(wrt, (ClassTerm)root.getChild(i));
+		}
 	}
 
 	public void getExtraInfoRec(ClassTerm node, double[] discrmean, StringBuffer out) {
