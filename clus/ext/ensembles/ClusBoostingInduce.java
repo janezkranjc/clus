@@ -87,17 +87,22 @@ public class ClusBoostingInduce extends ClusInductionAlgorithm {
 		DepthFirstInduce tdidt = new DepthFirstInduce(this);
 		int[] outputEnsembleAt = getSettings().getNbBaggingSets().getIntVectorSorted();
 		int nbTrees = outputEnsembleAt[outputEnsembleAt.length-1];
+		int verbose = Settings.VERBOSE;		
 		for (int i = 0; i < nbTrees; i++) {
-			System.out.println();
-			System.out.println("Tree: "+i);
+			if (verbose != 0) {
+				System.out.println();
+				System.out.println("Tree: "+i+" (of max: "+nbTrees+")");
+			}
 			RowData train = trainData.sampleWeighted(m_Random);		
 			ClusNode tree = tdidt.induceSingleUnpruned(train);		
 			double[] L = computeNormalizedLoss(trainData, tree);
 			double Lbar = computeAverageLoss(trainData, L);
-			//if (Lbar >= 0.5) break;
 			double beta = Lbar / (1-Lbar);
-			System.out.println("Average loss: "+Lbar+" beta: "+beta);		
-			//updateWeights(trainData, L, beta);
+			if (verbose != 0) {			
+				System.out.println("Average loss: "+Lbar+" beta: "+beta);
+			}
+			if (Lbar >= 0.5) break;
+			updateWeights(trainData, L, beta);
 			result.addModelToForest(tree, beta);			
 		}
 		return result;

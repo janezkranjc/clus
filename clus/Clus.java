@@ -1339,6 +1339,7 @@ public class Clus implements CMDLineArgsProvider {
 				} else if (cargs.hasOption("forest")) {
 					sett.setEnsembleMode(true);
 					clss = new ClusEnsembleClassifier(clus);
+					if (sett.getFTestArray().isVector()) clss = new CDTTuneFTest(clss, sett.getFTestArray().getDoubleVector());
 				} else {
 					clss = new ClusDecisionTree(clus);
 					if (sett.getFTestArray().isVector()) clss = new CDTTuneFTest(clss, sett.getFTestArray().getDoubleVector()); 

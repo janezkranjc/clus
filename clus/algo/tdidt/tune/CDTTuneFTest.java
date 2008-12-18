@@ -25,16 +25,20 @@ package clus.algo.tdidt.tune;
 import java.io.*;
 import java.util.*;
 
+import jeans.util.cmdline.CMDLineArgs;
+
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.ClusModelInfo;
 import clus.util.*;
 import clus.selection.*;
+import clus.algo.ClusInductionAlgorithm;
 import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.tdidt.ClusDecisionTree;
 import clus.data.ClusData;
 import clus.data.rows.RowData;
 import clus.data.type.ClusAttrType;
+import clus.data.type.ClusSchema;
 import clus.data.type.NominalAttrType;
 import clus.data.type.NumericAttrType;
 import clus.error.Accuracy;
@@ -62,6 +66,10 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		super(clss.getClus());
 		m_Class = clss;
 		m_FTests = ftests;
+	}
+	
+	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+		return m_Class.createInduce(schema, sett, cargs);
 	}
 
 	public void printInfo() {
