@@ -10,17 +10,17 @@ import java.util.Random;
 public class GeneticDistanceHeuristic extends ClusHeuristic {
 	
 	protected RowData m_Data;
-	protected RowData m_OerData; // the data at the root of the tree, this is needed for simulating the NJ distance calculations
-	protected RowData m_CompData; // m_OerData - m_Data
-	protected int counter;
+	protected RowData m_OerData; // the complete data set at the root of the tree, this is needed for taking the complement of the data in this node
+	protected RowData m_CompData; // complement of data in this node: m_OerData - m_Data
+	protected int counter; // for debugging purposes
 	
 	public void setData(RowData data) {
 		m_Data = data;
 		counter = 0;
-		if (m_OerData==null) { // remember all data at the root
+		if (m_OerData==null) { // remember complete data set at the root
 			m_OerData = m_Data;
 		}
-		// set the complement of all data in tstat
+		// compute the complement of all data in tstat
 		m_CompData = new RowData(m_OerData.getSchema()); 
 //		System.out.println("adding complement");
 		m_CompData.addComplement(m_OerData, m_Data);
@@ -38,11 +38,12 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 		return new RowData(tup,nb);		
 	}
 	
+	// The test that yields the largest heuristic will be chosen in the end. Since we want to minimize the total branch length,
+	// we maximize the inverse of it.
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
 		counter ++;
 //		System.out.println("counter: " + counter);
-		
-		
+			
 		// first create all needed statistics and data
 		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
 		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
@@ -51,21 +52,26 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 		nstat.subtractFromThis(pstat);
 		
 		double n_pos = pstat.m_SumWeight;
-		double n_neg = nstat.m_SumWeight;	
+		double n_neg = nstat.m_SumWeight;
+//		System.out.println("nb pos examples: " + n_pos);
+//		System.out.println("nb neg examples: " + n_neg);
 		
-//		Acceptable?
+		// Acceptable test?
 		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
 			return Double.NEGATIVE_INFINITY;
 		}
-// 		If position missing for some sequence, don't use it in split (probably this test is not optimal)
+		
+		// try to simulate neighbour joining by forcing a split with max 2 sequences in one of the subsets
+		if (n_pos > 2 && n_neg > 2) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		
+		// If position missing for some sequence, don't use it in split (probably this approach is not optimal)
 		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
 			return Double.NEGATIVE_INFINITY;
 		}
-
-//		System.out.println("nb pos examples: " + n_pos);
 		
 		double posdist = calculatePairwiseDistanceWithin(pstat,m_Data);
-//		System.out.println("nb neg examples: " + n_neg);
 		double negdist = calculatePairwiseDistanceWithin(nstat,m_Data);
 		
 		if (m_Data.getNbRows() == m_OerData.getNbRows()) { // root of the tree
@@ -80,93 +86,25 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 			double betweenpcdist = 0.5 * calculatePairwiseDistance(pstat, m_Data, compStat, m_CompData);
 			double betweenncdist = 0.5 * calculatePairwiseDistance(nstat, m_Data, compStat, m_CompData);
 			double compdist = calculatePairwiseDistanceWithin(compStat,m_CompData);
+			// compdist not really needed to pick best test, but including it gives right total branch length of phylo tree
 			double result = compdist + posdist + negdist + betweenpndist + betweenpcdist + betweenncdist;
-//			System.out.println("posdist: " + posdist + "  negdist: " + negdist + "  compdist: " + compdist);
-//			System.out.println("betweenpndist: " + betweenpndist + "  betweenpcdist: " + betweenpcdist + "  betweenncdist: " + betweenncdist);
 			return 0.0 - result;
 		}
 	}
 	
 	
 	public double calculatePairwiseDistanceWithin(GeneticDistanceStat stat, RowData data) {
-//		Equal for all target attributes
 		int nb_tg = stat.m_NbTarget;
-		double nb_ex = stat.m_SumWeight;
-		
+		double nb_ex = stat.m_SumWeight;		
 		double dist = 0.0;
-			for (int i=0; i<nb_ex; i++) {
-				for (int j=i+1; j<nb_ex; j++) {
-					double newdist = calculateDistance(nb_tg, stat, data, i, stat, data, j);
-					dist += newdist;
-	//				System.out.print(" + " + newdist);
-				}
+		for (int i=0; i<nb_ex; i++) {
+			for (int j=i+1; j<nb_ex; j++) {
+				double newdist = calculateDistance(nb_tg, stat, data, i, stat, data, j);
+				dist += newdist;
 			}
-			//double nbdist = (nb_ex * (nb_ex-1)) / 2;
-			//if (nb_ex>1) dist = dist / nbdist;
-			dist = dist / nb_ex;
-	//		System.out.println("nb_ex" + nb_ex);
-		return dist;
-	}
-	
-	// OLD HEURISTIC - NOT USED ANYMORE!! the test that yields the largest heuristic will be chosen in the end
-	public double calcHeuristic1(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
-		counter ++;
-//		System.out.println("counter: " + counter);
-
-		// first create all needed statistics and data
-		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
-		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
-		GeneticDistanceStat nstat = (GeneticDistanceStat)tstat.cloneStat();
-		nstat.copy(tstat);
-		nstat.subtractFromThis(pstat);
-
-		switch (Settings.m_PhylogenyProtoComlexity.getValue()) {
-		case Settings.PHYLOGENY_PROTOTYPE_COMPLEXITY_PAIRWISE:
-			//return calculatePairwiseDistance(pstat, nstat);
-			
-			if (m_Data.getNbRows() == m_OerData.getNbRows()) { // root of the tree
-				return calculatePairwiseDistance(pstat, m_Data, nstat, m_Data);
-			}
-			else {
-				
-/*				// get the complement of all data in tstat
-				GeneticDistanceStat compStat = new GeneticDistanceStat(tstat.m_Attrs);
-				m_CompData.calcTotalStatBitVector(compStat);
-
-				// get the complement of the data in pstat
-				RowData compPosData = new RowData(m_OerData.getSchema());
-				compPosData.addAll(m_CompData,getRowData(nstat));
-				GeneticDistanceStat compPosStat = new GeneticDistanceStat(tstat.m_Attrs);
-				compPosData.calcTotalStatBitVector(compPosStat);
-
-				// get the complement of the data in nstat
-				RowData compNegData = new RowData(m_OerData.getSchema());
-				compNegData.addAll(m_CompData,getRowData(pstat));
-				GeneticDistanceStat compNegStat = new GeneticDistanceStat(tstat.m_Attrs);
-				compNegData.calcTotalStatBitVector(compNegStat);
-*/						
-								
-				double pn = calculatePairwiseDistance(pstat, m_Data, nstat, m_Data); // distance between pos and neg examples
-/*				if (pn != Double.NEGATIVE_INFINITY) {
-					//double pc = calculatePairwiseDistance(pstat, m_Data, compPosStat, compPosData); // distance between pos examples and their complement
-					//double nc = calculatePairwiseDistance(nstat, m_Data, compNegStat, compNegData); // distance between neg examples and their complement
-					//double pc = calculatePairwiseDistance(pstat, m_Data, compStat, m_CompData); // distance between pos examples and their complement
-					//double nc = calculatePairwiseDistance(nstat, m_Data, compStat, m_CompData); // distance between neg examples and their complement
-					double restdist = pc + nc;
-					double result = pn - restdist;
-					//double result = restdist + pn;
-					//double result = pn - (restdist / m_CompData.getNbRows());
-//					System.out.println("result = " + result + " versus " + (pn-pc-nc));
-					return result;
-				}
-				else {*/
-					return pn;
-//				}
-			}
-		case Settings.PHYLOGENY_PROTOTYPE_COMPLEXITY_PROTO:
-			return calculatePrototypeDistance(pstat, nstat);
 		}
-		return Double.NEGATIVE_INFINITY;
+		dist = dist / nb_ex;
+		return dist;
 	}
 	
 	public double calculatePairwiseDistance(GeneticDistanceStat pstat, RowData pdata, GeneticDistanceStat nstat, RowData ndata) {
@@ -200,150 +138,6 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 			case Settings.PHYLOGENY_LINKAGE_AVERAGE: 
 				// maximize the average distance
 				dist = 0.0;
-				if (n_pos * n_neg < 10000) {
-					for (int i=0; i<n_pos; i++) {
-						for (int j=0; j<n_neg; j++) {
-							dist += calculateDistance(nb, pstat, pdata, i, nstat, ndata, j);
-						}
-					}
-					dist = dist / (n_pos * n_neg);
-				}
-				else {
-					for (int i=0; i<100; i++) {
-						int rndpos = rnd.nextInt((int)n_pos);
-						int rndneg = rnd.nextInt((int)n_neg);
-						dist += calculateDistance(nb, pstat, pdata, rndpos, nstat, ndata, rndneg);
-					}
-					dist = dist / 100.0;
-				}
-				break;
-			
-			case Settings.PHYLOGENY_LINKAGE_COMPLETE: 
-				// maximize the maximal distance
-				dist = Double.MIN_VALUE;
-				if (n_pos * n_neg < 100) {
-					for (int i=0; i<n_pos; i++) {
-						for (int j=0; j<n_neg; j++) {
-							dist = Math.max(dist, calculateDistance(nb, pstat, pdata, i, nstat, ndata, j));
-						}
-					}
-				}
-				else {
-					for (int i=0; i<100; i++) {
-						int rndpos = rnd.nextInt((int)n_pos);
-						int rndneg = rnd.nextInt((int)n_neg);
-						dist = Math.max(dist, calculateDistance(nb, pstat, pdata, rndpos, nstat, ndata, rndneg));
-					}
-				}
-				break;		
-		}
-			
-		return dist;
-	}
-	
-	
-	
-	
-/*	// the test that yields the largest heuristic will be chosen in the end
-	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
-		counter ++;
-//		System.out.println("coutner: " + counter);
-
-		// first create all needed statistics and data
-		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
-		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
-		GeneticDistanceStat nstat = (GeneticDistanceStat)tstat.cloneStat();
-		nstat.copy(tstat);
-		nstat.subtractFromThis(pstat);
-		if (m_OerData==null) { // remember all data at the root
-			m_OerData = m_Data;
-		}	
-
-		// get the complement of all data in tstat
-		RowData compData = new RowData(m_OerData.getSchema()); 
-		compData.addComplement(m_OerData, m_Data);
-
-		// get the complement of the data in pstat
-		RowData compPosData = new RowData(m_OerData.getSchema());
-		compPosData.addAll(compData,getRowData(nstat));
-		GeneticDistanceStat compPosStat = new GeneticDistanceStat(tstat.m_Attrs);
-		compPosData.calcTotalStatBitVector(compPosStat);
-
-		// get the complement of the data in nstat
-		RowData compNegData = new RowData(m_OerData.getSchema());
-		compNegData.addAll(compData,getRowData(pstat));
-		GeneticDistanceStat compNegStat = new GeneticDistanceStat(tstat.m_Attrs);
-		compNegData.calcTotalStatBitVector(compNegStat);
-
-		double result = Double.POSITIVE_INFINITY;
-		
-		switch (Settings.m_PhylogenyProtoComlexity.getValue()) {
-		case Settings.PHYLOGENY_PROTOTYPE_COMPLEXITY_PAIRWISE:
-			//return calculatePairwiseDistance(pstat, nstat);
-			
-			if (m_Data.getNbRows() == m_OerData.getNbRows()) { // root of the tree
-				result = calculatePairwiseDistance(pstat, m_Data, nstat, m_Data);
-			}
-			else {
-				double pn = calculatePairwiseDistance(pstat, m_Data, nstat, m_Data); // distance between pos and neg examples
-				if (pn != Double.POSITIVE_INFINITY) {
-					double pc = calculatePairwiseDistance(pstat, m_Data, compPosStat, compPosData); // distance between pos examples and their complement
-					double nc = calculatePairwiseDistance(nstat, m_Data, compNegStat, compNegData); // distance between neg examples and their complement
-					result = (pn-pc-nc);
-//					System.out.println(pn + " " + pc + " " + nc);
-				}
-				else {
-					result = pn;
-				}
-			}
-			break;
-		case Settings.PHYLOGENY_PROTOTYPE_COMPLEXITY_PROTO:
-			result = calculatePrototypeDistance(pstat, nstat);
-			break;
-		}
-		return (-1.0 * result);
-	}
-	
-	public double calculatePairwiseDistance(GeneticDistanceStat pstat, RowData pdata, GeneticDistanceStat nstat, RowData ndata) {
-	
-		// Equal for all target attributes
-		int nb = pstat.m_NbTarget;
-		double n_pos = pstat.m_SumWeight;
-		double n_neg = nstat.m_SumWeight;
-		
-		// Acceptable?
-		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
-			return Double.POSITIVE_INFINITY;
-		}
-		// If position missing for some sequence, don't use it in split (probably this test is not optimal)
-		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
-			return Double.POSITIVE_INFINITY;
-		}
-		double dist=0.0;
-		Random rnd = new Random();
-		switch (Settings.m_PhylogenyLinkage.getValue()) {
-			case Settings.PHYLOGENY_LINKAGE_SINGLE: 
-				// maximize the minimal distance
-				dist = Double.MAX_VALUE;
-				if (n_pos * n_neg < 100) {
-					for (int i=0; i<n_pos; i++) {
-						for (int j=0; j<n_neg; j++) {
-							dist = Math.min(dist, calculateDistance(nb, pstat, pdata, i, nstat, ndata, j));
-						}
-					}
-				}
-				else {
-					for (int i=0; i<100; i++) {
-						int rndpos = rnd.nextInt((int)n_pos);
-						int rndneg = rnd.nextInt((int)n_neg);
-						dist = Math.min(dist, calculateDistance(nb, pstat, pdata, rndpos, nstat, ndata, rndneg));
-					}
-				}
-				break;
-			
-			case Settings.PHYLOGENY_LINKAGE_AVERAGE: 
-				// maximize the average distance
-				dist = 0.0;
 				if (n_pos * n_neg < 100) {
 					for (int i=0; i<n_pos; i++) {
 						for (int j=0; j<n_neg; j++) {
@@ -384,8 +178,6 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 			
 		return dist;
 	}
-	*/
-	
 	
 	
 	public double calculateDistance(int nbtargets, GeneticDistanceStat pstat, RowData pdata, int randompos, GeneticDistanceStat nstat, RowData ndata, int randomneg) {
@@ -410,7 +202,7 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 		return getDistance(posstring, negstring);
 	}
 	
-
+	
 	public double calculatePrototypeDistance(GeneticDistanceStat pstat, GeneticDistanceStat nstat) {
 		// Equal for all target attributes
 		int nb = pstat.m_NbTarget;
@@ -470,12 +262,12 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 		return p_distance;
 	}
 	
-	// geeft zelfde boom als p-distance, maar andere - meer realistische - afstanden
+	// yields same tree as p-distance, but different - more realistic - distances
 	public double getJukesCantorDistance(String[] seq1, String[] seq2) {
 		double p_distance = getPDistance(seq1, seq2);
 		double jk_distance;
 		if (p_distance > 0.749) {
-			jk_distance = 2.1562; // niet gedefinieerd vanaf 0.75
+			jk_distance = 2.1562; // not defined for >= 0.75
 			System.out.println("Warning: infinite distances");
 		}
 		else jk_distance = -0.75 * Math.log(1.0-((4.0*p_distance)/3.0));
