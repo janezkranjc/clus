@@ -72,7 +72,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				sett.setDate(new Date());
 				sett.setAppName(m_Cargs.getMainArg(0));
 				m_Clus.initSettings(m_Cargs);
-				ClusDecisionTree clss = new ClusDecisionTree(m_Clus);		
+				ClusDecisionTree clss = new ClusDecisionTree(m_Clus);
 				if (sett.getFTestArray().isVector()) {
 					m_FTests = sett.getFTestArray().getDoubleVector();
 					clss = new CDTTuneFTest(clss, sett.getFTestArray().getDoubleVector());
@@ -182,19 +182,19 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			}
 			if (m_FTests != null) {
 				clss = new CDTTuneFTest(clss, m_FTests);
-			}			
+			}
 			m_Clus.recreateInduce(m_Cargs, clss, cschema, childData);
 			String name = m_Clus.getSettings().getAppName() + "-" + nodeName + "-" + childName;
 			ClusRun cr = new ClusRun(childData.cloneData(), m_Clus.getSummary());
-			cr.createTrainIter();
+			cr.copyTrainingData();
 			if (valid!=null) {
 				RowData validNodeData = getNodeData(valid, node.getIndex());
 				RowData validChildData = createChildData(validNodeData, ctype, child.getIndex());
 				//TupleIterator iter = validChildData.getIterator();
 				cr.setPruneSet(validChildData,null);
 				//m_Clus.initializeSummary(clss);
-			}			
-			if (test!=null) { 
+			}
+			if (test!=null) {
 				RowData testNodeData = getNodeData(test, node.getIndex());
 				RowData testChildData = createChildData(testNodeData, ctype, child.getIndex());
 				TupleIterator iter = testChildData.getIterator();

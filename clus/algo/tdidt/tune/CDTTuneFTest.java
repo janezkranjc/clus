@@ -113,7 +113,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 			}
 		}
 		cr.setIndex(idx);
-		cr.createTrainIter();
+		cr.copyTrainingData();
 		return cr;
 	}
 
@@ -201,15 +201,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 			findBestFTest(train, valid);
 			System.out.println();
 			// Induce final model
-			if (valid != null) {
-				// Tuning based on prune = validation set, learn final tree on all data (train + prune)
-				ArrayList lst = train.toArrayList();
-				lst.addAll(valid.toArrayList());
-				cr.setTrainingSet(new RowData(lst, train.getSchema()));
-				cr.setPruneSet(null, null);
-				cr.changePruneError(null);
-				cr.createTrainIter();
-			}
+			cr.combineTrainAndValidSets();
 			m_Class.induceAll(cr);
 		} catch (ClusException e) {
 		    System.err.println("Error: "+e);

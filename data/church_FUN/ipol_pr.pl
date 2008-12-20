@@ -40,7 +40,7 @@ while ($line = <IN>) {
 			$nb++;
 		} elsif ($line =~ /^POS\:\s*([0-9\.e\+\-]+)$/) {
 			# File must also contain number of positive examples
-			$POS = $1;	
+			$POS = $1;
 			$posfound = 1;
 		} elsif ($line =~ /^TOT\:\s*([0-9\.e\+\-]+)$/) {
 			# File must also contain number of total examples
@@ -88,7 +88,7 @@ sub append_out {
 		if (!(($OUTRECA[$OUTCNT-1] == $reca) && ($OUTPREC[$OUTCNT-1] == $prec))) {
 			if (($OUTCNT > 1) && (abs($OUTPREC[$OUTCNT-1]-$prec) < 1e-15) && (abs($OUTPREC[$OUTCNT-2]-$prec) < 1e-15)) {
 				# Constant precision (horizontal line)
-				$OUTRECA[$OUTCNT-1] = $reca;				
+				$OUTRECA[$OUTCNT-1] = $reca;
 			} elsif (($OUTCNT > 1) && (abs($OUTRECA[$OUTCNT-1]-$reca) < 1e-15) && (abs($OUTRECA[$OUTCNT-2]-$reca) < 1e-15)) {
 				# Constant recalll (vertical line)
 				$OUTPREC[$OUTCNT-1] = $prec;
@@ -97,7 +97,7 @@ sub append_out {
 				push @OUTPREC, $prec;
 				$OUTCNT++;
 			}
-		}	
+		}
 	} else {
 		push @OUTRECA, $reca;
 		push @OUTPREC, $prec;

@@ -1,15 +1,17 @@
 ###########################################################################################
 #
-# This script runs Clus-HSC, starting from the HMC data and settings file. 
+# This script runs Clus-HSC, starting from the HMC data and settings file.
 # (The settings file can be changed to optimise the ftest for HSC.)
 #
 # RESULT:
 # file.combined.out
 #
-# USAGE: 
-# Put the HMC datafiles, the HMC settingsfile, and this file in the same directory and 
+# USAGE:
+# Put the HMC datafiles, the HMC settingsfile, and this file in the same directory and
 # run "perl run_hsc.pl name" where "name" is the name of the settingsfile, without ".s".
 #
+# To only compute the ".hsc.combined.out" file from an existing set of runs,
+# run "perl run_hcs.pl -avg name" instead
 ###########################################################################################
 
 # Overwrite this variable to point to the Clus directory
@@ -17,11 +19,20 @@ $clusdir = "$ENV{HOME}/Clus";
 
 $clusmem = "1800000000";
 
-$sfile = @ARGV[0];
+$do_run_clus = 1;
+
+if ($ARGV[0] eq "-avg") {
+	$sfile = $ARGV[1];
+	$do_run_clus = 0;
+} else {
+	$sfile = $ARGV[0];
+}
 
 # Run clus for each parent-child pair separately
 # ----------------------------------------------
-run_clus("addon.hmc.HMCNodeWiseModels.hmcnwmodels.HMCNodeWiseModels ${sfile}.s");
+if ($do_run_clus == 1) {
+    run_clus("addon.hmc.HMCNodeWiseModels.hmcnwmodels.HMCNodeWiseModels ${sfile}.s");
+}
 
 # Combine the output
 # ------------------

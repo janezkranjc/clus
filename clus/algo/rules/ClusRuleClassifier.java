@@ -88,6 +88,5 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 	public void postProcess(ClusRun cr) throws ClusException, IOException {
 		ClusModelInfo def_model = cr.addModelInfo(ClusModel.DEFAULT);
 		def_model.setModel(ClusDecisionTree.induceDefault(cr));
-		def_model.setName("Default");
 	}
 }

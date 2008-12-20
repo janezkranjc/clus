@@ -3,7 +3,7 @@ $file = $ARGV[0];
 
 $base = $file;
 $base =~ s/\.[^\.]+$//;
-		
+
 $NBPOS = 0;
 $NBNEG = 0;
 
@@ -30,7 +30,7 @@ sub bythr {
 	$y =~ s/\,.*$//;
 	return $y <=> $x;
 }
-	
+
 @SORTED = sort bythr @ELEMS;
 
 foreach $e (@SORTED) {
@@ -50,10 +50,10 @@ print OUT "TOT: $NBTOT\n";
 for ($i = 0; $i <= $#SORTED; $i++) {
 	@arr = split(/\s*\,\s*/, $SORTED[$i]);
 	$thr = $arr[0];
-	$cls = $arr[1];	
+	$cls = $arr[1];
 	if (($thr != $PREV_TH) && ($i > 0)) {
-		add_pr_point();	
-	}	
+		add_pr_point();
+	}
 	if ($cls eq "pos") {
 		$TP++;
 	} elsif ($cls eq "neg") {
@@ -68,7 +68,7 @@ add_pr_point();
 close(OUT);
 
 sub add_pr_point {
-	$PREC = $TP / $NB_PRED;	
+	$PREC = $TP / $NB_PRED;
 	$RECA = $TP / $NBPOS;
 	$half = ($PREV_TH+$thr)/2;
 	printf "THR = $half TP = $TP PREDPOS = $NB_PRED TOTPOS = $NBPOS PR = %.4f RC = %.4f\n", $PREC, $RECA;

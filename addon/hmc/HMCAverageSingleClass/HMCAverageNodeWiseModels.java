@@ -31,16 +31,27 @@ import clus.model.modelio.*;
 import clus.statistic.*;
 import clus.util.*;
 import clus.data.rows.*;
+import clus.error.ClusErrorList;
 import clus.ext.hierarchical.*;
 import clus.Clus;
 
 public class HMCAverageNodeWiseModels {
 
+	protected int m_NbModels, m_TotSize;
 	protected HMCAverageSingleClass m_Cls;
 	protected double[][][] m_PredProb;
 
-	public HMCAverageNodeWiseModels(HMCAverageSingleClass cls) {
+	public HMCAverageNodeWiseModels(HMCAverageSingleClass cls, double[][][] predprop) {
 		m_Cls = cls;
+		m_PredProb = predprop;
+	}
+
+	public int getNbModels() {
+		return m_NbModels;
+	}
+
+	public int getTotalSize() {
+		return m_TotSize;
 	}
 
 	public ClusStatManager getStatManager() {
@@ -66,18 +77,6 @@ public class HMCAverageNodeWiseModels {
 	public void processModels(ClusRun cr) throws ClusException, IOException, ClassNotFoundException {
 		ClassHierarchy hier = getStatManager().getHier();
 		boolean[] prob_computed = new boolean[hier.getTotal()];
-		// Initialize results array
-		// Cell with predicted probability for each example in the train and test sets
-		m_PredProb = new double[2][hier.getTotal()][];
-		for (int i = ClusModelInfoList.TRAINSET; i <= ClusModelInfoList.TESTSET; i++) {
-			int size = cr.getDataSet(i).getNbRows();
-			for (int j = 0; j < hier.getTotal(); j++) {
-				m_PredProb[i][j] = new double[size];
-				for (int k=0; k<size; k++) {
-					m_PredProb[i][j][k] = Double.MAX_VALUE;
-				}
-			}
-		}
 		// All classes still need to be done
 		ArrayList todo = new ArrayList();
 		for (int i = 0; i < hier.getTotal(); i++) {
@@ -98,7 +97,6 @@ public class HMCAverageNodeWiseModels {
 				}
 			}
 		}
-		updateErrorMeasures(cr);
 	}
 
 	public void updateErrorMeasures(ClusRun cr) throws ClusException, IOException {
@@ -110,15 +108,19 @@ public class HMCAverageNodeWiseModels {
 				DataTuple tuple = data.getTuple(exid);
 				ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
 				for (int clidx = 0; clidx < hier.getTotal(); clidx++) {
-					double predicted_weight = m_PredProb[traintest][clidx][exid];
+					double predicted_weight = m_PredProb[traintest][exid][clidx];
 					boolean actually_has_class = tp.hasClass(clidx);
 					for (int j = 0; j < pruner.getNbResults(); j++) {
-						// update corresponding hierclasswiseacc
+						// update corresponding HierClassWiseAccuracy
 						boolean predicted_class = predicted_weight >= pruner.getThreshold(j)/100.0;
 						HierClassWiseAccuracy acc = (HierClassWiseAccuracy)m_Cls.getEvalArray(traintest,j).getError(0);
 						acc.nextPrediction(clidx, predicted_class, actually_has_class);
 					}
 				}
+			}
+			for (int j = 0; j < pruner.getNbResults(); j++) {
+				ClusErrorList error = m_Cls.getEvalArray(traintest,j);
+				error.setNbExamples(data.getNbRows(), data.getNbRows());
 			}
 		}
 	}
@@ -137,6 +139,8 @@ public class HMCAverageNodeWiseModels {
 			if (model == null) {
 				throw new ClusException("Error: .model file does not contain model named 'Original'");
 			}
+			m_NbModels++;
+			m_TotSize += model.getModelSize();
 			getClus().getSchema().attachModel(model);
 			// Make predictions with this model
 			for (int traintest = ClusModelInfoList.TRAINSET; traintest <= ClusModelInfoList.TESTSET; traintest++) {
@@ -151,7 +155,7 @@ public class HMCAverageNodeWiseModels {
 		for (int traintest = ClusModelInfoList.TRAINSET; traintest <= ClusModelInfoList.TESTSET; traintest++) {
 			RowData data = cr.getDataSet(traintest);
 			for (int exid = 0; exid < data.getNbRows(); exid++) {
-				m_PredProb[traintest][child_idx][exid] /= term.getNbParents();
+				m_PredProb[traintest][exid][child_idx] /= term.getNbParents();
 			}
 		}
 	}
@@ -163,10 +167,10 @@ public class HMCAverageNodeWiseModels {
 		double predicted_prob = predicted_distr[0];
 		int parent_idx = parent.getIndex();
 		int child_idx = term.getIndex();
-		double parent_prob = parent_idx == -1 ? 1.0 : m_PredProb[traintest][parent_idx][exid];
+		double parent_prob = parent_idx == -1 ? 1.0 : m_PredProb[traintest][exid][parent_idx];
 		double child_prob = parent_prob * predicted_prob;
-		if (child_prob < m_PredProb[traintest][child_idx][exid]) {
-			m_PredProb[traintest][child_idx][exid] = child_prob;
+		if (child_prob < m_PredProb[traintest][exid][child_idx]) {
+			m_PredProb[traintest][exid][child_idx] = child_prob;
 		}
 	}
 }

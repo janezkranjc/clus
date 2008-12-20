@@ -286,6 +286,6 @@ public class ILevelCGUI extends JFrame {
 		} catch (IOException e) {
 			System.out.println("IOException: "+e);
 			e.printStackTrace();
-		}	
+		}
 	}
 }

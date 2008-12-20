@@ -163,13 +163,17 @@ public class ClusOutput {
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			ClusModelInfo mi = cr.getModelInfo(i);
 			if (mi != null) {
-				m_Writer.print("     "+mi.getName()+": ");
 				ClusModel model = (ClusModel)models.get(i);
-				String info_str = model == null ? "No model available" : model.getModelInfo();
-				String[] info = info_str.split("\\s*\\,\\s*");
-				for (int j = 0; j < info.length; j++) {
-					if (j > 0) m_Writer.print(StringUtils.makeString(' ', mi.getName().length()+7));
-					m_Writer.println(info[j]);
+				// A model info without an actual model is possible
+				// E.g., to report error measures in HMCAverageSingleClass
+				if (model != null) {
+					m_Writer.print("     "+mi.getName()+": ");
+					String info_str = model.getModelInfo();
+					String[] info = info_str.split("\\s*\\,\\s*");
+					for (int j = 0; j < info.length; j++) {
+						if (j > 0) m_Writer.print(StringUtils.makeString(' ', mi.getName().length()+7));
+						m_Writer.println(info[j]);
+					}
 				}
 			}
 		}
@@ -179,8 +183,7 @@ public class ClusOutput {
 			if (outputtrain) {
 				ClusErrorList tr_err = cr.getTrainError();
 				if (tr_err != null) {
-					if (ClusEnsembleInduce.isCalcOOB())
-						m_Writer.println("Out-Of-Bag Estimate of Error");
+					if (ClusEnsembleInduce.isCalcOOB())	m_Writer.println("Out-Of-Bag Estimate of Error");
 					else m_Writer.println("Training error");
 					m_Writer.println("--------------");
 					m_Writer.println();
@@ -206,9 +209,8 @@ public class ClusOutput {
 			}
 		}
 		StatisticPrintInfo info = m_Sett.getStatisticPrintInfo();
-
 		for (int i = 0; i < cr.getNbModels(); i++) {
-			if (cr.getModelInfo(i) != null && shouldShowModel(i)) {
+			if (cr.getModelInfo(i) != null && models.get(i) != null && shouldShowModel(i)) {
 				ClusModelInfo mi = cr.getModelInfo(i);
 				ClusModel root = (ClusModel)models.get(i);
 				String modelname = mi.getName() + " Model";
@@ -221,14 +223,13 @@ public class ClusOutput {
 					if (te_err != null) pex = (RowData)cr.getTestSet();
 					root.printModelAndExamples(m_Writer, info, pex);
 				} else {
-					if (root != null) root.printModel(m_Writer, info);
+					root.printModel(m_Writer, info);
 				}
 				m_Writer.println();
 				if (getSettings().isOutputPythonModel()) {
 					if (getSettings().isEnsembleMode() && (i == ClusModel.ORIGINAL)){
 						root.printModelToPythonScript(m_Writer);//root is a forest
-					}
-					else {
+					} else {
 						// use following lines for getting tree as Python function
 						m_Writer.print("def clus_tree( ");
 						ClusAttrType[] cat = ClusSchema.vectorToAttrArray(m_Schema.collectAttributes(ClusAttrType.ATTR_USE_DESCRIPTIVE, ClusAttrType.THIS_TYPE));
@@ -240,8 +241,8 @@ public class ClusOutput {
 						m_Writer.println();
 					}
 				}
-			}//end if (shouldShowModel(i))
-		}// end for
+			}
+		}
 		if (getSettings().isOutputDatabaseQueries()) {
 			int starttree = getSettings().getStartTreeCpt();
 			int startitem = getSettings().getStartItemCpt();
@@ -250,11 +251,9 @@ public class ClusOutput {
 			String out_database_name =  m_Sett2.getAppName()+".txt";
 			PrintWriter database_writer = m_Sett2.getFileAbsoluteWriter(out_database_name);
 			root.printModelToQuery(database_writer,cr,starttree,startitem,getSettings().isExhaustiveSearch());
-
 			database_writer.close();
 			System.out.println("The queries are in "+out_database_name);
 		}
-
 		m_Writer.flush();
 	}
 

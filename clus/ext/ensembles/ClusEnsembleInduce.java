@@ -388,7 +388,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 				crSingle.setInductionTime(summ_time);
 				postProcessForest(crSingle);
 				crSingle.setTestSet(cr.getTestIter());
-				crSingle.setTrainSet(cr.getTrainIter());
+				crSingle.setTrainingSet(cr.getTrainingSet());
 				outputBetweenForest(crSingle, m_BagClus, "_"+(i+1)+"_");
 			}
 		}
@@ -486,7 +486,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 				crSingle.setInductionTime(summ_time);
 				postProcessForest(crSingle);
 				crSingle.setTestSet(cr.getTestIter());
-				crSingle.setTrainSet(cr.getTrainIter());
+				crSingle.setTrainingSet(cr.getTrainingSet());
 				outputBetweenForest(crSingle, m_BagClus, "_"+(i+1)+"_");
 //				crSingle.deleteDataAndModels();
 			}
@@ -570,7 +570,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 				crSingle.setInductionTime(summ_time);
 				postProcessForest(crSingle);
 				crSingle.setTestSet(cr.getTestIter());
-				crSingle.setTrainSet(cr.getTrainIter());
+				crSingle.setTrainingSet(cr.getTrainingSet());
 				outputBetweenForest(crSingle, m_BagClus, "_"+(i+1)+"_");
 //				crSingle.deleteDataAndModels();
 			}

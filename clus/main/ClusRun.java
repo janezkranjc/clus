@@ -23,6 +23,7 @@
 package clus.main;
 
 import java.io.*;
+import java.util.ArrayList;
 
 import clus.model.ClusModelInfo;
 import clus.selection.*;
@@ -37,14 +38,14 @@ public class ClusRun extends ClusModelInfoList {
 
 	protected int m_Index;
 	protected boolean m_FileTestSet;
-	protected ClusData m_TrainData, m_Prune, m_Orig;
+	protected ClusData m_Train, m_Prune, m_Orig;
 	protected ClusSelection m_TestSel, m_PruneSel;
-	protected TupleIterator m_Test, m_Train;
+	protected TupleIterator m_Test;
 	protected ClusSummary m_Summary;
 
 	public ClusRun(ClusData train, ClusSummary summary) {
 		m_Index = 1;
-		m_TrainData = train;
+		m_Train = train;
 		m_Summary = summary;
 	}
 
@@ -116,25 +117,21 @@ public class ClusRun extends ClusModelInfoList {
  ***************************************************************************/
 
 	public final ClusData getTrainingSet() {
-		return m_TrainData;
+		return m_Train;
 	}
-
+	
 	public final void setTrainingSet(ClusData data) {
-		m_TrainData = data;
-	}
-
-	public final void setTrainSet(TupleIterator iter) {
-		m_Train = iter;
+		m_Train = data;
 	}
 
 	public final TupleIterator getTrainIter() {
-		return m_Train;
+		return ((RowData)m_Train).getIterator();
 	}
 
 	// To keep training examples in same order :-)
-	public final void createTrainIter() {
-		RowData clone = (RowData)m_TrainData.cloneData();
-		setTrainSet(clone.getIterator());
+	public final void copyTrainingData() {
+		RowData clone = (RowData)m_Train.cloneData();
+		setTrainingSet(clone);
 	}
 
 	public final ClusSelection getTestSelection() {
@@ -186,6 +183,19 @@ public class ClusRun extends ClusModelInfoList {
 		return m_PruneSel;
 	}
 
+	public void combineTrainAndValidSets() {
+		RowData valid = (RowData)getPruneSet();
+		if (valid != null) {
+			RowData train = (RowData)getTrainingSet();
+			ArrayList lst = train.toArrayList();
+			lst.addAll(valid.toArrayList());
+			setTrainingSet(new RowData(lst, train.getSchema()));
+			setPruneSet(null, null);
+			changePruneError(null);
+			copyTrainingData();
+		}
+	}				
+	
 /***************************************************************************
  * Preparation
  ***************************************************************************/
@@ -209,8 +219,7 @@ public class ClusRun extends ClusModelInfoList {
 	}
 
 	public void deleteData() {
-		m_Train = null;
-		m_TrainData = null; m_Prune = null;
+		m_Train = null; m_Prune = null;
 		m_Orig = null; m_TestSel = null;
 		m_PruneSel = null; m_Test = null;
 	}

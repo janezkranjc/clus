@@ -3,7 +3,7 @@
 % clus %f.s
 % cdiff %f.out orig/%f.out.orig
 % cdiff %f.train.1.id orig/%f.train.1.id.orig
-% cdiff sspd_test.id orig/sspd_test.id.orig
+% cdiff sspd.test.id orig/sspd_test.id.orig
 
 % *CLEAN*
 % rm -f %f.out %f.model %f.dist %f.train.1.id sspd_test.id

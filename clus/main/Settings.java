@@ -73,6 +73,7 @@ public class Settings implements Serializable {
 	protected Date m_Date;
 	protected String m_AppName;
 	protected String m_DirName;
+	protected String m_Suffix = "";
 
 	public static int VERBOSE = 1;
 	public static boolean EXACT_TIME = false;
@@ -84,9 +85,17 @@ public class Settings implements Serializable {
 	public void setDate(Date date) {
 		m_Date = date;
 	}
-
+	
 	public String getAppName() {
 		return m_AppName;
+	}
+	
+	public String getAppNameWithSuffix() {		
+		return m_AppName + m_Suffix;
+	}
+	
+	public void setSuffix(String suffix) {
+		m_Suffix = suffix;
 	}
 
 	public void setAppName(String file) {

@@ -30,6 +30,7 @@ import java.util.*;
 
 import java.io.*;
 
+import jeans.io.ini.INIFileNominalOrDoubleOrVector;
 import jeans.util.array.*;
 import jeans.util.cmdline.*;
 import jeans.util.*;
@@ -43,7 +44,6 @@ import clus.util.*;
 import clus.statistic.*;
 import clus.data.type.*;
 import clus.model.*;
-import clus.model.ClusModel;
 import clus.model.modelio.*;
 import clus.ext.hierarchical.*;
 import clus.error.*;
@@ -56,8 +56,11 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 	protected Clus m_Clus;
 	protected StringTable m_Table = new StringTable();
 
-	//added: keeps prediction results for each threshold
+	// added: keeps prediction results for each threshold
 	protected ClusErrorList[][] m_EvalArray;
+	protected double[][][] m_PredProb;
+	protected int m_NbModels;
+	protected int m_TotSize;
 
 	public void run(String[] args) throws IOException, ClusException, ClassNotFoundException {
 		m_Clus = new Clus();
@@ -77,48 +80,78 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				System.exit(0);
 			}
 			if (cargs.hasOption("models") || cargs.hasOption("hsc")) {
-				//initializing m_EvalArray
-				HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
-				m_EvalArray = new ClusErrorList[2][pruner.getNbResults()];
-				// HierClassWiseAccuracy needs some things
+				if (cargs.hasOption("hsc")) {
+					m_Clus.getSettings().setSuffix(".hsc.combined");
+				} else {
+					m_Clus.getSettings().setSuffix(".sc.combined");
+				}
+				ClusRun cr = m_Clus.partitionData();
+				// Don't want separate prune set now
+				cr.combineTrainAndValidSets();
+				// Cell with predicted probability for each example in the train and test sets
 				ClassHierarchy hier = getStatManager().getHier();
-				//initialize each HierClassWiseAccuracy object
-				for (int i=0;i<pruner.getNbResults();i++) {
-					for (int j = ClusModelInfoList.TRAINSET; j <= ClusModelInfoList.TESTSET; j++) {
-						m_EvalArray[j][i] = new ClusErrorList();
-						m_EvalArray[j][i].addError(null);
-						m_EvalArray[j][i].addError(new HierClassWiseAccuracy(m_EvalArray[j][i], hier));
+				m_PredProb = new double[2][][];
+				for (int i = ClusModelInfoList.TRAINSET; i <= ClusModelInfoList.TESTSET; i++) {
+					int size = cr.getDataSet(i).getNbRows();
+					m_PredProb[i] = new double[size][hier.getTotal()];
+					for (int k = 0; k < size; k++) {
+						Arrays.fill(m_PredProb[i][k], Double.MAX_VALUE);
 					}
 				}
-				//load models and update statistics
-				ClusRun cr = m_Clus.partitionData();
+				// Array with error measures for each threshold
+				INIFileNominalOrDoubleOrVector class_thr = getSettings().getClassificationThresholds();
+				if (class_thr.isVector()) {
+					HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
+					m_EvalArray = new ClusErrorList[2][pruner.getNbResults()];
+					for (int i = 0; i < pruner.getNbResults(); i++) {
+						for (int j = ClusModelInfoList.TRAINSET; j <= ClusModelInfoList.TESTSET; j++) {
+							m_EvalArray[j][i] = new ClusErrorList();
+							m_EvalArray[j][i].addError(new HierClassWiseAccuracy(m_EvalArray[j][i], hier));
+							m_EvalArray[j][i].addError(null);
+						}
+					}
+				}
+				// Load models and update statistics
 				if (cargs.hasOption("hsc")) {
-					HMCAverageNodeWiseModels avg = new HMCAverageNodeWiseModels(this);
+					HMCAverageNodeWiseModels avg = new HMCAverageNodeWiseModels(this, m_PredProb);
 					avg.processModels(cr);
+					m_NbModels = avg.getNbModels();
+					m_TotSize = avg.getTotalSize();
+					if (m_EvalArray != null) avg.updateErrorMeasures(cr);
 				} else {
 					loadModelPerModel(cargs.getOptionValue("models"), cr);
 				}
-				//write output
-				ClusOutput output = new ClusOutput(sett.getAppName() + ".combined.out", m_Clus.getSchema(), sett);
-				// create default model
-				ClusNode def = new ClusNode();
-				ClusStatistic stat = createTargetStat();
-				stat.calcMean();
-				def.setTargetStat(stat);
-				cr.addModelInfo(ClusModel.DEFAULT).setModel(def);
-				cr.getModelInfo(ClusModel.DEFAULT).setName("Default");
-				m_Clus.calcError(cr, null); // Calc error
-				// add model for each threshold to clusrun
-				for (int i = 0; i < pruner.getNbResults(); i++) {
-					ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
-					pruned_info.setStatManager(getStatManager());
-					pruned_info.setName(pruner.getPrunedName(i));
-					for (int j = ClusModelInfoList.TRAINSET; j <= ClusModelInfoList.TESTSET; j++) {
-						m_EvalArray[j][i].setNbExamples(cr.getDataSet(j).getNbRows());
+				// Write output
+				ClusOutput output = new ClusOutput(sett.getAppNameWithSuffix() + ".out", m_Clus.getSchema(), sett);
+				// Create default model
+				ClusModelInfo def_model = cr.addModelInfo(ClusModel.DEFAULT);
+				def_model.setModel(ClusDecisionTree.induceDefault(cr));
+				// Create original model
+				ClusModelInfo orig_model_inf = cr.addModelInfo(ClusModel.ORIGINAL);
+				HMCAverageTreeModel orig_model = new HMCAverageTreeModel(getStatManager().createTargetStat(), m_PredProb, m_NbModels, m_TotSize);
+				orig_model_inf.setModel(orig_model);
+				// Calculate error measures
+				cr.copyAllModelsMIs();
+				RowData train = (RowData)cr.getTrainingSet();
+				train.addIndices();
+				orig_model.setDataSet(ClusModelInfoList.TRAINSET);
+				m_Clus.calcError(train.getIterator(), ClusModelInfo.TRAIN_ERR, cr);
+				RowData test = (RowData)cr.getTestSet();
+				if (test != null) {
+					test.addIndices();
+					orig_model.setDataSet(ClusModelInfoList.TESTSET);
+					m_Clus.calcError(test.getIterator(), ClusModelInfo.TEST_ERR, cr);
+				}
+				// Add model for each threshold to clusrun
+				if (class_thr.isVector()) {
+					HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
+					for (int i = 0; i < pruner.getNbResults(); i++) {
+						ClusModelInfo pruned_info = cr.addModelInfo(pruner.getPrunedName(i));
+						// pruned_info.setModel(new ClusNode());
+						pruned_info.setShouldWritePredictions(false);
+						pruned_info.setTrainError(m_EvalArray[ClusModelInfoList.TRAINSET][i]);
+						pruned_info.setTestError(m_EvalArray[ClusModelInfoList.TESTSET][i]);
 					}
-					pruned_info.setTrainError(m_EvalArray[ClusModelInfoList.TRAINSET][i]);
-					pruned_info.setTestError(m_EvalArray[ClusModelInfoList.TESTSET][i]);
-					pruned_info.setModel(new ClusNode());
 				}
 				output.writeHeader();
 				output.writeOutput(cr, true, true);
@@ -150,17 +183,15 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 	}
 
 	public String getClassStr(String file) {
-		int cnt = 0;
-		String result = "";
+		StringBuffer result = new StringBuffer();
 		String value = FileUtil.getName(FileUtil.removePath(file));
-		String[] elems = value.split("-");
-		int pos = elems.length - 1;
-		while (pos > 0 /*&& StringUtils.isInteger(elems[pos])*/) {
-				if (cnt != 0) result = "/" + result;
-				result = "" + elems[pos] + result;
-				cnt++; pos--;
+		String[] cmps = value.split("_");
+		String[] elems = cmps[cmps.length-1].split("-");
+		for (int i = 0; i < elems.length; i++) {
+			if (i != 0) result.append("/");
+			result.append(elems[i]);
 		}
-		return result;
+		return result.toString();
 	}
 
 	public int getClassIndex(String file) throws ClusException {
@@ -178,6 +209,8 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		if (sub_model == null) {
 			throw new ClusException("Error: .model file does not contain model named 'Original'");
 		}
+		m_NbModels++;
+		m_TotSize += sub_model.getModelSize();
 		return sub_model;
 	}
 
@@ -186,9 +219,19 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 		for (int i = 0; i < files.length; i++) {
 			ClusModel model = loadModel(FileUtil.cmbPath(dir, files[i]));
 			int class_idx = getClassIndex(files[i]);
-			// voor iedere threshold 1
 			for (int j = ClusModelInfoList.TRAINSET; j <= ClusModelInfoList.TESTSET; j++) {
 				evaluateModelAndUpdateErrors(j, class_idx, model, cr);
+			}
+		}
+		INIFileNominalOrDoubleOrVector class_thr = getSettings().getClassificationThresholds();
+		if (class_thr.isVector()) {
+			HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
+			for (int j = 0; j < pruner.getNbResults(); j++) {
+				for (int traintest = ClusModelInfoList.TRAINSET; traintest <= ClusModelInfoList.TESTSET; traintest++) {
+					RowData data = cr.getDataSet(traintest);
+					ClusErrorList error = getEvalArray(traintest, j);
+					error.setNbExamples(data.getNbRows(), data.getNbRows());
+				}
 			}
 		}
 	}
@@ -197,44 +240,29 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 	public void evaluateModelAndUpdateErrors(int train_or_test, int class_idx, ClusModel model, ClusRun cr) throws ClusException, IOException {
 		RowData data = cr.getDataSet(train_or_test);
 		m_Clus.getSchema().attachModel(model);
-		HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
+		INIFileNominalOrDoubleOrVector class_thr = getSettings().getClassificationThresholds();
+		if (class_thr.isVector()) {
+			HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
+			for (int i = 0; i < data.getNbRows(); i++) {
+				DataTuple tuple = data.getTuple(i);
+				ClusStatistic prediction = model.predictWeighted(tuple);
+				double[] predicted_distr = prediction.getNumericPred();			
+				ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
+				boolean actually_has_class = tp.hasClass(class_idx);
+				for (int j = 0; j < pruner.getNbResults(); j++) {
+					// update corresponding hierclasswiseacc
+					boolean predicted_class = predicted_distr[0] >= pruner.getThreshold(j)/100.0;
+					HierClassWiseAccuracy acc = (HierClassWiseAccuracy)m_EvalArray[train_or_test][j].getError(0);
+					acc.nextPrediction(class_idx, predicted_class, actually_has_class);
+				}
+			}
+		}
 		for (int i = 0; i < data.getNbRows(); i++) {
 			DataTuple tuple = data.getTuple(i);
 			ClusStatistic prediction = model.predictWeighted(tuple);
 			double[] predicted_distr = prediction.getNumericPred();
-			ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
-			boolean actually_has_class = tp.hasClass(class_idx);
-			for (int j = 0; j < pruner.getNbResults(); j++) {
-			    // update corresponding hierclasswiseacc
-				boolean predicted_class = predicted_distr[0] >= pruner.getThreshold(j)/100.0;
-				HierClassWiseAccuracy acc = (HierClassWiseAccuracy)m_EvalArray[train_or_test][j].getError(0);
-				acc.nextPrediction(class_idx, predicted_class, actually_has_class);
-			}
+			m_PredProb[train_or_test][i][class_idx] = predicted_distr[0];
 		}
-	}
-
-	// Older version of the code
-
-	void evaluateModel(ClusRun cr, HMCAverageTreeModel model) throws IOException, ClusException {
-		Settings sett = m_Clus.getSettings();
-		ClusOutput output = new ClusOutput(sett.getAppName() + ".combined.out", m_Clus.getSchema(), sett);
-		HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
-		for (int i = 0; i < pruner.getNbResults(); i++) {
-			ClusModel pruned = model.createWithThreshold(pruner.getThreshold(i));
-			ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
-			pruned_info.setModel(pruned);
-			pruned_info.setStatManager(getStatManager());
-			pruned_info.setName(pruner.getPrunedName(i));
-		}
-		ClusNode def = new ClusNode();
-		ClusStatistic stat = createTargetStat();
-		stat.calcMean();
-		def.setTargetStat(stat);
-		cr.getModelInfo(ClusModel.DEFAULT).setModel(def);
-		m_Clus.calcError(cr, null); // Calc error
-		output.writeHeader();
-		output.writeOutput(cr, true, true);
-		output.close();
 	}
 
 	public String[] getOptionArgs() {

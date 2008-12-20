@@ -77,7 +77,7 @@ sub find_colon {
 
 sub get_all_classes {
    # Read all classes with their frequencies from the .out file
-   my ($file) = @_;   
+   my ($file) = @_;
    open(RES, "$file") || die "get_all_classes: can't open '$file'";
    skip_till("^Testing error");
    $NBEXAMPLES = find_colon("Number of examples");
@@ -121,7 +121,7 @@ sub get_all_classes {
             $totNbPos -= $nbpc;
          }
        }
-      
+
    }
    close(RES);
    print "totNbPos: $totNbPos \n";
@@ -129,7 +129,7 @@ sub get_all_classes {
 
 sub read_class_pr_values {
    # Read all PR/RC values from the .out file
-   my ($file) = @_;   
+   my ($file) = @_;
    open(RES, "$file") || die "read_class_pr_values: can't open '$file'";
    skip_till("^Testing error");
    skip_till("Hierarchical accuracy by class");
@@ -155,7 +155,7 @@ sub read_class_pr_values {
             $TP{$cls}{$thres} = $4;
             $FP{$cls}{$thres} = $5;
             $nbPos{$cls}{$thres} = $6;
-         }      
+         }
       } elsif ($line =~ /^\s+(\S+), def: \S+, prec: (\S+), rec: (\S+), TP: (\S+), FP: (\S+), nbPos: (\S+)/) {
          # FUNCAT
          $cls = $1;
@@ -201,7 +201,7 @@ sub append_out {
       if (!(($OUTRECA{$meth}[$OUTCNT{$meth}-1] == $reca) && ($OUTPREC{$meth}[$OUTCNT{$meth}-1] == $prec))) {
          if (($OUTCNT{$meth} > 1) && (abs($OUTPREC{$meth}[$OUTCNT{$meth}-1]-$prec) < 1e-15) && (abs($OUTPREC{$meth}[$OUTCNT{$meth}-2]-$prec) < 1e-15)) {
             # Constant precision (horizontal line)
-            $OUTRECA{$meth}[$OUTCNT{$meth}-1] = $reca;            
+            $OUTRECA{$meth}[$OUTCNT{$meth}-1] = $reca;
          } elsif (($OUTCNT{$meth} > 1) && (abs($OUTRECA{$meth}[$OUTCNT{$meth}-1]-$reca) < 1e-15) && (abs($OUTRECA{$meth}[$OUTCNT{$meth}-2]-$reca) < 1e-15)) {
             # Constant recalll (vertical line)
             $OUTPREC{$meth}[$OUTCNT{$meth}-1] = $prec;
@@ -210,7 +210,7 @@ sub append_out {
             $OUTPREC{$meth}[$OUTCNT{$meth}] = $prec;
             $OUTCNT{$meth}++;
          }
-      }   
+      }
    } else {
       $OUTRECA{$meth}[$OUTCNT{$meth}] = $reca;
       $OUTPREC{$meth}[$OUTCNT{$meth}] = $prec;
@@ -315,11 +315,11 @@ sub compute_other_avg_curves {
                   $x1 = $RC_C{$cls}[$point+1];
                   $y0 = $PR_C2{$cls}[$point];
                   $y1 = $PR_C1{$cls}[$point+1];
-                  $PRC1 = $y0 + ($y1-$y0)/($x1-$x0)*($RC-$x0);   
+                  $PRC1 = $y0 + ($y1-$y0)/($x1-$x0)*($RC-$x0);
                   $PRC2 = $PRC1;
                } else {
                   die "Error $RC_C{$cls}[$point] < $RC < $RC_C{$cls}[$point+1]";
-               }   
+               }
                $POINTER{$cls} = $point;
                $SUMPR1{"avg"} += $PRC1;
                $SUMPR2{"avg"} += $PRC2;
@@ -387,7 +387,7 @@ sub print_file {
       $reca = $OUTRECA{$meth}[$i];
       $prec = $OUTPREC{$meth}[$i];
       print OUT "$reca,$prec\n";
-   }   
+   }
 }
 
 sub get_area_file_overall {

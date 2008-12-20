@@ -344,12 +344,12 @@ public class Clus implements CMDLineArgsProvider {
 		return m_Data.getNbRows();
 	}
 
-	public final ClusData getData() {
+	public final RowData getData() {
 		return m_Data;
 	}
 
 	public final RowData getRowDataClone() {
-		return (RowData) m_Data.cloneData();
+		return (RowData)m_Data.cloneData();
 	}
 
 	public final MultiScore getMultiScore() {
@@ -514,24 +514,24 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		if (writetest) {
 			if (m_Sett.isWriteModelIDPredictions()) {
-				String tname = FileUtil.removePath(StringUtils.removeSuffix(FileUtil.getName(test_fname), ".arff"));
 				ClusModelInfo mi = cr.addModelInfo(ClusModel.ORIGINAL);
-				mi.addModelProcessor(ClusModelInfo.TEST_ERR, new NodeIDWriter(tname + ".id", hasMissing, m_Sett));
+				String ts_name = m_Sett.getAppNameWithSuffix() + ".test.id";
+				mi.addModelProcessor(ClusModelInfo.TEST_ERR, new NodeIDWriter(ts_name, hasMissing, m_Sett));
 			}
 			if (m_Sett.isWriteTestSetPredictions()) {
 				ClusModelInfo allmi = cr.getAllModelsMI();
-				String tname = StringUtils.removeSuffix(FileUtil.getName(test_fname), ".arff");
-				allmi.addModelProcessor(ClusModelInfo.TEST_ERR, new PredictionWriter(tname + ".pred.arff", m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
+				String ts_name = m_Sett.getAppNameWithSuffix() + ".test.pred.arff";
+				allmi.addModelProcessor(ClusModelInfo.TEST_ERR, new PredictionWriter(ts_name, m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
 			}
 		}
 		if (m_Sett.isWriteTrainSetPredictions()) {
-			String tr_name = m_Sett.getAppName() + ".train." + idx + ".pred.arff";
 			ClusModelInfo allmi = cr.getAllModelsMI();
+			String tr_name = m_Sett.getAppNameWithSuffix() + ".train." + idx + ".pred.arff";
 			allmi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new PredictionWriter(tr_name, m_Sett, getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET)));
 		}
 		if (m_Sett.isWriteModelIDPredictions()) {
 			ClusModelInfo mi = cr.addModelInfo(ClusModel.ORIGINAL);
-			String id_tr_name = m_Sett.getAppName() + ".train." + idx + ".id";
+			String id_tr_name = m_Sett.getAppNameWithSuffix() + ".train." + idx + ".id";
 			mi.addModelProcessor(ClusModelInfo.TRAIN_ERR, new NodeExampleCollector(id_tr_name, hasMissing, m_Sett));
 		}
 		return cr;
@@ -579,7 +579,7 @@ public class Clus implements CMDLineArgsProvider {
 			}
 		}
 		cr.setIndex(idx);
-		cr.createTrainIter();
+		cr.copyTrainingData();
 		return cr;
 	}
 

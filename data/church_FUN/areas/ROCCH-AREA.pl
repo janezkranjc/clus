@@ -13,7 +13,7 @@ foreach $line (@lines) {
 			$mean = ($TP + $TP_prev)/2;
 			$delta = $FP - $FP_prev;
 			$area += $mean * $delta;
-		}		
+		}
 		$TP_prev = $TP;
 		$FP_prev = $FP;
 		$first = 1;

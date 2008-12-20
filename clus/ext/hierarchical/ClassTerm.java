@@ -167,6 +167,16 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 	public final void setID(String id) {
 		m_ID = id;
 	}
+	
+	public String getKeysVector() {
+		StringBuffer buf = new StringBuffer();
+		ArrayList keys = new ArrayList(m_Hash.keySet());
+		for (int i = 0; i < keys.size(); i++) {
+			if (i != 0) buf.append(", ");
+			buf.append(keys.get(i));
+		}
+		return buf.toString();
+	}
 
 	public final ClassTerm getByName(String name) {
 		return (ClassTerm)m_Hash.get(name);

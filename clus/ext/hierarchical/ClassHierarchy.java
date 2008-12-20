@@ -393,7 +393,7 @@ public class ClassHierarchy implements Serializable {
 				return subterm;
 			} else {
 				ClassTerm found = subterm.getByName(lookup);
-				if (found == null) throw new ClusException("Classes value not in tree hierarchy: "+vl.toPathString());
+				if (found == null) throw new ClusException("Classes value not in tree hierarchy: "+vl.toPathString()+" (lookup: "+lookup+", term: "+subterm.toPathString()+", subterms: "+subterm.getKeysVector()+")");
 				subterm = found;
 			}
 			pos++;
