@@ -180,7 +180,7 @@ sub read_settings {
             $value = $2;
             $VALSREAD{"$section-$name"} = 1;
             $SETTINGREAD{$section}{$name} = $value;
-        } elsif (!($line =~ /^\s*$/)) {
+        } elsif (!($line =~ /^\s*$/) && !($line =~ /^\s*\%/)) {
             die "Error '$line' in $fname";
         }
     }
