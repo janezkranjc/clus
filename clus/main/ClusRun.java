@@ -119,7 +119,7 @@ public class ClusRun extends ClusModelInfoList {
 	public final ClusData getTrainingSet() {
 		return m_Train;
 	}
-	
+
 	public final void setTrainingSet(ClusData data) {
 		m_Train = data;
 	}
@@ -194,8 +194,8 @@ public class ClusRun extends ClusModelInfoList {
 			changePruneError(null);
 			copyTrainingData();
 		}
-	}				
-	
+	}
+
 /***************************************************************************
  * Preparation
  ***************************************************************************/

@@ -23,7 +23,6 @@ public class HMCConvertToSC {
 		clus.initializeAddOn(appname);
 		ClusStatManager mgr = clus.getStatManager();
 		Settings sett = clus.getSettings();
-
 		ClassHierarchy hier = mgr.getHier();
 		int sidx = hier.getType().getArrayIndex();
 		String[] classterms = new String[hier.getTotal()];
@@ -31,11 +30,9 @@ public class HMCConvertToSC {
 			ClassTerm term = hier.getTermAt(i);
 			classterms[i] = term.toStringHuman(hier);
 		}
-
 		boolean[][] classes;
 		if (split) {
 			ClusRun run = clus.partitionData();
-
 			RowData train = (RowData)run.getTrainingSet();
 			classes = new boolean[train.getNbRows()][hier.getTotal()];
 			for (int i = 0; i < train.getNbRows(); i++) {
@@ -45,7 +42,6 @@ public class HMCConvertToSC {
 	   			tp.fillBoolArrayNodeAndAncestors(classes[i]);
 	   		}
 			writeArffToSC(output+".train.arff", train, classterms, classes, binary);
-
 			if (!sett.isNullTestFile()) {
 				RowData test  = (RowData)run.getTestSet();
 				classes = new boolean[test.getNbRows()][hier.getTotal()];

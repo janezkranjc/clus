@@ -22,6 +22,6 @@ ReduceMemoryNominalAttrs = yes
 
 [Hierarchical]
 Type = TREE
-ClassificationTreshold = [90,95]
+ClassificationThreshold = [90,95]
 WType = ExpAvgParentWeight
 HSeparator = /

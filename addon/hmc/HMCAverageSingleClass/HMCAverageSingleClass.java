@@ -128,7 +128,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				def_model.setModel(ClusDecisionTree.induceDefault(cr));
 				// Create original model
 				ClusModelInfo orig_model_inf = cr.addModelInfo(ClusModel.ORIGINAL);
-				HMCAverageTreeModel orig_model = new HMCAverageTreeModel(getStatManager().createTargetStat(), m_PredProb, m_NbModels, m_TotSize);
+				HMCAverageTreeModel orig_model = new HMCAverageTreeModel(target, m_PredProb, m_NbModels, m_TotSize);
 				orig_model_inf.setModel(orig_model);
 				// Calculate error measures
 				cr.copyAllModelsMIs();
@@ -246,7 +246,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			for (int i = 0; i < data.getNbRows(); i++) {
 				DataTuple tuple = data.getTuple(i);
 				ClusStatistic prediction = model.predictWeighted(tuple);
-				double[] predicted_distr = prediction.getNumericPred();			
+				double[] predicted_distr = prediction.getNumericPred();
 				ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
 				boolean actually_has_class = tp.hasClass(class_idx);
 				for (int j = 0; j < pruner.getNbResults(); j++) {

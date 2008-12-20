@@ -134,7 +134,7 @@ public class NumericAttrType extends ClusAttrType {
 
 	public class MySerializable extends ClusSerializable {
 
-		public int m_NbZero, m_NbTotal;
+		public int m_NbZero, m_NbNeg, m_NbTotal;
 
 		public boolean read(ClusReader data, DataTuple tuple) throws IOException {
 			if (!data.readNoSpace()) return false;
@@ -146,13 +146,15 @@ public class NumericAttrType extends ClusAttrType {
 			}
 			if (val == 0.0) {
 				m_NbZero++;
+			} else if (val < 0.0) {
+				m_NbNeg++;
 			}
 			m_NbTotal++;
 			return true;
 		}
 
 		public void term(ClusSchema schema) {
-			if (m_NbZero > m_NbTotal*75/100) {
+			if (m_NbNeg == 0 && m_NbZero > m_NbTotal*75/100) {
 				setSparse(true);
 			}
 		}

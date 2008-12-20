@@ -85,15 +85,15 @@ public class Settings implements Serializable {
 	public void setDate(Date date) {
 		m_Date = date;
 	}
-	
+
 	public String getAppName() {
 		return m_AppName;
 	}
-	
-	public String getAppNameWithSuffix() {		
+
+	public String getAppNameWithSuffix() {
 		return m_AppName + m_Suffix;
 	}
-	
+
 	public void setSuffix(String suffix) {
 		m_Suffix = suffix;
 	}
@@ -540,7 +540,7 @@ public class Settings implements Serializable {
 	public boolean isOutFoldError() {
 		return m_OutFoldErr.getValue();
 	}
-	
+
 	public boolean isOutFoldData() {
 		return m_OutFoldData.getValue();
 	}
@@ -1498,38 +1498,38 @@ public class Settings implements Serializable {
 	public void setSectionTimeSeriesEnabled(boolean enable) {
 		m_SectionTimeSeries.setEnabled(enable);
 	}
-	
-	
+
+
 /***********************************************************************
  * Section: Phylogeny                                             	   *
  ***********************************************************************/
-	
+
 	public final static String[] PHYLOGENY_DISTANCE_MEASURE={"JC","Kimura","PDist"};
-	
+
 	public final static int PHYLOGENY_DISTANCE_MEASURE_JC = 0;
 	public final static int PHYLOGENY_DISTANCE_MEASURE_KIMURA = 1;
 	public final static int PHYLOGENY_DISTANCE_MEASURE_PDIST = 2;
 
 	public final static String[] PHYLOGENY_PROTOTYPE_COMPLEXITY={"Pairwise","Prototype"};
-	
+
 	public final static int PHYLOGENY_PROTOTYPE_COMPLEXITY_PAIRWISE = 0;
 	public final static int PHYLOGENY_PROTOTYPE_COMPLEXITY_PROTO = 1;
-	
+
 	public final static String[] PHYLOGENY_LINKAGE={"Single","Complete","Average"};
-	
+
 	public final static int PHYLOGENY_LINKAGE_SINGLE = 0;
 	public final static int PHYLOGENY_LINKAGE_COMPLETE = 1;
 	public final static int PHYLOGENY_LINKAGE_AVERAGE = 2;
-	
+
 	INIFileSection m_SectionPhylogeny;
 	public static INIFileNominal m_PhylogenyDM;
 	public static INIFileNominal m_PhylogenyProtoComlexity;
 	public static INIFileNominal m_PhylogenyLinkage;
-	
+
 	public boolean isSectionPhylogenyEnabled() {
 		return m_SectionPhylogeny.isEnabled();
 	}
-	
+
 	public void setSectionPhylogenyEnabled(boolean enable) {
 		m_SectionPhylogeny.setEnabled(enable);
 	}
@@ -1811,7 +1811,7 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierNoRootPreds = new INIFileBool("NoRootPredictions", false));
 		m_SectionHierarchical.addNode(m_HierPruneInSig = new INIFileDouble("PruneInSig", 0.0));
 		m_SectionHierarchical.addNode(m_HierUseBonferroni = new INIFileBool("Bonferroni", false));
-		m_SectionHierarchical.addNode(m_HierClassThreshold = new INIFileNominalOrDoubleOrVector("ClassificationTreshold", NONELIST));
+		m_SectionHierarchical.addNode(m_HierClassThreshold = new INIFileNominalOrDoubleOrVector("ClassificationThreshold", NONELIST));
 		m_HierClassThreshold.setNominal(0);
 		m_SectionHierarchical.addNode(m_HierEvalClasses = new INIFileString("EvalClasses", NONE));
 		m_SectionHierarchical.setEnabled(false);
@@ -1850,7 +1850,7 @@ public class Settings implements Serializable {
 		m_SectionTimeSeries.addNode(m_TimeSeriesDM=new INIFileNominal("DistanceMeasure", TIME_SERIES_DISTANCE_MEASURE,0));
 		m_SectionTimeSeries.addNode(m_TimeSeriesProtoComlexity=new INIFileNominal("PrototypeComlexity", TIME_SERIES_PROTOTYPE_COMPLEXITY,0));
 		m_SectionTimeSeries.setEnabled(false);
-		
+
 		m_SectionPhylogeny = new INIFileSection("Phylogeny");
 		m_SectionPhylogeny.addNode(m_PhylogenyDM=new INIFileNominal("DistanceMeasure", PHYLOGENY_DISTANCE_MEASURE,0));
 		m_SectionPhylogeny.addNode(m_PhylogenyProtoComlexity=new INIFileNominal("Prototype_or_Pairwise", PHYLOGENY_PROTOTYPE_COMPLEXITY,0));

@@ -166,13 +166,13 @@ public class ClassesTuple implements Serializable {
 		}
 	}
 
-	public final void addIntermediateElems(ClassHierarchy hier, boolean[] interms, ArrayList added) {
-		fillBoolArrayNodeAndAncestors(interms);
+	public final void addIntermediateElems(ClassHierarchy hier, boolean[] alllabels, ArrayList added) {
+		fillBoolArrayNodeAndAncestors(alllabels);
 		for (int i = 0; i < hier.getTotal(); i++) {
-			if (interms[i]) {
+			if (alllabels[i]) {
 				ClassTerm term = hier.getTermAt(i);
 				ClassesValue val = new ClassesValue(term);
-				val.setIntermediate(term.hasChildrenIn(interms));
+				val.setIntermediate(term.hasChildrenIn(alllabels));
 				added.add(val);
 			}
 		}
@@ -240,6 +240,18 @@ public class ClassesTuple implements Serializable {
 		}
 	}
 
+	public void removeLabels(boolean[] removed) {
+		ArrayList left = new ArrayList();
+		for (int i = 0; i < getNbClasses(); i++) {
+			ClassesValue val = getClass(i);
+			if (!removed[val.getIndex()]) left.add(val);
+		}
+		m_Tuple = new ClassesValue[left.size()];
+		for (int i = 0; i < left.size(); i++) {
+			m_Tuple[i] = (ClassesValue)left.get(i);
+		}
+	}
+
 	public static ClassesTuple readFromFile(String fname, ClassHierarchy hier) throws ClusException, IOException {
 		int idx = 0;
 		BufferedReader input = new BufferedReader(new FileReader(fname));
@@ -259,4 +271,5 @@ public class ClassesTuple implements Serializable {
 		tuple.addHierarchyIndices(hier);
 		return tuple;
 	}
+
 }

@@ -136,10 +136,10 @@ public class ClassesAttrType extends ClusAttrType {
 		// and adds intermediate class nodes to each example
 		pps.addPreproc(new ClassHierarchyPreproc(this, true));
 	}
-	
+
 	public void initializeBeforeLoadingData() throws IOException, ClusException {
 		if (isDisabled()) {
-			// No need to initialize class hierarchy of disabled attributes 
+			// No need to initialize class hierarchy of disabled attributes
 			return;
 		}
 		if (getSettings().hasDefinitionFile()) {

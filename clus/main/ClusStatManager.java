@@ -76,7 +76,7 @@ public class ClusStatManager implements Serializable {
 	public final static int MODE_TIME_SERIES = 5;
 
 	public final static int MODE_ILEVELC = 6;
-	
+
 	public final static int MODE_PHYLO = 7;
 
 	protected int m_Mode = MODE_NONE;
@@ -365,7 +365,7 @@ public class ClusStatManager implements Serializable {
 
 	public ClusStatistic createSuitableStat(NumericAttrType[] num, NominalAttrType[] nom) {
 		System.out.println("creating stat");
-		if (num.length == 0) {			
+		if (num.length == 0) {
 			if (m_Mode == MODE_PHYLO) {
 				switch (Settings.m_PhylogenyProtoComlexity.getValue()) {
 				case Settings.PHYLOGENY_PROTOTYPE_COMPLEXITY_PAIRWISE:
@@ -450,7 +450,7 @@ public class ClusStatManager implements Serializable {
 					System.err.println("QDM Distance is not implemented for time series with different length");
 					Settings.m_TimeSeriesDM.setSingleValue(Settings.TIME_SERIES_DISTANCE_MEASURE_DTW);
 					setClusteringStatistic(new DTWTimeSeriesStat(type));
-					setTargetStatistic(new DTWTimeSeriesStat(type));					
+					setTargetStatistic(new DTWTimeSeriesStat(type));
 				}
 				break;
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_TSC:
@@ -616,11 +616,11 @@ public class ClusStatManager implements Serializable {
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {
 				m_Heuristic = new GainHeuristic(true);
 			} else {
-				if ((getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT && 
+				if ((getSettings().getHeuristic() != Settings.HEURISTIC_DEFAULT &&
 				    getSettings().getHeuristic() != Settings.HEURISTIC_GAIN) &&
 				    getSettings().getHeuristic() != Settings.HEURISTIC_GENETIC_DISTANCE) {
 						throw new ClusException("Given heuristic not supported for classification trees!");
-				}				
+				}
 				m_Heuristic = new GainHeuristic(false);
 				getSettings().setHeuristic(Settings.HEURISTIC_GAIN);
 			}
@@ -760,7 +760,7 @@ public class ClusStatManager implements Serializable {
 		ClusErrorList parent = new ClusErrorList();
 		if (m_Mode == MODE_TIME_SERIES) {
 			ClusAttrType[] targets = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			TimeSeriesAttrType type = (TimeSeriesAttrType)targets[0];			
+			TimeSeriesAttrType type = (TimeSeriesAttrType)targets[0];
 			TimeSeriesStat tstat = null;
 			if (Settings.m_TimeSeriesDM.getValue() == Settings.TIME_SERIES_DISTANCE_MEASURE_DTW){
 				tstat = new DTWTimeSeriesStat(type);

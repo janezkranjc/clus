@@ -80,7 +80,7 @@ public class HierErrorMeasures extends ClusError {
 			case Settings.HIERMEASURE_AUPRC:
 				return m_AverageAUPRC;
 			case Settings.HIERMEASURE_WEIGHTED_AUPRC:
-				return m_WAvgAUPRC;				
+				return m_WAvgAUPRC;
 			case Settings.HIERMEASURE_POOLED_AUPRC:
 				return m_PooledAUPRC;
 		}

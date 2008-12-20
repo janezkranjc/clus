@@ -340,26 +340,31 @@ public class ClassHierarchy implements Serializable {
 		}
 	}
 
-	public void removeZeroClasses(WHTDStatistic stat) {
+	public boolean[] removeInfrequentClasses(WHTDStatistic stat, double minfreq) {
+		boolean[] removed = new boolean[getTotal()];
 		ArrayList new_cls = new ArrayList();
 		for (int i = 0; i < getTotal(); i++) {
-			if (stat.getMean(i) == 0.0) {
+			double mean = stat.getMean(i);
+			if (mean == 0.0 || mean < minfreq) {
 				ClassTerm trm = getTermAt(i);
 				for (int j = 0; j < trm.getNbParents(); j++) {
 					ClassTerm par = trm.getParent(j);
 					par.removeChild(trm);
 				}
+				removed[trm.getIndex()] = true;
 			} else {
 				new_cls.add(getTermAt(i));
 			}
 		}
 		m_ClassList.clear();
 		m_ClassMap.clear();
-		for (int i = 0; i < new_cls.size(); i++) {
-			ClassTerm trm = (ClassTerm)new_cls.get(i);
-			m_ClassMap.put(trm.getID(), trm);
+		if (isDAG()) {
+			for (int i = 0; i < new_cls.size(); i++) {
+				ClassTerm trm = (ClassTerm)new_cls.get(i);
+				m_ClassMap.put(trm.getID(), trm);
+			}
 		}
-		initialize();
+		return removed;
 	}
 
 	public final NumericAttrType[] getDummyAttrs() {

@@ -22,6 +22,9 @@
 
 package addon.hmc.HMCConvertDAGData;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import jeans.util.*;
 import clus.*;
 import clus.main.*;
@@ -29,13 +32,15 @@ import clus.statistic.ClusStatistic;
 import clus.data.io.*;
 import clus.data.rows.*;
 import clus.ext.hierarchical.ClassHierarchy;
+import clus.ext.hierarchical.ClassesAttrType;
+import clus.ext.hierarchical.ClassesTuple;
 import clus.ext.hierarchical.WHTDStatistic;
 
 public class HMCConvertDAGData {
 
 	public final static boolean CREATE_TRAIN_TUNE_TEST_SPLIT = true;
 
-	public void convert(String input, String output) throws Exception {
+	public void convert(String input, String output, double minfreq) throws Exception {
 		Clus clus = new Clus();
 		String appname = FileUtil.getName(input)+".s";
 		clus.initializeAddOn(appname);
@@ -49,17 +54,39 @@ public class HMCConvertDAGData {
 			data.calcTotalStats(stats);
 			if (!sett.isNullTestFile()) {
 				System.out.println("Loading: " + sett.getTestFile());
-				clus.updateStatistic(sett.getTestFile(), stats);
+				if (minfreq != 0.0) {
+					RowData test  = (RowData)run.getTestSet();
+					test.calcTotalStats(stats);
+				} else {
+					clus.updateStatistic(sett.getTestFile(), stats);
+				}
 			}
 			if (!sett.isNullPruneFile()) {
 				System.out.println("Loading: " + sett.getPruneFile());
-				clus.updateStatistic(sett.getPruneFile(), stats);
+				if (minfreq != 0.0) {
+					RowData tune  = (RowData)run.getPruneSet();
+					tune.calcTotalStats(stats);
+				} else {
+					clus.updateStatistic(sett.getPruneFile(), stats);
+				}
 			}
 			ClusStatistic.calcMeans(stats);
 			WHTDStatistic stat = (WHTDStatistic)stats[0];
 			stat.showRootInfo();
 			ClassHierarchy hier = mgr.getHier();
-			hier.removeZeroClasses(stat);
+			boolean[] removed = hier.removeInfrequentClasses(stat, minfreq);
+			if (minfreq != 0.0) {
+				ClassesAttrType type = hier.getType();
+				removeLabelsFromData((RowData)run.getTrainingSet(), type, removed);
+				if (!sett.isNullTestFile()) removeLabelsFromData((RowData)run.getTestSet(), type, removed);
+				if (!sett.isNullPruneFile()) removeLabelsFromData((RowData)run.getPruneSet(), type, removed);
+			}
+			hier.initialize();
+			if (minfreq != 0.0) {
+				addIntermediateLabels((RowData)run.getTrainingSet(), hier);
+				if (!sett.isNullTestFile()) addIntermediateLabels((RowData)run.getTestSet(), hier);
+				if (!sett.isNullPruneFile()) addIntermediateLabels((RowData)run.getPruneSet(), hier);
+			}
 			hier.showSummary();
 			RowData train = (RowData)run.getTrainingSet();
 			ARFFFile.writeArff(output+".train.arff", train);
@@ -76,16 +103,47 @@ public class HMCConvertDAGData {
 		}
 	}
 
+	public void removeLabelsFromData(RowData data, ClassesAttrType type, boolean[] removed) {
+		for (int i = 0; i < data.getNbRows(); i++) {
+			ClassesTuple tuple = (ClassesTuple)data.getTuple(i).getObjVal(type.getArrayIndex());
+			tuple.removeLabels(removed);
+		}
+	}
+
+	public void addIntermediateLabels(RowData data, ClassHierarchy hier) {
+		ClassesAttrType type = hier.getType();
+		ArrayList scratch = new ArrayList();
+		boolean[] alllabels = new boolean[hier.getTotal()];
+		ArrayList leftdata = new ArrayList();
+		for (int i = 0; i < data.getNbRows(); i++) {
+			DataTuple tuple = data.getTuple(i);
+			scratch.clear();
+			Arrays.fill(alllabels, false);
+			ClassesTuple ct = (ClassesTuple)tuple.getObjVal(type.getArrayIndex());
+			ct.addIntermediateElems(hier, alllabels, scratch);
+			if (ct.getNbClasses() > 0) {
+				leftdata.add(tuple);
+			}
+		}
+		data.setFromList(leftdata);
+	}
+
 	public static void main(String[] args) {
-		if (args.length != 2) {
-			System.out.println("Usage: HMCConvertDAGData input.arff output.arff");
+		if (args.length != 2 && args.length != 4) {
+			System.out.println("Usage: HMCConvertDAGData [-minfreq f] input.arff output.arff");
 			System.exit(0);
 		}
+		double minfreq = 0;
 		String input = args[0];
 		String output = args[1];
+		if (args[0].equals("-minfreq")) {
+			minfreq = Double.parseDouble(args[1]) / 100.0;
+			input = args[2];
+			output = args[3];
+		}
 		HMCConvertDAGData cnv = new HMCConvertDAGData();
 		try {
-			cnv.convert(input, output);
+			cnv.convert(input, output, minfreq);
 		} catch (Exception e) {
 			System.err.println("Error: "+e);
 			e.printStackTrace();

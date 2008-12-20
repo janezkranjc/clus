@@ -1,11 +1,11 @@
 Clus run iris
 *************
 
-Date: 12/12/08 7:50 PM
+Date: 12/20/08 11:46 PM
 File: iris-ilevelc.out
 Attributes: 5 (input: 4, output: 4)
 Missing values: No
-Memory usage: 12760 kB (initial), 12848 kB (data loaded)
+Memory usage: 12812 kB (initial), 12896 kB (data loaded)
 
 [General]
 Verbose = 1
@@ -41,6 +41,7 @@ ShowModels = {Default, Pruned, Others}
 TrainErrors = No
 AllFoldModels = Yes
 AllFoldErrors = No
+AllFoldDatasets = No
 WriteErrorFile = No
 UnknownFrequency = No
 BranchFrequency = No
@@ -91,7 +92,7 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.004 sec (CPU)
+Induction Time: 0.008 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
@@ -111,7 +112,7 @@ Root mean squared error (RMSE)
    Default        : [0.8253,0.4321,1.7585,0.7606]: 1.0652
    Original       : [0.4336,0.3516,0.4402,0.2659]: 0.3795
 Pearson correlation coefficient
-   Default        : [?,0,0,-0], Avg r^2: ?
+   Default        : [?,0,0,0], Avg r^2: ?
    Original       : [0.8509,0.5813,0.9682,0.9369], Avg r^2: 0.7192
 Rand index
    Default        : 0.3288590604026846

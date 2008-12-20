@@ -26,6 +26,7 @@
 package clus.ext.hierarchical;
 
 import java.io.*;
+import java.text.NumberFormat;
 import java.util.*;
 
 import org.apache.commons.math.distribution.*;
@@ -52,7 +53,7 @@ public class WHTDStatistic extends RegressionStat {
 	protected double[] m_DiscrMean;
 	protected WHTDStatistic m_Global, m_Validation;
 	protected double m_SigLevel;
-	protected double m_Threshold = 50.0;
+	protected double m_Threshold = -1.0;
 	protected int m_Compatibility;
 
 	public WHTDStatistic(ClassHierarchy hier, int comp) {
@@ -258,12 +259,30 @@ public class WHTDStatistic extends RegressionStat {
 
 	public String getString(StatisticPrintInfo info) {
 		String pred = null;
-		if (m_PrintTuple != null) {
-			pred = m_PrintTuple.toStringHuman(getHier());
+		if (m_Threshold >= 0.0) {
+			if (m_PrintTuple != null) {
+				pred = m_PrintTuple.toStringHuman(getHier());
+			} else {
+				pred = m_MeanTuple.toStringHuman(getHier());
+			}
+			return pred+" ["+ClusFormat.TWO_AFTER_DOT.format(getTotalWeight())+"]";
 		} else {
-			pred = m_MeanTuple.toStringHuman(getHier());
+			NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+			StringBuffer buf = new StringBuffer();
+			buf.append("[");
+			for (int i = 0; i < getHier().getTotal(); i++) {
+				if (i != 0) buf.append(",");
+				double tot = getSumWeights(i);
+				if (tot == 0) buf.append("?");
+				else buf.append(fr.format(getSumValues(i)/tot));
+			}
+			buf.append("]");
+			if (info.SHOW_EXAMPLE_COUNT) {
+				buf.append(": ");
+				buf.append(fr.format(m_SumWeight));
+			}
+			return buf.toString();
 		}
-		return pred+" ["+ClusFormat.TWO_AFTER_DOT.format(getTotalWeight())+"]";
 	}
 
 	public String getPredictString() {
