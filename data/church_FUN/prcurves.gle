@@ -19,8 +19,8 @@ begin graph
    size 6 6
    xaxis min 0 max 1 dticks 0.2
    yaxis min 0 max 1 dticks 0.2
-   xtitle "Precision"
-   ytitle "Recall"
+   ytitle "Precision"
+   xtitle "Recall"
    title "$\mathrm{AU}(\overline{\mathrm{PRC}})$"
    data "AUC_average/"+ds$+"-overall.dat"
    d1 line color red
@@ -36,8 +36,8 @@ begin graph
    size 6 6
    xaxis min 0 max 1 dticks 0.2
    yaxis min 0 max 1 dticks 0.2
-   xtitle "Precision"
-   ytitle "Recall"
+   ytitle "Precision"
+   xtitle "Recall"
    title "$\overline{\mathrm{AUPRC}}$"
    data "AUC_average/"+ds$+"-avg.dat"
    d1 line color red
@@ -53,8 +53,8 @@ begin graph
    size 6 6
    xaxis min 0 max 1 dticks 0.2
    yaxis min 0 max 1 dticks 0.2
-   xtitle "Precision"
-   ytitle "Recall"
+   ytitle "Precision"
+   xtitle "Recall"
    title "$\overline{\mathrm{AUPRC}_w}$"
    data "AUC_average/"+ds$+"-wavg.dat"
    d1 line color red
