@@ -50,6 +50,7 @@ WritePredictions = {Test}
 $$FILE: data/church_FUN/church_FUN_MLJ08.s
 
 $$COPY: ipol_pr.pl
+$$COPY: computepr.pl
 $$COPY: prcurves.pl
 $$COPY: prcurves.gle
 $$COPY: run_sc.pl
