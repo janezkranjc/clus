@@ -6,7 +6,7 @@
 % cdiff sspd.test.id orig/sspd_test.id.orig
 
 % *CLEAN*
-% rm -f %f.out %f.model %f.dist %f.train.1.id sspd_test.id
+% rm -f %f.out %f.model %f.dist %f.train.1.id sspd.test.id
 
 
 [Data]
