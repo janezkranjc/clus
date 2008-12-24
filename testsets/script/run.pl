@@ -14,13 +14,19 @@ open(LOG, ">>log.txt") || die "Can't create 'log.txt'";
 print LOG "RUN: $file\n";
 close(LOG);
 
-$hasclean = 0;
+$hasrun = 0;
 open(IN, $file) || die "Can't open '$file'";
-while (($hasclean == 0) && ($line = <IN>)) {
+while (($hasrun == 0) && ($line = <IN>)) {
    chomp($line);
+   if ($line =~ /^\%\s*\*EXCLUDE\*\s*$/) {
+      open(LOG, ">>log.txt") || die "Can't create 'log.txt'";
+      print LOG "*** EXCLUDED: $file!\n";
+      close(LOG);
+      $hasrun = 1;
+   }
    if ($line =~ /^\%\s*\*RUN\*\s*$/) {
       $done = 0;
-      $hasclean = 1;
+      $hasrun = 1;
       while (($done == 0) && ($line = <IN>)) {
          chomp($line);
          if (($line =~ /^\s*$/) || !($line =~ /^\s*\%/)) {
@@ -41,6 +47,6 @@ while (($hasclean == 0) && ($line = <IN>)) {
 }
 close(IN);
 
-if ($hasclean == 0) {
-   die "No cleaning information in '$file'";
+if ($hasrun == 0) {
+   die "No running information in '$file'";
 }

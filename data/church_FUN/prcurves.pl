@@ -11,6 +11,7 @@
 # Note: this script requires the script "ipol_pr.pl"
 
 # The result of running this script can be plotted with "prcurves.gle"
+# Using the GLE plotting tool available at <www.gle-graphics.org>
 
 # The ILLEGAL variable contains those (root) classes every example belongs to, these are not taken into account in the calculation
 
@@ -83,7 +84,7 @@ sub get_all_classes {
    open(RES, "$file") || die "get_all_classes: can't open '$file'";
    skip_till("^Testing error");
    $NBEXAMPLES = find_colon("Number of examples");
-   skip_till("Hierarchical error measures");
+   skip_till("Hierarchical accuracy by class");
    skip_till("^\\s+T\\(0\\.0\\)\\s*\\:");
    $done = 0;
    $count_cls = 0;
@@ -134,7 +135,7 @@ sub read_class_pr_values {
    my ($file) = @_;
    open(RES, "$file") || die "read_class_pr_values: can't open '$file'";
    skip_till("^Testing error");
-   skip_till("Hierarchical error measures");
+   skip_till("Hierarchical accuracy by class");
    $done = 0;
    $thres = -1;
    @allthres = ();

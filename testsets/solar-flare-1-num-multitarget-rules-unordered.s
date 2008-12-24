@@ -1,4 +1,6 @@
 
+% *EXCLUDE*
+
 % *RUN*
 % clus -rules %f.s
 % cdiff %f.out orig/%f.out.orig
