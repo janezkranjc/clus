@@ -406,6 +406,7 @@ public class Settings implements Serializable {
  ***********************************************************************/
 
 	protected INIFileDouble m_MinW;
+	protected INIFileInt m_MinNbEx;
 	protected INIFileString m_TuneFolds;
 	protected INIFileNominalOrDoubleOrVector m_ClassWeight;
 	protected INIFileBool m_NominalSubsetTests;
@@ -413,6 +414,10 @@ public class Settings implements Serializable {
 	public double getMinimalWeight() {
 		return m_MinW.getValue();
 	}
+	
+	public int getMinimalNbExamples() {
+		return m_MinNbEx.getValue();
+	}	
 
 	public void setMinimalWeight(double val) {
 		m_MinW.setValue(val);
@@ -1739,6 +1744,7 @@ public class Settings implements Serializable {
 
 		INIFileSection model = new INIFileSection("Model");
 		model.addNode(m_MinW = new INIFileDouble("MinimalWeight", 2.0));
+		model.addNode(m_MinNbEx = new INIFileInt("MinimalNumberExamples", 0));
 		model.addNode(m_TuneFolds = new INIFileString("ParamTuneNumberFolds", "10"));
 		model.addNode(m_ClassWeight = new INIFileNominalOrDoubleOrVector("ClassWeights", EMPTY));
 		model.addNode(m_NominalSubsetTests = new INIFileBool("NominalSubsetTests", true));

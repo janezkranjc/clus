@@ -113,6 +113,16 @@ public class ClusView {
 				}
 			}
 		}
+		// Attribute read operations eat ',' after attribute field
+		if (reader.isNextCharNoSpace('{')) {
+			if (!reader.readNoSpace()) {
+				throw new IOException("Error reading tuple weight at row "+(reader.getRow()+1));				
+			}
+			tuple.setWeight(reader.getFloat());
+			if (!reader.isNextChar('}')) {
+				throw new IOException("Expected closing '}' after tuple weight at row "+(reader.getRow()+1));
+			}
+		}				
 		reader.readEol();
 		return tuple;
 	}

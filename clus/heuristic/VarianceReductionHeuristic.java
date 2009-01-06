@@ -51,31 +51,24 @@ public class VarianceReductionHeuristic extends ClusHeuristic {
 	}
 
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
-		double n_tot = tstat.m_SumWeight;
-		double n_pos = pstat.m_SumWeight;
-		double n_neg = n_tot - n_pos;
 		// Acceptable?
-		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
+		if (stopCriterion(tstat, pstat, missing)) {
 			return Double.NEGATIVE_INFINITY;
-		}
-		// Calculate value
-		//System.out.println("Inside calcHeuristic()");
+		}		
+		// Calculate |S|Var[S]
 		double ss_tot = tstat.getSVarS(m_TargetWeights, m_Data);
-		//System.out.println("SS-tot: "+ss_tot);
 		double ss_pos = pstat.getSVarS(m_TargetWeights, m_Data);
-		//System.out.println("SS-pos: "+ss_pos);
 		m_NegStat.copy(tstat);
 		m_NegStat.subtractFromThis(pstat);
 		double ss_neg = m_NegStat.getSVarS(m_TargetWeights, m_Data);
-		//System.out.println("SS-neg: "+ss_neg);
-		//System.out.println("DONE.");
-		double value = FTest.calcVarianceReductionHeuristic(n_tot, ss_tot, ss_pos+ss_neg);
+		double value = FTest.calcVarianceReductionHeuristic(tstat.getTotalWeight(), ss_tot, ss_pos+ss_neg);
 		if (Settings.VERBOSE >= 10) {
 			System.out.println("TOT: "+tstat.getDebugString());
 			System.out.println("POS: "+pstat.getDebugString());
 			System.out.println("NEG: "+m_NegStat.getDebugString());
 			System.out.println("-> ("+ss_tot+", "+ss_pos+", "+ss_neg+") "+value);
 		}
+		// FIXME: Why is this here?
 		if (value < 1e-6) return Double.NEGATIVE_INFINITY;
 		return value;
 	}

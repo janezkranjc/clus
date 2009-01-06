@@ -36,43 +36,32 @@ public class VarianceReductionHeuristicEfficient extends ClusHeuristic {
 		m_ClusteringWeights = prod;
 		m_Attrs = attrs;
 	}
-
+	
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
-		double n_tot = tstat.getTotalWeight();
-		double n_pos = pstat.getTotalWeight();
-		double n_neg = n_tot - n_pos;
-		// Acceptable?
-		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
+		// Acceptable?		
+		if (stopCriterion(tstat, pstat, missing)) {
 			return Double.NEGATIVE_INFINITY;
-		}
-		/*
-		if(pstat.m_nbEx <= 2 || (tstat.m_nbEx - pstat.m_nbEx) <= 2){
-			return Double.NEGATIVE_INFINITY;
-		}
-		*/
-		// Compute SS
+		}		
+		// Compute |S|Var[S]
 		double ss_tot = tstat.getSVarS(m_ClusteringWeights);
 		double ss_pos = pstat.getSVarS(m_ClusteringWeights);
 		double ss_neg = tstat.getSVarSDiff(m_ClusteringWeights, pstat);
 		// printInfo(ss_tot, ss_pos, ss_neg, pstat);
-		return FTest.calcVarianceReductionHeuristic(n_tot, ss_tot, ss_pos+ss_neg);
+		return FTest.calcVarianceReductionHeuristic(tstat.getTotalWeight(), ss_tot, ss_pos+ss_neg);
 	}
 
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic[] pstat, int nbsplit) {
 		// Acceptable?
-		for (int i = 0; i < nbsplit; i++) {
-			if (pstat[i].getTotalWeight() < Settings.MINIMAL_WEIGHT) {
-				return Double.NEGATIVE_INFINITY;
-			}
-		}
-		// Compute SS
+		if (stopCriterion(tstat, pstat, nbsplit)) {
+			return Double.NEGATIVE_INFINITY;
+		}		
+		// Compute |S|Var[S]
 		double ss_sum = 0.0;
 		for (int i = 0; i < nbsplit; i++) {
 			ss_sum += pstat[i].getSVarS(m_ClusteringWeights);
 		}
 		double ss_tot = tstat.getSVarS(m_ClusteringWeights);
-		double n_tot = tstat.getTotalWeight();
-		return FTest.calcVarianceReductionHeuristic(n_tot, ss_tot, ss_sum);
+		return FTest.calcVarianceReductionHeuristic(tstat.getTotalWeight(), ss_tot, ss_sum);
 	}
 
 	public String getName() {

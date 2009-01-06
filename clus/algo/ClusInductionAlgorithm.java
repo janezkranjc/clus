@@ -77,7 +77,7 @@ public abstract class ClusInductionAlgorithm {
 	}
 
 	public void initialize() throws ClusException, IOException {
-		m_StatManager.initSH();
+		m_StatManager.initStatisticAndStatManager();
 	}
 
 	public void getPreprocs(DataPreprocs pps) {

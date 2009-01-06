@@ -34,6 +34,8 @@ public abstract class ClusHeuristic {
 
 	// Value of the heuristic on the training data
 	protected double m_TrainDataHeurValue;
+	
+	protected ClusStopCriterion m_StopCrit;
 
 	public void setData(RowData data) {
 	}
@@ -48,6 +50,14 @@ public abstract class ClusHeuristic {
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic[] c_pstat, int nbsplit) {
 		return Double.NEGATIVE_INFINITY;
 	}
+	
+	public boolean stopCriterion(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
+		return m_StopCrit.stopCriterion(tstat, pstat, missing);
+	}
+	
+	public boolean stopCriterion(ClusStatistic tstat, ClusStatistic[] pstat, int nbsplit) {
+		return m_StopCrit.stopCriterion(tstat, pstat, nbsplit);
+	}	
 
 	public static double nonZero(double val) {
 		if (val < 1e-6) return Double.NEGATIVE_INFINITY;
@@ -70,4 +80,7 @@ public abstract class ClusHeuristic {
 		m_TrainDataHeurValue = value;
 	}
 
+	public void setStopCriterion(ClusStopCriterion stop) {
+		m_StopCrit = stop;
+	}
 }

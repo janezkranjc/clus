@@ -76,7 +76,7 @@ public abstract class TimeSeriesStat extends BitVectorStat implements ClusDistan
 	 */
 	public TimeSeriesStat normalizedCopy() {
 		TimeSeriesStat copy = (TimeSeriesStat)cloneSimple();
-		copy.m_nbEx = 0;
+		copy.m_NbExamples = 0;
 		copy.m_SumWeight = 1;
 		copy.m_TimeSeriesStack.add(getTimeSeriesPred());
 		copy.m_RepresentativeMean.setValues(m_RepresentativeMean.getValues());

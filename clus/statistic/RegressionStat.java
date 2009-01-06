@@ -96,7 +96,7 @@ public class RegressionStat extends ClusStatistic {
 
 	public void reset() {
 		m_SumWeight = 0.0;
-		m_nbEx = 0;
+		m_NbExamples = 0;
 		for (int i = 0; i < m_NbAttrs; i++) {
 			m_SumWeights[i] = 0.0;
 			m_SumValues[i] = 0.0;
@@ -107,7 +107,7 @@ public class RegressionStat extends ClusStatistic {
 	public void copy(ClusStatistic other) {
 		RegressionStat or = (RegressionStat)other;
 		m_SumWeight = or.m_SumWeight;
-		m_nbEx = or.m_nbEx;
+		m_NbExamples = or.m_NbExamples;
 		System.arraycopy(or.m_SumWeights, 0, m_SumWeights, 0, m_NbAttrs);
 		System.arraycopy(or.m_SumValues, 0, m_SumValues, 0, m_NbAttrs);
 		System.arraycopy(or.m_SumSqValues, 0, m_SumSqValues, 0, m_NbAttrs);
@@ -118,7 +118,7 @@ public class RegressionStat extends ClusStatistic {
 	 */
 	public RegressionStat normalizedCopy() {
 		RegressionStat copy = (RegressionStat)cloneSimple();
-		copy.m_nbEx = 0;
+		copy.m_NbExamples = 0;
 		copy.m_SumWeight = 1;
 		calcMean(copy.m_Means);
 		return copy;
@@ -134,7 +134,7 @@ public class RegressionStat extends ClusStatistic {
 	public void add(ClusStatistic other) {
 		RegressionStat or = (RegressionStat)other;
 		m_SumWeight += or.m_SumWeight;
-		m_nbEx += or.m_nbEx;
+		m_NbExamples += or.m_NbExamples;
 		for (int i = 0; i < m_NbAttrs; i++) {
 			m_SumWeights[i] += or.m_SumWeights[i];
 			m_SumValues[i] += or.m_SumValues[i];
@@ -145,7 +145,7 @@ public class RegressionStat extends ClusStatistic {
 	public void addScaled(double scale, ClusStatistic other) {
 		RegressionStat or = (RegressionStat)other;
 		m_SumWeight += scale * or.m_SumWeight;
-		m_nbEx += or.m_nbEx;
+		m_NbExamples += or.m_NbExamples;
 		for (int i = 0; i < m_NbAttrs; i++) {
 			m_SumWeights[i] += scale * or.m_SumWeights[i];
 			m_SumValues[i] += scale * or.m_SumValues[i];
@@ -156,7 +156,7 @@ public class RegressionStat extends ClusStatistic {
 	public void subtractFromThis(ClusStatistic other) {
 		RegressionStat or = (RegressionStat)other;
 		m_SumWeight -= or.m_SumWeight;
-		m_nbEx -= or.m_nbEx;
+		m_NbExamples -= or.m_NbExamples;
 		for (int i = 0; i < m_NbAttrs; i++) {
 			m_SumWeights[i] -= or.m_SumWeights[i];
 			m_SumValues[i] -= or.m_SumValues[i];
@@ -167,25 +167,11 @@ public class RegressionStat extends ClusStatistic {
 	public void subtractFromOther(ClusStatistic other) {
 		RegressionStat or = (RegressionStat)other;
 		m_SumWeight = or.m_SumWeight - m_SumWeight;
-		m_nbEx = or.m_nbEx - m_nbEx;
+		m_NbExamples = or.m_NbExamples - m_NbExamples;
 		for (int i = 0; i < m_NbAttrs; i++) {
 			m_SumWeights[i] = or.m_SumWeights[i] - m_SumWeights[i];
 			m_SumValues[i] = or.m_SumValues[i] - m_SumValues[i];
 			m_SumSqValues[i] = or.m_SumSqValues[i] - m_SumSqValues[i];
-		}
-	}
-
-	public void update(ColTarget target, int idx) {
-		m_nbEx += 1;
-		m_SumWeight += 1.0;
-		double[] values = target.m_Numeric[idx];
-		for (int i = 0; i < m_NbAttrs; i++) {
-			double val = values[i];
-			if (val != Double.POSITIVE_INFINITY) {
-				m_SumWeights[i] += 1.0;
-				m_SumValues[i] += val;
-				m_SumSqValues[i] += val*val;
-			}
 		}
 	}
 
@@ -194,7 +180,7 @@ public class RegressionStat extends ClusStatistic {
 	}
 
 	public void updateWeighted(DataTuple tuple, double weight) {
-		m_nbEx += 1;
+		m_NbExamples++;
 		m_SumWeight += weight;
 		for (int i = 0; i < m_NbAttrs; i++) {
 			double val = m_Attrs[i].getNumeric(tuple);

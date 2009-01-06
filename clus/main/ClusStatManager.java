@@ -145,7 +145,7 @@ public class ClusStatManager implements Serializable {
 		return m_Hier;
 	}
 
-	public void initSH() throws ClusException, IOException {
+	public void initStatisticAndStatManager() throws ClusException, IOException {
 		initWeights();
 		initStatistic();
 		initHierarchySettings();
@@ -624,7 +624,19 @@ public class ClusStatManager implements Serializable {
 				m_Heuristic = new GainHeuristic(false);
 				getSettings().setHeuristic(Settings.HEURISTIC_GAIN);
 			}
+		}		
+	}
+	
+	public void initStopCriterion() {
+		ClusStopCriterion stop = null;
+		int minEx = getSettings().getMinimalNbExamples();
+		if (minEx > 0) {
+			stop = new ClusStopCriterionMinNbExamples(minEx);
+		} else {
+			double minW = getSettings().getMinimalWeight();
+			stop = new ClusStopCriterionMinWeight(minW);
 		}
+		m_Heuristic.setStopCriterion(stop); 
 	}
 
 	/**

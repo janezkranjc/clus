@@ -167,33 +167,19 @@ public class FTest {
 		return FTEST_SIG[Settings.FTEST_LEVEL];
 	}
 
-	public static double transformHeur(double value, double n_tot, double n_pos, double n_neg) {
-		if (value < 1e-6) return Double.NEGATIVE_INFINITY;
-		else return value;
-	}
-
-	public static double calcSSHeuristicRatio(double ss_tot, double sum_ss, double n_tot, double n_pos, double n_neg) {
-		double val = ss_tot - sum_ss;
-		int n_2 = (int)Math.floor(n_tot - 2.0 + 0.5);
-		if (n_2 <= 0) {
-			if (Settings.FTEST_LEVEL == 0) return transformHeur(val, n_tot, n_pos, n_neg);
-			else return Double.NEGATIVE_INFINITY;
-		} else {
-			if (ftest(Settings.FTEST_LEVEL, ss_tot, sum_ss, n_2)) {
-				return transformHeur(val, n_tot, n_pos, n_neg);
-			} else {
-				return Double.NEGATIVE_INFINITY;
-			}
-		}
-	}
-
-	public static double calcVarianceReductionHeuristic(double n_tot, double ss_tot, double ss_sum) {
-		int n_2 = (int)Math.floor(n_tot - 2.0 + 0.5);
+	public static double calcVarianceReductionHeuristic(double n_tot, double ss_tot, double ss_sum) {		
 		double value = ss_tot - ss_sum;
-		if (value < MathUtil.C1E_9) return Double.NEGATIVE_INFINITY;
+		if (value < MathUtil.C1E_9) {
+			// Gain too small
+			return Double.NEGATIVE_INFINITY;
+		}		
+		if (Settings.FTEST_LEVEL == 0) {
+			// No F-test -> just return value
+			return value;
+		}
+		int n_2 = (int)Math.floor(n_tot - 2.0 + 0.5);
 		if (n_2 <= 0) {
-			if (Settings.FTEST_LEVEL == 0) return value;
-			else return Double.NEGATIVE_INFINITY;
+			return Double.NEGATIVE_INFINITY;
 		} else {
 			if (FTest.ftest(Settings.FTEST_LEVEL, ss_tot, ss_sum, n_2)) {
 				return value;

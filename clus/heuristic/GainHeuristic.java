@@ -22,7 +22,6 @@
 
 package clus.heuristic;
 
-import clus.main.*;
 import clus.statistic.*;
 
 import jeans.math.*;
@@ -40,16 +39,16 @@ public class GainHeuristic extends ClusHeuristic {
 	}
 
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
+		// Acceptable?
+		if (stopCriterion(c_tstat, c_pstat, missing)) {
+			return Double.NEGATIVE_INFINITY;
+		}		
 		ClassificationStat tstat = (ClassificationStat)c_tstat;
 		ClassificationStat pstat = (ClassificationStat)c_pstat;
 		// Equal for all target attributes
 		double n_tot = tstat.getTotalWeight();
 		double n_pos = pstat.getTotalWeight();
 		double n_neg = n_tot - n_pos;
-		// Acceptable?
-		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
-			return Double.NEGATIVE_INFINITY;
-		}
 		// Initialize entropy's
 		double tot_ent = tstat.entropy();
 		double pos_ent = pstat.entropy();
@@ -67,11 +66,9 @@ public class GainHeuristic extends ClusHeuristic {
 
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic[] c_pstat, int nbsplit) {
 		// Acceptable?
-		for (int i = 0; i < nbsplit; i++) {
-			if (c_pstat[i].getTotalWeight() < Settings.MINIMAL_WEIGHT) {
-				return Double.NEGATIVE_INFINITY;
-			}
-		}
+		if (stopCriterion(c_tstat, c_pstat, nbsplit)) {
+			return Double.NEGATIVE_INFINITY;
+		}		
 		// Total Entropy
 		ClassificationStat tstat = (ClassificationStat)c_tstat;
 		double n_tot = tstat.getTotalWeight();

@@ -60,7 +60,7 @@ public class TildeOutReader {
 		try {
 			m_Schema.addIndices(ClusSchema.ROWS);
 			m_StatMgr = new ClusStatManager(m_Schema, new Settings());
-			m_StatMgr.initSH();
+			m_StatMgr.initStatisticAndStatManager();
 			TildeTreeReader treer = new TildeTreeReader(this);
 			m_Root = treer.readTree();
 			m_Root.addChildStats();

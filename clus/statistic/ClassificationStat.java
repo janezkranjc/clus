@@ -67,15 +67,6 @@ public class ClassificationStat extends ClusStatistic {
 		m_Attrs = nomAtts;
 	}
 
-/*	public ClassificationStat(BitwiseNominalAttrType[] nomAtts) {
-		m_NbTarget = nomAtts.length;
-		m_ClassCounts = new double[m_NbTarget][];
-		for (int i = 0; i < m_NbTarget; i++) {
-			m_ClassCounts[i] = new double[nomAtts[i].getNbValues()];
-		}
-		m_Attrs = nomAtts;
-	}*/
-
 	public int getNbNominalAttributes() {
 		return m_NbTarget;
 	}
@@ -104,6 +95,7 @@ public class ClassificationStat extends ClusStatistic {
 
 	public void reset() {
 		m_SumWeight = 0.0;
+		m_NbExamples = 0;
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] clcts = m_ClassCounts[i];
 			for (int j = 0; j < clcts.length; j++) clcts[j] = 0.0;
@@ -115,6 +107,7 @@ public class ClassificationStat extends ClusStatistic {
 	 */
 	public void resetToSimple(double weight) {
 		m_SumWeight = weight;
+		m_NbExamples = 0;
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] clcts = m_ClassCounts[i];
 			for (int j = 0; j < clcts.length; j++) {
@@ -130,6 +123,7 @@ public class ClassificationStat extends ClusStatistic {
 	public void copy(ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
 		m_SumWeight = or.m_SumWeight;
+		m_NbExamples = or.m_NbExamples;
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
@@ -173,6 +167,7 @@ public class ClassificationStat extends ClusStatistic {
 	public void add(ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
 		m_SumWeight += or.m_SumWeight;
+		m_NbExamples += or.m_NbExamples;
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
@@ -183,6 +178,7 @@ public class ClassificationStat extends ClusStatistic {
 	public void addScaled(double scale, ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
 		m_SumWeight += scale*or.m_SumWeight;
+		m_NbExamples += or.m_NbExamples;
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
@@ -193,6 +189,7 @@ public class ClassificationStat extends ClusStatistic {
 	public void subtractFromThis(ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
 		m_SumWeight -= or.m_SumWeight;
+		m_NbExamples -= or.m_NbExamples;
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
@@ -203,25 +200,11 @@ public class ClassificationStat extends ClusStatistic {
 	public void subtractFromOther(ClusStatistic other) {
 		ClassificationStat or = (ClassificationStat)other;
 		m_SumWeight = or.m_SumWeight - m_SumWeight;
+		m_NbExamples = or.m_NbExamples - m_NbExamples;
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
 			for (int j = 0; j < my.length; j++) my[j] = your[j] - my[j];
-		}
-	}
-
-	public void update(ColTarget target, int idx) {
-		m_SumWeight += 1.0;
-		int[] values = target.m_Nominal[idx];
-		for (int i = 0; i < m_NbTarget; i++) {
-			m_ClassCounts[i][values[i]] += 1.0;
-		}
-	}
-
-	public void update(int j, int[] values) {
-		m_SumWeight += 1.0;
-		for (int i = 0; i < m_NbTarget; i++) {
-			m_ClassCounts[i][values[i]] += 1.0;
 		}
 	}
 
@@ -230,7 +213,8 @@ public class ClassificationStat extends ClusStatistic {
 	}
 
 	public void updateWeighted(DataTuple tuple, double weight) {
-		m_SumWeight += weight;
+		m_NbExamples++;		
+		m_SumWeight += weight;		
 		for (int i = 0; i < m_NbTarget; i++) {
 			int val = m_Attrs[i].getNominal(tuple);
 //			System.out.println("val: "+ val);

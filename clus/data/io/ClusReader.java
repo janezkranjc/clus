@@ -143,9 +143,24 @@ public class ClusReader {
 	public int getNextChar() throws IOException {
 		return getNextChar(m_Token.getReader());
 	}
+	
+	public int getNextCharNoSpace() throws IOException {
+		int ch = getNextChar();
+		while (ch == ' ' || ch == '\t') {
+			ch = getNextChar();
+		}
+		return ch;
+	}	
 
 	public boolean isNextChar(int ch) throws IOException {
 		int found = getNextChar();
+		if (ch == found) return true;
+		setLastChar(found);
+		return false;
+	}
+	
+	public boolean isNextCharNoSpace(int ch) throws IOException {
+		int found = getNextCharNoSpace();
 		if (ch == found) return true;
 		setLastChar(found);
 		return false;
