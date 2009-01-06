@@ -342,8 +342,11 @@ public class RegressionStat extends ClusStatistic {
 			double k_tot = m_SumWeights[i];
 			double sv_tot = m_SumValues[i];
 			double ss_tot = m_SumSqValues[i];
-//			double wi = scale.getWeight(m_Attrs[i]);
-			result += ((k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0)*scale.getWeight(m_Attrs[i]);
+			if (k_tot == n_tot) {
+				result += (ss_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);	
+			} else {
+				result += (ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot)*scale.getWeight(m_Attrs[i]);
+			}
 		}
 		return result / m_NbAttrs;
 	}
@@ -360,7 +363,11 @@ public class RegressionStat extends ClusStatistic {
 			double k_tot = m_SumWeights[i] - or.m_SumWeights[i];
 			double sv_tot = m_SumValues[i] - or.m_SumValues[i];
 			double ss_tot = m_SumSqValues[i] - or.m_SumSqValues[i];
-			result += ((k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0)*scale.getWeight(m_Attrs[i]);
+			if (k_tot == n_tot) {
+				result += (ss_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);	
+			} else {
+				result += (ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot)*scale.getWeight(m_Attrs[i]);
+			}
 		}
 		return result / m_NbAttrs;
 	}

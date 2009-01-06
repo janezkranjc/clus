@@ -77,8 +77,8 @@ public class M5Pruner extends PruneTree {
 		double adjustedErrorLeaf = rmsLeaf * pruningFactor(stat.getTotalWeight(), 1);
 		double rmsSubTree = Math.sqrt(node.estimateClusteringSS(m_ClusteringWeights)/stat.getTotalWeight());
 		double adjustedErrorTree = rmsSubTree * pruningFactor(stat.getTotalWeight(), node.getModelSize());
-		System.out.println("C leaf: "+rmsLeaf+" tree: "+rmsSubTree);
-		System.out.println("C leafadj: "+adjustedErrorLeaf +" treeadj: "+rmsSubTree);
+		// System.out.println("C leaf: "+rmsLeaf+" tree: "+rmsSubTree);
+		// System.out.println("C leafadj: "+adjustedErrorLeaf +" treeadj: "+rmsSubTree);
 		if ((adjustedErrorLeaf <= adjustedErrorTree) ||
 		    (adjustedErrorLeaf < (m_GlobalDeviation * 0.00001))) {
 				node.makeLeaf();
