@@ -1617,6 +1617,14 @@ public class Settings implements Serializable {
 		return m_RandomAttrSelected.getValue();
 	}
 
+	public void updateNbRandomAttrSelected(ClusSchema schema){
+		int fsize;
+		if (getNbRandomAttrSelected() == 0)
+			fsize = (int) (Math.log(schema.getNbDescriptiveAttributes())/Math.log(2) + 1);
+		else fsize = getNbRandomAttrSelected();
+		setNbRandomAttrSelected(fsize);
+	}
+	
 	public void setNbRandomAttrSelected(int value) {
 		m_RandomAttrSelected.setValue(value);
 	}
@@ -1868,7 +1876,7 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_NbBags = new INIFileNominalOrIntOrVector("Iterations", NONELIST));
 		m_SectionEnsembles.addNode(m_EnsembleMethod =new INIFileNominal("EnsembleMethod", ENSEMBLE_TYPE,0));
 		m_SectionEnsembles.addNode(m_ClassificationVoteType =new INIFileNominal("VotingType", VOTING_TYPE,0));
-		m_SectionEnsembles.addNode(m_RandomAttrSelected = new INIFileInt("SelectRandomSubspaces", 1));
+		m_SectionEnsembles.addNode(m_RandomAttrSelected = new INIFileInt("SelectRandomSubspaces", 0));
 		m_SectionEnsembles.addNode(m_PrintAllModels = new INIFileBool("PrintAllModels", false));
 		m_SectionEnsembles.addNode(m_EnsembleShouldOpt = new INIFileBool("Optimize", false));
 		m_SectionEnsembles.addNode(m_EnsembleOOBestimate = new INIFileBool("OOBestimate", false));
@@ -1984,6 +1992,7 @@ public class Settings implements Serializable {
 		BEAM_SIMILARITY = getBeamSimilarity();
 		BEAM_SYNT_DIST_CONSTR = hasBeamConstraintFile();
 		VERBOSE = m_Verbose.getValue();
+		if (isEnsembleMode())updateNbRandomAttrSelected(schema);
 	}
 
 	public int getVerbose() {
