@@ -35,6 +35,7 @@ import org.apache.commons.math.*;
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.*;
 import clus.data.type.*;
+import clus.ext.timeseries.TimeSeries;
 import clus.main.*;
 import clus.statistic.*;
 import clus.util.*;
@@ -248,6 +249,21 @@ public class WHTDStatistic extends RegressionStat {
 			double actual_zo = actual[i] ? 1.0 : 0.0;
 			double dist = actual_zo - m_Means[i];
 			sum += dist * dist * weights.getWeight(type);
+		}
+		return sum / getNbAttributes();
+	}
+	
+	public double getAbsoluteDistance(DataTuple tuple, ClusAttributeWeights weights) {
+		double sum = 0.0;
+		boolean[] actual = new boolean[m_Hier.getTotal()];
+		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(m_Hier.getType().getArrayIndex());
+		tp.fillBoolArrayNodeAndAncestors(actual);
+		for (int i = 0; i < m_Hier.getTotal(); i++) {
+			NumericAttrType type = getAttribute(i);
+			double actual_zo = actual[i] ? 1.0 : 0.0;
+			double dist = actual_zo - m_Means[i];
+			// dist should also be divided by root of variance along attribute. How?
+			sum += Math.abs(dist) * weights.getWeight(type); 
 		}
 		return sum / getNbAttributes();
 	}
