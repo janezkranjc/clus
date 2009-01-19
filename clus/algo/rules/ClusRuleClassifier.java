@@ -67,18 +67,6 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 	}
 
 	public void pruneAll(ClusRun cr) throws ClusException, IOException {		
-		if (getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-			// Clone the ruleset model for each treshold value specified in the settings
-			ClusRuleSet model = (ClusRuleSet)cr.getModelInfoFallback(ClusModel.PRUNED, ClusModel.ORIGINAL).getModel();
-			INIFileNominalOrDoubleOrVector class_thr = getSettings().getClassificationThresholds();
-			double[] tresholds = class_thr.getDoubleVector();
-			for (int t=0; t<tresholds.length; t++) {
-				ClusRuleSet model2 = model.cloneRuleSetWithThreshold(t);
-				ClusModelInfo modelInfo2 = cr.addModelInfo("T(" + tresholds[t] + ")");
-				modelInfo2.setShouldWritePredictions(false);
-				modelInfo2.setModel(model2);
-			}
-		}
 	}
 
 	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {
