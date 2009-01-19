@@ -273,7 +273,13 @@ public class ClusRule implements ClusModel, Serializable {
 						}
 					}
 				} else if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-					throw new ClusException("reweighCovered(): Hierarchical mode not yet supported!");
+					ClusStatistic prediction = predictWeighted(tuple);
+					ClusAttributeWeights weights = m_StatManager.getClusteringWeights();
+					double coef = cov_w_par * prediction.getAbsoluteDistance(tuple, weights);
+					if (coef > 1) { // Limit max weight to 1
+						coef = 1;
+					}
+					new_weight = old_weight * coef;
 				// } else if (m_StatManager.getMode() == ClusStatManager.MODE_REGRESSION) {
 				} else if (m_TargetStat instanceof RegressionStat) {
 					double[] predictions = predictWeighted(tuple).getNumericPred();
