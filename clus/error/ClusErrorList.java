@@ -207,10 +207,11 @@ public class ClusErrorList implements Serializable {
 	}
 
 	public void add(ClusErrorList par) {
-		int nb = m_Error.size();
+		int nb = m_ErrorWithNulls.size();
 		for (int i = 0; i < nb; i++) {
-			ClusError err = (ClusError)m_Error.get(i);
-			err.add(par.getError(i));
+			ClusError my = (ClusError)m_ErrorWithNulls.get(i);
+			ClusError your = par.getErrorOrNull(i); 
+			if (your != null) my.add(your);
 		}
 		m_NbExamples += par.getNbExamples();
 		m_NbCover += par.getNbCover();

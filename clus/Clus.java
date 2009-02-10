@@ -814,7 +814,7 @@ public class Clus implements CMDLineArgsProvider {
 					// Suggestion by Zenko 2007  p. 22 4*standard deviation. However we are also moving the data to
 					// zero mean. Thus we take only 2 * standard deviation.
 					value /= 2*Math.sqrt(variance[jNumAttrib]);
-					value += 0.5; // Putting the mean to 0.5
+					// value += 0.5; // Putting the mean to 0.5
 
 					// After this transformation the mean should be about 0.5 and variance about 0.25
 					// (and standard deviation 0.5). Thus 95% of values should be between [0,1]
