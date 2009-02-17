@@ -528,7 +528,18 @@ public class ClusRule implements ClusModel, Serializable {
 			}
 			m_TrainErrorScore = sum_err / nb_tar;
 		} else if (m_StatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-			System.err.println("setTrainErrorScore(): Hierarchical mode not yet supported!");
+			// This is the same as for time-series. Not sure if it correct.
+			double sum_diff = 0.0;
+			ClusAttributeWeights weight = m_StatManager.getClusteringWeights();
+			for (int i = 0; i < nb_rows; i++) {
+				DataTuple tuple = (DataTuple)m_Data.get(i);
+				ClusStatistic prediction = predictWeighted(tuple);
+				sum_diff = prediction.getAbsoluteDistance(tuple, weight);
+			}
+			m_TrainErrorScore = sum_diff / nb_tar;
+			if (m_TrainErrorScore > 1) { // Limit the error score to 1 
+				m_TrainErrorScore = 1;
+			}
 		} else if (m_TargetStat instanceof RegressionStat) {
 			double norm = getSettings().getVarBasedDispNormWeight();
 			ClusStatistic stat = m_StatManager.getTrainSetStat();
