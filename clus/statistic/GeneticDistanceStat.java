@@ -2,6 +2,8 @@ package clus.statistic;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+
+import clus.data.attweights.ClusAttributeWeights;
 import clus.data.cols.ColTarget;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
@@ -253,6 +255,47 @@ public class GeneticDistanceStat extends BitVectorStat {
 			}
 		}
 		return m_class;
+	}
+
+	public String getPredictedClassName(int idx) {
+		return m_Attrs[idx].getValue(getMajorityClass(idx));
+	} 
+	
+	public double[][] getProbabilityPrediction(){
+		double[][] result = new double[m_NbTarget][];
+		for (int i = 0; i < m_NbTarget; i++) {//for each target
+			double total = 0.0;
+			for (int k = 0; k < m_ClassCounts[i].length; k++)
+				total += m_ClassCounts[i][k]; //get the number of instances
+			result[i] = new double[m_ClassCounts[i].length];
+			for (int j = 0; j < result[i].length; j++)
+				result[i][j] = m_ClassCounts[i][j]/total;//store the frequencies
+		}
+		return result;
+	}
+	
+	public double getSVarS() {
+		System.out.println("SVARS");
+		double result = 0.0;
+		double sum = m_SumWeight;
+		for (int i = 0; i < m_NbTarget; i++) {
+			result += gini(i) * sum;
+		}
+		return result / m_NbTarget;
+	}
+	
+	public double gini(int attr) {
+		if (m_SumWeight == 0) {
+			return 0.0;
+		} else {
+			double sum = 0.0;
+			double[] clcts = m_ClassCounts[attr];
+			for (int i = 0; i < clcts.length; i++) {
+				double prob = clcts[i]/m_SumWeight;
+				sum += prob*prob;
+			}
+			return 1.0 - sum;
+		}
 	}
 
 }
