@@ -31,6 +31,10 @@ public class MSymMatrix extends MMatrix {
 		m_Size = size;
 		m_Data = createSymmetricData(size);
 	}
+	
+	public int getSize() {
+		return m_Size;
+	}
 
 	public final double xtAx(double[] x) {
 		double res = 0.0;
@@ -101,6 +105,11 @@ public class MSymMatrix extends MMatrix {
 		m_Data[r][c] = val;
 	}
 
+	public final void set_sym(int r, int c, double val) {
+		if (c > r) m_Data[c][r] = val;
+		else m_Data[r][c] = val;
+	}
+	
 	public final void add_sym(int r, int c, double val) {
 		if (c > r) m_Data[c][r] += val;
 		else m_Data[r][c] += val;
