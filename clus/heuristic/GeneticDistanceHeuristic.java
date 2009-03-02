@@ -119,7 +119,6 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 	// The test that yields the largest heuristic will be chosen in the end. Since we want to minimize the total branch length,
 	// we maximize the inverse of it.
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
-			
 		// first create all needed statistics and data
 		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
 		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
@@ -178,9 +177,9 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 					}
 				}
 				m_MatrixFilled = true;
-			}			
+			}				
 			
-			result = (m_SumAllDistances + (n_neg-1) * getSumOfDistancesWithin(pstat) + (n_pos-1) * getSumOfDistancesWithin(nstat)) / (n_pos*n_neg);
+			result = (m_SumAllDistances + (n_neg-1) * getSumOfDistancesWithin(pstat) + (n_pos-1) * getSumOfDistancesWithin(nstat)) / (n_pos*n_neg);		
 		}
 		
 		// other nodes
@@ -263,7 +262,7 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 		
 		double posdist = calculatePairwiseDistanceWithin(pstat,m_Data);
 		double negdist = calculatePairwiseDistanceWithin(nstat,m_Data);
-			
+		
 		if (m_Data.getNbRows() == m_OerData.getNbRows()) { // root of the tree
 			double betweendist = calculatePairwiseDistance(pstat, m_Data, nstat, m_Data);		
 			double result = betweendist + posdist + negdist;
@@ -286,11 +285,6 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 			double betweenpcdist = 0.5 * calculatePairwiseDistance(pstat, m_Data, compStat, m_CompData);
 			double betweenncdist = 0.5 * calculatePairwiseDistance(nstat, m_Data, compStat, m_CompData);
 			double compdist = calculatePairwiseDistanceWithin(compStat,m_CompData);	
-			
-//			double tdist = calculatePairwiseDistanceWithin(tstat,m_Data) * n_tot / (2*n_pos*n_neg);	
-			
-//			 compdist not really needed to pick best test, but including it gives right total branch length of phylo tree
-//			double result = compdist + posdist * ((2*n_neg-1) / (2*n_neg)) + negdist * ((2*n_pos-1) / (2*n_pos)) + betweenpcdist + betweenncdist + tdist;
 			
 			// compdist not really needed to pick best test, but including it gives right total branch length of phylo tree
 			double result = compdist + posdist + negdist + betweenpndist + betweenpcdist + betweenncdist;
@@ -379,7 +373,9 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 	}
 	
 	public double calculatePairwiseDistance(GeneticDistanceStat pstat, RowData pdata, GeneticDistanceStat nstat, RowData ndata) {
-		// Equal for all target attributes
+		boolean useSampling = true;
+		int sampleSize = 100;
+
 		int nb = pstat.m_NbTarget;
 		double n_pos = pstat.m_SumWeight;
 		double n_neg = nstat.m_SumWeight;	
@@ -390,7 +386,7 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 			case Settings.PHYLOGENY_LINKAGE_SINGLE: 
 				// maximize the minimal distance
 				dist = Double.MAX_VALUE;
-				if (n_pos * n_neg < 100) {
+				if (!useSampling || n_pos * n_neg < sampleSize) {
 					for (int i=0; i<n_pos; i++) {
 						for (int j=0; j<n_neg; j++) {
 							dist = Math.min(dist, calculateDistance(nb, pstat, pdata, i, nstat, ndata, j));
@@ -398,7 +394,7 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 					}
 				}
 				else {
-					for (int i=0; i<100; i++) {
+					for (int i=0; i<sampleSize; i++) {
 						int rndpos = rnd.nextInt((int)n_pos);
 						int rndneg = rnd.nextInt((int)n_neg);
 						dist = Math.min(dist, calculateDistance(nb, pstat, pdata, rndpos, nstat, ndata, rndneg));
@@ -409,7 +405,8 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 			case Settings.PHYLOGENY_LINKAGE_AVERAGE: 
 				// maximize the average distance
 				dist = 0.0;
-				if (n_pos * n_neg < 100) {
+				if (!useSampling || n_pos * n_neg < sampleSize) {
+					System.out.println("no sampling");
 					for (int i=0; i<n_pos; i++) {
 						for (int j=0; j<n_neg; j++) {
 							dist += calculateDistance(nb, pstat, pdata, i, nstat, ndata, j);
@@ -418,7 +415,8 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 					dist = dist / (n_pos * n_neg);
 				}
 				else {
-					for (int i=0; i<100; i++) {
+					System.out.println("sampling");
+					for (int i=0; i<sampleSize; i++) {
 						int rndpos = rnd.nextInt((int)n_pos);
 						int rndneg = rnd.nextInt((int)n_neg);
 						dist += calculateDistance(nb, pstat, pdata, rndpos, nstat, ndata, rndneg);
@@ -430,7 +428,7 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 			case Settings.PHYLOGENY_LINKAGE_COMPLETE: 
 				// maximize the maximal distance
 				dist = Double.MIN_VALUE;
-				if (n_pos * n_neg < 100) {
+				if (!useSampling || n_pos * n_neg < sampleSize) {
 					for (int i=0; i<n_pos; i++) {
 						for (int j=0; j<n_neg; j++) {
 							dist = Math.max(dist, calculateDistance(nb, pstat, pdata, i, nstat, ndata, j));
@@ -438,7 +436,7 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 					}
 				}
 				else {
-					for (int i=0; i<100; i++) {
+					for (int i=0; i<sampleSize; i++) {
 						int rndpos = rnd.nextInt((int)n_pos);
 						int rndneg = rnd.nextInt((int)n_neg);
 						dist = Math.max(dist, calculateDistance(nb, pstat, pdata, rndpos, nstat, ndata, rndneg));
@@ -685,8 +683,8 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 	
 	
 	public double getDistance(String[] seq1, String[] seq2) {
-		return getEditDistance(seq1,seq2);	
-		/*switch (Settings.m_PhylogenyDM.getValue()) {
+		//return getEditDistance(seq1,seq2);	
+		switch (Settings.m_PhylogenyDM.getValue()) {
 		case Settings.PHYLOGENY_DISTANCE_MEASURE_PDIST:
 			return getPDistance(seq1,seq2);
 		case Settings.PHYLOGENY_DISTANCE_MEASURE_JC:
@@ -694,7 +692,7 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 		case Settings.PHYLOGENY_DISTANCE_MEASURE_KIMURA:
 			return getKimuraDistance(seq1,seq2);
 		}
-		return 0.0; // is never executed*/
+		return 0.0; // is never executed
 	}
 	
 	public double getEditDistance(String[] seq1, String[] seq2) {
