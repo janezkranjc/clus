@@ -74,11 +74,13 @@ public class FindBestTest {
 		m_BestTest.reset(nbvalues + 1);
 		int nb_rows = data.getNbRows();
 		// For each attribute value
+//		System.out.println("updating...");
 		for (int i = 0; i < nb_rows; i++) {
 			DataTuple tuple = data.getTuple(i);
 			int value = at.getNominal(tuple);
 			m_BestTest.m_TestStat[value].updateWeighted(tuple, i);
 		}
+//		System.out.println("done");
 		// Find best split
 		m_Split.findSplit(m_BestTest, at);
 	}
@@ -200,5 +202,9 @@ public class FindBestTest {
 		m_BestTest.initTestSelector(total, data);
 		m_Split.setSDataSize(data.getNbRows());
 		return m_BestTest.stopCrit();
+	}
+	
+	public void setInitialData(ClusStatistic total, RowData data) throws ClusException {
+		m_BestTest.setInitialData(total,data);
 	}
 }

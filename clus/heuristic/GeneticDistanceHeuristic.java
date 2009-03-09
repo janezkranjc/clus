@@ -5,341 +5,189 @@ import clus.data.rows.DataTuple;
 import clus.main.Settings;
 import clus.statistic.GeneticDistanceStat;
 import clus.statistic.ClusStatistic;
-import java.util.Random;
 import java.util.*;
-import jeans.math.matrix.*;
-import jeans.list.BitList;
 
-public class GeneticDistanceHeuristic extends ClusHeuristic {
+public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 	
 	protected RowData m_Data;
 	protected RowData m_OerData; // the complete data set at the root of the tree, this is needed for taking the complement of the data in this node
-	protected RowData m_CompData; // complement of data in this node: m_OerData - m_Data
-	protected int counter; // for debugging purposes
-	protected MSymMatrix m_DistMatrix;
-	protected boolean m_MatrixFilled;
-	protected double m_SumAllDistances;
-	protected HashMap m_HeurComputed = new HashMap();
+	protected int[] m_DataIndices;
+	protected int[] m_ComplDataIndices;
+
+	public String getName() {
+		return "GeneticDistanceHeuristic";
+	}
 	
 	public void setData(RowData data) {
 		m_Data = data;
-		counter = 0;
-		if (m_OerData==null) { // remember complete data set at the root
-			m_OerData = m_Data;
-		}
-		// compute the complement of all data in tstat
-		m_CompData = new RowData(m_OerData.getSchema()); 
-//		System.out.println("adding complement");
-		m_CompData.addComplement(m_OerData, m_Data);
-//		System.out.println("added");
-		
-		m_DistMatrix = new MSymMatrix(m_Data.getNbRows()+1,true);
-		m_MatrixFilled = false;
+		m_DataIndices = constructIndexVector(m_Data);
+		m_ComplDataIndices = constructComplIndexVector(m_OerData, m_DataIndices);
 	}
 	
-	public double getMatrixElement(int row, int col) {
-		double el =  m_DistMatrix.get(row,col);
-		el = el/2;
-		return Math.sqrt(el);
-	}
-	
-	public RowData getRowData(GeneticDistanceStat stat) {
-		int nb = (int)stat.m_SumWeight;
-		DataTuple[] tup = new DataTuple[nb];
+	public int[] constructIndexVector(RowData data) {
+		int nb = data.getNbRows();
+		int[] resultvector = new int[nb];
 		for (int i=0; i<nb; i++) {
-			int index = stat.getTupleIndex(i);
-			tup[i] = m_Data.getTuple(index);
+			int index = data.getTuple(i).getIndex();
+			resultvector[i] = index;
 		}
-		return new RowData(tup,nb);		
+		return resultvector;
 	}
 	
-	// The test that yields the largest heuristic will be chosen in the end. Since we want to minimize the total branch length,
-	// we maximize the inverse of it.
-	public double calcHeuristicpars(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
-		// first create all needed statistics and data
-		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
-		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
-		GeneticDistanceStat nstat = (GeneticDistanceStat)tstat.cloneStat();
-		nstat.copy(tstat);
-		nstat.subtractFromThis(pstat);
-		
-		double n_pos = pstat.m_SumWeight;
-		double n_neg = nstat.m_SumWeight;
-//		System.out.println("nb pos examples: " + n_pos);
-//		System.out.println("nb neg examples: " + n_neg);
-		
-		// Acceptable test?
-		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
-			return Double.NEGATIVE_INFINITY;
+	public int[] constructIndexVector(RowData data, ClusStatistic stat) {
+		GeneticDistanceStat gstat = (GeneticDistanceStat)stat;
+		int nb = (int)gstat.m_SumWeight;
+		int[] resultvector = new int[nb];
+		for (int i=0; i<nb; i++) {
+			int tupleindex = gstat.getTupleIndex(i);
+			int origindex = data.getTuple(tupleindex).getIndex();
+			resultvector[i] = origindex;
 		}
-		
-		// If split position missing for some sequence, don't use it in split (probably this approach is not optimal)
-		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
-			return Double.NEGATIVE_INFINITY;
+		return resultvector;
+	}
+	
+	public int[] constructComplIndexVector(RowData data, int[] indices) {
+		int totalnb = data.getNbRows();
+		int indnb = indices.length;
+		int complnb = totalnb - indnb;
+		int[] resultvector = new int[complnb];
+		int indexpos = 0;
+		int currindex = indices[indexpos];
+		int j=0;
+		for (int i=0; i<totalnb; i++) {
+			int index = data.getTuple(i).getIndex();
+			if (currindex>index) {
+				resultvector[j] = index;
+				j++;
+			}
+			else if (currindex==index) {
+				indexpos++;
+				if (indexpos >= indnb) currindex = 1000000;
+				else currindex = indices[indexpos];
+			}
+			else if (currindex<index) {
+				System.out.println("GeneticDistanceHeuristic : Something is wrong with datatuple indices!");
+			}
 		}
-	// -------------
-		
-		return calculatePairwiseDistance(pstat,m_Data,nstat,m_Data);
-		//return calculatePrototypeDistance(pstat,nstat);
-		
-		//double interiordist = calculateMutations(tstat.m_NbTarget,pstat,m_Data,nstat,m_Data);
-		//double interiordist = calculatePrototypeDistance(pstat,nstat);
-		
-		/*double posdist;
-		double negdist;
-		if(n_pos==1)
-			posdist = 0;
-		else
-			posdist = 2 * n_pos * (calculatePairwiseDistanceWithin(pstat,m_Data) / (n_pos-1));
-		
-		if(n_neg==1)
-			negdist = 0;
-		else
-			negdist = 2 * n_neg * (calculatePairwiseDistanceWithin(nstat,m_Data)/ (n_neg-1));*/
-		
-		//double maxposdist = calculateTotalDistanceToPrototype(tstat.m_NbTarget, pstat,m_Data);
-		//double maxnegdist = calculateTotalDistanceToPrototype(tstat.m_NbTarget, nstat,m_Data);
-		//double posdist = calculateStarDistance(pstat,m_Data);
-		//double negdist = calculateStarDistance(nstat,m_Data);
-		//double minposdist = calculateMutationsWithin(tstat.m_NbTarget,pstat,m_Data);
-		//double minnegdist = calculateMutationsWithin(tstat.m_NbTarget,nstat,m_Data);
-		//double posdist = (maxposdist + minposdist) / 2;
-		//double negdist = (maxnegdist + minnegdist) / 2;
-		
-		//double result = interiordist - minposdist - minnegdist;
-		
-		//System.out.println("posdist: " + posdist + " (max: " + maxposdist + ", min: " + minposdist + ") " + " negdist: " + negdist + " (max: " + maxnegdist + ", min: " + minnegdist + ") "+ " interior: " + interiordist + " result: " + result);
-		
-		//return 0.0 - result;
-		//return result;
+		return resultvector;
 	}
 	
 	
-	// new (more efficient) code for calcheuristicdist
-	// The test that yields the largest heuristic will be chosen in the end. Since we want to minimize the total branch length,
-	// we maximize the inverse of it.
-	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
-		// first create all needed statistics and data
-		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
-		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
-		GeneticDistanceStat nstat = (GeneticDistanceStat)tstat.cloneStat();
-		nstat.copy(tstat);
-		nstat.subtractFromThis(pstat);
-		
-		double n_pos = pstat.m_SumWeight;
-		double n_neg = nstat.m_SumWeight;
-		
-		// Acceptable test?
-		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
-			return Double.NEGATIVE_INFINITY;
-		}
-		
-		// If position missing for some sequence, don't use it in split (probably this approach is not optimal)
-		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
-			return Double.NEGATIVE_INFINITY;
-		}
-		//-----------
-		
-		if (m_MatrixFilled == false) {
-			m_HeurComputed.clear();
-		}
-		String key = pstat.getBits().toString();
-		Double value = (Double) m_HeurComputed.get(key);
-		if (value!=null) {
-			return value.doubleValue();
-		}
-		
-		double result;
-		// root of the tree
-		if (m_Data.getNbRows() == m_OerData.getNbRows()) { 
-			
-			// if first calculation for node, fill distance matrix and at same time calculate total sum of distances
-			if (m_MatrixFilled == false) {
-				m_SumAllDistances = 0.0;
-				for (int i=0; i<m_Data.getNbRows(); i++) {
-					DataTuple tuple1 = m_Data.getTuple(i);
-					String[] str1 = new String[tstat.m_NbTarget];
-					for (int t=0; t<tstat.m_NbTarget; t++) {
-						int nomvalue1 = tstat.m_Attrs[t].getNominal(tuple1);
-						str1[t] = tstat.m_Attrs[t].getValueOrMissing(nomvalue1);
-					}
-				
-					for (int j=i+1; j<m_Data.getNbRows(); j++) {
-						DataTuple tuple2 = m_Data.getTuple(j);
-						String[] str2 = new String[tstat.m_NbTarget];
-						for (int t=0; t<tstat.m_NbTarget; t++) {
-							int nomvalue2 = tstat.m_Attrs[t].getNominal(tuple2);
-							str2[t] = tstat.m_Attrs[t].getValueOrMissing(nomvalue2);
-						}
-						double distance = getDistance(str1,str2);
-						m_DistMatrix.set_sym(i, j, distance);
-						m_SumAllDistances += distance;
-					}
-				}
-				m_MatrixFilled = true;
-			}				
-			
-			result = (m_SumAllDistances + (n_neg-1) * getSumOfDistancesWithin(pstat) + (n_pos-1) * getSumOfDistancesWithin(nstat)) / (n_pos*n_neg);		
-		}
-		
-		// other nodes
-		else {		
-			GeneticDistanceStat compStat = new GeneticDistanceStat(tstat.m_Attrs);
-			m_CompData.calcTotalStatBitVector(compStat);
-			double compStar = calculateStarDistance(compStat,m_CompData);
-			
-			// if first calculation for node, fill distance matrix and at same time calculate total sum of distances
-			if (m_MatrixFilled == false) {
-				m_SumAllDistances = 0.0;
-				for (int i=0; i<m_Data.getNbRows(); i++) {
-					DataTuple tuple1 = m_Data.getTuple(i);
-					String[] str1 = new String[tstat.m_NbTarget];
-					for (int t=0; t<tstat.m_NbTarget; t++) {
-						int nomvalue1 = tstat.m_Attrs[t].getNominal(tuple1);
-						str1[t] = tstat.m_Attrs[t].getValueOrMissing(nomvalue1);
-					}
-				
-					for (int j=i+1; j<m_Data.getNbRows(); j++) {
-						DataTuple tuple2 = m_Data.getTuple(j);
-						String[] str2 = new String[tstat.m_NbTarget];
-						for (int t=0; t<tstat.m_NbTarget; t++) {
-							int nomvalue2 = tstat.m_Attrs[t].getNominal(tuple2);
-							str2[t] = tstat.m_Attrs[t].getValueOrMissing(nomvalue2);
-						}
-						double distance = getDistance(str1,str2);
-						m_DistMatrix.set_sym(i, j, distance);
-						m_SumAllDistances += distance;
-					}
-					
-					double avgcompdist = 0.0;
-					for (int k=0; k<m_CompData.getNbRows(); k++) {
-						DataTuple tuplek = m_CompData.getTuple(k);
-						String[] strk = new String[tstat.m_NbTarget];
-						for (int t=0; t<tstat.m_NbTarget; t++) {
-							int nomvaluek = tstat.m_Attrs[t].getNominal(tuplek);
-							strk[t] = tstat.m_Attrs[t].getValueOrMissing(nomvaluek);
-						}
-						avgcompdist += getDistance(str1,strk);
-					}
-					avgcompdist = (avgcompdist - compStar) / m_CompData.getNbRows();			
-					m_DistMatrix.set_sym(i, m_Data.getNbRows(), avgcompdist);				
-				}
-				m_MatrixFilled = true;
-			}			
-			result = (getSumOfDistancesToComplement(nstat) / n_neg) + (getSumOfDistancesToComplement(pstat) / n_pos) + (m_SumAllDistances / (n_pos*n_neg)) + 
-			(getSumOfDistancesWithin(pstat) * (2*n_neg - 1) / (n_pos*n_neg)) + (getSumOfDistancesWithin(nstat) * (2*n_pos - 1) / (n_pos*n_neg));
-		}
-		double finalresult = -1.0 * result;
-		m_HeurComputed.put(key,new Double(finalresult));
-		return finalresult;
-	}
-	
-	//old code
-	// The test that yields the largest heuristic will be chosen in the end. Since we want to minimize the total branch length,
-	// we maximize the inverse of it.
-	public double calcHeuristicdist(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
-			
-		// first create all needed statistics and data
-		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
-		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
-		GeneticDistanceStat nstat = (GeneticDistanceStat)tstat.cloneStat();
-		nstat.copy(tstat);
-		nstat.subtractFromThis(pstat);
-		
-		double n_pos = pstat.m_SumWeight;
-		double n_neg = nstat.m_SumWeight;
-		double n_tot = tstat.m_SumWeight;
-		
-		// Acceptable test?
-		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
-			return Double.NEGATIVE_INFINITY;
-		}
-		
-		// If position missing for some sequence, don't use it in split (probably this approach is not optimal)
-		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
-			return Double.NEGATIVE_INFINITY;
-		}
-		
-		double posdist = calculatePairwiseDistanceWithin(pstat,m_Data);
-		double negdist = calculatePairwiseDistanceWithin(nstat,m_Data);
-		
-		if (m_Data.getNbRows() == m_OerData.getNbRows()) { // root of the tree
-			double betweendist = calculatePairwiseDistance(pstat, m_Data, nstat, m_Data);		
-			double result = betweendist + posdist + negdist;
-			
-		/*	// only for output purposes from here
-			double starpdist = calculateStarDistance(pstat,m_Data);
-			double starndist = calculateStarDistance(nstat,m_Data);
-			double sumpairdistpnroot = n_pos * n_neg * betweendist;
-			double interiorroot = (sumpairdistpnroot - (n_neg * starpdist) - (n_pos * starndist)) / (n_pos * n_neg);
-			double resultcheck = interiorroot + starpdist + starndist;
-			System.out.println("starp: " + starpdist + " starn: " + starndist + " interior: " + interiorroot + " result: " + result + " check: " + resultcheck);
-			*/			
-			return 0.0 - result;
-		}
-		else {
-			GeneticDistanceStat compStat = new GeneticDistanceStat(tstat.m_Attrs);
-			m_CompData.calcTotalStatBitVector(compStat);
-			
-			double betweenpndist = 0.5 * calculatePairwiseDistance(pstat, m_Data, nstat, m_Data);
-			double betweenpcdist = 0.5 * calculatePairwiseDistance(pstat, m_Data, compStat, m_CompData);
-			double betweenncdist = 0.5 * calculatePairwiseDistance(nstat, m_Data, compStat, m_CompData);
-			double compdist = calculatePairwiseDistanceWithin(compStat,m_CompData);	
-			
-			// compdist not really needed to pick best test, but including it gives right total branch length of phylo tree
-			double result = compdist + posdist + negdist + betweenpndist + betweenpcdist + betweenncdist;
-			
-		/*	// only for output purposes from here
-			double starpdist = calculateStarDistance(pstat,m_Data);
-			double starndist = calculateStarDistance(nstat,m_Data);
-			double starcdist = calculateStarDistance(compStat,m_CompData);
-			double starsum = starpdist + starndist + starcdist;
-			double interior = result - starsum;
-			//System.out.println("starp: " + starpdist + " starn: " + starndist + " starc: " + starcdist + " sum: " + starsum + " interior: " + interior + " heur: " + result);
-			
-			double interiornc = (2*betweenncdist) - (starcdist/compStat.m_SumWeight) - (starndist/n_neg);
-			double interiorpc = (2*betweenpcdist) - (starcdist/compStat.m_SumWeight) - (starpdist/n_pos);
-			double interiorpn = (2*betweenpndist) - (starndist/n_neg) - (starpdist/n_pos);
-			double interiorcm = (interiornc + interiorpc - interiorpn) / 2;
-			double interiorpm = (interiorpn + interiorpc - interiornc) / 2;
-			double interiornm = (interiornc + interiorpn - interiorpc) / 2;
-			//double heurcheck = starpdist + starndist + starcdist + interiorcm + interiorpm + interiornm;
-			//System.out.println("heur: " + result + "  heurcheck: " + heurcheck); 
-			
-			System.out.println("starp: " + starpdist + " starn: " + starndist + " starc: " + starcdist + " interiorpm: " + interiorpm + " interiornm: " + interiornm + " interiorcm: " + interiorcm + " heur: " + result);
-				*/	
-			return 0.0 - result;
-		}
-	}
+	// Genetic distances
+	// Remark: In some distance calculations, string positions with "?" (missing values) or "-" (gaps) are discarded.
+	// This is to be consistent with the Phylip program (at least, for Jukes-Cantor; Kimura still gives different output).
 
 	
-	public int getMatrixIndex(GeneticDistanceStat stat, int index) {
-		return stat.getTupleIndex(index);
+	public double getDistance(String[] seq1, String[] seq2) {
+		switch (Settings.m_PhylogenyDM.getValue()) {
+		case Settings.PHYLOGENY_DISTANCE_MEASURE_EDIT:
+			return getEditDistance(seq1,seq2);
+		case Settings.PHYLOGENY_DISTANCE_MEASURE_PDIST:
+			return getPDistance(seq1,seq2);
+		case Settings.PHYLOGENY_DISTANCE_MEASURE_JC:
+			return getJukesCantorDistance(seq1,seq2);
+		case Settings.PHYLOGENY_DISTANCE_MEASURE_KIMURA:
+			return getKimuraDistance(seq1,seq2);
+		}
+		return 0.0; // is never executed
 	}
 	
-	public double getSumOfDistancesWithin(GeneticDistanceStat stat) {
-		double nb_ex = stat.m_SumWeight;
-		double sum = 0.0;
-		for (int i=0; i<nb_ex; i++) {
-			int indexi = getMatrixIndex(stat,i);
-			for (int j=i+1; j<nb_ex; j++) {
-				int indexj = getMatrixIndex(stat,j);
-				sum += m_DistMatrix.get(indexi, indexj);
+	public double getEditDistance(String[] seq1, String[] seq2) {
+		//System.out.println("edit");
+		double p=0;
+		for (int i=0; i<seq1.length; i++) {
+			if (!seq1[i].equals(seq2[i])) {
+				p++;
 			}
-		}	
-		return sum;
+		}
+		return p;
+	}
+
+	public double getPDistance(String[] seq1, String[] seq2) {
+		double p=0;
+		int nb = 0;
+		for (int i=0; i<seq1.length; i++) {
+			if (((seq1[i].equals("?") || seq2[i].equals("?")) || seq1[i].equals("-")) || seq2[i].equals("-")) {
+			}
+			else {
+				if (!seq1[i].equals(seq2[i])) {
+					p++;
+					nb++;
+				}
+				else {
+					nb++;
+				}
+			}			
+		}
+		double p_distance = (double)p / (double)nb;
+		if (p_distance == Double.POSITIVE_INFINITY) System.out.println("p: " + p + " nb: " + nb + " " + seq1 + " " + seq2);
+		if (p_distance == Double.NEGATIVE_INFINITY) System.out.println("p: " + p + " nb: " + nb + " " + seq1 + " " + seq2);
+		return p_distance;
 	}
 	
-	public double getSumOfDistancesToComplement(GeneticDistanceStat stat) {
-		double nb_ex = stat.m_SumWeight;
-		int matrixsize = m_DistMatrix.getSize();
-		double sum = 0.0;
-		for (int i=0; i<nb_ex; i++) {
-			int indexi = getMatrixIndex(stat,i);
-			sum += m_DistMatrix.get(indexi, matrixsize-1);
-		}	
-		return sum;
+	// yields same tree as p-distance, but different - more realistic - distances
+	public double getJukesCantorDistance(String[] seq1, String[] seq2) {
+		double p_distance = getPDistance(seq1, seq2);
+		double jk_distance;
+		if (p_distance > 0.749) {
+			jk_distance = 2.1562; // not defined for >= 0.75
+			System.out.println("Warning: infinite distances");
+		}
+		else jk_distance = -0.75 * Math.log(1.0-((4.0*p_distance)/3.0));
+		return jk_distance;
 	}
+	
+	public double getKimuraDistance(String[] seq1, String[] seq2) {
+		int nb = 0;
+		int ti=0;
+		int tv=0;
+		for (int i=0; i<seq1.length; i++) {
+			if (((seq1[i].equals("?") || seq2[i].equals("?")) || seq1[i].equals("-")) || seq2[i].equals("-")) {
+			}
+			else {
+			nb++;
+			if (!seq1[i].equals(seq2[i])) {
+				if (seq1[i].equals("A")) {
+					if (seq2[i].equals("G")) {
+						ti++;
+					}
+					else tv++;
+				} else if (seq1[i].equals("C")) {
+					if (seq2[i].equals("T")) {
+						ti++;
+					}
+					else tv++;
+				} else if (seq1[i].equals("G")) {
+					if (seq2[i].equals("A")) {
+						ti++;
+					}
+					else tv++;
+				} else if (seq1[i].equals("T")) {
+					if (seq2[i].equals("C")) {
+						ti++;
+					}
+					else tv++;
+				}
+			}
+			}
+		}
+		double ti_ratio = (double)ti / (double)nb;
+		double tv_ratio = (double)tv / (double)nb;
+
+		double term1 = Math.log10(1.0/(1.0-2.0*ti_ratio-tv_ratio));
+		double term2 = Math.log10(1.0/(1.0-2.0*tv_ratio));
+		double kimura = term1+term2;
+
+		//System.out.println("kimura_distance: " + kimura);
+		return kimura;			
+	}
+	
+
+
+	
+	
+
+	//-------------------- still used??
 	
 	
 	public double calculateStarDistance(GeneticDistanceStat stat, RowData data) {
@@ -374,7 +222,7 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 	
 	public double calculatePairwiseDistance(GeneticDistanceStat pstat, RowData pdata, GeneticDistanceStat nstat, RowData ndata) {
 		boolean useSampling = true;
-		int sampleSize = 100;
+		int sampleSize = 500;
 
 		int nb = pstat.m_NbTarget;
 		double n_pos = pstat.m_SumWeight;
@@ -406,7 +254,6 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 				// maximize the average distance
 				dist = 0.0;
 				if (!useSampling || n_pos * n_neg < sampleSize) {
-					System.out.println("no sampling");
 					for (int i=0; i<n_pos; i++) {
 						for (int j=0; j<n_neg; j++) {
 							dist += calculateDistance(nb, pstat, pdata, i, nstat, ndata, j);
@@ -415,7 +262,6 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 					dist = dist / (n_pos * n_neg);
 				}
 				else {
-					System.out.println("sampling");
 					for (int i=0; i<sampleSize; i++) {
 						int rndpos = rnd.nextInt((int)n_pos);
 						int rndneg = rnd.nextInt((int)n_neg);
@@ -678,115 +524,56 @@ public class GeneticDistanceHeuristic extends ClusHeuristic {
 		return getDistance(proto_pos,proto_neg);		
 	}
 	
-	// Remark: In the distance calculations, string positions with "?" (missing values) or "-" (gaps) are discarded.
-	// This is to be consistent with the Phylip program (at least, for Jukes-Cantor; Kimura still gives different output).
-	
-	
-	public double getDistance(String[] seq1, String[] seq2) {
-		//return getEditDistance(seq1,seq2);	
-		switch (Settings.m_PhylogenyDM.getValue()) {
-		case Settings.PHYLOGENY_DISTANCE_MEASURE_PDIST:
-			return getPDistance(seq1,seq2);
-		case Settings.PHYLOGENY_DISTANCE_MEASURE_JC:
-			return getJukesCantorDistance(seq1,seq2);
-		case Settings.PHYLOGENY_DISTANCE_MEASURE_KIMURA:
-			return getKimuraDistance(seq1,seq2);
+	/*	//old code
+	// The test that yields the largest heuristic will be chosen in the end. Since we want to minimize the total branch length,
+	// we maximize the inverse of it.
+	public double calcHeuristicdist(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
+			
+		// first create all needed statistics and data
+		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
+		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
+		GeneticDistanceStat nstat = (GeneticDistanceStat)tstat.cloneStat();
+		nstat.copy(tstat);
+		nstat.subtractFromThis(pstat);
+		
+		double n_pos = pstat.m_SumWeight;
+		double n_neg = nstat.m_SumWeight;
+		double n_tot = tstat.m_SumWeight;
+		
+		// Acceptable test?
+		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
+			return Double.NEGATIVE_INFINITY;
 		}
-		return 0.0; // is never executed
-	}
-	
-	public double getEditDistance(String[] seq1, String[] seq2) {
-		double p=0;
-		for (int i=0; i<seq1.length; i++) {
-			if (!seq1[i].equals(seq2[i])) {
-				p++;
-			}
+		
+		// If position missing for some sequence, don't use it in split (probably this approach is not optimal)
+		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
+			return Double.NEGATIVE_INFINITY;
 		}
-		return p;
-	}
+		
+		double posdist = calculatePairwiseDistanceWithin(pstat,m_Data);
+		double negdist = calculatePairwiseDistanceWithin(nstat,m_Data);
+		
+		if (m_Data.getNbRows() == m_OerData.getNbRows()) { // root of the tree
+			double betweendist = calculatePairwiseDistance(pstat, m_Data, nstat, m_Data);		
+			double result = betweendist + posdist + negdist;
+		
+			return 0.0 - result;
+		}
+		else {
+			GeneticDistanceStat compStat = new GeneticDistanceStat(tstat.m_Attrs);
+			m_CompData.calcTotalStatBitVector(compStat);
+			
+			double betweenpndist = 0.5 * calculatePairwiseDistance(pstat, m_Data, nstat, m_Data);
+			double betweenpcdist = 0.5 * calculatePairwiseDistance(pstat, m_Data, compStat, m_CompData);
+			double betweenncdist = 0.5 * calculatePairwiseDistance(nstat, m_Data, compStat, m_CompData);
+			double compdist = calculatePairwiseDistanceWithin(compStat,m_CompData);	
+			
+			// compdist not really needed to pick best test, but including it gives right total branch length of phylo tree
+			double result = compdist + posdist + negdist + betweenpndist + betweenpcdist + betweenncdist;
 
-	public double getPDistance(String[] seq1, String[] seq2) {
-		double p=0;
-		int nb = 0;
-		for (int i=0; i<seq1.length; i++) {
-			if (((seq1[i].equals("?") || seq2[i].equals("?")) || seq1[i].equals("-")) || seq2[i].equals("-")) {
-			}
-			else {
-				if (!seq1[i].equals(seq2[i])) {
-					p++;
-					nb++;
-				}
-				else {
-					nb++;
-				}
-			}			
+			return 0.0 - result;
 		}
-		double p_distance = (double)p / (double)nb;
-		if (p_distance == Double.POSITIVE_INFINITY) System.out.println("p: " + p + " nb: " + nb + " " + seq1 + " " + seq2);
-		if (p_distance == Double.NEGATIVE_INFINITY) System.out.println("p: " + p + " nb: " + nb + " " + seq1 + " " + seq2);
-		return p_distance;
 	}
-	
-	// yields same tree as p-distance, but different - more realistic - distances
-	public double getJukesCantorDistance(String[] seq1, String[] seq2) {
-		double p_distance = getPDistance(seq1, seq2);
-		double jk_distance;
-		if (p_distance > 0.749) {
-			jk_distance = 2.1562; // not defined for >= 0.75
-			System.out.println("Warning: infinite distances");
-		}
-		else jk_distance = -0.75 * Math.log(1.0-((4.0*p_distance)/3.0));
-		return jk_distance;
-	}
-	
-	public double getKimuraDistance(String[] seq1, String[] seq2) {
-		int nb = 0;
-		int ti=0;
-		int tv=0;
-		for (int i=0; i<seq1.length; i++) {
-			if (((seq1[i].equals("?") || seq2[i].equals("?")) || seq1[i].equals("-")) || seq2[i].equals("-")) {
-			}
-			else {
-			nb++;
-			if (!seq1[i].equals(seq2[i])) {
-				if (seq1[i].equals("A")) {
-					if (seq2[i].equals("G")) {
-						ti++;
-					}
-					else tv++;
-				} else if (seq1[i].equals("C")) {
-					if (seq2[i].equals("T")) {
-						ti++;
-					}
-					else tv++;
-				} else if (seq1[i].equals("G")) {
-					if (seq2[i].equals("A")) {
-						ti++;
-					}
-					else tv++;
-				} else if (seq1[i].equals("T")) {
-					if (seq2[i].equals("C")) {
-						ti++;
-					}
-					else tv++;
-				}
-			}
-			}
-		}
-		double ti_ratio = (double)ti / (double)nb;
-		double tv_ratio = (double)tv / (double)nb;
-
-		double term1 = Math.log10(1.0/(1.0-2.0*ti_ratio-tv_ratio));
-		double term2 = Math.log10(1.0/(1.0-2.0*tv_ratio));
-		double kimura = term1+term2;
-
-		//System.out.println("kimura_distance: " + kimura);
-		return kimura;			
-	}
-	
-
-	public String getName() {
-		return "GeneticDistance";
-	}
+*/
 
 }

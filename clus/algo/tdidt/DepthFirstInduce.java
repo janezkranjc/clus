@@ -191,6 +191,10 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 	public void initSelectorAndSplit(ClusStatistic stat) throws ClusException {
 		m_FindBestTest.initSelectorAndSplit(stat);
 	}
+	
+	public void setInitialData(ClusStatistic stat, RowData data) throws ClusException {
+		m_FindBestTest.setInitialData(stat,data);
+	}
 
 	public void cleanSplit() {
 		m_FindBestTest.cleanSplit();
@@ -208,6 +212,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			root.initTargetStat(m_StatManager, data);
 			root.getClusteringStat().showRootInfo();
 			initSelectorAndSplit(root.getClusteringStat());
+			setInitialData(root.getClusteringStat(),data);
 			// Induce the tree
 			induce(root, data);
 			// Refinement finished

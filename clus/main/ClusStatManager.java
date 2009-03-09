@@ -367,12 +367,12 @@ public class ClusStatManager implements Serializable {
 		System.out.println("creating stat");
 		if (num.length == 0) {
 			if (m_Mode == MODE_PHYLO) {
-				switch (Settings.m_PhylogenyProtoComlexity.getValue()) {
-				case Settings.PHYLOGENY_PROTOTYPE_COMPLEXITY_PAIRWISE:
+				//switch (Settings.m_PhylogenyProtoComlexity.getValue()) {
+				//case Settings.PHYLOGENY_PROTOTYPE_COMPLEXITY_PAIRWISE:
 					return new GeneticDistanceStat(nom);
-				case Settings.PHYLOGENY_PROTOTYPE_COMPLEXITY_PROTO:
-					return new ClassificationStat(nom);
-				}
+				//case Settings.PHYLOGENY_PROTOTYPE_COMPLEXITY_PROTO:
+					//return new ClassificationStat(nom);
+				//}
 			}
 			return new ClassificationStat(nom);
 		} else if (nom.length == 0) {
@@ -610,7 +610,14 @@ public class ClusStatManager implements Serializable {
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
 				m_Heuristic = new ReducedErrorHeuristic(createClusteringStat());
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GENETIC_DISTANCE) {
-				m_Heuristic = new GeneticDistanceHeuristic();
+				switch (Settings.m_PhylogenyEfficiency.getValue()) {
+				case Settings.PHYLOGENY_EFFICIENCY_MATRIX:
+					m_Heuristic = new GeneticDistanceHeuristicMatrix();
+					break;
+				case Settings.PHYLOGENY_EFFICIENCY_SAMPLING:
+					m_Heuristic = new GeneticDistanceHeuristicSampling();
+					break;
+				}
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_VARIANCE_REDUCTION) {
 				m_Heuristic = new VarianceReductionHeuristicEfficient(getClusteringWeights(), m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {

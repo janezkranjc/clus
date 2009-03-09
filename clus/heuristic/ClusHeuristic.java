@@ -39,6 +39,9 @@ public abstract class ClusHeuristic {
 
 	public void setData(RowData data) {
 	}
+	
+	public void setInitialData(ClusStatistic stat, RowData data) {
+	}
 
 	public void setRootStatistic(ClusStatistic stat) {
 	}
