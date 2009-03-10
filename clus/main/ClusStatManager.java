@@ -431,8 +431,9 @@ public class ClusStatManager implements Serializable {
 			break;
 		case MODE_SSPD:
 			ClusAttrType[] target = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			setClusteringStatistic(new SSPDStatistic(m_SSPDMtrx, target));
-			setTargetStatistic(new SSPDStatistic(m_SSPDMtrx, target));
+			m_SSPDMtrx.setTarget(target);
+			setClusteringStatistic(new SumPairwiseDistancesStat(m_SSPDMtrx, 3));
+			setTargetStatistic(new SumPairwiseDistancesStat(m_SSPDMtrx, 3));
 			break;
 		case MODE_TIME_SERIES:
 			ClusAttrType[] targets = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
@@ -576,14 +577,14 @@ public class ClusStatManager implements Serializable {
 			return;
 		}
 		if (m_Mode == MODE_SSPD) {
-			m_Heuristic = new SSPDHeuristic();
+			ClusStatistic clusstat = createClusteringStat();
+			m_Heuristic = new VarianceReductionHeuristic(clusstat.getDistanceName(), clusstat, getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_SSPD);
 			return;
 		}
 		if (m_Mode == MODE_TIME_SERIES) {
 			ClusStatistic clusstat = createClusteringStat();
-			String name = clusstat.getDistanceName();
-			m_Heuristic = new VarianceReductionHeuristic(name, clusstat, getClusteringWeights());
+			m_Heuristic = new VarianceReductionHeuristic(clusstat.getDistanceName(), clusstat, getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_VARIANCE_REDUCTION);
 			return;
 		}

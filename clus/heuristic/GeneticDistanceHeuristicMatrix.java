@@ -23,7 +23,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	}
 	
 	public void constructMatrix(ClusStatistic stat) {
-		m_DistMatrix = new MSymMatrix(m_OerData.getNbRows(),true);
+		m_DistMatrix = new MSymMatrix(m_OerData.getNbRows());
 		GeneticDistanceStat gstat = (GeneticDistanceStat)stat;
 		for (int i=0; i<m_OerData.getNbRows(); i++) {
 			DataTuple tuple1 = m_OerData.getTuple(i);

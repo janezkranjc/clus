@@ -70,8 +70,8 @@ $ clus sspd
 	TDIDT
 	Heuristic: Sum of Squared Pairwise Distances (SSPD)
 
-	Test: attr_a = a -> 3427.1247999999996
-	Test: attr_b = 1 -> 234.2427
+	Test: attr_a = a -> 398.42285
+	Test: attr_b = 1 -> 58.33432500000001
 	Induction Time: 0.049 sec
 	Pruning Time: 0.035 sec
 

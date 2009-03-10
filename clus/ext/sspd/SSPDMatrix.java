@@ -25,6 +25,9 @@ package clus.ext.sspd;
 import jeans.math.matrix.*;
 
 import clus.data.io.ClusReader;
+import clus.data.rows.DataTuple;
+import clus.data.type.ClusAttrType;
+import clus.data.type.IntegerAttrType;
 
 import java.io.*;
 
@@ -61,13 +64,26 @@ trees!
 */
 
 import clus.main.*;
+import clus.statistic.ClusDistance;
+import clus.statistic.ClusStatistic;
+import clus.util.ClusException;
 
-public class SSPDMatrix extends MSymMatrix implements Serializable {
+public class SSPDMatrix extends ClusDistance {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
+	protected MSymMatrix m_Matrix;
+	protected IntegerAttrType m_Target;
+	
 	public SSPDMatrix(int size) {
-		super(size, true);
+		m_Matrix = new MSymMatrix(size);
+	}
+	
+	public void setTarget(ClusAttrType[] target) throws ClusException {
+		if (target.length != 1) {
+			throw new ClusException("Only one target allowed in SSPD modus");
+		}
+		m_Target = (IntegerAttrType)target[0];
 	}
 
 	// Matrix stores squared distances [sum of (i,j)^2 and (j,i)^2]
@@ -84,7 +100,7 @@ public class SSPDMatrix extends MSymMatrix implements Serializable {
 		for (int i = 0; i < nb; i++) {
 			for (int j = 0; j < nb; j++) {
 				double value = reader.readFloat();
-				matrix.add_sym(i,j,value* value);
+				matrix.m_Matrix.add_sym(i, j, value * value);				
 			}
 			if (!reader.isEol()) throw new IOException("SSPD Matrix is not square");
 		}
@@ -93,4 +109,16 @@ public class SSPDMatrix extends MSymMatrix implements Serializable {
 //		ClusFormat.OUT_WRITER.flush();
 		return matrix;
 	}
+	
+	public double calcDistance(DataTuple t1, DataTuple t2) {
+		int idx = m_Target.getArrayIndex();
+		int i1 = t1.getIntVal(idx);
+		int i2 = t2.getIntVal(idx);
+		return m_Matrix.get(i1, i2);
+	}
+			
+	public String getDistanceName() {
+		return "SSPD Matrix";
+	}
+	
 }

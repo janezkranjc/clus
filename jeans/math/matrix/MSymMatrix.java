@@ -22,12 +22,14 @@
 
 package jeans.math.matrix;
 
-public class MSymMatrix extends MMatrix {
+import java.io.Serializable;
+
+public class MSymMatrix extends MMatrix implements Serializable {
 
 	protected int m_Size;
 	protected double m_Data[][];
 
-	public MSymMatrix(int size, boolean sym) {
+	public MSymMatrix(int size) {
 		m_Size = size;
 		m_Data = createSymmetricData(size);
 	}
