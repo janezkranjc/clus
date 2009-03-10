@@ -329,6 +329,10 @@ public abstract class ClusStatistic implements Serializable {
 		return null;
 	}
 	
+	public ClusDistance getDistance() {
+		return null;
+	}
+	
 	public double getCount(int idx, int cls) {
 		System.err.println(getClass().getName()+" does not implement predictTuple()");
 		return Double.POSITIVE_INFINITY;

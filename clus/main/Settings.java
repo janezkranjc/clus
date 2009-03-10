@@ -1493,8 +1493,8 @@ public class Settings implements Serializable {
 	public final static String[] TIME_SERIES_PROTOTYPE_COMPLEXITY={"N2", "LOG", "LINEAR", "NPAIRS", "TEST"};
 
 	INIFileSection m_SectionTimeSeries;
-	public static INIFileNominal m_TimeSeriesDM;
-	public static INIFileNominal m_TimeSeriesProtoComlexity;
+	public INIFileNominal m_TimeSeriesDistance;
+	public INIFileNominal m_TimeSeriesHeuristicSampling;
 
 	public boolean isSectionTimeSeriesEnabled() {
 		return m_SectionTimeSeries.isEnabled();
@@ -1504,14 +1504,21 @@ public class Settings implements Serializable {
 		m_SectionTimeSeries.setEnabled(enable);
 	}
 
-	public static boolean isTimeSeriesProtoComlexityExact() {
-		if (m_TimeSeriesProtoComlexity.getValue() == 0) {
+	public boolean isTimeSeriesProtoComlexityExact() {
+		if (m_TimeSeriesHeuristicSampling.getValue() == 0) {
 			return true;
 		} else {
 			return false;
 		}
 	}
-
+	
+	public int getTimeSeriesDistance() {
+		return m_TimeSeriesDistance.getValue();
+	}
+	
+	public int getTimeSeriesHeuristicSampling() { 
+		return m_TimeSeriesHeuristicSampling.getValue();
+	}
 
 /***********************************************************************
  * Section: Phylogeny                                             	   *
@@ -1880,8 +1887,8 @@ public class Settings implements Serializable {
 		m_SectionExhaustive.setEnabled(false);
 
 		m_SectionTimeSeries = new INIFileSection("TimeSeries");
-		m_SectionTimeSeries.addNode(m_TimeSeriesDM=new INIFileNominal("DistanceMeasure", TIME_SERIES_DISTANCE_MEASURE,0));
-		m_SectionTimeSeries.addNode(m_TimeSeriesProtoComlexity=new INIFileNominal("PrototypeComlexity", TIME_SERIES_PROTOTYPE_COMPLEXITY,0));
+		m_SectionTimeSeries.addNode(m_TimeSeriesDistance=new INIFileNominal("DistanceMeasure", TIME_SERIES_DISTANCE_MEASURE,0));
+		m_SectionTimeSeries.addNode(m_TimeSeriesHeuristicSampling=new INIFileNominal("PrototypeComlexity", TIME_SERIES_PROTOTYPE_COMPLEXITY,0));
 		m_SectionTimeSeries.setEnabled(false);
 
 		m_SectionPhylogeny = new INIFileSection("Phylogeny");

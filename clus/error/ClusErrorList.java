@@ -328,8 +328,8 @@ public class ClusErrorList implements Serializable {
 				if (parent != null && inf.hasModel()) {
 					int nb_err = parent.getNbErrors();
 					for (int i = 0; i < nb_err; i++) {
-						out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
 						ClusError err = parent.getError(i);
+						out.print(err.getName()+": "+StringUtils.printStr(inf.getName(),15)+": ");						
 						err.showModelError(out, ClusError.DETAIL_SMALL);
 						ctr++;
 					}

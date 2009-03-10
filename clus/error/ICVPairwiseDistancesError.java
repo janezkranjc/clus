@@ -20,7 +20,7 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.ext.sspd;
+package clus.error;
 
 import java.io.*;
 
@@ -35,22 +35,42 @@ import clus.model.ClusModel;
 import clus.model.test.*;
 import clus.statistic.*;
 
-public class SSPDICVError extends ClusError {
+public class ICVPairwiseDistancesError extends ClusError {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double m_Value, m_ValueWithDefault;
 	protected ClusDistance m_Dist;
 
-	public SSPDICVError(ClusErrorList par, ClusDistance dist) {
+	public ICVPairwiseDistancesError(ClusErrorList par, ClusDistance dist) {
 		super(par);
 		m_Dist = dist;
+	}
+	
+	public static double computeICVPairwiseDistances(ClusDistance dist, RowData data) {
+		double sum = 0.0;
+		double sumWiDiag = 0.0;
+		double sumWiTria = 0.0;
+		int nb = data.getNbRows();
+		for (int j = 0; j < nb; j++) {
+			DataTuple t1 = data.getTuple(j);
+			double w1 = t1.getWeight();
+			for (int i = 0; i < j; i++) {
+				DataTuple t2 = data.getTuple(i);
+				double wi = w1 * t2.getWeight();
+				double d = dist.calcDistance(t1, t2);
+				sum += wi * d;
+				sumWiTria += wi;
+			}
+			sumWiDiag += w1 * w1;
+		}
+		return sum / (2 * sumWiTria + sumWiDiag);
 	}
 
 	public void computeRecursive(ClusNode node, RowData data) {
 		int nb = node.getNbChildren();
 		if (nb == 0) {
-			double variance = SSPD.computeSSPDVariance(m_Dist, data);
+			double variance = computeICVPairwiseDistances(m_Dist, data);
 			double sumweight = data.getSumWeights();
 			m_Value += sumweight * variance;
 		} else {
@@ -65,7 +85,7 @@ public class SSPDICVError extends ClusError {
 
 	public void computeForRule(ClusRule rule, ClusSchema schema) {
 		RowData covered = new RowData(rule.getData(), schema);
-		m_Value = SSPD.computeSSPDVariance(m_Dist, covered);
+		m_Value = computeICVPairwiseDistances(m_Dist, covered);
 	}
 
 	public void computeForRuleSet(ClusRuleSet set, ClusSchema schema) {
@@ -73,14 +93,14 @@ public class SSPDICVError extends ClusError {
 		for (int i = 0; i < set.getModelSize(); i++) {
 			RowData covered = new RowData(set.getRule(i).getData(), schema);
 			double weight = covered.getSumWeights();
-			m_Value += weight*SSPD.computeSSPDVariance(m_Dist, covered);
+			m_Value += weight*computeICVPairwiseDistances(m_Dist, covered);
 			sumWeight += weight;
 		}
 		m_ValueWithDefault = m_Value;
 		m_Value /= sumWeight;
 		RowData defaultData = new RowData(set.getDefaultData(), schema);
 		double defWeight = defaultData.getSumWeights();
-		m_ValueWithDefault += defWeight * SSPD.computeSSPDVariance(m_Dist, defaultData);
+		m_ValueWithDefault += defWeight * computeICVPairwiseDistances(m_Dist, defaultData);
 		sumWeight += defWeight;
 		m_ValueWithDefault /= sumWeight;
 	}
@@ -99,7 +119,7 @@ public class SSPDICVError extends ClusError {
 
 	public void showModelError(PrintWriter wrt, int detail) {
 		StringBuffer res = new StringBuffer();
-		res.append("SSPD-ICV: "+m_Value);
+		res.append(String.valueOf(m_Value));
 		if (m_ValueWithDefault != 0.0) {
 			res.append(" (with default: "+m_ValueWithDefault+")");
 		}
@@ -107,10 +127,10 @@ public class SSPDICVError extends ClusError {
 	}
 
 	public ClusError getErrorClone(ClusErrorList par) {
-		return new SSPDICVError(getParent(), m_Dist);
+		return new ICVPairwiseDistancesError(getParent(), m_Dist);
 	}
 
 	public String getName() {
-		return "SSPDICV";
+		return "ICV-Pairwise-Distances";
 	}
 }

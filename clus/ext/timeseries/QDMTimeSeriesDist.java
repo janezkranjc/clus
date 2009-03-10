@@ -22,20 +22,14 @@
 
 package clus.ext.timeseries;
 
-import clus.data.attweights.ClusAttributeWeights;
-import clus.data.rows.DataTuple;
-import clus.data.rows.RowData;
 import clus.data.type.TimeSeriesAttrType;
-import clus.main.ClusStatManager;
 import clus.main.Settings;
-import clus.statistic.ClusStatistic;
-import clus.statistic.StatisticPrintInfo;
 
-public class QDMTimeSeriesStat extends TimeSeriesStat {
+public class QDMTimeSeriesDist extends TimeSeriesDist {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-	public QDMTimeSeriesStat(TimeSeriesAttrType attr) {
+	public QDMTimeSeriesDist(TimeSeriesAttrType attr) {
 		super(attr);
 	}
 	
@@ -56,7 +50,7 @@ public class QDMTimeSeriesStat extends TimeSeriesStat {
 			}
 		}
 		distance = distance / (m * (m-1));
-		return distance;
+		return distance * distance;
 	}
 
 	public static int diff(double a, double b ){
@@ -69,67 +63,7 @@ public class QDMTimeSeriesStat extends TimeSeriesStat {
 			return 1;
 	}
 
-	public double getSVarS(ClusAttributeWeights scale, RowData data) {
-		// TODO Auto-generated method stub
-		return super.getSVarS(scale, data);
+	public String getDistanceName() {
+		return "QDMTimeSeriesDist";
 	}
-
-	public void optimizePreCalc(RowData data) {
-		// TODO Auto-generated method stub
-		super.optimizePreCalc(data);
-	}
-
-	public ClusStatistic cloneStat() {
-		QDMTimeSeriesStat stat = new QDMTimeSeriesStat(m_Attr);
-		stat.cloneFrom(this);
-		return stat;
-	}
-
-	public ClusStatistic cloneSimple() {
-		QDMTimeSeriesStat stat = new QDMTimeSeriesStat(m_Attr);
-		stat.m_RepresentativeMean = new TimeSeries(m_RepresentativeMean.length());
-		stat.m_RepresentativeMedian = new TimeSeries(m_RepresentativeMedian.length());
-		return stat;
-	}
-
-	public void copy(ClusStatistic other) {
-		QDMTimeSeriesStat or = (QDMTimeSeriesStat) other;
-		super.copy(or);
-		m_Value = or.m_Value;
-	}
-
-	public double getError(ClusAttributeWeights scale) {
-		// TODO Auto-generated method stub
-		return Double.POSITIVE_INFINITY;
-	}
-
-	/*
-	 * [Aco]
-	 * for printing in the nodes
-	 * @see clus.statistic.ClusStatistic#getString(clus.statistic.StatisticPrintInfo)
-	 */
-	public String getString(StatisticPrintInfo info){
-		return super.getString(info);
-	}
-
-	/*
-	 * [Aco]
-	 * a new timeseries comes, and we calculate something for it
-	 * @see clus.statistic.ClusStatistic#updateWeighted(clus.data.rows.DataTuple, int)
-	 */
-	public void updateWeighted(DataTuple tuple, int idx){
-		//System.out.println("noproto");
-	    super.updateWeighted(tuple,idx);
-	}
-
-	/*
-	 * [Aco]
-	 * this is executed in the end
-	 * @see clus.statistic.ClusStatistic#calcMean()
-	 */
-	public void calcMean() {
-		super.calcMean();
-	}
-
-
 }

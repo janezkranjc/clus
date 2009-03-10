@@ -22,25 +22,25 @@
 
 package clus.heuristic;
 
+import clus.main.*;
 import clus.statistic.*;
 import clus.data.rows.*;
 import clus.data.attweights.*;
-import clus.main.*;
 
-public class VarianceReductionHeuristic extends ClusHeuristic {
+public class VarianceReductionHeuristicCompatibility extends ClusHeuristic {
 
 	protected RowData m_Data;
 	protected String m_BasicDist;
 	protected ClusStatistic m_NegStat;
 	protected ClusAttributeWeights m_TargetWeights;
 
-	public VarianceReductionHeuristic(String basicdist, ClusStatistic negstat, ClusAttributeWeights targetweights) {
+	public VarianceReductionHeuristicCompatibility(String basicdist, ClusStatistic negstat, ClusAttributeWeights targetweights) {
 		m_BasicDist = basicdist;
 		m_NegStat = negstat;
 		m_TargetWeights = targetweights;
 	}
 
-	public VarianceReductionHeuristic(ClusStatistic negstat, ClusAttributeWeights targetweights) {
+	public VarianceReductionHeuristicCompatibility(ClusStatistic negstat, ClusAttributeWeights targetweights) {
 		m_BasicDist = negstat.getDistanceName();
 		m_NegStat = negstat;
 		m_TargetWeights = targetweights;
@@ -68,7 +68,7 @@ public class VarianceReductionHeuristic extends ClusHeuristic {
 			System.out.println("NEG: "+m_NegStat.getDebugString());
 			System.out.println("-> ("+ss_tot+", "+ss_pos+", "+ss_neg+") "+value);
 		}
-		// FIXME: Why is this here?
+		// NOTE: This is here for compatibility reasons only
 		if (value < 1e-6) return Double.NEGATIVE_INFINITY;
 		return value;
 	}

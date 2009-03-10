@@ -22,20 +22,14 @@
 
 package clus.ext.timeseries;
 
-import clus.data.attweights.ClusAttributeWeights;
-import clus.data.rows.DataTuple;
-import clus.data.rows.RowData;
 import clus.data.type.TimeSeriesAttrType;
-import clus.main.ClusStatManager;
 import clus.main.Settings;
-import clus.statistic.ClusStatistic;
-import clus.statistic.StatisticPrintInfo;
 
-public class DTWTimeSeriesStat extends TimeSeriesStat {
+public class DTWTimeSeriesDist extends TimeSeriesDist {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-
-	public DTWTimeSeriesStat(TimeSeriesAttrType attr) {
+	
+	public DTWTimeSeriesDist(TimeSeriesAttrType attr) {
 		super(attr);
 	}
 	
@@ -46,7 +40,7 @@ public class DTWTimeSeriesStat extends TimeSeriesStat {
 	 * http://www.hpl.hp.com/conferences/icml2003/papers/145.pdf
 	 * 
 	 */
-	public double calcDistance(TimeSeries t1, TimeSeries t2, int adjustmentWindow){
+	public double calcDistance(TimeSeries t1, TimeSeries t2, int adjustmentWindow) {
 
 		int m = t1.length();
 		int n = t2.length();
@@ -93,65 +87,7 @@ public class DTWTimeSeriesStat extends TimeSeriesStat {
 		return calcDistance(t1,t2,Math.max(Math.max(Math.abs(t1.length()-t2.length())+1,t1.length()/2),t2.length()/2));
 	}
 
-	public double getSVarS(ClusAttributeWeights scale, RowData data) {
-		// TODO Auto-generated method stub
-		return super.getSVarS(scale, data);
+	public String getDistanceName() {
+		return "DTWTimeSeriesDist";
 	}
-
-	public void optimizePreCalc(RowData data) {
-		// TODO Auto-generated method stub
-		super.optimizePreCalc(data);
-	}
-
-	public ClusStatistic cloneStat() {
-		DTWTimeSeriesStat stat = new DTWTimeSeriesStat(m_Attr);
-		stat.cloneFrom(this);
-		return stat;
-	}
-
-	public ClusStatistic cloneSimple() {
-		DTWTimeSeriesStat stat = new DTWTimeSeriesStat(m_Attr);
-		stat.m_RepresentativeMean = new TimeSeries(m_RepresentativeMean.length());
-		stat.m_RepresentativeMedian = new TimeSeries(m_RepresentativeMedian.length());
-		return stat;
-	}
-
-	public void copy(ClusStatistic other) {
-		DTWTimeSeriesStat or = (DTWTimeSeriesStat)other;
-		super.copy(or);
-		m_Value = or.m_Value;
-	}
-
-	public double getError(ClusAttributeWeights scale) {
-		// TODO Auto-generated method stub
-		return Double.POSITIVE_INFINITY;
-	}
-
-	/*
-	 * [Aco]
-	 * for printing in the nodes
-	 * @see clus.statistic.ClusStatistic#getString(clus.statistic.StatisticPrintInfo)
-	 */
-	public String getString(StatisticPrintInfo info){
-		return super.getString(info);
-	}
-
-	/*
-	 * [Aco]
-	 * a new timeseries comes, and we calculate something for it
-	 * @see clus.statistic.ClusStatistic#updateWeighted(clus.data.rows.DataTuple, int)
-	 */
-	public void updateWeighted(DataTuple tuple, int idx){
-	    super.updateWeighted(tuple,idx);
-	}
-
-	/*
-	 * [Aco]
-	 * this is executed in the end
-	 * @see clus.statistic.ClusStatistic#calcMean()
-	 */
-	public void calcMean() {
-		super.calcMean();
-	}
-
 }

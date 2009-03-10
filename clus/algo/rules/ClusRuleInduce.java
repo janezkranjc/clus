@@ -127,7 +127,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				}
 				double new_heur;
 				// Do a sanity check only for exact (non-approximative) heuristics
-				 if (Settings.isTimeSeriesProtoComlexityExact()) {
+				 if (getSettings().isTimeSeriesProtoComlexityExact()) {
 					new_heur = sanityCheck(sel.m_BestHeur, ref_rule);
 					// if (Settings.VERBOSE > 0) System.out.println("  Sanity.check.exp: " + new_heur);
 				} else {

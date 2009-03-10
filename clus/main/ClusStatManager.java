@@ -437,25 +437,26 @@ public class ClusStatManager implements Serializable {
 		case MODE_TIME_SERIES:
 			ClusAttrType[] targets = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			TimeSeriesAttrType type = (TimeSeriesAttrType)targets[0];
-			switch (Settings.m_TimeSeriesDM.getValue()) {
+			int efficiency = getSettings().m_TimeSeriesHeuristicSampling.getValue();
+			switch (getSettings().getTimeSeriesDistance()) {
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_DTW:
-				setClusteringStatistic(new DTWTimeSeriesStat(type));
-				setTargetStatistic(new DTWTimeSeriesStat(type));
+				TimeSeriesDist dist = new DTWTimeSeriesDist(type);
+				setClusteringStatistic(new TimeSeriesStat(type, dist, efficiency));
+				setTargetStatistic(new TimeSeriesStat(type, dist, efficiency));
 				break;
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_QDM:
-				if (type.isEqualLength()){
-					setClusteringStatistic(new QDMTimeSeriesStat(type));
-					setTargetStatistic(new QDMTimeSeriesStat(type));
-				}else{
-					System.err.println("QDM Distance is not implemented for time series with different length");
-					Settings.m_TimeSeriesDM.setSingleValue(Settings.TIME_SERIES_DISTANCE_MEASURE_DTW);
-					setClusteringStatistic(new DTWTimeSeriesStat(type));
-					setTargetStatistic(new DTWTimeSeriesStat(type));
+				if (type.isEqualLength()) {
+					TimeSeriesDist qdm = new QDMTimeSeriesDist(type);
+					setClusteringStatistic(new TimeSeriesStat(type, qdm, efficiency));
+					setTargetStatistic(new TimeSeriesStat(type, qdm, efficiency));
+				} else {
+					throw new ClusException("QDM Distance is not implemented for time series with different length");
 				}
 				break;
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_TSC:
-				setClusteringStatistic(new TSCTimeSeriesStat(type));
-				setTargetStatistic(new TSCTimeSeriesStat(type));
+				TimeSeriesDist tsc = new TSCTimeSeriesDist(type);				
+				setClusteringStatistic(new TimeSeriesStat(type, tsc, efficiency));
+				setTargetStatistic(new TimeSeriesStat(type, tsc, efficiency));
 				break;
 			}
 			break;
@@ -570,7 +571,7 @@ public class ClusStatManager implements Serializable {
 			return;
 		}
 		if (m_Mode == MODE_HIERARCHICAL) {
-			m_Heuristic = new VarianceReductionHeuristic(createClusteringStat(), getClusteringWeights());
+			m_Heuristic = new VarianceReductionHeuristicCompatibility(createClusteringStat(), getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_VARIANCE_REDUCTION);
 			return;
 		}
@@ -580,8 +581,9 @@ public class ClusStatManager implements Serializable {
 			return;
 		}
 		if (m_Mode == MODE_TIME_SERIES) {
-			String name = "Time Series Intra-Cluster Variation Heuristic";
-			m_Heuristic = new VarianceReductionHeuristic(name, createClusteringStat(), getClusteringWeights());
+			ClusStatistic clusstat = createClusteringStat();
+			String name = clusstat.getDistanceName();
+			m_Heuristic = new VarianceReductionHeuristic(name, clusstat, getClusteringWeights());
 			getSettings().setHeuristic(Settings.HEURISTIC_VARIANCE_REDUCTION);
 			return;
 		}
@@ -698,7 +700,8 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new PearsonCorrelation(parent, num));
 		}
 		if (ts.length != 0) {
-			parent.addError(new TSRMSError(parent, ts));
+			ClusStatistic stat = createTargetStat();
+			parent.addError(new AvgDistancesError(parent, stat.getDistance()));
 		}
 		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
@@ -728,7 +731,8 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new RMSError(parent, num));
 		}
 		if (ts.length != 0) {
-			parent.addError(new TSRMSError(parent, ts));
+			ClusStatistic stat = createTargetStat();
+			parent.addError(new AvgDistancesError(parent, stat.getDistance()));
 		}
 		return parent;
 	}
@@ -767,8 +771,8 @@ public class ClusStatManager implements Serializable {
 			parent.addError(new HierClassWiseAccuracy(parent, m_Hier));
 			break;
 		case MODE_TIME_SERIES:
-			TimeSeriesAttrType[] ts = m_Schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			parent.addError(new TSRMSError(parent, ts));
+			ClusStatistic stat = createTargetStat();
+			parent.addError(new AvgDistancesError(parent, stat.getDistance()));
 			break;
 		}
 		parent.setWeights(getClusteringWeights());
@@ -778,18 +782,8 @@ public class ClusStatManager implements Serializable {
 	public ClusErrorList createExtraError(int train_err) {
 		ClusErrorList parent = new ClusErrorList();
 		if (m_Mode == MODE_TIME_SERIES) {
-			ClusAttrType[] targets = m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
-			TimeSeriesAttrType type = (TimeSeriesAttrType)targets[0];
-			TimeSeriesStat tstat = null;
-			if (Settings.m_TimeSeriesDM.getValue() == Settings.TIME_SERIES_DISTANCE_MEASURE_DTW){
-				tstat = new DTWTimeSeriesStat(type);
-			}else if (Settings.m_TimeSeriesDM.getValue() == Settings.TIME_SERIES_DISTANCE_MEASURE_QDM){
-				if (type.isEqualLength()) tstat = new QDMTimeSeriesStat(type);//QDM for different length not implemented
-				else tstat = new DTWTimeSeriesStat(type);
-			}else if (Settings.m_TimeSeriesDM.getValue() == Settings.TIME_SERIES_DISTANCE_MEASURE_TSC){
-				tstat = new TSCTimeSeriesStat(type);
-			}
-			parent.addError(new SSPDICVError(parent, tstat));
+			ClusStatistic stat = createTargetStat();
+			parent.addError(new ICVPairwiseDistancesError(parent, stat.getDistance()));
 		}
 		return parent;
 	}

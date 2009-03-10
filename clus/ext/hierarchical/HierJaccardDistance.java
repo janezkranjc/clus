@@ -4,7 +4,7 @@ import clus.data.rows.DataTuple;
 import clus.main.Settings;
 import clus.statistic.*;
 
-public class HierJaccardDistance implements ClusDistance {
+public class HierJaccardDistance extends ClusDistance {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
@@ -23,6 +23,10 @@ public class HierJaccardDistance implements ClusDistance {
 		System.out.println("Tuple 2: "+ cl2.toString());
 
 		return Math.random();
+	}
+	
+	public double calcDistanceToCentroid(DataTuple t1, ClusStatistic s2) {
+		return Double.POSITIVE_INFINITY;
 	}
 
 	public String getDistanceName() {

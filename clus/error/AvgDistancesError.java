@@ -22,16 +22,72 @@
 
 package clus.error;
 
-import clus.data.type.TimeSeriesAttrType;
+import java.io.PrintWriter;
 
-public abstract class ClusTimeSeriesError extends ClusError {
+import clus.data.rows.DataTuple;
+import clus.main.Settings;
+import clus.statistic.ClusDistance;
+import clus.statistic.ClusStatistic;
 
-	protected TimeSeriesAttrType[] m_Attrs;
+public class AvgDistancesError extends ClusError {
 
-	public ClusTimeSeriesError(ClusErrorList par, TimeSeriesAttrType[] ts) {
-		super(par, ts.length);
-		m_Attrs = ts;
+	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+
+	protected double m_SumErr;
+	protected ClusDistance m_Distance;
+
+	public AvgDistancesError(ClusErrorList par, ClusDistance dist) {
+		super(par);
+		m_Distance = dist;
 	}
 
+	public void reset() {
+		m_SumErr = 0.0;
+	}
 
+	public void add(ClusError other) {
+		AvgDistancesError oe = (AvgDistancesError)other;
+		m_SumErr += oe.m_SumErr;
+	}
+
+	public void addExample(DataTuple tuple, ClusStatistic pred) {
+		m_SumErr += m_Distance.calcDistanceToCentroid(tuple, pred);
+	}
+
+	public double getModelErrorAdditive() {
+		// return squared error not divided by the number of examples
+		// optimized, e.g., by size constraint pruning
+		return m_SumErr;
+	}
+
+	public double getModelError() {
+		return getModelErrorComponent(0);
+	}
+
+	public boolean shouldBeLow() {
+		return true;
+	}
+
+	public void addInvalid(DataTuple tuple) {
+	}
+
+	public ClusError getErrorClone(ClusErrorList par) {
+		return new AvgDistancesError(par, m_Distance);
+	}
+	
+	public void showModelError(PrintWriter wrt, int detail) {
+		StringBuffer res = new StringBuffer();
+		res.append(String.valueOf(getModelError()));
+		wrt.println(res.toString());
+	}
+
+	public String getName() {
+		return "AvgDistancesError";
+	}
+
+	public double getModelErrorComponent(int i) {
+		int nb = getNbExamples();
+		double err = nb != 0 ? m_SumErr/nb : 0.0;
+		return err;
+	}
 }

@@ -20,76 +20,35 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.error;
+package clus.ext.timeseries;
 
 import clus.data.rows.DataTuple;
 import clus.data.type.TimeSeriesAttrType;
-import clus.ext.timeseries.TimeSeries;
-import clus.ext.timeseries.TimeSeriesStat;
 import clus.main.Settings;
+import clus.statistic.ClusDistance;
 import clus.statistic.ClusStatistic;
 
-public class TSRMSError extends ClusTimeSeriesError {
+public abstract class TimeSeriesDist extends ClusDistance {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	
+	protected TimeSeriesAttrType m_Attr;
 
-	protected double m_SumSqErr;
-
-	public TSRMSError(ClusErrorList par, TimeSeriesAttrType[] ts) {
-		super(par, ts);
+	public TimeSeriesDist(TimeSeriesAttrType attr) {
+		m_Attr = attr;
+	}
+	
+	public abstract double calcDistance(TimeSeries t1, TimeSeries t2);
+	
+	public double calcDistance(DataTuple t1, DataTuple t2) {
+		TimeSeries ts1 = m_Attr.getTimeSeries(t1);
+		TimeSeries ts2 = m_Attr.getTimeSeries(t2);
+		return calcDistance(ts1, ts2);
 	}
 
-	public void reset() {
-		m_SumSqErr = 0.0;
-	}
-
-	public void add(ClusError other) {
-		TSRMSError oe = (TSRMSError)other;
-		m_SumSqErr += oe.m_SumSqErr;
-	}
-
-	public void addExample(DataTuple tuple, ClusStatistic pred) {
-		TimeSeries predicted = pred.getTimeSeriesPred();
-		double err = ((TimeSeriesStat)pred).calcDistance(getAttr(0).getTimeSeries(tuple),  predicted);
-		m_SumSqErr += sqr(err);
-	}
-
-	public final static double sqr(double value) {
-		return value*value;
-	}
-
-	public double getModelErrorAdditive() {
-		// return squared error not divided by the number of examples
-		// optimized, e.g., by size constraint pruning
-		return m_SumSqErr;
-	}
-
-	public double getModelError() {
-		return getModelErrorComponent(0);
-	}
-
-	public boolean shouldBeLow() {
-		return true;
-	}
-
-	public TimeSeriesAttrType getAttr(int i) {
-		return m_Attrs[i];
-	}
-
-	public void addInvalid(DataTuple tuple) {
-	}
-
-	public ClusError getErrorClone(ClusErrorList par) {
-		return new TSRMSError(par, m_Attrs);
-	}
-
-	public String getName() {
-		return "TSRMSError";
-	}
-
-	public double getModelErrorComponent(int i) {
-		int nb = getNbExamples();
-		double err = nb != 0 ? m_SumSqErr/nb : 0.0;
-		return Math.sqrt(err);
+	public double calcDistanceToCentroid(DataTuple t1, ClusStatistic s2) {
+		TimeSeries ts1 = m_Attr.getTimeSeries(t1);
+		TimeSeriesStat stat = (TimeSeriesStat)s2;
+		return calcDistance(ts1, stat.getRepresentativeMedoid());
 	}
 }

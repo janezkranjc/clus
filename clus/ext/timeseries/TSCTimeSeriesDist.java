@@ -22,23 +22,14 @@
 
 package clus.ext.timeseries;
 
-import java.text.NumberFormat;
-
-import clus.data.attweights.ClusAttributeWeights;
-import clus.data.rows.DataTuple;
-import clus.data.rows.RowData;
 import clus.data.type.TimeSeriesAttrType;
-import clus.main.ClusStatManager;
 import clus.main.Settings;
-import clus.statistic.ClusStatistic;
-import clus.statistic.StatisticPrintInfo;
-import clus.util.ClusFormat;
 
-public class TSCTimeSeriesStat extends TimeSeriesStat{
+public class TSCTimeSeriesDist extends TimeSeriesDist {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-	public TSCTimeSeriesStat(TimeSeriesAttrType attr) {
+	public TSCTimeSeriesDist(TimeSeriesAttrType attr) {
 		super(attr);
 	}
 	
@@ -66,6 +57,7 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 		cc = 1 - Math.abs(sum_ts1_ts2/Math.sqrt(sum_ts1_sqr*sum_ts2_sqr));
 		return cc;
 	}
+	
 	/*
 	public double calcDistance(TimeSeries t1, TimeSeries t2) {
 		//this calculates the Correlation coefficient of two TimeSeries
@@ -92,40 +84,6 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 		return cc;
 	}*/
 
-	public double getSVarS(ClusAttributeWeights scale, RowData data) {
-		// TODO Auto-generated method stub
-		return super.getSVarS(scale, data);
-	}
-
-	public void optimizePreCalc(RowData data) {
-		// TODO Auto-generated method stub
-		super.optimizePreCalc(data);
-	}
-
-	public ClusStatistic cloneStat() {
-		TSCTimeSeriesStat stat = new TSCTimeSeriesStat(m_Attr);
-		stat.cloneFrom(this);
-		return stat;
-	}
-
-	public ClusStatistic cloneSimple() {
-		TSCTimeSeriesStat stat = new TSCTimeSeriesStat(m_Attr);
-		stat.m_RepresentativeMean = new TimeSeries(m_RepresentativeMean.length());
-		stat.m_RepresentativeMedian = new TimeSeries(m_RepresentativeMedian.length());
-		return stat;
-	}
-
-	public void copy(ClusStatistic other) {
-		TSCTimeSeriesStat or = (TSCTimeSeriesStat) other;
-		super.copy(or);
-		m_Value = or.m_Value;
-	}
-
-	public double getError(ClusAttributeWeights scale) {
-		// TODO Auto-generated method stub
-		return Double.POSITIVE_INFINITY;
-	}
-
 	public double calculateMean(double[] ts){
 		double sum = 0;
 		for (int k = 0; k < ts.length; k++)sum += ts[k];
@@ -133,40 +91,7 @@ public class TSCTimeSeriesStat extends TimeSeriesStat{
 		return sum;
 	}
 
-	/*
-	 * [Aco]
-	 * for printing in the nodes
-	 * @see clus.statistic.ClusStatistic#getString(clus.statistic.StatisticPrintInfo)
-	 */
-	public String getString(StatisticPrintInfo info){
-		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
-		StringBuffer buf = new StringBuffer();
-		buf.append(m_RepresentativeMean.toString());
-		if (info.SHOW_EXAMPLE_COUNT) {
-			buf.append(": ");
-			buf.append(fr.format(m_SumWeight));
-		}
-		return buf.toString();
-
-		//java.lang.Double.toString(m_SumWeight);
+	public String getDistanceName() {
+		return "TSCTimeSeriesDist";
 	}
-
-	/*
-	 * [Aco]
-	 * a new timeseries comes, and we calculate something for it
-	 * @see clus.statistic.ClusStatistic#updateWeighted(clus.data.rows.DataTuple, int)
-	 */
-	public void updateWeighted(DataTuple tuple, int idx){
-	    super.updateWeighted(tuple,idx);
-	}
-
-	/*
-	 * [Aco]
-	 * this is executed in the end
-	 * @see clus.statistic.ClusStatistic#calcMean()
-	 */
-	public void calcMean() {
-		super.calcMean();
-	}
-
 }
