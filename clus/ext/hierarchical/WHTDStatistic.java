@@ -253,7 +253,7 @@ public class WHTDStatistic extends RegressionStat {
 		return sum / getNbAttributes();
 	}
 	
-	public double getAbsoluteDistance(DataTuple tuple, ClusAttributeWeights weights) {
+	public double getAbsoluteDistance(DataTuple tuple, ClusAttributeWeights weights, ClusStatManager statmanager) {
 		double sum = 0.0;
 		boolean[] actual = new boolean[m_Hier.getTotal()];
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(m_Hier.getType().getArrayIndex());
@@ -262,7 +262,9 @@ public class WHTDStatistic extends RegressionStat {
 			NumericAttrType type = getAttribute(i);
 			double actual_zo = actual[i] ? 1.0 : 0.0;
 			double dist = actual_zo - m_Means[i];
-			// dist should also be divided by root of variance along attribute. How?
+			WHTDStatistic tstat = (WHTDStatistic) statmanager.getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING);
+			if (tstat.getVariance(i) != 0)
+				dist = dist / Math.pow(tstat.getVariance(i), 0.5);
 			sum += Math.abs(dist) * weights.getWeight(type); 
 		}
 		return sum / getNbAttributes();
