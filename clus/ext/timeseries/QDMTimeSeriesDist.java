@@ -50,7 +50,7 @@ public class QDMTimeSeriesDist extends TimeSeriesDist {
 			}
 		}
 		distance = distance / (m * (m-1));
-		return distance * distance;
+		return distance;
 	}
 
 	public static int diff(double a, double b ){

@@ -31,6 +31,7 @@ import clus.data.attweights.*;
 import clus.main.Settings;
 import clus.model.ClusModel;
 import clus.statistic.*;
+import clus.util.ClusException;
 
 public abstract class ClusError implements Serializable {
 
@@ -113,7 +114,7 @@ public abstract class ClusError implements Serializable {
 		System.err.println(getClass().getName()+": addInvalid() not implemented!");
 	}
 
-	public void compute(RowData data, ClusModel model) {
+	public void compute(RowData data, ClusModel model) throws ClusException {
 		System.err.println(getClass().getName()+": compute() not implemented!");
 	}
 

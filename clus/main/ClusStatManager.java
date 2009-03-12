@@ -785,6 +785,7 @@ public class ClusStatManager implements Serializable {
 		if (m_Mode == MODE_TIME_SERIES) {
 			ClusStatistic stat = createTargetStat();
 			parent.addError(new ICVPairwiseDistancesError(parent, stat.getDistance()));
+			parent.addError(new TimeSeriesSignificantChangeTesterXVAL(parent, (TimeSeriesStat)stat));
 		}
 		return parent;
 	}

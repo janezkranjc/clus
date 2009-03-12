@@ -156,9 +156,23 @@ public class ClusErrorList implements Serializable {
 		return null;
 	}
 
-	public void compute(RowData data, ClusModel model) {
+	public void compute(RowData data, ClusModelInfo model) throws ClusException {
 		int nb = m_Error.size();
-		for (int i = 0; i < nb; i++) {
+		for (int i = nb-1; i >= 0 ; i--) {
+			ClusError err = (ClusError)m_Error.get(i);
+			if (err.isComputeForModel(model.getName())) {
+				err.compute(data, model.getModel());
+			} else {
+				m_Error.remove(i);
+			}
+		}
+		m_NbExamples = data.getNbRows();
+		m_NbCover = m_NbExamples;
+	}
+	
+	public void compute(RowData data, ClusModel model) throws ClusException {
+		int nb = m_Error.size();
+		for (int i = 0; i < nb ; i++) {
 			ClusError err = (ClusError)m_Error.get(i);
 			err.compute(data, model);
 		}

@@ -667,13 +667,13 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
-	public final void calcExtraTrainingSetErrors(ClusRun cr) {
+	public final void calcExtraTrainingSetErrors(ClusRun cr) throws ClusException {
 		ClusErrorList parent = getStatManager().createExtraError(ClusModelInfo.TRAIN_ERR);
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			ClusModelInfo info = cr.getModelInfo(i);
 			if (info != null) {
 				ClusErrorList parent_cl = parent.getErrorClone();
-				parent_cl.compute((RowData)cr.getTrainingSet(), info.getModel());
+				parent_cl.compute((RowData)cr.getTrainingSet(), info);
 				info.setExtraError(ClusModelInfo.TRAIN_ERR, parent_cl);
 				if (info.getModel() instanceof ClusRuleSet && m_Sett.isRuleWiseErrors()) {
 					ClusRuleSet ruleset = (ClusRuleSet) info.getModel();

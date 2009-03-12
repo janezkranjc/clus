@@ -298,4 +298,7 @@ public class TimeSeriesStat extends SumPairwiseDistancesStat {
 		return m_RepresentativeMedoid;
 	}
 	
+	public TimeSeriesAttrType getAttribute() {
+		return m_Attr;
+	}
 }
