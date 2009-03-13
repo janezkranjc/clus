@@ -1524,12 +1524,13 @@ public class Settings implements Serializable {
  * Section: Phylogeny                                             	   *
  ***********************************************************************/
 
-	public final static String[] PHYLOGENY_DISTANCE_MEASURE={"JC","Kimura","PDist","Edit"};
+	public final static String[] PHYLOGENY_DISTANCE_MEASURE={"JC","Kimura","PDist","Edit","AminoKimura"};
 
 	public final static int PHYLOGENY_DISTANCE_MEASURE_JC = 0;
 	public final static int PHYLOGENY_DISTANCE_MEASURE_KIMURA = 1;
 	public final static int PHYLOGENY_DISTANCE_MEASURE_PDIST = 2;
 	public final static int PHYLOGENY_DISTANCE_MEASURE_EDIT = 3;
+	public final static int PHYLOGENY_DISTANCE_MEASURE_AMINOKIMURA = 4;
 
 	public final static String[] PHYLOGENY_PROTOTYPE_COMPLEXITY={"Pairwise","Prototype"};
 
