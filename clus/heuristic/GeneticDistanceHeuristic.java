@@ -88,6 +88,8 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 			return getJukesCantorDistance(seq1,seq2);
 		case Settings.PHYLOGENY_DISTANCE_MEASURE_KIMURA:
 			return getKimuraDistance(seq1,seq2);
+		case Settings.PHYLOGENY_DISTANCE_MEASURE_AMINOKIMURA:
+			return getAminoKimuraDistance(seq1,seq2);
 		}
 		return 0.0; // is never executed
 	}
@@ -182,7 +184,16 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		return kimura;			
 	}
 	
-
+	public double getAminoKimuraDistance(String[] seq1, String[] seq2) {
+		double p_distance = getPDistance(seq1, seq2);
+		double kimura;
+		if (p_distance > 0.8541) {
+			kimura = 12.84; // not defined for >= 0.75
+			System.out.println("Warning: infinite distances");
+		}
+		else kimura = -1.0 * Math.log(1.0 - p_distance - 0.2 * Math.pow(p_distance,2.0));
+		return kimura;
+	}
 
 	
 	
@@ -394,14 +405,14 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		
 		double[][] protomatrix = stat.getProbabilityPrediction();
 		
-		System.out.println("protomatrix");
+		/*System.out.println("protomatrix");
 		for (int j=0; j<nbtargets; j++) {
 			for (int k=0; k<5; k++) {
 				System.out.print(protomatrix[j][k] + " ");
 			}
 			System.out.println();
 		}
-		System.out.println();
+		System.out.println();*/
 		
 		
 		String[] proto = new String[nbtargets];
@@ -409,11 +420,11 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 			proto[i] = stat.getPredictedClassName(i);
 		}
 		
-		System.out.print("proto: ");
+		/*System.out.print("proto: ");
 		for (int j=0;j<proto.length; j++)
 			System.out.print(proto[j]+" ");
 		System.out.println();
-		System.out.println();
+		System.out.println();*/
 		
 		double nb_ex = stat.m_SumWeight;
 		for (int i=0; i<nb_ex; i++) {
@@ -427,14 +438,42 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 			}
 			dist2 += getDistance(proto,ch);
 			
-			System.out.print("seq: ");
+			/*System.out.print("seq: ");
 			for (int j=0;j<ch.length; j++)
 				System.out.print(ch[j]+" ");
+			System.out.println();*/
+		}
+	//	System.out.println("dist: " + dist + " dist2: " + dist2);
+		return dist;
+		//return dist2;
+	}
+	
+	
+	public double calculateTotalDistanceBetweenPrototypeMatrices(int nbtargets, GeneticDistanceStat stat1, GeneticDistanceStat stat2) {
+		double dist = 0.0;
+		
+		double[][] protomatrix1 = stat1.getProbabilityPrediction();
+		double[][] protomatrix2 = stat2.getProbabilityPrediction();
+		
+		/*System.out.println("protomatrix");
+		for (int j=0; j<nbtargets; j++) {
+			for (int k=0; k<5; k++) {
+				System.out.print(protomatrix[j][k] + " ");
+			}
 			System.out.println();
 		}
-		System.out.println("dist: " + dist + " dist2: " + dist2);
-		return dist2;
-	}
+		System.out.println();*/
+		
+		for (int j=0; j<nbtargets; j++) {
+			for (int k=0; k<5; k++) {
+				double d = Math.abs(protomatrix1[j][k] - protomatrix2[j][k]);
+				dist += d;
+			}
+		}
+		return dist;
+	}	
+	
+	
 	
 	public int maxArrayIndex(int[] t) {
 	    int maximum = t[0]; 
