@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import clus.Clus;
 import clus.algo.tdidt.ClusDecisionTree;
 import clus.algo.tdidt.ClusNode;
+import clus.algo.tdidt.DepthFirstInduce;
 import clus.algo.rules.ClusRulesFromTree;
 import clus.data.rows.RowData;
 import clus.data.type.ClusAttrType;
@@ -18,6 +19,7 @@ import clus.main.ClusRun;
 import clus.main.Settings;
 import clus.model.ClusModel;
 import clus.model.ClusModelInfo;
+import clus.pruning.PruneTree;
 import clus.statistic.ClusStatistic;
 import clus.util.ClusException;
 //import clus.algo.tdidt.ClusNode;
@@ -39,6 +41,8 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 			throws ClusException, IOException {
 		super(schema, sett);
 		m_Clus = clus;
+		sett.setSectionEnsembleEnabled(true); // For printing out the ensemble texts
+		getSettings().setEnsembleMode(true); // For ensemble things working
 	}
 
 
@@ -46,6 +50,55 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 	 * Induces rules from ensemble tree, similar to ClusRuleInduce.induce
 	 */
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
+		
+		
+		
+		
+//		// Also add a single tree without limit depth to the ensemble
+//		int oldValue = getSettings().getTreeMaxDepth();
+//		int oldPredMethod = getSettings().getRulePredictionMethod();
+//		
+//		// For some kind of reason this is changed for trees
+//		getSettings().setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_DECISION_LIST);
+//		getSettings().setTreeMaxDepth(-1); // Set the value to infinity
+//		
+//		DepthFirstInduce treeInduce = new DepthFirstInduce(this);
+//		treeInduce.initialize();
+//		cr.getStatManager().initClusteringWeights(); // This is done for ensembles also
+//		ClusModel treeModel = treeInduce.induceSingleUnpruned(cr);
+//		
+//		// Pruning
+//		ClusNode pruned = (ClusNode)treeModel;
+//		PruneTree pruner = getStatManager().getTreePruner(cr.getPruneSet());
+//		pruner.setTrainingData((RowData) cr.getTrainingSet());
+//		pruner.prune(pruned);
+//		
+//		// Transform the tree into rules and add them to current rule set
+////		int numberOfTreeUniqRules = 
+////			ruleSet.addRuleSet(treeTransform.constructRules((ClusNode)treeModel,
+////			ruleSet.addRuleSet(treeTransform.constructRules((ClusNode)pruned,
+////					getStatManager()));
+//
+//		
+//		getSettings().setOptGDMaxNbWeights(Math.max(pruned.getNbLeaf(), 10));
+//		System.err.println("Changing maximum number of weights on tree size. REMOVE THIS.");
+//
+//		// Change the value back
+//		getSettings().setTreeMaxDepth(oldValue);
+//		getSettings().setRulePredictionMethod(oldPredMethod);
+//		
+//
+//		
+////		System.out.println("Added a single decision tree to rules. " + ruleSet.getModelSize()
+////	            +  " rules in total. (" + numberOfTreeUniqRules + " unique rules from single tree.)");	
+//
+//	
+//
+//		// Adding single tree ends
+		
+		
+		
+		
 		
 		// Train the decision tree ensemble with hopefully all the available settings.
 		ClusEnsembleInduce ensemble = new ClusEnsembleInduce(this, m_Clus);
@@ -79,9 +132,8 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		}
 						
 		System.out.println("Transformed tree ensemble into rules. " + ruleSet.getModelSize()
-	            +  " rules created. (" + numberOfUniqueRules + " of them had unique descriptions.)");	
-		
-		
+	            +  " rules created. (" + numberOfUniqueRules + " of them are unique.)");	
+
 		RowData trainingData = (RowData)cr.getTrainingSet();
 		
 		// ************************** The following copied from ClusRuleInduce.separateAndConquor
@@ -146,8 +198,7 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
 		RowData trainData = (RowData)cr.getTrainingSet();
 		getStatManager().getHeuristic().setTrainData(trainData);
-		ClusStatistic trainStat = getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING);
-		// TODO: Are these needed?
+//		ClusStatistic trainStat = getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING);
 //		double value = trainStat.getDispersion(getStatManager().getClusteringWeights(), trainData);
 //		getStatManager().getHeuristic().setTrainDataHeurValue(value);
 		
@@ -164,9 +215,7 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		ClusModel model = induceSingleUnpruned(cr);
 		ClusModelInfo rules_model = cr.addModelInfo(ClusModel.RULES);
 		rules_model.setModel(model);
-		rules_model.setName("Rules");
-				
-		
+		rules_model.setName("Rules");	
 	}
 
 }
