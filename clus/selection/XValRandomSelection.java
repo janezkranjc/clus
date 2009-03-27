@@ -88,6 +88,9 @@ public class XValRandomSelection extends XValMainSelection {
 		}
 	}
 
+	/** Selects randomly the data for all the folds fold.
+	 *  The order of the data inside folds is kept!
+	 */
 	public int devide2(XValGroup[] grps, int from, int till, int max) {
 		while (from < till) {
 			int grp = m_Random.nextInt(grps.length);
