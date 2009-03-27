@@ -38,6 +38,8 @@ import jeans.resource.ResourceInfo;
 
 import clus.Clus;
 import clus.algo.*;
+import clus.algo.rules.ClusRuleSet;
+import clus.algo.rules.ClusRulesFromTree;
 import clus.algo.split.FindBestTest;
 import clus.algo.tdidt.*;
 import clus.main.*;
@@ -57,6 +59,7 @@ import clus.selection.*;
 import clus.statistic.ClassificationStat;
 import clus.statistic.ClusStatistic;
 import clus.statistic.RegressionStat;
+import clus.tools.optimization.GDProbl;
 import clus.util.ClusException;
 import clus.util.ClusRandom;
 
@@ -89,6 +92,10 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	boolean m_FeatRank;
 	TreeMap m_FeatureRanks;//sorted by the rank
 	HashMap m_FeatureRankByName;
+	
+    /** Random tree depths for different iterations, used for tree to rules optimization procedures.
+     * This is static because we want different tree depths for different folds. */
+	static protected Random m_randTreeDepth = new Random(0);
 	
 	public ClusEnsembleInduce(ClusSchema schema, Settings sett, Clus clus) throws ClusException, IOException {
 		super(schema, sett);
@@ -232,6 +239,49 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 				}
 			}
 		}
+		
+		if (getSettings().rulesFromTree() != Settings.CONVERT_RULES_NONE) {
+			convertToRules(cr, false);	
+		}
+	}
+	
+	/** Converts the forest to rule set and adds the model. Returns the ruleset
+	 * @param cr 
+	 * @param addOnlyUnique Add only unique rules to rule set. Do NOT use this if you want to count something
+	 *                      on the original forest.
+	 * @return rule set.
+	 * @throws ClusException
+	 * @throws IOException
+	 */
+	public void convertToRules(ClusRun cr, boolean addOnlyUnique)  
+	{
+		/** 
+		 * The class for transforming single trees to rules
+		 */
+		ClusRulesFromTree treeTransform = new ClusRulesFromTree(true, getSettings().rulesFromTree()); // Parameter always true
+		ClusRuleSet ruleSet = new ClusRuleSet(getStatManager()); // Manager from super class
+		
+		//ClusRuleSet ruleSet = new ClusRuleSet(m_Clus.getStatManager());
+				
+		// Get the trees and transform to rules
+//		int numberOfUniqueRules = 0;
+
+		for (int iTree = 0; iTree < m_OForest.getNbModels(); iTree++)
+		{
+			// Take the root node of the tree
+			ClusNode treeRootNode = (ClusNode)m_OForest.getModel(iTree);
+
+			// Transform the tree into rules and add them to current rule set
+//			numberOfUniqueRules += 
+				ruleSet.addRuleSet(treeTransform.constructRules(treeRootNode,
+						getStatManager()), addOnlyUnique);
+		}
+		
+		ruleSet.addDataToRules((RowData)cr.getTrainingSet());
+
+		ClusModelInfo rules_info = cr.addModelInfo("Rules-"
+				+ cr.getModelInfo(ClusModel.ORIGINAL).getName());
+		rules_info.setModel(ruleSet);
 	}
 
 	public void postProcessForestForOOBEstimate(ClusRun cr, OOBSelection oob_total, RowData all_data, Clus cl, String addname) throws ClusException, IOException{
@@ -413,7 +463,23 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			else	initializeTupleHashCodes(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());//train only
 			initPredictions(m_OForest);
 		}
+		
+		// We store the old maxDepth to this if needed. Thus we get the right depth to .out files etc.
+		int origMaxDepth = -1;  
+		if (getSettings().isEnsembleRandomDepth()) {
+			// Random depth for the ensembles
+			// The original Max depth is used as the average
+			origMaxDepth = getSettings().getTreeMaxDepth();
+
+		}
+		
 		for (int i = 0; i < m_NbMaxBags; i++) {
+			if (getSettings().isEnsembleRandomDepth()) {
+				// Set random tree max depth
+				getSettings().setTreeMaxDepth(GDProbl.randDepthWighExponentialDistribution(m_randTreeDepth.nextDouble(),
+																					 origMaxDepth));
+			}
+			
 			long one_bag_time = ResourceInfo.getTime();
 			System.out.println("Bag: "+(i+1));
 			BaggingSelection msel = new BaggingSelection(nbrows);
@@ -498,6 +564,12 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 			crSingle.deleteDataAndModels();
 		}
+
+		// Restore the old maxDepth
+		if (origMaxDepth != -1) {
+			getSettings().setTreeMaxDepth(origMaxDepth);
+		}
+
 	}
 
 
