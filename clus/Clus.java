@@ -738,7 +738,7 @@ public class Clus implements CMDLineArgsProvider {
 	}
 
 
-	/** Normalize the data so that most of the variables are within [-1,1] range. Using Zenko, 2007 suggestion.
+	/** Normalize the data so that most of the variables are within [-0.5,0.5] range. Using Zenko, 2007 suggestion.
 	 * TODO also for nominal attributes
 	 * @throws IOException
 	 * @throws ClusException
@@ -747,7 +747,7 @@ public class Clus implements CMDLineArgsProvider {
 		RowData data = m_Data;
 
 		NumericAttrType[] numTypes = getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
-		NominalAttrType[] nomTypes = getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
+//		NominalAttrType[] nomTypes = getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
 
 		// Variance and mean for numeric types.
 		double[] variance = new double[numTypes.length];
@@ -770,6 +770,9 @@ public class Clus implements CMDLineArgsProvider {
 
 		// Divide with the number of examples
 		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+			if (nbOfValidValues[jNumAttrib] == 0) {
+				nbOfValidValues[jNumAttrib] = 1; // Do not divide with zero
+			}
 			mean[jNumAttrib] /= nbOfValidValues[jNumAttrib];
 		}
 
@@ -779,6 +782,8 @@ public class Clus implements CMDLineArgsProvider {
 
 			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
 				double value = numTypes[jNumAttrib].getNumeric(tuple);
+
+				// The following could be done by numTypes.isMissing(tuple) also, but seems to be equivalent
 				if (!Double.isNaN(value) && !Double.isInfinite(value)) // Value not given
 					variance[jNumAttrib] += Math.pow(value - mean[jNumAttrib], 2.0);
 			}
@@ -786,7 +791,13 @@ public class Clus implements CMDLineArgsProvider {
 
 		// Divide with the number of examples
 		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
-			variance[jNumAttrib] /= nbOfValidValues[jNumAttrib];
+			if (variance[jNumAttrib] == 0) {
+				// If variance is zero, all the values are the same, so division is not needed.
+				variance[jNumAttrib] = 0.25; // And the divider will be 2*1/sqrt(4)= 1
+			} else {
+				variance[jNumAttrib] /= nbOfValidValues[jNumAttrib];
+			}
+			
 		}
 
 		ArrayList<DataTuple> normalized = new ArrayList<DataTuple>();
@@ -814,21 +825,77 @@ public class Clus implements CMDLineArgsProvider {
 					// Suggestion by Zenko 2007  p. 22 4*standard deviation. However we are also moving the data to
 					// zero mean. Thus we take only 2 * standard deviation.
 					value /= 2*Math.sqrt(variance[jNumAttrib]);
-					// value += 0.5; // Putting the mean to 0.5
+//					value += 0.5; // Putting the mean to 0.5
 
 					// After this transformation the mean should be about 0.5 and variance about 0.25
 					// (and standard deviation 0.5). Thus 95% of values should be between [0,1]
 				}
 				type.setNumeric(tuple, value);
+				// The following should be done only once for every numtype but it does not 
+				// take very much time
+				type.setSparse(false); // Sparsity assumes that all values are > 0
 
 			}
 			normalized.add(tuple);
 		}
-
-
+		
 		RowData normalized_data = new RowData(normalized, getSchema());
 		System.out.println("Normalized number of examples: "+normalized_data.getNbRows());
 
+		
+		
+		
+		
+//		//DEBUG	
+//		
+//		
+//		variance = new double[numTypes.length];
+//		mean = new double[numTypes.length];
+//		//** Some of the values are not valid. These should not be used for computing variance etc. *//
+//		nbOfValidValues = new double[numTypes.length];
+//		
+//		
+//		
+//
+//		// Computing the means
+//		for (int iRow = 0; iRow < normalized_data.getNbRows(); iRow++) {
+//			DataTuple tuple = normalized_data.getTuple(iRow);
+//
+//			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+//				double value = numTypes[jNumAttrib].getNumeric(tuple);
+//				if (!Double.isNaN(value) && !Double.isInfinite(value)) {// Value not given
+//					mean[jNumAttrib] += value;
+//					nbOfValidValues[jNumAttrib]++;
+//				}
+//			}
+//		}
+//
+//		// Divide with the number of examples
+//		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+//			if (nbOfValidValues[jNumAttrib] == 0) {
+//				nbOfValidValues[jNumAttrib] = 1; // Do not divide with zero
+//			}
+//			mean[jNumAttrib] /= nbOfValidValues[jNumAttrib];
+//		}
+//
+//		// Computing the variances
+//		for (int iRow = 0; iRow < normalized_data.getNbRows(); iRow++) {
+//			DataTuple tuple = normalized_data.getTuple(iRow);
+//
+//			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+//				double value = numTypes[jNumAttrib].getNumeric(tuple);
+//				if (!Double.isNaN(value) && !Double.isInfinite(value)) // Value not given
+//					variance[jNumAttrib] += Math.pow(value - mean[jNumAttrib], 2.0);
+//			}
+//		}
+//
+//		// Divide with the number of examples
+//		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+//	
+//			variance[jNumAttrib] /= nbOfValidValues[jNumAttrib];
+//	
+//			
+//		}
 
 		return normalized_data;
 	}
@@ -1072,7 +1139,14 @@ public class Clus implements CMDLineArgsProvider {
 		/* ARFFFile.writeCN2Data("test-"+i+".exs", cr.getTestSet());
 		   ARFFFile.writeCN2Data("train-"+i+".exs", (RowData)cr.getTrainingSet());
 		   ARFFFile.writeOrangeData("test-"+fold+".tab", cr.getTestSet());
-		   ARFFFile.writeOrangeData("train-"+fold+".tab", (RowData)cr.getTrainingSet()); */
+		   ARFFFile.writeOrangeData("train-"+fold+".tab", (RowData)cr.getTrainingSet());
+		 
+		ARFFFile.writeRData("trainDataForR."+ fold + ".data", (RowData)cr.getTrainingSet());
+		ARFFFile.writeRData("testDataForR."+ fold + ".data", (RowData)cr.getTestSet());
+		ARFFFile.writeRDataNominalLabels("nominalLabels.data", (RowData)cr.getTrainingSet());
+		System.err.println("CHANGING DATA TO R FORMAT, REMOVE THIS CODE");
+		  */  	
+		
 		// Induce tree
 		induce(cr, clss);
 		if (m_Sett.isRuleWiseErrors()) {

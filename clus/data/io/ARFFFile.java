@@ -333,5 +333,77 @@ public class ARFFFile {
 		wrt.print(")).\n\n");
 		wrt.close();
 	}
+	
+	// Exports data to R format. Can be deleted ...
+	public static void writeRData(String fname, RowData data) throws IOException, ClusException {
+		double NUMBER_INF = 9E36;
+		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
+		ClusSchema schema = data.getSchema();
+		int nbAttr = schema.getNbAttributes();
+		// First print the header - names for attributes
+		for (int iColumn = 0; iColumn < nbAttr; iColumn++)
+		{
+			wrt.print(schema.getAttrType(iColumn).getName() + "\t");
+		}
+		wrt.print("\n"); // line feed		
+		// Learning/testing examples
+		for (int jRow = 0; jRow < data.getNbRows(); jRow++) {
+			DataTuple tuple = data.getTuple(jRow);
+			for (int iAttr = 0; iAttr < nbAttr ; iAttr++) {
+				ClusAttrType attrType = schema.getAttrType(iAttr);
+				
+				if (attrType instanceof NumericAttrType) {
+					if (attrType.isMissing(tuple)){
+						if (!Double.isNaN(attrType.getNumeric(tuple)) && !Double.isInfinite(attrType.getNumeric(tuple))) {// Value not given
+							System.err.println("ERROR, isMissing works wrong");
+							System.exit(0);
+						}
+						wrt.print(NUMBER_INF);
+					} else // ok number					
+						wrt.print(attrType.getNumeric(tuple));
+					
+				} else { // Assuming nominaltype
+					if (attrType.isMissing(tuple)) {
+						wrt.print(NUMBER_INF);
+					} else {
+						wrt.print(attrType.getNominal(tuple));
+					}
+				}
+				wrt.print("\t");
+			}
+			wrt.print("\n"); // line feed
+		}
+		wrt.close();
+	}
 
+	public static void writeRDataNominalLabels(String fname, RowData data) throws IOException, ClusException {
+
+		ClusSchema schema = data.getSchema();
+		int nbAttr = schema.getNbAttributes();
+		
+		// We first check if there are any nominal attrs. If not,
+		// we do not create the file. Otherwise problems with R
+		ArrayList<Integer> nominalAttrs = new ArrayList<Integer>();
+
+		// Print the indexes of nominal attributes
+		for (int iColumn = 0; iColumn < nbAttr; iColumn++)
+		{
+			ClusAttrType attrType = schema.getAttrType(iColumn);
+			if (attrType instanceof NominalAttrType) {
+				nominalAttrs.add(iColumn+1);
+			}
+		}
+		
+		if (nominalAttrs.size() > 0) {
+			// Do not create file if not nominalattrs
+			PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
+			for (int iColumn = 0; iColumn < nominalAttrs.size(); iColumn++){
+				wrt.print(nominalAttrs.get(iColumn) + "\t");		
+			}
+			wrt.print("\n");
+			wrt.close();
+		}
+	}
+
+	
 }
