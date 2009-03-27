@@ -54,8 +54,8 @@ public abstract class ClusStatistic implements Serializable {
 	}
 
 	/** Clone this statistic by taking the given weight into account */
-	public ClusStatistic cloneWeighted(double weight) {
-		System.err.println(getClass().getName()+": cloneWeighted(): Not yet implemented");
+	public ClusStatistic copyNormalizedWeighted(double weight) {
+		System.err.println(getClass().getName()+": copyNormalizedWeighted(): Not yet implemented");
 		return null;
 	}
 

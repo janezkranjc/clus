@@ -671,6 +671,13 @@ public class Settings implements Serializable {
 	public int getTreeMaxDepth() {
 		return m_TreeMaxDepth.getValue();
 	}
+	
+	/** For tree to rules procedure, we want to induce a tree without maximum
+	 * depth
+	 */
+	public void setTreeMaxDepth(int value) {
+		m_TreeMaxDepth.setValue(value);
+	}
 
 	public boolean isBinarySplit() {
 		return m_BinarySplit.getValue();
@@ -779,6 +786,12 @@ public class Settings implements Serializable {
 /***********************************************************************
  * Section: Rules                                                      *
  ***********************************************************************/
+	
+	public static INIFileBool m_PrintAllRules;
+	
+	public static boolean isPrintAllRules(){
+		return m_PrintAllRules.getValue();
+	}
 
 	public final static String[] COVERING_METHODS =	{"Standard", "WeightedMultiplicative",
 		"WeightedAdditive", "WeightedError", "Union", "BeamRuleDefSet",
@@ -835,7 +848,7 @@ public class Settings implements Serializable {
 
 	public final static String[] RULE_PREDICTION_METHODS =
 	{"DecisionList", "TotCoverageWeighted", "CoverageWeighted", "AccuracyWeighted",
-		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union", "GDOptimized"};
+		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union", "GDOptimized", "GDOptimizedBinary" };
 
 	public final static int RULE_PREDICTION_METHOD_DECISION_LIST = 0;
 
@@ -871,6 +884,9 @@ public class Settings implements Serializable {
 	public final static int RULE_PREDICTION_METHOD_UNION = 7;
 	/** Gradient descent optimization of rule weights */
 	public final static int RULE_PREDICTION_METHOD_GD_OPTIMIZED = 8;
+	/** Use external binary file for gradient descent optimization of rule weights */
+	public final static int RULE_PREDICTION_METHOD_GD_OPTIMIZED_BINARY = 9;
+
 
 	public final static String[] RULE_ADDING_METHODS =	{"Always", "IfBetter", "IfBetterBeam"};
 
@@ -888,26 +904,36 @@ public class Settings implements Serializable {
 
 	// Differential evolution algorithm
 	/**Possible loss functions for evolutionary algorithm optimization */
-	public final static String[] DE_LOSS_FUNCTIONS = {"Squared", "01Error", "RRMSE", "Huber"};
+	public final static String[] OPT_LOSS_FUNCTIONS = {"Squared", "01Error", "RRMSE", "Huber"};
 
-	/**	DE Loss function type. Default for regression: Square of differences. */
-	public final static int DE_LOSS_FUNCTIONS_SQUARED = 0;
-	/**	DE Loss function type. 0/1 error for classification. Zenko 2007, p. 26*/
-	public final static int DE_LOSS_FUNCTIONS_01ERROR = 1;
-	/**	DE Loss function type. Relative root mean squared error */
-	public final static int DE_LOSS_FUNCTIONS_RRMSE = 2;
-	/**	DE Loss function type. Huber 1962 error. Like squared but robust for outliers. Friedman&Popescu 2005, p. 7*/
-	public final static int DE_LOSS_FUNCTIONS_HUBER = 3;
+	/**	Optimization Loss function type. Default for regression: Square of differences. */
+	public final static int OPT_LOSS_FUNCTIONS_SQUARED = 0;
+	/**	Optimization Loss function type. 0/1 error for classification. Zenko 2007, p. 26*/
+	public final static int OPT_LOSS_FUNCTIONS_01ERROR = 1;
+	/**	Optimization Loss function type. Relative root mean squared error */
+	public final static int OPT_LOSS_FUNCTIONS_RRMSE = 2;
+	/**	Optimization Loss function type. Huber 1962 error. Like squared but robust for outliers. Friedman&Popescu 2005, p. 7*/
+	public final static int OPT_LOSS_FUNCTIONS_HUBER = 3;
 
-	// Gradient descent optimization algorithm
-	/**Possible loss functions for gradient descent optimization */
-	public final static String[] GD_LOSS_FUNCTIONS = {"Squared", "01Error", "Huber"};
-	/**GD Loss function type. Default for regression: Square of differences. */
-	public final static int GD_LOSS_FUNCTIONS_SQUARED = 0;
-	/**GD Loss function type. 0/1 error for classification. Zenko 2007, p. 26*/
-	public final static int GD_LOSS_FUNCTIONS_01ERROR = 1;
-	/**GD Loss function type. Huber 1962 error. Like squared but robust for outliers. Friedman&Popescu 2005, p. 7*/
-	public final static int GD_LOSS_FUNCTIONS_HUBER = 3;
+	
+
+	
+	/** GD optimization. Possible values for combining gradient targets to single gradient value. */
+	public final static String[] OPT_GD_MT_COMBINE_GRADIENTS = {"Avg", "Max", "MaxLoss", "MaxLossFast"};
+	/**	GD optimization, combining of targets - combine by taking average. */
+	public final static int OPT_GD_MT_GRADIENT_AVG = 0;
+	/**	GD optimization, combining of targets - combine by taking max gradient. */
+	public final static int OPT_GD_MT_GRADIENT_MAX_GRADIENT = 1;
+	/**	GD optimization, combining of targets - combine by taking the gradient of target with maximal loss. */
+	public final static int OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE = 2;
+	/**	GD optimization, combining of targets - combine by taking the gradient of target with maximal LINEAR loss.
+	 * I.e. if the real loss is something else, we still use linear loss. This is lot faster */
+	public final static int OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE_FAST = 3;
+	
+	/**For external GD binary, do we use GD or brute force method */
+	public final static String[] GD_EXTERNAL_METHOD_VALUES = {"update", "brute"};
+	public final static int GD_EXTERNAL_METHOD_GD = 0;
+	public final static int GD_EXTERNAL_METHOD_BRUTE = 1;
 
 
 
@@ -960,7 +986,16 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_OptLossFunction;
 	/** Optimization For Huber 1962 loss function an alpha value for outliers has to be given. */
 	protected INIFileDouble m_OptHuberAlpha;
-
+	/** Do we add the descriptive attributes as linear terms to rule set */ 
+	protected INIFileBool m_OptAddLinearTerms;
+	/** Do we omit the rule predictions such that the predictions are changed to 1. This does
+	 * not do anything to the linear terms. */ 
+	protected INIFileBool m_OptOmitRulePredictions;
+	/** Do we scale the predictions for optimization based on the coverage
+	 * This should put more weight to general rules
+	 */
+	protected INIFileBool m_OptWeightGenerality;
+	
 	// Gradient descent optimization
 	/** GD Maximum amount of iterations */
 	protected INIFileInt m_OptGDMaxIter;
@@ -976,6 +1011,18 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_OptGDEarlyStopAmount;
 	/** GD Early stopping criteria treshold. Value should be greater than 1.*/
 	protected INIFileDouble m_OptGDEarlyStopTreshold;
+	/** GD When early stopping is found, how many times we try to reduce the step size and try again 
+	 * Default is Infinity. In this case we use all the iterations by reducing step size. */
+	protected INIFileStringOrInt m_OptGDNbOfStepSizeReduce;
+	/** GD External binary, do we use GD or brute force method*/
+	protected INIFileNominal m_OptGDExternalMethod;
+	/** GD How to combine multiple targets to single gradient value for step taking */
+	protected INIFileNominal m_OptGDMTGradientCombine;
+	/** GD How many different parameter combinations we try for T. Values between [T,1] */
+	protected INIFileInt m_OptGDNbOfTParameterTry;
+	
+
+	
 
 	public INIFileNominalOrDoubleOrVector getDispersionWeights() {
 		return m_DispersionWeights;
@@ -1013,7 +1060,8 @@ public class Settings implements Serializable {
 
 	public boolean isRulePredictionOptimized() {
 		return (getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED ||
-				getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED );
+				getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED ||
+				getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED_BINARY);
 	}
 
 	public void setRulePredictionMethod(int method) {
@@ -1165,6 +1213,23 @@ public class Settings implements Serializable {
 		return m_OptRuleWeightThreshold.getValue();
 	}
 
+	/** Do we add linear terms to rule set */
+	public boolean isOptAddLinearTerms() {
+	  	return m_OptAddLinearTerms.getValue();
+	}
+	
+	/** Do we omit the rule predictions such that the predictions are changed to 1. This does
+	 * not do anything to the linear terms. */ 
+	public boolean isOptOmitRulePredictions() {
+	  	return m_OptOmitRulePredictions.getValue();
+	}
+	
+	/** Do we scale the predictions of the rules with the generality. This puts more weight to general rules
+	 */
+	public boolean isOptWeightGenerality() {
+	  	return m_OptWeightGenerality.getValue();
+	}
+	
 	/** Type of Loss function for DE optimization */
 	public int getOptDELossFunction() {
 		return m_OptLossFunction.getValue();
@@ -1187,7 +1252,7 @@ public class Settings implements Serializable {
 	}
 
 	/** For Huber 1962 loss function an alpha value for outliers has to be given. */
-	public double getOptDEHuberAlpha() {
+	public double getOptHuberAlpha() {
 		return m_OptHuberAlpha.getValue();
 	}
 
@@ -1208,6 +1273,14 @@ public class Settings implements Serializable {
 		return m_OptGDGradTreshold.getValue();
 	}
 
+	/** GD Treshold [0,1] for changing the gradient. This portion of maximum gradients are affecting.
+	 * This can be considered as the regularization parameter, if this is 1 it is similar to L1 (Lasso) penalty.
+	 */
+	public void setOptGDGradTreshold(double newVal) {
+		m_OptGDGradTreshold.setValue(newVal);
+	}
+
+	
 	/** GD Step size ]0,1] for each iteration. */
 	public double getOptGDStepSize(){
 		return m_OptGDStepSize.getValue();
@@ -1229,6 +1302,36 @@ public class Settings implements Serializable {
 	public int getOptGDMaxNbWeights(){
 		return m_OptGDMaxNbWeights.getValue();
 	}
+	
+	/** GD Maximum number of nonzero weights. If the number reached, only old ones are altered.
+	 * If = 0, no limit for nonzero weights.*/
+	public void setOptGDMaxNbWeights(int nbWeights) {
+		m_OptGDMaxNbWeights.setValue(nbWeights);
+		
+	}
+	
+	/** GD When early stopping is found, how many times we try to reduce the step size and try again 
+	 * Default is 0, but can be Infinity. In this case we use all the iterations by reducing step size. */
+	public int getOptGDNbOfStepSizeReduce() {
+		if (m_OptGDNbOfStepSizeReduce.isString(INFINITY_STRING)) return Integer.MAX_VALUE;
+		else return m_OptGDNbOfStepSizeReduce.getIntValue();
+	}
+ 	
+	/** What method we use for external GD optimization algorithm */
+	public int getOptGDExternalMethod(){
+		return m_OptGDExternalMethod.getValue();
+	}
+
+	/** GD How to combine multiple targets to single gradient value for step taking */
+	public int getOptGDMTGradientCombine() {
+		return m_OptGDMTGradientCombine.getValue();
+	}
+	
+	/** GD How many different parameter combinations we try for T. Values between [T,1] */
+	public int getOptGDNbOfTParameterTry() {
+		return m_OptGDNbOfTParameterTry.getValue();
+	}
+	
 
 /***********************************************************************
  * Section: Hierarchical multi-label classification                    *
@@ -1601,6 +1704,11 @@ public class Settings implements Serializable {
 	public static INIFileBool m_EnsembleShouldOpt;
 	public static INIFileBool m_EnsembleOOBestimate;
 	protected INIFileBool m_FeatureRanking;
+	
+	/** Do we want to use different random depth for different iterations of ensemble.
+	 * Used in tree to rules optimization method. The MaxDepth of tree is used as average.
+	 */
+	protected INIFileBool m_EnsembleRandomDepth;
 
 
 	public boolean isEnsembleMode() {
@@ -1609,6 +1717,16 @@ public class Settings implements Serializable {
 
 	public void setEnsembleMode(boolean value) {
 		m_EnsembleMode = value;
+	}
+	
+	/** Do we print ensemble settings to output files */
+	public boolean isSectionEnsembleEnabled() {
+		return m_SectionEnsembles.isEnabled();
+	}
+
+	/** Do we print ensemble settings to output files */
+	public void setSectionEnsembleEnabled(boolean value) {
+		m_SectionEnsembles.setEnabled(value);
 	}
 
 	public int getEnsembleMethod() {
@@ -1670,6 +1788,13 @@ public class Settings implements Serializable {
 
 	public void setOOBestimate(boolean value){
 		m_EnsembleOOBestimate.setValue(value);
+	}
+
+	/** Do we want to use different random depth for different iterations of ensemble.
+	 * Used in tree to rules optimization method. The MaxDepth of tree is used as average.
+	 */
+	public boolean isEnsembleRandomDepth() {
+		return m_EnsembleRandomDepth.getValue();
 	}
 
 /***********************************************************************
@@ -1818,18 +1943,22 @@ public class Settings implements Serializable {
 		m_DispersionWeights.setArrayIndexNames(true);
 		rules.addNode(m_RandomRules = new INIFileInt("RandomRules", 0));
 		rules.addNode(m_RuleWiseErrors = new INIFileBool("PrintRuleWiseErrors", false));
+		rules.addNode(m_PrintAllRules = new INIFileBool("PrintAllRules", true));
 		rules.addNode(m_OptDEPopSize = new INIFileInt("OptDEPopSize", 500));
 		rules.addNode(m_OptDENumEval = new INIFileInt("OptDENumEval", 10000));
 		rules.addNode(m_OptDECrossProb = new INIFileDouble("OptDECrossProb", 0.3));
 		rules.addNode(m_OptDEWeight = new INIFileDouble("OptDEWeight", 0.5));
 		rules.addNode(m_OptDESeed = new INIFileInt("OptDESeed", 0));
-		rules.addNode(m_OptRegPar = new INIFileDouble("OptRegPar", 0.0));
-		rules.addNode(m_OptNbZeroesPar = new INIFileDouble("OptNbZeroesPar", 0.0));
-		rules.addNode(m_OptRuleWeightThreshold = new INIFileDouble("OptRuleWeightThreshold", 0.1));
-		rules.addNode(m_OptLossFunction = new INIFileNominal("OptDELossFunction",DE_LOSS_FUNCTIONS, 0));
 		rules.addNode(m_OptDERegulPower = new INIFileDouble("OptDERegulPower", 1.0));
 		rules.addNode(m_OptDEProbMutationZero = new INIFileDouble("OptDEProbMutationZero", 0.0));
 		rules.addNode(m_OptDEProbMutationNonZero = new INIFileDouble("OptDEProbMutationNonZero", 0.0));
+		rules.addNode(m_OptRegPar = new INIFileDouble("OptRegPar", 0.0));
+		rules.addNode(m_OptNbZeroesPar = new INIFileDouble("OptNbZeroesPar", 0.0));
+		rules.addNode(m_OptRuleWeightThreshold = new INIFileDouble("OptRuleWeightThreshold", 0.1));
+		rules.addNode(m_OptLossFunction = new INIFileNominal("OptDELossFunction",OPT_LOSS_FUNCTIONS, 0));
+		rules.addNode(m_OptAddLinearTerms = new INIFileBool("OptAddLinearTerms", false));
+		rules.addNode(m_OptOmitRulePredictions = new INIFileBool("OptOmitRulePredictions", false));
+		rules.addNode(m_OptWeightGenerality = new INIFileBool("OptWeightGenerality", false));
 		rules.addNode(m_OptHuberAlpha = new INIFileDouble("OptHuberAlpha", 0.9));
 		rules.addNode(m_OptGDMaxIter = new INIFileInt("OptGDMaxIter", 1000));
 //		rules.addNode(m_OptGDLossFunction = new INIFileNominal("OptGDLossFunction", GD_LOSS_FUNCTIONS, 0));
@@ -1838,6 +1967,10 @@ public class Settings implements Serializable {
 		rules.addNode(m_OptGDMaxNbWeights = new INIFileInt("OptGDMaxNbWeights", 0));
 		rules.addNode(m_OptGDEarlyStopAmount = new INIFileDouble("OptGDEarlyStopAmount", 0.0));
 		rules.addNode(m_OptGDEarlyStopTreshold = new INIFileDouble("OptGDEarlyStopTreshold", 1.1));
+		rules.addNode(m_OptGDNbOfStepSizeReduce = new INIFileStringOrInt("OptGDNbOfStepSizeReduce", INFINITY_STRING));
+		rules.addNode(m_OptGDExternalMethod = new INIFileNominal("OptGDExternalMethod",GD_EXTERNAL_METHOD_VALUES, 0));
+		rules.addNode(m_OptGDMTGradientCombine = new INIFileNominal("OptGDMTGradientCombine",OPT_GD_MT_COMBINE_GRADIENTS, 0));
+		rules.addNode(m_OptGDNbOfTParameterTry = new INIFileInt("OptGDNbOfTParameterTry",0));
 		rules.setEnabled(false);
 
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
@@ -1910,6 +2043,7 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_EnsembleShouldOpt = new INIFileBool("Optimize", false));
 		m_SectionEnsembles.addNode(m_EnsembleOOBestimate = new INIFileBool("OOBestimate", false));
 		m_SectionEnsembles.addNode(m_FeatureRanking = new INIFileBool("FeatureRanking", false));
+		m_SectionEnsembles.addNode(m_EnsembleRandomDepth = new INIFileBool("EnsembleRandomDepth", false));
 		m_SectionEnsembles.setEnabled(false);
 
 		m_SectionKNN = new INIFileSection("kNN");

@@ -49,6 +49,7 @@ public class RegressionStat extends ClusStatistic {
 	public double[] m_SumValues;
 	public double[] m_SumWeights;
 	public double[] m_SumSqValues;
+	/** The means for attributes. For target stats, the prediction */
 	public double[] m_Means;
 	public NumericAttrType[] m_Attrs;
 
@@ -78,8 +79,9 @@ public class RegressionStat extends ClusStatistic {
 
 	/** Clone this statistic by taking the given weight into account.
 	 *  This is used for example to get the weighted prediction of default rule. */
-	public ClusStatistic cloneWeighted(double weight) {
-		RegressionStat newStat = (RegressionStat) cloneSimple();
+	public ClusStatistic copyNormalizedWeighted(double weight) {
+//		RegressionStat newStat = (RegressionStat) cloneSimple();
+		RegressionStat newStat = (RegressionStat) normalizedCopy();
 		for (int iTarget = 0; iTarget < newStat.getNbAttributes(); iTarget++ ){
 			newStat.m_Means[iTarget] = weight * newStat.m_Means[iTarget];
 		}

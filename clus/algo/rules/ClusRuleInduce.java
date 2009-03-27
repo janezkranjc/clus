@@ -302,7 +302,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				break;
 			} else {
 				rule.computePrediction();
-				rule.printModel();
+				if (Settings.isPrintAllRules())
+					rule.printModel();
 				System.out.println();
 				rset.add(rule);
 				data = rule.reweighCovered(data);
@@ -864,26 +865,93 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	 */
 	public ClusRuleSet optimizeRuleSet(ClusRuleSet rset, RowData data) throws ClusException, IOException {
 		String fname = getSettings().getDataFile();
-		PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
+		//PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
+		PrintWriter wrt_pred = null;
 		
 		OptAlg optAlg = null;
 		
 		OptProbl.OptParam param = rset.giveFormForWeightOptimization(wrt_pred, data);
+		ArrayList weights = null;
 		
 		// Find the rule weights with optimization algorithm.
 		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {	
 			optAlg = (OptAlg) new GDAlg(getStatManager(), param);
-		} else {
+		} else if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
 			optAlg = (OptAlg) new DeAlg(getStatManager(), param);
+		} else if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED_BINARY) {
+			weights = callExternalGDBinary(getStatManager(), param);
+
+			// The last one is so called intercept. Should be added to all predictions
+			// Because of this we add a rule with prediction 1 and always true condition. 
+			// Thus the last weight will be for this.
+			System.out.println("Adding intercept rule created by binary explicitly to rule set.");
+			ClusRule interceptRule = new ClusRule(m_StatManager);
+			interceptRule.m_TargetStat = getStatManager().createTargetStat();
+			if (!(interceptRule.m_TargetStat instanceof RegressionStat))
+					System.err.println("Error: Using external binary for GD optimization is implemented for single target regression only.");
+			((RegressionStat) interceptRule.m_TargetStat).m_Means = new double[1];
+			((RegressionStat) interceptRule.m_TargetStat).m_Means[0] = 1; // Hopefully this is the prediction, CHECK!
+			((RegressionStat) interceptRule.m_TargetStat).m_NbAttrs = 1;
+			((RegressionStat) interceptRule.m_TargetStat).m_SumValues = new double[1];
+			((RegressionStat) interceptRule.m_TargetStat).m_SumWeights = new double[1];
+			((RegressionStat) interceptRule.m_TargetStat).m_SumValues[0] = 1;
+			((RegressionStat) interceptRule.m_TargetStat).m_SumWeights[0] = 1;
+
+
+			rset.m_Rules.add(interceptRule); // Adds the rule to the last position
 		}
 
-		ArrayList weights = optAlg.optimize();
+		if (getSettings().getRulePredictionMethod() != Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED_BINARY)
+		{
+			// If using external binary, optimization is already done.
+			
+			if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED
+					&& getSettings().getOptGDNbOfTParameterTry() > 1) {
+			
+				// Running optimization multiple times and selecting the best one.
+				GDAlg gdalg = (GDAlg) optAlg;
+				double firstTVal = getSettings().getOptGDGradTreshold();
+				double lastTVal = 1.0;
+				// What is the difference for intervals so that we get enough runs
+				double interTVal = (lastTVal-firstTVal)/
+								(getSettings().getOptGDNbOfTParameterTry()-1);
+				
+				double minFitness = Double.POSITIVE_INFINITY;
+				for (int iRun = 0; iRun < getSettings().getOptGDNbOfTParameterTry(); iRun++) {
+					
+					// To make sure the last value is accurate (not rounded imprecisely)
+					if (iRun == getSettings().getOptGDNbOfTParameterTry()-1) {
+						getSettings().setOptGDGradTreshold(lastTVal);
+					} else {
+						getSettings().setOptGDGradTreshold(firstTVal+iRun*interTVal);
+					}
+					
+					gdalg.initGDForNewRunWithSamePredictions();
+					
+					ArrayList<Double> newWeights = gdalg.optimize();
+					
+					if (gdalg.getBestFitness() <= minFitness) {
+						// Fitness is smaller than previously, store these weights
+						weights = newWeights;
+						minFitness = gdalg.getBestFitness();
+						System.err.println("\nThe T value " + (firstTVal+iRun*interTVal) + 
+								" is best so far with test fitness: " + minFitness);
+					}
+				}
+
+				getSettings().setOptGDGradTreshold(firstTVal);
+			} else {
+				// Running only once
+				weights = optAlg.optimize();
+			}
+		}		
 		
 		// Print weights of rules
 		System.out.print("The weights for rules:");
 		for (int j = 0; j < rset.getModelSize(); j++) {
 			rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue());
 			System.out.print(((Double)weights.get(j)).doubleValue()+ "; ");
+			//System.out.print(((Double)rset.getRule(j).getOptWeight()).doubleValue()+ " -- ");
 		}
 		System.out.print("\n");
 		rset.removeLowWeightRules();
@@ -893,94 +961,186 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		return rset;
 	}
 
-/*			try {
-				// Generate pathseeker input
-				ClusStatistic tar_stat = rset.m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
-				int nb_tar = tar_stat.getNbNominalAttributes();
-				boolean classification = false;
-				if (rset.m_TargetStat instanceof ClassificationStat) {
-					classification = true;
-				}
-				String fname = getSettings().getDataFile();
-				PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".pred.dat")));
-				PrintWriter wrt_resp = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".resp.dat")));
-				PrintWriter wrt_train = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".train.txt")));
-				for (int i = 0; i < data.getNbRows(); i++) {
-					DataTuple tuple = data.getTuple(i);
-					for (int j = 0; j < rset.getModelSize(); j++) {
-						ClusRule rule = rset.getRule(j);
-						if (rule.covers(tuple)) {
-							if (classification) {
-								// TODO: Don't look just at the first target attribute!
-								wrt_pred.write("" + ((ClassificationStat)rule.predictWeighted(tuple)).
-										                 getNominalPred()[0]);
-							} else {
-								// TODO: Don't look just at the first target attribute!
-								wrt_pred.write("" + ((RegressionStat)rule.predictWeighted(tuple)).
-										                 getNumericPred()[0]);
-							}
-						}
-						if ((j+1) < rset.getModelSize()) {
-							wrt_pred.write(",");
-						}
-					}
-					wrt_pred.println();
-					if (classification) {
-						// TODO: Don't look just at the first target attribute!
-						wrt_resp.print("" + tuple.getIntVal(0));
-						if ((i+1) < data.getNbRows()) {
-							wrt_resp.write(",");
-						}
-					} else {
-						// TODO: Don't look just at the first target attribute!
-						wrt_resp.print("" + tuple.getDoubleVal(0));
-						if ((i+1) < data.getNbRows()) {
-							wrt_resp.write(",");
-						}
-					}
-				}
-				wrt_resp.println();
-				if (classification) {
-					wrt_train.println("@mode=class");
-				} else {
-					wrt_train.println("@mode=regres");
-				}
-				wrt_train.println("@model_file=" + fname + ".model.pth");
-				wrt_train.println("@coeffs_file=" + fname + ".coeffs.pth");
-				wrt_train.println("@nvar=" + rset.getModelSize());
-				wrt_train.println("@nobs=" + data.getNbRows());
-				wrt_train.println("@format=csv");
-				wrt_train.println("@response_data=" + fname + ".resp.dat");
-				wrt_train.println("@pred_data=" + fname + ".pred.dat");
-				wrt_train.println("@org=by_obs");
-				wrt_train.println("@missing=9.9e35");
-				wrt_train.println("@obs_weights=equal");
-				wrt_train.println("@var_weights=equal");
-				wrt_train.println("@quantile=0.025 ");
-				wrt_train.println("@numspect=0");
-				wrt_train.println("@constraints=all");
-				wrt_train.println("@nfold=3");
-				wrt_train.println("@start=0.0");
-				wrt_train.println("@end=1.0");
-				wrt_train.println("@numval=6");
-				wrt_train.println("@alpha=0.8");
-				wrt_train.println("@modsel=a_roc");
-				wrt_train.println("@delnu=0.01");
-				wrt_train.println("@maxstep=20000");
-				wrt_train.println("@kfreq=100");
-				wrt_train.println("@convfac=1.1");
-				wrt_train.println("@fast=no");
-				wrt_train.println("@impl=auto");
-				wrt_train.println();
-				wrt_pred.close();
-				wrt_resp.close();
-				wrt_train.close();
-				// Run pathseeker
-				// Read pathseeker weights
-			} catch (Exception e) {
-				// TODO: handle exception
+
+	/** Use external binary (by Friedman) for GD optimization
+	 * Works only for regression currently!
+	 */
+	private ArrayList<Double> callExternalGDBinary(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation) {
+
+		String fname = getSettings().getDataFile();
+		PrintWriter fPSBasePredictions = null;
+		PrintWriter fPSInstances = null;
+		PrintWriter fPSInputSettings  = null;
+		double NUMBER_INF = 9E36;
+		try {			
+			/** Base predictions */
+			fPSBasePredictions = new PrintWriter(
+					new OutputStreamWriter(new FileOutputStream(fname+".predictor.dat")));
+			/** Actual examples */
+			fPSInstances = new PrintWriter(
+					new OutputStreamWriter(new FileOutputStream(fname+".responses.dat")));
+			/** Input for the binary */
+			fPSInputSettings = new PrintWriter(
+					new OutputStreamWriter(new FileOutputStream(fname+".input.txt")));
+		} catch (Exception e) {
+			System.err.println("Something wrong in callExternalGDBinary - cannot create the files");
+			System.err.print(e.getMessage());
+			System.exit(1);
+			// TODO: handle exception
+		}		
+		// Generate pathseeker input
+
+		// Predictions
+		for (int iRule = 0 ; iRule < dataInformation.m_predictions.length; iRule++){
+			//			for (int iRule = 0 ; iRule < 10; iRule++){
+
+			for (int iInstance = 0; iInstance < dataInformation.m_predictions[iRule].length; iInstance++){
+				if (Double.isNaN(dataInformation.m_predictions[iRule][iInstance][0][0]))
+					fPSBasePredictions.write("" + 0); // If no prediction, prediction is 0
+				else if (Double.isInfinite(dataInformation.m_predictions[iRule][iInstance][0][0]))
+					fPSBasePredictions.write("" + NUMBER_INF);	// if prediction is infinity (for linear term), tell it
+
+				else 
+					//fPSBasePredictions.write("" + (float)dataInformation.m_predictions[iRule][iInstance][0][0]);
+					fPSBasePredictions.write("" + dataInformation.m_predictions[iRule][iInstance][0][0]);
+
+				if (//iRule != dataInformation.m_predictions.length-1 ||
+						iInstance != dataInformation.m_predictions[iRule].length-1)
+					fPSBasePredictions.write(",");
+				//					if (iRule != 10-1 ||
+				//							iInstance != dataInformation.m_predictions[9].length-1)
+
 			}
-*/
+//			if (iRule != dataInformation.m_predictions.length-1)
+				fPSBasePredictions.write("\n"); // A predictor printed
+		}
+
+		// Examples
+		for (int iInstance = 0 ; iInstance < dataInformation.m_trueValues.length; iInstance++){
+			//fPSInstances.write("" + (float) dataInformation.m_trueValues[iInstance][0]);
+			fPSInstances.write("" + dataInformation.m_trueValues[iInstance][0]);
+			if (iInstance != dataInformation.m_trueValues.length-1)
+				fPSInstances.write(","); 
+		}
+
+		fPSInputSettings.println("@mode=regres");
+		fPSInputSettings.println("@model_file=" + fname + ".model.pth");
+		fPSInputSettings.println("@coeffs_file=" + fname + ".coeffs.pth");
+		//fPSInputSettings.println("@nvar=" + rset.getModelSize());
+		fPSInputSettings.println("@nvar=" + dataInformation.m_predictions.length);
+		//fPSInputSettings.println("@nvar=" + 10);
+		fPSInputSettings.println("@nobs=" + dataInformation.m_trueValues.length);
+		fPSInputSettings.println("@format=csv");
+		fPSInputSettings.println("@response_data=" + fname + ".responses.dat");
+		fPSInputSettings.println("@pred_data=" + fname + ".predictor.dat");
+		fPSInputSettings.println("@org=by_var");
+		fPSInputSettings.println("@missing="+NUMBER_INF);
+		fPSInputSettings.println("@obs_weights=equal");
+		fPSInputSettings.println("@var_weights=equal");
+		//fPSInputSettings.println("@quantile=0.025"); //ROBUSTNESS of maximum and minimum value of linear terms (or functions)!
+		fPSInputSettings.println("@quantile=0.0");
+		//fPSInputSettings.println("@alpha=" + getSettings().getOptHuberAlpha()); // 0.9 is enoughHUBER
+		fPSInputSettings.println("@alpha=1.0"); // Squared loss
+		fPSInputSettings.println("@numspect=0");
+		//fPSInputSettings.println("@constraints=all");
+		fPSInputSettings.println("@constraints=none");
+		//fPSInputSettings.println("@nfold=10");
+		if (getSettings().getOptGDEarlyStopAmount() == 0) { // No early stopping
+			fPSInputSettings.println("@nfold="+(-1.0)*dataInformation.m_trueValues.length); // only one as test set
+		} else {
+			fPSInputSettings.println("@nfold="+(-1.0)/getSettings().getOptGDEarlyStopAmount());
+		}
+		fPSInputSettings.println("@start=" + getSettings().getOptGDGradTreshold());
+		fPSInputSettings.println("@end=" + getSettings().getOptGDGradTreshold());
+		//fPSInputSettings.println("@numval=6");
+		fPSInputSettings.println("@numval=1");
+		fPSInputSettings.println("@modsel=a_roc");
+		fPSInputSettings.println("@delnu="+ getSettings().getOptGDStepSize());
+		fPSInputSettings.println("@maxstep=" + getSettings().getOptGDMaxIter()); // Maximum amount of iterations
+		fPSInputSettings.println("@kfreq=100"); // Recomputing gradients and checking test risks!
+		if (getSettings().getOptGDEarlyStopAmount() == 0) { // No early stopping
+			fPSInputSettings.println("@convfac="  + 10000000); // Treshold for early stop
+		} else {
+			fPSInputSettings.println("@convfac="  + getSettings().getOptGDEarlyStopTreshold()); // Treshold for early stop
+		}
+		fPSInputSettings.println("@fast=no");
+		if (getSettings().getOptGDExternalMethod() == Settings.GD_EXTERNAL_METHOD_GD)
+			fPSInputSettings.println("@impl=update"); // Fast implementation (GD) or brute force (brute)?
+		else
+			fPSInputSettings.println("@impl=brute"); // Fast implementation (GD) or brute force (brute)?
+		
+		fPSInputSettings.println();
+		// getSettings().getOptGDMaxNbWeights() cannot be defined!
+		// getSettings().getOptGDLossFunction() cannot be defined!
+		fPSBasePredictions.close();
+		fPSInstances.close();
+		fPSInputSettings.close();
+		// Run pathseeker
+		Scanner fCoefficients = null;
+
+//		try {
+//			// The previous files has to be deleted
+////			Runtime.getRuntime().exec("cmd /c del " + fname + ".model.pth");
+////			Runtime.getRuntime().exec("cmd /c del " + fname + ".coeffs.pth");
+//		} catch (Exception e) {
+//			// Do not do anything. The deletion is not important.
+//			System.err.print(e.getMessage());
+//		}
+		try {
+			Process psProcess = Runtime.getRuntime().exec("cmd /c PS_train.exe < "+fname+".input.txt");
+
+			BufferedReader stdInput = new BufferedReader(new 
+					InputStreamReader(psProcess.getInputStream()));
+
+			BufferedReader stdError = new BufferedReader(new 
+					InputStreamReader(psProcess.getErrorStream()));
+
+
+			System.out.println("\nHere is the standard output of the external command:\n");
+			String s = null;
+			while ((s = stdInput.readLine()) != null) {
+				System.out.println(s);
+				s = stdInput.readLine();
+			}
+
+			// read any errors from the attempted command
+
+			System.err.println("\nHere is the standard error of the external command (if any):\n");
+			while ((s = stdError.readLine()) != null) {
+				System.err.println(s);
+			}
+
+			if (psProcess.exitValue() != 0) {
+				System.err.println("Exit value of binary nonzero. Exiting. \n");
+				System.exit(1);
+			}
+			// Read pathseeker weights
+
+			fCoefficients = new Scanner(new BufferedReader(new InputStreamReader(
+					new FileInputStream(fname + ".coeffs.pth"))));
+
+		} catch (Exception e) {
+			System.err.println("Something wrong in callExternalGDBinary - cannot run the binary.");
+			System.err.print(e.getMessage());
+			System.exit(1);
+			// TODO: handle exception
+		}
+		ArrayList<Double> weights = new ArrayList<Double>();
+		//String ddd = fCoefficients.next();
+
+		//		while (fCoefficients.hasNextDouble()) {
+		//			weights.add(new Double(fCoefficients.nextDouble()));
+		//		}
+
+		while (fCoefficients.hasNext()) {
+			weights.add(new Double(fCoefficients.next()));
+		}
+
+		// The last one is so called intercept. Should be added to all predictions 
+		fCoefficients.close();
+
+		return weights;
+	}
 
 	/**
 	 * Updates the default rule. This is the rule that is used if no other rule covers the example.
