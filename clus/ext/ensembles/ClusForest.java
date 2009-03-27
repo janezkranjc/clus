@@ -102,7 +102,15 @@ public class ClusForest implements ClusModel, Serializable{
 	}
 
 	public String getModelInfo() {
-		String result = "FOREST with " +getNbModels()+" models\n";
+		int sumOfLeaves = 0;
+		for (int i = 0; i < getNbModels(); i++)
+			sumOfLeaves += ((ClusNode)getModel(i)).getNbLeaves();
+		
+		int sumOfNodes = 0;
+		for (int i = 0; i < getNbModels(); i++)
+			sumOfNodes += ((ClusNode)getModel(i)).getNbNodes();
+		
+		String result = "FOREST with " +getNbModels()+" models (Total nodes: " + sumOfNodes + " and leaves: "+ sumOfLeaves +")\n";
 		for (int i = 0; i<getNbModels(); i++)
 			result +="\t Model "+(i+1)+": "+getModel(i).getModelInfo()+"\n";
 		return result;
