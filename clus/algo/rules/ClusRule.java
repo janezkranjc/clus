@@ -55,16 +55,29 @@ public class ClusRule implements ClusModel, Serializable {
 	protected ClusStatManager m_StatManager;
 	protected ClusErrorList[] m_Errors;
 	
-	/* Array of tuples covered by this rule */
+	
+
+	/** If the rule is in fact a linear term, this is the index of the term that is used */
+	protected int m_descriptiveDimForLinearTerm = 0;
+	/** If the rule is in fact a linear term, this is the target index that is predicted with this */
+	protected int m_targetDimForLinearTerm = 0;
+	 
+	protected boolean m_isLinearTerm = false;
+	/** For Truncation */
+	protected double m_linearTermMaxValue = 0;
+	protected double m_linearTermMinValue = 0;
+	
+	/** Array of tuples covered by this rule */
 	protected ArrayList m_Data = new ArrayList();
 	
-	/* Combined statistics for training and testing data */
+	/** Combined statistics for training and testing data */
 	protected CombStat[] m_CombStat = new CombStat[2];
 	
-	/* Number of examples covered by this rule */
+	/** Number of examples covered by this rule 
+	 * 	Index is 0 for train set, 1 for test set*/
 	protected double[] m_Coverage = new double[2];
 	
-	/* Average error score of the rule */
+	/** Average error score of the rule */
 	protected double m_TrainErrorScore;
 	
 	/** Optimized weight of the rule */
@@ -74,8 +87,32 @@ public class ClusRule implements ClusModel, Serializable {
 		m_StatManager = statManager;
 		m_TrainErrorScore = -1;
 		m_OptWeight = -1;
+		m_isLinearTerm = false;
+		m_descriptiveDimForLinearTerm = 0;
+		m_targetDimForLinearTerm = 0;
+		m_linearTermMaxValue = 0;
+		m_linearTermMinValue = 0;
 	}
 
+	/** A constructor for creating linear terms.
+	 * @par linearTermDimension Descriptive dimension that the linear term is based on.
+	 * @par linearTermTargetDim Target dimension this linear term is predicting.
+	 * @par maxValue Maximum value of the dimension in the data set. Used for truncation.
+	 * @par minValue Minimum value of the dimension in the data set. Used for truncation. */
+	public ClusRule(ClusStatManager statManager, int linearTermDimension, int linearTermTargetDim,
+			        double maxValue, double minValue) {
+		m_StatManager = statManager;
+		m_TrainErrorScore = -1;
+		m_OptWeight = -1;
+		m_isLinearTerm = true;
+		m_descriptiveDimForLinearTerm = linearTermDimension;
+		m_targetDimForLinearTerm = linearTermTargetDim;
+		
+		m_linearTermMaxValue = maxValue;
+		m_linearTermMinValue = minValue;
+
+	}
+	
 	public int getID() {
 		return m_ID;
 	}
@@ -83,8 +120,29 @@ public class ClusRule implements ClusModel, Serializable {
 	public void setID(int id) {
 		m_ID = id;
 	}
-
+    /** Returns the prediction by this rule for the tuple. If the rule is linear term, returns that
+     * dimension of tuple. If the value is invalid, returns 0.
+     */
 	public ClusStatistic predictWeighted(DataTuple tuple) {
+		if (m_isLinearTerm){
+			if (!(m_TargetStat instanceof RegressionStat))
+				System.err.println("Error: Using linear terms for optimization is implemented for single target regression only.");
+			double value = tuple.getDoubleVal(m_descriptiveDimForLinearTerm);
+			if (Double.isNaN(value) || Double.isInfinite(value)){
+				value = Double.NaN;
+			}
+
+			// Truncated version - the linear term holds only on the range of training set.
+//			value = Math.max(Math.min(value, m_linearTermMaxValue), m_linearTermMinValue);
+
+			// Only change the target dimension, rest are still zero
+			// DEBUG: TARKISTA ETTA TOSIAAN MUUT OVAT ZERO EIKA ESIM> NULL
+			RegressionStat stat = ((RegressionStat) m_TargetStat);
+			stat.m_Means[m_targetDimForLinearTerm] = value;			
+			stat.m_SumValues[m_targetDimForLinearTerm] = value;
+			stat.m_SumWeights[m_targetDimForLinearTerm] = 1;
+
+		}
 		return m_TargetStat;
 	}
 
@@ -123,6 +181,35 @@ public class ClusRule implements ClusModel, Serializable {
 		return true;
 	}
 
+	static private final double EQUAL_MAX_DIFFER = 1E-6;
+	/**
+	 * Equality is based on the tests AND the targets.
+	 */
+	public boolean equalsDeeply(Object other) {
+		ClusRule o = (ClusRule)other;
+		if (o.getModelSize() != getModelSize()) return false;
+		for (int i = 0; i < getModelSize(); i++) {
+			boolean has_test = false;
+			for (int j = 0; j < getModelSize() && !has_test; j++) {
+				if (getTest(i).equals(o.getTest(j))) has_test = true;
+			}
+			if (!has_test) return false;
+		}
+		
+		// Tests are similar -- let us check the target
+		double ruleTarget[] = ((RegressionStat)o.m_TargetStat).m_Means;
+		
+		// Let us check if the targets are different
+		boolean targetsAreSimilar = true;
+		for (int iTarget = 0; iTarget < ruleTarget.length && targetsAreSimilar; iTarget++)
+		{
+			if (Math.abs(ruleTarget[iTarget]-((RegressionStat)m_TargetStat).m_Means[iTarget]) >= EQUAL_MAX_DIFFER)
+				targetsAreSimilar = false;
+		}
+		
+		return targetsAreSimilar;
+	}
+
 	public int hashCode() {
 		int hashCode = 1234;
 		for (int i = 0; i < getModelSize(); i++) {
@@ -133,6 +220,14 @@ public class ClusRule implements ClusModel, Serializable {
 
 	/** Does the rule tests cover the given tuple */
 	public boolean covers(DataTuple tuple) {
+		
+		if (m_isLinearTerm){
+			if (!(m_TargetStat instanceof RegressionStat))
+				System.err.println("Error: Using linear terms for optimization is implemented for single target regression only.");
+			double value = tuple.getDoubleVal(m_descriptiveDimForLinearTerm);
+			return !Double.isNaN(value) && !Double.isInfinite(value);
+		}
+		
 		for (int i = 0; i < getModelSize(); i++) {
 			NodeTest test = getTest(i);
 			int res = test.predictWeighted(tuple);
@@ -365,28 +460,34 @@ public class ClusRule implements ClusModel, Serializable {
 
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
-		wrt.print("IF ");
-		if (m_Tests.size() == 0) {
-			wrt.print("true");
-		} else {
-			for (int i = 0; i < m_Tests.size(); i++) {
-				NodeTest test = (NodeTest)m_Tests.get(i);
-				if (i != 0) {
-					wrt.println(" AND");
-					wrt.print("   ");
+		if (!m_isLinearTerm) {
+			wrt.print("IF ");
+			if (m_Tests.size() == 0) {
+				wrt.print("true");
+			} else {
+				for (int i = 0; i < m_Tests.size(); i++) {
+					NodeTest test = (NodeTest)m_Tests.get(i);
+					if (i != 0) {
+						wrt.println(" AND");
+						wrt.print("   ");
+					}
+					wrt.print(test.getString());
 				}
-				wrt.print(test.getString());
 			}
-		}
-		wrt.println();
-		wrt.print("THEN "+m_TargetStat.getString(info));
-		if (getID() != 0 && info.SHOW_INDEX) wrt.println(" ("+getID()+")");
-		else wrt.println();
-		String extra = m_TargetStat.getExtraInfo();
-		if (extra != null) {
-			// Used, e.g., in hierarchical multi-classification
 			wrt.println();
-			wrt.print(extra);
+
+			wrt.print("THEN "+m_TargetStat.getString(info));
+			
+			if (getID() != 0 && info.SHOW_INDEX) wrt.println(" ("+getID()+")");
+			else wrt.println();
+			String extra = m_TargetStat.getExtraInfo();
+			if (extra != null) {
+				// Used, e.g., in hierarchical multi-classification
+				wrt.println();
+				wrt.print(extra);
+			}
+		} else {
+			wrt.println("Linear term for the numerical attribute with index "+ m_descriptiveDimForLinearTerm);			
 		}
 		if (getSettings().computeDispersion() && (m_CombStat[ClusModel.TRAIN] != null)) {
 			//if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
@@ -541,7 +642,7 @@ public class ClusRule implements ClusModel, Serializable {
 				m_TrainErrorScore = 1;
 			}
 		} else if (m_TargetStat instanceof RegressionStat) {
-			double norm = getSettings().getVarBasedDispNormWeight();
+			double norm = getSettings().getVarBasedDispNormWeight(); // For RRMSE this * std dev is the normalization
 			ClusStatistic stat = m_StatManager.getTrainSetStat();
 			NumericAttrType[] targetAttrs = m_StatManager.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
 			int[] target_idx = new int[nb_tar];
