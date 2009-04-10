@@ -248,6 +248,16 @@ public class ClusReader {
 		}
 	}
 
+	public String readName() throws IOException {
+		readNoSpace();
+		if (m_Scratch.length() > 0) {
+			String value = m_Scratch.toString();
+			return value;
+		} else {
+			throw new IOException("Error reading name at row "+(m_Row+1));
+		}
+	}	
+	
 	public boolean readNoSpace() throws IOException {
 		int nb = 0;
 		Reader reader = m_Token.getReader();
