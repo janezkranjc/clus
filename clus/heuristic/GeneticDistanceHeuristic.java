@@ -403,7 +403,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		double dist = 0.0;
 		double dist2 = 0.0;
 		
-		double[][] protomatrix = stat.getProbabilityPrediction();
+//		double[][] protomatrix = stat.getProbabilityPrediction();
 		
 		/*System.out.println("protomatrix");
 		for (int j=0; j<nbtargets; j++) {
@@ -433,7 +433,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 			String[] ch = new String[nbtargets];
 			for (int p=0; p<nbtargets; p++) {
 				int nomvalue = stat.m_Attrs[p].getNominal(tuple);
-				dist += (1 - protomatrix[p][nomvalue]);
+//				dist += (1 - protomatrix[p][nomvalue]);
 				ch[p] = stat.m_Attrs[p].getValueOrMissing(nomvalue);
 			}
 			dist2 += getDistance(proto,ch);
@@ -452,8 +452,8 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 	public double calculateTotalDistanceBetweenPrototypeMatrices(int nbtargets, GeneticDistanceStat stat1, GeneticDistanceStat stat2) {
 		double dist = 0.0;
 		
-		double[][] protomatrix1 = stat1.getProbabilityPrediction();
-		double[][] protomatrix2 = stat2.getProbabilityPrediction();
+//		double[][] protomatrix1 = stat1.getProbabilityPrediction();
+//		double[][] protomatrix2 = stat2.getProbabilityPrediction();
 		
 		/*System.out.println("protomatrix");
 		for (int j=0; j<nbtargets; j++) {
@@ -466,8 +466,8 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		
 		for (int j=0; j<nbtargets; j++) {
 			for (int k=0; k<5; k++) {
-				double d = Math.abs(protomatrix1[j][k] - protomatrix2[j][k]);
-				dist += d;
+//				double d = Math.abs(protomatrix1[j][k] - protomatrix2[j][k]);
+//				dist += d;
 			}
 		}
 		return dist;
