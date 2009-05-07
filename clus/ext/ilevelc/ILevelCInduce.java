@@ -511,7 +511,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 		m_NbClasses = 1;
 		ClusRandom.reset(ClusRandom.RANDOM_ALGO_INTERNAL);
 		RowData data = (RowData)cr.getTrainingSet();
-		int nbRows = data.getNbRows();
+		int nbTrain = data.getNbRows();
 		/* add in test data! */
 		RowData test = (RowData)cr.getTestSet();
 		if (test != null) {
@@ -531,7 +531,9 @@ public class ILevelCInduce extends DepthFirstInduce {
 			String fname = getSettings().getILevelCFile();
 			m_Constraints = ILevelConstraint.loadConstraints(fname, points);
 		} else {
-			m_Constraints = createConstraints(data, nbRows);
+			/* constraints are only on the training instances */
+			/* reason: nbTrain = number of training instances and training instances come first */
+			m_Constraints = createConstraints(data, nbTrain);
 		}
 		if (getSettings().isILevelCCOPKMeans()) {
 			COPKMeans km = new COPKMeans(m_MaxNbClasses, getStatManager());
@@ -546,7 +548,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 				long t2 = System.currentTimeMillis();
 				// if (!model.isIllegal() || (t2-t1) > 5*60*1000) return model;
 				if (!model.isIllegal()) return model;
-				m_Constraints = createConstraints(data, nbRows);
+				m_Constraints = createConstraints(data, nbTrain);
 			}
 			return model;
 		} else if (getSettings().isILevelCMPCKMeans()) {

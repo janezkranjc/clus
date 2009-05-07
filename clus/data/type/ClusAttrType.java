@@ -144,7 +144,7 @@ public abstract class ClusAttrType implements Serializable, Comparable {
 		m_Index = idx;
 	}
 
-	public int getArrayIndex() {
+	public final int getArrayIndex() {
 		return m_ArrayIndex;
 	}
 

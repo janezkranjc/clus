@@ -61,6 +61,11 @@ public class NominalAttrType extends ClusAttrType {
 			String value = tokens.nextToken().trim();
 			if (!value.equals("?")) values.add(value);
 		}
+		if (values.size() == 2 && values.get(0).equals("0") && values.get(1).equals("1")) {
+			// Make sure that binary attributes have "1" first!
+			values.set(0, "1");
+			values.set(1, "0");
+		}
 		m_NbValues = values.size();
 		m_Values = new String[m_NbValues];
 		for (int i = 0; i < m_NbValues; i++) {

@@ -73,14 +73,27 @@ public class FindBestTest {
 		int nbvalues = at.getNbValues();
 		m_BestTest.reset(nbvalues + 1);
 		int nb_rows = data.getNbRows();
-		// For each attribute value
-//		System.out.println("updating...");
-		for (int i = 0; i < nb_rows; i++) {
-			DataTuple tuple = data.getTuple(i);
-			int value = at.getNominal(tuple);
-			m_BestTest.m_TestStat[value].updateWeighted(tuple, i);
+		if (nbvalues == 2 && !at.hasMissing()) {
+			// Only count ones for binary attributes (optimization)
+			for (int i = 0; i < nb_rows; i++) {
+				DataTuple tuple = data.getTuple(i);
+				int value = at.getNominal(tuple);
+				// The value "1" has index 0 in the list of attribute values
+				if (value == 0) {
+					m_BestTest.m_TestStat[0].updateWeighted(tuple, i);
+				}
+			}
+			// Also compute the statistic for the zeros
+			m_BestTest.m_TestStat[1].copy(m_BestTest.m_TotStat);
+			m_BestTest.m_TestStat[1].subtractFromThis(m_BestTest.m_TestStat[0]);
+		} else { 
+			// Regular code for non-binary attributes
+			for (int i = 0; i < nb_rows; i++) {
+				DataTuple tuple = data.getTuple(i);
+				int value = at.getNominal(tuple);
+				m_BestTest.m_TestStat[value].updateWeighted(tuple, i);
+			}
 		}
-//		System.out.println("done");
 		// Find best split
 		m_Split.findSplit(m_BestTest, at);
 	}
