@@ -471,6 +471,7 @@ public class ClassHierarchy implements Serializable {
 		for (int i = 0; i < cls.length; i++) {
 			String[] rel = cls[i].split("\\s*\\/\\s*");
 			if (rel.length != 2) {
+				//System.out.println(cls[i]);
 				throw new ClusException("Illegal parent child tuple in .arff");
 			}
 			String parent = rel[0];

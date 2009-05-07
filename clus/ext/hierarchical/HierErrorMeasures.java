@@ -46,7 +46,7 @@ public class HierErrorMeasures extends ClusError {
 	}
 
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
-		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
+		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(m_Hier.getType().getArrayIndex());
 		double[] predarr = ((WHTDStatistic)pred).getNumericPred();
 		boolean[] actual = tp.getVectorBooleanNodeAndAncestors(m_Hier);
 		for (int i = 0; i < m_Dim; i++) {
@@ -55,7 +55,7 @@ public class HierErrorMeasures extends ClusError {
 	}
 
 	public void addInvalid(DataTuple tuple) {
-		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
+		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(m_Hier.getType().getArrayIndex());
 		boolean[] actual = tp.getVectorBooleanNodeAndAncestors(m_Hier);
 		for (int i = 0; i < m_Dim; i++) {
 			m_ClassWisePredictions[i].addInvalid(actual[i]);
