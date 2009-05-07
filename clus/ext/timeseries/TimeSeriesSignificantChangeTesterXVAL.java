@@ -48,11 +48,11 @@ public class TimeSeriesSignificantChangeTesterXVAL extends ClusError {
 		super(par);
 		m_Stat = stat;
 	}
-	
+
 	public boolean isComputeForModel(String name) {
 		return false;
 	}
-	
+
 	public double computeMeanValue(TimeSeriesAttrType attr, RowData data) {
 		int nb = 0;
 		double sum = 0;
@@ -63,20 +63,20 @@ public class TimeSeriesSignificantChangeTesterXVAL extends ClusError {
 				sum += series[j];
 				nb++;
 			}
-		}		
+		}
 		return sum / nb;
 	}
-	
+
 	public int getTimeSeriesLength(TimeSeriesAttrType attr, RowData data) {
 		int len = 0;
 		for (int i = 0; i < data.getNbRows(); i++) {
 			DataTuple tuple = data.getTuple(i);
 			double[] series = attr.getTimeSeries(tuple).getValues();
 			len = Math.max(len, series.length);
-		}		
+		}
 		return len;
 	}
-	
+
 	public double computeError(RowData data, TimeSeries ts) {
 		double sum = 0;
 		TimeSeriesDist dist = (TimeSeriesDist)m_Stat.getDistance();
@@ -84,11 +84,11 @@ public class TimeSeriesSignificantChangeTesterXVAL extends ClusError {
 		for (int i = 0; i < data.getNbRows(); i++) {
 			DataTuple tuple = data.getTuple(i);
 			TimeSeries series = attr.getTimeSeries(tuple);
-			sum += dist.calcDistance(series, ts);			
-		}		
+			sum += dist.calcDistance(series, ts);
+		}
 		return sum / data.getNbRows();
 	}
-	
+
 	public void doOneFold(RowData train, RowData test) {
 		/* create mean training set time series */
 		TimeSeriesAttrType attr = m_Stat.getAttribute();
@@ -101,14 +101,14 @@ public class TimeSeriesSignificantChangeTesterXVAL extends ClusError {
 		train.calcTotalStatBitVector(stat);
 		stat.calcMean();
 		TimeSeries medoid_ts = stat.getRepresentativeMedoid();
-		/* compute errors */		
+		/* compute errors */
 		double mean_err = computeError(test, mean_ts);
 		double medoid_err = computeError(test, medoid_ts);
-		m_FoldsMean.add(new Double(mean_err));		
+		m_FoldsMean.add(new Double(mean_err));
 		m_FoldsMedoid.add(new Double(medoid_err));
 	}
-	
-		
+
+
 	public void computeSignificantChangePValueXVAL(RowData data) throws ClusException {
 		m_FoldsMean = new ArrayList();
 		m_FoldsMedoid = new ArrayList();
@@ -119,7 +119,7 @@ public class TimeSeriesSignificantChangeTesterXVAL extends ClusError {
 			XValSelection msel = new XValSelection(sel, i);
 			RowData train = (RowData)data.cloneData();
 			RowData test = (RowData)train.select(msel);
-			doOneFold(train, test);		
+			doOneFold(train, test);
 		}
 	}
 
@@ -133,7 +133,7 @@ public class TimeSeriesSignificantChangeTesterXVAL extends ClusError {
 			computeForRule((ClusRule)model, data.getSchema());
 		}
 	}
-	
+
 	public void printArray(ArrayList arr, StringBuffer res) {
 		res.append("[");
 		double sum = 0;
@@ -142,7 +142,7 @@ public class TimeSeriesSignificantChangeTesterXVAL extends ClusError {
 			if (i != 0) res.append(",");
 			res.append(String.valueOf(v));
 			sum += v;
-		}		
+		}
 		res.append("]");
 	}
 

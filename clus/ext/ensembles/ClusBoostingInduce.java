@@ -46,24 +46,24 @@ import clus.util.*;
 public class ClusBoostingInduce extends ClusInductionAlgorithm {
 
 	Random m_Random = new Random(0);
-	
+
 	public ClusBoostingInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		super(schema, sett);
 	}
-	
+
 	public double[] computeNormalizedLoss(RowData trainData, ClusNode tree) {
 		ClusAttributeWeights weights = getStatManager().getClusteringWeights();
 		double[] L = new double[trainData.getNbRows()];
 		for (int i = 0; i < trainData.getNbRows(); i++) {
 			DataTuple tuple = trainData.getTuple(i);
 			ClusStatistic prediction = tree.predictWeighted(tuple);
-			L[i] = prediction.getSquaredDistance(tuple, weights);			
+			L[i] = prediction.getSquaredDistance(tuple, weights);
 		}
 		double D = MDoubleArray.max(L);
 		MDoubleArray.dotscalar(L, 1.0/D);
 		return L;
 	}
-	
+
 	public double computeAverageLoss(RowData trainData, double[] L) {
 		double avg = 0.0;
 		double tot_w = trainData.getSumWeights();
@@ -73,51 +73,51 @@ public class ClusBoostingInduce extends ClusInductionAlgorithm {
 		}
 		return avg;
 	}
-	
+
 	public void updateWeights(RowData trainData, double[] L, double beta) {
 		for (int i = 0; i < trainData.getNbRows(); i++) {
 			DataTuple tuple = trainData.getTuple(i);
-			tuple.setWeight(tuple.getWeight() * Math.pow(beta, 1 - L[i]));			
+			tuple.setWeight(tuple.getWeight() * Math.pow(beta, 1 - L[i]));
 		}
 	}
-		
+
 	public ClusBoostingForest induceSingleUnprunedBoosting(ClusRun cr) throws ClusException, IOException {
-		ClusBoostingForest result = new ClusBoostingForest(getStatManager());		
-		RowData trainData = ((RowData)cr.getTrainingSet()).shallowCloneData();		
+		ClusBoostingForest result = new ClusBoostingForest(getStatManager());
+		RowData trainData = ((RowData)cr.getTrainingSet()).shallowCloneData();
 		DepthFirstInduce tdidt = new DepthFirstInduce(this);
 		int[] outputEnsembleAt = getSettings().getNbBaggingSets().getIntVectorSorted();
 		int nbTrees = outputEnsembleAt[outputEnsembleAt.length-1];
-		int verbose = Settings.VERBOSE;		
+		int verbose = Settings.VERBOSE;
 		for (int i = 0; i < nbTrees; i++) {
 			if (verbose != 0) {
 				System.out.println();
 				System.out.println("Tree: "+i+" (of max: "+nbTrees+")");
 			}
-			RowData train = trainData.sampleWeighted(m_Random);		
-			ClusNode tree = tdidt.induceSingleUnpruned(train);		
+			RowData train = trainData.sampleWeighted(m_Random);
+			ClusNode tree = tdidt.induceSingleUnpruned(train);
 			double[] L = computeNormalizedLoss(trainData, tree);
 			double Lbar = computeAverageLoss(trainData, L);
 			double beta = Lbar / (1-Lbar);
-			if (verbose != 0) {			
+			if (verbose != 0) {
 				System.out.println("Average loss: "+Lbar+" beta: "+beta);
 			}
 			if (Lbar >= 0.5) break;
 			updateWeights(trainData, L, beta);
-			result.addModelToForest(tree, beta);			
+			result.addModelToForest(tree, beta);
 		}
 		return result;
 	}
-	
+
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 		return induceSingleUnprunedBoosting(cr);
 	}
-	
+
 	public void induceAll(ClusRun cr) throws ClusException, IOException {
-		ClusBoostingForest model = induceSingleUnprunedBoosting(cr);		
+		ClusBoostingForest model = induceSingleUnprunedBoosting(cr);
 		ClusModelInfo default_model = cr.addModelInfo(ClusModel.DEFAULT);
 		ClusModel def = ClusDecisionTree.induceDefault(cr);
 		default_model.setModel(def);
-		default_model.setName("Default");		
+		default_model.setName("Default");
 		ClusModelInfo model_info = cr.addModelInfo(ClusModel.ORIGINAL);
 		model_info.setName("Original");
 		model_info.setModel(model);

@@ -169,7 +169,7 @@ public class ClusErrorList implements Serializable {
 		m_NbExamples = data.getNbRows();
 		m_NbCover = m_NbExamples;
 	}
-	
+
 	public void compute(RowData data, ClusModel model) throws ClusException {
 		int nb = m_Error.size();
 		for (int i = 0; i < nb ; i++) {
@@ -204,7 +204,7 @@ public class ClusErrorList implements Serializable {
 				ClusError err = (ClusError)m_Error.get(i);
 				err.addInvalid(tuple);
 			}
-		} 
+		}
 	}
 	public void addExample(DataTuple real, DataTuple pred) {
 		m_NbExamples++;
@@ -224,7 +224,7 @@ public class ClusErrorList implements Serializable {
 		int nb = m_ErrorWithNulls.size();
 		for (int i = 0; i < nb; i++) {
 			ClusError my = (ClusError)m_ErrorWithNulls.get(i);
-			ClusError your = par.getErrorOrNull(i); 
+			ClusError your = par.getErrorOrNull(i);
 			if (your != null) my.add(your);
 		}
 		m_NbExamples += par.getNbExamples();
@@ -343,7 +343,7 @@ public class ClusErrorList implements Serializable {
 					int nb_err = parent.getNbErrors();
 					for (int i = 0; i < nb_err; i++) {
 						ClusError err = parent.getError(i);
-						out.print(err.getName()+": "+StringUtils.printStr(inf.getName(),15)+": ");						
+						out.print(err.getName()+": "+StringUtils.printStr(inf.getName(),15)+": ");
 						err.showModelError(out, ClusError.DETAIL_SMALL);
 						ctr++;
 					}

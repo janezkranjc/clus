@@ -244,7 +244,7 @@ public abstract class ClusAttrType implements Serializable, Comparable {
 	public String toString() {
 		return getName();
 	}
-	
+
 	public void initializeBeforeLoadingData() throws IOException, ClusException {
 		// This method is called before loading the data, but after setting the attribute's status
 		// For example, ext.hierarchical.ClassesAttrType uses this to initialize the class hierarchy.

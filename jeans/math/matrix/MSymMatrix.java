@@ -33,7 +33,7 @@ public class MSymMatrix extends MMatrix implements Serializable {
 		m_Size = size;
 		m_Data = createSymmetricData(size);
 	}
-	
+
 	public int getSize() {
 		return m_Size;
 	}
@@ -111,7 +111,7 @@ public class MSymMatrix extends MMatrix implements Serializable {
 		if (c > r) m_Data[c][r] = val;
 		else m_Data[r][c] = val;
 	}
-	
+
 	public final void add_sym(int r, int c, double val) {
 		if (c > r) m_Data[c][r] += val;
 		else m_Data[r][c] += val;

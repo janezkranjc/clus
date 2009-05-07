@@ -48,7 +48,7 @@ import clus.util.*;
 
 /**
  * Set of predictive rules.
- * 
+ *
  *
  */
 public class ClusRuleSet implements ClusModel, Serializable {
@@ -57,11 +57,11 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	/** Default prediction if no other rule covers the instance. */
 	protected ClusStatistic m_TargetStat;
-	
-	/** If we have created an all examples covering rule that is in the first position of rules 
+
+	/** If we have created an all examples covering rule that is in the first position of rules
 	 * Used for weight optimization.*/
 	protected boolean m_allCoveringRuleExists = false;
-	
+
 	protected ArrayList<ClusRule> m_Rules = new ArrayList<ClusRule>();
 	/** Array of tuples covered by the default rule. */
 	protected ArrayList m_DefaultData = new ArrayList();
@@ -84,7 +84,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 		return new_ruleset;
 	}
-	
+
 	/**
 	 * Deep clones this ruleset, so that it points to different rules that
 	 * have target statistics with the given threshold.
@@ -122,7 +122,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	public void removeLastRule() {
 		m_Rules.remove(getModelSize()-1);
 	}
-	
+
 	/** Add given rule if it is not already in the rule set. Only descriptions are checked.
 	 * @param rule Added rule
 	 * @return True if the rule was unique.
@@ -138,7 +138,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	/**
 	 * Tests if the rule is already in the rule set.
-	 * Rules are equal if their tests are same! 
+	 * Rules are equal if their tests are same!
 	 */
 	public boolean unique(ClusRule rule) {
 		boolean res = true;
@@ -149,8 +149,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 		return res;
 	}
-	
-	
+
+
 	/** Add given rule if it is not already in the rule set. Also targets are checked
 	 * Implemented only for regression!
 	 * @param rule Added rule
@@ -164,7 +164,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Tests if the rule is already in the rule set.
 	 * Rules are deeply same if both description and target part are the same
@@ -209,44 +209,44 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				}
 			}
 			stat.unionDone();
-			
+
 			// If covered, return stat, else default prediction
 			return covered ? stat : m_TargetStat;
-			
+
 		} else if (getSettings().isRulePredictionOptimized()) {
-			// Optimized weights 
+			// Optimized weights
 			// The rules are considered as base predictors of ensemble
-			
-			// Get the weighted prediction of the rule that covers all the 
+
+			// Get the weighted prediction of the rule that covers all the
 			// instances (former default rule)
 			ClusRule firstRule = getRule(0);
 			ClusStatistic prediction = (firstRule.predictWeighted(tuple))
 			                            .copyNormalizedWeighted(getAppropriateWeight(firstRule));
-		
+
 			for (int iBaseRule = 1; iBaseRule < getModelSize(); iBaseRule++) {
 				ClusRule rule = getRule(iBaseRule);
-				
+
 //				if (iBaseRule == getModelSize()-1) {
 //					boolean blah = false;
 //				}
 				// If the rule covers tuple (indicator function is nonzero)
 				if (rule.covers(tuple)) {
 					ClusStatistic rulestat = rule.predictWeighted(tuple);
-					
-					// For regression normalization does not do anything. 
+
+					// For regression normalization does not do anything.
 					// For classification the values are normalized over the the counts.
 					ClusStatistic norm_rulestat = rulestat.normalizedCopy();
 					prediction.addPrediction(norm_rulestat, getAppropriateWeight(rule));
 				}
 			}
-			
+
 			// Is always covered because default rule is used
 			return prediction;
-			
+
 		} else {  // Unordered rules (with different weighting schemes)
 			ClusStatistic stat = m_TargetStat.cloneSimple();
 			double weight_sum = 0.0;
-			
+
 			// Get the overall sum of weights for all the rules that cover the example
 			for (int i = 0; i < getModelSize(); i++) {
 				ClusRule rule = getRule(i);
@@ -254,7 +254,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 					weight_sum += getAppropriateWeight(rule);
 				}
 			}
-			
+
 			// Take the prediction. Normalise
 			for (int i = 0; i < getModelSize(); i++) {
 				ClusRule rule = getRule(i);
@@ -275,7 +275,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 		}
 	}
-			
+
 	public double getAppropriateWeight(ClusRule rule) {
 		switch (getSettings().getRulePredictionMethod()) {
 		case Settings.RULE_PREDICTION_METHOD_COVERAGE_WEIGHTED:
@@ -311,14 +311,14 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		double threshold = getSettings().getOptRuleWeightThreshold();
 		int nb_rules = getModelSize();
 		for (int i = nb_rules-1; i >= 0; i--) {
-			
+
 			// If the first rule is all covering, it is not removed (can predict just 0 if that is the weight)
 			// This is used instead of default rule if the weights are optimized.
 			if (m_allCoveringRuleExists && i == 0)
 				continue;
-			
+
 			if (Math.abs(getRule(i).getOptWeight()) < threshold || getRule(i).getOptWeight() == 0.0) {
-				// If optimization is used, the last first covers all the instances. This should not be removed 
+				// If optimization is used, the last first covers all the instances. This should not be removed
 				m_Rules.remove(i);
 			}
 		}
@@ -356,7 +356,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
 			if (headers) {
-				
+
 				if (Settings.isPrintAllRules()){
 					String head = new String("Rule " + (i + 1) + ":");
 					char[] underline = new char[head.length()];
@@ -366,7 +366,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 					wrt.println(head);
 					wrt.println(new String(underline));
-				}			
+				}
 				// Added this test so that PrintRuleWiseErrors also works in HMC setting (02/01/06)
 				if (getSettings().computeDispersion()) {
 					avg_dispersion[0][0] += rule.m_CombStat[0].dispersionCalc();
@@ -393,10 +393,10 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				wrt.println();
 			}
 		}
-		
+
 		if (!Settings.isPrintAllRules())
 			wrt.println("Set of "+ m_Rules.size() +" rules.\n");
-		
+
 		if (m_TargetStat != null && m_TargetStat.isValidPrediction()) {
 			if (headers) {
 				if (m_Comment == null) {
@@ -407,7 +407,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 					wrt.println("=============");
 				}
 			}
-			wrt.println("Default = "+(m_TargetStat == null ? "N/A" : m_TargetStat.getString()));			
+			wrt.println("Default = "+(m_TargetStat == null ? "N/A" : m_TargetStat.getString()));
 		}
 		if (headers && getSettings().computeDispersion()) {
 			wrt.println("\n\nRule set dispersion:");
@@ -477,14 +477,14 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem, boolean ex) {
 	}
-	
+
 	/**
 	 * How many rules in the set?
 	 */
 	public int getModelSize() {
 		return m_Rules.size();
 	}
-	
+
 	public Settings getSettings() {
 		return m_StatManager.getSettings();
 	}
@@ -506,8 +506,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 		return count;
 	}
-	
-	/** 
+
+	/**
 	 * How many linear terms are in the rule set.
 	 */
 	private int getNbLinearTerms() {
@@ -517,7 +517,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			if (rule.m_isLinearTerm)
 			count++;
 		}
-		
+
 		return count;
 	}
 
@@ -527,7 +527,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	/**
 	 * Post process the rule set rule by rule.
-	 * Post processing is only calculating the means for each of the target statistics. 
+	 * Post processing is only calculating the means for each of the target statistics.
 	 */
 	public void postProc() {
 		m_TargetStat.calcMean();
@@ -594,7 +594,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				DataTuple tuple = data.getTuple(i);
 				double[] predictions = ((RegressionStat)predictWeighted(tuple)).getNumericPred();
 				for (int j = 0; j < nb_tar; j++) {
-					double diff = predictions[j] - targetAttrs[j].getNumeric(tuple); 
+					double diff = predictions[j] - targetAttrs[j].getNumeric(tuple);
 					sum_sqr_err[j] += diff * diff;
 				}
 			}
@@ -607,7 +607,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			return -1;
 		}
 	}
-	
+
 	/**
 	 * Sets TrainErrorScore in all rules which is to be used in some schemes
 	 * (AccuracyWeighted) for combining predictions of multiple  (unordered) rules.
@@ -618,7 +618,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			((ClusRule)m_Rules.get(i)).setTrainErrorScore();
 		}
 	}
-	
+
 	/**
 	 * Adds tuple to the rule which covers it. Returns true if the
 	 * tuple is covered by any rule in this RuleSet and false otherwise.
@@ -659,9 +659,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 		m_DefaultData.clear();
 	}
-	
+
 	public ArrayList getDefaultData() {
-		return m_DefaultData;		
+		return m_DefaultData;
 	}
 
 	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException {
@@ -713,7 +713,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	public void retrieveStatistics(ArrayList list) {
 	}
-	
+
 	/**
 	 * Returns the form of this rule set that can be used
 	 * for weight optimization. The predictions should be always a value or NaN. NaN occurs if the rule does not cover
@@ -729,18 +729,18 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 		// We need to transform the default rule to ordinary rule. We want to optimize it also.
 		addDefaultRuleToRuleSet();
-		
+
 		if (getSettings().isOptOmitRulePredictions()){
 			// after creating default rule, before adding linear terms or weighting generality
 			omitRulePredictions();
 		}
-		
+
 		if (getSettings().isOptWeightGenerality()) {
 			// Weight the rules on generality. Do this after adding the default rule!
 			// Also do this after omitting rule predictions!
 			weightGeneralityForPredictions(data.getNbRows());
 		}
-		
+
 		// Add linear terms to rule set
 		if (getSettings().isOptAddLinearTerms()){
 			// This should be done after default rule adding.
@@ -750,7 +750,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			addLinearTermsToRuleSet(schema.getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE),
 									minAndMaxes[0], minAndMaxes[1]);
 		}
-			
+
 		// Generate optimization input
 		ClusStatistic tar_stat = m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 		int nb_target = tar_stat.getNbAttributes();
@@ -762,17 +762,17 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 
 		// ***************** TRUE VALUES
-		
+
 		ClusAttrType[] trueValuesTemp = new ClusAttrType[nb_target];
 		if (isClassification) {
-			//NominalAttrType[] 
+			//NominalAttrType[]
 			trueValuesTemp = (ClusAttrType[])schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		} else { // regression
 			//NumericAttrType[]
 			trueValuesTemp = (ClusAttrType[])schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		}		
-		
-		/** 
+		}
+
+		/**
 		 * True values for each target and instance
 		 */
 		double[][] trueValues = new double[nb_rows][nb_target];
@@ -808,16 +808,16 @@ public class ClusRuleSet implements ClusModel, Serializable {
 //		} else {
 //			defaultPred = ((RegressionStat)m_TargetStat).getNumericPred();
 //		}
-		
+
 
 		// ************ PREDICTIONS
 
 		// Number of nominal values for each target. For regression, no number of nominal values needed, i.e. 1
-		int nb_values[] = new int[nb_target]; 
+		int nb_values[] = new int[nb_target];
 
 		for (int iTarget=0; iTarget < nb_target;iTarget++) {
 			if (isClassification) {
-				nb_values[iTarget] = ((ClassificationStat)m_TargetStat).getAttribute(0).getNbValues();		
+				nb_values[iTarget] = ((ClassificationStat)m_TargetStat).getAttribute(0).getNbValues();
 			} else { // regression
 				nb_values[iTarget] = 1; // Nominal values not needed
 			}
@@ -843,8 +843,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				if (rule.covers(tuple)) {
 
 					// Returns the prediction for the data
-					if (isClassification) {					
-						rule_pred[jRules][iRows] = 
+					if (isClassification) {
+						rule_pred[jRules][iRows] =
 							((ClassificationStat)rule.predictWeighted(tuple)).normalizedCopy().getClassCounts();
 					} else {
 						//Only one nominal value is used for regression.
@@ -857,7 +857,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				} else { // Rule does not cover the instance. Mark as NaN
 					for (int kTargets = 0; kTargets < nb_target; kTargets++)
 					{   for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
-							rule_pred[jRules][iRows][kTargets][lValues] = Double.NaN; 
+							rule_pred[jRules][iRows][kTargets][lValues] = Double.NaN;
 					    }
 					}
 				}
@@ -874,11 +874,11 @@ public class ClusRuleSet implements ClusModel, Serializable {
 							outLogFile.print(mf.format(rule_pred[jRules][iRows][kTargets][lValues]));
 							if (lValues < nb_values[kTargets]-1)	outLogFile.print("; ");
 						}
-	
+
 						if (isClassification) outLogFile.print("}");
 						if (kTargets < nb_target-1) outLogFile.print("; ");
 					}
-					outLogFile.print("]"); 
+					outLogFile.print("]");
 				}
 			} // For rules
 
@@ -891,15 +891,15 @@ public class ClusRuleSet implements ClusModel, Serializable {
 					outLogFile.print(mf.format(trueValues[iRows][kTargets]));
 					if (kTargets < nb_target-1)	outLogFile.print("; ");
 				}
-				outLogFile.print("]\n"); 
+				outLogFile.print("]\n");
 			}
-		}// For instances of data		
+		}// For instances of data
 
 		if (outLogFile != null) {
 			outLogFile.flush();
 		}
 
-//		OptProbl.OptParam param = new OptProbl.OptParam(rule_pred, defaultPred, trueValues); 
+//		OptProbl.OptParam param = new OptProbl.OptParam(rule_pred, defaultPred, trueValues);
 		OptProbl.OptParam param = new OptProbl.OptParam(rule_pred, trueValues);
 		return param;
 	}
@@ -913,14 +913,14 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			if (!rule.m_isLinearTerm) {// If this is linear term, do not touch it
 				if (!(rule.m_TargetStat instanceof RegressionStat))
 					System.err.println("Error: GD optimization is implemented regression only.");
-				
-				RegressionStat stat = (RegressionStat) rule.m_TargetStat;
-				
 
-				if (stat.m_NbAttrs > 1) { 
+				RegressionStat stat = (RegressionStat) rule.m_TargetStat;
+
+
+				if (stat.m_NbAttrs > 1) {
 					//System.err.println("Error: Omitting predictions does not make sense for multi target!");
-					
-					//double scalingValue = Double.POSITIVE_INFINITY;					
+
+					//double scalingValue = Double.POSITIVE_INFINITY;
 					double scalingValue = 0.0;
 					for (int iTarget = 0; iTarget < stat.m_NbAttrs; iTarget++) {
 //						if (Math.abs(stat.m_Means[iTarget]) < Math.abs(scalingValue)) {
@@ -928,32 +928,32 @@ public class ClusRuleSet implements ClusModel, Serializable {
 							scalingValue = stat.m_Means[iTarget];
 						}
 					}
-					
+
 					if (scalingValue == 0.0)
 						scalingValue = 1.0; // Do not scale
-					
+
 					for (int iTarget = 0; iTarget < stat.m_NbAttrs; iTarget++) {
 						//means[i] = m_SumWeights[i] != 0.0 ? m_SumValues[i] / m_SumWeights[i] : 0.0;
 //					stat.m_Means[iTarget] += Math.copySign(1.0, scalingValue)-scalingValue;
 //							// Here the one nearer to zero should have value -1 or 1
-						
+
 						stat.m_Means[iTarget] /= scalingValue;
 						//  Bigger one (on absolute value) is 1
 						stat.m_SumValues[iTarget] = stat.m_Means[iTarget];
-						stat.m_SumWeights[iTarget] = 1; 
+						stat.m_SumWeights[iTarget] = 1;
 					}
 				} else {
-					
+
 					// Single target
-					stat.m_Means[0] = 1; 
+					stat.m_Means[0] = 1;
 					stat.m_SumValues[0] = 1;
-					stat.m_SumWeights[0] = 1; 
+					stat.m_SumWeights[0] = 1;
 				}
-				
+
 			}
 		}
 	}
-	
+
 	/* Scales the rule predictions so that most general (most covering) rules have bigger predictions.
 	 * Thus they are more favored when optimized.
 	 */
@@ -965,22 +965,22 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			if (!rule.m_isLinearTerm) {// If this is linear term, do not touch it
 				if (!(rule.m_TargetStat instanceof RegressionStat))
 					System.err.println("Error: GD optimization is implemented regression only.");
-				
+
 				RegressionStat stat = (RegressionStat) rule.m_TargetStat;
 				double scalingFactor = stat.m_SumWeight/(double) nbOfExamples;
 				for (int iTarget = 0; iTarget < stat.m_NbAttrs; iTarget++) {
-					stat.m_Means[iTarget] *= scalingFactor; 
+					stat.m_Means[iTarget] *= scalingFactor;
 					stat.m_SumValues[iTarget] = stat.m_Means[iTarget];
-					stat.m_SumWeights[iTarget] = 1; 
+					stat.m_SumWeights[iTarget] = 1;
 				}
 			}
 		}
 	}
 
-	/** 
+	/**
 	 * Add rules in the given set to this rule set.
 	 * Uniqueness is not checked because it is based on the test only.
-	 * Thus different predictions for rules do not make rules different. 
+	 * Thus different predictions for rules do not make rules different.
 	 * @param newRules Rules to be added.
 	 * @param addOnlyUnique Add only unique rules.
 	 * @return How many added rules were unique when only descriptions are considered.
@@ -989,10 +989,10 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		return addRuleSet(newRules, true);
 	}
 
-	/** 
+	/**
 	 * Add rules in the given set to this rule set.
 	 * Uniqueness is not checked because it is based on the test only.
-	 * Thus different predictions for rules do not make rules different. 
+	 * Thus different predictions for rules do not make rules different.
 	 * @param newRules Rules to be added.
 	 * @param addOnlyUnique Add only unique rules?
 	 * @return How many added rules were added when only descriptions are considered.
@@ -1000,8 +1000,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	public int addRuleSet(ClusRuleSet newRules, boolean addOnlyUnique) {
 		int numberAdded = 0;
 		for (int iRule = 0; iRule < newRules.getModelSize(); iRule++)
-		{		
-			
+		{
+
 			if (addOnlyUnique) {
 				// If we are optimizing the rule set and we are omitting the rule predictions,
 				// only uniqueness of the descriptive part is important.
@@ -1020,12 +1020,12 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		return numberAdded;
 	}
 
-	/** For optimization, we need to make the default rule a real rule. We need a weight for it etc. 
+	/** For optimization, we need to make the default rule a real rule. We need a weight for it etc.
 	 * This rule is the rule that covers all the examples (no test statement) */
 	public void addDefaultRuleToRuleSet() {
 		System.out.println("Adding default rule explicitly to rule set.");
 		ClusRule defaultRuleForEnsembles = new ClusRule(m_StatManager);
-		
+
 		// If normalization is in use, values near zero for default rule are problematic
 		// The default should be zero (mean is zero)
 //		if (getSettings().getNormalizeData() != Settings.NORMALIZE_DATA_NONE) {
@@ -1044,37 +1044,37 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		m_TargetStat = null; // To make sure this is not used anymore
 		m_allCoveringRuleExists = true;
 	}
-	
+
 	/** For optimization we can add the numerical descriptive attributes to the ensemble. We add them
 	 * as rules that always give the prediction of descriptive attribute
 	 */
 	private void addLinearTermsToRuleSet(NumericAttrType[] numTypes, double[] mins, double[] maxs) {
 		System.out.print("Adding linear terms as rules. ");
 		int nbTargets = (m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET)).getNbAttributes();
-		
+
 		//NumericAttrType[] numTypes = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE);
-		
+
 		for (int iDescriptDim = 0; iDescriptDim < numTypes.length; iDescriptDim++){
 			numTypes[iDescriptDim].getArrayIndex(); // Or getIndex();
-			
+
 			for (int iTargetDim = 0; iTargetDim < nbTargets; iTargetDim++) {
 				ClusRule newRule = new ClusRule(m_StatManager, numTypes[iDescriptDim].getArrayIndex(), iTargetDim,
 												maxs[iDescriptDim], mins[iDescriptDim]);
-				
+
 				newRule.m_TargetStat = m_StatManager.createTargetStat();
 				if (!(newRule.m_TargetStat instanceof RegressionStat))
 					System.err.println("Error: Using linear terms is implemented for regression only.");
 				((RegressionStat) newRule.m_TargetStat).m_Means = new double[nbTargets];
-				((RegressionStat) newRule.m_TargetStat).m_Means[iTargetDim] = 1; 
+				((RegressionStat) newRule.m_TargetStat).m_Means[iTargetDim] = 1;
 				((RegressionStat) newRule.m_TargetStat).m_NbAttrs = nbTargets;
 				((RegressionStat) newRule.m_TargetStat).m_SumValues = new double[nbTargets];
 				((RegressionStat) newRule.m_TargetStat).m_SumWeights = new double[nbTargets];
 				((RegressionStat) newRule.m_TargetStat).m_SumValues[iTargetDim] = 1;
-				((RegressionStat) newRule.m_TargetStat).m_SumWeights[iTargetDim] = 1; 
+				((RegressionStat) newRule.m_TargetStat).m_SumWeights[iTargetDim] = 1;
 				m_Rules.add(newRule);
 			}
 		}
-			
+
 
 		System.out.print("Added "+ numTypes.length +" linear terms for each target, total " + numTypes.length*nbTargets
 				         + " terms.");
@@ -1082,7 +1082,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 	/**
 	 * Calculate min and max for all numerical attributes.
-	 * @return A double[][] array where [0] are mins and [1] are maxes 
+	 * @return A double[][] array where [0] are mins and [1] are maxes
 	 */
 	static public double[][] calcMinAndMaxForTheSet(RowData data, NumericAttrType[] numTypes){
 

@@ -88,9 +88,9 @@ public class TimeSeries implements Serializable{
 	public double getValue(int index) {
 		return m_Values[index];
 	}
-	
+
 	/**
-	 * Sets a new size for the time series 
+	 * Sets a new size for the time series
 	 */
 	public void setSize(int size) {
 		m_Values = new double[size];

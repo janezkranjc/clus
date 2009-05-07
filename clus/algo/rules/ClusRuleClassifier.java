@@ -52,7 +52,7 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 		} else {
 			induce = (ClusInductionAlgorithm) new ClusRuleInduce(schema, sett);
 		}
-		induce.getStatManager().setRuleInduce(true); // Tells that the rule is the way to go 
+		induce.getStatManager().setRuleInduce(true); // Tells that the rule is the way to go
 		induce.getStatManager().initRuleSettings();
 		return induce;
 	}
@@ -66,7 +66,7 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 		}
 	}
 
-	public void pruneAll(ClusRun cr) throws ClusException, IOException {		
+	public void pruneAll(ClusRun cr) throws ClusException, IOException {
 	}
 
 	public ClusModel pruneSingle(ClusModel model, ClusRun cr) throws ClusException, IOException {

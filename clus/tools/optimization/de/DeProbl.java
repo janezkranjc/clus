@@ -31,7 +31,7 @@ import clus.main.*;
 import clus.statistic.*;
 
 /**
- * Class representing a Differential evolution optimization problem. 
+ * Class representing a Differential evolution optimization problem.
  *
  * @author Tea Tusar
  * @author Timo Aho modified for multi target use 10.11.2008.
@@ -39,7 +39,7 @@ import clus.statistic.*;
 public class DeProbl extends clus.tools.optimization.OptProbl {
 
 	/** Min value of each variable range */
-	private ArrayList<Double> m_VarMin;			
+	private ArrayList<Double> m_VarMin;
 	/** Max value of each variable range */
 	private ArrayList<Double> m_VarMax;
 
@@ -54,7 +54,7 @@ public class DeProbl extends clus.tools.optimization.OptProbl {
 
 		m_VarMin = new ArrayList<Double>(getNumVar());
 		m_VarMax = new ArrayList<Double>(getNumVar());
-		
+
 		for (int i = 0; i < getNumVar(); i++) {
 			m_VarMin.add(new Double(0));
 			m_VarMax.add(new Double(1));
@@ -83,7 +83,7 @@ public class DeProbl extends clus.tools.optimization.OptProbl {
 				(double)rand.nextDouble();
 
 	}
-	
+
 	public ArrayList<Double> getRoundVector(ArrayList<Double> genes) {
 		ArrayList<Double> result = new ArrayList<Double>(getNumVar());
 		for (int i = 0; i < getNumVar(); i++) {

@@ -311,7 +311,7 @@ public class Clus implements CMDLineArgsProvider {
 
 	/**
 	 * Train the model for given algorithm type.
-	 * 
+	 *
 	 * @param cr
 	 *            Information about this run.
 	 * @param clss
@@ -813,7 +813,7 @@ public class Clus implements CMDLineArgsProvider {
 	/**
 	 * Normalize the data so that most of the variables are within [-0.5,0.5]
 	 * range. Using Zenko, 2007 suggestion. TODO also for nominal attributes
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws ClusException
 	 */
@@ -939,16 +939,16 @@ public class Clus implements CMDLineArgsProvider {
 				+ normalized_data.getNbRows());
 
 		// //DEBUG
-		//		
-		//		
+		//
+		//
 		// variance = new double[numTypes.length];
 		// mean = new double[numTypes.length];
 		// //** Some of the values are not valid. These should not be used for
 		// computing variance etc. *//
 		// nbOfValidValues = new double[numTypes.length];
-		//		
-		//		
-		//		
+		//
+		//
+		//
 		//
 		// // Computing the means
 		// for (int iRow = 0; iRow < normalized_data.getNbRows(); iRow++) {
@@ -990,10 +990,10 @@ public class Clus implements CMDLineArgsProvider {
 		// // Divide with the number of examples
 		// for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++)
 		// {
-		//	
+		//
 		// variance[jNumAttrib] /= nbOfValidValues[jNumAttrib];
-		//	
-		//			
+		//
+		//
 		// }
 
 		return normalized_data;
@@ -1292,7 +1292,7 @@ public class Clus implements CMDLineArgsProvider {
 		 * ARFFFile.writeOrangeData("test-"+fold+".tab", cr.getTestSet());
 		 * ARFFFile.writeOrangeData("train-"+fold+".tab",
 		 * (RowData)cr.getTrainingSet());
-		 * 
+		 *
 		 * ARFFFile.writeRData("trainDataForR."+ fold + ".data",
 		 * (RowData)cr.getTrainingSet()); ARFFFile.writeRData("testDataForR."+
 		 * fold + ".data", (RowData)cr.getTestSet());
@@ -1396,7 +1396,7 @@ public class Clus implements CMDLineArgsProvider {
 	/*
 	 * clss is the object on which the induce methode is called :in our case it
 	 * is a ClusDecisionTree
-	 * 
+	 *
 	 * Modify to have more than one model as an output !
 	 */
 	public final void exhaustiveRun(ClusInductionAlgorithmType clss)

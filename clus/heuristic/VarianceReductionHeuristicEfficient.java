@@ -36,12 +36,12 @@ public class VarianceReductionHeuristicEfficient extends ClusHeuristic {
 		m_ClusteringWeights = prod;
 		m_Attrs = attrs;
 	}
-	
+
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
-		// Acceptable?		
+		// Acceptable?
 		if (stopCriterion(tstat, pstat, missing)) {
 			return Double.NEGATIVE_INFINITY;
-		}		
+		}
 		// Compute |S|Var[S]
 		double ss_tot = tstat.getSVarS(m_ClusteringWeights);
 		double ss_pos = pstat.getSVarS(m_ClusteringWeights);
@@ -54,7 +54,7 @@ public class VarianceReductionHeuristicEfficient extends ClusHeuristic {
 		// Acceptable?
 		if (stopCriterion(tstat, pstat, nbsplit)) {
 			return Double.NEGATIVE_INFINITY;
-		}		
+		}
 		// Compute |S|Var[S]
 		double ss_sum = 0.0;
 		for (int i = 0; i < nbsplit; i++) {

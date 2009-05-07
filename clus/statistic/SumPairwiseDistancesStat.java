@@ -61,7 +61,7 @@ public class SumPairwiseDistancesStat extends BitVectorStat {
 	public double calcDistance(DataTuple t1, DataTuple t2) {
 		return m_Distance.calcDistance(t1, t2);
 	}
-	
+
 	public double calcDistanceToCentroid(DataTuple t1) {
 		return m_Distance.calcDistanceToCentroid(t1, this);
 	}
@@ -176,7 +176,7 @@ public class SumPairwiseDistancesStat extends BitVectorStat {
 		int lognb = (int)Math.floor(Math.log(nb)/Math.log(2))+1;
 		optimizeLinearPreCalc(data, lognb);
 	}
-	
+
 	public void copy(ClusStatistic other) {
 		super.copy(other);
 		SumPairwiseDistancesStat or = (SumPairwiseDistancesStat)other;

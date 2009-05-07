@@ -75,7 +75,7 @@ public abstract class RegressionStatBase extends ClusStatistic {
 			m_Means[i] += weight*or.m_Means[i];
 		}
 	}
-	
+
 	public void updateWeighted(DataTuple tuple, int idx) {
 		updateWeighted(tuple, tuple.getWeight());
 	}
@@ -90,23 +90,23 @@ public abstract class RegressionStatBase extends ClusStatistic {
 		if (m_Means == null) m_Means = new double[m_NbAttrs];
 		calcMean(m_Means);
 	}
-	
+
 	public void setMeans(double[] means) {
 		m_Means = means;
 	}
-	
+
 	public abstract double getMean(int i);
 
 	public abstract double getSVarS(int i);
-		
+
 	public double getVariance(int i) {
 		return m_SumWeight != 0.0 ? getSVarS(i) / m_SumWeight : 0.0;
 	}
-	
+
 	public double getStandardDeviation(int i) {
 		return Math.sqrt(getSVarS(i) / (m_SumWeight - 1));
 	}
-	
+
 	public double getScaledSS(int i, ClusAttributeWeights scale) {
 		return getSVarS(i)*scale.getWeight(getAttribute(i));
 	}

@@ -100,7 +100,7 @@ public class CurrentBestTestAndHeuristic {
 	public void setInitialData(ClusStatistic totstat, RowData data) throws ClusException {
 		m_Heuristic.setInitialData(totstat,data);
 	}
-	
+
 	public final void initTestSelector(ClusStatistic totstat, RowData subset) {
 		initTestSelector(totstat);
 		// Attach data set to heuristics and statistics

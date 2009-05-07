@@ -34,7 +34,7 @@ import clus.statistic.*;
 // Created 28.11.2008 from previous DeProbl class
 
 /**
- * Class representing a optimization problem. 
+ * Class representing a optimization problem.
  * Can be used e.g. in Differential evolution and Gradient descent optimization
  * Includes loss functions and regularization
  * @author Timo Aho
@@ -46,10 +46,10 @@ public class OptProbl {
 	 * It is negative so that this class is not selected in classification.
 	 * Because default rule is used, this value should never go to loss function.
 	 */
-	static protected final double INVALID_PREDICTION = Double.NEGATIVE_INFINITY; 
-		
+	static protected final double INVALID_PREDICTION = Double.NEGATIVE_INFINITY;
+
 	/**
-	 * Parameters for optimization algorithm. 
+	 * Parameters for optimization algorithm.
 	 * Predictions and true values for all the instances of data.
 	 * The default prediction is used, if no other rule covers the instance.
 	 * See m_RulePred and m_TrueVal for what the indices mean.
@@ -60,7 +60,7 @@ public class OptProbl {
 			m_predictions = predictions;
 			m_trueValues = trueValues;
 		}
-		/** An empty class */ 
+		/** An empty class */
 		public OptParam(int nbRule, int nbInst, int nbTarg){
 			m_predictions = new double[nbRule][nbInst][nbTarg][1];
 			m_trueValues = new double[nbInst][nbTarg];
@@ -68,20 +68,20 @@ public class OptProbl {
 		public double[][][][] m_predictions;
 		public double[][] m_trueValues;
 	}
-	
+
 	/** Number of weights/variables to optimize */
-	private int m_NumVar;				
-		
-	/** 
+	private int m_NumVar;
+
+	/**
 	 * Rule predictions [rule index][instance][target index][class_value] is for nominal attributes
 	 * or [rule index][instance][target index][0] for regression.
 	 * The [target index] is always [0] for single target use.
-	 * The class value dimension is dynamic for each target index.  
+	 * The class value dimension is dynamic for each target index.
 	 */
 	protected double[][][][] m_RulePred;
-	
+
 	/** True target values for the data points. [instance][target index] */
-	private double[][] m_TrueVal;			
+	private double[][] m_TrueVal;
 	private ClusStatManager m_StatMgr;
 	private boolean m_ClssTask;
 
@@ -98,8 +98,8 @@ public class OptProbl {
 		m_TrueVal = optInfo.m_trueValues;
 
 		m_StatMgr = stat_mgr;
-		
-		if (m_StatMgr.getMode() != ClusStatManager.MODE_REGRESSION &&  
+
+		if (m_StatMgr.getMode() != ClusStatManager.MODE_REGRESSION &&
 				m_StatMgr.getMode() != ClusStatManager.MODE_CLASSIFY)
 		{
 			System.err.println("Weight optimization: Mixed types of targets (reg/clas) not implemented. Assuming regression.\n ");
@@ -112,8 +112,8 @@ public class OptProbl {
 		m_ClssTask = (m_StatMgr.getMode() == ClusStatManager.MODE_CLASSIFY);
 	}
 
-	
-	
+
+
 	/**
 	 * Fitness function over all targets.
 	 * The classification prediction is voting without weights.
@@ -125,7 +125,7 @@ public class OptProbl {
 	public double calcFitness(ArrayList<Double> genes) {
 		return calcFitnessForTarget(genes, -1);
 	}
-		
+
 	/**
 	 * Fitness function for single target, not for all of them.
 	 * The classification prediction is voting without weights.
@@ -142,7 +142,7 @@ public class OptProbl {
 		int nb_rows = getNbOfInstances(); // Number of instances
 		int nb_covered = 0; // Number of rule covered instances
 		int nb_targets = tar_stat.getNbAttributes();
-		
+
 		// For which targets we want to compute the fitness
 		int indFirstTarget = 0; // On default we start from the first target
 		int indLastTarget = tar_stat.getNbAttributes()-1; // On default we compute over all targets
@@ -151,16 +151,16 @@ public class OptProbl {
 			indFirstTarget = iFitnessTarget;
 			indLastTarget = iFitnessTarget;
 		}
-		
-		
+
+
 		/** Number of values for each target.  For regression classes are not needed, thus value is 1.*/
 		int[] nb_values = new int[nb_targets];
-		
+
 
 		for (int iTarget = indFirstTarget; iTarget <= indLastTarget; iTarget++){
 			if (isClassifTask()) {
 				// Number of different values for the attribute
-				nb_values[iTarget] = ((ClassificationStat)tar_stat).getAttribute(iTarget).getNbValues(); 
+				nb_values[iTarget] = ((ClassificationStat)tar_stat).getAttribute(iTarget).getNbValues();
 			} else {// regression
 				nb_values[iTarget] = 1; // No classes are needed
 			}
@@ -178,14 +178,14 @@ public class OptProbl {
 
 			for (int iTarget = indFirstTarget; iTarget <= indLastTarget; iTarget++) {
 				pred_sum[iTarget] = new double[nb_values[iTarget]];
-				
+
 				if (isClassifTask()) {
 					//pred[iInstance][iTarget]= -1; // Initialize for invalid? class
 					pred[iInstance][iTarget]= INVALID_PREDICTION; // Initialize for invalid? class
 					for (int iValue = 0; iValue < nb_values[iTarget]; iValue++) {
 						pred_sum[iTarget][iValue] = INVALID_PREDICTION;
 					}
-				} else 
+				} else
 				{
 					// For regression initialize to zero.
 					pred[iInstance][iTarget]= 0;
@@ -195,7 +195,7 @@ public class OptProbl {
 
 			boolean covered = false; // Is the instance covered
 
-			// An index over the weights for the rules (variables to optimize) 
+			// An index over the weights for the rules (variables to optimize)
 			for (int iRule = 0; iRule < getNumVar(); iRule++) {
 				if (genes.get(iRule).doubleValue() != 0) {
 					// An index over the targets of an instance (for multi targeted environments)
@@ -207,7 +207,7 @@ public class OptProbl {
 							//if (!Double.isNaN(getPredictions(iRule,iInstance,iTarget,iClass)) ) {
 							if (!Double.isNaN(m_RulePred[iRule][iInstance][iTarget][iClass]) ) {
 								covered = true;
-								
+
 								// To create lots of loss, undefined predictions have special value
 								// Initially pred_sum = INVALID_PREDICTION. For the first time nonzero
 								// prediction comes, we put this to zero.
@@ -217,20 +217,20 @@ public class OptProbl {
 									pred_sum[iTarget][iClass] = 0;
 								}
 */ // Commented out for faster regression.
-								
+
 								// For each nominal value and target, add variable
 								// <current optimized parameter value>*<strenght of nominal value> OR
 								// <current optimized parameter value>*<regression prediction for rule>
 								// I.e. this is the real prediction function - weighted sum over the rules
 								pred_sum[iTarget][iClass] += ((Double)genes.get(iRule)).doubleValue()
-					            					* m_RulePred[iRule][iInstance][iTarget][iClass];			
+					            					* m_RulePred[iRule][iInstance][iTarget][iClass];
 							}
 						}
 					}
 				}
 			}
-			
-			// The prediction	
+
+			// The prediction
 			if (isClassifTask())
 			{
 				pred[iInstance] = predictClass(pred_sum);
@@ -238,13 +238,13 @@ public class OptProbl {
 				// For regression, the prediction is the number we got
 				pred[iInstance] = predictRegression(pred_sum);
 			}
-			
+
 			if (covered) {
 				nb_covered++; // One more instance covered
 			}
 		} // for over instances
 
-	
+
 
 		double loss = 0;
 		// Loss function Loss(prediction, true value)
@@ -267,32 +267,32 @@ public class OptProbl {
 		} else {	// For regression
 			loss = loss(pred, iFitnessTarget);
 		}
-		
-		
+
+
 		// Regularization for getting the weights as small as possible
 		double reg_penalty = 0;
-		if (getSettings().getOptRegPar() != 0.0) {	
-			reg_penalty = getSettings().getOptRegPar()*regularization(genes); 
+		if (getSettings().getOptRegPar() != 0.0) {
+			reg_penalty = getSettings().getOptRegPar()*regularization(genes);
 		}
 
-		
+
 		// Second Regularization (especially for DE): how many zeroes
 		double nbOfZeroes_penalty = 0;
 		if (getSettings().getOptNbZeroesPar() != 0.0) {
 			nbOfZeroes_penalty = getSettings().getOptNbZeroesPar()*returnNbNonZeroes(genes);
 		}
-		
+
 		//fitness = (1 - (acc / nb_covered*nb_targets)) + getSettings().getOptRegPar() *  reg_penalty;
 		// TODO: regularization penalty should include dispersion, coverage?
 
-		
+
 		return loss+reg_penalty + nbOfZeroes_penalty;
-		
+
 	}
-	
+
 	/** Number of non zero weights for regularization purposes */
 	private int returnNbNonZeroes(ArrayList<Double> genes) {
-		
+
 		int nbNonZeroes = 0;
 
 		for (int j = 0; j < genes.size(); j++) {
@@ -300,19 +300,19 @@ public class OptProbl {
 				nbNonZeroes++;
 		}
 
-		
+
 		return nbNonZeroes;
 	}
 
 	/**
 	 * Regression prediction.
-	 * @param predictionSums The weighted sum of rules for all targets. 
+	 * @param predictionSums The weighted sum of rules for all targets.
 	 * 						 The second dimension not used i.e. [Target][1].
 	 * @param nbOfTargets Number of targets
 	 * @param nbOfValues Number of class values
 	 * @return Array of prediction [target]
 	 */
-	private double[] predictRegression(double[][] predictionSums) 
+	private double[] predictRegression(double[][] predictionSums)
 	{
 		int nbOfTargets = predictionSums.length;
 		double[] prediction = new double[nbOfTargets];
@@ -320,9 +320,9 @@ public class OptProbl {
 		{
 				if (predictionSums[iTarget] != null)
 					prediction[iTarget] = predictionSums[iTarget][0];
-			
+
 		}
-		
+
 		return prediction;
 	}
 
@@ -337,22 +337,22 @@ public class OptProbl {
 	protected double[] predictClass(double[][] predictionSums) {
 		int nbOfTargets = predictionSums.length;
 		double[] prediction = new double[nbOfTargets];
-				
+
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++)
 		{
 			double max = 0; // Maximum value so far
-			int iMaxClass = 0; // The class with maximum value so far.  
-			
+			int iMaxClass = 0; // The class with maximum value so far.
+
 			// Which one of the classes has the highest voting, i.e. maximum value
-			for (int iClass = 0; iClass < predictionSums[iTarget].length; iClass++) {	
-				if (predictionSums[iTarget][iClass] > max) 
+			for (int iClass = 0; iClass < predictionSums[iTarget].length; iClass++) {
+				if (predictionSums[iTarget][iClass] > max)
 				{
 					//prediction[iTarget] = (double)iClass;
 					iMaxClass = iClass;
 					max = predictionSums[iTarget][iClass];
 				}
 			}
-				
+
 //			if (predictionSums[iTarget][iMaxClass] == INVALID_PREDICTION) {
 //				// We should come here only if for all the classes have INVALID_PREDICTION
 //				// (This is because maximum value is -infinity = INVALID_PREDICTION)
@@ -360,21 +360,21 @@ public class OptProbl {
 //				// Use the default rule instead
 //				prediction[iTarget] = getDefaultPrediction(iTarget);
 //			} else {
-			
+
 			// The default rule is included in the rule set. At least it always covers all the examples.
 			prediction[iTarget] = (double)iMaxClass;
 //			}
-		}	
+		}
 		return prediction;
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	// int REGUL_GENERAL = // Give the regularization function as function object
-	// int LOSS_GENERAL = // Give the loss function as function object  
-	
+	// int LOSS_GENERAL = // Give the loss function as function object
+
 	/**
 	 * Loss function for data set. Chooses the right loss function
 	 * based on the settings file.
@@ -384,7 +384,7 @@ public class OptProbl {
 	 * @return Loss for the data.
 	 */
 	protected double loss(double[][] prediction, int iTarget){
-		
+
 		double loss = 0;
 		switch (getSettings().getOptDELossFunction()) {
 		case Settings.OPT_LOSS_FUNCTIONS_01ERROR:
@@ -407,11 +407,11 @@ public class OptProbl {
 		default:
 			loss = lossSquared(getTrueValues(), prediction, iTarget);
 			break;
-		}	
-		
+		}
+
 		return loss;
 	}
-	
+
 	/**
 	 * Squared distance loss function for data set.
 	 * Is ok, because the data is normalized.
@@ -421,7 +421,7 @@ public class OptProbl {
 	 */
 	private double lossSquared(double[][] trueValue, double[][] prediction, int indTarget)
 	{
-		
+
 		double loss = 0;
 		int numberOfInstances = prediction.length;
 
@@ -453,7 +453,7 @@ public class OptProbl {
 		}
 		return loss/numberOfInstances; // Average loss over instances
 	}
-	
+
 	/**
 	 * Relative root mean squared error RRMSE loss function for data set.
 	 * RRMSE is sum of squared errors divided by the variance.
@@ -464,24 +464,24 @@ public class OptProbl {
 	 */
 	//Suggested by Zenko 2007, p. 27
 	private double lossRRMSE(double[][] trueValue, double[][] prediction){
-		
+
 		double loss = 0;
 		int numberOfInstances = prediction.length;
 		int numberOfTargets = prediction[0].length;
-		
+
 		for (int jTarget = 0; jTarget < numberOfTargets; jTarget++)
 		{
 			double attributeLoss = 0;
 			double attribVariance = 0; // Variance of one attribute for true values
 			double attribMean = 0; // Mean for an attribute true values.
-			
+
 			// Compute mean of true values
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
 				attribMean += trueValue[iInstance][jTarget];
 			}
 			attribMean = attribMean/numberOfInstances;
-			
+
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
 				attributeLoss += Math.pow(prediction[iInstance][jTarget]-trueValue[iInstance][jTarget],2);
@@ -489,12 +489,12 @@ public class OptProbl {
 			}
 
 			// TODO: the weights for attributes are now equal
-			loss += ((double)1)/numberOfTargets*Math.sqrt(attributeLoss/attribVariance); 
+			loss += ((double)1)/numberOfTargets*Math.sqrt(attributeLoss/attribVariance);
 		}
-		
+
 		return loss/numberOfInstances; // Average loss over instances
 	}
-	
+
 	/**
 	 * Huber 1962 loss function for data set.
 	 * This is mainly the squared distance error. However for great distances it is smoothed.
@@ -505,21 +505,21 @@ public class OptProbl {
 	 */
 	//Suggested by Friedman&Popescu 2007, p. 7
 	private double lossHuber(double[][] trueValue, double[][] prediction){
-		
+
 		double loss = 0;
 		int numberOfInstances = prediction.length;
-		
+
 		// If no instances given, jump out
 		if (numberOfInstances == 0)
 			return 0;
-		
+
 		int numberOfTargets = prediction[0].length;
 
 		/** For Huber 1962 loss function we need the the delta values for each target.
 		 * Delta value depends on the alpha quantiles of the data.
 		 */
 		double	deltas[] = computeHuberDeltas(trueValue, prediction);
-		
+
 		for (int jTarget = 0; jTarget < numberOfTargets; jTarget++)
 		{
 			double attributeLoss = 0; // Loss for one attribute.
@@ -534,30 +534,30 @@ public class OptProbl {
 			}
 
 			loss += ((double)1)/numberOfTargets*attributeLoss; // TODO: the weights for attributes are now equal
-		}	
+		}
 
 		return loss/numberOfInstances; // Average loss over instances
 
 	}
-	
-	
+
+
 	/**
 	 * For Huber 1962 loss function we need the the delta values for each target.
 	 * Delta value depends on the alpha quantiles of the data
-	 * 
+	 *
 	 */
 	private double[] computeHuberDeltas(double[][] trueValues,
 			double[][] predictions) {
-		
+
 		int numberOfInstances = trueValues.length;
 		int numberOfTargets = trueValues[0].length;
-		
+
 		// Alpha quantile for how much of data is considered potential outliers
 		double alpha = getSettings().getOptHuberAlpha();
 		double deltas[] = new double[numberOfTargets];
-		
-		double targetDistances[] = new double[numberOfInstances]; 
-		
+
+		double targetDistances[] = new double[numberOfInstances];
+
 		for (int jTarget = 0; jTarget < numberOfTargets; jTarget++){
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
@@ -565,15 +565,15 @@ public class OptProbl {
 				                                    - predictions[iInstance][jTarget]);
 			}
 			// Sort in ascending order
-			Arrays.sort(targetDistances); 
- 
+			Arrays.sort(targetDistances);
+
 			// Find the value for which not more than alpha amount of doubles are less
 			deltas[jTarget]= targetDistances[(int)Math.floor(numberOfInstances*alpha)];
-			
+
 		}
 		return deltas;
 	}
-	
+
 	/**
 	 * 0-1 distance loss function for data set.
 	 * Usually used only in classification.
@@ -588,7 +588,7 @@ public class OptProbl {
 		int accuracy = 0;
 		int numberOfInstances = prediction.length;
 		int numberOfTargets = prediction[0].length;
-		
+
 		for (int jTarget = 0; jTarget < numberOfTargets; jTarget++){
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
@@ -596,16 +596,16 @@ public class OptProbl {
 				if (trueValue[iInstance][jTarget] == prediction[iInstance][jTarget])
 				{
 					accuracy++;
-				}	
+				}
 			}
 			//TODO add the weights for attributes
 		}
-		
+
 		// For all the target attributes, the weight is now 1/numberOfTargets
 		return 1 - ((double)accuracy) / (numberOfInstances*numberOfTargets);
 	}
 
-	
+
 	/**
 	 *  Regularization penalty for the optimization function.
 	 *  This reduces the size of genes so that they do not grow too much.
@@ -616,16 +616,16 @@ public class OptProbl {
 	 */
 	protected double regularization(ArrayList<Double> genes) {
 		double reg_penalty = 0;
-		
+
 		for (int j = 0; j < genes.size(); j++) {
 			// Lasso penalty, i.e. sum of absolute values of weights
 			reg_penalty += Math.pow(Math.abs( ((Double)(genes.get(j))).doubleValue() ),
 									getSettings().getOptDERegulPower());
 		}
-		
+
 		return reg_penalty;
 	}
-	
+
 	/** Number of variables to be optimized */
 	public int getNumVar() {
 		return m_NumVar;
@@ -638,7 +638,7 @@ public class OptProbl {
 	protected ClusStatistic getTargetStat() {
 		return m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 	}
-	
+
 	/** Value of rule prediction. Can be used also for nominal attributes.
 	 * Note that this does not use the include of default rule!
 	 * So this is not the real prediction but can be NaN.
@@ -646,7 +646,7 @@ public class OptProbl {
 	protected double getPredictions( int iRule, int iInstance, int iTarget, int iClass) {
 		return m_RulePred[iRule][iInstance][iTarget][iClass];
 	}
-	
+
 	/** Returns the prediction of the rule in regression use.
 	 * Note that this does not use the include of default rule!
 	 * So this is not the real prediction but can be NaN.
@@ -654,37 +654,37 @@ public class OptProbl {
 	protected double getPredictions(int iRule, int iInstance, int iTarget) {
 		return m_RulePred[iRule][iInstance][iTarget][0];
 	}
-	
+
 	/** Returns all targets
-	 * 
+	 *
 	 */
 //	protected double[][] getPredictions(int iRule, int iInstance) {
 //		return m_RulePred[iRule][iInstance];
 //	}
-	
+
 	/** Returns all predictions
-	 * 
+	 *
 	 */
 //	protected double[][][] getPredictions(int iRule) {
 //		return m_RulePred[iRule];
 //	}
-	
-	
+
+
 //	protected double getDefaultPrediction(int iTarget) {
 //		return m_defaultPred[iTarget];
 //	}
-	
+
 	protected double getTrueValue(int iInstance, int iTarget)  {
-		return m_TrueVal[iInstance][iTarget];			
+		return m_TrueVal[iInstance][iTarget];
 	}
-	
+
 	/**
 	 * Returns all the targets
 	 * @param iInstance
 	 * @return
 	 */
 //	protected double[] getTrueValues(int iInstance)  {
-//		return m_TrueVal[iInstance];			
+//		return m_TrueVal[iInstance];
 //	} TODO remove
 
 
@@ -694,17 +694,17 @@ public class OptProbl {
 	 * @return
 	 */
 	private double[][] getTrueValues() {
-		return m_TrueVal;			
+		return m_TrueVal;
 	}
-	
+
 	protected boolean isClassifTask() {
 		return m_ClssTask;
 	}
-	
+
 	protected int getNbOfInstances() {
 		return m_TrueVal.length;
 	}
-	
+
 	protected int getNbOfTargets() {
 		return getTargetStat().getNbAttributes();
 	}
@@ -714,7 +714,7 @@ public class OptProbl {
 	protected void changeData(OptParam newData) {
 		m_RulePred = newData.m_predictions;
 //		m_defaultPred = newData.m_defaultPrediction;
-		m_TrueVal = newData.m_trueValues;			 		
-	}	
-	
+		m_TrueVal = newData.m_trueValues;
+	}
+
 }

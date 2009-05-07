@@ -29,7 +29,7 @@ package clus.tools.optimization;
  * @author Timo Aho
  *
  */
-public class IndexMergeSorter 
+public class IndexMergeSorter
 {
     private static double[] m_workArray, m_tempArray;
     private static int[] m_indOfSorted, m_indTemp;
@@ -40,7 +40,7 @@ public class IndexMergeSorter
     public static int[] sort(double[] targetArray, boolean useAbsoluteValues)
     {
     	m_workArray = new double[targetArray.length];
-    	
+
 		if (useAbsoluteValues) {
 	        for (int iEl = 0; iEl < targetArray.length; iEl++) {
 	        	m_workArray[iEl]= Math.abs(targetArray[iEl]);
@@ -55,11 +55,11 @@ public class IndexMergeSorter
         m_indOfSorted = new int[nbOfEl];
         for (int i = 0; i < nbOfEl; i++)
         	m_indOfSorted[i] = i;
-        
+
         m_indTemp = new int[(nbOfEl+1)/2];
         m_tempArray=new double[(nbOfEl+1)/2];
         mergesort(0, nbOfEl-1);
-               
+
         return m_indOfSorted;
     }
 
@@ -71,10 +71,10 @@ public class IndexMergeSorter
     		boolean useAbsoluteValues)
     {
         int nbOfEl=m_workArray.length;
-        
+
     	m_indOfSorted = new int[nbOfTrueInSubArray];
     	m_workArray = new double[nbOfTrueInSubArray];
-    	
+
     	int iSubArray = 0;
         for (int iWholeArray = 0; iWholeArray < nbOfEl; iWholeArray++) {
         	if (subArray[iWholeArray]) {
@@ -83,23 +83,23 @@ public class IndexMergeSorter
         		} else {
         			m_workArray[iSubArray]=targetArray[iWholeArray];
         		}
-        		
+
         		m_indOfSorted[iSubArray] = iWholeArray;
         		iSubArray++;
         	}
         }
-        	
+
         // according to variant either/or:
         //b=new int[nbOfEl];
-        
+
         m_indTemp = new int[(nbOfTrueInSubArray+1)/2];
         m_tempArray=new double[(nbOfTrueInSubArray+1)/2];
         mergesort(0, nbOfTrueInSubArray-1);
-        
+
         return m_indOfSorted;
     }
 
-    
+
     private static void mergesort(int lowestElement, int highestElement)
     {
         if (lowestElement<highestElement)
@@ -126,7 +126,7 @@ public class IndexMergeSorter
 
     	i=0; k=lowestElement;
     	// copy back next-greatest element at each time
-    	while (k<j && j<=highestElement) {   	
+    	while (k<j && j<=highestElement) {
     		if (m_tempArray[i]<=m_workArray[j]) {
     			m_indOfSorted[k] = m_indTemp[i];
     			m_workArray[k++]=m_tempArray[i++];
@@ -135,7 +135,7 @@ public class IndexMergeSorter
     			m_workArray[k++]=m_workArray[j++];
     		}
     	}
-    	
+
     	// copy back remaining elements of first half (if any)
     	while (k<j) {
 			m_indOfSorted[k] = m_indTemp[i];

@@ -414,10 +414,10 @@ public class Settings implements Serializable {
 	public double getMinimalWeight() {
 		return m_MinW.getValue();
 	}
-	
+
 	public int getMinimalNbExamples() {
 		return m_MinNbEx.getValue();
-	}	
+	}
 
 	public void setMinimalWeight(double val) {
 		m_MinW.setValue(val);
@@ -671,7 +671,7 @@ public class Settings implements Serializable {
 	public int getTreeMaxDepth() {
 		return m_TreeMaxDepth.getValue();
 	}
-	
+
 	/** For tree to rules procedure, we want to induce a tree without maximum
 	 * depth
 	 */
@@ -786,9 +786,9 @@ public class Settings implements Serializable {
 /***********************************************************************
  * Section: Rules                                                      *
  ***********************************************************************/
-	
+
 	public static INIFileBool m_PrintAllRules;
-	
+
 	public static boolean isPrintAllRules(){
 		return m_PrintAllRules.getValue();
 	}
@@ -915,9 +915,9 @@ public class Settings implements Serializable {
 	/**	Optimization Loss function type. Huber 1962 error. Like squared but robust for outliers. Friedman&Popescu 2005, p. 7*/
 	public final static int OPT_LOSS_FUNCTIONS_HUBER = 3;
 
-	
 
-	
+
+
 	/** GD optimization. Possible values for combining gradient targets to single gradient value. */
 	public final static String[] OPT_GD_MT_COMBINE_GRADIENTS = {"Avg", "Max", "MaxLoss", "MaxLossFast"};
 	/**	GD optimization, combining of targets - combine by taking average. */
@@ -929,7 +929,7 @@ public class Settings implements Serializable {
 	/**	GD optimization, combining of targets - combine by taking the gradient of target with maximal LINEAR loss.
 	 * I.e. if the real loss is something else, we still use linear loss. This is lot faster */
 	public final static int OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE_FAST = 3;
-	
+
 	/**For external GD binary, do we use GD or brute force method */
 	public final static String[] GD_EXTERNAL_METHOD_VALUES = {"update", "brute"};
 	public final static int GD_EXTERNAL_METHOD_GD = 0;
@@ -986,16 +986,16 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_OptLossFunction;
 	/** Optimization For Huber 1962 loss function an alpha value for outliers has to be given. */
 	protected INIFileDouble m_OptHuberAlpha;
-	/** Do we add the descriptive attributes as linear terms to rule set */ 
+	/** Do we add the descriptive attributes as linear terms to rule set */
 	protected INIFileBool m_OptAddLinearTerms;
 	/** Do we omit the rule predictions such that the predictions are changed to 1. This does
-	 * not do anything to the linear terms. */ 
+	 * not do anything to the linear terms. */
 	protected INIFileBool m_OptOmitRulePredictions;
 	/** Do we scale the predictions for optimization based on the coverage
 	 * This should put more weight to general rules
 	 */
 	protected INIFileBool m_OptWeightGenerality;
-	
+
 	// Gradient descent optimization
 	/** GD Maximum amount of iterations */
 	protected INIFileInt m_OptGDMaxIter;
@@ -1011,7 +1011,7 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_OptGDEarlyStopAmount;
 	/** GD Early stopping criteria treshold. Value should be greater than 1.*/
 	protected INIFileDouble m_OptGDEarlyStopTreshold;
-	/** GD When early stopping is found, how many times we try to reduce the step size and try again 
+	/** GD When early stopping is found, how many times we try to reduce the step size and try again
 	 * Default is Infinity. In this case we use all the iterations by reducing step size. */
 	protected INIFileStringOrInt m_OptGDNbOfStepSizeReduce;
 	/** GD External binary, do we use GD or brute force method*/
@@ -1020,9 +1020,9 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_OptGDMTGradientCombine;
 	/** GD How many different parameter combinations we try for T. Values between [T,1] */
 	protected INIFileInt m_OptGDNbOfTParameterTry;
-	
 
-	
+
+
 
 	public INIFileNominalOrDoubleOrVector getDispersionWeights() {
 		return m_DispersionWeights;
@@ -1217,19 +1217,19 @@ public class Settings implements Serializable {
 	public boolean isOptAddLinearTerms() {
 	  	return m_OptAddLinearTerms.getValue();
 	}
-	
+
 	/** Do we omit the rule predictions such that the predictions are changed to 1. This does
-	 * not do anything to the linear terms. */ 
+	 * not do anything to the linear terms. */
 	public boolean isOptOmitRulePredictions() {
 	  	return m_OptOmitRulePredictions.getValue();
 	}
-	
+
 	/** Do we scale the predictions of the rules with the generality. This puts more weight to general rules
 	 */
 	public boolean isOptWeightGenerality() {
 	  	return m_OptWeightGenerality.getValue();
 	}
-	
+
 	/** Type of Loss function for DE optimization */
 	public int getOptDELossFunction() {
 		return m_OptLossFunction.getValue();
@@ -1280,7 +1280,7 @@ public class Settings implements Serializable {
 		m_OptGDGradTreshold.setValue(newVal);
 	}
 
-	
+
 	/** GD Step size ]0,1] for each iteration. */
 	public double getOptGDStepSize(){
 		return m_OptGDStepSize.getValue();
@@ -1302,21 +1302,21 @@ public class Settings implements Serializable {
 	public int getOptGDMaxNbWeights(){
 		return m_OptGDMaxNbWeights.getValue();
 	}
-	
+
 	/** GD Maximum number of nonzero weights. If the number reached, only old ones are altered.
 	 * If = 0, no limit for nonzero weights.*/
 	public void setOptGDMaxNbWeights(int nbWeights) {
 		m_OptGDMaxNbWeights.setValue(nbWeights);
-		
+
 	}
-	
-	/** GD When early stopping is found, how many times we try to reduce the step size and try again 
+
+	/** GD When early stopping is found, how many times we try to reduce the step size and try again
 	 * Default is 0, but can be Infinity. In this case we use all the iterations by reducing step size. */
 	public int getOptGDNbOfStepSizeReduce() {
 		if (m_OptGDNbOfStepSizeReduce.isString(INFINITY_STRING)) return Integer.MAX_VALUE;
 		else return m_OptGDNbOfStepSizeReduce.getIntValue();
 	}
- 	
+
 	/** What method we use for external GD optimization algorithm */
 	public int getOptGDExternalMethod(){
 		return m_OptGDExternalMethod.getValue();
@@ -1326,12 +1326,12 @@ public class Settings implements Serializable {
 	public int getOptGDMTGradientCombine() {
 		return m_OptGDMTGradientCombine.getValue();
 	}
-	
+
 	/** GD How many different parameter combinations we try for T. Values between [T,1] */
 	public int getOptGDNbOfTParameterTry() {
 		return m_OptGDNbOfTParameterTry.getValue();
 	}
-	
+
 
 /***********************************************************************
  * Section: Hierarchical multi-label classification                    *
@@ -1614,12 +1614,12 @@ public class Settings implements Serializable {
 			return false;
 		}
 	}
-	
+
 	public int getTimeSeriesDistance() {
 		return m_TimeSeriesDistance.getValue();
 	}
-	
-	public int getTimeSeriesHeuristicSampling() { 
+
+	public int getTimeSeriesHeuristicSampling() {
 		return m_TimeSeriesHeuristicSampling.getValue();
 	}
 
@@ -1645,12 +1645,12 @@ public class Settings implements Serializable {
 	public final static int PHYLOGENY_LINKAGE_SINGLE = 0;
 	public final static int PHYLOGENY_LINKAGE_COMPLETE = 1;
 	public final static int PHYLOGENY_LINKAGE_AVERAGE = 2;
-	
+
 	public final static String[] PHYLOGENY_CRITERION={"Mutations", "Distances"};
 
 	public final static int PHYLOGENY_CRITERION_MUTATIONS = 0;
 	public final static int PHYLOGENY_CRITERION_DISTANCES = 1;
-	
+
 	public final static String[] PHYLOGENY_EFFICIENCY={"Matrix", "Sampling"};
 
 	public final static int PHYLOGENY_EFFICIENCY_MATRIX = 0;
@@ -1671,7 +1671,7 @@ public class Settings implements Serializable {
 	public void setSectionPhylogenyEnabled(boolean enable) {
 		m_SectionPhylogeny.setEnabled(enable);
 	}
-	
+
 	public static int getPhylogenySampleSize() {
 		return m_PhylogenySampleSize.getValue();
 	}
@@ -1705,7 +1705,7 @@ public class Settings implements Serializable {
 	public static INIFileBool m_EnsembleOOBestimate;
 	protected INIFileBool m_FeatureRanking;
 	protected INIFileInt m_OneBag;
-	
+
 	/** Do we want to use different random depth for different iterations of ensemble.
 	 * Used in tree to rules optimization method. The MaxDepth of tree is used as average.
 	 */
@@ -1719,7 +1719,7 @@ public class Settings implements Serializable {
 	public void setEnsembleMode(boolean value) {
 		m_EnsembleMode = value;
 	}
-	
+
 	/** Do we print ensemble settings to output files */
 	public boolean isSectionEnsembleEnabled() {
 		return m_SectionEnsembles.isEnabled();
@@ -1762,7 +1762,7 @@ public class Settings implements Serializable {
 	public int getNbRandomAttrSelected() {
 		return m_RandomAttrSelected.getValue();
 	}
-	
+
 	public int getOneBag() {
 		return m_OneBag.getValue();
 	}
@@ -1774,11 +1774,11 @@ public class Settings implements Serializable {
 		else fsize = getNbRandomAttrSelected();
 		setNbRandomAttrSelected(fsize);
 	}
-	
+
 	public void setNbRandomAttrSelected(int value) {
 		m_RandomAttrSelected.setValue(value);
 	}
-	
+
 	public void setOneBag(int value) {
 		m_OneBag.setValue(value);
 	}

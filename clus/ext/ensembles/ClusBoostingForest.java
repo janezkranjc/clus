@@ -17,15 +17,15 @@ public class ClusBoostingForest extends ClusForest {
 
 	protected ArrayList m_BetaI = new ArrayList();
 	protected transient MDoubleArrayComparator m_Compare = new MDoubleArrayComparator(0);
-	
+
 	public ClusBoostingForest() {
 		super();
 	}
-	
+
 	public ClusBoostingForest(ClusStatManager statmgr) {
 		super(statmgr);
 	}
-	
+
 	public void addModelToForest(ClusModel model, double beta) {
 		super.addModelToForest(model);
 		m_BetaI.add(new Double(beta));
@@ -34,17 +34,17 @@ public class ClusBoostingForest extends ClusForest {
 	public double getBetaI(int i) {
 		return ((Double)m_BetaI.get(i)).doubleValue();
 	}
-	
+
 	public double getMedianThreshold() {
 		double sum = 0.0;
 		for (int i = 0; i < m_BetaI.size(); i++) {
-			sum += Math.log(1 / getBetaI(i));			
+			sum += Math.log(1 / getBetaI(i));
 		}
 		return 0.5*sum;
-	}	
-	
+	}
+
 	public ClusStatistic predictWeighted(DataTuple tuple) {
-		ClusStatistic predicted = m_Stat.cloneSimple();		
+		ClusStatistic predicted = m_Stat.cloneSimple();
 		//predictWeightedRegression((RegressionStat)predicted, tuple);
 		for (int i = 0; i < getNbModels(); i++) {
 			predicted.addPrediction(getModel(i).predictWeighted(tuple), 1.0/getNbModels());
@@ -52,7 +52,7 @@ public class ClusBoostingForest extends ClusForest {
 		predicted.computePrediction();
 		return predicted;
 	}
-	
+
 	public void predictWeightedRegression(RegressionStat predicted,	DataTuple tuple) {
 		double[] result = predicted.getNumericPred();
 		double[][] treePredictions = new double[getNbModels()][];
@@ -60,7 +60,7 @@ public class ClusBoostingForest extends ClusForest {
 			RegressionStat pred = (RegressionStat)getModel(i).predictWeighted(tuple);
 			treePredictions[i] = pred.getNumericPred();
 		}
-		double medianThr = getMedianThreshold();		
+		double medianThr = getMedianThreshold();
 		double[][] preds = new double[getNbModels()][2];
 		int nbAttr = predicted.getNbAttributes();
 		for (int i = 0; i < nbAttr; i++) {
@@ -71,17 +71,17 @@ public class ClusBoostingForest extends ClusForest {
 				preds[j][1] = Math.log(1 / getBetaI(j));
 			}
 			Arrays.sort(preds, m_Compare);
-			int j = 0; 
+			int j = 0;
 			double sum = 0.0;
 			while (true) {
 				sum += preds[j][1];
 				if (sum >= medianThr) break;
 				j++;
 			}
-			result[i] = preds[j][0];			
+			result[i] = preds[j][0];
 		}
 	}
-	
+
 	public ClusBoostingForest cloneBoostingForestWithThreshold(double threshold) {
 		ClusBoostingForest clone = new ClusBoostingForest();
 		clone.setModels(getModels());
@@ -91,5 +91,5 @@ public class ClusBoostingForest extends ClusForest {
 		stat.setThreshold(threshold);
 		clone.setStat(stat);
 		return clone;
-	}	
+	}
 }

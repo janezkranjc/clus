@@ -482,7 +482,7 @@ public class ClusSchema implements Serializable {
 			System.out.print(StringUtils.printInt(at.getArrayIndex(), 6));
 			System.out.print(StringUtils.printStr(at.getTypeName(), 16));
 			if (at instanceof NumericAttrType) {
-				if (((NumericAttrType)at).isSparse()) System.out.print(" Yes"); 
+				if (((NumericAttrType)at).isSparse()) System.out.print(" Yes");
 				else System.out.print(" No ");
 			} else {
 				System.out.print(" ?  ");

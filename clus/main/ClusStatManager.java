@@ -455,7 +455,7 @@ public class ClusStatManager implements Serializable {
 				}
 				break;
 			case Settings.TIME_SERIES_DISTANCE_MEASURE_TSC:
-				TimeSeriesDist tsc = new TSCTimeSeriesDist(type);				
+				TimeSeriesDist tsc = new TSCTimeSeriesDist(type);
 				setClusteringStatistic(new TimeSeriesStat(type, tsc, efficiency));
 				setTargetStatistic(new TimeSeriesStat(type, tsc, efficiency));
 				break;
@@ -638,9 +638,9 @@ public class ClusStatManager implements Serializable {
 				m_Heuristic = new GainHeuristic(false);
 				getSettings().setHeuristic(Settings.HEURISTIC_GAIN);
 			}
-		}		
+		}
 	}
-	
+
 	public void initStopCriterion() {
 		ClusStopCriterion stop = null;
 		int minEx = getSettings().getMinimalNbExamples();
@@ -650,7 +650,7 @@ public class ClusStatManager implements Serializable {
 			double minW = getSettings().getMinimalWeight();
 			stop = new ClusStopCriterionMinWeight(minW);
 		}
-		m_Heuristic.setStopCriterion(stop); 
+		m_Heuristic.setStopCriterion(stop);
 	}
 
 	/**

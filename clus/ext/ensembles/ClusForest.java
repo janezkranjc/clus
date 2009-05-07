@@ -105,11 +105,11 @@ public class ClusForest implements ClusModel, Serializable{
 		int sumOfLeaves = 0;
 		for (int i = 0; i < getNbModels(); i++)
 			sumOfLeaves += ((ClusNode)getModel(i)).getNbLeaves();
-		
+
 		int sumOfNodes = 0;
 		for (int i = 0; i < getNbModels(); i++)
 			sumOfNodes += ((ClusNode)getModel(i)).getNbNodes();
-		
+
 		String result = "FOREST with " +getNbModels()+" models (Total nodes: " + sumOfNodes + " and leaves: "+ sumOfLeaves +")\n";
 		for (int i = 0; i<getNbModels(); i++)
 			result +="\t Model "+(i+1)+": "+getModel(i).getModelInfo()+"\n";
@@ -119,7 +119,7 @@ public class ClusForest implements ClusModel, Serializable{
 	public int getModelSize() {
 		return m_Forest.size();		//Maybe something else ?!
 	}
-	
+
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 
 		if (ClusEnsembleInduce.m_OOBCalculation)
@@ -152,12 +152,12 @@ public class ClusForest implements ClusModel, Serializable{
 	}
 
 	public ClusStatistic predictWeightedOOB(DataTuple tuple) {
-		
+
 		if (ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_HIERARCHICAL || ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_REGRESSION)
 			return predictWeightedOOBRegressionHMC(tuple);
 		if (ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_CLASSIFY)
 			return predictWeightedOOBClassification(tuple);
-		
+
 		System.err.println(this.getClass().getName()+".predictWeightedOOB(DataTuple) - Error in Setting the Mode");
 		return null;
 	}
@@ -171,16 +171,16 @@ public class ClusForest implements ClusModel, Serializable{
 			System.err.println("Tuple Hash = "+tuple.hashCode());
 		}
 		m_Stat.reset();
-		
+
 		if (ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_HIERARCHICAL || ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_REGRESSION){
 			((RegressionStat)m_Stat).m_Means = new double[predictions.length];
 			for (int j = 0; j < predictions.length; j++){
 				((RegressionStat)m_Stat).m_Means[j] = predictions[j];
-			}	
+			}
 			if (ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_HIERARCHICAL) m_Stat = (WHTDStatistic)m_Stat;
 			m_Stat.computePrediction();
 		}
-		
+
 		return m_Stat;
 	}
 
@@ -193,7 +193,7 @@ public class ClusForest implements ClusModel, Serializable{
 			System.err.println("Tuple Hash = "+tuple.hashCode());
 		}
 		m_Stat.reset();
-		
+
 		((ClassificationStat)m_Stat).m_ClassCounts = new double[predictions.length][];
 			for (int m = 0; m < predictions.length; m++){
 				((ClassificationStat)m_Stat).m_ClassCounts[m] = new double[predictions[m].length];
@@ -312,7 +312,7 @@ public class ClusForest implements ClusModel, Serializable{
 			System.out.println("***************************");
 		}
 	}
-	
+
 	/**
 	 * @param idx The index of the decision tree. Thus this is NOT the type enumeration introduced in ClusModel.
 	 * @return

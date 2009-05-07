@@ -74,7 +74,7 @@ public class AvgDistancesError extends ClusError {
 	public ClusError getErrorClone(ClusErrorList par) {
 		return new AvgDistancesError(par, m_Distance);
 	}
-	
+
 	public void showModelError(PrintWriter wrt, int detail) {
 		StringBuffer res = new StringBuffer();
 		res.append(String.valueOf(getModelError()));

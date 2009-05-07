@@ -36,24 +36,24 @@ import clus.util.ClusFormat;
 
 
 /**
- * Class for gradient descent optimization. 
+ * Class for gradient descent optimization.
  * @author Timo Aho
  *
  */
 public class GDAlg extends OptAlg{
-	
+
 	/** Includes the information about settings of optimization. Has all the helping functions and variables. */
 	private GDProbl m_GDProbl;
-	
+
 	/** Current weights */
 	protected ArrayList<Double> m_weights;
-	
+
 	/** After how many steps check if early stopping is ok already */
 	protected int m_earlyStopStep;
-	
+
 	/** After finding the early stop, how many times we have tried to reduce the step size */
 	protected int m_earlyStopStepsizeReducedNb;
-		
+
 	/**
 	 * Constructor for classification and regression optimization.
 	 * @param stat_mgr Statistics
@@ -67,16 +67,16 @@ public class GDAlg extends OptAlg{
 		initGDForNewRunWithSamePredictions();
 		m_earlyStopStep = 100;
 	}
-	
+
 	/** Initialize GD optimization for new run with same predictions and true values
 	 * This can be used if some parameters change. Thus we e.g. do not compute covariances
 	 * again
 	 */
 	public void initGDForNewRunWithSamePredictions() {
 		m_GDProbl.initGDForNewRunWithSamePredictions();
-		
+
 		m_weights = m_GDProbl.getZeroVector();
-		
+
 		// If normalization is not used and rules are not omitted the first rule should be the average
 		// Thus starting from weight 1 is the best way.
 		// TODO If internal normalization of data is used, for omitted predictions the weight
@@ -92,36 +92,36 @@ public class GDAlg extends OptAlg{
 //		System.err.println("Remove the following lines");
 //		m_weights.set(0,1.0); // default rule
 //		m_GDProbl.computeCovariancesIfNeeded(0);
-		
+
 		// Oscillation detection
 		m_prevChange = null;
 		m_iPrevDimension = null;
 		m_iNewDimension = null;
 		m_newChange = null;
 		m_minStepSizeReduction = 1;
-		
+
 		m_earlyStopStepsizeReducedNb = 0;
-		
-		// If weigths can be banned, oscillation is stored 
-		if (m_GDProbl.m_bannedWeights != null ) 
+
+		// If weigths can be banned, oscillation is stored
+		if (m_GDProbl.m_bannedWeights != null )
 			m_iOscillatingWeights = new ArrayList<Integer>();
 		else
 			m_iOscillatingWeights = null;
-		
+
 	}
 
 
 	/**
 	 *  Optimize the weights for the given data with gradient descent algorithm.
 	 *  This is the algorithm by Friedman, Popescu 2004
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public ArrayList<Double> optimize() { 
+	public ArrayList<Double> optimize() {
 
 		System.out.print("\nGradient descent: Optimizing rule weights (" + getSettings().getOptGDMaxIter() + ") ");
-		
+
 		PrintWriter wrt_log = null;
-		
+
 		try {
 			wrt_log = new PrintWriter(new OutputStreamWriter
 					(new FileOutputStream("gradDesc.log")));
@@ -140,18 +140,18 @@ public class GDAlg extends OptAlg{
 		}
 		// Compute initial gradients
 		m_GDProbl.initGradients(m_weights);
-			
+
 		int nbOfIterations = 0;
 		while(nbOfIterations < getSettings().getOptGDMaxIter()) {
-		
+
 			if (nbOfIterations % (Math.ceil(getSettings().getOptGDMaxIter()/50.0)) == 0) System.out.print(".");
 			if (nbOfIterations % m_earlyStopStep == 0 && getSettings().getOptGDEarlyStopAmount() > 0 &&
 					m_GDProbl.isEarlyStop(m_weights))
 			{
 				if (GDProbl.m_printGDDebugInformation) {
 					wrt_log.println("Increase in test fitness. Reducing step size or stopping.");
-				}		
-				
+				}
+
 				System.err.print("\nEarly stopping detected after " + nbOfIterations + " iterations.");
 				if (m_earlyStopStepsizeReducedNb < getSettings().getOptGDNbOfStepSizeReduce()){
 					m_earlyStopStepsizeReducedNb++;
@@ -169,36 +169,36 @@ public class GDAlg extends OptAlg{
 			//if (nbOfIterations % (10*m_earlyStopStep) == 0 && nbOfIterations > 0){
 				m_GDProbl.initGradients(m_weights);
 			}
-			
-			// Print 
+
+			// Print
 			OutputLog(nbOfIterations, wrt_log);
 			//3)
 			// Search for maximum gradients
 			int[] maxGradients = m_GDProbl.getMaxGradients(nbOfIterations);
-			
+
 			boolean oscillation = false;
-			
-			// For detecting oscillation			
+
+			// For detecting oscillation
 			storeGradientsForOscillation(maxGradients);
 
 			//b) // Take the gradient step on the peak dimension
 
 			// First compute the change values and detect possible oscillation
-			
+
 			//Change of the weight according to this gradient.
 			double[] valueChange = new double[maxGradients.length];
-			
-			for (int iiGradient = 0; iiGradient < maxGradients.length; iiGradient++) {	
+
+			for (int iiGradient = 0; iiGradient < maxGradients.length; iiGradient++) {
 				//c) We are changing the value of the weight. Let's compute the covariance if it is not yet done
 				m_GDProbl.computeCovariancesIfNeeded(maxGradients[iiGradient]);
 
 				//Change of the weight according to this gradient.
 				valueChange[iiGradient] = m_GDProbl.howMuchWeightChanges(maxGradients[iiGradient]);
-				
+
 				// For detecting oscillation. If oscillation is already true, do not change it to false.
-				oscillation = (detectOscillation(iiGradient, valueChange[iiGradient]) || oscillation);		
+				oscillation = (detectOscillation(iiGradient, valueChange[iiGradient]) || oscillation);
 			}
-			
+
 			// If oscillation was detected we do not take real steps.
 			// we reduce the step size until the new step is smaller than the first one.
 			// It should be smaller because otherwise we are going even further from the optimal point.
@@ -216,11 +216,11 @@ public class GDAlg extends OptAlg{
 				     getSettings().getOptGDMTGradientCombine() == Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE_FAST))
 				{
 					putOscillatingWeightsToBan(nbOfIterations);
-				} else {		
+				} else {
 					// This is needed if we are changing more than one dimension at time.
 					// The step size is made for the biggest oscillation and thus some of the other oscillating ones
 					// never come back to sensible values.
-					reversePreviousStep(); // Reverse the previous step. We also skip this step.			
+					reversePreviousStep(); // Reverse the previous step. We also skip this step.
 					reduceStepSizeDueOscillation();
 				}
 				continue; // Start next iteration
@@ -228,24 +228,24 @@ public class GDAlg extends OptAlg{
 				// Store the current data for use in the next iterations.
 				storeTheOscillationData();
 			}
-			
+
 			// After it is sure no oscillation is detected, make the changes
-			for (int iiGradient = 0; iiGradient < maxGradients.length; iiGradient++) {	
+			for (int iiGradient = 0; iiGradient < maxGradients.length; iiGradient++) {
 				m_weights.set(maxGradients[iiGradient], m_weights.get(maxGradients[iiGradient]).doubleValue()
 						+ valueChange[iiGradient]);
 			}
-		
+
 
 
 			// d) compute the gradients again for the weights that changed
 			// This must not affect the computation during this iteration
 			m_GDProbl.modifyGradients(maxGradients, m_weights);
-			
+
 			nbOfIterations++;
 		} // While
-		
+
 		System.out.println(" done!");
-		
+
 		if (getSettings().getOptGDEarlyStopAmount() > 0) {
 			m_GDProbl.isEarlyStop(m_weights); // Check if current weights have better fitness than the best so far
 			m_GDProbl.restoreBestWeight(m_weights); // Result are the weights with best fitness
@@ -256,13 +256,13 @@ public class GDAlg extends OptAlg{
 //		System.err.println("CHANGING THE WEIGHTS< REMOVE THISE");
 //		for (int i=0; i< m_weights.size(); i++)
 //			m_weights.set(i,1.0); // default rule
-		
+
 		return m_weights;
 	}
 
 	/** If weight banning is in use, store the oscillation dimensions here */
 	private ArrayList<Integer> m_iOscillatingWeights;
-	
+
 	/** Puts oscillating weights to ban, so that we can continue on the rest of weights.
 	 * This is used only if for maxLoss combining something happens. */
 	private void putOscillatingWeightsToBan(int iterationNb) {
@@ -275,17 +275,17 @@ public class GDAlg extends OptAlg{
 
 	/** Maximum step size reduction found on this iteration */
 	private double m_minStepSizeReduction;
-	
+
 	/** Reduce the step size. Take the biggest needed reduction and do that */
 	private void reduceStepSizeDueOscillation() {
 //		System.err.print("Dropping the step size.\n");
-		 
+
 		// We are lowering the step size just enough to prevent further oscillation
 		// We make the new step size a little smaller than is limit (because of rounding mistakes)
 		m_GDProbl.dropStepSize(m_minStepSizeReduction*0.99);
-		m_minStepSizeReduction = 1;	
+		m_minStepSizeReduction = 1;
 	}
-	
+
 
 
 
@@ -294,51 +294,51 @@ public class GDAlg extends OptAlg{
 	/** Information about the previous change for oscillation warning. The change value */
 	private double[] m_prevChange;
 	private double[] m_newChange;
-	
-	
+
+
 	/** Information about the previous change for oscillation warning. The changed dimension.
 	 * Works only if one dimension at time changed. */ //TODO
 	private int[] m_iPrevDimension;
 	private int[] m_iNewDimension;
-	
-	/** A iteration has been done and oscillation not detected - store the previous changes */ 
+
+	/** A iteration has been done and oscillation not detected - store the previous changes */
 	private void storeTheOscillationData() {
 		m_prevChange = m_newChange.clone();
 		m_iPrevDimension = m_iNewDimension.clone();
 	}
-	
-	
+
+
 	/** Reverse previous (not this) step if oscillation found. Thus the state should be like it was before.
 	 *  This has to be called before storeTheOscillationData.
 	 * */
 	private void reversePreviousStep() {
 		// First reverse the weights
-		for (int iiGradient = 0; iiGradient < m_iPrevDimension.length; iiGradient++) {	
+		for (int iiGradient = 0; iiGradient < m_iPrevDimension.length; iiGradient++) {
 			m_weights.set(m_iPrevDimension[iiGradient], m_weights.get(m_iPrevDimension[iiGradient]).doubleValue()
 					- m_prevChange[iiGradient]);
 		}
-	
+
 		// Compute the gradients again. This should be done so often that this costs very much. Thus we
 		// Can compute them again from scratch.
 		m_GDProbl.initGradients(m_weights);
-		
+
 		// Empty the oscillation control parameters (previous step was never done)
 		m_prevChange = null;
 		m_iPrevDimension = null;
-		
-		// Also this has to be cleared. 
+
+		// Also this has to be cleared.
 		if (m_iOscillatingWeights != null)
 			m_iOscillatingWeights.clear();
 	}
 
-	
+
 	/** Stores the used gradients for oscillation detection later.
 	 * Also initialization tasks for oscillation. */
 	private void storeGradientsForOscillation(int[] maxGradients) {
 		m_iNewDimension = maxGradients.clone();
 		m_newChange = new double[maxGradients.length];
 	}
-	
+
 	/** Oscillation is detected if same dimension is changed such that
 	 * 	the direction is different and the new step is bigger than previous.
 	 *  @param iiNewChange The index of MaxGradients/m_iNewDimension we are going on.
@@ -346,46 +346,46 @@ public class GDAlg extends OptAlg{
 	 * @return If oscillation was detected.*/
 	private boolean detectOscillation(int iiNewChange, double valueChange) {
 		boolean detectOscillation = false;
-		
+
 		// Store the value for the change, dimensions have already been stored
 		m_newChange[iiNewChange] = valueChange;
-	
+
 		// Go through the previous changes and check if some of them is for same dimension
 		for (int iiPrevChange = 0; m_prevChange != null && iiPrevChange < m_prevChange.length; iiPrevChange++) {
 
-			// Is the modified dimension same as before 
+			// Is the modified dimension same as before
 			if (m_iPrevDimension[iiPrevChange] == m_iNewDimension[iiNewChange])
 			{
 				//Does the change tell us about oscillation
 
 				if (valueChange*m_prevChange[iiPrevChange] < 0 &&
 						Math.abs(valueChange) > Math.abs(m_prevChange[iiPrevChange])) {
-					
+
 					// OSCILLATION DETECTED
 					if (m_iOscillatingWeights != null) {
 						m_iOscillatingWeights.add(m_iPrevDimension[iiPrevChange]);
 					}
-					
-//					System.err.print("\nLikely oscillation detected in GDAlg.\n The dimension " 
-//							+ m_iPrevDimension[iiPrevChange] 
+
+//					System.err.print("\nLikely oscillation detected in GDAlg.\n The dimension "
+//							+ m_iPrevDimension[iiPrevChange]
 //							+ " was changed consequently with change values: " + m_prevChange[iiPrevChange]
 //                          + " and " + valueChange + ".\n");
 
-					// How much we need step size reduction 
+					// How much we need step size reduction
 					double needReduction = Math.abs(m_prevChange[iiPrevChange])/Math.abs(valueChange);
-					
+
 					// If the reduction is greater than any of the previous on this iteration, do it.
 					if (needReduction < m_minStepSizeReduction)
 						m_minStepSizeReduction = needReduction;
-					
+
 					detectOscillation = true;
 					//System.exit(1);
-				} 
-				
+				}
+
 				break; // The dimension was found. do not check the latter ones.
 			}
 		}
-		
+
 		return detectOscillation;
 	}
 
@@ -394,13 +394,13 @@ public class GDAlg extends OptAlg{
 	public void OutputLog(int iterNro, PrintWriter wrt) {
 		if (!GDProbl.m_printGDDebugInformation)
 			return;
-		
+
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		double trainingFitness = m_GDProbl.calcFitness(m_weights);
 		double testFitness = 0;
 		if (getSettings().getOptGDEarlyStopAmount() > 0)
 			testFitness = m_GDProbl.m_earlyStopProbl.calcFitness(m_weights);
-		
+
 
 		wrt.print("Iteration " + iterNro + " (" + fr.format(trainingFitness) + ", " + fr.format(testFitness) +  "): ");
 //		else

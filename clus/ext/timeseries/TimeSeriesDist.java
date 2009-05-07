@@ -31,15 +31,15 @@ import clus.statistic.ClusStatistic;
 public abstract class TimeSeriesDist extends ClusDistance {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-	
+
 	protected TimeSeriesAttrType m_Attr;
 
 	public TimeSeriesDist(TimeSeriesAttrType attr) {
 		m_Attr = attr;
 	}
-	
+
 	public abstract double calcDistance(TimeSeries t1, TimeSeries t2);
-	
+
 	public double calcDistance(DataTuple t1, DataTuple t2) {
 		TimeSeries ts1 = m_Attr.getTimeSeries(t1);
 		TimeSeries ts2 = m_Attr.getTimeSeries(t2);

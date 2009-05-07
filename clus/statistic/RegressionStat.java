@@ -174,7 +174,7 @@ public class RegressionStat extends RegressionStatBase {
 			means[i] = m_SumWeights[i] != 0.0 ? m_SumValues[i] / m_SumWeights[i] : 0.0;
 		}
 	}
-	
+
 	public double getMean(int i) {
 		return m_SumWeights[i] != 0.0 ? m_SumValues[i] / m_SumWeights[i] : 0.0;
 	}
@@ -203,7 +203,7 @@ public class RegressionStat extends RegressionStatBase {
 			double sv_tot = m_SumValues[i];
 			double ss_tot = m_SumSqValues[i];
 			if (k_tot == n_tot) {
-				result += (ss_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);	
+				result += (ss_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);
 			} else {
 				result += (ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot)*scale.getWeight(m_Attrs[i]);
 			}
@@ -220,7 +220,7 @@ public class RegressionStat extends RegressionStatBase {
 			double sv_tot = m_SumValues[i] - or.m_SumValues[i];
 			double ss_tot = m_SumSqValues[i] - or.m_SumSqValues[i];
 			if (k_tot == n_tot) {
-				result += (ss_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);	
+				result += (ss_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);
 			} else {
 				result += (ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot)*scale.getWeight(m_Attrs[i]);
 			}

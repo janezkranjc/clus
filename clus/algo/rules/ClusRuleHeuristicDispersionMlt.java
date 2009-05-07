@@ -77,7 +77,7 @@ double ad = -1;
 			double dist_par = ((CombStat)c_pstat).getSettings().getHeurRuleDistPar();
 			// double dist_part = avg_dist > 0 ? 1 / avg_dist * dist_par : 100; // 100 ???
 	    // disp *= 1.0 + dist_part;
-			disp = avg_dist > 0 ? disp/Math.pow(avg_dist, dist_par) : 100; 
+			disp = avg_dist > 0 ? disp/Math.pow(avg_dist, dist_par) : 100;
 			ad = avg_dist;
 		}
 // System.err.println("Avg.dist: " + ad + " Before: " + disp1 + " after: " + disp + "\n");

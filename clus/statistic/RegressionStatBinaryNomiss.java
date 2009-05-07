@@ -144,23 +144,23 @@ public class RegressionStatBinaryNomiss extends RegressionStatBase {
 			means[i] = m_SumWeight != 0.0 ? m_SumValues[i] / m_SumWeight : 0.0;
 		}
 	}
-	
+
 	public double getMean(int i) {
 		return m_SumWeight != 0.0 ? m_SumValues[i] / m_SumWeight : 0.0;
 	}
-	
+
 	public double getSVarS(int i) {
 		double n_tot = m_SumWeight;
 		double sv_tot = m_SumValues[i];
 		return sv_tot - sv_tot*sv_tot/n_tot;
 	}
-	
+
 	public double getSVarS(ClusAttributeWeights scale) {
 		double result = 0.0;
 		for (int i = 0; i < m_NbAttrs; i++) {
 			double n_tot = m_SumWeight;
 			double sv_tot = m_SumValues[i];
-			result += (sv_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);	
+			result += (sv_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);
 		}
 		return result / m_NbAttrs;
 	}
@@ -171,7 +171,7 @@ public class RegressionStatBinaryNomiss extends RegressionStatBase {
 		for (int i = 0; i < m_NbAttrs; i++) {
 			double n_tot = m_SumWeight - or.m_SumWeight;
 			double sv_tot = m_SumValues[i] - or.m_SumValues[i];
-			result += (sv_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);	
+			result += (sv_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);
 		}
 		return result / m_NbAttrs;
 	}

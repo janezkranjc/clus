@@ -46,7 +46,7 @@ public class ICVPairwiseDistancesError extends ClusError {
 		super(par);
 		m_Dist = dist;
 	}
-	
+
 	public static double computeICVPairwiseDistances(ClusDistance dist, RowData data) {
 		double sum = 0.0;
 		double sumWiDiag = 0.0;

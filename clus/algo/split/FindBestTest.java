@@ -86,7 +86,7 @@ public class FindBestTest {
 			// Also compute the statistic for the zeros
 			m_BestTest.m_TestStat[1].copy(m_BestTest.m_TotStat);
 			m_BestTest.m_TestStat[1].subtractFromThis(m_BestTest.m_TestStat[0]);
-		} else { 
+		} else {
 			// Regular code for non-binary attributes
 			for (int i = 0; i < nb_rows; i++) {
 				DataTuple tuple = data.getTuple(i);
@@ -216,7 +216,7 @@ public class FindBestTest {
 		m_Split.setSDataSize(data.getNbRows());
 		return m_BestTest.stopCrit();
 	}
-	
+
 	public void setInitialData(ClusStatistic total, RowData data) throws ClusException {
 		m_BestTest.setInitialData(total,data);
 	}

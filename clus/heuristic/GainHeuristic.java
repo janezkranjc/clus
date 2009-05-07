@@ -42,7 +42,7 @@ public class GainHeuristic extends ClusHeuristic {
 		// Acceptable?
 		if (stopCriterion(c_tstat, c_pstat, missing)) {
 			return Double.NEGATIVE_INFINITY;
-		}		
+		}
 		ClassificationStat tstat = (ClassificationStat)c_tstat;
 		ClassificationStat pstat = (ClassificationStat)c_pstat;
 		// Equal for all target attributes
@@ -68,7 +68,7 @@ public class GainHeuristic extends ClusHeuristic {
 		// Acceptable?
 		if (stopCriterion(c_tstat, c_pstat, nbsplit)) {
 			return Double.NEGATIVE_INFINITY;
-		}		
+		}
 		// Total Entropy
 		ClassificationStat tstat = (ClassificationStat)c_tstat;
 		double n_tot = tstat.getTotalWeight();

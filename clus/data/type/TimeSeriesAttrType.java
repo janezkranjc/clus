@@ -41,7 +41,7 @@ public class TimeSeriesAttrType extends ClusAttrType {
 
 	public static boolean m_isEqualLength = true;
 	int m_Length = -1;
-	
+
 	public TimeSeriesAttrType(String name) {
 		super(name);
 	}
@@ -83,7 +83,7 @@ public class TimeSeriesAttrType extends ClusAttrType {
 	public boolean isEqualLength(){
 		return m_isEqualLength;
 	}
-	
+
 	public class MySerializable extends ClusSerializable {
 
 		public String getString(DataTuple tuple){

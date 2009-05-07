@@ -257,8 +257,8 @@ public class ClusModelInfo implements Serializable {
 
 	public void setShouldWritePredictions(boolean value) {
 		m_ShouldWritePredictions = value;
-	}	
-	
+	}
+
 	public final void setPruneInvalid(boolean prune) {
 		m_ShouldPruneInvalid = prune;
 	}

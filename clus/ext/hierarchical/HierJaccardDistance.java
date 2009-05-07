@@ -24,7 +24,7 @@ public class HierJaccardDistance extends ClusDistance {
 
 		return Math.random();
 	}
-	
+
 	public double calcDistanceToCentroid(DataTuple t1, ClusStatistic s2) {
 		return Double.POSITIVE_INFINITY;
 	}

@@ -38,7 +38,7 @@ public class FindBestTestRules extends FindBestTest {
 	public FindBestTestRules(ClusStatManager mgr, NominalSplit split) {
 		super(mgr, split);
 	}
-	
+
 	/**
 	 * Generate nominal split value and rule (and inverse '<=') for that.
 	 * @param at
@@ -103,20 +103,20 @@ public class FindBestTestRules extends FindBestTest {
 		// Reset positive statistic
 		int nbvalues = at.getNbValues();
 		m_BestTest.reset(nbvalues + 1);
-		// For each attribute value   
+		// For each attribute value
 		int nb_rows = data.getNbRows();
 		for (int i = 0; i < nb_rows; i++) {
 			DataTuple tuple = data.getTuple(i);
-			int value = at.getNominal(tuple);     
-			m_BestTest.m_TestStat[value].updateWeighted(tuple, i);      
+			int value = at.getNominal(tuple);
+			m_BestTest.m_TestStat[value].updateWeighted(tuple, i);
 		}
 		// Find the split
 		m_Split.findRandomSplit(m_BestTest, at, rn);
-		
+
 		//TODO inverse splits?
 
 	}
-	
+
 	/**
 	 * Generate numeric split value and rule (and inverse '<=') for that.
 	 * @param at
@@ -198,7 +198,7 @@ public class FindBestTestRules extends FindBestTest {
 	 * @param data Data the split is based on. Chooses one value from these.
 	 * @param rn Random number generator.
 	 */
-	public void findNumericRandom(NumericAttrType at, RowData data, RowData orig_data, Random rn) { 
+	public void findNumericRandom(NumericAttrType at, RowData data, RowData orig_data, Random rn) {
 		DataTuple tuple;
 		int idx = at.getArrayIndex();
 		// Sort values from large to small
@@ -207,9 +207,9 @@ public class FindBestTestRules extends FindBestTest {
 		} else {
 			data.sort(at);
 		}
-		m_BestTest.reset(2);    
+		m_BestTest.reset(2);
 		// Missing values
-		int first = 0;        
+		int first = 0;
 		int nb_rows = data.getNbRows();
 		// Copy total statistic into corrected total
 		m_BestTest.copyTotal();
@@ -220,7 +220,7 @@ public class FindBestTestRules extends FindBestTest {
 				first++;
 			}
 			m_BestTest.subtractMissing();
-		}   
+		}
 		// Do the same for original data, except updating the statistics:
 		// Sort values from large to small
 		if (at.isSparse()) {
@@ -229,16 +229,16 @@ public class FindBestTestRules extends FindBestTest {
 			orig_data.sort(at);
 		}
 		// Missing values
-		int orig_first = 0;        
+		int orig_first = 0;
 		int orig_nb_rows = orig_data.getNbRows();
 		if (at.hasMissing()) {
 			// Because of sorting, all missing values are in the front :-)
-			while (orig_first < orig_nb_rows && 
+			while (orig_first < orig_nb_rows &&
 					(tuple = orig_data.getTuple(orig_first)).hasNumMissing(idx)) {
 				orig_first++;
 			}
-		}   
-		
+		}
+
 		// Generate the random split value based on the original data
 		double min_value = orig_data.getTuple(orig_nb_rows-1).getDoubleVal(idx);
 		double max_value = orig_data.getTuple(orig_first).getDoubleVal(idx);
@@ -246,7 +246,7 @@ public class FindBestTestRules extends FindBestTest {
 		for (int i = first; i < nb_rows; i++) {
 			tuple = data.getTuple(i);
 			if (tuple.getDoubleVal(idx) <= split_value) break;
-			m_BestTest.m_PosStat.updateWeighted(tuple, i);        
+			m_BestTest.m_PosStat.updateWeighted(tuple, i);
 		}
 		m_BestTest.updateNumeric(split_value, at);
 		System.err.println("Inverse splits not yet included!");

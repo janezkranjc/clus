@@ -44,7 +44,7 @@ public class ClusBeamModelDistance{
 	boolean isStatInitialized = false;
 	boolean isBeamUpdated = false;
 	static double[] m_NormCoefficients;//The squared distances are normalized only for regression. Here we keep stored 1/var of the targets...
-	
+
 	public ClusBeamModelDistance(ClusRun run, ClusBeam beam){
 		m_Data = (RowData)run.getTrainingSet();
 		if (m_Data == null){
@@ -65,7 +65,7 @@ public class ClusBeamModelDistance{
 		}
 		else {
 			System.err.println(getClass().getName()+": initializeStat(): Unsupported Target Variables");
-			System.exit(1);			
+			System.exit(1);
 		}
 		m_NbTarget = mngr.getSchema().getNbNumericTargetAttributes()+mngr.getSchema().getNbNominalTargetAttributes();
 	}
@@ -77,7 +77,7 @@ public class ClusBeamModelDistance{
 		for (int i = 0; i < attrs.length; i++)
 			m_NormCoefficients[i] = caw.getWeight(attrs[i]);
 	}
-	
+
 	public void fillBeamWithPredictions(ClusBeam beam){
 		ArrayList arr = beam.toArray();
 		ClusBeamModel model;
@@ -102,8 +102,8 @@ public class ClusBeamModelDistance{
 			}
 		}
 		return predictions;
-	}	
-	
+	}
+
 	public static ArrayList getPredictionsDataSet(ClusModel model, RowData train, boolean isNum){
 		ArrayList predictions = new ArrayList();
 		for (int i = 0; i < train.getNbRows(); i++){
@@ -421,7 +421,7 @@ public class ClusBeamModelDistance{
 		else
 			return (1- getDistanceNominal(model.getModelPredictions(), constraint.getConstraintPredictions()));
 	}
-	
+
 	public final static double getSquaredDistance(double[] a, double[] b){
 		double result = 0.0;
 		for (int i = 0; i < a.length; i++)

@@ -72,15 +72,15 @@ public class RowData extends ClusData implements MSortable {
 		m_Schema = schema;
 		setFromList(list);
 	}
-	
+
 	public void setFromList(ArrayList list) {
 		m_Data = new DataTuple[list.size()];
 		for (int i = 0; i < list.size(); i++) {
 			m_Data[i] = (DataTuple)list.get(i);
 		}
-		setNbRows(list.size());		
+		setNbRows(list.size());
 	}
-	
+
 	public String toString(){
 		return toString("");
 	}
@@ -643,8 +643,8 @@ public class RowData extends ClusData implements MSortable {
 		}
 		return false;
 	}
-	
-	
+
+
 	public void addAll(RowData data1, RowData data2) {
 		int size = data1.getNbRows() + data2.getNbRows();
 		setNbRows(size);
@@ -657,7 +657,7 @@ public class RowData extends ClusData implements MSortable {
 			m_Data[i+data1.getNbRows()] = data2.getTuple(i).cloneTuple();
 		}
 	}
-	
+
 
 	public RowData sampleWeighted(Random random) {
 		return sampleWeighted(random, getNbRows());

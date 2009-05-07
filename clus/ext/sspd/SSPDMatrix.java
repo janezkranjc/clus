@@ -74,11 +74,11 @@ public class SSPDMatrix extends ClusDistance {
 
 	protected MSymMatrix m_Matrix;
 	protected IntegerAttrType m_Target;
-	
+
 	public SSPDMatrix(int size) {
 		m_Matrix = new MSymMatrix(size);
 	}
-	
+
 	public void setTarget(ClusAttrType[] target) throws ClusException {
 		if (target.length != 1) {
 			throw new ClusException("Only one target allowed in SSPD modus");
@@ -100,7 +100,7 @@ public class SSPDMatrix extends ClusDistance {
 		for (int i = 0; i < nb; i++) {
 			for (int j = 0; j < nb; j++) {
 				double value = reader.readFloat();
-				matrix.m_Matrix.add_sym(i, j, value * value);				
+				matrix.m_Matrix.add_sym(i, j, value * value);
 			}
 			if (!reader.isEol()) throw new IOException("SSPD Matrix is not square");
 		}
@@ -109,16 +109,16 @@ public class SSPDMatrix extends ClusDistance {
 //		ClusFormat.OUT_WRITER.flush();
 		return matrix;
 	}
-	
+
 	public double calcDistance(DataTuple t1, DataTuple t2) {
 		int idx = m_Target.getArrayIndex();
 		int i1 = t1.getIntVal(idx);
 		int i2 = t2.getIntVal(idx);
 		return m_Matrix.get(i1, i2);
 	}
-			
+
 	public String getDistanceName() {
 		return "SSPD Matrix";
 	}
-	
+
 }

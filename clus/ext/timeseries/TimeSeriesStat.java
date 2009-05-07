@@ -49,12 +49,12 @@ public class TimeSeriesStat extends SumPairwiseDistancesStat {
 	// public TimeSeries m_RepresentativeQuantitve=new TimeSeries("[]");
 
 	protected double m_AvgDistances;
-	
+
 	public TimeSeriesStat(TimeSeriesAttrType attr, ClusDistance dist, int efflvl) {
 		super(dist, efflvl);
 		m_Attr = attr;
 	}
-	
+
 	public ClusStatistic cloneStat() {
 		TimeSeriesStat stat = new TimeSeriesStat(m_Attr, m_Distance, m_Efficiency);
 		stat.cloneFrom(this);
@@ -67,7 +67,7 @@ public class TimeSeriesStat extends SumPairwiseDistancesStat {
 		stat.m_RepresentativeMedoid = new TimeSeries(m_RepresentativeMedoid.length());
 		return stat;
 	}
-		
+
 	public void copy(ClusStatistic other) {
 		TimeSeriesStat or = (TimeSeriesStat)other;
 		super.copy(or);
@@ -77,11 +77,11 @@ public class TimeSeriesStat extends SumPairwiseDistancesStat {
 		m_TimeSeriesStack.clear();
 		m_TimeSeriesStack.addAll(or.m_TimeSeriesStack);
 		// m_RepresentativeMean = or.m_RepresentativeMean;
-		// m_RepresentativeMedoid = or.m_RepresentativeMedoid;		
+		// m_RepresentativeMedoid = or.m_RepresentativeMedoid;
 	}
 
 	/**
-	 * Used for combining weighted predictions. 
+	 * Used for combining weighted predictions.
 	 */
 	public TimeSeriesStat normalizedCopy() {
 		TimeSeriesStat copy = (TimeSeriesStat)cloneSimple();
@@ -100,7 +100,7 @@ public class TimeSeriesStat extends SumPairwiseDistancesStat {
 		pred.setTSWeight(weight);
 		m_TimeSeriesStack.add(pred);
 	}
-	
+
 	/*
 	 * Add a weighted time series to the statistic.
 	 */
@@ -115,20 +115,20 @@ public class TimeSeriesStat extends SumPairwiseDistancesStat {
 		TimeSeriesDist dist = (TimeSeriesDist)getDistance();
 		return dist.calcDistance(ts1, ts2);
 	}
-	
+
 	/**
 	 * Currently only used to compute the default dispersion within rule heuristics.
 	 */
 	public double getDispersion(ClusAttributeWeights scale, RowData data) {
 		return getSVarS(scale, data);
 	}
-	
+
 	public double getAbsoluteDistance(DataTuple tuple, ClusAttributeWeights weights) {
 		int idx = m_Attr.getIndex();
 		TimeSeries actual = (TimeSeries)tuple.getObjVal(0);
 		return calcDistance(m_RepresentativeMean, actual) * weights.getWeight(idx);
 	}
-		
+
 	public void initNormalizationWeights(ClusAttributeWeights weights, boolean[] shouldNormalize) {
 		int idx = m_Attr.getIndex();
 		if (shouldNormalize[idx]) {
@@ -137,7 +137,7 @@ public class TimeSeriesStat extends SumPairwiseDistancesStat {
 			weights.setWeight(m_Attr, norm);
 		}
 	}
-	
+
 	public void calcSumAndSumSqDistances(TimeSeries prototype) {
 		m_AvgDistances = 0.0;
 		int count = m_TimeSeriesStack.size();
@@ -192,7 +192,7 @@ public class TimeSeriesStat extends SumPairwiseDistancesStat {
 		if (diff > 1e-6) {
 			System.err.println("Error: Sanity check failed! - "+diff);
 		}
-		
+
 		// Qualitative distance
 /*
 		double[][] m_RepresentativeQualitativeMatrix = new double[m_RepresentativeMean.length()][m_RepresentativeMean.length()];
@@ -289,15 +289,15 @@ public class TimeSeriesStat extends SumPairwiseDistancesStat {
 	public TimeSeries getRepresentativeMean() {
 		return m_RepresentativeMean;
 	}
-	
+
 	public TimeSeries getRepresentativeMedoid() {
 		return m_RepresentativeMedoid;
 	}
-	
+
 	public TimeSeries getTimeSeriesPred() {
 		return m_RepresentativeMedoid;
 	}
-	
+
 	public TimeSeriesAttrType getAttribute() {
 		return m_Attr;
 	}

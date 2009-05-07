@@ -167,12 +167,12 @@ public class FTest {
 		return FTEST_SIG[Settings.FTEST_LEVEL];
 	}
 
-	public static double calcVarianceReductionHeuristic(double n_tot, double ss_tot, double ss_sum) {		
+	public static double calcVarianceReductionHeuristic(double n_tot, double ss_tot, double ss_sum) {
 		double value = ss_tot - ss_sum;
 		if (value < MathUtil.C1E_9) {
 			// Gain too small
 			return Double.NEGATIVE_INFINITY;
-		}		
+		}
 		if (Settings.FTEST_LEVEL == 0) {
 			// No F-test -> just return value
 			return value;

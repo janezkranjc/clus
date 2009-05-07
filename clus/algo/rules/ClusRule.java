@@ -54,32 +54,32 @@ public class ClusRule implements ClusModel, Serializable {
 	protected ArrayList m_Tests = new ArrayList();
 	protected ClusStatManager m_StatManager;
 	protected ClusErrorList[] m_Errors;
-	
-	
+
+
 
 	/** If the rule is in fact a linear term, this is the index of the term that is used */
 	protected int m_descriptiveDimForLinearTerm = 0;
 	/** If the rule is in fact a linear term, this is the target index that is predicted with this */
 	protected int m_targetDimForLinearTerm = 0;
-	 
+
 	protected boolean m_isLinearTerm = false;
 	/** For Truncation */
 	protected double m_linearTermMaxValue = 0;
 	protected double m_linearTermMinValue = 0;
-	
+
 	/** Array of tuples covered by this rule */
 	protected ArrayList m_Data = new ArrayList();
-	
+
 	/** Combined statistics for training and testing data */
 	protected CombStat[] m_CombStat = new CombStat[2];
-	
-	/** Number of examples covered by this rule 
+
+	/** Number of examples covered by this rule
 	 * 	Index is 0 for train set, 1 for test set*/
 	protected double[] m_Coverage = new double[2];
-	
+
 	/** Average error score of the rule */
 	protected double m_TrainErrorScore;
-	
+
 	/** Optimized weight of the rule */
 	protected double m_OptWeight;
 
@@ -107,12 +107,12 @@ public class ClusRule implements ClusModel, Serializable {
 		m_isLinearTerm = true;
 		m_descriptiveDimForLinearTerm = linearTermDimension;
 		m_targetDimForLinearTerm = linearTermTargetDim;
-		
+
 		m_linearTermMaxValue = maxValue;
 		m_linearTermMinValue = minValue;
 
 	}
-	
+
 	public int getID() {
 		return m_ID;
 	}
@@ -138,7 +138,7 @@ public class ClusRule implements ClusModel, Serializable {
 			// Only change the target dimension, rest are still zero
 			// DEBUG: TARKISTA ETTA TOSIAAN MUUT OVAT ZERO EIKA ESIM> NULL
 			RegressionStat stat = ((RegressionStat) m_TargetStat);
-			stat.m_Means[m_targetDimForLinearTerm] = value;			
+			stat.m_Means[m_targetDimForLinearTerm] = value;
 			stat.m_SumValues[m_targetDimForLinearTerm] = value;
 			stat.m_SumWeights[m_targetDimForLinearTerm] = 1;
 
@@ -146,7 +146,7 @@ public class ClusRule implements ClusModel, Serializable {
 		return m_TargetStat;
 	}
 
-	/** 
+	/**
 	 * Computes predictions for the rule by taking the mean of covered examples.
 	 */
 	public void computePrediction() {
@@ -154,7 +154,7 @@ public class ClusRule implements ClusModel, Serializable {
 		m_ClusteringStat.calcMean();
 		// setTrainErrorScore();
 	}
-	
+
 
 	public ClusRule cloneRule() {
 		ClusRule new_rule = new ClusRule(m_StatManager);
@@ -164,7 +164,7 @@ public class ClusRule implements ClusModel, Serializable {
 		return new_rule;
 	}
 
-	
+
 	/**
 	 * Equality is based on the tests only.
 	 */
@@ -195,10 +195,10 @@ public class ClusRule implements ClusModel, Serializable {
 			}
 			if (!has_test) return false;
 		}
-		
+
 		// Tests are similar -- let us check the target
 		double ruleTarget[] = ((RegressionStat)o.m_TargetStat).m_Means;
-		
+
 		// Let us check if the targets are different
 		boolean targetsAreSimilar = true;
 		for (int iTarget = 0; iTarget < ruleTarget.length && targetsAreSimilar; iTarget++)
@@ -206,7 +206,7 @@ public class ClusRule implements ClusModel, Serializable {
 			if (Math.abs(ruleTarget[iTarget]-((RegressionStat)m_TargetStat).m_Means[iTarget]) >= EQUAL_MAX_DIFFER)
 				targetsAreSimilar = false;
 		}
-		
+
 		return targetsAreSimilar;
 	}
 
@@ -220,14 +220,14 @@ public class ClusRule implements ClusModel, Serializable {
 
 	/** Does the rule tests cover the given tuple */
 	public boolean covers(DataTuple tuple) {
-		
+
 		if (m_isLinearTerm){
 			if (!(m_TargetStat instanceof RegressionStat))
 				System.err.println("Error: Using linear terms for optimization is implemented for single target regression only.");
 			double value = tuple.getDoubleVal(m_descriptiveDimForLinearTerm);
 			return !Double.isNaN(value) && !Double.isInfinite(value);
 		}
-		
+
 		for (int i = 0; i < getModelSize(); i++) {
 			NodeTest test = getTest(i);
 			int res = test.predictWeighted(tuple);
@@ -477,7 +477,7 @@ public class ClusRule implements ClusModel, Serializable {
 			wrt.println();
 
 			wrt.print("THEN "+m_TargetStat.getString(info));
-			
+
 			if (getID() != 0 && info.SHOW_INDEX) wrt.println(" ("+getID()+")");
 			else wrt.println();
 			String extra = m_TargetStat.getExtraInfo();
@@ -487,7 +487,7 @@ public class ClusRule implements ClusModel, Serializable {
 				wrt.print(extra);
 			}
 		} else {
-			wrt.println("Linear term for the numerical attribute with index "+ m_descriptiveDimForLinearTerm);			
+			wrt.println("Linear term for the numerical attribute with index "+ m_descriptiveDimForLinearTerm);
 		}
 		if (getSettings().computeDispersion() && (m_CombStat[ClusModel.TRAIN] != null)) {
 			//if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
@@ -525,7 +525,7 @@ public class ClusRule implements ClusModel, Serializable {
 
 	public void printModelToQuery(PrintWriter wrt, ClusRun cr, int starttree, int startitem, boolean ex) {
 	}
-	
+
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
 	}
 
@@ -583,7 +583,7 @@ public class ClusRule implements ClusModel, Serializable {
 	/**
 	 * Post process the rule.
 	 * Post processing is only calculating the means for each of the target statistics.
-	 * This mean is the target prediction. 
+	 * This mean is the target prediction.
 	 * FIXME Could this be merged with computePrediction?
 	 */
 	public void postProc() {
@@ -601,7 +601,7 @@ public class ClusRule implements ClusModel, Serializable {
 			System.err.println("getTrainErrorScore(): Error score not initialized!");
 			return Double.POSITIVE_INFINITY;
 		}
-	}	
+	}
 
 	/** Calculates TrainErrorScore - average of error rates across all target
 	 *  attributes on the all training data covered by this rule (kind of ...).
@@ -638,7 +638,7 @@ public class ClusRule implements ClusModel, Serializable {
 				sum_diff = prediction.getAbsoluteDistance(tuple, weight);
 			}
 			m_TrainErrorScore = sum_diff / nb_tar;
-			if (m_TrainErrorScore > 1) { // Limit the error score to 1 
+			if (m_TrainErrorScore > 1) { // Limit the error score to 1
 				m_TrainErrorScore = 1;
 			}
 		} else if (m_TargetStat instanceof RegressionStat) {
@@ -657,7 +657,7 @@ public class ClusRule implements ClusModel, Serializable {
 				double[] prediction = predictWeighted(tuple).getNumericPred();
 				for (int j = 0; j < nb_tar; j++) {
 					double true_value = targetAttrs[j].getNumeric(tuple);
-					diff[j] += Math.abs(prediction[j] - targetAttrs[j].getNumeric(tuple)); // |prediction-true|			
+					diff[j] += Math.abs(prediction[j] - targetAttrs[j].getNumeric(tuple)); // |prediction-true|
 				}
 			}
 			double sum_diff = 0.0;
@@ -665,7 +665,7 @@ public class ClusRule implements ClusModel, Serializable {
 				sum_diff += diff[j] / nb_rows / Math.sqrt(variance[j]) / (norm*norm);
 			}
 			m_TrainErrorScore = sum_diff / nb_tar;
-			if (m_TrainErrorScore > 1) { // Limit the error score to 1 
+			if (m_TrainErrorScore > 1) { // Limit the error score to 1
 				m_TrainErrorScore = 1;
 			}
 		} else if (m_StatManager.getMode() == ClusStatManager.MODE_TIME_SERIES) {
@@ -678,7 +678,7 @@ public class ClusRule implements ClusModel, Serializable {
 				sum_diff = prediction.getAbsoluteDistance(tuple, weight);
 			}
 			m_TrainErrorScore = sum_diff / nb_tar;
-			if (m_TrainErrorScore > 1) { // Limit the error score to 1 
+			if (m_TrainErrorScore > 1) { // Limit the error score to 1
 				m_TrainErrorScore = 1;
 			}
 		}
@@ -740,20 +740,20 @@ public class ClusRule implements ClusModel, Serializable {
 		}
 		m_Errors[subset] = error;
 	}
-	
+
 	public void addError(ClusErrorList error, int subset) {
 		if (m_Errors == null){
 			setError(error, subset);
 		} else {
 			m_Errors[subset].addErrors(error);
 		}
-	}	
-	
+	}
+
 	public ClusErrorList getError(int subset) {
 		if (m_Errors == null) return null;
 		return m_Errors[subset];
 	}
-	
+
 	public boolean hasErrors() {
 		return m_Errors != null;
 	}

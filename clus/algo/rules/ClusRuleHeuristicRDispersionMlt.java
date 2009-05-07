@@ -31,7 +31,7 @@ import clus.statistic.*;
 import clus.data.attweights.*;
 
 public class ClusRuleHeuristicRDispersionMlt extends ClusRuleHeuristicDispersion {
-	
+
 	public ClusRuleHeuristicRDispersionMlt(ClusAttributeWeights prod) {
 	}
 
@@ -46,7 +46,7 @@ public class ClusRuleHeuristicRDispersionMlt extends ClusRuleHeuristicDispersion
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
 		double n_pos = c_pstat.m_SumWeight;
 		// Acceptable?
-		if (n_pos-Settings.MINIMAL_WEIGHT < 1e-6) { // (n_pos < Settings.MINIMAL_WEIGHT) 
+		if (n_pos-Settings.MINIMAL_WEIGHT < 1e-6) { // (n_pos < Settings.MINIMAL_WEIGHT)
 			return Double.NEGATIVE_INFINITY;
 		}
 		double disp = ((CombStat)c_pstat).rDispersionMltHeur();
@@ -80,7 +80,7 @@ public class ClusRuleHeuristicRDispersionMlt extends ClusRuleHeuristicDispersion
 			double dist_par = ((CombStat)c_pstat).getSettings().getHeurRuleDistPar();
 			// double dist_part = avg_dist > 0 ? 1 / avg_dist * dist_par : 100; // 100 ???
 			// disp *= 1.0 + dist_part;
-			disp = avg_dist > 0 ? disp/Math.pow(avg_dist, dist_par) : 100; 
+			disp = avg_dist > 0 ? disp/Math.pow(avg_dist, dist_par) : 100;
 			ad = avg_dist;
 		}
 		// System.err.println("Avg.dist: " + ad + " Before: " + disp1 + " after: " + disp + "\n");

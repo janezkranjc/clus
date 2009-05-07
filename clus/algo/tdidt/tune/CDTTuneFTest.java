@@ -67,7 +67,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		m_Class = clss;
 		m_FTests = ftests;
 	}
-	
+
 	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
 		return m_Class.createInduce(schema, sett, cargs);
 	}
@@ -86,7 +86,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 	public ClusErrorList createTuneError(ClusStatManager mgr) {
 		ClusErrorList parent = new ClusErrorList();
 		if (mgr.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
-			int optimize = getSettings().getHierOptimizeErrorMeasure();			
+			int optimize = getSettings().getHierOptimizeErrorMeasure();
 			parent.addError(new HierErrorMeasures(parent, mgr.getHier(), getSettings().getCompatibility(), optimize));
 			return parent;
 		}

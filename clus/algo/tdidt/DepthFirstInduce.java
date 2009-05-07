@@ -191,7 +191,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 	public void initSelectorAndSplit(ClusStatistic stat) throws ClusException {
 		m_FindBestTest.initSelectorAndSplit(stat);
 	}
-	
+
 	public void setInitialData(ClusStatistic stat, RowData data) throws ClusException {
 		m_FindBestTest.setInitialData(stat,data);
 	}

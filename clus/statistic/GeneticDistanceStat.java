@@ -13,7 +13,7 @@ import clus.util.ClusFormat;
 import jeans.list.BitList;
 
 public class GeneticDistanceStat extends BitVectorStat {
-	
+
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	public int m_NbTarget;
@@ -33,11 +33,11 @@ public class GeneticDistanceStat extends BitVectorStat {
 			m_ClassCounts[i] = new double[nomAtts[i].getNbValues()];
 		}*/
 	}
-	
+
 	public BitList getBits() {
 		return m_Bits;
 	}
-	
+
 	public void updateWeighted(DataTuple tuple, int idx) {
 		m_SumWeight += tuple.getWeight();
 		m_Bits.setBit(idx);
@@ -49,8 +49,8 @@ public class GeneticDistanceStat extends BitVectorStat {
 			}
 		}	*/
 	}
-	
-	
+
+
 	// returns the index of the index-th tuple in the statistic (i.e. with bit 1)
 	public int getTupleIndex(int index) {
 		int size = getBits().size();
@@ -70,7 +70,7 @@ public class GeneticDistanceStat extends BitVectorStat {
 			return -1;
 		}
 	}
-	
+
 
 	public void reset() {
 		m_SumWeight = 0.0;
@@ -82,7 +82,7 @@ public class GeneticDistanceStat extends BitVectorStat {
 		}*/
 	}
 
-	
+
 	public GeneticDistanceStat cloneStat() {
 		GeneticDistanceStat stat = new GeneticDistanceStat(m_Attrs);
 		stat.cloneFrom(this);
@@ -145,8 +145,8 @@ public class GeneticDistanceStat extends BitVectorStat {
 			for (int j = 0; j < my.length; j++) my[j] += scale*your[j];
 		}*/
 	}
-	
-	
+
+
 	public void subtractFromThis(ClusStatistic other) {
 		GeneticDistanceStat or = (GeneticDistanceStat)other;
 		m_SumWeight -= or.m_SumWeight;
@@ -170,14 +170,14 @@ public class GeneticDistanceStat extends BitVectorStat {
 			for (int j = 0; j < my.length; j++) my[j] = your[j] - my[j];
 		}*/
 	}
-	
-	
+
+
 	public int[] getNominalPred() {
 		System.out.println("getNominalPred: not implemented for GeneticDistanceStat");
 		return  null;
 	}
-		
-	
+
+
 	public String getString(StatisticPrintInfo info) {
 		StringBuffer buf = new StringBuffer();
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
@@ -186,20 +186,20 @@ public class GeneticDistanceStat extends BitVectorStat {
 		buf.append(" sequence(s)");
 		return buf.toString();
 	}
-	
-	
-	
+
+
+
 	// some methods called to calculate predictions or errors, which we don't need
-	
+
 	public void calcMean() {
 	}
-	
+
 	public double getCount(int idx, int cls) {
 		return 0.0; //m_ClassCounts[idx][cls];
 	}
-	
+
 	public ClusStatistic getClassificationStat() {
 		return this;
 	}
-	
+
 }

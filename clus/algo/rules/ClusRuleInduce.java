@@ -289,7 +289,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	 *  Maximum number of rules can be given. Data is re-weighted when it is covered,
 	 *  and removed when it is 'covered enough'. Default rule is added at the end.
 	 */
-	 
+
 	public void separateAndConquorWeighted(ClusRuleSet rset, RowData data) throws ClusException {
 		int max_rules = getSettings().getMaxRulesNb();
 		int i = 0;
@@ -560,8 +560,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		rset.setTargetStat(left_over);
 	}
 
-	/** 
-	 * Evaluates each rule in the context of a complete rule set. 
+	/**
+	 * Evaluates each rule in the context of a complete rule set.
 	 * Generates random rules that are added if they improve the performance.
 	 * Maybe only candidate rules are generated randomly. Then the best one
 	 * of the candidate rules could be selected.
@@ -805,7 +805,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			((ClusRuleHeuristicDispersion)m_Heuristic).setDataIndexes(data_idx);
 			((ClusRuleHeuristicDispersion)m_Heuristic).initCoveredBitVectArray(data.getNbRows());
 		}
-		
+
 		/// Actual rule learning is called here with the given method.
 		// Settings.* check if the given option is given on the command line
 		ClusRuleSet rset = new ClusRuleSet(getStatManager());
@@ -813,7 +813,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			separateAndConquor(rset, data);
 		} else if (method == Settings.COVERING_METHOD_BEAM_RULE_DEF_SET) { // Obsolete!
 			separateAndConquorAddRulesIfBetterFromBeam2(rset, data);
-			
+
 		/** Can be put on by CoveringMethod = RandomRuleSet
 		 */
 		} else if (method == Settings.COVERING_METHOD_RANDOM_RULE_SET) {
@@ -829,16 +829,16 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		} else {
 			separateAndConquorWeighted(rset, data);
 		}
-		
+
 		// The rule set was altered. Compute the means (predictions?) for rules again.
 		rset.postProc();
-		
+
 		// Optimizing rule set
 		if (getSettings().isRulePredictionOptimized()) {
 			rset = optimizeRuleSet(rset, data);
 		}
 		rset.setTrainErrorScore(); // Not always needed?
-		rset.addDataToRules(data);		
+		rset.addDataToRules(data);
 		// Computing dispersion
 		if (getSettings().computeDispersion()) {
 			rset.computeDispersion(ClusModel.TRAIN);
@@ -867,14 +867,14 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		String fname = getSettings().getDataFile();
 		//PrintWriter wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".r-pred")));
 		PrintWriter wrt_pred = null;
-		
+
 		OptAlg optAlg = null;
-		
+
 		OptProbl.OptParam param = rset.giveFormForWeightOptimization(wrt_pred, data);
 		ArrayList weights = null;
-		
+
 		// Find the rule weights with optimization algorithm.
-		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {	
+		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {
 			optAlg = (OptAlg) new GDAlg(getStatManager(), param);
 		} else if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
 			optAlg = (OptAlg) new DeAlg(getStatManager(), param);
@@ -882,7 +882,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			weights = callExternalGDBinary(getStatManager(), param);
 
 			// The last one is so called intercept. Should be added to all predictions
-			// Because of this we add a rule with prediction 1 and always true condition. 
+			// Because of this we add a rule with prediction 1 and always true condition.
 			// Thus the last weight will be for this.
 			System.out.println("Adding intercept rule created by binary explicitly to rule set.");
 			ClusRule interceptRule = new ClusRule(m_StatManager);
@@ -904,10 +904,10 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		if (getSettings().getRulePredictionMethod() != Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED_BINARY)
 		{
 			// If using external binary, optimization is already done.
-			
+
 			if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED
 					&& getSettings().getOptGDNbOfTParameterTry() > 1) {
-			
+
 				// Running optimization multiple times and selecting the best one.
 				GDAlg gdalg = (GDAlg) optAlg;
 				double firstTVal = getSettings().getOptGDGradTreshold();
@@ -915,26 +915,26 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				// What is the difference for intervals so that we get enough runs
 				double interTVal = (lastTVal-firstTVal)/
 								(getSettings().getOptGDNbOfTParameterTry()-1);
-				
+
 				double minFitness = Double.POSITIVE_INFINITY;
 				for (int iRun = 0; iRun < getSettings().getOptGDNbOfTParameterTry(); iRun++) {
-					
+
 					// To make sure the last value is accurate (not rounded imprecisely)
 					if (iRun == getSettings().getOptGDNbOfTParameterTry()-1) {
 						getSettings().setOptGDGradTreshold(lastTVal);
 					} else {
 						getSettings().setOptGDGradTreshold(firstTVal+iRun*interTVal);
 					}
-					
+
 					gdalg.initGDForNewRunWithSamePredictions();
-					
+
 					ArrayList<Double> newWeights = gdalg.optimize();
-					
+
 					if (gdalg.getBestFitness() <= minFitness) {
 						// Fitness is smaller than previously, store these weights
 						weights = newWeights;
 						minFitness = gdalg.getBestFitness();
-						System.err.println("\nThe T value " + (firstTVal+iRun*interTVal) + 
+						System.err.println("\nThe T value " + (firstTVal+iRun*interTVal) +
 								" is best so far with test fitness: " + minFitness);
 					}
 				}
@@ -944,8 +944,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				// Running only once
 				weights = optAlg.optimize();
 			}
-		}		
-		
+		}
+
 		// Print weights of rules
 		System.out.print("The weights for rules:");
 		for (int j = 0; j < rset.getModelSize(); j++) {
@@ -972,7 +972,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		PrintWriter fPSInstances = null;
 		PrintWriter fPSInputSettings  = null;
 		double NUMBER_INF = 9E36;
-		try {			
+		try {
 			/** Base predictions */
 			fPSBasePredictions = new PrintWriter(
 					new OutputStreamWriter(new FileOutputStream(fname+".predictor.dat")));
@@ -987,7 +987,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			System.err.print(e.getMessage());
 			System.exit(1);
 			// TODO: handle exception
-		}		
+		}
 		// Generate pathseeker input
 
 		// Predictions
@@ -1000,7 +1000,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				else if (Double.isInfinite(dataInformation.m_predictions[iRule][iInstance][0][0]))
 					fPSBasePredictions.write("" + NUMBER_INF);	// if prediction is infinity (for linear term), tell it
 
-				else 
+				else
 					//fPSBasePredictions.write("" + (float)dataInformation.m_predictions[iRule][iInstance][0][0]);
 					fPSBasePredictions.write("" + dataInformation.m_predictions[iRule][iInstance][0][0]);
 
@@ -1020,7 +1020,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			//fPSInstances.write("" + (float) dataInformation.m_trueValues[iInstance][0]);
 			fPSInstances.write("" + dataInformation.m_trueValues[iInstance][0]);
 			if (iInstance != dataInformation.m_trueValues.length-1)
-				fPSInstances.write(","); 
+				fPSInstances.write(",");
 		}
 
 		fPSInputSettings.println("@mode=regres");
@@ -1068,7 +1068,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			fPSInputSettings.println("@impl=update"); // Fast implementation (GD) or brute force (brute)?
 		else
 			fPSInputSettings.println("@impl=brute"); // Fast implementation (GD) or brute force (brute)?
-		
+
 		fPSInputSettings.println();
 		// getSettings().getOptGDMaxNbWeights() cannot be defined!
 		// getSettings().getOptGDLossFunction() cannot be defined!
@@ -1089,10 +1089,10 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		try {
 			Process psProcess = Runtime.getRuntime().exec("cmd /c PS_train.exe < "+fname+".input.txt");
 
-			BufferedReader stdInput = new BufferedReader(new 
+			BufferedReader stdInput = new BufferedReader(new
 					InputStreamReader(psProcess.getInputStream()));
 
-			BufferedReader stdError = new BufferedReader(new 
+			BufferedReader stdError = new BufferedReader(new
 					InputStreamReader(psProcess.getErrorStream()));
 
 
@@ -1136,7 +1136,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			weights.add(new Double(fCoefficients.next()));
 		}
 
-		// The last one is so called intercept. Should be added to all predictions 
+		// The last one is so called intercept. Should be added to all predictions
 		fCoefficients.close();
 
 		return weights;
@@ -1158,7 +1158,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 	/**
 	 * Method that induces a specified number of random rules.
 	 * That is, the random attributes are chosen with random split points.
-	 * However, the predictions are the means of covered examples. 
+	 * However, the predictions are the means of covered examples.
 	 * @param cr ClusRun
 	 * @return RuleSet
 	 */
@@ -1179,17 +1179,17 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				i--;
 			}
 		}
-		
+
 		// The rule set changed, compute predictions (?)
 		// This same may have been done on the rule.computePrediction() but not sure
 		// For this rule set, postProc is not implemented (abstract function)
 		//rset.postProc();
-		
+
 		// Optimizing rule set
 		if (getSettings().isRulePredictionOptimized()) {
 			rset = optimizeRuleSet(rset, data);
 		}
-		
+
 		ClusStatistic left_over = createTotalTargetStat(data);
 		left_over.calcMean();
 		System.out.println("Left Over: "+left_over);

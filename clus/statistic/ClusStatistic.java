@@ -186,7 +186,7 @@ public abstract class ClusStatistic implements Serializable {
 	public int getNbExamples() {
 		return m_NbExamples;
 	}
-	
+
 	public String getDebugString() {
 		return String.valueOf(m_SumWeight);
 	}
@@ -328,11 +328,11 @@ public abstract class ClusStatistic implements Serializable {
 	public ClusStatistic normalizedCopy() {
 		return null;
 	}
-	
+
 	public ClusDistance getDistance() {
 		return null;
 	}
-	
+
 	public double getCount(int idx, int cls) {
 		System.err.println(getClass().getName()+" does not implement predictTuple()");
 		return Double.POSITIVE_INFINITY;

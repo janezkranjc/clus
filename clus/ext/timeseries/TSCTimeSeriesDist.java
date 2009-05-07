@@ -32,7 +32,7 @@ public class TSCTimeSeriesDist extends TimeSeriesDist {
 	public TSCTimeSeriesDist(TimeSeriesAttrType attr) {
 		super(attr);
 	}
-	
+
 	public double calcDistance(TimeSeries t1, TimeSeries t2) {
 		//this calculates the Correlation coefficient of two TimeSeries
 		//the two TimeSeries have same length
@@ -57,7 +57,7 @@ public class TSCTimeSeriesDist extends TimeSeriesDist {
 		cc = 1 - Math.abs(sum_ts1_ts2/Math.sqrt(sum_ts1_sqr*sum_ts2_sqr));
 		return cc;
 	}
-	
+
 	/*
 	public double calcDistance(TimeSeries t1, TimeSeries t2) {
 		//this calculates the Correlation coefficient of two TimeSeries

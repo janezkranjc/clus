@@ -38,7 +38,7 @@ import clus.tools.optimization.de.DeProbl;
 public abstract class OptAlg {
 
 	private ClusStatManager m_StatMgr;
-		
+
 	/**
 	 * Constructor for classification and regression optimization.
 	 * @param stat_mgr Statistics
@@ -49,17 +49,17 @@ public abstract class OptAlg {
 		m_StatMgr = stat_mgr;
 //		m_Probl = new DeProbl(stat_mgr, dataInformation);
 	}
-	
+
 	/**
 	 * Start the actual optimization.
 	 * @return The weights for the base learners.
 	 */
 	abstract public ArrayList<Double> optimize();
-	
+
 	protected Settings getSettings() {
 		return m_StatMgr.getSettings();
 	}
-	
+
 //	protected OptProbl getProbl() {
 //		return m_Probl;
 //	}

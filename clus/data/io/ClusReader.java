@@ -143,14 +143,14 @@ public class ClusReader {
 	public int getNextChar() throws IOException {
 		return getNextChar(m_Token.getReader());
 	}
-	
+
 	public int getNextCharNoSpace() throws IOException {
 		int ch = getNextChar();
 		while (ch == ' ' || ch == '\t') {
 			ch = getNextChar();
 		}
 		return ch;
-	}	
+	}
 
 	public boolean isNextChar(int ch) throws IOException {
 		int found = getNextChar();
@@ -158,7 +158,7 @@ public class ClusReader {
 		setLastChar(found);
 		return false;
 	}
-	
+
 	public boolean isNextCharNoSpace(int ch) throws IOException {
 		int found = getNextCharNoSpace();
 		if (ch == found) return true;
@@ -256,8 +256,8 @@ public class ClusReader {
 		} else {
 			throw new IOException("Error reading name at row "+(m_Row+1));
 		}
-	}	
-	
+	}
+
 	public boolean readNoSpace() throws IOException {
 		int nb = 0;
 		Reader reader = m_Token.getReader();

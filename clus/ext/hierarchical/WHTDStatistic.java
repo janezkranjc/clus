@@ -247,7 +247,7 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 		}
 		return sum / getNbAttributes();
 	}
-	
+
 	public double getAbsoluteDistance(DataTuple tuple, ClusAttributeWeights weights, ClusStatManager statmanager) {
 		double sum = 0.0;
 		boolean[] actual = new boolean[m_Hier.getTotal()];
@@ -260,7 +260,7 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 			WHTDStatistic tstat = (WHTDStatistic) statmanager.getTrainSetStat(ClusAttrType.ATTR_USE_CLUSTERING);
 			if (tstat.getVariance(i) != 0)
 				dist = dist / Math.pow(tstat.getVariance(i), 0.5);
-			sum += Math.abs(dist) * weights.getWeight(type); 
+			sum += Math.abs(dist) * weights.getWeight(type);
 		}
 		return sum / getNbAttributes();
 	}

@@ -44,19 +44,19 @@ import clus.util.*;
  */
 public class ClusRulesFromTree {
 
-	/** Has something to do with prediction validity. 
+	/** Has something to do with prediction validity.
 	 * If true, we only want to validate the rule construction if no other reason for creating is stated?
  	 * Currently always true. This is also the only reason the class is not static...
 	 */
 	protected boolean m_Validated;
-	
-	/** 
+
+	/**
 	 * Currently two modes are supported:
 	 * Settings.CONVERT_RULES_LEAVES:
 	 *   Generate one rule for each leaf of the tree
 	 * Settings.CONVERT_RULES_ALLNODES:
 	 *   Generate one rule for each node of the tree (including internal nodes) except for the root
-	 */	
+	 */
 	protected int m_Mode;
 
 	/** The parameter seems to be always true? */
@@ -69,7 +69,7 @@ public class ClusRulesFromTree {
  	 * Same as constructRules(ClusNode node, ClusStatManager mgr) but
 	 * with additional parameter - ClusRun to get access to the data set.
 	 * This is for computing the data set dispersion.
-	 * 
+	 *
 	 * @param cr ClusRun
 	 * @param node The root node of the tree
 	 * @param mgr The data in statistics manager may be used.
@@ -82,28 +82,28 @@ public class ClusRulesFromTree {
 	public ClusRuleSet constructRules(ClusRun cr, ClusNode node, ClusStatManager mgr,
 									  boolean computeDispersion, int optimizeRuleWeights)
 	throws ClusException, IOException {
-		
+
 		ClusRuleSet ruleSet = constructRules(node, mgr);
-		
+
 		RowData data = (RowData)cr.getTrainingSet();
-		
+
 		// Optimizing rule set if needed
 		if (optimizeRuleWeights == Settings.RULE_PREDICTION_METHOD_OPTIMIZED ||
 				optimizeRuleWeights == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {
 			OptAlg optAlg = null;
-			
+
 			// TODO: Add the file name for the parameter, not null. It is an output file.
 			OptProbl.OptParam param = ruleSet.giveFormForWeightOptimization(null, data);
-			
+
 			// Find the rule weights with optimization algorithm.
-			if (optimizeRuleWeights == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {	
+			if (optimizeRuleWeights == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {
 				optAlg = (OptAlg) new GDAlg(mgr, param);
 			} else {
 				optAlg = (OptAlg) new DeAlg(mgr, param);
 			}
-			
+
 			ArrayList<Double> weights = optAlg.optimize();
-			
+
 			// Print weights of rules
 			System.out.print("The weights for rules from trees:");
 			for (int j = 0; j < ruleSet.getModelSize(); j++) {
@@ -115,7 +115,7 @@ public class ClusRulesFromTree {
 			// RowData data_copy = (RowData)data.cloneData();
 			// updateDefaultRule(rset, data_copy);
 		}
-		
+
 		if (computeDispersion)
 		{
 			// For some kind of reason all that is here was not done if dispersion was not computed
@@ -133,9 +133,9 @@ public class ClusRulesFromTree {
 				ruleSet.removeDataFromRules();
 			}
 		}
-		
+
 		// Give each rule a unique number (1..nbRules)
-		ruleSet.numberRules();		
+		ruleSet.numberRules();
 		return ruleSet;
 	}
 

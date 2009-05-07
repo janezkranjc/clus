@@ -54,7 +54,7 @@ public class VarianceReductionHeuristicCompatibility extends ClusHeuristic {
 		// Acceptable?
 		if (stopCriterion(tstat, pstat, missing)) {
 			return Double.NEGATIVE_INFINITY;
-		}		
+		}
 		// Calculate |S|Var[S]
 		double ss_tot = tstat.getSVarS(m_TargetWeights, m_Data);
 		double ss_pos = pstat.getSVarS(m_TargetWeights, m_Data);

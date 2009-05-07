@@ -31,7 +31,7 @@ import clus.statistic.*;
 import clus.data.attweights.*;
 
 public class ClusRuleHeuristicRDispersionAdt extends ClusRuleHeuristicDispersion {
-	
+
 	public ClusRuleHeuristicRDispersionAdt(ClusAttributeWeights prod) {
 	}
 

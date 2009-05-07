@@ -86,7 +86,7 @@ public class DeAlg extends OptAlg {
 				System.out.print(".");
 				m_Pop.sortPopRandom();
 				DeInd candidate = new DeInd();
-				
+
 				// Go trough all the population and try to find a candidate with crossing over.
 				for (int i = 0; i < getSettings().getOptDEPopSize(); i++) {
 					candidate.setGenes(m_Pop.getCandidate(i)); // Get a crossed over candidate.
@@ -124,7 +124,7 @@ public class DeAlg extends OptAlg {
 			m_Best.copy(ind);
 		}
 	}
-	
+
 	/** Print the gene to output file. */
 	public void OutputLog(DeInd ind, int index, PrintWriter wrt) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;

@@ -52,8 +52,8 @@ public class StringUtils {
 		} else {
 			return out+makeString(' ', tabs-len);
 		}
-	}	
-	
+	}
+
 	public static String printStr(String out, int tabs) {
 		int len = out.length();
 		return out+makeString(' ', tabs-len);

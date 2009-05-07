@@ -85,7 +85,7 @@ public class ClusBeamSyntacticConstraint {
 		ArrayList predictions = new ArrayList();
 		double[] singleattr;
 		boolean isNum = (run.getStatManager().getMode() == 1);
-		
+
 		for (int k = 0; k < ClusBeamModelDistance.m_NbTarget; k++){
 			singleattr = new double[train.getNbRows()];
 			for (int i = 0; i < (train.getNbRows()); i++){

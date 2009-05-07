@@ -56,7 +56,7 @@ public class DePop {
 		for (int i = 0; i < getSettings().getOptDEPopSize(); i++)
 			((DeInd)m_Inds.get(i)).setGenes(m_Probl.getRandVector(m_Rand));
 	}
-	
+
 	/**
 	 *  Evaluate population fitness with the population's function.
 	 * @param num_eval How many individuals have already been evaluated? Usually 0.
@@ -70,7 +70,7 @@ public class DePop {
 		return result;
 	}
 
-	/** 
+	/**
 	 * Create a new candidate rule out of parent gene. The new candidate rule is made
 	 * with crossing over. At least one variable is changed compared to the parent but probably more.
 	 * @param parent Index of parent gene.
@@ -79,7 +79,7 @@ public class DePop {
 	public ArrayList<Double> getCandidate(int parent) {
 	  int i1, i2, i3;
 	  int i, i_rand;
-	  
+
 	  /** Result candidate gene */
 	  ArrayList<Double> result = new ArrayList<Double>(m_Probl.getNumVar());
 	  for (int k = 0; k < m_Probl.getNumVar(); k++) {
@@ -99,13 +99,13 @@ public class DePop {
 	  // Get a random index for gene array. That is, random variable in gene
 	  i_rand = (int)(m_Probl.getNumVar() * m_Rand.nextDouble());
 	  i = i_rand;
-	  
+
 	  // I cycles through the variables. The alteration is made at least for i_rand but
 	  // also randomly for other variables. For alteration we take the new value of (i1-i2)+i3.
 	  for (int kVariable = 0; kVariable < m_Probl.getNumVar(); kVariable++) {
 
 	    result.set(i,((DeInd)m_Inds.get(parent)).getGenes().get(i));
-	     
+
         // ****** Crossing over
 	  	if (m_Rand.nextDouble() < (getSettings().getOptDECrossProb()) || (i == i_rand)) {
 	    	result.set(i,new Double(
@@ -114,7 +114,7 @@ public class DePop {
 				 ((Double)((DeInd)m_Inds.get(i2)).getGenes().get(i)).doubleValue()) +
 				 ((Double)((DeInd)m_Inds.get(i3)).getGenes().get(i)).doubleValue()));
 	  	}
-	  	
+
 	  	// ******** Mutations
 	  	// If we are searching for lots of zero weights, there should be a mutation for putting the value to zero
 	  	if (m_Rand.nextDouble() < getSettings().getOptDEProbMutationZero()) {
@@ -124,16 +124,16 @@ public class DePop {
 	  	// We should also have a undo for the previous. Put a random number for it.
 	  	if (m_Rand.nextDouble() < getSettings().getOptDEProbMutationNonZero()) {
 			result.set(i,new Double(m_Probl.getRandValueInRange(m_Rand,i)));
-	  	}	  	
-	  	
+	  	}
+
 	    i = ++i % m_Probl.getNumVar(); // i = i mod variables.
 	  }
-	  
+
 	  return m_Probl.getRoundVector(result);
 	}
 
 	/**
-	 * Take a new random permutation of population individuals. 
+	 * Take a new random permutation of population individuals.
 	 */
 	public void sortPopRandom() {
 	  int i;

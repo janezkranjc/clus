@@ -32,7 +32,7 @@ public class QDMTimeSeriesDist extends TimeSeriesDist {
 	public QDMTimeSeriesDist(TimeSeriesAttrType attr) {
 		super(attr);
 	}
-	
+
 	public double calcDistance(TimeSeries t1, TimeSeries t2) {
 		// Ljupco's measure if the time series are the same length
 		// my proposal if they are not is cyclic, to be defined with Ljupco

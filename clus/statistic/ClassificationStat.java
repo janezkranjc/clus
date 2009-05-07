@@ -213,8 +213,8 @@ public class ClassificationStat extends ClusStatistic {
 	}
 
 	public void updateWeighted(DataTuple tuple, double weight) {
-		m_NbExamples++;		
-		m_SumWeight += weight;		
+		m_NbExamples++;
+		m_SumWeight += weight;
 		for (int i = 0; i < m_NbTarget; i++) {
 			int val = m_Attrs[i].getNominal(tuple);
 //			System.out.println("val: "+ val);
@@ -528,8 +528,8 @@ public class ClassificationStat extends ClusStatistic {
 	public String getPredictedClassName(int idx) {
 		//return m_Attrs[idx].getName()+" = "+m_Attrs[idx].getValue(m_MajorityClasses[idx]);
 		return m_Attrs[idx].getValue(getMajorityClass(idx));
-	} 
-	
+	}
+
 
 	public String getClassName(int idx, int cls) {
 		return m_Attrs[idx].getValue(cls);
