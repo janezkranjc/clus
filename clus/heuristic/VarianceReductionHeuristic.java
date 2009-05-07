@@ -68,8 +68,6 @@ public class VarianceReductionHeuristic extends ClusHeuristic {
 			System.out.println("NEG: "+m_NegStat.getDebugString());
 			System.out.println("-> ("+ss_tot+", "+ss_pos+", "+ss_neg+") "+value);
 		}
-		// FIXME: Why is this here?
-		if (value < 1e-6) return Double.NEGATIVE_INFINITY;
 		return value;
 	}
 

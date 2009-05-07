@@ -154,7 +154,8 @@ public class NumericAttrType extends ClusAttrType {
 		}
 
 		public void term(ClusSchema schema) {
-			if (m_NbNeg == 0 && m_NbZero > m_NbTotal*75/100) {
+			// System.out.println("Attribute: "+getName()+" "+((double)100.0*m_NbZero/m_NbTotal));
+			if (m_NbNeg == 0 && m_NbZero > m_NbTotal*5/10) {
 				setSparse(true);
 			}
 		}

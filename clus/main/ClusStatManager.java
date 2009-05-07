@@ -572,7 +572,11 @@ public class ClusStatManager implements Serializable {
 			return;
 		}
 		if (m_Mode == MODE_HIERARCHICAL) {
-			m_Heuristic = new VarianceReductionHeuristicCompatibility(createClusteringStat(), getClusteringWeights());
+			if (getSettings().getCompatibility() <= Settings.COMPATIBILITY_MLJ08) {
+				m_Heuristic = new VarianceReductionHeuristicCompatibility(createClusteringStat(), getClusteringWeights());
+			} else {
+				m_Heuristic = new VarianceReductionHeuristicEfficient(getClusteringWeights(), null);
+			}
 			getSettings().setHeuristic(Settings.HEURISTIC_VARIANCE_REDUCTION);
 			return;
 		}

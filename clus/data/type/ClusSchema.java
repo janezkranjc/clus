@@ -452,13 +452,13 @@ public class ClusSchema implements Serializable {
 		System.out.println("Nb ints: "+getNbInts());
 		System.out.println("Nb double: "+getNbDoubles());
 		System.out.println("Nb obj: "+getNbObjects());
-		System.out.println("Idx   Name                          Descr Status    Ref   Type");
+		System.out.println("Idx   Name                          Descr Status    Ref   Type             Sparse Missing");
 		for (int j = 0; j < m_NbAttrs; j++) {
 			ClusAttrType at = (ClusAttrType)m_Attr.get(j);
 			System.out.print(StringUtils.printInt(j+1, 6));
-			System.out.print(StringUtils.printStr(at.getName(), 30));
-			if (at.isDescriptive()) System.out.print("Yes   ");
-			else System.out.print("No    ");
+			System.out.print(StringUtils.printStrMax(at.getName(), 29));
+			if (at.isDescriptive()) System.out.print(" Yes   ");
+			else System.out.print(" No    ");
 			switch (at.getStatus()) {
 				case ClusAttrType.STATUS_NORMAL:
 					System.out.print("          ");
@@ -480,7 +480,14 @@ public class ClusSchema implements Serializable {
 					break;
 			}
 			System.out.print(StringUtils.printInt(at.getArrayIndex(), 6));
-			System.out.print(StringUtils.printStr(at.getTypeName(), 20));
+			System.out.print(StringUtils.printStr(at.getTypeName(), 16));
+			if (at instanceof NumericAttrType) {
+				if (((NumericAttrType)at).isSparse()) System.out.print(" Yes"); 
+				else System.out.print(" No ");
+			} else {
+				System.out.print(" ?  ");
+			}
+			System.out.print("    ");
 			System.out.print(StringUtils.printStr(ClusFormat.TWO_AFTER_DOT.format(at.getNbMissing()), 8));
 			System.out.println();
 		}

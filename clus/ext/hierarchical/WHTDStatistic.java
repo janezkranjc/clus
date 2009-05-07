@@ -42,7 +42,7 @@ import clus.util.*;
 
 import jeans.util.array.*;
 
-public class WHTDStatistic extends RegressionStat {
+public class WHTDStatistic extends RegressionStatBinaryNomiss {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
@@ -132,11 +132,6 @@ public class WHTDStatistic extends RegressionStat {
 			int idx = val.getIndex();
 			// if (Settings.VERBOSE > 10) System.out.println("idx = "+idx+" weight = "+weight);
 			m_SumValues[idx] += weight;
-			m_SumSqValues[idx] += weight;
-		}
-		// No missing values in the hierarchy
-		for (int i = 0; i < m_SumWeights.length; i++) {
-			m_SumWeights[i] += weight;
 		}
 	}
 
@@ -290,9 +285,8 @@ public class WHTDStatistic extends RegressionStat {
 			buf.append("[");
 			for (int i = 0; i < getHier().getTotal(); i++) {
 				if (i != 0) buf.append(",");
-				double tot = getSumWeights(i);
-				if (tot == 0) buf.append("?");
-				else buf.append(fr.format(getSumValues(i)/tot));
+				if (m_SumWeight == 0.0) buf.append("?");
+				else buf.append(fr.format(getMean(i)));
 			}
 			buf.append("]");
 			if (info.SHOW_EXAMPLE_COUNT) {

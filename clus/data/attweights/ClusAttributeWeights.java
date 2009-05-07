@@ -91,6 +91,9 @@ public class ClusAttributeWeights implements Serializable {
 	}
 
 	public String getName(ClusAttrType[] type) {
+		if (type == null) {
+			return getName();
+		}
 		if (type.length > 10) {
 			return "Weights ("+type.length+")";
 		} else {

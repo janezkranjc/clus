@@ -45,6 +45,15 @@ public class StringUtils {
 		return line.substring(start, end+1);
 	}
 
+	public static String printStrMax(String out, int tabs) {
+		int len = out.length();
+		if (len > tabs) {
+			return out.substring(0, tabs);
+		} else {
+			return out+makeString(' ', tabs-len);
+		}
+	}	
+	
 	public static String printStr(String out, int tabs) {
 		int len = out.length();
 		return out+makeString(' ', tabs-len);
