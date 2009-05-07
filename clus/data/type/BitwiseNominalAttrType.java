@@ -41,9 +41,7 @@ public class BitwiseNominalAttrType extends NominalAttrType {
 	}
 
 	public int getNominal(DataTuple tuple) {
-		int value = (tuple.m_Ints[m_ArrayIndex] >> m_BitPosition) & m_BitMask;
-		//System.out.println("BIT getNominal: " + value+ " arrayindex: " + getArrayIndex() + " bitpos: " + getBitPosition());
-		return value;
+		return (tuple.m_Ints[m_ArrayIndex] >> m_BitPosition) & m_BitMask;
 	}
 
 	public void setNominal(DataTuple tuple, int value) {
