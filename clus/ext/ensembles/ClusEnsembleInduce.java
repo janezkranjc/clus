@@ -62,6 +62,7 @@ import clus.statistic.RegressionStat;
 import clus.tools.optimization.GDProbl;
 import clus.util.ClusException;
 import clus.util.ClusRandom;
+import clus.model.processor.PredictionWriter;
 
 public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	Clus m_BagClus;
@@ -69,6 +70,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	ClusForest m_OForest;//Forest with the original models
 	ClusForest m_DForest;//Forest with stumps (default models)
 	static int m_Mode;
+	long m_SummTime = 0;
 	
 	/**
 	 * Memory optimization
@@ -179,6 +181,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			break;
 			}
 		case 1: {	//RForest
+			System.out.println("******* inducing RF *******");
 			induceBagging(cr);
 			break;
 			}
@@ -293,15 +296,17 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 
 			//this is the section for writing the predictions from the OOB estimate
 			//should new option in .s file be introduced???
-//			ClusStatistic target = getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
-//			PredictionWriter wrt = new PredictionWriter(sett.getAppName() + addname	+ ".oob.pred", sett, target);
-//			wrt.globalInitialize(schema);
-//			ClusModelInfo allmi = cr.getAllModelsMI();
-//			allmi.addModelProcessor(ClusModelInfo.TRAIN_ERR, wrt);
-//			cr.copyAllModelsMIs();
-//			wrt.initializeAll(schema);
+			ClusStatistic target = getStatManager().createStatistic(ClusAttrType.ATTR_USE_TARGET);
+			PredictionWriter wrt = new PredictionWriter(sett.getAppName() + addname	+ ".oob.pred", sett, target);
+			wrt.globalInitialize(schema);
+			ClusModelInfo allmi = cr.getAllModelsMI();
+			allmi.addModelProcessor(ClusModelInfo.TRAIN_ERR, wrt);
+			cr.copyAllModelsMIs();
+			wrt.initializeAll(schema);
+			
+			
 			calcOOBError(oob_total,all_data, ClusModelInfo.TRAIN_ERR, cr);
-//			summary.addSummary(cr);
+			summary.addSummary(cr);
 
 			if (summary != null) {
 				for (int i = ClusModel.ORIGINAL; i < cr.getNbModels(); i++) {
@@ -314,7 +319,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			output.writeHeader();
 			output.writeOutput(cr, true, true);
 			output.close();
-//			wrt.close();
+			wrt.close();
 			m_OOBCalculation = false;
 		}
 
@@ -443,12 +448,11 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 		}
 	}
-
+	
 	public void induceBagging(ClusRun cr) throws ClusException, IOException {
 		int nbrows = cr.getTrainingSet().getNbRows();
 		m_OForest = new ClusForest(getStatManager());
 		m_DForest = new ClusForest(getStatManager());
-		long summ_time = 0;
 		TupleIterator train_iterator = null; // = train set iterator
 		TupleIterator test_iterator = null; // = test set iterator
 		OOBSelection oob_total = null; // = total OOB selection
@@ -470,101 +474,29 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			// Random depth for the ensembles
 			// The original Max depth is used as the average
 			origMaxDepth = getSettings().getTreeMaxDepth();
-
 		}
 		
-		for (int i = 0; i < m_NbMaxBags; i++) {
-			if (getSettings().isEnsembleRandomDepth()) {
-				// Set random tree max depth
-				getSettings().setTreeMaxDepth(GDProbl.randDepthWighExponentialDistribution(m_randTreeDepth.nextDouble(),
-																					 origMaxDepth));
+		BaggingSelection msel = null;
+		int onebag = getSettings().getOneBag();
+		if (onebag == -1) {
+			for (int i = 1; i <= m_NbMaxBags; i++) {
+			    msel = new BaggingSelection(nbrows);
+				induceOneBag(cr, i, origMaxDepth, oob_sel, oob_total, train_iterator, test_iterator, msel);
 			}
-			
-			long one_bag_time = ResourceInfo.getTime();
-			System.out.println("Bag: "+(i+1));
-			BaggingSelection msel = new BaggingSelection(nbrows);
-			ClusRun crSingle = m_BagClus.partitionDataBasic(cr.getTrainingSet(),msel,cr.getSummary(),i + 1);
-			DepthFirstInduce ind = new DepthFirstInduce(this);
-			ind.initialize();
-			crSingle.getStatManager().initClusteringWeights();
-			ClusModel model = ind.induceSingleUnpruned(crSingle);
-
-//			ClusModelInfo model_info = crSingle.addModelInfo(ClusModels.ORIGINAL);
-//			model_info.setModel(model);
-//			model_info.setName("Original");
-//			m_OForest.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
-
-			summ_time += ResourceInfo.getTime() - one_bag_time;
-			
-			if (m_OOBEstimate){		//OOB estimate is on
-				oob_sel = new OOBSelection(msel);	
-				if (i == 0){ //initialization
-					oob_total = new OOBSelection(msel);
-					m_OOBPredictions = new HashMap();
-					m_OOBUsage = new HashMap();
-				}else oob_total.addToThis(oob_sel);
-				updateOOBTuples(oob_sel, (RowData)cr.getTrainingSet(), model);
-			}
-			if (m_FeatRank){
-				ArrayList attests = new ArrayList();
-				fillWithAttributesInTree((ClusNode)model, attests);
-				RowData tdata = (RowData)((RowData)cr.getTrainingSet()).deepCloneData();
-				double oob_err = calcAverageError((RowData)tdata.selectFrom(oob_sel), model);
-//				System.out.println("-------Model-------");
-//				((ClusNode)model).printTree();
-//				System.out.println("-------------------");
-//				System.out.println("oob_err = " + oob_err);
-				for (int z = 0; z < attests.size(); z++){//for the attributes that appear in the tree
-					String current_attribute = (String)attests.get(z);
-					double [] info = ((double[])m_AllAttributes.get(current_attribute));
-					double type = info[0];
-					double position = info[1];
-					RowData permuted = createRandomizedOOBdata(oob_sel, (RowData)tdata.selectFrom(oob_sel), (int)type, (int)position);
-					if (getStatManager().getMode() == ClusStatManager.MODE_REGRESSION){//increase in error rate (oob_err -> MSError)
-						info[2] += (calcAverageError((RowData)permuted, model) - oob_err)/oob_err;
-					}else if (getStatManager().getMode() == ClusStatManager.MODE_CLASSIFY){//decrease in accuracy (oob_err -> Accuracy)
-						info[2] += (oob_err - calcAverageError((RowData)permuted, model))/oob_err;
-					}
-					m_AllAttributes.put(current_attribute, info);
-				}
-			}
-			
-			if (m_OptMode){
-				//for i == 0 [i.e. the first run] it will initialize the predictions
-				if (i == 0) initModelPredictionForTuples(model, train_iterator, test_iterator);
-				else addModelPredictionForTuples(model, train_iterator, test_iterator, i+1);
-			}
-			else{
-				ClusModelInfo model_info = crSingle.addModelInfo(ClusModel.ORIGINAL);
-				model_info.setModel(model);	
-				model_info.setName("Original");
-				m_OForest.addModelToForest(crSingle.getModel(ClusModel.ORIGINAL));
-				
-				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);		
-				ClusModelInfo def_info = crSingle.addModelInfo(ClusModel.DEFAULT);
-				def_info.setModel(defmod);
-				def_info.setName("Default");
-				m_DForest.addModelToForest(defmod);
-			}
-
-			//Valid only when test set is supplied
-			if (m_OptMode && ((i+1) != m_NbMaxBags) && checkToOutEnsemble(i+1)){
-				crSingle.setInductionTime(summ_time);
-				postProcessForest(crSingle);
-				crSingle.setTestSet(cr.getTestIter());
-				crSingle.setTrainingSet(cr.getTrainingSet());
-				outputBetweenForest(crSingle, m_BagClus, "_"+(i+1)+"_");
-//				crSingle.deleteDataAndModels();
-			}
-			
-			if (m_OOBEstimate && checkToOutEnsemble(i+1)){
-				crSingle.setInductionTime(summ_time);
-				postProcessForest(crSingle);
-				postProcessForestForOOBEstimate(crSingle, oob_total, (RowData)cr.getTrainingSet(), m_BagClus, "_"+(i+1)+"_");
-			}
-			crSingle.deleteDataAndModels();
 		}
-
+		else if (onebag == 0) {
+			// we assume that files _bagI.model exist, for I=1..m_NbMaxBags and build the forest from them
+			makeForestFromBags();
+		}
+		else {
+			// only one bag needs to be computed (and the model output) e.g. because we want to run the forest in parallel.	
+			for (int i=1; i<=onebag; i++) {
+				// we eventually want the same bags as computing them sequentially.
+				msel = new BaggingSelection(nbrows);
+			}		
+			induceOneBag(cr, onebag, origMaxDepth, oob_sel, oob_total, train_iterator, test_iterator, msel);			
+		}
+		
 		// Restore the old maxDepth
 		if (origMaxDepth != -1) {
 			getSettings().setTreeMaxDepth(origMaxDepth);
@@ -572,6 +504,135 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 
 	}
 
+	public void makeForestFromBags() throws ClusException, IOException {
+		try {
+			System.out.println("Start loading models");
+			for (int i=1; i<=m_NbMaxBags; i++) {
+				ClusModelCollectionIO io = ClusModelCollectionIO.load(m_BagClus.getSettings().getFileAbsolute(getSettings().getAppName() + "_bag"+ i +".model"));
+				ClusModel orig_bag_model = io.getModel("Original");
+				if (orig_bag_model == null) {
+					throw new ClusException("Error: bag" + i + ".model file does not contain model named 'Original'");
+				}
+				m_OForest.addModelToForest(orig_bag_model);
+				
+				ClusModel def_bag_model = io.getModel("Default");
+				if (def_bag_model == null) {
+					throw new ClusException("Error: bag" + i + ".model file does not contain model named 'Default'");
+				}
+				m_DForest.addModelToForest(def_bag_model);
+				System.out.println("Models loaded for bag " + i);
+			}
+		}
+		catch (ClassNotFoundException e) {
+			throw new ClusException("Error: not all of the _bagX.model files were found");
+		}
+	}
+	
+	
+	
+	public void induceOneBag(ClusRun cr, int i, int origMaxDepth, OOBSelection oob_sel, OOBSelection oob_total, TupleIterator train_iterator, TupleIterator test_iterator, BaggingSelection msel) throws ClusException, IOException {	
+
+		if (getSettings().isEnsembleRandomDepth()) {
+			// Set random tree max depth
+			getSettings().setTreeMaxDepth(GDProbl.randDepthWighExponentialDistribution(m_randTreeDepth.nextDouble(),
+																				 origMaxDepth));
+		}
+	
+		long one_bag_time = ResourceInfo.getTime();
+		System.out.println("Bag: "+i);
+		
+		ClusRun crSingle = m_BagClus.partitionDataBasic(cr.getTrainingSet(),msel,cr.getSummary(),i);
+		DepthFirstInduce ind = new DepthFirstInduce(this);
+		ind.initialize();
+		crSingle.getStatManager().initClusteringWeights();
+		ClusModel model = ind.induceSingleUnpruned(crSingle);
+			
+	
+	//	ClusModelInfo model_info = crSingle.addModelInfo(ClusModels.ORIGINAL);
+	//	model_info.setModel(model);
+	//	model_info.setName("Original");
+	//	m_OForest.addModelToForest(crSingle.getModel(ClusModels.ORIGINAL));
+	
+		m_SummTime += ResourceInfo.getTime() - one_bag_time;
+		
+		if (m_OOBEstimate){		//OOB estimate is on
+			oob_sel = new OOBSelection(msel);	
+			if (i-1 == 0){ //initialization
+				oob_total = new OOBSelection(msel);
+				m_OOBPredictions = new HashMap();
+				m_OOBUsage = new HashMap();
+			}else oob_total.addToThis(oob_sel);
+			updateOOBTuples(oob_sel, (RowData)cr.getTrainingSet(), model);
+		}
+		if (m_FeatRank){
+			ArrayList attests = new ArrayList();
+			fillWithAttributesInTree((ClusNode)model, attests);
+			RowData tdata = (RowData)((RowData)cr.getTrainingSet()).deepCloneData();
+			double oob_err = calcAverageError((RowData)tdata.selectFrom(oob_sel), model);
+	//		System.out.println("-------Model-------");
+	//		((ClusNode)model).printTree();
+	//		System.out.println("-------------------");
+	//		System.out.println("oob_err = " + oob_err);
+			for (int z = 0; z < attests.size(); z++){//for the attributes that appear in the tree
+				String current_attribute = (String)attests.get(z);
+				double [] info = ((double[])m_AllAttributes.get(current_attribute));
+				double type = info[0];
+				double position = info[1];
+				RowData permuted = createRandomizedOOBdata(oob_sel, (RowData)tdata.selectFrom(oob_sel), (int)type, (int)position);
+				if (getStatManager().getMode() == ClusStatManager.MODE_REGRESSION){//increase in error rate (oob_err -> MSError)
+					info[2] += (calcAverageError((RowData)permuted, model) - oob_err)/oob_err;
+				}else if (getStatManager().getMode() == ClusStatManager.MODE_CLASSIFY){//decrease in accuracy (oob_err -> Accuracy)
+					info[2] += (oob_err - calcAverageError((RowData)permuted, model))/oob_err;
+				}
+				m_AllAttributes.put(current_attribute, info);
+			}
+		}
+		
+		if (m_OptMode){
+			//for i == 0 [i.e. the first run] it will initialize the predictions
+			if (i-1 == 0) initModelPredictionForTuples(model, train_iterator, test_iterator);
+			else addModelPredictionForTuples(model, train_iterator, test_iterator, i);
+		}
+		else{
+			ClusModelInfo model_info = crSingle.addModelInfo(ClusModel.ORIGINAL);
+			model_info.setModel(model);	
+			model_info.setName("Original");
+			m_OForest.addModelToForest(crSingle.getModel(ClusModel.ORIGINAL));
+			
+			ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);		
+			ClusModelInfo def_info = crSingle.addModelInfo(ClusModel.DEFAULT);
+			def_info.setModel(defmod);
+			def_info.setName("Default");
+			m_DForest.addModelToForest(defmod);
+		}
+	
+		//Valid only when test set is supplied
+		if (m_OptMode && (i != m_NbMaxBags) && checkToOutEnsemble(i)){
+			crSingle.setInductionTime(m_SummTime);
+			postProcessForest(crSingle);
+			crSingle.setTestSet(cr.getTestIter());
+			crSingle.setTrainingSet(cr.getTrainingSet());
+			outputBetweenForest(crSingle, m_BagClus, "_"+ i +"_");
+	//		crSingle.deleteDataAndModels();
+		}
+		
+		if (m_OOBEstimate && checkToOutEnsemble(i)){
+			crSingle.setInductionTime(m_SummTime);
+			postProcessForest(crSingle);
+			postProcessForestForOOBEstimate(crSingle, oob_total, (RowData)cr.getTrainingSet(), m_BagClus, "_"+ i +"_");
+		}
+		
+		int onebag = getSettings().getOneBag();
+		if (onebag != -1) {
+			ClusModelCollectionIO io = new ClusModelCollectionIO();
+			m_BagClus.saveModels(crSingle, io);
+			io.save(m_BagClus.getSettings().getFileAbsolute(cr.getStatManager().getSettings().getAppName() + "_bag"+ i +".model"));
+		}
+		
+		crSingle.deleteDataAndModels();
+	}
+	
+	
 
 	public void induceBaggingSubspaces(ClusRun cr) throws ClusException, IOException {
 		int nbrows = cr.getTrainingSet().getNbRows();
