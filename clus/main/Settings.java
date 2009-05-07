@@ -1704,6 +1704,7 @@ public class Settings implements Serializable {
 	public static INIFileBool m_EnsembleShouldOpt;
 	public static INIFileBool m_EnsembleOOBestimate;
 	protected INIFileBool m_FeatureRanking;
+	protected INIFileInt m_OneBag;
 	
 	/** Do we want to use different random depth for different iterations of ensemble.
 	 * Used in tree to rules optimization method. The MaxDepth of tree is used as average.
@@ -1761,6 +1762,10 @@ public class Settings implements Serializable {
 	public int getNbRandomAttrSelected() {
 		return m_RandomAttrSelected.getValue();
 	}
+	
+	public int getOneBag() {
+		return m_OneBag.getValue();
+	}
 
 	public void updateNbRandomAttrSelected(ClusSchema schema){
 		int fsize;
@@ -1772,6 +1777,10 @@ public class Settings implements Serializable {
 	
 	public void setNbRandomAttrSelected(int value) {
 		m_RandomAttrSelected.setValue(value);
+	}
+	
+	public void setOneBag(int value) {
+		m_OneBag.setValue(value);
 	}
 
 	public static boolean isPrintEnsembleModels( ){
@@ -2044,6 +2053,7 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_EnsembleOOBestimate = new INIFileBool("OOBestimate", false));
 		m_SectionEnsembles.addNode(m_FeatureRanking = new INIFileBool("FeatureRanking", false));
 		m_SectionEnsembles.addNode(m_EnsembleRandomDepth = new INIFileBool("EnsembleRandomDepth", false));
+		m_SectionEnsembles.addNode(m_OneBag = new INIFileInt("OneBag", -1));
 		m_SectionEnsembles.setEnabled(false);
 
 		m_SectionKNN = new INIFileSection("kNN");
