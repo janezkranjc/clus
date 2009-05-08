@@ -52,14 +52,13 @@ public class BinaryPredictionList implements Serializable {
 	public void clear() {
 		m_NbPos = 0;
 		m_NbNeg = 0;
-		clearData();
+		m_Values.clear();
+		m_ValueSet.clear();
 	}
 	
 	public void clearData() {
 		m_Values.clear();
-		m_ValueSet.clear();
 	}
-
 
 	public int getNbPos() {
 		return m_NbPos;
@@ -90,7 +89,7 @@ public class BinaryPredictionList implements Serializable {
 				DoubleBooleanCount newValue = new DoubleBooleanCount(otherValue); 
 				m_ValueSet.put(newValue, newValue);
 			}
-		}		
+		}	
 	}
 
 	public void copyActual(BinaryPredictionList other) {
