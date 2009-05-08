@@ -364,7 +364,7 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public ClusStatistic createSuitableStat(NumericAttrType[] num, NominalAttrType[] nom) {
-		System.out.println("creating stat");
+		//System.out.println("creating stat");
 		if (num.length == 0) {
 			if (m_Mode == MODE_PHYLO) {
 				//switch (Settings.m_PhylogenyProtoComlexity.getValue()) {
@@ -892,12 +892,12 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public void setTargetStatistic(ClusStatistic stat) {
-		System.out.println("Setting target statistic: "	+ stat.getClass().getName());
+		// System.out.println("Setting target statistic: " + stat.getClass().getName());
 		m_StatisticAttrUse[ClusAttrType.ATTR_USE_TARGET] = stat;
 	}
 
 	public void setClusteringStatistic(ClusStatistic stat) {
-		System.out.println("Setting clustering statistic: "	+ stat.getClass().getName());
+		// System.out.println("Setting clustering statistic: " + stat.getClass().getName());
 		m_StatisticAttrUse[ClusAttrType.ATTR_USE_CLUSTERING] = stat;
 	}
 
