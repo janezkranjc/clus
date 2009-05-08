@@ -198,12 +198,13 @@ public class RowData extends ClusData implements MSortable {
 	public void setSchema(ClusSchema schema) {
 		m_Schema = schema;
 	}
-
-	public void sortSparse(NumericAttrType at) {
+	
+	public void sortSparse(NumericAttrType at, RowDataSortHelper helper) {
 		int nbmiss = 0, nbzero = 0, nbother = 0;
-		DataTuple[] missing = new DataTuple[m_NbRows];
-		DataTuple[] zero = new DataTuple[m_NbRows];
-		DoubleObject[] other = new DoubleObject[m_NbRows];
+		helper.resize(m_NbRows+1);
+		DataTuple[] missing = helper.missing;
+		DataTuple[] zero = helper.zero;
+		DoubleObject[] other = helper.other;
 		for (int i = 0; i < m_NbRows; i++) {
 			double data = at.getNumeric(m_Data[i]);
 			if (data == 0.0) {
@@ -211,13 +212,13 @@ public class RowData extends ClusData implements MSortable {
 			} else if (data == NumericAttrType.MISSING) {
 				missing[nbmiss++] = m_Data[i];
 			} else if (data > 0.0) {
-				other[nbother++] = new DoubleObject(data, m_Data[i]);
+				other[nbother++].set(data, m_Data[i]);
 			} else {
 				System.err.println("Sparse attribute has negative value!");
 				System.exit(-1);
 			}
 		}
-		MSorter.quickSort(new MySortableArray(other), 0, nbother);
+		MSorter.quickSort(helper, 0, nbother);
 		int pos = 0;
 		for (int i = 0; i < nbmiss; i++) {
 			m_Data[pos++] = missing[i];
@@ -644,7 +645,6 @@ public class RowData extends ClusData implements MSortable {
 		return false;
 	}
 
-
 	public void addAll(RowData data1, RowData data2) {
 		int size = data1.getNbRows() + data2.getNbRows();
 		setNbRows(size);
@@ -686,24 +686,5 @@ public class RowData extends ClusData implements MSortable {
 			res.add(restuple);
 		}
 		return new RowData(res, getSchema());
-	}
-
-	public class MySortableArray implements MSortable {
-
-		DoubleObject[] tuples;
-
-		public MySortableArray(DoubleObject[] data) {
-			tuples = data;
-		}
-
-		public double getDouble(int i) {
-			return tuples[i].getValue();
-		}
-
-		public void swap(int i, int j) {
-			DoubleObject obj_i = tuples[i];
-			tuples[i] = tuples[j];
-			tuples[j] = obj_i;
-		}
 	}
 }

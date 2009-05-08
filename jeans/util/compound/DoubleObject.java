@@ -27,6 +27,9 @@ public class DoubleObject implements Comparable {
 	protected double m_Double;
 	protected Object m_Object;
 
+	public DoubleObject() {
+	}
+	
 	public DoubleObject(double val, Object obj) {
 		m_Double = val;
 		m_Object = obj;
@@ -38,6 +41,11 @@ public class DoubleObject implements Comparable {
 
 	public Object getObject() {
 		return m_Object;
+	}
+	
+	public void set(double val, Object obj) {
+		m_Double = val;
+		m_Object = obj;
 	}
 
 	public int compareTo(Object o) {

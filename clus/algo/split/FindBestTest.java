@@ -33,8 +33,9 @@ import clus.util.*;
 public class FindBestTest {
 
 	protected CurrentBestTestAndHeuristic m_BestTest = new CurrentBestTestAndHeuristic();
+	protected RowDataSortHelper m_SortHelper = new RowDataSortHelper();
 	protected ClusStatManager m_StatManager;
-	protected NominalSplit m_Split;
+	protected NominalSplit m_Split;	
 	protected int m_MaxStats;
 
 	public FindBestTest(ClusStatManager mgr) {
@@ -116,7 +117,7 @@ public class FindBestTest {
 	public void findNumeric(NumericAttrType at, RowData data) {
 		DataTuple tuple;
 		if (at.isSparse()) {
-			data.sortSparse(at);
+			data.sortSparse(at, m_SortHelper);
 		} else {
 			data.sort(at);
 		}
@@ -154,7 +155,7 @@ public class FindBestTest {
 		int idx = at.getArrayIndex();
 		// Sort values from large to small
 		if (at.isSparse()) {
-			data.sortSparse(at);
+			data.sortSparse(at, m_SortHelper);
 		} else {
 			data.sort(at);
 		}
@@ -175,7 +176,7 @@ public class FindBestTest {
 		// Do the same for original data, except updating the statistics:
 		// Sort values from large to small
 		if (at.isSparse()) {
-			orig_data.sortSparse(at);
+			orig_data.sortSparse(at, m_SortHelper);
 		} else {
 			orig_data.sort(at);
 		}

@@ -38,6 +38,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 
 	protected NodeTest m_BestTest;
 	protected ClusNode m_BestLeaf;
+	protected RowDataSortHelper m_SortHelper = new RowDataSortHelper();
 	protected double m_BestHeur = Double.POSITIVE_INFINITY;
 	protected int m_NbClasses = 1;
 	protected int m_MaxNbClasses = 2;
@@ -153,7 +154,7 @@ public class ILevelCInduce extends DepthFirstInduce {
 		// System.out.println("Trying: "+at.getName());
 		int idx = at.getArrayIndex();
 	    if (at.isSparse()) {
-	      data.sortSparse(at);
+	      data.sortSparse(at, m_SortHelper);
 	    } else {
 	      data.sort(at);
 	    }
