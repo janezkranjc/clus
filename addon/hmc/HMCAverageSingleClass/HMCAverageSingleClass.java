@@ -154,7 +154,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 					}
 				}
 				output.writeHeader();
-				output.writeOutput(cr, true, true);
+				output.writeOutput(cr, true, getSettings().isOutTrainError());
 				output.close();
 			} else {
 				throw new ClusException("Must specify e.g., -models dirname");

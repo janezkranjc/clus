@@ -146,6 +146,12 @@ public class ClusErrorList implements Serializable {
 	public ClusError getErrorOrNull(int idx) {
 		return (ClusError)m_ErrorWithNulls.get(idx);
 	}
+	
+	public void clear() {
+		for (int i = 0; i < m_ErrorWithNulls.size(); i++) {
+			m_ErrorWithNulls.set(i, null);
+		}
+	}
 
 	public ClusError getErrorByName(String name) {
 		int nb_e = m_Error.size();

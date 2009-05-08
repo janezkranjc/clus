@@ -6,6 +6,7 @@ import java.util.*;
 import clus.main.Settings;
 
 import jeans.util.compound.DoubleBoolean;
+import jeans.util.compound.DoubleBooleanCount;
 
 public class ROCAndPRCurve implements Serializable {
 
@@ -23,6 +24,11 @@ public class ROCAndPRCurve implements Serializable {
 		m_Values = list;
 	}
 
+	public void clear() {
+		m_ROC.clear();
+		m_PR.clear();
+	}
+	
 	public double getAreaROC() {
 		return m_AreaROC;
 	}
@@ -64,15 +70,15 @@ public class ROCAndPRCurve implements Serializable {
 		int TP_cnt = 0, FP_cnt = 0;
 		double prev = Double.NaN;
 		for (int i = 0; i < m_Values.size(); i++) {
-			DoubleBoolean val = m_Values.get(i);
+			DoubleBooleanCount val = m_Values.get(i);
 			if (val.getDouble() != prev && !first) {
 				// System.out.println("Thr: "+((val.getDouble()+prev)/2)+" TP: "+TP_cnt+" FP: "+FP_cnt);
 				addOutput(TP_cnt, FP_cnt);
 			}
 			if (val.getBoolean()) {
-				TP_cnt++;
+				TP_cnt += val.getCount();
 			} else {
-				FP_cnt++;
+				FP_cnt += val.getCount();
 			}
 			prev = val.getDouble();
 			first = false;
@@ -91,12 +97,12 @@ public class ROCAndPRCurve implements Serializable {
 		int TP_cnt = 0, FP_cnt = 0;
 		int prevTP_cnt = 0, prevFP_cnt = 0;
 		for (int i = thr.length-1; i >= 0; i--) {
-			DoubleBoolean val = null;
+			DoubleBooleanCount val = null;
 			while (idx < m_Values.size() && (val = m_Values.get(idx)).getDouble() >= thr[i]) {
 				if (val.getBoolean()) {
-					TP_cnt++;
+					TP_cnt += val.getCount();
 				} else {
-					FP_cnt++;
+					FP_cnt += val.getCount();
 				}
 				idx++;
 			}

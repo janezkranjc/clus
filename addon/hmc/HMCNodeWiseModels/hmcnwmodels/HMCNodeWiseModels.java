@@ -216,7 +216,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			m_Clus.induce(cr, clss); // Induce model
 			m_Clus.calcError(cr, null); // Calc error
 			output.writeHeader();
-			output.writeOutput(cr, true, true);
+			output.writeOutput(cr, true, m_Clus.getSettings().isOutTrainError());
 			output.close();
 			ClusModelCollectionIO io = new ClusModelCollectionIO();
 			io.addModel(cr.addModelInfo(ClusModel.ORIGINAL));

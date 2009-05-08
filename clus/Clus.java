@@ -251,11 +251,15 @@ public class Clus implements CMDLineArgsProvider {
 		ClusErrorList error = mgr.createErrorMeasure(m_Score);
 		m_Summary.resetAll();
 		m_Summary.setStatManager(mgr);
-		m_Summary.setTrainError(error);
-		if (hasTestSet())
+		if (m_Sett.isOutTrainError()) {
+			m_Summary.setTrainError(error);
+		}
+		if (hasTestSet()) {
 			m_Summary.setTestError(error);
-		if (hasPruneSet())
+		}
+		if (hasPruneSet() && m_Sett.isOutValidError()) {
 			m_Summary.setValidationError(error);
+		}
 	}
 
 	// added by Leander 7-4-2006
@@ -637,17 +641,13 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
-	public final static double calcModelError(ClusStatManager mgr,
-			RowData data, ClusModel model) throws ClusException, IOException {
+	public final static double calcModelError(ClusStatManager mgr, RowData data, ClusModel model) throws ClusException, IOException {
 		ClusSchema schema = data.getSchema();
 		/* create error measure */
 		ClusErrorList error = new ClusErrorList();
-		NumericAttrType[] num = schema
-				.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		NominalAttrType[] nom = schema
-				.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
-		TimeSeriesAttrType[] ts = schema
-				.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NumericAttrType[] num = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		NominalAttrType[] nom = schema.getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		TimeSeriesAttrType[] ts = schema.getTimeSeriesAttrUse(ClusAttrType.ATTR_USE_TARGET);
 		if (nom.length != 0) {
 			error.addError(new Accuracy(error, nom));
 		} else if (num.length != 0) {
@@ -670,15 +670,12 @@ public class Clus implements CMDLineArgsProvider {
 	}
 
 	/** Compute either test or train error */
-	public final void calcError(TupleIterator iter, int type, ClusRun cr)
-			throws IOException, ClusException {
+	public final void calcError(TupleIterator iter, int type, ClusRun cr) throws IOException, ClusException {
 		iter.init();
 		ClusSchema mschema = iter.getSchema();
-		if (iter.shouldAttach())
-			attachModels(mschema, cr);
+		if (iter.shouldAttach()) attachModels(mschema, cr);
 		cr.initModelProcessors(type, mschema);
-		ModelProcessorCollection allcoll = cr.getAllModelsMI()
-				.getAddModelProcessors(type);
+		ModelProcessorCollection allcoll = cr.getAllModelsMI().getAddModelProcessors(type);
 		DataTuple tuple = iter.readTuple();
 		while (tuple != null) {
 			allcoll.exampleUpdate(tuple);
@@ -716,12 +713,8 @@ public class Clus implements CMDLineArgsProvider {
 				ClusRuleSet ruleset = (ClusRuleSet) info.getModel();
 				ruleset.setError(info.getTrainingError(), ClusModel.TRAIN);
 				ruleset.setError(info.getTestError(), ClusModel.TEST);
-				info.addModelProcessor(ClusModelInfo.TRAIN_ERR,
-						new ClusCalcRuleErrorProc(ClusModel.TRAIN, info
-								.getTrainingError()));
-				info.addModelProcessor(ClusModelInfo.TEST_ERR,
-						new ClusCalcRuleErrorProc(ClusModel.TEST, info
-								.getTestError()));
+				info.addModelProcessor(ClusModelInfo.TRAIN_ERR, new ClusCalcRuleErrorProc(ClusModel.TRAIN, info.getTrainingError()));
+				info.addModelProcessor(ClusModelInfo.TEST_ERR, new ClusCalcRuleErrorProc(ClusModel.TEST, info.getTestError()));
 			}
 		}
 	}
@@ -751,23 +744,33 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
-	public final void calcError(ClusRun cr, ClusSummary summary)
-			throws IOException, ClusException {
+	public final void calcError(ClusRun cr, ClusSummary summary) throws IOException, ClusException {
 		cr.copyAllModelsMIs();
-		if (Settings.VERBOSE > 0)
-			System.out.println("Computing training error");
-		calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr);
-		if (Settings.VERBOSE > 0)
-			System.out.println("Computing testing error");
+		for (int i = 0; i < cr.getNbModels(); i++) {
+			if (cr.getModelInfo(i) != null && !m_Sett.shouldShowModel(i)) {
+				// If don't show model, then don't compute error
+				ClusModelInfo inf = cr.getModelInfo(i); 
+				if (inf.getTrainingError() != null) inf.getTrainingError().clear();
+				if (inf.getTestError() != null) inf.getTestError().clear();
+				if (inf.getValidationError() != null) inf.getValidationError().clear();
+			}
+		}		
+		if (m_Sett.isOutTrainError()) {
+			if (Settings.VERBOSE > 0) System.out.println("Computing training error");
+			calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr);
+		}
 		TupleIterator tsiter = cr.getTestIter();
-		if (tsiter != null)
+		if (tsiter != null) {
+			if (Settings.VERBOSE > 0) System.out.println("Computing testing error");
 			calcError(tsiter, ClusModelInfo.TEST_ERR, cr);
-		if (Settings.VERBOSE > 0)
-			System.out.println("Computing validation error");
-		if (cr.getPruneSet() != null)
+		}			
+		if (m_Sett.isOutValidError() && cr.getPruneSet() != null) {
+			if (Settings.VERBOSE > 0) System.out.println("Computing validation error");
 			calcError(cr.getPruneIter(), ClusModelInfo.VALID_ERR, cr);
-		if (summary != null)
+		}
+		if (summary != null) {
 			summary.addSummary(cr);
+		}
 	}
 
 	public final void out2model(String fname) throws IOException, ClusException {
@@ -1064,7 +1067,7 @@ public class Clus implements CMDLineArgsProvider {
 		getClassifier().postProcess(cr);
 		calcError(cr, null);
 		out.writeHeader();
-		out.writeOutput(cr, true, true);
+		out.writeOutput(cr, true, m_Sett.isOutTrainError());
 		out.close();
 	}
 
@@ -1093,8 +1096,7 @@ public class Clus implements CMDLineArgsProvider {
 	}
 
 	public ClusRun train(RowData train) throws ClusException, IOException {
-		m_Induce = getClassifier().createInduce(train.getSchema(), m_Sett,
-				m_CmdLine);
+		m_Induce = getClassifier().createInduce(train.getSchema(), m_Sett, m_CmdLine);
 		ClusRun cr = partitionDataBasic(train);
 		m_Induce.initialize();
 		initializeAttributeWeights(m_Data);
@@ -1171,7 +1173,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		calcExtraTrainingSetErrors(cr);
 		output.writeHeader();
-		output.writeOutput(cr, true, true);
+		output.writeOutput(cr, true, m_Sett.isOutTrainError());
 		output.close();
 		clss.saveInformation(m_Sett.getAppName());
 		return cr;
@@ -1413,18 +1415,14 @@ public class Clus implements CMDLineArgsProvider {
 
 	private class MyClusInitializer implements ClusSchemaInitializer {
 
-		public void initSchema(ClusSchema schema) throws ClusException,
-				IOException {
+		public void initSchema(ClusSchema schema) throws ClusException, IOException {
 			if (getSettings().getHeuristic() == Settings.HEURISTIC_SSPD) {
 				schema.addAttrType(new IntegerAttrType("SSPD"));
 			}
 			schema.setTarget(new IntervalCollection(m_Sett.getTarget()));
 			schema.setDisabled(new IntervalCollection(m_Sett.getDisabled()));
-			schema
-					.setClustering(new IntervalCollection(m_Sett
-							.getClustering()));
-			schema.setDescriptive(new IntervalCollection(m_Sett
-					.getDescriptive()));
+			schema.setClustering(new IntervalCollection(m_Sett.getClustering()));
+			schema.setDescriptive(new IntervalCollection(m_Sett.getDescriptive()));
 			schema.setKey(new IntervalCollection(m_Sett.getKey()));
 			schema.updateAttributeUse();
 			schema.initializeFrom(m_Schema);

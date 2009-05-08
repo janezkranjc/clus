@@ -3,21 +3,29 @@ package clus.error;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.HashMap;
 
 import clus.main.Settings;
 
-import jeans.util.compound.DoubleBoolean;
+import jeans.util.compound.DoubleBooleanCount;
 
 public class BinaryPredictionList implements Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int m_NbPos, m_NbNeg;
-	protected ArrayList m_Values = new ArrayList();
+	protected transient ArrayList m_Values = new ArrayList();
+	protected transient HashMap m_ValueSet = new HashMap();
 
 	public void addExample(boolean actual, double predicted) {
-		DoubleBoolean value = new DoubleBoolean(predicted, actual);
-		m_Values.add(value);
+		DoubleBooleanCount value = new DoubleBooleanCount(predicted, actual);
+		DoubleBooleanCount prevValue = (DoubleBooleanCount)m_ValueSet.get(value);
+		if (prevValue != null) {
+			prevValue.inc();
+		} else {
+			m_ValueSet.put(value, value);
+		}
 		if (actual) m_NbPos++;
 		else m_NbNeg++;
 	}
@@ -28,22 +36,30 @@ public class BinaryPredictionList implements Serializable {
 	}
 
 	public void sort() {
+		m_Values.clear();
+		m_Values.addAll(m_ValueSet.values());
 		Collections.sort(m_Values);
 	}
-
+	
 	public int size() {
 		return m_Values.size();
 	}
 
-	public DoubleBoolean get(int i) {
-		return (DoubleBoolean)m_Values.get(i);
+	public DoubleBooleanCount get(int i) {
+		return (DoubleBooleanCount)m_Values.get(i);
 	}
 
 	public void clear() {
 		m_NbPos = 0;
 		m_NbNeg = 0;
-		m_Values.clear();
+		clearData();
 	}
+	
+	public void clearData() {
+		m_Values.clear();
+		m_ValueSet.clear();
+	}
+
 
 	public int getNbPos() {
 		return m_NbPos;
@@ -64,7 +80,17 @@ public class BinaryPredictionList implements Serializable {
 	public void add(BinaryPredictionList other) {
 		m_NbPos += other.getNbPos();
 		m_NbNeg += other.getNbNeg();
-		m_Values.addAll(other.m_Values);
+		Iterator values = other.m_ValueSet.values().iterator();
+		while (values.hasNext()) {
+			DoubleBooleanCount otherValue = (DoubleBooleanCount)values.next();
+			DoubleBooleanCount myValue = (DoubleBooleanCount)m_ValueSet.get(otherValue);
+			if (myValue != null) {
+				myValue.inc(otherValue);
+			} else {
+				DoubleBooleanCount newValue = new DoubleBooleanCount(otherValue); 
+				m_ValueSet.put(newValue, newValue);
+			}
+		}		
 	}
 
 	public void copyActual(BinaryPredictionList other) {

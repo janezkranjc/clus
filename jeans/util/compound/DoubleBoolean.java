@@ -45,7 +45,17 @@ public class DoubleBoolean implements Comparable, Serializable {
 	public Boolean getBoolean() {
 		return m_Boolean;
 	}
-
+	
+	public boolean equals(Object o) {
+		DoubleBoolean ot = (DoubleBoolean)o;
+		return ot.m_Boolean == m_Boolean && ot.m_Double == m_Double;
+	}
+	
+	public int hashCode() {
+		long v = Double.doubleToLongBits(m_Double);
+		return (int)(v^(v>>>32)) ^ (m_Boolean ? 1 : 0);
+	}
+	
 	public int compareTo(Object o) {
 		DoubleBoolean ot = (DoubleBoolean)o;
 		if (m_Double == ot.m_Double) return 0;

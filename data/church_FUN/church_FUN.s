@@ -18,12 +18,17 @@ ReduceMemoryNominalAttrs = yes
 Type = TREE
 WType = ExpAvgParentWeight
 HSeparator = /
-ClassificationThreshold = [20,50,80]
+%ClassificationThreshold = [20,50,80]
 
 [Tree]
 ConvertToRules = No
-FTest = [0.001,0.005,0.01,0.05,0.1,0.125]
+%FTest = [0.001,0.005,0.01,0.05,0.1,0.125]
+FTest = 0.1
 
 [Model]
 MinimalWeight = 5.0
 
+[Output]
+TrainErrors = No
+ValidErrors = No
+ShowModels = {Pruned}

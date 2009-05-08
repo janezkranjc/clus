@@ -32,6 +32,7 @@ import java.util.*;
 
 import clus.statistic.*;
 import clus.heuristic.*;
+import clus.model.ClusModel;
 import clus.data.type.*;
 import clus.ext.hierarchical.*;
 
@@ -514,6 +515,7 @@ public class Settings implements Serializable {
 	protected INIFileBool m_OutFoldData;
 	protected INIFileBool m_OutFoldModels;
 	protected INIFileBool m_OutTrainErr;
+	protected INIFileBool m_OutValidErr;
 	protected INIFileBool m_ShowForest;
 	protected INIFileBool m_ShowBrFreq;
 	protected INIFileBool m_ShowUnknown;
@@ -529,6 +531,10 @@ public class Settings implements Serializable {
 	public boolean isOutTrainError() {
 		return m_OutTrainErr.getValue();
 	}
+	
+	public boolean isOutValidError() {
+		return m_OutValidErr.getValue();
+	}	
 
 	public boolean isShowBranchFreq() {
 		return m_ShowBrFreq.getValue();
@@ -585,6 +591,15 @@ public class Settings implements Serializable {
 	public boolean getShowModel(int i) {
 		return m_ShowModels.contains(i);
 	}
+	
+	public boolean shouldShowModel(int model) {		
+		boolean others = getShowModel(Settings.SHOW_MODELS_OTHERS);
+		if (model == ClusModel.DEFAULT && getShowModel(Settings.SHOW_MODELS_DEFAULT)) return true;
+		else if (model == ClusModel.ORIGINAL && getShowModel(Settings.SHOW_MODELS_ORIGINAL)) return true;
+		else if (model == ClusModel.PRUNED && (getShowModel(Settings.SHOW_MODELS_PRUNED) || others)) return true;
+		else if (others) return true;
+		return false;
+	}	
 
 	public StatisticPrintInfo getStatisticPrintInfo() {
 		StatisticPrintInfo info = new StatisticPrintInfo();
@@ -1895,6 +1910,7 @@ public class Settings implements Serializable {
 		INIFileSection output = new INIFileSection("Output");
 		output.addNode(m_ShowModels = new INIFileNominal("ShowModels", SHOW_MODELS, SHOW_MODELS_VALUES));
 		output.addNode(m_OutTrainErr = new INIFileBool("TrainErrors", true));
+		output.addNode(m_OutValidErr = new INIFileBool("ValidErrors", true));
 		output.addNode(m_OutFoldModels = new INIFileBool("AllFoldModels", true));
 		output.addNode(m_OutFoldErr = new INIFileBool("AllFoldErrors", false));
 		output.addNode(m_OutFoldData = new INIFileBool("AllFoldDatasets", false));
@@ -2130,9 +2146,6 @@ public class Settings implements Serializable {
 	}
 
 	public void preprocess(CMDLineArgs cargs) {
-		if (cargs.hasOption("xval") || cargs.hasOption("fold")) {
-			m_OutTrainErr.setValue(false);
-		}
 	}
 
 	public void process(CMDLineArgs cargs) {

@@ -173,11 +173,14 @@ public class HierErrorMeasures extends ClusError {
 			if (isEvalClass(i)) {
 				m_ClassWisePredictions[i].sort();
 				m_ROCAndPRCurves[i].computeCurves();
+				m_ROCAndPRCurves[i].clear();
 				pooled.add(m_ClassWisePredictions[i]);
+				m_ClassWisePredictions[i].clearData();
 			}
 		}
 		pooled.sort();
 		pooledCurve.computeCurves();
+		pooledCurve.clear();
 		// Compute averages
 		int cnt = 0;
 		double sumAUROC = 0.0;

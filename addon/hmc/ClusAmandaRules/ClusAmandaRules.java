@@ -204,7 +204,7 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 		m_Clus.addModelErrorMeasures(cr);
 		m_Clus.calcError(cr, null); // Calc error
 		output.writeHeader();
-		output.writeOutput(cr, true, true);
+		output.writeOutput(cr, true, sett.isOutTrainError());
 		output.close();
 	}
 

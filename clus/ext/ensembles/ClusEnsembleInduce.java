@@ -317,7 +317,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 			cl.calcExtraTrainingSetErrors(cr);
 			output.writeHeader();
-			output.writeOutput(cr, true, true);
+			output.writeOutput(cr, true, getSettings().isOutTrainError());
 			output.close();
 			wrt.close();
 			m_OOBCalculation = false;
@@ -1057,7 +1057,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 		cl.calcExtraTrainingSetErrors(cr);
 		output.writeHeader();
-		output.writeOutput(cr, true, true);
+		output.writeOutput(cr, true, getSettings().isOutTrainError());
 		output.close();
 		cl.getClassifier().saveInformation(sett.getAppName());
 		ClusModelCollectionIO io = new ClusModelCollectionIO();

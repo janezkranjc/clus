@@ -118,17 +118,7 @@ public class ClusOutput {
 
 	public void writeOutput(ClusRun cr, boolean detail) throws IOException, ClusException {
 		writeOutput(cr, detail, false);
-	}
-
-	public boolean shouldShowModel(int model) {
-		Settings sett = getSettings();
-		boolean others = sett.getShowModel(Settings.SHOW_MODELS_OTHERS);
-		if (model == ClusModel.DEFAULT && sett.getShowModel(Settings.SHOW_MODELS_DEFAULT)) return true;
-		else if (model == ClusModel.ORIGINAL && sett.getShowModel(Settings.SHOW_MODELS_ORIGINAL)) return true;
-		else if (model == ClusModel.PRUNED && (sett.getShowModel(Settings.SHOW_MODELS_PRUNED) || others)) return true;
-		else if (others) return true;
-		return false;
-	}
+	}	
 
 	public void writeOutput(ClusRun cr, boolean detail, boolean outputtrain) throws IOException, ClusException {
 		ArrayList models = new ArrayList();
@@ -193,7 +183,7 @@ public class ClusOutput {
 				ClusErrorList.printExtraError(cr, ClusModelInfo.TRAIN_ERR, m_Writer);
 			}
 			ClusErrorList va_err = cr.getValidationError();
-			if (va_err != null) {
+			if (va_err != null && m_Sett.isOutValidError()) {
 				m_Writer.println("Validation error");
 				m_Writer.println("----------------");
 				m_Writer.println();
@@ -210,7 +200,7 @@ public class ClusOutput {
 		}
 		StatisticPrintInfo info = m_Sett.getStatisticPrintInfo();
 		for (int i = 0; i < cr.getNbModels(); i++) {
-			if (cr.getModelInfo(i) != null && models.get(i) != null && shouldShowModel(i)) {
+			if (cr.getModelInfo(i) != null && models.get(i) != null && m_Sett.shouldShowModel(i)) {
 				ClusModelInfo mi = cr.getModelInfo(i);
 				ClusModel root = (ClusModel)models.get(i);
 				String modelname = mi.getName() + " Model";

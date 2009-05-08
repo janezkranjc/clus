@@ -1,11 +1,11 @@
 Clus run iris
 *************
 
-Date: 12/12/08 7:50 PM
+Date: 5/8/09 2:44 PM
 File: iris-ilevelc.xval
 Attributes: 5 (input: 4, output: 4)
 Missing values: No
-Memory usage: 12760 kB (initial), 12848 kB (data loaded)
+Memory usage: 13120 kB (initial), 13328 kB (data loaded)
 
 [General]
 Verbose = 1
@@ -38,9 +38,11 @@ MaxError = 0.0
 
 [Output]
 ShowModels = {Default, Pruned, Others}
-TrainErrors = No
+TrainErrors = Yes
+ValidErrors = Yes
 AllFoldModels = Yes
 AllFoldErrors = No
+AllFoldDatasets = No
 WriteErrorFile = No
 UnknownFrequency = No
 BranchFrequency = No
@@ -56,6 +58,7 @@ MEstimate = 1.0
 
 [Model]
 MinimalWeight = 2.0
+MinimalNumberExamples = 0
 ParamTuneNumberFolds = 10
 ClassWeights = 0.0
 NominalSubsetTests = Yes
@@ -91,7 +94,7 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.044 sec (CPU)
+Induction Time: 0.036 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
@@ -118,7 +121,7 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.012 sec (CPU)
+Induction Time: 0.016 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
@@ -145,7 +148,7 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.012 sec (CPU)
+Induction Time: 0.008 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
@@ -172,7 +175,7 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.008 sec (CPU)
+Induction Time: 0.004 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
@@ -199,7 +202,7 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0 sec (CPU)
+Induction Time: 0.012 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
@@ -226,7 +229,7 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.004 sec (CPU)
+Induction Time: 0.008 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
@@ -307,7 +310,7 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.004 sec (CPU)
+Induction Time: 0.008 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
@@ -358,10 +361,30 @@ Summary
 *******
 
 Runs: 10
-Induction time: 0.108 sec
+Induction time: 0.116 sec
 Preprocessing time: 0 sec
 Mean number of tests
      Original: 5
+
+Training error
+--------------
+
+Number of examples: 1350
+Mean absolute error (MAE)
+   Default        : [0.6876,0.3331,1.5619,0.6589], Avg: 1094.007
+   Original       : [0.3677,0.2649,0.318,0.1814], Avg: 382.0478
+Mean squared error (MSE)
+   Default        : [0.6811,0.1868,3.0924,0.5785]: 1.1347
+   Original       : [0.2173,0.1201,0.1904,0.0588]: 0.1467
+Root mean squared error (RMSE)
+   Default        : [0.8253,0.4321,1.7585,0.7606]: 1.0652
+   Original       : [0.4662,0.3466,0.4363,0.2425]: 0.3829
+Pearson correlation coefficient
+   Default        : [?,0,?,-0], Avg r^2: ?
+   Original       : [0.8252,0.5974,0.9687,0.9478], Avg r^2: 0.7187
+Rand index
+   Default        : 0.3297844112769486 (cnt = 10)
+   Original       : 0.8972470978441127 (cnt = 10)
 
 Testing error
 -------------

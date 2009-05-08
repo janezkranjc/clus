@@ -22,6 +22,7 @@
 
 package clus.data.rows;
 
+import jeans.resource.ResourceInfo;
 import jeans.util.sort.*;
 import jeans.util.compound.*;
 
@@ -218,7 +219,11 @@ public class RowData extends ClusData implements MSortable {
 				System.exit(-1);
 			}
 		}
+		// long start_time = ResourceInfo.getTime();
+		// Arrays.sort(other, 0, nbother);
 		MSorter.quickSort(helper, 0, nbother);
+		// long done_time = ResourceInfo.getTime();
+		// System.out.println("Sorting took: "+((double)(done_time-start_time)/1000.0)+" sec");		
 		int pos = 0;
 		for (int i = 0; i < nbmiss; i++) {
 			m_Data[pos++] = missing[i];
