@@ -22,8 +22,8 @@ HSeparator = /
 
 [Tree]
 ConvertToRules = No
-%FTest = [0.001,0.005,0.01,0.05,0.1,0.125]
-FTest = 0.1
+FTest = [0.001,0.005,0.01,0.05,0.1,0.125]
+% FTest = 0.001
 
 [Model]
 MinimalWeight = 5.0
@@ -31,4 +31,4 @@ MinimalWeight = 5.0
 [Output]
 TrainErrors = No
 ValidErrors = No
-ShowModels = {Pruned}
+ShowModels = {Original}
