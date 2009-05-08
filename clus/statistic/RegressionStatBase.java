@@ -308,10 +308,9 @@ public abstract class RegressionStatBase extends ClusStatistic {
 	public void vote(ArrayList votes) {
 		reset();
 		m_Means = new double[m_NbAttrs];
-		RegressionStat vote;
 		int nb_votes = votes.size();
 		for (int j = 0; j < nb_votes; j++){
-			vote = (RegressionStat) votes.get(j);
+			RegressionStatBase vote = (RegressionStatBase) votes.get(j);
 			for (int i = 0; i < m_NbAttrs; i++){
 				m_Means[i] += vote.m_Means[i] / nb_votes;
 			}
