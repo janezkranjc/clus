@@ -30,6 +30,8 @@ import java.util.*;
 
 import java.io.*;
 
+import addon.hmc.HMCAverageSingleClass.HMCAverageTreeModel;
+
 import jeans.io.ini.INIFileNominalOrDoubleOrVector;
 import jeans.util.array.*;
 import jeans.util.cmdline.*;
@@ -238,8 +240,8 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				def_model.setModel(ClusDecisionTree.induceDefault(cr));
 				// Create original model
 				ClusModelInfo orig_model_inf = cr.addModelInfo(ClusModel.ORIGINAL);
-				//HMCAverageTreeModel orig_model = new HMCAverageTreeModel(target, m_PredProb, m_NbModels, m_TotSize);
-				//orig_model_inf.setModel(orig_model);
+				HMCAverageTreeModel orig_model = new HMCAverageTreeModel(target, m_PredProb, m_NbModels, m_TotSize);
+				orig_model_inf.setModel(orig_model);
 				// Calculate error measures
 				cr.copyAllModelsMIs();
 				//RowData train = (RowData)cr.getTrainingSet();
