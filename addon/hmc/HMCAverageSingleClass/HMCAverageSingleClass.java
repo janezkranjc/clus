@@ -50,8 +50,8 @@ import clus.error.*;
 
 public class HMCAverageSingleClass implements CMDLineArgsProvider {
 
-	private static String[] g_Options = {"models", "hsc", "stats"};
-	private static int[] g_OptionArities = {1, 0, 0};
+	private static String[] g_Options = {"models", "hsc", "stats","loadPredictions"};
+	private static int[] g_OptionArities = {1, 0, 0, 1}; //Leander: wat betekent dit? om extra parameter mee te geven?
 
 	protected Clus m_Clus;
 	protected StringTable m_Table = new StringTable();
@@ -79,7 +79,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				computeStats();
 				System.exit(0);
 			}
-			if (cargs.hasOption("models") || cargs.hasOption("hsc")) {
+			if (cargs.hasOption("models") || cargs.hasOption("hsc")) { 
 				if (cargs.hasOption("hsc")) {
 					m_Clus.getSettings().setSuffix(".hsc.combined");
 				} else {
@@ -156,7 +156,118 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				output.writeHeader();
 				output.writeOutput(cr, true, getSettings().isOutTrainError());
 				output.close();
-			} else {
+			}
+			else if (cargs.hasOption("loadPredictions")){ //coded by Leander 13/5/2009
+		      //initializations
+			  m_Clus.getSettings().setSuffix(".evaluatedPredictions");
+			  ClusRun cr = m_Clus.partitionData();
+		      // Don't want separate prune set now
+		      //cr.combineTrainAndValidSets(); //not necessary
+			  // Cell with predicted probability for each example in the train and test sets
+			  ClassHierarchy hier = getStatManager().getHier();
+			  int size = cr.getDataSet(ClusModelInfoList.TESTSET).getNbRows();
+			  //only for testset necessary!
+			  m_PredProb = new double[1][size][hier.getTotal()];
+
+			  //for (int k = 0; k < size; k++) {
+			  //  Arrays.fill(m_PredProb[k], Double.MAX_VALUE);
+			  //}
+			  
+		      //read predictions in from a file
+		      String file = cargs.getOptionValue("loadPredictions");
+			  RowData rw = ARFFFile.readArff(file);
+			  ClusSchema schema = rw.getSchema();
+			  NumericAttrType[] na = schema.getNumericAttrUse(0); //0 = alle attributen
+		   
+			  // make mapping between classes once and for all
+			  int[] mapping = new int[schema.getNbAttributes()];
+			  //for (int y=0;y<schema.getNbAttributes();y++) {
+			  for (int y=0;y<na.length;y++) {
+				String label = na[y].getName();
+				boolean found = false;
+			    for (int a=0;a<hier.getTotal();a++) {
+			      if (hier.getTermAt(a).toStringHuman(hier).equals(label)) {
+			        mapping[y]=a;
+			        found = true;
+			      }
+			    }
+			    if (!found) {
+			      System.out.println("Error: class "+label+" not found.");
+			    }
+			  }
+			  
+			  //for (int y=0;y<schema.getNbAttributes();y++) {
+			  //	 System.out.println(y+":"+mapping[y]);
+			  //}
+			  
+			  //check
+			  System.out.println("Number of rows in predictions-file: "+rw.getNbRows());
+			  System.out.println("Number of rows in test-file: "+cr.getDataSet(ClusModelInfoList.TESTSET).getNbRows());
+			  //enkel maar die in test-file moeten worden gecheckt
+			  
+			  //store predictions in predProb-matrix
+			  for (int x=0;x<rw.getNbRows();x++) {
+				//for (int y=0;y<schema.getNbAttributes();y++) {
+				for (int y=0;y<na.length;y++) {
+			      DataTuple tuple = rw.getTuple(x);
+			      int a = mapping[y];
+			      m_PredProb[0][x][a] = na[y].getNumeric(tuple); //na[0]: eerste attribuut (klasse);
+			    }
+			  }
+			  //m_predProb: datasets i, example j, klasse k (dataset moet enkel testset zijn)
+			  
+			  
+    		// Array with error measures for each threshold
+	 			INIFileNominalOrDoubleOrVector class_thr = getSettings().getClassificationThresholds();
+				if (class_thr.isVector()) {
+					HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
+					m_EvalArray = new ClusErrorList[2][pruner.getNbResults()];
+					for (int i = 0; i < pruner.getNbResults(); i++) {
+						//for (int j = ClusModelInfoList.TRAINSET; j <= ClusModelInfoList.TESTSET; j++) {
+							m_EvalArray[ClusModelInfoList.TESTSET][i] = new ClusErrorList();
+							m_EvalArray[ClusModelInfoList.TESTSET][i].addError(new HierClassWiseAccuracy(m_EvalArray[ClusModelInfoList.TESTSET][i], hier));
+							m_EvalArray[ClusModelInfoList.TESTSET][i].addError(null);
+						//}
+					}
+				}
+			  
+//			 Write output
+				ClusOutput output = new ClusOutput(sett.getAppNameWithSuffix() + ".out", m_Clus.getSchema(), sett);
+				// Create default model
+				ClusModelInfo def_model = cr.addModelInfo(ClusModel.DEFAULT);
+				def_model.setModel(ClusDecisionTree.induceDefault(cr));
+				// Create original model
+				ClusModelInfo orig_model_inf = cr.addModelInfo(ClusModel.ORIGINAL);
+				//HMCAverageTreeModel orig_model = new HMCAverageTreeModel(target, m_PredProb, m_NbModels, m_TotSize);
+				//orig_model_inf.setModel(orig_model);
+				// Calculate error measures
+				cr.copyAllModelsMIs();
+				//RowData train = (RowData)cr.getTrainingSet();
+				//train.addIndices();
+				//orig_model.setDataSet(ClusModelInfoList.TRAINSET);
+				//m_Clus.calcError(train.getIterator(), ClusModelInfo.TRAIN_ERR, cr);
+				RowData test = (RowData)cr.getTestSet();
+				if (test != null) {
+					test.addIndices();
+					//orig_model.setDataSet(ClusModelInfoList.TESTSET);
+					m_Clus.calcError(test.getIterator(), ClusModelInfo.TEST_ERR, cr);
+				}
+				// Add model for each threshold to clusrun
+				if (class_thr.isVector()) {
+					HierClassTresholdPruner pruner = (HierClassTresholdPruner)getStatManager().getTreePruner(null);
+					for (int i = 0; i < pruner.getNbResults(); i++) {
+						ClusModelInfo pruned_info = cr.addModelInfo(pruner.getPrunedName(i));
+						// pruned_info.setModel(new ClusNode());
+						pruned_info.setShouldWritePredictions(false);
+						//pruned_info.setTrainError(m_EvalArray[ClusModelInfoList.TRAINSET][i]);
+						pruned_info.setTestError(m_EvalArray[ClusModelInfoList.TESTSET][i]);
+					}
+				}
+				output.writeHeader();
+				output.writeOutput(cr, true, getSettings().isOutTrainError());
+				output.close();
+			}
+			else {
 				throw new ClusException("Must specify e.g., -models dirname");
 			}
 		}
