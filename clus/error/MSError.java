@@ -148,6 +148,19 @@ public class MSError extends ClusNumericError {
 			}
 		}
 	}
+	
+	public void addExample(double[] real, boolean[] predicted) {
+		for (int i = 0; i < m_Dim; i++) {
+			double predicted_i = predicted[i] ? 1.0 : 0.0;
+			double err = sqr(real[i] - predicted_i);
+			System.out.println(err);
+			if(!Double.isInfinite(err) && !Double.isNaN(err)){
+				m_SumErr[i] += err;
+				m_SumSqErr[i] += sqr(err);
+				m_nbEx[i]++;
+			}
+		}
+	}	
 
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		double[] predicted = pred.getNumericPred();

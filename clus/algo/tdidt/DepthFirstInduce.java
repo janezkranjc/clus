@@ -146,10 +146,17 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 //		if (removed) System.out.println("Alternative splits were possible");
 	}
 
+	public void makeLeaf(ClusNode node) {
+		node.makeLeaf();
+		if (getSettings().hasTreeOptimize(Settings.TREE_OPTIMIZE_NO_CLUSTERING_STATS)) {
+			node.setClusteringStat(null);
+		}
+	}
+	
 	public void induce(ClusNode node, RowData data) {
 		// Initialize selector and perform various stopping criteria
 		if (initSelectorAndStopCrit(node, data)) {
-			node.makeLeaf();
+			makeLeaf(node);
 			return;
 		}
 		// Find best test
@@ -175,16 +182,19 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			if (getSettings().showAlternativeSplits()) {
 				filterAlternativeSplits(node, data, subsets);
 			}
+			if (getSettings().hasTreeOptimize(Settings.TREE_OPTIMIZE_NO_INODE_STATS)) {
+				node.setClusteringStat(null);
+				node.setTargetStat(null);
+			}
 			for (int j = 0; j < arity; j++) {
 				ClusNode child = new ClusNode();
 				node.setChild(child, j);
-				//RowData subset = data.applyWeighted(test, j);
 				child.initClusteringStat(m_StatManager, subsets[j]);
 				child.initTargetStat(m_StatManager, subsets[j]);
 				induce(child, subsets[j]);
 			}
 		} else {
-			node.makeLeaf();
+			makeLeaf(node);
 		}
 	}
 

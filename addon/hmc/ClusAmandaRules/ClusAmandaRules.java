@@ -188,7 +188,7 @@ public class ClusAmandaRules implements CMDLineArgsProvider {
 				} else {
 					pred.setSigLevel(sigLevel);
 				}
-				pred.setMeanTuple(orig.getMeanTuple());
+				pred.setMeanTuple(orig.getDiscretePred());
 				pred.performSignificanceTest();
 				rule.setTargetStat(pred);
 		}

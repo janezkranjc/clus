@@ -655,17 +655,23 @@ public class Settings implements Serializable {
  * Section: Tree                                                       *
  ***********************************************************************/
 
+	public final static String[] TREE_OPTIMIZE_VALUES = {"NoClusteringStats", "NoInodeStats"};
+	public final static int[] TREE_OPTIMIZE_NONE = {};	
+	public final static int TREE_OPTIMIZE_NO_CLUSTERING_STATS = 0;
+	public final static int TREE_OPTIMIZE_NO_INODE_STATS = 1;
+	
 	protected INIFileSection m_SectionTree;
 	protected INIFileNominal m_Heuristic;
 	protected INIFileInt m_TreeMaxDepth;
 	protected INIFileBool m_BinarySplit;
-	protected INIFileBool m_AlternativeSplits;
+	protected INIFileBool m_AlternativeSplits;	
 	protected INIFileNominalOrDoubleOrVector m_FTest;
 	protected INIFileNominal m_PruningMethod;
 	protected INIFileBool m_1SERule;
 	protected INIFileBool m_MSENominal;
 	protected INIFileDouble m_M5PruningMult;
 	protected INIFileNominal m_RulesFromTree;
+	protected INIFileNominal m_TreeOptimize;	
 
 	public void setSectionTreeEnabled(boolean enable) {
 		m_SectionTree.setEnabled(enable);
@@ -745,6 +751,10 @@ public class Settings implements Serializable {
 	 */
 	public int rulesFromTree() {
 		return m_RulesFromTree.getValue();
+	}
+	
+	public boolean hasTreeOptimize(int value) {
+		return m_TreeOptimize.contains(value);
 	}
 
 /***********************************************************************
@@ -1946,6 +1956,7 @@ public class Settings implements Serializable {
 		m_SectionTree.addNode(m_M5PruningMult = new INIFileDouble("M5PruningMult", 2.0));
 		m_SectionTree.addNode(m_RulesFromTree = new INIFileNominal("ConvertToRules", CONVERT_RULES, 0));
 		m_SectionTree.addNode(m_AlternativeSplits = new INIFileBool("AlternativeSplits", false));
+		m_SectionTree.addNode(m_TreeOptimize = new INIFileNominal("Optimize", TREE_OPTIMIZE_VALUES, TREE_OPTIMIZE_NONE));		
 
 		INIFileSection rules = new INIFileSection("Rules");
 		rules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));

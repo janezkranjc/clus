@@ -267,7 +267,13 @@ public class ClassHierarchy implements Serializable {
 		addAllClasses(tuple, classes);
 		return tuple;
 	}
-
+	
+	public ClassesTuple getTuple(boolean[] nodes) {
+		ClassesTuple result = new ClassesTuple();
+		addAllClasses(result, nodes);
+		return result;
+	}	
+	
 	public final CompleteTreeIterator getNoRootIter() {
 		CompleteTreeIterator iter = new CompleteTreeIterator(m_Root);
 		if (iter.hasMoreNodes()) iter.getNextNode();

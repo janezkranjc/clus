@@ -12,13 +12,14 @@ public class ROCAndPRCurve implements Serializable {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-	protected boolean m_ExtendPR;
-	protected int m_PrevTP, m_PrevFP;
-	protected ArrayList m_ROC;
-	protected ArrayList m_PR;
 	protected double m_AreaROC, m_AreaPR;
-	protected BinaryPredictionList m_Values;
 	protected double[] m_Thresholds;
+	
+	protected transient boolean m_ExtendPR;
+	protected transient int m_PrevTP, m_PrevFP;
+	protected transient ArrayList m_ROC;
+	protected transient ArrayList m_PR;
+	protected transient BinaryPredictionList m_Values;
 
 	public ROCAndPRCurve(BinaryPredictionList list) {
 		m_Values = list;

@@ -49,9 +49,7 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 	protected static DistributionFactory m_Fac = DistributionFactory.newInstance();
 
 	protected ClassHierarchy m_Hier;
-	protected ClassesTuple m_MeanTuple;
-	protected ClassesTuple m_PrintTuple;
-	protected double[] m_DiscrMean;
+	protected boolean[] m_DiscrMean;
 	protected WHTDStatistic m_Global, m_Validation;
 	protected double m_SigLevel;
 	protected double m_Threshold = -1.0;
@@ -149,23 +147,31 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 	public int getNbPredictedClasses() {
 		int count = 0;
 		for (int i = 0; i < m_DiscrMean.length; i++) {
-			if (m_DiscrMean[i] > 0.5) {
+			if (m_DiscrMean[i]) {
 				count++;
 			}
 		}
 		return count;
 	}
 
-	public void computePrediction() {
-		m_MeanTuple = m_Hier.getBestTupleMaj(m_Means, m_Threshold);
-		m_DiscrMean = m_MeanTuple.getVectorNodeAndAncestors(m_Hier);
-		performSignificanceTest();
+	public ClassesTuple computeMeanTuple() {
+		return m_Hier.getTuple(m_DiscrMean);
+	}
+	
+	public ClassesTuple computePrintTuple() {
 		// Same tuple with intermediate elements indicated as such
-		// Useful for printing the tree without the intermediate classes
-		m_PrintTuple = m_Hier.getBestTupleMaj(m_DiscrMean, 0.5);
+		// Useful for printing the tree without the intermediate classes		
+		ClassesTuple printTuple = m_Hier.getTuple(m_DiscrMean);
 		ArrayList added = new ArrayList();
 		boolean[] interms = new boolean[m_Hier.getTotal()];
-		m_PrintTuple.addIntermediateElems(m_Hier, interms, added);
+		printTuple.addIntermediateElems(m_Hier, interms, added);		
+		return printTuple;
+	}	
+	
+	public void computePrediction() {
+		ClassesTuple meantuple = m_Hier.getBestTupleMaj(m_Means, m_Threshold);
+		m_DiscrMean = meantuple.getVectorBooleanNodeAndAncestors(m_Hier);
+		performSignificanceTest();
 	}
 
 	public void calcMean() {
@@ -184,7 +190,7 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 	public void performSignificanceTest() {
 		if (m_Validation != null) {
 			for (int i = 0; i < m_DiscrMean.length; i++) {
-				if (m_DiscrMean[i] > 0.5) {
+				if (m_DiscrMean[i]) {
 					/* Predicted class i, check sig? */
 					int pop_tot = round(m_Global.getTotalWeight());
 					int pop_cls = round(m_Global.getTotalWeight()*m_Global.m_Means[i]);
@@ -203,31 +209,30 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 					try {
 						double stat = dist.cumulativeProbability(lower, upper);
 						if (stat >= m_SigLevel) {
-							m_DiscrMean[i] = 0.0;
+							m_DiscrMean[i] = false;
 						}
 					} catch (MathException me) {
 						System.err.println("Math error: "+me.getMessage());
 					}
 				}
 			}
-			// Treshold of 0.5 is ok because components of m_DiscrMean are 0 or 1.
-			m_MeanTuple = m_Hier.getBestTupleMaj(m_DiscrMean, 0.5);
 		}
 	}
-
+	
 	public void setMeanTuple(ClassesTuple tuple) {
-		m_MeanTuple = tuple;
-		m_DiscrMean = m_MeanTuple.getVector(m_Hier);
+		setMeanTuple(tuple.getVectorBoolean(m_Hier));
+	}
+
+	public void setMeanTuple(boolean[] cls) {
+		m_DiscrMean = new boolean[cls.length];
+		System.arraycopy(cls, 0, m_DiscrMean, 0, cls.length);
+		Arrays.fill(m_Means, 0.0);
 		for (int i = 0; i < m_DiscrMean.length; i++) {
-			if (m_DiscrMean[i] > 0.5) m_Means[i] = 1.0;
+			if (m_DiscrMean[i]) m_Means[i] = 1.0;
 		}
 	}
 
-	public ClassesTuple getMeanTuple() {
-		return m_MeanTuple;
-	}
-
-	public double[] getDiscretePred() {
+	public boolean[] getDiscretePred() {
 		return m_DiscrMean;
 	}
 
@@ -273,11 +278,7 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 	public String getString(StatisticPrintInfo info) {
 		String pred = null;
 		if (m_Threshold >= 0.0) {
-			if (m_PrintTuple != null) {
-				pred = m_PrintTuple.toStringHuman(getHier());
-			} else {
-				pred = m_MeanTuple.toStringHuman(getHier());
-			}
+			pred = computePrintTuple().toStringHuman(getHier());
 			return pred+" ["+ClusFormat.TWO_AFTER_DOT.format(getTotalWeight())+"]";
 		} else {
 			NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
@@ -298,7 +299,7 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 	}
 
 	public String getPredictString() {
-		return "["+m_MeanTuple.toStringHuman(getHier())+"]";
+		return "["+computeMeanTuple().toStringHuman(getHier())+"]";
 	}
 
 	//public boolean isValidPrediction() {
@@ -390,18 +391,17 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 	}
 
 	public void unionInit() {
-		m_DiscrMean = new double[m_Means.length];
+		m_DiscrMean = new boolean[m_Means.length];
 	}
 
 	public void union(ClusStatistic other) {
-		double[] discr_mean = ((WHTDStatistic)other).m_DiscrMean;
+		boolean[] discr_mean = ((WHTDStatistic)other).m_DiscrMean;
 		for (int i = 0; i < m_DiscrMean.length; i++) {
-				if (discr_mean[i] >= 0.5) m_DiscrMean[i] = 1.0;
+				if (discr_mean[i]) m_DiscrMean[i] = true;
 		}
 	}
 
-	public void unionDone() {
-		m_MeanTuple = m_Hier.getBestTupleMaj(m_DiscrMean, 0.5);
+	public void unionDone() {		
 	}
 
 	public void vote(ArrayList votes) {
