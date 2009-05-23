@@ -29,43 +29,31 @@ import clus.data.attweights.*;
 
 public class VarianceReductionHeuristicCompatibility extends ClusHeuristic {
 
-	protected RowData m_Data;
 	protected String m_BasicDist;
-	protected ClusStatistic m_NegStat;
 	protected ClusAttributeWeights m_TargetWeights;
 
 	public VarianceReductionHeuristicCompatibility(String basicdist, ClusStatistic negstat, ClusAttributeWeights targetweights) {
 		m_BasicDist = basicdist;
-		m_NegStat = negstat;
 		m_TargetWeights = targetweights;
 	}
 
 	public VarianceReductionHeuristicCompatibility(ClusStatistic negstat, ClusAttributeWeights targetweights) {
 		m_BasicDist = negstat.getDistanceName();
-		m_NegStat = negstat;
 		m_TargetWeights = targetweights;
 	}
-
-	public void setData(RowData data) {
-		m_Data = data;
-	}
-
 	public double calcHeuristic(ClusStatistic tstat, ClusStatistic pstat, ClusStatistic missing) {
 		// Acceptable?
 		if (stopCriterion(tstat, pstat, missing)) {
 			return Double.NEGATIVE_INFINITY;
 		}
-		// Calculate |S|Var[S]
-		double ss_tot = tstat.getSVarS(m_TargetWeights, m_Data);
-		double ss_pos = pstat.getSVarS(m_TargetWeights, m_Data);
-		m_NegStat.copy(tstat);
-		m_NegStat.subtractFromThis(pstat);
-		double ss_neg = m_NegStat.getSVarS(m_TargetWeights, m_Data);
+		// Compute |S|Var[S]
+		double ss_tot = tstat.getSVarS(m_TargetWeights);
+		double ss_pos = pstat.getSVarS(m_TargetWeights);
+		double ss_neg = tstat.getSVarSDiff(m_TargetWeights, pstat);
 		double value = FTest.calcVarianceReductionHeuristic(tstat.getTotalWeight(), ss_tot, ss_pos+ss_neg);
 		if (Settings.VERBOSE >= 10) {
 			System.out.println("TOT: "+tstat.getDebugString());
 			System.out.println("POS: "+pstat.getDebugString());
-			System.out.println("NEG: "+m_NegStat.getDebugString());
 			System.out.println("-> ("+ss_tot+", "+ss_pos+", "+ss_neg+") "+value);
 		}
 		// NOTE: This is here for compatibility reasons only
