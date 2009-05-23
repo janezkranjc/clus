@@ -432,11 +432,14 @@ public class ClusNode extends MyNode implements ClusModel {
 				return info.predictWeighted(tuple);
 			} else {
 				int nb_c = getNbChildren();
-				ClusStatistic stat = getTargetStat().cloneSimple();
-				for (int i = 0; i < nb_c; i++) {
-					ClusNode node = (ClusNode)getChild(i);
-					ClusStatistic nodes = node.predictWeighted(tuple);
-					stat.addPrediction(nodes, m_Test.getProportion(i));
+				ClusNode ch_0 = (ClusNode)getChild(0);
+				ClusStatistic ch_0s = ch_0.predictWeighted(tuple);
+				ClusStatistic stat = ch_0s.cloneSimple();
+				stat.addPrediction(ch_0s, m_Test.getProportion(0));
+				for (int i = 1; i < nb_c; i++) {
+					ClusNode ch_i = (ClusNode)getChild(i);
+					ClusStatistic ch_is = ch_i.predictWeighted(tuple);
+					stat.addPrediction(ch_is, m_Test.getProportion(i));
 				}
 				stat.computePrediction();
 				return stat;
