@@ -952,7 +952,8 @@ public class Settings implements Serializable {
 	/**	GD optimization, combining of targets - combine by taking the gradient of target with maximal loss. */
 	public final static int OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE = 2;
 	/**	GD optimization, combining of targets - combine by taking the gradient of target with maximal LINEAR loss.
-	 * I.e. if the real loss is something else, we still use linear loss. This is lot faster */
+	 * I.e. if the real loss is something else, we still use linear loss. NOT IMPLEMENTED!
+	 * In fact was not any faster AND max loss is worse than avg. */
 	public final static int OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE_FAST = 3;
 
 	/**For external GD binary, do we use GD or brute force method */
