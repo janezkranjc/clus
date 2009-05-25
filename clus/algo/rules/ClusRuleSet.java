@@ -754,7 +754,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		// Generate optimization input
 		ClusStatistic tar_stat = m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 		int nb_target = tar_stat.getNbAttributes();
-		int nb_rules = getModelSize();
+		int nb_baseFunctions = getModelSize();
 		int nb_rows = data.getNbRows();
 		boolean isClassification = false;
 		if (m_TargetStat instanceof ClassificationStat) {
@@ -791,26 +791,29 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 		}
 
-//		// ***************** DEFAULT PREDICTION
-//		// Used if no other rule cover the instance
-//		/**
-//		 * Default predictions for each target
-//		 */
-//		double[] defaultPred = new double[nb_target];
-//		if (isClassification){
-//			int[] tempDefaults = ((ClassificationStat)m_TargetStat).getNominalPred();
-//
-//			// Casting from int[] to double[]
-//			for (int kTargets = 0; kTargets < nb_target; kTargets++)
-//			{
-//				defaultPred[kTargets] = (double)tempDefaults[kTargets];
-//			}
-//		} else {
-//			defaultPred = ((RegressionStat)m_TargetStat).getNumericPred();
-//		}
-
 
 		// ************ PREDICTIONS
+		// We have two different prediction arrays. First the one for rules, second the one for all other
+		// types of predictors (e.g. linear terms)
+		// To get the order right, the rules have to be the first ones. Let's check this.
+		
+		boolean allRulesScrolled = false;
+		int nbOfRegularRules = 0;
+		for (int jRules = 0; jRules < nb_baseFunctions; jRules++) {
+			ClusRule rule = getRule(jRules);
+			if (rule.isRegularRule()) {
+				nbOfRegularRules++;
+				if (allRulesScrolled) {
+					// Error! There is a regular rule after something else
+					System.err.println("Error: Order of rule set is wrong. Rules have to be before linear terms etc.");
+					System.exit(1);
+				}
+			} else {
+				allRulesScrolled = true; // Last rule has gone already
+			}
+				
+		}
+		
 
 		// Number of nominal values for each target. For regression, no number of nominal values needed, i.e. 1
 		int nb_values[] = new int[nb_target];
@@ -823,62 +826,85 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			}
 		}
 
-		// [rule][instance][target][class_value]
+		// [nonrule predictor][instance][target][class_value]
 		// For regression, class_value = 0 always.
 		//double[][][][] rule_pred = new double[nb_rules][nb_rows][nb_target][nb_values];
-		double[][][][] rule_pred = new double[nb_rules][nb_rows][nb_target][];
-
+		double[][][][] nonrule_pred = new double[nb_baseFunctions-nbOfRegularRules][nb_rows][nb_target][];
+		
+		// Rule predictions.
+		OptProbl.RulePred[] rule_pred = new OptProbl.RulePred[nbOfRegularRules];
+		for (int jRules = 0; jRules < nbOfRegularRules; jRules++) {
+			rule_pred[jRules] = new OptProbl.RulePred(nb_rows,nb_target);
+			
+			ClusRule rule = getRule(jRules);
+			
+			// Works only for regression
+			double[] targets = ((RegressionStat)rule.predictWeighted(null)).normalizedCopy().getNumericPred();
+			
+			for (int iTarget = 0; iTarget < nb_target; iTarget++) {
+					rule_pred[jRules].m_prediction[iTarget][0] = targets[iTarget];
+			}
+ 		}
+		
 		// Index over the instances of data. This loop is first because getting tuples may be slower.
 		for (int iRows = 0; iRows < nb_rows; iRows++) {
 
 			DataTuple tuple = data.getTuple(iRows);
-			for (int jRules = 0; jRules < nb_rules; jRules++) {
+			
+			for (int jRules = 0; jRules < nb_baseFunctions; jRules++) {
 				ClusRule rule = getRule(jRules);
 
-				// Initialize rule predictions for this rule and instance combination
-				for (int iTarget=0; iTarget < nb_target;iTarget++) {
-					rule_pred[jRules][iRows][iTarget] = new double[nb_values[iTarget]];
-				}
-
-				if (rule.covers(tuple)) {
-
-					// Returns the prediction for the data
-					if (isClassification) {
-						rule_pred[jRules][iRows] =
-							((ClassificationStat)rule.predictWeighted(tuple)).normalizedCopy().getClassCounts();
-					} else {
-						//Only one nominal value is used for regression.
-						double[] targets = ((RegressionStat)rule.predictWeighted(tuple)).normalizedCopy()
-											.getNumericPred();
-						for (int kTargets = 0; kTargets < nb_target; kTargets++) {
-							rule_pred[jRules][iRows][kTargets][0] = targets[kTargets];
+				if (rule.isRegularRule()) {
+					rule_pred[jRules].m_cover[iRows] = rule.covers(tuple);
+				
+				} else { //nonregular rule
+					int nonRegIndex = jRules-nbOfRegularRules; // Index of the nonregular rule array.
+					
+					// Initialize rule predictions for this rule and instance combination
+					for (int iTarget=0; iTarget < nb_target;iTarget++) {
+						nonrule_pred[nonRegIndex][iRows][iTarget] = new double[nb_values[iTarget]];
+					}
+	
+					if (rule.covers(tuple)) {
+	
+						// Returns the prediction for the data
+						if (isClassification) {
+							nonrule_pred[nonRegIndex][iRows] =
+								((ClassificationStat)rule.predictWeighted(tuple)).normalizedCopy().getClassCounts();
+						} else {
+							//Only one nominal value is used for regression.
+							double[] targets = ((RegressionStat)rule.predictWeighted(tuple)).normalizedCopy()
+												.getNumericPred();
+							for (int kTargets = 0; kTargets < nb_target; kTargets++) {
+								nonrule_pred[nonRegIndex][iRows][kTargets][0] = targets[kTargets];
+							}
+						}
+					} else { // Rule does not cover the instance. Mark as NaN
+						for (int kTargets = 0; kTargets < nb_target; kTargets++)
+						{   for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
+								nonrule_pred[nonRegIndex][iRows][kTargets][lValues] = Double.NaN;
+						    }
 						}
 					}
-				} else { // Rule does not cover the instance. Mark as NaN
-					for (int kTargets = 0; kTargets < nb_target; kTargets++)
-					{   for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
-							rule_pred[jRules][iRows][kTargets][lValues] = Double.NaN;
-					    }
-					}
-				}
 
-				// The output does not necessarily have to be given
-				if (outLogFile != null)
-				{
-					// Print predictions to the file.
-					outLogFile.print("[");
-					for (int kTargets = 0; kTargets < nb_target; kTargets++)
+					// The output does not necessarily have to be given
+					if (outLogFile != null)
 					{
-						if (isClassification) outLogFile.print("{");
-						for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
-							outLogFile.print(mf.format(rule_pred[jRules][iRows][kTargets][lValues]));
-							if (lValues < nb_values[kTargets]-1)	outLogFile.print("; ");
+						// Print predictions to the file.
+						outLogFile.print("[");
+						for (int kTargets = 0; kTargets < nb_target; kTargets++)
+						{
+							if (isClassification) outLogFile.print("{");
+							for (int lValues = 0; lValues < nb_values[kTargets]; lValues++) {
+								outLogFile.print(mf.format(nonrule_pred[nonRegIndex][iRows][kTargets][lValues]));
+								if (lValues < nb_values[kTargets]-1)	outLogFile.print("; ");
+							}
+	
+							if (isClassification) outLogFile.print("}");
+							if (kTargets < nb_target-1) outLogFile.print("; ");
 						}
-
-						if (isClassification) outLogFile.print("}");
-						if (kTargets < nb_target-1) outLogFile.print("; ");
+						outLogFile.print("]");
 					}
-					outLogFile.print("]");
 				}
 			} // For rules
 
@@ -900,7 +926,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 
 //		OptProbl.OptParam param = new OptProbl.OptParam(rule_pred, defaultPred, trueValues);
-		OptProbl.OptParam param = new OptProbl.OptParam(rule_pred, trueValues);
+		OptProbl.OptParam param = new OptProbl.OptParam(rule_pred, nonrule_pred, trueValues);
 		return param;
 	}
 
@@ -1049,7 +1075,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	 * as rules that always give the prediction of descriptive attribute
 	 */
 	private void addLinearTermsToRuleSet(NumericAttrType[] numTypes, double[] mins, double[] maxs) {
-		System.out.print("Adding linear terms as rules. ");
+		System.out.println("Adding linear terms as rules.");
 		int nbTargets = (m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET)).getNbAttributes();
 
 		//NumericAttrType[] numTypes = schema.getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE);
@@ -1076,7 +1102,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 
 
-		System.out.print("Added "+ numTypes.length +" linear terms for each target, total " + numTypes.length*nbTargets
+		System.out.println("\tAdded "+ numTypes.length +" linear terms for each target, total " + numTypes.length*nbTargets
 				         + " terms.");
 	}
 

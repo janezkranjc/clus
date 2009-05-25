@@ -152,15 +152,15 @@ public class GDAlg extends OptAlg{
 					wrt_log.println("Increase in test fitness. Reducing step size or stopping.");
 				}
 
-				System.err.print("\nEarly stopping detected after " + nbOfIterations + " iterations.");
+				System.err.print("\n\tOverfitting after " + nbOfIterations + " iterations.");
 				if (m_earlyStopStepsizeReducedNb < getSettings().getOptGDNbOfStepSizeReduce()){
 					m_earlyStopStepsizeReducedNb++;
 					m_GDProbl.dropStepSize(0.1); // Drop stepsize to tenth.
 					m_GDProbl.restoreBestWeight(m_weights); // restoring the weight with minimum fitness
 					m_GDProbl.initGradients(m_weights);
-					System.err.print(" Reducing step size and continuing.\n");
+					System.err.print(" Reducing step, continuing.\n");
 				} else {
-					System.err.print(" Maximum step size reduction reached. Stopping.\n");
+					System.err.print(" Stopping.\n");
 					wrt_log.println("Early stopping detected after " + nbOfIterations + " iterations.");
 					break;
 				}

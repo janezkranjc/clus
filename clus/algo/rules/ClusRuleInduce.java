@@ -990,22 +990,25 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		}
 		// Generate pathseeker input
 
+		if (dataInformation.m_rulePredictions.length != 0){
+			System.err.println("Error: Use of external binary for optimization not implemented for rules correctly!");
+		}
 		// Predictions
-		for (int iRule = 0 ; iRule < dataInformation.m_predictions.length; iRule++){
+		for (int iRule = 0 ; iRule < dataInformation.m_baseFuncPredictions.length; iRule++){
 			//			for (int iRule = 0 ; iRule < 10; iRule++){
 
-			for (int iInstance = 0; iInstance < dataInformation.m_predictions[iRule].length; iInstance++){
-				if (Double.isNaN(dataInformation.m_predictions[iRule][iInstance][0][0]))
+			for (int iInstance = 0; iInstance < dataInformation.m_baseFuncPredictions[iRule].length; iInstance++){
+				if (Double.isNaN(dataInformation.m_baseFuncPredictions[iRule][iInstance][0][0]))
 					fPSBasePredictions.write("" + 0); // If no prediction, prediction is 0
-				else if (Double.isInfinite(dataInformation.m_predictions[iRule][iInstance][0][0]))
+				else if (Double.isInfinite(dataInformation.m_baseFuncPredictions[iRule][iInstance][0][0]))
 					fPSBasePredictions.write("" + NUMBER_INF);	// if prediction is infinity (for linear term), tell it
 
 				else
 					//fPSBasePredictions.write("" + (float)dataInformation.m_predictions[iRule][iInstance][0][0]);
-					fPSBasePredictions.write("" + dataInformation.m_predictions[iRule][iInstance][0][0]);
+					fPSBasePredictions.write("" + dataInformation.m_baseFuncPredictions[iRule][iInstance][0][0]);
 
 				if (//iRule != dataInformation.m_predictions.length-1 ||
-						iInstance != dataInformation.m_predictions[iRule].length-1)
+						iInstance != dataInformation.m_baseFuncPredictions[iRule].length-1)
 					fPSBasePredictions.write(",");
 				//					if (iRule != 10-1 ||
 				//							iInstance != dataInformation.m_predictions[9].length-1)
@@ -1027,7 +1030,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		fPSInputSettings.println("@model_file=" + fname + ".model.pth");
 		fPSInputSettings.println("@coeffs_file=" + fname + ".coeffs.pth");
 		//fPSInputSettings.println("@nvar=" + rset.getModelSize());
-		fPSInputSettings.println("@nvar=" + dataInformation.m_predictions.length);
+		fPSInputSettings.println("@nvar=" + dataInformation.m_baseFuncPredictions.length);
 		//fPSInputSettings.println("@nvar=" + 10);
 		fPSInputSettings.println("@nobs=" + dataInformation.m_trueValues.length);
 		fPSInputSettings.println("@format=csv");

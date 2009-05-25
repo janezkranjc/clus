@@ -28,6 +28,7 @@ package clus.tools.optimization;
 import java.util.*;
 
 import clus.main.*;
+import clus.algo.rules.ClusRule;
 import clus.data.type.*;
 import clus.statistic.*;
 
@@ -50,36 +51,57 @@ public class OptProbl {
 
 	/**
 	 * Parameters for optimization algorithm.
-	 * Predictions and true values for all the instances of data.
+	 * Predictions for rules and other base function and true values for all the instances of data.
 	 * The default prediction is used, if no other rule covers the instance.
 	 * See m_RulePred and m_TrueVal for what the indices mean.
 	 */
 	static public class OptParam {
-		public OptParam(double[][][][] predictions,
-				double[][] trueValues ){
-			m_predictions = predictions;
-			m_trueValues = trueValues;
-		}
 		/** An empty class */
-		public OptParam(int nbRule, int nbInst, int nbTarg){
-			m_predictions = new double[nbRule][nbInst][nbTarg][1];
-			m_trueValues = new double[nbInst][nbTarg];
-		}
-		public double[][][][] m_predictions;
+		public OptParam(int nbRule, int nbOtherBaseFunc, int nbInst, int nbTarg) {
+			m_rulePredictions = new RulePred[nbRule]; for (int jRul=0; jRul<nbRule;jRul++) {m_rulePredictions[jRul]=new OptProbl.RulePred(nbInst,nbTarg);}
+			m_baseFuncPredictions = new double[nbOtherBaseFunc][nbInst][nbTarg][1];	m_trueValues = new double[nbInst][nbTarg];}
+
+		public OptParam(RulePred[] rulePredictions, double[][][][] predictions,	double[][] trueValues ){m_rulePredictions = rulePredictions; m_baseFuncPredictions = predictions; m_trueValues = trueValues;}
+		public RulePred[] m_rulePredictions;
+		public double[][][][] m_baseFuncPredictions;
 		public double[][] m_trueValues;
+
 	}
 
 	/** Number of weights/variables to optimize */
 	private int m_NumVar;
 
+	
 	/**
-	 * Rule predictions [rule index][instance][target index][class_value] is for nominal attributes
-	 * or [rule index][instance][target index][0] for regression.
+	 * Predictions of rule type base functions.
+	 * Includes the prediction and boolean array of covered instances.
+	 */
+	static public class RulePred {
+		/** An empty class */
+		public RulePred(int nbInst, int nbTarg){m_cover = new boolean[nbInst];m_prediction = new double[nbTarg][1];}
+		public RulePred(boolean[] cover, double[][] prediction){m_cover = cover;m_prediction=prediction;}
+		public boolean[] m_cover; // [instance] that are covered
+		public double[][] m_prediction; // [target index][class value]
+	}
+	/**
+	 * Rule indexes are always first. 
+	 * Rule predictions [rule index]. Includes the prediction and boolean array of covered instances.
+	 * Similar to m_BaseFuncPred but only for rules (constant prediction if covers).
+	 */
+	protected RulePred[] m_RulePred;
+
+	
+	/**
+	 * Other base function predictions [function index][instance][target index][class_value] is for 
+	 * nominal attributes or [function index][instance][target index][0] for regression.
 	 * The [target index] is always [0] for single target use.
 	 * The class value dimension is dynamic for each target index.
+	 * These base functions have always indices AFTER rules.
+	 * For rules use the other array, it is faster!
 	 */
-	protected double[][][][] m_RulePred;
+	protected double[][][][] m_BaseFuncPred;
 
+	
 	/** True target values for the data points. [instance][target index] */
 	private double[][] m_TrueVal;
 	private ClusStatManager m_StatMgr;
@@ -93,8 +115,9 @@ public class OptProbl {
 	 * @param isClassification Is it classification or regression?
 	 */
 	public OptProbl(ClusStatManager stat_mgr, OptParam optInfo) {
-		m_NumVar = (optInfo.m_predictions).length;
-		m_RulePred = optInfo.m_predictions;
+		m_NumVar = (optInfo.m_baseFuncPredictions).length+(optInfo.m_rulePredictions).length;
+		m_BaseFuncPred = optInfo.m_baseFuncPredictions;
+		m_RulePred = optInfo.m_rulePredictions;
 		m_TrueVal = optInfo.m_trueValues;
 
 		m_StatMgr = stat_mgr;
@@ -203,27 +226,17 @@ public class OptProbl {
 					{
 						// An index over the possible values of nominal attribute. 1 for regression
 						for (int iClass = 0; iClass < nb_values[iTarget]; iClass++) {
-						//	if (m_RulePred[iInstance][iRule][iTarget][iClass] != Double.N NaN) {
-							//if (!Double.isNaN(getPredictions(iRule,iInstance,iTarget,iClass)) ) {
-							if (!Double.isNaN(m_RulePred[iRule][iInstance][iTarget][iClass]) ) {
+							if (isCovered(iRule,iInstance)) {
 								covered = true;
-
-								// To create lots of loss, undefined predictions have special value
-								// Initially pred_sum = INVALID_PREDICTION. For the first time nonzero
-								// prediction comes, we put this to zero.
-								// USED ONLY FOR CLASSIFICATION
-/*								if (pred_sum[iTarget][iClass] == INVALID_PREDICTION &&
-									((Double)genes.get(iRule)).doubleValue() != 0) {
-									pred_sum[iTarget][iClass] = 0;
-								}
-*/ // Commented out for faster regression.
 
 								// For each nominal value and target, add variable
 								// <current optimized parameter value>*<strenght of nominal value> OR
 								// <current optimized parameter value>*<regression prediction for rule>
 								// I.e. this is the real prediction function - weighted sum over the rules
 								pred_sum[iTarget][iClass] += ((Double)genes.get(iRule)).doubleValue()
-					            					* m_RulePred[iRule][iInstance][iTarget][iClass];
+//					            					* m_RulePred[iRule][iInstance][iTarget][iClass];
+													* getPredictionsWhenCovered(iRule,iInstance,iTarget,iClass);
+								
 							}
 						}
 					}
@@ -639,40 +652,72 @@ public class OptProbl {
 		return m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 	}
 
-	/** Value of rule prediction. Can be used also for nominal attributes.
-	 * Note that this does not use the include of default rule!
-	 * So this is not the real prediction but can be NaN.
+	
+	/** Does the base function cover the given example?
+	 * This should be used instead of checkin if prediction is NaN.
 	 */
-	protected double getPredictions( int iRule, int iInstance, int iTarget, int iClass) {
-		return m_RulePred[iRule][iInstance][iTarget][iClass];
+	final protected boolean isCovered(int iRule, int iInstance) {
+		if (iRule >= m_RulePred.length) {
+			return !Double.isNaN(m_BaseFuncPred[iRule-m_RulePred.length][iInstance][0][0]);
+		} else {
+			return m_RulePred[iRule].m_cover[iInstance];
+		}
+			
 	}
 
-	/** Returns the prediction of the rule in regression use.
-	 * Note that this does not use the include of default rule!
-	 * So this is not the real prediction but can be NaN.
+	
+//	/** Value of base function prediction. Can be used also for nominal attributes.
+//	 * Note that this does not use the include of default rule!
+//	 * So this is not the real prediction but can be NaN.
+//	 */
+//	final protected double getPredictions( int iRule, int iInstance, int iTarget, int iClass) {
+//		if (iRule >= m_RulePred.length) {
+//			return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][iClass];
+//		} else {
+//			// if not covered, return NaN
+//			return m_RulePred[iRule].m_cover[iInstance]?
+//					m_RulePred[iRule].m_prediction[iTarget][iClass]:Double.NaN;
+//		}		
+//	}
+	
+//	/** Value of base function prediction in regression use.
+//	 * Note that this does not use the include of default rule!
+//	 * So this is not the real prediction but can be NaN.
+//	 */
+//	final protected double getPredictions(int iRule, int iInstance, int iTarget) {
+//		if (iRule >= m_RulePred.length) {
+//			return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][0];
+//		} else {
+//			// if not covered, return NaN
+//			return m_RulePred[iRule].m_cover[iInstance]?
+//					m_RulePred[iRule].m_prediction[iTarget][0]:Double.NaN;
+//		}
+//	}
+
+	
+	/** Value of base function prediction. Can be used also for nominal attributes
+	 * when we already know that instance is covered! Use isCovered for this.
+	 * If used right, gives always prediction.
 	 */
-	protected double getPredictions(int iRule, int iInstance, int iTarget) {
-		return m_RulePred[iRule][iInstance][iTarget][0];
+	final protected double getPredictionsWhenCovered(int iRule, int iInstance, int iTarget, int iClass) {
+		if (iRule >= m_RulePred.length) {
+			return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][iClass];
+		} else {
+			return m_RulePred[iRule].m_prediction[iTarget][iClass];
+		}
 	}
-
-	/** Returns all targets
-	 *
+	
+	/** Value of base function prediction in regression use
+	 * when we already know that instance is covered! Use isCovered for this.
+	 * If used right, gives always prediction.
 	 */
-//	protected double[][] getPredictions(int iRule, int iInstance) {
-//		return m_RulePred[iRule][iInstance];
-//	}
-
-	/** Returns all predictions
-	 *
-	 */
-//	protected double[][][] getPredictions(int iRule) {
-//		return m_RulePred[iRule];
-//	}
-
-
-//	protected double getDefaultPrediction(int iTarget) {
-//		return m_defaultPred[iTarget];
-//	}
+	final protected double getPredictionsWhenCovered(int iRule, int iInstance, int iTarget) {
+		if (iRule >= m_RulePred.length) {
+			return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][0];
+		} else {
+			return m_RulePred[iRule].m_prediction[iTarget][0];
+		}
+	}
 
 	protected double getTrueValue(int iInstance, int iTarget)  {
 		return m_TrueVal[iInstance][iTarget];
@@ -712,7 +757,8 @@ public class OptProbl {
 	/** Change the data used for learning. This is used if part of the data
 	 * is used for e.g. testing. */
 	protected void changeData(OptParam newData) {
-		m_RulePred = newData.m_predictions;
+		m_BaseFuncPred = newData.m_baseFuncPredictions;
+		m_RulePred = newData.m_rulePredictions;
 //		m_defaultPred = newData.m_defaultPrediction;
 		m_TrueVal = newData.m_trueValues;
 	}

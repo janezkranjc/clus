@@ -131,8 +131,8 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 						getStatManager()));
 		}
 
-		System.out.println("Transformed tree ensemble into rules. " + ruleSet.getModelSize()
-	            +  " rules created. (" + numberOfUniqueRules + " of them are unique.)");
+		System.out.println("Transformed " + forestModel.getNbModels() + " trees in ensemble into rules.\n\tCreated " +
+				+ ruleSet.getModelSize() +  " rules. (" + numberOfUniqueRules + " of them are unique.)");
 
 		RowData trainingData = (RowData)cr.getTrainingSet();
 

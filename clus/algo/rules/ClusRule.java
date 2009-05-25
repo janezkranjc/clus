@@ -763,6 +763,13 @@ public class ClusRule implements ClusModel, Serializable {
 		return m_TargetStat.isValidPrediction();
 	}
 
+
+	/** Is this a regular rule or some other type of learner (e.g. linear term) */
+	public boolean isRegularRule() {
+		return !m_isLinearTerm;
+	}
+
+	
 	public void computeCoverStat(RowData data, ClusStatistic stat) {
 		int nb = data.getNbRows();
 		stat.setSDataSize(nb);

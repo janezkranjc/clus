@@ -150,7 +150,7 @@ public class ClusRulesFromTree {
 	public ClusRuleSet constructRules(ClusNode node, ClusStatManager mgr) {
 		ClusRuleSet ruleSet = new ClusRuleSet(mgr);
 		ClusRule init = new ClusRule(mgr);
-		System.out.println("Constructing rules from a tree.");
+//		System.out.println("Constructing rules from a tree.");
 		constructRecursive(node, init, ruleSet);
 		ruleSet.removeEmptyRules();
 		ruleSet.simplifyRules();

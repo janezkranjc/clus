@@ -66,7 +66,9 @@ public class GDProbl extends OptProbl {
 
 
 	/** For covariance computing, we need means (expected values) of predictions
-	 * [predictor][target]*/
+	 * [predictor][target]
+	 * OBSOLETE. For predictions means are not computed because, e.g. for all covering rule the its effect would
+	 * go to zero (by prediction - mean)*/
 	protected double[][] m_meanPredictors;
 
 	/** For covariance computing, we need means (expected values) of true values
@@ -104,37 +106,6 @@ public class GDProbl extends OptProbl {
 	/** New problem for computing fitness function with the early stop data */
 	protected OptProbl m_earlyStopProbl;
 
-	// The following variables are for multi target gradient combining. We are combining the gradients
-	// in such way that the target with greatest loss function value is chosen.
-    // However we are computing squared loss by more efficient way.
-	/**
-	 * Used for fast computation of squared loss. The weights for last iteration.
-	 */
-	private double[] m_oldWeightsForEfficientMaxLoss;
-	/**
-	 * Used for fast computation of squared loss.
-	 * The vector version of square of weights. [iRuleSmallerIndex][iRuleLargerIndex]
-	 */
-	private double[][] m_vectorOldWeightsEfficientMaxLoss;
-
-	/**
-	 * Used for fast computation of squared loss.
-	 * The sum of rule predictions x true values all examples
-	 * for each rule and each target. [iRule][iTarget]
-	 */
-	private double[][] m_sumPredAndTrueValForEfficientMaxLoss;
-
-	/**
-	 * Used for fast computation of squared loss.
-	 * The vector version of square predictions. [iRuleSmallerIndex][iRuleLargerIndex][iTarget]
-	 */
-	private double[][][] m_vectorSumOfPredictionsForEfficientMaxLoss;
-
-	/**
-	 * Used for fast computation of squared loss. The losses for each target.
-	 */
-	private double[] m_lossesForEfficientMaxLoss;
-
 
 	/**
 	 * Constructor for problem to be solved with differential evolution. Both classification and regression.
@@ -164,10 +135,12 @@ public class GDProbl extends OptProbl {
 
 
 			// Create the early stopping data variables.
-			m_dataEarlyStop = new OptParam(getNumVar(),
+			m_dataEarlyStop = new OptParam(optInfo.m_rulePredictions.length,
+					optInfo.m_baseFuncPredictions.length,
 					nbDataTest,
 					getNbOfTargets());
-			OptParam rest = new OptParam(getNumVar(),
+			OptParam rest = new OptParam(optInfo.m_rulePredictions.length,
+					optInfo.m_baseFuncPredictions.length,
 					getNbOfInstances()-nbDataTest,
 					getNbOfTargets());
 
@@ -202,11 +175,16 @@ public class GDProbl extends OptProbl {
 				optInfo.m_trueValues[iNewTestInstance] = null;
 
 				// Add the new instance for all the rules
-				for (int iRule = 0; iRule < optInfo.m_predictions.length;iRule++){
-					m_dataEarlyStop.m_predictions[iRule][iTestSetInstance] = optInfo.m_predictions[iRule][iNewTestInstance];
+				for (int iNonRule = 0; iNonRule < optInfo.m_baseFuncPredictions.length;iNonRule++){
+					m_dataEarlyStop.m_baseFuncPredictions[iNonRule][iTestSetInstance] = optInfo.m_baseFuncPredictions[iNonRule][iNewTestInstance];
 					// 	To be safe, put original reference to null
-					optInfo.m_predictions[iRule][iNewTestInstance] = null;
+					optInfo.m_baseFuncPredictions[iNonRule][iNewTestInstance] = null;
 				}
+				
+				for (int iRule = 0; iRule < optInfo.m_rulePredictions.length;iRule++){
+					m_dataEarlyStop.m_rulePredictions[iRule].m_cover[iTestSetInstance] = optInfo.m_rulePredictions[iRule].m_cover[iNewTestInstance];
+				}
+
 			}
 			// Add rest of the instances to training set
 //			int sum = 0;
@@ -222,11 +200,21 @@ public class GDProbl extends OptProbl {
 					// Not used as test instance - add it
 					rest.m_trueValues[iInstanceRestIndex] =	optInfo.m_trueValues[iInstance];
 
-					for (int iRule = 0; iRule < optInfo.m_predictions.length;iRule++){
-						rest.m_predictions[iRule][iInstanceRestIndex] =	optInfo.m_predictions[iRule][iInstance];
+					for (int iRule = 0; iRule < optInfo.m_baseFuncPredictions.length;iRule++){
+						rest.m_baseFuncPredictions[iRule][iInstanceRestIndex] =	optInfo.m_baseFuncPredictions[iRule][iInstance];
 					}
+					
+					for (int iRule = 0; iRule < optInfo.m_rulePredictions.length;iRule++){
+						rest.m_rulePredictions[iRule].m_cover[iInstanceRestIndex] = optInfo.m_rulePredictions[iRule].m_cover[iInstance];
+					}
+					
 					iInstanceRestIndex++;
 				}
+			}
+			
+			for (int iRule = 0; iRule < optInfo.m_rulePredictions.length; iRule++){			
+				rest.m_rulePredictions[iRule].m_prediction = optInfo.m_rulePredictions[iRule].m_prediction;
+				m_dataEarlyStop.m_rulePredictions[iRule].m_prediction = optInfo.m_rulePredictions[iRule].m_prediction;
 			}
 
 			if (iInstanceRestIndex != rest.m_trueValues.length) {
@@ -248,76 +236,6 @@ public class GDProbl extends OptProbl {
 
 		int nbWeights = getNumVar();
 		int nbTargets = getNbOfTargets();
-
-		// ************** Efficient Max loss computation
-
-
-		if (getSettings().getOptGDMTGradientCombine() == Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE_FAST) {
-
-			System.err.println("Warning: Optimized Maximum loss computation used. Even if this optimization can be more efficient in some settings, " +
-					           "usually it is much slower. Do not use it if you are not sure!");
-
-			// These are in init function
-			//m_oldWeightsForEfficientMaxLoss = new double[nbWeights];
-			//m_vectorOldWeightsEfficientMaxLoss = new double[nbWeights][nbWeights];
-
-
-			int nbOfInstances = getNbOfInstances();
-
-//			// Calling predictWithRule so many times that better store them in an array
-//			double[][][] rulePredictions = new double[nbWeights][nbOfInstances][nbTargets];
-//			for (int iWeight = 0; iWeight < nbWeights; iWeight++) {
-//				for (int iTarget = 0; iTarget < nbTargets; iTarget++) {
-//					for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
-//						rulePredictions[iWeight][iInstance][iTarget]
-//						    = predictWithRule(iWeight,iInstance,iTarget);
-//					}
-//				}
-//			}
-
-			// Sum of predictions over instances for each rule and each target
-			m_sumPredAndTrueValForEfficientMaxLoss = new double[nbWeights][nbTargets];
-			for (int iWeight = 0; iWeight < nbWeights; iWeight++) {
-				for (int iTarget = 0; iTarget < nbTargets; iTarget++) {
-					for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
-						m_sumPredAndTrueValForEfficientMaxLoss[iWeight][iTarget] +=
-							predictWithRule(iWeight,iInstance,iTarget)*getTrueValue(iInstance,iTarget);
-					}
-				}
-			}
-
-			// Squared vector inner product terms for vector sum
-			m_vectorSumOfPredictionsForEfficientMaxLoss = new double[nbWeights][nbWeights][nbTargets];
-
-			for (int iWeightSmaller = 0; iWeightSmaller < nbWeights; iWeightSmaller++) {
-				for (int iTarget = 0; iTarget < nbTargets; iTarget++) {
-					for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
-						double iWeightPrediction = predictWithRule(iWeightSmaller,iInstance,iTarget);
-						// Second term runs the next ones from the iWeightSmaller
-						// For squared terms (e.g. R_j*R_j) we have a coefficient 1,
-						// for others, we have a coefficient 2 because there are 2
-						// combinations that are the sama (e.g. R_i*R_j = R_j*R_i). However
-						// we are evaluationg only one of those.
-
-						// Squared term
-						m_vectorSumOfPredictionsForEfficientMaxLoss
-						 [iWeightSmaller][iWeightSmaller][iTarget]
-                        += iWeightPrediction*predictWithRule(iWeightSmaller,iInstance,iTarget);
-
-						// The rest
-						for (int iWeightLarger = iWeightSmaller+1; iWeightLarger < nbWeights; iWeightLarger++) {
-							m_vectorSumOfPredictionsForEfficientMaxLoss
- 							 [iWeightSmaller][iWeightLarger][iTarget]
-                             += 2*iWeightPrediction*predictWithRule(iWeightLarger,iInstance,iTarget);
-						}
-					}
-				}
-			}
-
-			// Losses for each target.
-			m_lossesForEfficientMaxLoss = new double[nbTargets];
-
-		}
 
 		m_covariances = new double[nbWeights][nbWeights][nbTargets];
 		for (int i = 0; i < nbWeights; i++) {
@@ -353,16 +271,9 @@ public class GDProbl extends OptProbl {
 
 		}
 
-		if (getSettings().getOptGDMTGradientCombine() == Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE_FAST) {
-			m_oldWeightsForEfficientMaxLoss = new double[nbWeights];
-			m_vectorOldWeightsEfficientMaxLoss = new double[nbWeights][nbWeights];
-		}
-
-
 		m_isWeightNonZero = new boolean[nbWeights];
 
-		if (getSettings().getOptGDMTGradientCombine() == Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE_FAST ||
-				getSettings().getOptGDMTGradientCombine() == Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE) {
+		if (getSettings().getOptGDMTGradientCombine() == Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE) {
 			m_bannedWeights = new int[nbWeights]; // Are used only for MaxLoss
 		} else {
 			m_bannedWeights = null;
@@ -485,32 +396,24 @@ public class GDProbl extends OptProbl {
 
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
 			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
-//				covs[iTarget] += predictWithRule(iFirstRule,iInstance,iTarget) *
-//				                 predictWithRule(iSecondRule,iInstance,iTarget);
+				covs[iTarget] += predictWithRule(iFirstRule,iInstance,iTarget) *
+				                 predictWithRule(iSecondRule,iInstance,iTarget);
 
 				// We optimize this function because this is the one that takes most of the time (70%).
-				double firstPred = m_RulePred[iFirstRule][iInstance][iTarget][0];
-				double secondPred = m_RulePred[iSecondRule][iInstance][iTarget][0];
-
-				// Is valid prediction or is not covered?
-				firstPred = Double.isNaN(firstPred) ? 0 : firstPred;
-				secondPred = Double.isNaN(secondPred) ? 0 : secondPred;
-
-				covs[iTarget] += firstPred * secondPred;
-
-				// TODO: averages not used
-//				covs[iTarget] +=
-//					(predictWithRule(iFirstRule,iInstance,iTarget)-
-//							m_meanPredictors[iFirstRule][iTarget]) *
-//					(predictWithRule(iSecondRule,iInstance,iTarget) -
-//							m_meanPredictors[iSecondRule][iTarget]);
+				// We should use "predictWithRule" method, but this is slightly faster
+//				double firstPred = getPredictions(iFirstRule,iInstance,iTarget);
+//				double secondPred = getPredictions(iSecondRule,iInstance,iTarget);
+//
+//				// Is valid prediction or is not covered?
+//				firstPred = Double.isNaN(firstPred) ? 0 : firstPred;
+//				secondPred = Double.isNaN(secondPred) ? 0 : secondPred;
+//
+//				covs[iTarget] += firstPred * secondPred;
 			}
 			covs[iTarget] /= getNbOfInstances();
-//			sumOfCovs += covs[iTarget];
 		}
-
+		
 		return covs;
-//		return sumOfCovs/getNbOfTargets();
 	}
 
 
@@ -532,20 +435,8 @@ public class GDProbl extends OptProbl {
 	 * not give prediction for some target, default rule is used.
 	 * ONLY FOR REGRESSION! Classification not implemented.
 	 */
-	protected double predictWithRule(int iRule, int iInstance, int iTarget) {
-		double value = getPredictions(iRule,iInstance,iTarget);
-//		if (Double.isInfinite(value)){
-//			System.err.println("ERROR:infinite value in predictWithRule");
-//			System.exit(0);
-//		}
-		return 	Double.isNaN(value) ? 0 : value;
-		// DEBUG: CHECK that Infinite value cannot come.
-//
-//			if (!isValidValue(getPredictions(iRule,iInstance,iTarget)))
-//				// If the instance is not covered, zero is the prediction. TODO: change for classification
-//				return 0; // getDefaultPrediction(iTarget);
-//			else
-//				return getPredictions(iRule,iInstance,iTarget);
+	final protected double predictWithRule(int iRule, int iInstance, int iTarget) {
+		return 	isCovered(iRule,iInstance) ? getPredictionsWhenCovered(iRule, iInstance, iTarget) : 0;
 	}
 
 	/** Compute the gradients for weights */
@@ -737,39 +628,9 @@ public class GDProbl extends OptProbl {
 		}
 		case Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE_FAST:
 		{
-			int nbWeights = weights.size();
-
-
-			//
-			for (int iWeightSmaller = 0; iWeightSmaller < nbWeights; iWeightSmaller++) {
-				// Second term runs the next ones from the iWeightSmaller
-				for (int iWeightLarger = iWeightSmaller; iWeightLarger < nbWeights; iWeightLarger++) {
-					m_vectorOldWeightsEfficientMaxLoss[iWeightSmaller][iWeightLarger]
-					                                                   = weights.get(iWeightSmaller)*weights.get(iWeightLarger);
-				}
-				// Copy the weights for next iteration
-				m_oldWeightsForEfficientMaxLoss[iWeightSmaller] =
-					weights.get(iWeightSmaller).doubleValue();
-			}
-
-
-			// Compute the biggest gradients based on greatest losses
-			int iMaxTargetLossFunctionValue = 0;
-
-			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-				// Compute loss function for training set
-				m_lossesForEfficientMaxLoss[iTarget] = calcFitnessForTarget(weights, iTarget);
-				// Greatest loss = greatest fitness function return value
-				if (m_lossesForEfficientMaxLoss[iTarget]
-				                       > m_lossesForEfficientMaxLoss[iMaxTargetLossFunctionValue]) {
-					iMaxTargetLossFunctionValue = iTarget;
-				}
-			}
-
-			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
-				m_affectiveGradientsForIter[iGradient] = m_gradients[iGradient][iMaxTargetLossFunctionValue];
-			}
-			break;
+			// The efficient version was not really efficient. Also max loss is worse than avg.
+			System.err.println("Error: Multi-target max loss, efficient computation not implemented.");
+			System.exit(1);
 		}
 
 		}
@@ -811,118 +672,6 @@ public class GDProbl extends OptProbl {
 				// Greatest loss = greatest fitness function return value
 				if (lossFunctionValues[iTarget]
 				                       > lossFunctionValues[iMaxTargetLossFunctionValue]) {
-					iMaxTargetLossFunctionValue = iTarget;
-				}
-			}
-
-			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
-				m_affectiveGradientsForIter[iGradient] = m_gradients[iGradient][iMaxTargetLossFunctionValue];
-			}
-			break;
-		}
-		case Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE_FAST:
-		{
-			// For some kind of reason is not really faster + makes rounding errors or something.
-//			System.err.println("Fast Maxx loss value not implemented.");
-//			System.exit(0);
-//			double[] lossFunctionValues = new double[nbOfTargets];
-
-//			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-				// Compute loss function for training set
-//				lossFunctionValues[iTarget] = calcFitnessForTarget(weights, iTarget);
-//			}
-			//DEBUG
-
-			int nbWeights = weights.size();
-			// Modify linear loss
-			// The loss changes only on the weights that changed. Others can be omitted
-
-			// The first term
-			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-				// Loss difference
-				double lossChangeBetweenIterations = 0;
-				for (int iiWeight = 0; iiWeight < changedWeightIndex.length; iiWeight++){
-					lossChangeBetweenIterations +=
-						(weights.get(changedWeightIndex[iiWeight])-
-					     m_oldWeightsForEfficientMaxLoss[changedWeightIndex[iiWeight]])
-					    *m_sumPredAndTrueValForEfficientMaxLoss[changedWeightIndex[iiWeight]][iTarget];
-
-				}
-				m_lossesForEfficientMaxLoss[iTarget] -=  2*lossChangeBetweenIterations/getNbOfInstances();
-			}
-
-			// Copy the weights for next iteration
-			for (int iiWeight = 0; iiWeight < changedWeightIndex.length; iiWeight++){
-				m_oldWeightsForEfficientMaxLoss[changedWeightIndex[iiWeight]] =
-					weights.get(changedWeightIndex[iiWeight]).doubleValue();
-			}
-
-			// The second term (inner product)
-			// The value has changed only if either weight has changed
-			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-				// Loss difference
-				double lossChangeBetweenIterations = 0;
-				int iiChangedWeights = 0;
-				for (int iSmallerWeight = 0; iSmallerWeight < weights.size() && iiChangedWeights < changedWeightIndex.length;
-						 iSmallerWeight++){
-
-					// The indexes in changedWeight are in ascending order
-					if (changedWeightIndex[iiChangedWeights] == iSmallerWeight) {
-						// At least one of the weights changed for the whole column, compute
-						// all of them
-						for (int iLargerAll = iSmallerWeight; iLargerAll < nbWeights; iLargerAll++) {
-							 lossChangeBetweenIterations +=
-								 (m_vectorOldWeightsEfficientMaxLoss[iSmallerWeight][iLargerAll]
-                                  -weights.get(iSmallerWeight)*weights.get(iLargerAll))
-								 *m_vectorSumOfPredictionsForEfficientMaxLoss[iSmallerWeight][iLargerAll][iTarget];
-						}
-						iiChangedWeights++; // Next changed weight index
-					} else { // The first weight did not change
-						// Let us check only those terms for which the second weight changed
-						// We are starting from the index that is next larger than current
-						// iSmallerWeight
-						for (int iiLargerChanged = iiChangedWeights; iiLargerChanged < changedWeightIndex.length;
-							 iiLargerChanged++) {
-							lossChangeBetweenIterations +=
-								(m_vectorOldWeightsEfficientMaxLoss[iSmallerWeight][changedWeightIndex[iiLargerChanged]]
-								 -weights.get(iSmallerWeight)*weights.get(changedWeightIndex[iiLargerChanged]))
-								*m_vectorSumOfPredictionsForEfficientMaxLoss[iSmallerWeight][changedWeightIndex[iiLargerChanged]][iTarget];
-
-						}
-					}
-				}
-				m_lossesForEfficientMaxLoss[iTarget] -= lossChangeBetweenIterations/getNbOfInstances();;
-			}
-
-
-			// Copy the new weights to vector
-			int iiChangedWeights = 0;
-			for (int iSmallerWeight = 0; iSmallerWeight < weights.size()  && iiChangedWeights < changedWeightIndex.length;
-			     iSmallerWeight++){
-				// The indexes in changedWeight are in ascending order
-				if (changedWeightIndex[iiChangedWeights] == iSmallerWeight) {
-					for (int iLargerAll = iSmallerWeight; iLargerAll < nbWeights; iLargerAll++) {
-						m_vectorOldWeightsEfficientMaxLoss[iSmallerWeight][iLargerAll] =
-						  weights.get(iSmallerWeight)*weights.get(iLargerAll);
-					}
-					iiChangedWeights++; // Next changed weight index
-				} else { // The first weight did not change
-					for (int iiLargerChanged = iiChangedWeights; iiLargerChanged < changedWeightIndex.length;
-					 iiLargerChanged++) {
-						m_vectorOldWeightsEfficientMaxLoss[iSmallerWeight][changedWeightIndex[iiLargerChanged]] =
-							  weights.get(iSmallerWeight)*weights.get(changedWeightIndex[iiLargerChanged]);
-					}
-				}
-			}
-
-			// Compute the biggest gradients based on greatest losses
-			int iMaxTargetLossFunctionValue = 0;
-			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-				// Compute loss function for training set
-
-				// Greatest loss = greatest fitness function return value
-				if (m_lossesForEfficientMaxLoss[iTarget]
-				                       > m_lossesForEfficientMaxLoss[iMaxTargetLossFunctionValue]) {
 					iMaxTargetLossFunctionValue = iTarget;
 				}
 			}
@@ -1173,5 +922,5 @@ public class GDProbl extends OptProbl {
 		}
 		//turha.add(new Integer(maxDepths));
 		return maxDepths;
-	}
+	}	
 }
