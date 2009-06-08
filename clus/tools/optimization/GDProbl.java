@@ -44,8 +44,10 @@ public class GDProbl extends OptProbl {
 	/**
 	 * Covariances between weights. Are computed only if needed.
 	 * [iFirstWeight][iSecondWeight][iTarget]
+	 * OBSOLETE, only averages of covariances are used any more!
 	 */
-	protected double[][][] m_covariances;
+	//protected double[][][] m_covariances;  OBSOLETE, only averages of covariances are used any more!
+	protected double[][] m_covariances;
 
 	/**
 	 *  Is covariance computed for this dimension?
@@ -69,7 +71,7 @@ public class GDProbl extends OptProbl {
 	 * [predictor][target]
 	 * OBSOLETE. For predictions means are not computed because, e.g. for all covering rule the its effect would
 	 * go to zero (by prediction - mean)*/
-	protected double[][] m_meanPredictors;
+	//protected double[][] m_meanPredictors;
 
 	/** For covariance computing, we need means (expected values) of true values
 	 * [target] */
@@ -83,7 +85,8 @@ public class GDProbl extends OptProbl {
 
 	/** Computed negative gradients for each of the dimensions
 	 * [iWeight][iTarget]*/
-	protected double[][] m_gradients;
+//	protected double[][] m_gradients;
+	protected double[] m_gradients;
 
 	/** Includes the weights that are banned.
 	 * One value for each of the weights, if value > nbOfIterations, weight is banned.
@@ -118,7 +121,7 @@ public class GDProbl extends OptProbl {
 		super(stat_mgr, optInfo);
 
 
-		m_meanPredictors = new double[getNumVar()][getNbOfTargets()];
+		//m_meanPredictors = new double[getNumVar()][getNbOfTargets()];
 		m_meanTrueValues = new double[getNbOfTargets()];
 
 		if (getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE) {
@@ -237,11 +240,13 @@ public class GDProbl extends OptProbl {
 		int nbWeights = getNumVar();
 		int nbTargets = getNbOfTargets();
 
-		m_covariances = new double[nbWeights][nbWeights][nbTargets];
+		//m_covariances = new double[nbWeights][nbWeights][nbTargets];
+		m_covariances = new double[nbWeights][nbWeights];
 		for (int i = 0; i < nbWeights; i++) {
 			for (int j = 0; j < nbWeights; j++) {
-				for (int k = 0; k < nbTargets; k++)
-					m_covariances[i][j][k] = Double.NaN;
+//				for (int k = 0; k < nbTargets; k++)
+//					m_covariances[i][j][k] = Double.NaN;
+				m_covariances[i][j] = Double.NaN;
 			}
 		}
 		m_isCovComputed = new boolean[nbWeights]; // Initial value is false
@@ -278,7 +283,7 @@ public class GDProbl extends OptProbl {
 		} else {
 			m_bannedWeights = null;
 		}
-		m_gradients = new double[nbWeights][nbTargets];  // Initial value is zero
+		m_gradients = new double[nbWeights];  // Initial value is zero
 
 		m_nbOfNonZeroRules = 0;
 		m_affectiveGradientsForIter = new double[nbWeights];
@@ -309,10 +314,10 @@ public class GDProbl extends OptProbl {
 
 	/** Estimate of expected value of covariance for given prediction.
 	 * The covariance of this prediction with its true value is returned.
-	 * Return the covariance for each of the targets.
 	 */
-	protected double[] getCovForPrediction(int iPred) {
-
+//	 * Return the covariance for each of the targets.
+//	protected double[] getCovForPrediction(int iPred) {
+	protected double getCovForPrediction(int iPred) {
 		double[] covs = new double[getNbOfTargets()];
 		int nbOfTargets = getNbOfTargets();
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
@@ -322,14 +327,18 @@ public class GDProbl extends OptProbl {
 					//covs[iTarget] += trueVal*predictWithRule(iPred, iInstance,iTarget);
 					covs[iTarget] +=
 						(trueVal-m_meanTrueValues[iTarget])*
-						(predictWithRule(iPred, iInstance,iTarget)
-								-m_meanPredictors[iPred][iTarget]);
+						predictWithRule(iPred, iInstance,iTarget);
 			}
 
 			covs[iTarget] /= getNbOfInstances();
 		}
 
-		return covs;
+		double avgCov = 0;
+		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
+			avgCov += covs[iTarget]/nbOfTargets;
+		}
+		return avgCov;
+		//return covs;
 	}
 
 	private boolean isValidValue(double pred) {
@@ -338,13 +347,15 @@ public class GDProbl extends OptProbl {
 
 
 	/**
-	 * Return the right stored covariance value for each target
+	 * Return the right stored covariance
 	 */
 	// Only one corner is computed (the other is similar)
-	protected double[] getWeightCov(int iFirst, int iSecond) {
+//	protected double[] getWeightCov(int iFirst, int iSecond) {
+	protected double getWeightCov(int iFirst, int iSecond) {
 		int min = Math.min(iFirst, iSecond);
 		int max = Math.max(iFirst, iSecond);
-		if (Double.isNaN(m_covariances[min][max][0]))
+		//if (Double.isNaN(m_covariances[min][max][0]))
+		if (Double.isNaN(m_covariances[min][max]))
 			throw new Error("Asked covariance not yet computed. Something wrong in the covariances in GDProbl.");
 		return m_covariances[min][max];
 	}
@@ -387,12 +398,12 @@ public class GDProbl extends OptProbl {
 	 * @param iSecond Base learner index.
 	 * @return
 	 */
-	private double[] computeCovFor2Preds(int iFirstRule, int iSecondRule) {
+//	private double[] computeCovFor2Preds(int iFirstRule, int iSecondRule) {
+	private double computeCovFor2Preds(int iFirstRule, int iSecondRule) {
 		int nbOfTargets = getNbOfTargets();
 		int nbOfInstances = getNbOfInstances();
 
 		double[] covs = new double[nbOfTargets];
-//		double sumOfCovs = 0;
 
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
 			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
@@ -413,7 +424,13 @@ public class GDProbl extends OptProbl {
 			covs[iTarget] /= getNbOfInstances();
 		}
 		
-		return covs;
+		double avgCov = 0;
+		
+		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
+			avgCov += covs[iTarget]/nbOfTargets;
+		}
+		return avgCov;
+//		return covs;
 	}
 
 
@@ -451,9 +468,9 @@ public class GDProbl extends OptProbl {
 
 
 	/** Compute gradient for the given weight dimension */
-	protected double[] getGradient(int iWeightDim, ArrayList<Double> weights) {
+	protected double getGradient(int iWeightDim, ArrayList<Double> weights) {
 
-		double[] gradient = null;
+		double gradient = 0;
 		switch (getSettings().getOptGDLossFunction()) {
 		case Settings.OPT_LOSS_FUNCTIONS_01ERROR:
 			//gradient = loss01(trueValue, prediction);
@@ -481,23 +498,28 @@ public class GDProbl extends OptProbl {
 	/**
 	 * Squared loss gradient. p. 18 in Friedman & Popescu, 2004
 	 * @param iGradWeightDim Weight dimension for which the gradient is computed.
-	 * @return Gradients for all the targets
+	 * @return Gradient average
 	 */
-	private double[] gradientSquared(int iGradWeightDim, ArrayList<Double> weights) {
-		// Gradients for all the targets
-		double[] gradient = new double[getNbOfTargets()] ;
-		int nbOfTargets = getNbOfTargets();
+//	private double[] gradientSquared(int iGradWeightDim, ArrayList<Double> weights) {
+	private double gradientSquared(int iGradWeightDim, ArrayList<Double> weights) {
+
+		//double[] gradient = new double[getNbOfTargets()] ;
+		double gradient = 0;
+//		int nbOfTargets = getNbOfTargets();
 
 		gradient = getCovForPrediction(iGradWeightDim);
 
 		for (int iWeight = 0; iWeight < getNumVar(); iWeight++){
 			//if (m_isWeightNonZero[weights.get(iWeight).doubleValue() != 0) {
 			if (m_isWeightNonZero[iWeight]) {
-				double[] covariance = getWeightCov(iWeight,iGradWeightDim);
-				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-					gradient[iTarget] -= weights.get(iWeight).doubleValue()
-					                     * covariance[iTarget];
-				}
+				gradient -= weights.get(iWeight).doubleValue()
+                					* getWeightCov(iWeight,iGradWeightDim);
+
+//				double[] covariance = getWeightCov(iWeight,iGradWeightDim);
+//				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
+//					gradient[iTarget] -= weights.get(iWeight).doubleValue()
+//					                     * covariance[iTarget];
+//				}
 			}
 		}
 
@@ -545,17 +567,15 @@ public class GDProbl extends OptProbl {
 		for (int iWeightChange = 0; iWeightChange < m_gradients.length; iWeightChange++) {
 			// Index over the other gradients that are affecting (THE WEIGHTS THAT ALTERED)
 			for (int iiAffecting = 0; iiAffecting < changedWeightIndex.length; iiAffecting++) {
-				double[] covariances = getWeightCov(changedWeightIndex[iiAffecting],iWeightChange);
-				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
+				double cov = getWeightCov(changedWeightIndex[iiAffecting],iWeightChange);
+//				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
 					//The stepsize * old gradients is equal to the change!
 					// However we have to use the AFFECTIVE gradients (the gradients that were used last iteration)
-					m_gradients[iWeightChange][iTarget] -= m_stepSize*
+					m_gradients[iWeightChange] -= m_stepSize*
 						m_affectiveGradientsForIter[changedWeightIndex[iiAffecting]]*
-						covariances[iTarget];
+										cov;
 
-					//m_gradients[iWeightChange][iTarget] -= m_stepSize* oldGradsOfChanged[iiAffecting][iTarget]*
-					//										covariances[iTarget];
-				}
+//				}
 			}
 		}
 	}
@@ -579,52 +599,63 @@ public class GDProbl extends OptProbl {
 		{ // Average over the gradients. Leaves local minimas.
 
 			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
-				m_affectiveGradientsForIter[iGradient] = 0;
+//				m_affectiveGradientsForIter[iGradient] = 0;
+				m_affectiveGradientsForIter[iGradient] = m_gradients[iGradient];
 
-				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-					m_affectiveGradientsForIter[iGradient] +=
-						m_gradients[iGradient][iTarget];
-				}
-				m_affectiveGradientsForIter[iGradient] /= nbOfTargets;
+//				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
+//					m_affectiveGradientsForIter[iGradient] +=
+//						m_gradients[iGradient][iTarget];
+//				}
+//				m_affectiveGradientsForIter[iGradient] /= nbOfTargets;
 			}
 			break;
 		}
 		case Settings.OPT_GD_MT_GRADIENT_MAX_GRADIENT:
 		{// Take the maximum gradient. So go according to the biggest slope.
 
-			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
-				double maxGradient = 0;
-				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-					if (Math.abs(maxGradient) < Math.abs(m_gradients[iGradient][iTarget]))
-						maxGradient = m_gradients[iGradient][iTarget];
-				}
-				m_affectiveGradientsForIter[iGradient] = maxGradient;
-			}
-			break;
+			
+			// The efficient version was not really efficient. Also max loss is worse than avg.
+			System.err.println("Error: Multi-target max gradient not implemented.");
+			System.exit(1);
+			
+//			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
+//				double maxGradient = 0;
+//				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
+//					if (Math.abs(maxGradient) < Math.abs(m_gradients[iGradient][iTarget]))
+//						maxGradient = m_gradients[iGradient][iTarget];
+//				}
+//				m_affectiveGradientsForIter[iGradient] = maxGradient;
+//			}
+//			break;
 		}
 
 		case Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE:
 		{
-			// Assume the loss function is the max of all the target loss functions
-			// this creates convex loss function. Thus we select the gradient that
-			// is for the maximal target loss function.
-			int iMaxTargetLossFunctionValue = 0;
-			double[] lossFunctionValues = new double[nbOfTargets];
-
-			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-				// Compute loss function for training set
-				lossFunctionValues[iTarget] = calcFitnessForTarget(weights, iTarget);
-				// Greatest loss = greatest fitness function return value
-				if (lossFunctionValues[iTarget]
-				                       > lossFunctionValues[iMaxTargetLossFunctionValue]) {
-					iMaxTargetLossFunctionValue = iTarget;
-				}
-			}
-
-			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
-				m_affectiveGradientsForIter[iGradient] = m_gradients[iGradient][iMaxTargetLossFunctionValue];
-			}
-			break;
+			// The efficient version was not really efficient. Also max loss is worse than avg.
+			System.err.println("Error: Multi-target max loss not implemented.");
+			System.exit(1);
+			
+//			
+//			// Assume the loss function is the max of all the target loss functions
+//			// this creates convex loss function. Thus we select the gradient that
+//			// is for the maximal target loss function.
+//			int iMaxTargetLossFunctionValue = 0;
+//			double[] lossFunctionValues = new double[nbOfTargets];
+//
+//			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
+//				// Compute loss function for training set
+//				lossFunctionValues[iTarget] = calcFitnessForTarget(weights, iTarget);
+//				// Greatest loss = greatest fitness function return value
+//				if (lossFunctionValues[iTarget]
+//				                       > lossFunctionValues[iMaxTargetLossFunctionValue]) {
+//					iMaxTargetLossFunctionValue = iTarget;
+//				}
+//			}
+//
+//			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
+//				m_affectiveGradientsForIter[iGradient] = m_gradients[iGradient][iMaxTargetLossFunctionValue];
+//			}
+//			break;
 		}
 		case Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE_FAST:
 		{
@@ -658,29 +689,29 @@ public class GDProbl extends OptProbl {
 			break;
 		}
 
-		case Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE:
-		{
-			// Assume the loss function is the max of all the target loss functions
-			// this creates convex loss function. Thus we select the gradient that
-			// is for the maximal target loss function.
-			int iMaxTargetLossFunctionValue = 0;
-			double[] lossFunctionValues = new double[nbOfTargets];
-
-			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-				// Compute loss function for training set
-				lossFunctionValues[iTarget] = calcFitnessForTarget(weights, iTarget);
-				// Greatest loss = greatest fitness function return value
-				if (lossFunctionValues[iTarget]
-				                       > lossFunctionValues[iMaxTargetLossFunctionValue]) {
-					iMaxTargetLossFunctionValue = iTarget;
-				}
-			}
-
-			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
-				m_affectiveGradientsForIter[iGradient] = m_gradients[iGradient][iMaxTargetLossFunctionValue];
-			}
-			break;
-		}
+//		case Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE:
+//		{
+//			// Assume the loss function is the max of all the target loss functions
+//			// this creates convex loss function. Thus we select the gradient that
+//			// is for the maximal target loss function.
+//			int iMaxTargetLossFunctionValue = 0;
+//			double[] lossFunctionValues = new double[nbOfTargets];
+//
+//			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
+//				// Compute loss function for training set
+//				lossFunctionValues[iTarget] = calcFitnessForTarget(weights, iTarget);
+//				// Greatest loss = greatest fitness function return value
+//				if (lossFunctionValues[iTarget]
+//				                       > lossFunctionValues[iMaxTargetLossFunctionValue]) {
+//					iMaxTargetLossFunctionValue = iTarget;
+//				}
+//			}
+//
+//			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
+//				m_affectiveGradientsForIter[iGradient] = m_gradients[iGradient][iMaxTargetLossFunctionValue];
+//			}
+//			break;
+//		}
 		}
 
 	}
