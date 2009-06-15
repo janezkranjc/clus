@@ -4,7 +4,7 @@
 % SC:  Average AUROC: 0.5278170279406131, Average AURPC: 0.03108210312641788, Average AURPC (weighted): 0.1280239438871272, Pooled AURPC: 0.1275119210526612
 
 [General]
-Compatibility = MLJ08
+%Compatibility = MLJ08
 
 [Data]
 File = church_FUN.train.arff.zip

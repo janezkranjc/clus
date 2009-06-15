@@ -203,15 +203,22 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			  //}
 			  
 			  //check
+			  RowData testset = cr.getDataSet(ClusModelInfoList.TESTSET);
 			  System.out.println("Number of rows in predictions-file: "+rw.getNbRows());
-			  System.out.println("Number of rows in test-file: "+cr.getDataSet(ClusModelInfoList.TESTSET).getNbRows());
+			  System.out.println("Number of rows in test-file: "+testset.getNbRows());
 			  //enkel maar die in test-file moeten worden gecheckt
 			  
 			  //store predictions in predProb-matrix
+			  ClusAttrType[] keys = schema.getAllAttrUse(ClusAttrType.ATTR_USE_KEY);
+			  StringAttrType key = (StringAttrType)keys[0];
 			  for (int x=0;x<rw.getNbRows();x++) {
 				//for (int y=0;y<schema.getNbAttributes();y++) {
+			    DataTuple tuple = rw.getTuple(x);
+			    DataTuple tuple_test = testset.getTuple(x);
+			    if (key.getString(tuple).equals(key.getString(tuple_test))) {
+			    	throw new ClusException("Key attributes do not match: "+key.getString(tuple)+" <> "+key.getString(tuple_test)+" at line "+x);
+			    }
 				for (int y=0;y<na.length;y++) {
-			      DataTuple tuple = rw.getTuple(x);
 			      int a = mapping[y];
 			      m_PredProb[0][x][a] = na[y].getNumeric(tuple); //na[0]: eerste attribuut (klasse);
 			    }

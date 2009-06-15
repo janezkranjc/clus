@@ -72,6 +72,7 @@ public class ROCAndPRCurve implements Serializable {
 		double prev = Double.NaN;
 		for (int i = 0; i < m_Values.size(); i++) {
 			DoubleBooleanCount val = m_Values.get(i);
+			//System.out.println("********Val= "+val);
 			if (val.getDouble() != prev && !first) {
 				// System.out.println("Thr: "+((val.getDouble()+prev)/2)+" TP: "+TP_cnt+" FP: "+FP_cnt);
 				addOutput(TP_cnt, FP_cnt);
