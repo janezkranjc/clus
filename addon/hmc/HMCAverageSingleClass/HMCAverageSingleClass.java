@@ -244,7 +244,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			    }
 				for (int y=0;y<na.length;y++) {
 			      int a = mapping_classes[y];
-			      m_PredProb[0][x][a] = na[y].getNumeric(tuple_test); //na[0]: eerste attribuut (klasse);
+			      m_PredProb[0][z][a] = na[y].getNumeric(tuple); //na[0]: eerste attribuut (klasse);
 			    }
 			  }
 			  //m_predProb: datasets i, example j, klasse k (dataset moet enkel testset zijn)
