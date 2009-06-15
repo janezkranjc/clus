@@ -87,7 +87,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		ClusErrorList parent = new ClusErrorList();
 		if (mgr.getMode() == ClusStatManager.MODE_HIERARCHICAL) {
 			int optimize = getSettings().getHierOptimizeErrorMeasure();
-			parent.addError(new HierErrorMeasures(parent, mgr.getHier(), getSettings().getCompatibility(), optimize));
+			parent.addError(new HierErrorMeasures(parent, mgr.getHier(), null, getSettings().getCompatibility(), optimize));
 			return parent;
 		}
 		NumericAttrType[] num = mgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET);

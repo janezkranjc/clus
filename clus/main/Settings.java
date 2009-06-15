@@ -1403,6 +1403,7 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_HierPruneInSig;
 	protected INIFileBool m_HierUseBonferroni;
 	protected INIFileNominalOrDoubleOrVector m_HierClassThreshold;
+	protected INIFileNominalOrDoubleOrVector m_RecallValues;
 	protected INIFileString m_HierEvalClasses;
 
 	public void setSectionHierarchicalEnabled(boolean enable) {
@@ -1428,6 +1429,10 @@ public class Settings implements Serializable {
 	public INIFileNominalOrDoubleOrVector getClassificationThresholds() {
 		return m_HierClassThreshold;
 	}
+	
+	public INIFileNominalOrDoubleOrVector getRecallValues() {
+		return m_RecallValues;
+	}	
 
 	public boolean isHierNoRootPreds() {
 		return m_HierNoRootPreds.getValue();
@@ -2024,6 +2029,8 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierUseBonferroni = new INIFileBool("Bonferroni", false));
 		m_SectionHierarchical.addNode(m_HierClassThreshold = new INIFileNominalOrDoubleOrVector("ClassificationThreshold", NONELIST));
 		m_HierClassThreshold.setNominal(0);
+		m_SectionHierarchical.addNode(m_RecallValues = new INIFileNominalOrDoubleOrVector("RecallValues", NONELIST));
+		m_RecallValues.setNominal(0);		
 		m_SectionHierarchical.addNode(m_HierEvalClasses = new INIFileString("EvalClasses", NONE));
 		m_SectionHierarchical.setEnabled(false);
 

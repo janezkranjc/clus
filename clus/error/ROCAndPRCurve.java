@@ -5,6 +5,7 @@ import java.util.*;
 
 import clus.main.Settings;
 
+import jeans.math.MathUtil;
 import jeans.util.compound.DoubleBoolean;
 import jeans.util.compound.DoubleBooleanCount;
 
@@ -13,13 +14,14 @@ public class ROCAndPRCurve implements Serializable {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected double m_AreaROC, m_AreaPR;
-	protected double[] m_Thresholds;
+	protected double[] m_Thresholds;	
 	
 	protected transient boolean m_ExtendPR;
 	protected transient int m_PrevTP, m_PrevFP;
 	protected transient ArrayList m_ROC;
 	protected transient ArrayList m_PR;
 	protected transient BinaryPredictionList m_Values;
+	protected transient double[] m_PrecisionAtRecall;
 
 	public ROCAndPRCurve(BinaryPredictionList list) {
 		m_Values = list;
@@ -196,5 +198,21 @@ public class ROCAndPRCurve implements Serializable {
 			}
 		}
 	}
-}
 
+	public double getPrecisionAtRecall(int j) {
+		return m_PrecisionAtRecall[j];
+	}
+
+	public void computePrecisions(double[] recallValues) {
+		if (recallValues == null) return;
+		int nbRecalls = recallValues.length;
+		m_PrecisionAtRecall = new double[nbRecalls];
+		for (int i = 0; i < nbRecalls; i++) {
+			m_PrecisionAtRecall[i] = computePrecision(recallValues[i]);
+		}		
+	}
+	
+	public double computePrecision(double recall) {
+		return MathUtil.interpolate(recall, m_PR);
+	}	
+}

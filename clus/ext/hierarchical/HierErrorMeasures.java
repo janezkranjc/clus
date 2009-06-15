@@ -22,17 +22,20 @@ public class HierErrorMeasures extends ClusError {
 	protected ROCAndPRCurve[] m_ROCAndPRCurves;
 	protected int m_Compatibility;
 	protected int m_OptimizeMeasure;
+	protected double[] m_RecallValues;
+	protected double[] m_AvgPrecisionAtRecall;
 
 	protected double m_AverageAUROC;
 	protected double m_AverageAUPRC;
 	protected double m_WAvgAUPRC;
 	protected double m_PooledAUPRC;
 
-	public HierErrorMeasures(ClusErrorList par, ClassHierarchy hier, int compat, int optimize) {
+	public HierErrorMeasures(ClusErrorList par, ClassHierarchy hier, double[] recalls, int compat, int optimize) {
 		super(par, hier.getTotal());
 		m_Hier = hier;
 		m_Compatibility = compat;
 		m_OptimizeMeasure = optimize;
+		m_RecallValues = recalls;
 		m_EvalClass = hier.getEvalClassesVector();
 		// m_EvalClass = new boolean[hier.getTotal()];
 		// m_EvalClass[19] = true;
@@ -44,7 +47,7 @@ public class HierErrorMeasures extends ClusError {
 			m_ROCAndPRCurves[i] = new ROCAndPRCurve(predlist);
 		}
 	}
-
+	
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(m_Hier.getType().getArrayIndex());
 		double[] predarr = ((WHTDStatistic)pred).getNumericPred();
@@ -127,6 +130,13 @@ public class HierErrorMeasures extends ClusError {
 			out.print(", AUROC: "+fr.format(m_ROCAndPRCurves[idx].getAreaROC()));
 			out.print(", AUPRC: "+fr.format(m_ROCAndPRCurves[idx].getAreaPR()));
 			out.print(", Freq: "+fr.format(m_ClassWisePredictions[idx].getFrequency()));
+			if (m_RecallValues != null) {
+				int nbRecalls = m_RecallValues.length;
+				for (int i = 0; i < nbRecalls; i++) {
+					int rec = (int)Math.floor(100.0*m_RecallValues[i]+0.5);
+					out.print(", P"+rec+"R: "+fr.format(100.0*m_ROCAndPRCurves[idx].getPrecisionAtRecall(i)));
+				}
+			}
 			out.println();
 		}
 		for (int i = 0; i < node.getNbChildren(); i++) {
@@ -173,6 +183,7 @@ public class HierErrorMeasures extends ClusError {
 			if (isEvalClass(i)) {
 				m_ClassWisePredictions[i].sort();
 				m_ROCAndPRCurves[i].computeCurves();
+				m_ROCAndPRCurves[i].computePrecisions(m_RecallValues);
 				m_ROCAndPRCurves[i].clear();
 				pooled.add(m_ClassWisePredictions[i]);
 				m_ClassWisePredictions[i].clearData();
@@ -197,17 +208,44 @@ public class HierErrorMeasures extends ClusError {
 				sumFrequency += freq;
 				cnt++;
 			}
-		}
+		}		
 		m_AverageAUROC = sumAUROC / cnt;
 		m_AverageAUPRC = sumAUPRC / cnt;
 		m_WAvgAUPRC = sumAUPRCw / sumFrequency;
 		m_PooledAUPRC = pooledCurve.getAreaPR();
+		// Compute average precisions at recall values
+		if (m_RecallValues != null) {
+			int nbRecalls = m_RecallValues.length;
+			m_AvgPrecisionAtRecall = new double[nbRecalls];
+			for (int j = 0; j < nbRecalls; j++) {
+				int nbClass = 0;
+				for (int i = 0; i < m_Dim; i++) {
+					if (isEvalClass(i)) {
+						double prec = m_ROCAndPRCurves[i].getPrecisionAtRecall(j);
+						m_AvgPrecisionAtRecall[j] += prec;
+						nbClass++;
+					}
+				}
+				m_AvgPrecisionAtRecall[j] /= nbClass;
+			}
+		}
 	}
 
 	public void showModelError(PrintWriter out, int detail) {
 		NumberFormat fr1 = ClusFormat.SIX_AFTER_DOT;
 		computeAll();
-		out.println("Average AUROC: "+m_AverageAUROC+", Average AURPC: "+m_AverageAUPRC+", Average AURPC (weighted): "+m_WAvgAUPRC+", Pooled AURPC: "+m_PooledAUPRC);
+		out.println();
+		out.println("      Average AUROC:            "+m_AverageAUROC);
+		out.println("      Average AURPC:            "+m_AverageAUPRC);
+		out.println("      Average AURPC (weighted): "+m_WAvgAUPRC);
+		out.println("      Pooled AURPC:             "+m_PooledAUPRC);
+		if (m_RecallValues != null) {
+			int nbRecalls = m_RecallValues.length;
+			for (int i = 0; i < nbRecalls; i++) {
+				int rec = (int)Math.floor(100.0*m_RecallValues[i]+0.5);
+				out.println("      P"+rec+"R: "+(100.0*m_AvgPrecisionAtRecall[i]));
+			}
+		}
 		if (detail != ClusError.DETAIL_VERY_SMALL) {
 			printResults(fr1, out, m_Hier);
 		}
@@ -218,6 +256,6 @@ public class HierErrorMeasures extends ClusError {
 	}
 
 	public ClusError getErrorClone(ClusErrorList par) {
-		return new HierErrorMeasures(par, m_Hier, m_Compatibility, m_OptimizeMeasure);
+		return new HierErrorMeasures(par, m_Hier, m_RecallValues, m_Compatibility, m_OptimizeMeasure);
 	}
 }
