@@ -1,7 +1,7 @@
 Clus run simple
 ***************
 
-Date: 12/24/08 2:49 PM
+Date: 6/15/09 3:08 PM
 File: toyHMC.sc.combined.out
 Attributes: 3 (input: 2, output: 1)
 Missing values: No
@@ -39,6 +39,7 @@ MaxError = 0.0
 [Output]
 ShowModels = {Default, Pruned, Others}
 TrainErrors = Yes
+ValidErrors = Yes
 AllFoldModels = Yes
 AllFoldErrors = No
 AllFoldDatasets = No
@@ -51,12 +52,14 @@ WritePredictions = {None}
 ModelIDFiles = No
 OutputPythonModel = No
 OutputDatabaseQueries = No
+WriteCurves = No
 
 [Nominal]
 MEstimate = 1.0
 
 [Model]
 MinimalWeight = 1.0
+MinimalNumberExamples = 0
 ParamTuneNumberFolds = 10
 ClassWeights = 0.0
 NominalSubsetTests = Yes
@@ -70,6 +73,7 @@ PruningMethod = Default
 MSENominal = No
 ConvertToRules = No
 AlternativeSplits = No
+Optimize = {}
 
 [Hierarchical]
 Type = Tree
@@ -84,6 +88,7 @@ NoRootPredictions = No
 PruneInSig = 0.0
 Bonferroni = No
 ClassificationThreshold = None
+RecallValues = None
 EvalClasses = None
 
 [SIT]
@@ -111,7 +116,11 @@ Training error
 
 Number of examples: 10
 Hierarchical error measures
-   Original: Average AUROC: 0.8833333333333334, Average AURPC: 0.9791666666666666, Average AURPC (weighted): 0.9851190476190477, Pooled AURPC: 0.9975340136054422
+   Original: 
+      Average AUROC:            0.8833333333333334
+      Average AURPC:            0.9791666666666666
+      Average AURPC (weighted): 0.9851190476190477
+      Pooled AURPC:             0.9975340136054422
       0: rec, AUROC: 0.5, AUPRC: 1, Freq: 1
       1: rec/auto, AUROC: 1, AUPRC: 1, Freq: 0.2
       2: rec/sport, AUROC: 1, AUPRC: 1, Freq: 0.8
@@ -123,7 +132,11 @@ Testing error
 
 Number of examples: 5
 Hierarchical error measures
-   Original: Average AUROC: 0.8833333333333334, Average AURPC: 0.9833333333333334, Average AURPC (weighted): 0.9880952380952381, Pooled AURPC: 0.9976190476190476
+   Original: 
+      Average AUROC:            0.8833333333333334
+      Average AURPC:            0.9833333333333334
+      Average AURPC (weighted): 0.9880952380952381
+      Pooled AURPC:             0.9976190476190476
       0: rec, AUROC: 0.5, AUPRC: 1, Freq: 1
       1: rec/auto, AUROC: 1, AUPRC: 1, Freq: 0.2
       2: rec/sport, AUROC: 1, AUPRC: 1, Freq: 0.8

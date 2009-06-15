@@ -293,7 +293,7 @@ public class ClusErrorList implements Serializable {
 		return true;
 	}
 
-	public void showError(ClusModelInfoList models, int type, PrintWriter out) {
+	public void showError(ClusModelInfoList models, int type, String bName, PrintWriter out) throws IOException {
 		int nb = m_Error.size();
 		ClusModelInfo definf = models.getModelInfo(ClusModel.DEFAULT);
 		ClusErrorList defpar = definf.getError(type);
@@ -330,7 +330,7 @@ public class ClusErrorList implements Serializable {
 							} else {
 								out.print("   "+StringUtils.printStr(inf.getName(),15)+": ");
 							}
-							err2.showModelError(out, ClusError.DETAIL_SMALL);
+							err2.showModelError(out, bName, ClusError.DETAIL_SMALL);
 						}
 					}
 				}

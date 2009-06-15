@@ -1,7 +1,9 @@
 package clus.ext.hierarchical;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 
 import clus.data.rows.DataTuple;
 import clus.error.BinaryPredictionList;
@@ -22,6 +24,7 @@ public class HierErrorMeasures extends ClusError {
 	protected ROCAndPRCurve[] m_ROCAndPRCurves;
 	protected int m_Compatibility;
 	protected int m_OptimizeMeasure;
+	protected boolean m_WriteCurves;
 	protected double[] m_RecallValues;
 	protected double[] m_AvgPrecisionAtRecall;
 
@@ -29,12 +32,16 @@ public class HierErrorMeasures extends ClusError {
 	protected double m_AverageAUPRC;
 	protected double m_WAvgAUPRC;
 	protected double m_PooledAUPRC;
+	
+	protected transient PrintWriter m_PRCurves;
+	protected transient PrintWriter m_ROCCurves;
 
-	public HierErrorMeasures(ClusErrorList par, ClassHierarchy hier, double[] recalls, int compat, int optimize) {
+	public HierErrorMeasures(ClusErrorList par, ClassHierarchy hier, double[] recalls, int compat, int optimize, boolean wrCurves) {
 		super(par, hier.getTotal());
 		m_Hier = hier;
 		m_Compatibility = compat;
 		m_OptimizeMeasure = optimize;
+		m_WriteCurves = wrCurves;
 		m_RecallValues = recalls;
 		m_EvalClass = hier.getEvalClassesVector();
 		// m_EvalClass = new boolean[hier.getTotal()];
@@ -184,6 +191,8 @@ public class HierErrorMeasures extends ClusError {
 				m_ClassWisePredictions[i].sort();
 				m_ROCAndPRCurves[i].computeCurves();
 				m_ROCAndPRCurves[i].computePrecisions(m_RecallValues);
+				outputPRCurve(i, m_ROCAndPRCurves[i]);
+				outputROCCurve(i, m_ROCAndPRCurves[i]);
 				m_ROCAndPRCurves[i].clear();
 				pooled.add(m_ClassWisePredictions[i]);
 				m_ClassWisePredictions[i].clearData();
@@ -191,6 +200,8 @@ public class HierErrorMeasures extends ClusError {
 		}
 		pooled.sort();
 		pooledCurve.computeCurves();
+		outputPRCurve(-1, pooledCurve);
+		outputROCCurve(-1, pooledCurve);
 		pooledCurve.clear();
 		// Compute averages
 		int cnt = 0;
@@ -231,7 +242,47 @@ public class HierErrorMeasures extends ClusError {
 		}
 	}
 
-	public void showModelError(PrintWriter out, int detail) {
+	public void ouputCurve(int ci, ArrayList points, PrintWriter curves) {
+		String clName = "ALL";
+		if (ci != -1) {
+			ClassTerm cl = m_Hier.getTermAt(ci);
+			clName = "\""+cl.toStringHuman(m_Hier)+"\"";
+		}
+		for (int i = 0; i < points.size(); i++) {
+			double[] pt = (double[])points.get(i);
+			curves.println(clName+","+pt[0]+","+pt[1]);
+		}
+	}
+	
+	public void outputPRCurve(int i, ROCAndPRCurve curve) {
+		if (m_PRCurves != null) {
+			ArrayList points = curve.getPRCurve();
+			ouputCurve(i, points, m_PRCurves);
+		}		
+	}
+
+	public void outputROCCurve(int i, ROCAndPRCurve curve) {
+		if (m_ROCCurves != null) {
+			ArrayList points = curve.getROCCurve();
+			ouputCurve(i, points, m_ROCCurves);
+		}		
+	}
+
+	public void writeCSVFilesPR(String fname) throws IOException {
+		m_PRCurves = new PrintWriter(fname);
+		m_PRCurves.println("Class,Recall,Precision");
+	}
+	
+	public void writeCSVFilesROC(String fname) throws IOException {
+		m_ROCCurves = new PrintWriter(fname);
+		m_ROCCurves.println("Class,FP,TP");
+	}	
+	
+	public void showModelError(PrintWriter out, String bName, int detail) throws IOException {
+		if (m_WriteCurves && bName != null) {
+			writeCSVFilesPR(bName+".pr.csv");
+			writeCSVFilesROC(bName+".roc.csv");
+		}
 		NumberFormat fr1 = ClusFormat.SIX_AFTER_DOT;
 		computeAll();
 		out.println();
@@ -249,6 +300,14 @@ public class HierErrorMeasures extends ClusError {
 		if (detail != ClusError.DETAIL_VERY_SMALL) {
 			printResults(fr1, out, m_Hier);
 		}
+		if (m_PRCurves != null) {
+			m_PRCurves.close();
+			m_PRCurves = null;
+		}
+		if (m_ROCCurves != null) {
+			m_ROCCurves.close();
+			m_ROCCurves = null;
+		}
 	}
 
 	public String getName() {
@@ -256,6 +315,6 @@ public class HierErrorMeasures extends ClusError {
 	}
 
 	public ClusError getErrorClone(ClusErrorList par) {
-		return new HierErrorMeasures(par, m_Hier, m_RecallValues, m_Compatibility, m_OptimizeMeasure);
+		return new HierErrorMeasures(par, m_Hier, m_RecallValues, m_Compatibility, m_OptimizeMeasure, m_WriteCurves);
 	}
 }

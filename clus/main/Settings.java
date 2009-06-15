@@ -527,6 +527,7 @@ public class Settings implements Serializable {
 	protected INIFileBool m_ModelIDFiles;
 	protected INIFileBool m_OutputPythonModel;
 	protected INIFileBool m_OutputDatabaseQueries;
+	protected INIFileBool m_WriteCurves;	
 
 	public boolean isOutTrainError() {
 		return m_OutTrainErr.getValue();
@@ -587,6 +588,10 @@ public class Settings implements Serializable {
 	public boolean isShowXValForest() {
 		return m_ShowForest.getValue();
 	}
+	
+	public boolean isWriteCurves() {
+		return m_WriteCurves.getValue();
+	}	
 
 	public boolean getShowModel(int i) {
 		return m_ShowModels.contains(i);
@@ -1939,6 +1944,7 @@ public class Settings implements Serializable {
 		output.addNode(m_ModelIDFiles = new INIFileBool("ModelIDFiles", false));
 		output.addNode(m_OutputPythonModel = new INIFileBool("OutputPythonModel", false));
 		output.addNode(m_OutputDatabaseQueries = new INIFileBool("OutputDatabaseQueries", false));
+		output.addNode(m_WriteCurves = new INIFileBool("WriteCurves", false));		
 
 		INIFileSection nominal = new INIFileSection("Nominal");
 		nominal.addNode(m_MEstimate = new INIFileDouble("MEstimate", 1.0));

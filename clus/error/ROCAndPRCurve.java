@@ -32,6 +32,14 @@ public class ROCAndPRCurve implements Serializable {
 		m_PR.clear();
 	}
 	
+	public ArrayList getROCCurve() {
+		return m_ROC;
+	}
+	
+	public ArrayList getPRCurve() {
+		return m_PR;
+	}	
+	
 	public double getAreaROC() {
 		return m_AreaROC;
 	}
