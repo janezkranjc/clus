@@ -43,7 +43,7 @@ import clus.statistic.*;
  * Multiple rows (tuples) of data.
  * One row (DataTuple) is one instance of the data with target and description attributes.
  */
-public class RowData extends ClusData implements MSortable {
+public class RowData extends ClusData implements MSortable, Serializable {
 
 	public int m_Index;
 	public ClusSchema m_Schema;
@@ -476,6 +476,47 @@ public class RowData extends ClusData implements MSortable {
 			if (pred == branch) res.setTuple(tuple, idx++);
 		}
 		return res;
+	}
+	
+	public final RowData applyConstraint(ClusRuleConstraintInduceTest test, int branch) {
+		boolean order = test.isSmallerThanTest();
+		if(order)
+			return applyConstraintTrue(test,branch);
+		else
+			return applyConstraintFalse(test,branch);
+		
+	}
+
+	private RowData applyConstraintTrue(ClusRuleConstraintInduceTest test, int branch) {
+		int nb = 0;
+		for (int i = 0; i < m_NbRows; i++) {
+			int pred = test.predictWeighted(m_Data[i]);
+			if (pred != branch) nb++;
+		}
+		int idx = 0;
+		RowData res = new RowData(m_Schema, nb);
+		for (int i = 0; i < m_NbRows; i++) {
+			DataTuple tuple = m_Data[i];
+			int pred = test.predictWeighted(tuple);
+			if (pred != branch) res.setTuple(tuple, idx++);
+		}
+		return res;	
+	}
+	
+	private RowData applyConstraintFalse(ClusRuleConstraintInduceTest test, int branch) {
+		int nb = 0;
+		for (int i = 0; i < m_NbRows; i++) {
+			int pred = test.predictWeighted(m_Data[i]);
+			if (pred == branch) nb++;
+		}
+		int idx = 0;
+		RowData res = new RowData(m_Schema, nb);
+		for (int i = 0; i < m_NbRows; i++) {
+			DataTuple tuple = m_Data[i];
+			int pred = test.predictWeighted(tuple);
+			if (pred == branch) res.setTuple(tuple, idx++);
+		}
+		return res;	
 	}
 
 	public final RowData applySoft(SoftTest test, int branch) {

@@ -40,6 +40,8 @@ import clus.model.test.*;
 import clus.util.*;
 import clus.data.type.*;
 import clus.error.*;
+import clus.ext.ilevelc.ILevelCStatistic;
+import clus.ext.ilevelc.ILevelConstraint;
 
 public class ClusRule implements ClusModel, Serializable {
 
@@ -47,6 +49,7 @@ public class ClusRule implements ClusModel, Serializable {
 
 	protected int m_ID;
 	protected Object m_Visitor;
+	protected ArrayList<ILevelConstraint> m_Constraint;
 	/** Target statistics of examples covered by the rule.*/
 	protected ClusStatistic m_TargetStat;
 	/** Clustering statistics of examples covered by the rule.*/
@@ -262,8 +265,15 @@ public class ClusRule implements ClusModel, Serializable {
 		RowData res = new RowData(data.getSchema(), data.getNbRows()-covered);
 		for (int i = 0; i < data.getNbRows(); i++) {
 			DataTuple tuple = data.getTuple(i);
-			if (!covers(tuple)) res.setTuple(tuple, idx++);
+			System.out.print(tuple.m_Index);
+			if (!covers(tuple)) {res.setTuple(tuple, idx++);System.out.println(tuple.m_Index);}
 		}
+//		Iterator<DataTuple> ires = res.toArrayList().iterator();
+//		System.out.println("remaining data:");
+//		while(ires.hasNext()){
+//			DataTuple dt = ires.next();
+//			System.out.print(dt.m_Index);
+//		}
 		return res;
 	}
 
@@ -436,6 +446,76 @@ public class ClusRule implements ClusModel, Serializable {
 
 	public Object getVisitor() {
 		return m_Visitor;
+	}
+	
+	public void setConstraints(ArrayList<ILevelConstraint> constraints) {
+		m_Constraint = constraints;
+	}
+	
+	public ArrayList<ILevelConstraint> getConstraints() {
+		return m_Constraint;
+	}
+	
+	public int getNumberOfViolatedConstraints(){
+		int count = 0;
+		Iterator<ILevelConstraint> i = m_Constraint.iterator();
+		while(i.hasNext()){
+			ILevelConstraint ilc = i.next();
+			DataTuple t1 = ilc.getT1();
+			DataTuple t2 = ilc.getT2();
+			if(ilc.getType()==0){
+				//ML
+				if(!(m_Data.contains(t1) && m_Data.contains(t2)))
+					count++;
+			} else {
+				if(m_Data.contains(t1) && m_Data.contains(t2))
+					count++;
+			}
+		}
+		return count;
+	}
+	
+	public int getNumberOfViolatedConstraintsRCCC(){
+		int count = 0;
+		Iterator<ILevelConstraint> i = m_Constraint.iterator();
+		ArrayList<DataTuple> data = ((RowData) getVisitor()).toArrayList();
+		while(i.hasNext()){
+			ILevelConstraint ilc = i.next();
+			DataTuple t1 = ilc.getT1();
+			DataTuple t2 = ilc.getT2();
+			if(ilc.getType()==0){
+				//ML
+				if(!(data.contains(t1) && data.contains(t2)))
+					count++;
+			} else {
+				//CL
+				if(data.contains(t1) && data.contains(t2))
+					count++;
+			}
+		}
+		return count;
+	}
+	
+
+	public ArrayList<ILevelConstraint> getViolatedConstraintsRCCC() {
+		Iterator<ILevelConstraint> i = m_Constraint.iterator();
+		ArrayList<DataTuple> data = ((RowData) getVisitor()).toArrayList();
+		ArrayList<ILevelConstraint> c = new ArrayList<ILevelConstraint>();
+		while(i.hasNext()){
+			ILevelConstraint ilc = i.next();
+			DataTuple t1 = ilc.getT1();
+			DataTuple t2 = ilc.getT2();
+			if(ilc.getType()==0){
+				//ML
+				if(!(data.contains(t1) && data.contains(t2)))
+					c.add(ilc);
+			} else {
+				//CL
+				if(data.contains(t1) && data.contains(t2))
+					c.add(ilc);
+			}
+		}
+		return c;
 	}
 
 	public void applyModelProcessors(DataTuple tuple, MyArray mproc) throws IOException {
@@ -788,4 +868,5 @@ public class ClusRule implements ClusModel, Serializable {
 
 	public void retrieveStatistics(ArrayList list) {
 	}
+
 }

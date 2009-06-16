@@ -28,7 +28,7 @@ import java.util.*;
 import clus.data.rows.*;
 import clus.util.ClusException;
 
-public class ILevelConstraint {
+public class ILevelConstraint implements Serializable{
 
 	public final static int ILevelCMustLink = 0;
 	public final static int ILevelCCannotLink = 1;
@@ -62,7 +62,7 @@ public class ILevelConstraint {
 
 	public static void loadConstraints(String fname, ArrayList constr, ArrayList points) throws IOException {
 		LineNumberReader rdr = new LineNumberReader(new InputStreamReader(new FileInputStream(fname)));
-		rdr.readLine();
+		//rdr.readLine();
 		String line = rdr.readLine();
 		while (line != null) {
 			StringTokenizer tokens = new StringTokenizer(line, "\t");
