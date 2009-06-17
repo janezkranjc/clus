@@ -28,8 +28,6 @@ import java.io.*;
 import java.util.*;
 import java.text.DecimalFormat;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
 import clus.Clus;
 import clus.algo.*;
 import clus.algo.split.*;
@@ -1153,8 +1151,10 @@ public class ClusRuleConstraintInduce extends ClusInductionAlgorithm {
 
 	public void findNumeric(NumericAttrType at, RowData data, ArrayList<ILevelConstraint> constraints, ClusRule rule, int size) throws ClusException {
 		//sort data on attribute
-	    if (at.isSparse()) {
-		      data.sortSparse(at);
+		if (at.isSparse()) {
+		      //data.sortSparse(at);
+		      // FIXME: input voor sortSparse aangepast!
+		      System.exit(1);
 		} else {
 		      data.sort(at);
 		}
