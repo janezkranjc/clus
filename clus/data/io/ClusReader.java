@@ -331,7 +331,10 @@ public class ClusReader {
 			if (ch != '\t') {
 				m_Scratch.append((char)ch);
 			}
-			if (ch == ']') break;
+			if (ch == ']'){
+				getNextChar(reader); //eat the ,
+				break;
+			}
 			ch = getNextChar(reader);
 		}
 		String result = m_Scratch.toString().trim();
