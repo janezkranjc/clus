@@ -521,6 +521,18 @@ public class ClusNode extends MyNode implements ClusModel {
 		m_ClusteringStat = smgr.createClusteringStat();
 		subset.calcTotalStatBitVector(m_ClusteringStat);
 	}
+	
+	public final void initTargetStat(ClusStatManager smgr, ClusStatistic train, RowData subset) {
+		m_TargetStat = smgr.createTargetStat();
+		m_TargetStat.setTrainingStat(train);
+		subset.calcTotalStatBitVector(m_TargetStat);
+	}
+	
+	public final void initClusteringStat(ClusStatManager smgr, ClusStatistic train, RowData subset) {
+		m_ClusteringStat = smgr.createClusteringStat();
+		m_ClusteringStat.setTrainingStat(train);
+		subset.calcTotalStatBitVector(m_ClusteringStat);
+	}
 
 	public final void reInitTargetStat(RowData subset) {
 		if (m_TargetStat != null) {

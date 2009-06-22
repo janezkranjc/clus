@@ -156,7 +156,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		ClusError err = mi.getTestError().getFirstError();
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(System.out));
 		wrt.print("Size: "+avgSize+", ");
-		wrt.print("Error: "); err.showModelError(wrt, ClusError.DETAIL_VERY_SMALL);
+		wrt.print("Error: "); err.showModelError(wrt, null, ClusError.DETAIL_VERY_SMALL);
 		wrt.flush();
 		return err.getModelError();
 	}

@@ -139,13 +139,13 @@ public class RegressionStatBinaryNomiss extends RegressionStatBase {
 	}
 
 	public void calcMean(double[] means) {
-		for (int i = 0; i < m_NbAttrs; i++) {
-			// If divider zero, return zero
-			means[i] = m_SumWeight != 0.0 ? m_SumValues[i] / m_SumWeight : 0.0;
+		for (int i = 0; i < m_NbAttrs; i++) {			
+			means[i] = getMean(i);
 		}
 	}
 
 	public double getMean(int i) {
+		// If divider zero, return zero		
 		return m_SumWeight != 0.0 ? m_SumValues[i] / m_SumWeight : 0.0;
 	}
 

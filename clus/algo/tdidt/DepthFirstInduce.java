@@ -39,6 +39,7 @@ import java.util.*;
 public class DepthFirstInduce extends ClusInductionAlgorithm {
 
 	protected FindBestTest m_FindBestTest;
+	protected ClusNode m_Root;
 
 	public DepthFirstInduce(ClusSchema schema, Settings sett) throws ClusException, IOException {
 		super(schema, sett);
@@ -182,15 +183,16 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			if (getSettings().showAlternativeSplits()) {
 				filterAlternativeSplits(node, data, subsets);
 			}
-			if (getSettings().hasTreeOptimize(Settings.TREE_OPTIMIZE_NO_INODE_STATS)) {
+			if (node != m_Root && getSettings().hasTreeOptimize(Settings.TREE_OPTIMIZE_NO_INODE_STATS)) {
+				// Don't remove statistics of root node; code below depends on them
 				node.setClusteringStat(null);
 				node.setTargetStat(null);
 			}
 			for (int j = 0; j < arity; j++) {
 				ClusNode child = new ClusNode();
 				node.setChild(child, j);
-				child.initClusteringStat(m_StatManager, subsets[j]);
-				child.initTargetStat(m_StatManager, subsets[j]);
+				child.initClusteringStat(m_StatManager, m_Root.getClusteringStat(), subsets[j]);
+				child.initTargetStat(m_StatManager, m_Root.getTargetStat(), subsets[j]);
 				induce(child, subsets[j]);
 			}
 		} else {
@@ -211,26 +213,26 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 	}
 
 	public ClusNode induceSingleUnpruned(RowData data) throws ClusException, IOException {
-		ClusNode root = null;
+		m_Root = null;
 		// Begin of induction process
 		int nbr = 0;
 		while (true) {
 			nbr++;
 			// Init root node
-			root = new ClusNode();
-			root.initClusteringStat(m_StatManager, data);
-			root.initTargetStat(m_StatManager, data);
-			root.getClusteringStat().showRootInfo();
-			initSelectorAndSplit(root.getClusteringStat());
-			setInitialData(root.getClusteringStat(),data);
+			m_Root = new ClusNode();
+			m_Root.initClusteringStat(m_StatManager, data);
+			m_Root.initTargetStat(m_StatManager, data);
+			m_Root.getClusteringStat().showRootInfo();
+			initSelectorAndSplit(m_Root.getClusteringStat());
+			setInitialData(m_Root.getClusteringStat(),data);
 			// Induce the tree
-			induce(root, data);
+			induce(m_Root, data);
 			// Refinement finished
 			if (Settings.EXACT_TIME == false) break;
 		}
-		root.postProc(null);
+		m_Root.postProc(null);
 		cleanSplit();
-		return root;
+		return m_Root;
 	}
 
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {

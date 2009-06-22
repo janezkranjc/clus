@@ -50,7 +50,7 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 
 	protected ClassHierarchy m_Hier;
 	protected boolean[] m_DiscrMean;
-	protected WHTDStatistic m_Global, m_Validation;
+	protected WHTDStatistic m_Global, m_Validation, m_Training;
 	protected double m_SigLevel;
 	protected double m_Threshold = -1.0;
 	protected int m_Compatibility;
@@ -68,6 +68,10 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 	public int getCompatibility() {
 		return m_Compatibility;
 	}
+	
+	public void setTrainingStat(ClusStatistic train) {
+		m_Training = (WHTDStatistic)train;
+	}		
 
 	public void setValidationStat(WHTDStatistic valid) {
 		m_Validation = valid;
@@ -76,7 +80,7 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 	public void setGlobalStat(WHTDStatistic global) {
 		m_Global = global;
 	}
-
+	
 	public void setSigLevel(double sig) {
 		m_SigLevel = sig;
 	}
@@ -96,6 +100,7 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 	public ClusStatistic cloneSimple() {
 		WHTDStatistic res = new WHTDStatistic(m_Hier, true, m_Compatibility);
 		res.m_Threshold = m_Threshold;
+		res.m_Training = m_Training;
 		if (m_Validation != null) {
 			res.m_Validation = (WHTDStatistic)m_Validation.cloneSimple();
 			res.m_Global = m_Global;
@@ -172,6 +177,25 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 		ClassesTuple meantuple = m_Hier.getBestTupleMaj(m_Means, m_Threshold);
 		m_DiscrMean = meantuple.getVectorBooleanNodeAndAncestors(m_Hier);
 		performSignificanceTest();
+	}
+	
+	public void calcMean(double[] means) {
+		if (m_Training == null || m_Compatibility <= Settings.COMPATIBILITY_MLJ08) {
+			// Use trivial definition (no m-estimate)
+			for (int i = 0; i < m_NbAttrs; i++) {			
+				means[i] = m_SumWeight != 0.0 ? m_SumValues[i] / m_SumWeight : 0.0;
+			}
+		} else {
+			// Use m-estimate
+			for (int i = 0; i < m_NbAttrs; i++) {			
+				means[i] = (m_SumValues[i] + m_Training.m_Means[i]) / (m_SumWeight+1.0);
+			}			
+		}
+	}
+	
+	public double getMean(int i) {
+		if (m_Training == null || m_Compatibility <= Settings.COMPATIBILITY_MLJ08) return m_SumWeight != 0.0 ? m_SumValues[i] / m_SumWeight : 0.0;
+		else return (m_SumValues[i] + m_Training.m_Means[i]) / (m_SumWeight+1.0);
 	}
 
 	public void calcMean() {

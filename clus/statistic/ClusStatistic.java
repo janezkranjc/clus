@@ -86,6 +86,9 @@ public abstract class ClusStatistic implements Serializable {
 
 	public void setSDataSize(int nbex) {
 	}
+	
+	public void setTrainingStat(ClusStatistic train) {
+	}
 
 	public void optimizePreCalc(RowData data) {
 	}
