@@ -69,6 +69,7 @@ public class SubsetSplit extends NominalSplit {
 	}
 
 	public void findSplit(CurrentBestTestAndHeuristic node, NominalAttrType type) {
+		//System.out.println("new attr: " + type);
 		double unk_freq = 0.0;
 		int nbvalues = type.getNbValues();
 		boolean isin[] = new boolean[nbvalues];
@@ -91,9 +92,62 @@ public class SubsetSplit extends NominalSplit {
 			isin[0] = true;
 			ClusStatistic CStat = node.m_TestStat[0];
 			bheur = node.calcHeuristic(m_MStat, CStat);
-			// showTest(type, isin, -1, bheur, m_MStat, m_CStat);
+			//showTest(type, isin, -1, bheur, m_MStat, m_CStat);
 			pos_freq = CStat.m_SumWeight / m_MStat.m_SumWeight;
-		} else {
+		}
+		else if ((getStatManager().getMode() == ClusStatManager.MODE_PHYLO) && (Settings.m_PhylogenySequence.getValue() == Settings.PHYLOGENY_SEQUENCE_DNA)) {
+			// if amino acids, we use the default method
+			boolean[] valid = new boolean[nbvalues];
+			// we try all subsets of size 1 and 2 (nbvalues = 5)
+			// we try all subsets of size 1
+			for (int j = 0; j < nbvalues; j++) {
+				m_PStat.reset();
+				m_PStat.add(node.m_TestStat[j]);
+				double mheur = node.calcHeuristic(m_MStat, m_PStat);
+				//System.out.println("j: " + j + " mheur: " + mheur);
+				if (mheur > bheur) {
+					bheur = mheur;
+					isin = new boolean[nbvalues];
+					isin[j] = true;
+					card = 1;
+					// Calculate pos freq (of current best one)
+					pos_freq = m_PStat.m_SumWeight / m_MStat.m_SumWeight;
+				}
+				if (mheur > Double.NEGATIVE_INFINITY) {
+					valid[j] = true;
+				}
+			}
+			// we try all subsets of size 2 (if both of the singleton subsets returned a valid heur value)
+			for (int j = 0; j < nbvalues; j++) {
+				if (valid[j])
+					for (int k = j+1; k < nbvalues; k++) {
+						if (valid[k]) {
+							m_PStat.reset();
+							m_CStat.copy(m_PStat);
+							m_CStat.add(node.m_TestStat[j]);
+							m_PStat.add(node.m_TestStat[j]);
+							m_PStat.add(node.m_TestStat[k]);
+							double mheur = node.calcHeuristic(m_MStat, m_PStat);
+							/*ClusStatistic[] csarray = new ClusStatistic[2];
+							csarray[0] = m_PStat;
+							csarray[1] = m_CStat;
+							double mheur = node.calcHeuristic(m_MStat, csarray, 2);*/
+							//System.out.println("j: " + j + " k: " + k + " mheur: " + mheur);
+							//System.out.println("mheur: " + mheur);
+							if (mheur > bheur) {
+								bheur = mheur;
+								isin = new boolean[nbvalues];
+								isin[j] = true;
+								isin[k] = true;
+								card = 2;
+								// Calculate pos freq (of current best one)
+								pos_freq = m_PStat.m_SumWeight / m_MStat.m_SumWeight;
+							}
+						}
+					}			
+			}
+		}
+		else {
 			// Try to add values to subsets
 			// Each iteration the cardinality increases by at most one
 			m_PStat.reset();
@@ -103,6 +157,7 @@ public class SubsetSplit extends NominalSplit {
 				((ClusRuleHeuristicDispersion)node.m_Heuristic).setDataIndexes(new int[0]);
 			}
 			boolean allowSubsetSplits = getStatManager().getSettings().isNominalSubsetTests();
+//			boolean allowSubsetSplits = false;
 			while ((bvalue != -1) && ((card+1) < nbvalues)) {
 				bvalue = -1;
 				for (int j = 0; j < nbvalues; j++) {
@@ -120,8 +175,15 @@ public class SubsetSplit extends NominalSplit {
 							((ClusRuleHeuristicDispersion)node.m_Heuristic).setDataIndexes(isin_current);
 						}
 						// Calc heuristic
+						
+						boolean isin_current[] = new boolean[nbvalues];
+						for (int k = 0; k < nbvalues; k++) {
+							isin_current[k] = isin[k];
+						}
+						isin_current[j] = true;
+						//showTest(type, isin_current, -1, 0.0, m_MStat, m_CStat);					
 						double mheur = node.calcHeuristic(m_MStat, m_CStat);
-						// showTest(type, isin, j, mheur, m_MStat, m_CStat);
+						//System.out.println("mheur: " + mheur);
 						if (mheur > bheur) {
 							bheur = mheur;
 							bvalue = j;
@@ -141,6 +203,7 @@ public class SubsetSplit extends NominalSplit {
 				}
 			}
 		}
+
 		if (bheur > node.m_BestHeur + ClusHeuristic.DELTA) {
 			node.m_UnknownFreq = unk_freq;
 			node.m_BestHeur = bheur;

@@ -1671,6 +1671,12 @@ public class Settings implements Serializable {
 	public final static int PHYLOGENY_DISTANCE_MEASURE_EDIT = 3;
 	public final static int PHYLOGENY_DISTANCE_MEASURE_AMINOKIMURA = 4;
 
+	public final static String[] PHYLOGENY_SEQUENCE={"DNA","Amino"};
+
+	public final static int PHYLOGENY_SEQUENCE_DNA = 0;
+	public final static int PHYLOGENY_SEQUENCE_AMINO = 1;
+
+		
 	public final static String[] PHYLOGENY_PROTOTYPE_COMPLEXITY={"Pairwise","Prototype"};
 
 	public final static int PHYLOGENY_PROTOTYPE_COMPLEXITY_PAIRWISE = 0;
@@ -1699,6 +1705,7 @@ public class Settings implements Serializable {
 	public static INIFileNominal m_PhylogenyCriterion;
 	public static INIFileNominal m_PhylogenyEfficiency;
 	public static INIFileInt m_PhylogenySampleSize;
+	public static INIFileNominal m_PhylogenySequence;
 
 	public boolean isSectionPhylogenyEnabled() {
 		return m_SectionPhylogeny.isEnabled();
@@ -2082,6 +2089,7 @@ public class Settings implements Serializable {
 		m_SectionPhylogeny.addNode(m_PhylogenyCriterion=new INIFileNominal("OptimizationCriterion", PHYLOGENY_CRITERION,0));
 		m_SectionPhylogeny.addNode(m_PhylogenyEfficiency=new INIFileNominal("Efficiency", PHYLOGENY_EFFICIENCY,0));
 		m_SectionPhylogeny.addNode(m_PhylogenySampleSize=new INIFileInt("SampleSize", 1000000));
+		m_SectionPhylogeny.addNode(m_PhylogenySequence=new INIFileNominal("Sequence", PHYLOGENY_SEQUENCE,0));
 		m_SectionPhylogeny.setEnabled(false);
 
 		m_SectionEnsembles = new INIFileSection("Ensemble");
