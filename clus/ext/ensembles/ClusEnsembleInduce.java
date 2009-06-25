@@ -26,21 +26,18 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
-import jeans.io.ini.INIFileNominalOrIntOrVector;
 import jeans.resource.ResourceInfo;
 
 import clus.Clus;
 import clus.algo.*;
 import clus.algo.rules.ClusRuleSet;
 import clus.algo.rules.ClusRulesFromTree;
-import clus.algo.split.FindBestTest;
 import clus.algo.tdidt.*;
 import clus.main.*;
 import clus.model.ClusModel;
@@ -177,19 +174,22 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		System.out.println("\tPerform Feature Ranking = " + m_FeatRank);
 		switch (cr.getStatManager().getSettings().getEnsembleMethod()){
 		case 0: {	//Bagging
+			System.out.println("Ensemble Method: Bagging");
 			induceBagging(cr);
 			break;
 			}
 		case 1: {	//RForest
-			System.out.println("******* inducing RF *******");
+			System.out.println("Ensemble Method: Random Forest");
 			induceBagging(cr);
 			break;
 			}
 		case 2: {	//RSubspaces
+			System.out.println("Ensemble Method: Random Subspaces");
 			induceSubspaces(cr);
 			break;
 			}
 		case 3: {	//Bagging Subspaces
+			System.out.println("Ensemble Method: Bagging of Subspaces");
 			induceBaggingSubspaces(cr);
 			break;
 			}
@@ -213,32 +213,39 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	}
 
 	public void postProcessForest(ClusRun cr) throws ClusException{
-
-		ClusModelInfo orig_info = cr.addModelInfo(ClusModel.ORIGINAL);
+//		ClusModelInfo def_info = cr.addModelInfo(ClusModel.DEFAULT);
+		ClusModelInfo def_info = cr.addModelInfo("Default");
+		if (m_OptMode) m_DForest = null;
+		def_info.setModel(m_DForest);
+//		def_info.setName("Default");
+		
+//		ClusModelInfo orig_info = cr.addModelInfo(ClusModel.ORIGINAL);
+		ClusModelInfo orig_info = cr.addModelInfo("Original");
 		orig_info.setModel(m_OForest);
-		orig_info.setName("Original");
-
-		if (!m_OptMode){
-			ClusModelInfo def_info = cr.addModelInfo(ClusModel.DEFAULT);
-			def_info.setModel(m_DForest);
-			def_info.setName("Default");
-		}//		avoid printing the M1 attributes in the header of the oob predictions in the .oob.pred file
-		else cr.getModelInfo(ClusModel.DEFAULT).setName("Default");
+//		orig_info.setName("Original");
+	
+//		if (!m_OptMode){
+////			ClusModelInfo def_info = cr.addModelInfo(ClusModel.DEFAULT);
+////			def_info.setModel(m_DForest);
+////			def_info.setName("Default");
+//		}//		avoid printing the M1 attributes in the header of the oob predictions in the .oob.pred file
+//		else if (m_OOBEstimate) cr.getModelInfo(ClusModel.DEFAULT).setName("Default");
 
 		//Application of Thresholds for HMC
 		if (cr.getStatManager().getMode() == ClusStatManager.MODE_HIERARCHICAL){
 			double[] thresholds = cr.getStatManager().getSettings().getClassificationThresholds().getDoubleVector();
 			//setting the printing preferences in the HMC mode
 			m_OForest.setPrintModels(Settings.isPrintEnsembleModels());
-			m_DForest.setPrintModels(Settings.isPrintEnsembleModels());
+			if (!m_OptMode) m_DForest.setPrintModels(Settings.isPrintEnsembleModels());
 			if (thresholds != null){
 				for (int i = 0; i < thresholds.length; i++){
-					ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
+//					ClusModelInfo pruned_info = cr.addModelInfo(ClusModel.PRUNED + i);
+					ClusModelInfo pruned_info = cr.addModelInfo("T("+thresholds[i]+")");
 					ClusForest new_forest = m_OForest.cloneForestWithThreshold(thresholds[i]);
 					new_forest.setPrintModels(Settings.isPrintEnsembleModels());
 					pruned_info.setShouldWritePredictions(false);
 					pruned_info.setModel(new_forest);
-					pruned_info.setName("T("+thresholds[i]+")");
+//					pruned_info.setName("T("+thresholds[i]+")");
 				}
 			}
 		}
@@ -351,18 +358,6 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	}
 
 	public void printRanking(String fname) throws IOException{
-//		Set attributes = m_AllAttributes.keySet();
-//		Iterator iter = attributes.iterator();
-//		TreeMap sorted = new TreeMap();
-//		while (iter.hasNext()){
-//			String attr = (String)iter.next();
-//			double score = ((double[])m_AllAttributes.get(attr))[2]/m_NbMaxBags;
-//			ArrayList attrs = new ArrayList();
-//			if (sorted.containsKey(score))
-//				attrs = (ArrayList)sorted.get(score);
-//			attrs.add(attr);
-//			sorted.put(score, attrs);
-//		}
 		TreeMap sorted = (TreeMap)m_FeatureRanks.clone();
 		File franking = new File(fname+".fimp");
 		FileWriter wrtr = new FileWriter(franking);
@@ -486,7 +481,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 		else if (onebag == 0) {
 			// we assume that files _bagI.model exist, for I=1..m_NbMaxBags and build the forest from them
-			makeForestFromBags();
+			makeForestFromBags(cr, train_iterator, test_iterator);
 		}
 		else {
 			// only one bag needs to be computed (and the model output) e.g. because we want to run the forest in parallel.
@@ -504,23 +499,62 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 
 	}
 
-	public void makeForestFromBags() throws ClusException, IOException {
+	public void makeForestFromBags(ClusRun cr, TupleIterator train_iterator, TupleIterator test_iterator) throws ClusException, IOException {
 		try {
+			m_OForest = new ClusForest(getStatManager());
+			m_DForest = new ClusForest(getStatManager());
+			OOBSelection oob_total = null; // = total OOB selection
+			OOBSelection oob_sel = null; // = current OOB selection
+			BaggingSelection msel = null;
 			System.out.println("Start loading models");
+			
 			for (int i=1; i<=m_NbMaxBags; i++) {
-				ClusModelCollectionIO io = ClusModelCollectionIO.load(m_BagClus.getSettings().getFileAbsolute(getSettings().getAppName() + "_bag"+ i +".model"));
+				ClusModelCollectionIO io = ClusModelCollectionIO.load(m_BagClus.getSettings().getFileAbsolute(getSettings().getAppName() + "_bag" + i + ".model"));
 				ClusModel orig_bag_model = io.getModel("Original");
 				if (orig_bag_model == null) {
-					throw new ClusException("Error: bag" + i + ".model file does not contain model named 'Original'");
+					throw new ClusException(cr.getStatManager().getSettings().getAppName() + "_bag" + i + ".model file does not contain model named 'Original'");
 				}
-				m_OForest.addModelToForest(orig_bag_model);
-
-				ClusModel def_bag_model = io.getModel("Default");
+				if (m_OptMode){
+					//the first run will initialize the predictions
+					if (i == 1) initModelPredictionForTuples(orig_bag_model, train_iterator, test_iterator);
+					else addModelPredictionForTuples(orig_bag_model, train_iterator, test_iterator, i);
+				}else{
+					m_OForest.addModelToForest(orig_bag_model);					
+				}
+				if (m_OOBEstimate){		//OOB estimate is on
+					for (int j=1; j<=i; j++) {
+						// we eventually want the same bags as computing them sequentially.
+						msel = new BaggingSelection(cr.getTrainingSet().getNbRows());
+					}
+					oob_sel = new OOBSelection(msel);
+					if (i == 1){ //initialization
+						oob_total = new OOBSelection(msel);
+						m_OOBPredictions = new HashMap();
+						m_OOBUsage = new HashMap();
+					}else oob_total.addToThis(oob_sel);
+					updateOOBTuples(oob_sel, (RowData)cr.getTrainingSet(), orig_bag_model);
+				}
+				
+				if (m_OptMode && (i != m_NbMaxBags) && checkToOutEnsemble(i)){
+					postProcessForest(cr);
+					outputBetweenForest(cr, m_BagClus, "_"+ i +"_");
+					cr.setModels(new ArrayList());
+				}
+				
+				if (m_OOBEstimate && checkToOutEnsemble(i)){
+					postProcessForest(cr);
+					postProcessForestForOOBEstimate(cr, oob_total, (RowData)cr.getTrainingSet(), m_BagClus, "_"+ i +"_");
+//					cr.deleteModels();
+				}
+				
+// Dragi, IJS - we don't store the predictions of the default models 
+/*				ClusModel def_bag_model = io.getModel("Default");
 				if (def_bag_model == null) {
-					throw new ClusException("Error: bag" + i + ".model file does not contain model named 'Default'");
+					throw new ClusException(cr.getStatManager().getSettings().getAppName() + "_bag" + i + ".model file does not contain model named 'Default'");
 				}
 				m_DForest.addModelToForest(def_bag_model);
-				System.out.println("Models loaded for bag " + i);
+*/				
+				System.out.println("Models loaded for bag " + i);			
 			}
 		}
 		catch (ClassNotFoundException e) {
@@ -607,16 +641,17 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 
 		//Valid only when test set is supplied
-		if (m_OptMode && (i != m_NbMaxBags) && checkToOutEnsemble(i)){
+		if (m_OptMode && (i != m_NbMaxBags) && checkToOutEnsemble(i) && (getSettings().getOneBag() == -1)){
 			crSingle.setInductionTime(m_SummTime);
 			postProcessForest(crSingle);
 			crSingle.setTestSet(cr.getTestIter());
 			crSingle.setTrainingSet(cr.getTrainingSet());
 			outputBetweenForest(crSingle, m_BagClus, "_"+ i +"_");
 	//		crSingle.deleteDataAndModels();
+			crSingle.setModels(new ArrayList());
 		}
 
-		if (m_OOBEstimate && checkToOutEnsemble(i)){
+		if (m_OOBEstimate && checkToOutEnsemble(i) && (getSettings().getOneBag() == -1)){
 			crSingle.setInductionTime(m_SummTime);
 			postProcessForest(crSingle);
 			postProcessForestForOOBEstimate(crSingle, oob_total, (RowData)cr.getTrainingSet(), m_BagClus, "_"+ i +"_");
@@ -628,8 +663,6 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			m_BagClus.saveModels(crSingle, io);
 			io.save(m_BagClus.getSettings().getFileAbsolute(cr.getStatManager().getSettings().getAppName() + "_bag"+ i +".model"));
 		}
-
-		crSingle.deleteDataAndModels();
 	}
 
 
@@ -1108,33 +1141,6 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		m_RandomSubspaces = attrs;
 	}
 
-/*	public static ClusAttrType[] selectAttributesForRandomForest(ClusAttrType[] attrs, int select){
-		int origsize = attrs.length;
-		int[] samples = new int [origsize];
-		int rnd;
-		boolean randomize = true;
-		int i = 0;
-		while (randomize) {
-			rnd = ClusRandom.nextInt(ClusRandom.RANDOM_SELECTION, origsize);
-			if (samples[rnd] == 0) {
-				samples[rnd]++;
-				i++;
-			}
-			if ( i == select)
-				randomize = false;
-		}
-		ClusAttrType[] result = new ClusAttrType[select];
-		int res = 0;
-		for (int k = 0; k < origsize; k++){
-			if (samples[k] !=0){
-				result[res] = attrs[k];
-				res++;
-			}
-		}
-//		System.out.println(java.util.Arrays.toString(samples));
-		return result;
-	}*/
-
 	public final void calcOOBError(OOBSelection oob_tot, RowData all_data, int type, ClusRun cr) throws IOException, ClusException {
 		ClusSchema mschema = all_data.getSchema();
 //		if (iter.shouldAttach()) attachModels(mschema, cr);
@@ -1169,13 +1175,14 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		cr.termModelProcessors(type);
 	}
 
-	//returns sorted feature ranking
+	//	returns sorted feature ranking
 	public TreeMap getFeatureRanks(){
 		return m_FeatureRanks;
 	}
 
-//	returns feature ranking
+	//	returns feature ranking
 	public HashMap getFeatureRanksByName(){
 		return m_FeatureRankByName;
 	}
+
 }
