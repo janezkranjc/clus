@@ -27,6 +27,9 @@ import jeans.util.*;
 
 import clus.main.*;
 import clus.model.ClusModel;
+import clus.model.ClusModelInfo;
+import clus.algo.rules.ClusRuleSet;
+import clus.algo.rules.ClusRulesFromTree;
 import clus.algo.tdidt.ClusNode;
 import clus.data.rows.*;
 import clus.data.type.*;
@@ -122,7 +125,7 @@ public class ClusForest implements ClusModel, Serializable{
 
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 
-		if (ClusEnsembleInduce.m_OOBCalculation)
+		if (ClusOOBErrorEstimate.isOOBCalculation())
 			return predictWeightedOOB(tuple);
 
 		if (! ClusEnsembleInduce.m_OptMode) return predictWeightedStandard(tuple);
@@ -164,30 +167,26 @@ public class ClusForest implements ClusModel, Serializable{
 
 	public ClusStatistic predictWeightedOOBRegressionHMC(DataTuple tuple) {
 		double[] predictions = null;
-		if (ClusEnsembleInduce.m_OOBPredictions.containsKey(tuple.hashCode()))
-			predictions = (double[])ClusEnsembleInduce.m_OOBPredictions.get(tuple.hashCode());
+		if (ClusOOBErrorEstimate.containsPredictionForTuple(tuple))
+			predictions = ClusOOBErrorEstimate.getPredictionForRegressionHMCTuple(tuple);
 		else{
 			System.err.println(this.getClass().getName()+".predictWeightedOOBRegressionHMC(DataTuple) - Missing Prediction For Tuple");
 			System.err.println("Tuple Hash = "+tuple.hashCode());
 		}
 		m_Stat.reset();
-
-		if (ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_HIERARCHICAL || ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_REGRESSION){
-			((RegressionStat)m_Stat).m_Means = new double[predictions.length];
-			for (int j = 0; j < predictions.length; j++){
-				((RegressionStat)m_Stat).m_Means[j] = predictions[j];
-			}
-			if (ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_HIERARCHICAL) m_Stat = (WHTDStatistic)m_Stat;
-			m_Stat.computePrediction();
-		}
-
+		((RegressionStatBase)m_Stat).m_Means = new double[predictions.length];
+		for (int j = 0; j < predictions.length; j++)
+			((RegressionStatBase)m_Stat).m_Means[j] = predictions[j];
+		if (ClusEnsembleInduce.m_Mode == ClusStatManager.MODE_HIERARCHICAL) m_Stat = (WHTDStatistic)m_Stat;
+		else m_Stat = (RegressionStat)m_Stat;
+		m_Stat.computePrediction();
 		return m_Stat;
 	}
 
 	public ClusStatistic predictWeightedOOBClassification(DataTuple tuple) {
 		double[][] predictions = null;
-		if (ClusEnsembleInduce.m_OOBPredictions.containsKey(tuple.hashCode()))
-			predictions = (double[][])ClusEnsembleInduce.m_OOBPredictions.get(tuple.hashCode());
+		if (ClusOOBErrorEstimate.containsPredictionForTuple(tuple))
+			predictions = ClusOOBErrorEstimate.getPredictionForClassificationTuple(tuple);
 		else{
 			System.err.println(this.getClass().getName()+".predictWeightedOOBClassification(DataTuple) - Missing Prediction For Tuple");
 			System.err.println("Tuple Hash = "+tuple.hashCode());
@@ -206,12 +205,12 @@ public class ClusForest implements ClusModel, Serializable{
 	}
 
 	public ClusStatistic predictWeightedOpt(DataTuple tuple) {
-		int position = ClusEnsembleInduce.locateTuple(tuple);
-		int predlength = ClusEnsembleInduce.m_AvgPredictions[position].length;
+		int position = ClusEnsembleInduceOptimization.locateTuple(tuple);
+		int predlength = ClusEnsembleInduceOptimization.getPredictionLength(position);
 		m_Stat.reset();
 		((WHTDStatistic)m_Stat).m_Means = new double[predlength];
 		for (int j = 0; j < predlength; j++){
-			((WHTDStatistic)m_Stat).m_Means[j] = ClusEnsembleInduce.m_AvgPredictions[position][j];
+			((WHTDStatistic)m_Stat).m_Means[j] = ClusEnsembleInduceOptimization.getPredictionValue(position, j);
 		}
 		m_Stat.computePrediction();
 		return m_Stat;
@@ -235,7 +234,6 @@ public class ClusForest implements ClusModel, Serializable{
 
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
 		// This could be better organized
-
 		if (Settings.isPrintEnsembleModels()){
 			ClusModel model;
 			for (int i = 0; i < m_Forest.size(); i++){
@@ -303,7 +301,7 @@ public class ClusForest implements ClusModel, Serializable{
 		// TODO Auto-generated method stub
 	}
 
-	public void printForest(){
+	public void showForest(){
 		ClusModel model;
 		for (int i = 0; i < m_Forest.size(); i++){
 			System.out.println("***************************");
@@ -384,4 +382,44 @@ public class ClusForest implements ClusModel, Serializable{
 	public void removeModels(){
 		m_Forest.clear();
 	}
+	
+	/** Converts the forest to rule set and adds the model. Returns the ruleset
+	 * @param cr
+	 * @param addOnlyUnique Add only unique rules to rule set. Do NOT use this if you want to count something
+	 *                      on the original forest.
+	 * @return rule set.
+	 * @throws ClusException
+	 * @throws IOException
+	 */
+	public void convertToRules(ClusRun cr, boolean addOnlyUnique)
+	{
+		/**
+		 * The class for transforming single trees to rules
+		 */
+		ClusRulesFromTree treeTransform = new ClusRulesFromTree(true, cr.getStatManager().getSettings().rulesFromTree()); // Parameter always true
+		ClusRuleSet ruleSet = new ClusRuleSet(cr.getStatManager()); // Manager from super class
+
+		//ClusRuleSet ruleSet = new ClusRuleSet(m_Clus.getStatManager());
+
+		// Get the trees and transform to rules
+//		int numberOfUniqueRules = 0;
+
+		for (int iTree = 0; iTree < getNbModels(); iTree++)
+		{
+			// Take the root node of the tree
+			ClusNode treeRootNode = (ClusNode)getModel(iTree);
+
+			// Transform the tree into rules and add them to current rule set
+//			numberOfUniqueRules +=
+				ruleSet.addRuleSet(treeTransform.constructRules(treeRootNode,
+						cr.getStatManager()), addOnlyUnique);
+		}
+
+		ruleSet.addDataToRules((RowData)cr.getTrainingSet());
+
+		ClusModelInfo rules_info = cr.addModelInfo("Rules-"
+				+ cr.getModelInfo(ClusModel.ORIGINAL).getName());
+		rules_info.setModel(ruleSet);
+	}
+	
 }

@@ -35,7 +35,7 @@ import clus.statistic.StatisticPrintInfo;
 import clus.util.*;
 import clus.data.type.*;
 import clus.error.*;
-import clus.ext.ensembles.ClusEnsembleInduce;
+import clus.ext.ensembles.ClusOOBErrorEstimate;
 import clus.data.rows.*;
 import clus.Clus;
 
@@ -175,7 +175,7 @@ public class ClusOutput {
 			if (outputtrain) {
 				ClusErrorList tr_err = cr.getTrainError();
 				if (tr_err != null) {
-					if (ClusEnsembleInduce.isCalcOOB())	m_Writer.println("Out-Of-Bag Estimate of Error");
+					if (ClusOOBErrorEstimate.isOOBCalculation())	m_Writer.println("Out-Of-Bag Estimate of Error");
 					else m_Writer.println("Training error");
 					m_Writer.println("--------------");
 					m_Writer.println();
