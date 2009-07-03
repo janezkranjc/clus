@@ -328,6 +328,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		int onebag = getSettings().getOneBag();
 		if (onebag != -1) {
 			ClusModelCollectionIO io = new ClusModelCollectionIO();
+			ClusModelInfo orig_info = crSingle.addModelInfo("Original");
+			orig_info.setModel(model);
 			m_BagClus.saveModels(crSingle, io);
 			io.save(m_BagClus.getSettings().getFileAbsolute(cr.getStatManager().getSettings().getAppName() + "_bag"+ i +".model"));
 		}
@@ -380,8 +382,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 						outputBetweenForest(cr, m_BagClus, "_"+ i +"_");
 					}
 				}
-				cr.deleteData();
-				cr.setModels(new ArrayList());
+				cr.setModels(new ArrayList());// do not store the models
 							
 // Dragi, IJS - we don't store the predictions of the default models 
 /*				ClusModel def_bag_model = io.getModel("Default");
