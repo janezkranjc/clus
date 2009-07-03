@@ -362,10 +362,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 					m_OForest.addModelToForest(orig_bag_model);					
 				}
 				if (Settings.shouldEstimateOOB()){		//OOB estimate is on
-					for (int j=1; j<=i; j++) {
-						// we eventually want the same bags as computing them sequentially.
-						msel = new BaggingSelection(cr.getTrainingSet().getNbRows());
-					}
+					// the same bags will be generated for the corresponding models!!!
+					msel = new BaggingSelection(cr.getTrainingSet().getNbRows());
 					oob_sel = new OOBSelection(msel);
 					if (i == 1){ //initialization
 						oob_total = new OOBSelection(msel);
