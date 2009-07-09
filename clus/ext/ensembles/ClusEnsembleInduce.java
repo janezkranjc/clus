@@ -143,12 +143,11 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 
 	
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
-		// TODO Auto-generated method stub
-		return null;
+		ClusRun myRun = new ClusRun(cr);
+		induceAll(myRun);
+		ClusModelInfo info = myRun.getModelInfo(ClusModel.ORIGINAL);
+		return info.getModel();
 	}
-	
-
-
 
 	public void induceSubspaces(ClusRun cr) throws ClusException, IOException {
 		m_OForest = new ClusForest(getStatManager());

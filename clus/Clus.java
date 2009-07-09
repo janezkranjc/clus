@@ -76,7 +76,7 @@ public class Clus implements CMDLineArgsProvider {
 
 	public final static boolean m_UseHier = true;
 
-	public final static String VERSION = "2.7";
+	public final static String VERSION = "2.8";
 
 	// exhaustive was added the 1/08/2006
 	public final static String[] OPTION_ARGS = { "exhaustive", "xval", "oxval",

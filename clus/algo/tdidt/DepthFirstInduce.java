@@ -200,6 +200,26 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 		}
 	}
 
+	public void rankFeatures(ClusNode node, RowData data) throws IOException {
+		// Find best test
+		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream("ranking.csv")));
+		ClusAttrType[] attrs = getDescriptiveAttributes();
+		for (int i = 0; i < attrs.length; i++) {
+			ClusAttrType at = attrs[i];
+			initSelectorAndStopCrit(node, data);
+			if (at instanceof NominalAttrType) m_FindBestTest.findNominal((NominalAttrType)at, data);
+			else m_FindBestTest.findNumeric((NumericAttrType)at, data);			
+			CurrentBestTestAndHeuristic cbt = m_FindBestTest.getBestTest();
+			if (cbt.hasBestTest()) {
+				NodeTest test = cbt.updateTest();
+				wrt.print(cbt.m_BestHeur);
+				wrt.print(",\""+at.getName()+"\"");
+				wrt.println(",\""+test+"\"");
+			}
+		}
+		wrt.close();
+	}
+	
 	public void initSelectorAndSplit(ClusStatistic stat) throws ClusException {
 		m_FindBestTest.initSelectorAndSplit(stat);
 	}
@@ -227,6 +247,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			setInitialData(m_Root.getClusteringStat(),data);
 			// Induce the tree
 			induce(m_Root, data);
+			// rankFeatures(m_Root, data);
 			// Refinement finished
 			if (Settings.EXACT_TIME == false) break;
 		}

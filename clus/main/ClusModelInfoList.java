@@ -170,7 +170,8 @@ public abstract class ClusModelInfoList implements Serializable {
 		ArrayList clones = new ArrayList();
 		for (int i = 0; i < nb_models; i++) {
 			ClusModelInfo my = getModelInfo(i);
-			clones.add(my.cloneModelInfo());
+			if (my != null) my = my.cloneModelInfo(); 
+			clones.add(my);
 		}
 		return clones;
 	}

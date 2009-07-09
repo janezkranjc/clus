@@ -92,6 +92,7 @@ public class ClusSummary extends ClusModelInfoList {
 
 	public ClusSummary getSummaryClone() {
 		ClusSummary summ = new ClusSummary();
+		summ.m_StatMgr = getStatManager();
 		summ.setModels(cloneModels());
 		return summ;
 	}

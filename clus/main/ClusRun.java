@@ -48,6 +48,18 @@ public class ClusRun extends ClusModelInfoList {
 		m_Train = train;
 		m_Summary = summary;
 	}
+	
+	public ClusRun(ClusRun other) {
+		m_Index = 1;
+		m_Train = other.m_Train;
+		m_Prune = other.m_Prune;
+		m_Orig = other.m_Orig;
+		m_TestSel = other.m_TestSel;
+		m_PruneSel = other.m_PruneSel;
+		m_Test = other.m_Test;
+		m_Summary = other.m_Summary.getSummaryClone();
+		setModels(other.cloneModels());
+	}	
 
 	public ClusStatManager getStatManager() {
 		return m_Summary.getStatManager();

@@ -121,7 +121,9 @@ public class CDTTuneFTest extends ClusDecisionTree {
 		int prevVerb = Settings.enableVerbose(0);
 		ClusStatManager mgr = getStatManager();
 		ClusSummary summ = new ClusSummary();
+		summ.setStatManager(getStatManager());
 		summ.addModelInfo(ClusModel.ORIGINAL).setTestError(createTuneError(mgr));
+		ClusRandom.initialize(getSettings());
 		double avgSize = 0.0;
 		if (pruneset != null) {
 			ClusRun cr = new ClusRun(trset.cloneData(), summ);
@@ -202,6 +204,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 			System.out.println();
 			// Induce final model
 			cr.combineTrainAndValidSets();
+			ClusRandom.initialize(getSettings());
 			m_Class.induceAll(cr);
 		} catch (ClusException e) {
 		    System.err.println("Error: "+e);
