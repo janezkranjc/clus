@@ -22,9 +22,11 @@
 
 package clus.data.rows;
 
+import clus.data.type.ClusAttrType;
 import clus.data.type.ClusSchema;
 import clus.main.Settings;
 
+import java.io.PrintWriter;
 import java.util.*;
 
 public class SparseDataTuple extends DataTuple {
@@ -45,4 +47,30 @@ public class SparseDataTuple extends DataTuple {
 		Double value = (Double)map.get(index);
 		return value != null ? value.doubleValue() : 0.0;
 	}
+	
+	public void writeTuple(PrintWriter wrt) {
+		ClusSchema schema = getSchema();
+		int aidx = 0;
+		wrt.print("{");
+		Iterator it = map.keySet().iterator();
+		while (it.hasNext()) {
+			Integer idx = (Integer)it.next();
+			ClusAttrType type = schema.getAttrType(idx.intValue());
+			if (!type.isDisabled()) {
+				if (aidx != 0) wrt.print(",");
+				wrt.print(idx+" "+type.getString(this));
+				aidx++;
+			}
+		}
+		// FIXME write non-sparse attributes?
+		ClusAttrType[] type = schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		for (int i = 0; i < type.length; i++) {
+			if (!type[i].isDisabled()) {
+				if (aidx != 0) wrt.print(",");
+				wrt.print(type[i].getIndex()+" "+type[i].getString(this));
+				aidx++;
+			}
+		}
+		wrt.println("}");
+	}	
 }

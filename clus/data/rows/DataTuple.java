@@ -171,6 +171,20 @@ public class DataTuple implements Serializable {
 		m_Weight = weight;
 	}
 
+	public void writeTuple(PrintWriter wrt) {
+		int aidx = 0;
+		ClusSchema schema = getSchema();
+		for (int i = 0; i < schema.getNbAttributes(); i++) {
+			ClusAttrType type = schema.getAttrType(i);
+			if (!type.isDisabled()) {
+				if (aidx != 0) wrt.print(",");
+				wrt.print(type.getString(this));
+				aidx++;
+			}
+		}
+		wrt.println();
+	}
+
 	public String toString() {
 		int aidx = 0;
 		StringBuffer buf = new StringBuffer();

@@ -180,16 +180,7 @@ public class ARFFFile {
 		wrt.println("@DATA");
 		for (int j = 0; j < data.getNbRows(); j++) {
 			DataTuple tuple = data.getTuple(j);
-			int aidx = 0;
-			for (int i = 0; i < schema.getNbAttributes(); i++) {
-				ClusAttrType type = schema.getAttrType(i);
-				if (!type.isDisabled()) {
-					if (aidx != 0) wrt.print(",");
-					wrt.print(type.getString(tuple));
-					aidx++;
-				}
-			}
-			wrt.println();
+			tuple.writeTuple(wrt);
 		}
 		wrt.close();
 	}
