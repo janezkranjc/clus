@@ -52,13 +52,15 @@ public class SparseDataTuple extends DataTuple {
 		ClusSchema schema = getSchema();
 		int aidx = 0;
 		wrt.print("{");
+		// Do all sparse attributes
 		Iterator it = map.keySet().iterator();
 		while (it.hasNext()) {
 			Integer idx = (Integer)it.next();
 			ClusAttrType type = schema.getAttrType(idx.intValue());
 			if (!type.isDisabled()) {
 				if (aidx != 0) wrt.print(",");
-				wrt.print(idx+" "+type.getString(this));
+				int nidx = idx.intValue() + 1;
+				wrt.print(nidx+" "+type.getString(this));
 				aidx++;
 			}
 		}
@@ -67,7 +69,8 @@ public class SparseDataTuple extends DataTuple {
 		for (int i = 0; i < type.length; i++) {
 			if (!type[i].isDisabled()) {
 				if (aidx != 0) wrt.print(",");
-				wrt.print(type[i].getIndex()+" "+type[i].getString(this));
+				int nidx = type[i].getIndex()+1;
+				wrt.print(nidx+" "+type[i].getString(this));
 				aidx++;
 			}
 		}
