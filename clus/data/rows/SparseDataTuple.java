@@ -59,13 +59,13 @@ public class SparseDataTuple extends DataTuple {
 			ClusAttrType type = schema.getAttrType(idx.intValue());
 			if (!type.isDisabled()) {
 				if (aidx != 0) wrt.print(",");
-				int nidx = idx.intValue() + 1;
+				int nidx = idx.intValue()+1;
 				wrt.print(nidx+" "+type.getString(this));
 				aidx++;
 			}
 		}
-		// FIXME write non-sparse attributes?
-		ClusAttrType[] type = schema.getAllAttrUse(ClusAttrType.ATTR_USE_TARGET);
+		// Do all non-sparse attributes
+		ClusAttrType[] type = schema.getNonSparseAttributes();
 		for (int i = 0; i < type.length; i++) {
 			if (!type[i].isDisabled()) {
 				if (aidx != 0) wrt.print(",");

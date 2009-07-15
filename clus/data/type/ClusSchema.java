@@ -52,6 +52,7 @@ public class ClusSchema implements Serializable {
 	protected NominalAttrType[][] m_NominalAttrUse;
 	protected NumericAttrType[][] m_NumericAttrUse;
 	protected TimeSeriesAttrType[][] m_TimeSeriesAttrUse;
+	protected ClusAttrType[] m_NonSparse;
 	protected Settings m_Settings;
 	protected IndexAttrType m_TSAttr;
 	protected IntervalCollection m_Target = IntervalCollection.EMPTY;
@@ -659,9 +660,14 @@ public class ClusSchema implements Serializable {
 		return m_IsSparse;
 	}
 
+	public ClusAttrType[] getNonSparseAttributes() {
+		return m_NonSparse;
+	}
+	
 	public void ensureSparse() {
 		if (!m_IsSparse) {
 			int nbSparse = 0;
+			ArrayList<ClusAttrType> nonSparse = new ArrayList<ClusAttrType>(); 
 			for (int i = 0; i < getNbAttributes(); i++) {
 				ClusAttrType type = getAttrType(i);
 				if (type.isDescriptive() && type.getTypeIndex() == NumericAttrType.THIS_TYPE) {
@@ -669,8 +675,11 @@ public class ClusSchema implements Serializable {
 					nt.setDescriptive(true);
 					setAttrType(nt, i);
 					nbSparse++;
+				} else {
+					nonSparse.add(type);
 				}
 			}
+			m_NonSparse = vectorToAttrArray(nonSparse);
 			System.out.println("Number of sparse attributes: "+nbSparse);
 			addRowsIndex();
 			m_IsSparse = true;
