@@ -33,19 +33,56 @@ public class SparseDataTuple extends DataTuple {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
-	protected HashMap map = new HashMap();
+	protected HashMap m_Map = new HashMap();
 
 	public SparseDataTuple(ClusSchema schema) {
 		super(schema);
 	}
 
-	public void setDoubleValueSparse(double val, Integer index) {
-		map.put(index, new Double(val));
+	public SparseDataTuple() {	
+	}	
+	
+	public void setDoubleValueSparse(double val, int index) {
+		m_Map.put(new Integer(index), new Double(val));
 	}
 
-	public double getDoubleValueSparse(Integer index) {
-		Double value = (Double)map.get(index);
+	public double getDoubleValueSparse(int index) {
+		Double value = (Double)m_Map.get(new Integer(index));
 		return value != null ? value.doubleValue() : 0.0;
+	}
+	
+	public double getDoubleValueSparse(Integer index) {
+		Double value = (Double)m_Map.get(index);
+		return value != null ? value.doubleValue() : 0.0;
+	}
+	
+	public final SparseDataTuple cloneTuple() {
+		SparseDataTuple res = new SparseDataTuple();
+		cloneTuple(res);
+		res.m_Map = m_Map;
+		return res;
+	}
+	
+	public SparseDataTuple deepCloneTuple() {
+		SparseDataTuple res = new SparseDataTuple();
+		if (m_Ints != null) {
+			res.m_Ints = new int[m_Ints.length];
+			System.arraycopy(m_Ints, 0, res.m_Ints, 0, m_Ints.length);
+		}
+		if (m_Doubles != null) {
+			res.m_Doubles = new double[m_Doubles.length];
+			System.arraycopy(m_Doubles, 0, res.m_Doubles, 0, m_Doubles.length);
+		}
+		if (m_Objects != null) {
+			res.m_Objects = new Object[m_Objects.length];
+			System.arraycopy(m_Objects, 0, res.m_Objects, 0, m_Objects.length);
+		}
+		res.m_Weight = m_Weight;
+		res.m_Index = m_Index;
+		res.m_Folds = m_Folds;
+		res.m_Schema = m_Schema;
+		res.m_Map = m_Map;
+		return res;
 	}
 	
 	public void writeTuple(PrintWriter wrt) {
@@ -53,7 +90,7 @@ public class SparseDataTuple extends DataTuple {
 		int aidx = 0;
 		wrt.print("{");
 		// Do all sparse attributes
-		Iterator it = map.keySet().iterator();
+		Iterator it = m_Map.keySet().iterator();
 		while (it.hasNext()) {
 			Integer idx = (Integer)it.next();
 			ClusAttrType type = schema.getAttrType(idx.intValue());

@@ -58,6 +58,8 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 			return new ConstraintDFInduce(schema, sett, fillin);
 		} else if (sett.isSectionILevelCEnabled()){
 			return new ILevelCInduce(schema, sett);
+		} else if (schema.isSparse()) {
+			return new DepthFirstInduceSparse(schema, sett);
 		} else {
 			return new DepthFirstInduce(schema, sett);
 		}

@@ -4,26 +4,31 @@ import java.io.IOException;
 
 import clus.data.io.ClusReader;
 import clus.data.rows.DataTuple;
+import clus.data.rows.RowData;
 import clus.data.rows.SparseDataTuple;
 import clus.io.ClusSerializable;
 import clus.main.Settings;
 import clus.util.ClusException;
+import java.util.ArrayList;
 
 public class SparseNumericAttrType extends NumericAttrType {
 
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected Integer m_IntIndex;
+	protected ArrayList<Integer> m_ExampleIndices;
 
 	public SparseNumericAttrType(String name) {
 		super(name);
 		setSparse(true);
+		m_ExampleIndices = new ArrayList<Integer>();
 	}
 
 	public SparseNumericAttrType(NumericAttrType type) {
 		super(type.getName());
 		setIndex(type.getIndex());
 		setSparse(true);
+		m_ExampleIndices = new ArrayList<Integer>();
 	}
 
 	public SparseNumericAttrType cloneType() {
@@ -41,6 +46,29 @@ public class SparseNumericAttrType extends NumericAttrType {
 	public int getValueType() {
 		return VALUE_TYPE_NONE;
 	}
+	
+	public ArrayList getExampleIndices() {
+		return m_ExampleIndices;
+	}
+	
+	public void initializeExampleIndices(RowData data) {
+		for (int i=0; i<data.getNbRows(); i++) {
+			if (getNumeric(data.getTuple(i)) != 0.0 || isMissing(data.getTuple(i))) {
+				m_ExampleIndices.add(new Integer(data.getTuple(i).getIndex()));
+			}
+		}
+	}
+	
+	public ArrayList pruneIndexList(RowData data) {
+		ArrayList<Integer> newIndices = new ArrayList<Integer>();
+		for (int i=0; i<data.getNbRows(); i++) {
+			if (m_ExampleIndices.contains(new Integer(data.getTuple(i).getIndex()))) {
+				newIndices.add(new Integer(data.getTuple(i).getIndex()));
+			}
+		}
+		return newIndices;
+	}
+	
 
 	public double getNumeric(DataTuple tuple) {
 		return ((SparseDataTuple)tuple).getDoubleValueSparse(getIndex());
@@ -64,6 +92,8 @@ public class SparseNumericAttrType extends NumericAttrType {
 			if (!data.readNoSpace()) return false;
 			double value = data.getFloat();
 			setNumeric(tuple, value);
+//			System.out.println(" adding " + tuple.getIndex());
+//			addExampleIndex(new Integer(tuple.getIndex()));			
 			return true;
 		}
 	}

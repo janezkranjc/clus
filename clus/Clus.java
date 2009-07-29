@@ -125,14 +125,14 @@ public class Clus implements CMDLineArgsProvider {
 		System.out.println();
 		System.out.println("Reading CSV Data");
 		// Updata schema based on settings
+		
 		m_Sett.updateTarget(m_Schema);
 		m_Schema.initializeSettings(m_Sett);
 		m_Sett.setTarget(m_Schema.getTarget().toString());
 		m_Sett.setDisabled(m_Schema.getDisabled().toString());
 		m_Sett.setClustering(m_Schema.getClustering().toString());
 		m_Sett.setDescriptive(m_Schema.getDescriptive().toString());
-		// Create induce
-		m_Induce = clss.createInduce(m_Schema, m_Sett, cargs);
+
 		// Load data from file
 		if (ResourceInfo.isLibLoaded()) {
 			ClusStat.m_InitialMemory = ResourceInfo.getMemory();
@@ -156,9 +156,13 @@ public class Clus implements CMDLineArgsProvider {
 			CriterionBasedSelection.clearMissingFlagTargetAttrs(m_Schema);
 		}
 
+		// Create induce
+		m_Induce = clss.createInduce(m_Schema, m_Sett, cargs);
+
+		
 		// Preprocess and initialize induce
 		m_Sett.update(m_Schema);
-
+		
 		// If not rule induction, reset some settings just to be sure
 		// in case rules from trees are used.
 		// I.e. this is used if the command line parameter is for decision trees
@@ -1285,8 +1289,13 @@ public class Clus implements CMDLineArgsProvider {
 		if (wrt != null) {
 			wrt.println("! Fold = " + fold);
 			cr.getAllModelsMI().addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
+			if (m_Sett.isOutFoldData()) {
+				ARFFFile.writeArff(m_Sett.getAppName() + "-test-"+fold+".arff", cr.getTestSet());
+				ARFFFile.writeArff(m_Sett.getAppName() + "-train-"+fold+".arff", (RowData)cr.getTrainingSet());
+			}
 		}
 		// Used for exporting data to CN2 and Orange formats
+
 		/*
 		 * ARFFFile.writeCN2Data("test-"+i+".exs", cr.getTestSet());
 		 * ARFFFile.writeCN2Data("train-"+i+".exs",
