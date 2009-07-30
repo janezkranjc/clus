@@ -51,12 +51,8 @@ public class SparseNumericAttrType extends NumericAttrType {
 		return m_ExampleIndices;
 	}
 	
-	public void initializeExampleIndices(RowData data) {
-		for (int i=0; i<data.getNbRows(); i++) {
-			if (getNumeric(data.getTuple(i)) != 0.0 || isMissing(data.getTuple(i))) {
-				m_ExampleIndices.add(new Integer(data.getTuple(i).getIndex()));
-			}
-		}
+	public void addExampleIndex(int index) {
+		m_ExampleIndices.add(new Integer(index));
 	}
 	
 	public ArrayList pruneIndexList(RowData data) {

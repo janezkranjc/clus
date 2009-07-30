@@ -25,7 +25,7 @@ package clus.data.rows;
 import clus.data.type.ClusAttrType;
 import clus.data.type.ClusSchema;
 import clus.main.Settings;
-
+import clus.data.type.SparseNumericAttrType;
 import java.io.PrintWriter;
 import java.util.*;
 
@@ -54,6 +54,19 @@ public class SparseDataTuple extends DataTuple {
 	public double getDoubleValueSparse(Integer index) {
 		Double value = (Double)m_Map.get(index);
 		return value != null ? value.doubleValue() : 0.0;
+	}
+	
+	public Object[] getAttributeIndices() {
+		return m_Map.keySet().toArray();
+	}
+	
+	public void addExampleIndexToAttributes() {
+		Object[] indices = getAttributeIndices();
+		for (int i=0; i<indices.length; i++) {
+			int index = ((Integer)indices[i]).intValue();
+			SparseNumericAttrType attr = (SparseNumericAttrType) getSchema().getAttrType(index);
+			attr.addExampleIndex(getIndex());
+		}
 	}
 	
 	public final SparseDataTuple cloneTuple() {

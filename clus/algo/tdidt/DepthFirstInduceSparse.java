@@ -6,6 +6,7 @@ import clus.algo.ClusInductionAlgorithm;
 import clus.algo.split.CurrentBestTestAndHeuristic;
 import clus.algo.split.NominalSplit;
 import clus.data.rows.RowData;
+import clus.data.rows.SparseDataTuple;
 import clus.data.type.ClusAttrType;
 import clus.data.type.ClusSchema;
 import clus.data.type.NominalAttrType;
@@ -32,14 +33,13 @@ public class DepthFirstInduceSparse extends DepthFirstInduce {
 		super(other);
 		if (Settings.VERBOSE > 0) System.out.println("Sparse implementation");
 	}
-	
+		
 	public void initializeExampleIndices(ClusAttrType[] attrs, RowData data) {
 		data.addIndices();
-		for (int i=0; i<attrs.length; i++) {
-			ClusAttrType at = attrs[i];
-			if (at.isSparse()) {
-				((SparseNumericAttrType)at).initializeExampleIndices(data);
-			}
+		for (int i=0; i<data.getNbRows(); i++) {
+			SparseDataTuple tuple = (SparseDataTuple)data.getTuple(i);
+			tuple.addExampleIndexToAttributes();
+			
 		}
 	}
 	
