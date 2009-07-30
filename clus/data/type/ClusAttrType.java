@@ -290,5 +290,9 @@ public abstract class ClusAttrType implements Serializable, Comparable {
 			return -1;
 		return 0;
 	}
+	
+	public boolean isSparse() {
+		return false;
+	}
 }
 

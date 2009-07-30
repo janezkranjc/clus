@@ -66,8 +66,13 @@ public class DataTuple implements Serializable {
 		return m_Schema;
 	}
 
-	public final DataTuple cloneTuple() {
+	public DataTuple cloneTuple() {
 		DataTuple res = new DataTuple();
+		cloneTuple(res);
+		return res;
+	}
+	
+	public void cloneTuple(DataTuple res) {
 		res.m_Ints = m_Ints;
 		res.m_Doubles = m_Doubles;
 		res.m_Objects = m_Objects;
@@ -75,7 +80,6 @@ public class DataTuple implements Serializable {
 		res.m_Index = m_Index;
 		res.m_Folds = m_Folds;
 		res.m_Schema = m_Schema;
-		return res;
 	}
 
 	public double euclDistance(DataTuple other)
@@ -89,8 +93,8 @@ public class DataTuple implements Serializable {
 		}
 		return Math.sqrt(result);
 	}
-
-	public final DataTuple deepCloneTuple() {
+	
+	public DataTuple deepCloneTuple() {
 		DataTuple res = new DataTuple();
 		if (m_Ints != null) {
 			res.m_Ints = new int[m_Ints.length];
