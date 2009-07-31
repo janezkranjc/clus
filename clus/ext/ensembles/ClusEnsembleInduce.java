@@ -168,7 +168,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			long one_bag_time = ResourceInfo.getTime();
 			System.out.println("Bag: " + i);
 			ClusRun crSingle = new ClusRun(cr.getTrainingSet(), cr.getSummary());
-			ClusEnsembleInduce.selectRandomSubspaces(cr.getStatManager().getSchema().getDescriptiveAttributes(), cr.getStatManager().getSettings().getNbRandomAttrSelected());
+			ClusEnsembleInduce.setRandomSubspaces(cr.getStatManager().getSchema().getDescriptiveAttributes(), cr.getStatManager().getSettings().getNbRandomAttrSelected());
 			DepthFirstInduce ind = new DepthFirstInduce(this);
 			ind.initialize();
 			crSingle.getStatManager().initClusteringWeights();
@@ -421,7 +421,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			System.out.println("Bag: " + i);
 			BaggingSelection msel = new BaggingSelection(nbrows);
 			ClusRun crSingle = m_BagClus.partitionDataBasic(cr.getTrainingSet(),msel,cr.getSummary(),i);
-			ClusEnsembleInduce.selectRandomSubspaces(cr.getStatManager().getSchema().getDescriptiveAttributes(), cr.getStatManager().getSettings().getNbRandomAttrSelected());
+			ClusEnsembleInduce.setRandomSubspaces(cr.getStatManager().getSchema().getDescriptiveAttributes(), cr.getStatManager().getSettings().getNbRandomAttrSelected());
 			DepthFirstInduce ind = new DepthFirstInduce(this);
 			ind.initialize();
 			crSingle.getStatManager().initClusteringWeights();
@@ -536,7 +536,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	 * @param select
 	 */
 
-	public static void selectRandomSubspaces(ClusAttrType[] attrs, int select){
+	public static ClusAttrType[] selectRandomSubspaces(ClusAttrType[] attrs, int select){
 		int origsize = attrs.length;
 		int[] samples = new int [origsize];
 		int rnd;
@@ -560,15 +560,16 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 		}
 //		System.out.println(java.util.Arrays.toString(samples));
-		setRandomSubspaces(result);
+		return result;
+//		setRandomSubspaces(result);
 	}
 
 	public static ClusAttrType[] getRandomSubspaces(){
 		return m_RandomSubspaces;
 	}
 
-	public static void setRandomSubspaces(ClusAttrType[] attrs){
-		m_RandomSubspaces = attrs;
+	public static void setRandomSubspaces(ClusAttrType[] attrs, int select){
+		m_RandomSubspaces = ClusEnsembleInduce.selectRandomSubspaces(attrs, select);
 	}
 
 	/** Memory optimization
