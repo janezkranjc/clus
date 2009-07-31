@@ -16,19 +16,19 @@ public class SparseNumericAttrType extends NumericAttrType {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected Integer m_IntIndex;
-	protected ArrayList<Integer> m_ExampleIndices;
+	protected ArrayList<SparseDataTuple> m_Examples;
 
 	public SparseNumericAttrType(String name) {
 		super(name);
 		setSparse(true);
-		m_ExampleIndices = new ArrayList<Integer>();
+		m_Examples = new ArrayList<SparseDataTuple>();
 	}
 
 	public SparseNumericAttrType(NumericAttrType type) {
 		super(type.getName());
 		setIndex(type.getIndex());
 		setSparse(true);
-		m_ExampleIndices = new ArrayList<Integer>();
+		m_Examples = new ArrayList<SparseDataTuple>();
 	}
 
 	public SparseNumericAttrType cloneType() {
@@ -47,25 +47,24 @@ public class SparseNumericAttrType extends NumericAttrType {
 		return VALUE_TYPE_NONE;
 	}
 	
-	public ArrayList getExampleIndices() {
-		return m_ExampleIndices;
+	public ArrayList getExamples() {
+		return m_Examples;
 	}
 	
-	public void addExampleIndex(int index) {
-		m_ExampleIndices.add(new Integer(index));
+	public void addExample(SparseDataTuple tuple) {
+		m_Examples.add(tuple);
 	}
 	
-	public ArrayList pruneIndexList(RowData data) {
-		ArrayList<Integer> newIndices = new ArrayList<Integer>();
+	public ArrayList pruneExampleList(RowData data) {
+		ArrayList<SparseDataTuple> newExamples = new ArrayList<SparseDataTuple>();
 		for (int i=0; i<data.getNbRows(); i++) {
-			if (m_ExampleIndices.contains(new Integer(data.getTuple(i).getIndex()))) {
-				newIndices.add(new Integer(data.getTuple(i).getIndex()));
+			if (m_Examples.contains(data.getTuple(i))) {
+				newExamples.add((SparseDataTuple)data.getTuple(i));
 			}
 		}
-		return newIndices;
+		return newExamples;
 	}
 	
-
 	public double getNumeric(DataTuple tuple) {
 		return ((SparseDataTuple)tuple).getDoubleValueSparse(getIndex());
 	}

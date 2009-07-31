@@ -60,12 +60,12 @@ public class SparseDataTuple extends DataTuple {
 		return m_Map.keySet().toArray();
 	}
 	
-	public void addExampleIndexToAttributes() {
+	public void addExampleToAttributes() {
 		Object[] indices = getAttributeIndices();
 		for (int i=0; i<indices.length; i++) {
 			int index = ((Integer)indices[i]).intValue();
 			SparseNumericAttrType attr = (SparseNumericAttrType) getSchema().getAttrType(index);
-			attr.addExampleIndex(getIndex());
+			attr.addExample(this);
 		}
 	}
 	
