@@ -387,9 +387,11 @@ public class ClusStatManager implements Serializable {
 			//if (m_Mode == MODE_HIERARCHICAL) {
 			//	return false;
 			//}
-			return (getSettings().getHeuristic() == Settings.HEURISTIC_DISPERSION_ADT
+			return (getSettings().getHeuristic() == Settings.HEURISTIC_DEFAULT
+					|| getSettings().getHeuristic() == Settings.HEURISTIC_DISPERSION_ADT
 					|| getSettings().getHeuristic() == Settings.HEURISTIC_DISPERSION_MLT
-					|| getSettings().getHeuristic() == Settings.HEURISTIC_R_DISPERSION_ADT || getSettings().getHeuristic() == Settings.HEURISTIC_R_DISPERSION_MLT);
+					|| getSettings().getHeuristic() == Settings.HEURISTIC_R_DISPERSION_ADT
+					|| getSettings().getHeuristic() == Settings.HEURISTIC_R_DISPERSION_MLT);
 		} else {
 			return false;
 		}
@@ -482,6 +484,7 @@ public class ClusStatManager implements Serializable {
 			switch (getSettings().getHeuristic()) {
 			case Settings.HEURISTIC_DEFAULT:
 				m_Heuristic = new ClusRuleHeuristicRDispersionMlt(this,getClusteringWeights());
+				getSettings().setHeuristic(Settings.HEURISTIC_R_DISPERSION_MLT);
 				break;
 			case Settings.HEURISTIC_REDUCED_ERROR:
 				m_Heuristic = new ClusRuleHeuristicError(this,getClusteringWeights());
