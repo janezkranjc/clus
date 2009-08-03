@@ -265,8 +265,11 @@ public class ClusRule implements ClusModel, Serializable {
 		RowData res = new RowData(data.getSchema(), data.getNbRows()-covered);
 		for (int i = 0; i < data.getNbRows(); i++) {
 			DataTuple tuple = data.getTuple(i);
-			System.out.print(tuple.m_Index);
-			if (!covers(tuple)) {res.setTuple(tuple, idx++);System.out.println(tuple.m_Index);}
+			// System.out.print(tuple.m_Index);
+			if (!covers(tuple)) {
+				res.setTuple(tuple, idx++);
+				// System.out.println(tuple.m_Index);
+			}
 		}
 //		Iterator<DataTuple> ires = res.toArrayList().iterator();
 //		System.out.println("remaining data:");
