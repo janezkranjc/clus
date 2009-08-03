@@ -817,7 +817,12 @@ public class Settings implements Serializable {
  * Section: Rules                                                      *
  ***********************************************************************/
 
+	protected INIFileSection m_SectionRules;	
 	public static INIFileBool m_PrintAllRules;
+	
+	public void setSectionRulesEnabled(boolean enable) {
+		m_SectionRules.setEnabled(enable);
+	}
 
 	public static boolean isPrintAllRules(){
 		return m_PrintAllRules.getValue();
@@ -1977,56 +1982,56 @@ public class Settings implements Serializable {
 		m_SectionTree.addNode(m_AlternativeSplits = new INIFileBool("AlternativeSplits", false));
 		m_SectionTree.addNode(m_TreeOptimize = new INIFileNominal("Optimize", TREE_OPTIMIZE_VALUES, TREE_OPTIMIZE_NONE));		
 
-		INIFileSection rules = new INIFileSection("Rules");
-		rules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));
-		rules.addNode(m_PredictionMethod = new INIFileNominal("PredictionMethod", RULE_PREDICTION_METHODS, 0));
-		rules.addNode(m_RuleAddingMethod = new INIFileNominal("RuleAddingMethod", RULE_ADDING_METHODS, 0));
-		rules.addNode(m_CoveringWeight = new INIFileDouble("CoveringWeight", 0.1));
-		rules.addNode(m_InstCoveringWeightThreshold = new INIFileDouble("InstCoveringWeightThreshold", 0.1));
-		rules.addNode(m_MaxRulesNb = new INIFileInt("MaxRulesNb", 1000));
-	    rules.addNode(m_HeurDispOffset = new INIFileDouble("HeurDispOffset", 0.0));
-		rules.addNode(m_HeurCoveragePar = new INIFileDouble("HeurCoveragePar", 1.0));
-		rules.addNode(m_HeurRuleDistPar = new INIFileDouble("HeurRuleDistPar", 0.0));
-		rules.addNode(m_HeurPrototypeDistPar = new INIFileDouble("HeurPrototypeDistPar", 0.0));
-		rules.addNode(m_RuleSignificanceLevel = new INIFileDouble("RuleSignificanceLevel", 0.05));
-		rules.addNode(m_RuleNbSigAtts = new INIFileInt("RuleNbSigAtts", 0));
-		rules.addNode(m_ComputeDispersion = new INIFileBool("ComputeDispersion", false));
-		rules.addNode(m_VarBasedDispNormWeight = new INIFileDouble("VarBasedDispNormWeight", 4.0));
-		rules.addNode(m_DispersionWeights = new INIFileNominalOrDoubleOrVector("DispersionWeights", EMPTY));
+		m_SectionRules = new INIFileSection("Rules");
+		m_SectionRules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));
+		m_SectionRules.addNode(m_PredictionMethod = new INIFileNominal("PredictionMethod", RULE_PREDICTION_METHODS, 0));
+		m_SectionRules.addNode(m_RuleAddingMethod = new INIFileNominal("RuleAddingMethod", RULE_ADDING_METHODS, 0));
+		m_SectionRules.addNode(m_CoveringWeight = new INIFileDouble("CoveringWeight", 0.1));
+		m_SectionRules.addNode(m_InstCoveringWeightThreshold = new INIFileDouble("InstCoveringWeightThreshold", 0.1));
+		m_SectionRules.addNode(m_MaxRulesNb = new INIFileInt("MaxRulesNb", 1000));
+	    m_SectionRules.addNode(m_HeurDispOffset = new INIFileDouble("HeurDispOffset", 0.0));
+		m_SectionRules.addNode(m_HeurCoveragePar = new INIFileDouble("HeurCoveragePar", 1.0));
+		m_SectionRules.addNode(m_HeurRuleDistPar = new INIFileDouble("HeurRuleDistPar", 0.0));
+		m_SectionRules.addNode(m_HeurPrototypeDistPar = new INIFileDouble("HeurPrototypeDistPar", 0.0));
+		m_SectionRules.addNode(m_RuleSignificanceLevel = new INIFileDouble("RuleSignificanceLevel", 0.05));
+		m_SectionRules.addNode(m_RuleNbSigAtts = new INIFileInt("RuleNbSigAtts", 0));
+		m_SectionRules.addNode(m_ComputeDispersion = new INIFileBool("ComputeDispersion", false));
+		m_SectionRules.addNode(m_VarBasedDispNormWeight = new INIFileDouble("VarBasedDispNormWeight", 4.0));
+		m_SectionRules.addNode(m_DispersionWeights = new INIFileNominalOrDoubleOrVector("DispersionWeights", EMPTY));
 		m_DispersionWeights.setArrayIndexNames(NUM_NOM_TAR_NTAR_WEIGHTS);
 		m_DispersionWeights.setDoubleArray(FOUR_ONES);
 		m_DispersionWeights.setArrayIndexNames(true);
-		rules.addNode(m_RandomRules = new INIFileInt("RandomRules", 0));
-		rules.addNode(m_RuleWiseErrors = new INIFileBool("PrintRuleWiseErrors", false));
-		rules.addNode(m_PrintAllRules = new INIFileBool("PrintAllRules", true));
-		rules.addNode(m_OptDEPopSize = new INIFileInt("OptDEPopSize", 500));
-		rules.addNode(m_OptDENumEval = new INIFileInt("OptDENumEval", 10000));
-		rules.addNode(m_OptDECrossProb = new INIFileDouble("OptDECrossProb", 0.3));
-		rules.addNode(m_OptDEWeight = new INIFileDouble("OptDEWeight", 0.5));
-		rules.addNode(m_OptDESeed = new INIFileInt("OptDESeed", 0));
-		rules.addNode(m_OptDERegulPower = new INIFileDouble("OptDERegulPower", 1.0));
-		rules.addNode(m_OptDEProbMutationZero = new INIFileDouble("OptDEProbMutationZero", 0.0));
-		rules.addNode(m_OptDEProbMutationNonZero = new INIFileDouble("OptDEProbMutationNonZero", 0.0));
-		rules.addNode(m_OptRegPar = new INIFileDouble("OptRegPar", 0.0));
-		rules.addNode(m_OptNbZeroesPar = new INIFileDouble("OptNbZeroesPar", 0.0));
-		rules.addNode(m_OptRuleWeightThreshold = new INIFileDouble("OptRuleWeightThreshold", 0.1));
-		rules.addNode(m_OptLossFunction = new INIFileNominal("OptDELossFunction",OPT_LOSS_FUNCTIONS, 0));
-		rules.addNode(m_OptAddLinearTerms = new INIFileBool("OptAddLinearTerms", false));
-		rules.addNode(m_OptOmitRulePredictions = new INIFileBool("OptOmitRulePredictions", false));
-		rules.addNode(m_OptWeightGenerality = new INIFileBool("OptWeightGenerality", false));
-		rules.addNode(m_OptHuberAlpha = new INIFileDouble("OptHuberAlpha", 0.9));
-		rules.addNode(m_OptGDMaxIter = new INIFileInt("OptGDMaxIter", 1000));
-//		rules.addNode(m_OptGDLossFunction = new INIFileNominal("OptGDLossFunction", GD_LOSS_FUNCTIONS, 0));
-		rules.addNode(m_OptGDGradTreshold = new INIFileDouble("OptGDGradTreshold", 1));
-		rules.addNode(m_OptGDStepSize = new INIFileDouble("OptGDStepSize", 0.1));
-		rules.addNode(m_OptGDMaxNbWeights = new INIFileInt("OptGDMaxNbWeights", 0));
-		rules.addNode(m_OptGDEarlyStopAmount = new INIFileDouble("OptGDEarlyStopAmount", 0.0));
-		rules.addNode(m_OptGDEarlyStopTreshold = new INIFileDouble("OptGDEarlyStopTreshold", 1.1));
-		rules.addNode(m_OptGDNbOfStepSizeReduce = new INIFileStringOrInt("OptGDNbOfStepSizeReduce", INFINITY_STRING));
-		rules.addNode(m_OptGDExternalMethod = new INIFileNominal("OptGDExternalMethod",GD_EXTERNAL_METHOD_VALUES, 0));
-		rules.addNode(m_OptGDMTGradientCombine = new INIFileNominal("OptGDMTGradientCombine",OPT_GD_MT_COMBINE_GRADIENTS, 0));
-		rules.addNode(m_OptGDNbOfTParameterTry = new INIFileInt("OptGDNbOfTParameterTry",0));
-		rules.setEnabled(false);
+		m_SectionRules.addNode(m_RandomRules = new INIFileInt("RandomRules", 0));
+		m_SectionRules.addNode(m_RuleWiseErrors = new INIFileBool("PrintRuleWiseErrors", false));
+		m_SectionRules.addNode(m_PrintAllRules = new INIFileBool("PrintAllRules", true));
+		m_SectionRules.addNode(m_OptDEPopSize = new INIFileInt("OptDEPopSize", 500));
+		m_SectionRules.addNode(m_OptDENumEval = new INIFileInt("OptDENumEval", 10000));
+		m_SectionRules.addNode(m_OptDECrossProb = new INIFileDouble("OptDECrossProb", 0.3));
+		m_SectionRules.addNode(m_OptDEWeight = new INIFileDouble("OptDEWeight", 0.5));
+		m_SectionRules.addNode(m_OptDESeed = new INIFileInt("OptDESeed", 0));
+		m_SectionRules.addNode(m_OptDERegulPower = new INIFileDouble("OptDERegulPower", 1.0));
+		m_SectionRules.addNode(m_OptDEProbMutationZero = new INIFileDouble("OptDEProbMutationZero", 0.0));
+		m_SectionRules.addNode(m_OptDEProbMutationNonZero = new INIFileDouble("OptDEProbMutationNonZero", 0.0));
+		m_SectionRules.addNode(m_OptRegPar = new INIFileDouble("OptRegPar", 0.0));
+		m_SectionRules.addNode(m_OptNbZeroesPar = new INIFileDouble("OptNbZeroesPar", 0.0));
+		m_SectionRules.addNode(m_OptRuleWeightThreshold = new INIFileDouble("OptRuleWeightThreshold", 0.1));
+		m_SectionRules.addNode(m_OptLossFunction = new INIFileNominal("OptDELossFunction",OPT_LOSS_FUNCTIONS, 0));
+		m_SectionRules.addNode(m_OptAddLinearTerms = new INIFileBool("OptAddLinearTerms", false));
+		m_SectionRules.addNode(m_OptOmitRulePredictions = new INIFileBool("OptOmitRulePredictions", false));
+		m_SectionRules.addNode(m_OptWeightGenerality = new INIFileBool("OptWeightGenerality", false));
+		m_SectionRules.addNode(m_OptHuberAlpha = new INIFileDouble("OptHuberAlpha", 0.9));
+		m_SectionRules.addNode(m_OptGDMaxIter = new INIFileInt("OptGDMaxIter", 1000));
+//		m_SectionRules.addNode(m_OptGDLossFunction = new INIFileNominal("OptGDLossFunction", GD_LOSS_FUNCTIONS, 0));
+		m_SectionRules.addNode(m_OptGDGradTreshold = new INIFileDouble("OptGDGradTreshold", 1));
+		m_SectionRules.addNode(m_OptGDStepSize = new INIFileDouble("OptGDStepSize", 0.1));
+		m_SectionRules.addNode(m_OptGDMaxNbWeights = new INIFileInt("OptGDMaxNbWeights", 0));
+		m_SectionRules.addNode(m_OptGDEarlyStopAmount = new INIFileDouble("OptGDEarlyStopAmount", 0.0));
+		m_SectionRules.addNode(m_OptGDEarlyStopTreshold = new INIFileDouble("OptGDEarlyStopTreshold", 1.1));
+		m_SectionRules.addNode(m_OptGDNbOfStepSizeReduce = new INIFileStringOrInt("OptGDNbOfStepSizeReduce", INFINITY_STRING));
+		m_SectionRules.addNode(m_OptGDExternalMethod = new INIFileNominal("OptGDExternalMethod",GD_EXTERNAL_METHOD_VALUES, 0));
+		m_SectionRules.addNode(m_OptGDMTGradientCombine = new INIFileNominal("OptGDMTGradientCombine",OPT_GD_MT_COMBINE_GRADIENTS, 0));
+		m_SectionRules.addNode(m_OptGDNbOfTParameterTry = new INIFileInt("OptGDNbOfTParameterTry",0));
+		m_SectionRules.setEnabled(false);
 
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
 		m_SectionHierarchical.addNode(m_HierType = new INIFileNominal("Type", HIERTYPES, 0));
@@ -2134,7 +2139,7 @@ public class Settings implements Serializable {
 		m_Ini.addNode(nominal);
 		m_Ini.addNode(model);
 		m_Ini.addNode(m_SectionTree);
-		m_Ini.addNode(rules);
+		m_Ini.addNode(m_SectionRules);
 		m_Ini.addNode(m_SectionHierarchical);
 		m_Ini.addNode(m_SectionILevelC);
 		m_Ini.addNode(m_SectionBeam);

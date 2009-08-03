@@ -1581,7 +1581,7 @@ public class Clus implements CMDLineArgsProvider {
 					clss = new KNNTreeClassifier(clus);
 				} else if (cargs.hasOption("rules")) {
 					clus.getSettings().setSectionBeamEnabled(true);
-					// clus.getSettings().setSectionTreeEnabled(false);
+					clus.getSettings().setSectionRulesEnabled(true);
 					clss = new ClusRuleClassifier(clus);
 				} else if (cargs.hasOption("weka")) {
 					// clss = new ClusWekaClassifier(clus,
