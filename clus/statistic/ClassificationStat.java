@@ -211,6 +211,10 @@ public class ClassificationStat extends ClusStatistic {
 	public void updateWeighted(DataTuple tuple, int idx) {
 		updateWeighted(tuple, tuple.getWeight());
 	}
+	
+	public void updateWeighted(SparseDataTuple tuple, int idx) {
+		updateWeighted(tuple, tuple.getWeight());
+	}
 
 	public void updateWeighted(DataTuple tuple, double weight) {
 		m_NbExamples++;
@@ -588,9 +592,11 @@ public class ClassificationStat extends ClusStatistic {
 	}
 
 	public double getSVarS(ClusAttributeWeights scale) {
+//		System.out.println("SVARS");
 		double result = 0.0;
 		double sum = m_SumWeight;
 		for (int i = 0; i < m_NbTarget; i++) {
+//			System.out.println(gini(i) + " " + scale.getWeight(m_Attrs[i]) + " " + sum);
 			result += gini(i) * scale.getWeight(m_Attrs[i]) * sum;
 		}
 		return result / m_NbTarget;

@@ -169,7 +169,13 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			System.out.println("Bag: " + i);
 			ClusRun crSingle = new ClusRun(cr.getTrainingSet(), cr.getSummary());
 			ClusEnsembleInduce.setRandomSubspaces(cr.getStatManager().getSchema().getDescriptiveAttributes(), cr.getStatManager().getSettings().getNbRandomAttrSelected());
-			DepthFirstInduce ind = new DepthFirstInduce(this);
+			DepthFirstInduce ind;
+			if (getSchema().isSparse()) {
+				ind = new DepthFirstInduceSparse(this);
+			}
+			else {
+				ind = new DepthFirstInduce(this);
+			}
 			ind.initialize();
 			crSingle.getStatManager().initClusteringWeights();
 			ClusModel model = ind.induceSingleUnpruned(crSingle);
@@ -206,7 +212,6 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		TupleIterator test_iterator = null; // = test set iterator
 		OOBSelection oob_total = null; // = total OOB selection
 		OOBSelection oob_sel = null; // = current OOB selection
-
 		if (m_OptMode){
 			train_iterator = cr.getTrainIter();
 			if (m_BagClus.hasTestSet()){
@@ -215,7 +220,6 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}else m_Optimization = new ClusEnsembleInduceOptimization(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());	
 			m_Optimization.initPredictions(m_OForest.getStat());
 		}
-
 		// We store the old maxDepth to this if needed. Thus we get the right depth to .out files etc.
 		int origMaxDepth = -1;
 		if (getSettings().isEnsembleRandomDepth()) {
@@ -223,7 +227,6 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			// The original Max depth is used as the average
 			origMaxDepth = getSettings().getTreeMaxDepth();
 		}
-
 		BaggingSelection msel = null;
 		int onebag = getSettings().getOneBag();
 		if (onebag == -1) {
@@ -259,7 +262,6 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	}
 
 	public void induceOneBag(ClusRun cr, int i, int origMaxDepth, OOBSelection oob_sel, OOBSelection oob_total, TupleIterator train_iterator, TupleIterator test_iterator, BaggingSelection msel) throws ClusException, IOException {
-
 		if (getSettings().isEnsembleRandomDepth()) {
 			// Set random tree max depth
 			getSettings().setTreeMaxDepth(GDProbl.randDepthWighExponentialDistribution(m_randTreeDepth.nextDouble(),
@@ -269,7 +271,13 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		long one_bag_time = ResourceInfo.getTime();
 		System.out.println("Bag: " + i);
 		ClusRun crSingle = m_BagClus.partitionDataBasic(cr.getTrainingSet(),msel,cr.getSummary(),i);
-		DepthFirstInduce ind = new DepthFirstInduce(this);
+		DepthFirstInduce ind;
+		if (getSchema().isSparse()) {
+			ind = new DepthFirstInduceSparse(this);
+		}
+		else {
+			ind = new DepthFirstInduce(this);
+		}
 		ind.initialize();
 		crSingle.getStatManager().initClusteringWeights();
 		ClusModel model = ind.induceSingleUnpruned(crSingle);
@@ -422,7 +430,13 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			BaggingSelection msel = new BaggingSelection(nbrows);
 			ClusRun crSingle = m_BagClus.partitionDataBasic(cr.getTrainingSet(),msel,cr.getSummary(),i);
 			ClusEnsembleInduce.setRandomSubspaces(cr.getStatManager().getSchema().getDescriptiveAttributes(), cr.getStatManager().getSettings().getNbRandomAttrSelected());
-			DepthFirstInduce ind = new DepthFirstInduce(this);
+			DepthFirstInduce ind;
+			if (getSchema().isSparse()) {
+				ind = new DepthFirstInduceSparse(this);
+			}
+			else {
+				ind = new DepthFirstInduce(this);
+			}
 			ind.initialize();
 			crSingle.getStatManager().initClusteringWeights();
 			ind.initializeHeuristic();

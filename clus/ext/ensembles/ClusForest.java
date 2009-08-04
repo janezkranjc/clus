@@ -75,8 +75,10 @@ public class ClusForest implements ClusModel, Serializable{
 		m_AppName = statmgr.getSettings().getFileAbsolute(statmgr.getSettings().getAppName());
 		m_AttributeList = "";
 		ClusAttrType[] cat = ClusSchema.vectorToAttrArray(statmgr.getSchema().collectAttributes(ClusAttrType.ATTR_USE_DESCRIPTIVE, ClusAttrType.THIS_TYPE));
-		for (int ii=0;ii<cat.length-1;ii++) m_AttributeList = m_AttributeList.concat(cat[ii].getName()+", ");
-		m_AttributeList = m_AttributeList.concat(cat[cat.length-1].getName());
+		if (statmgr.getSettings().isOutputPythonModel()) {
+			for (int ii=0;ii<cat.length-1;ii++) m_AttributeList = m_AttributeList.concat(cat[ii].getName()+", ");
+			m_AttributeList = m_AttributeList.concat(cat[cat.length-1].getName());
+		}
 	}
 
 	public void addModelToForest(ClusModel model){

@@ -145,8 +145,18 @@ public class GeneticDistanceStat extends BitVectorStat {
 			for (int j = 0; j < my.length; j++) my[j] += scale*your[j];
 		}*/
 	}
-
-
+	
+	public void subtractFromThis(BitList bits) {
+		m_SumWeight -= bits.getNbOnes();
+		m_Bits.subtractFromThis(bits);
+		m_Modified = true;
+/*		for (int i = 0; i < m_NbTarget; i++) {
+			double[] my = m_ClassCounts[i];
+			double[] your = or.m_ClassCounts[i];
+			for (int j = 0; j < my.length; j++) my[j] -= your[j];
+		}*/
+	}
+	
 	public void subtractFromThis(ClusStatistic other) {
 		GeneticDistanceStat or = (GeneticDistanceStat)other;
 		m_SumWeight -= or.m_SumWeight;
@@ -157,6 +167,17 @@ public class GeneticDistanceStat extends BitVectorStat {
 			double[] your = or.m_ClassCounts[i];
 			for (int j = 0; j < my.length; j++) my[j] -= your[j];
 		}*/
+	}
+	
+	public void copyAndSubtractFromThis(ClusStatistic stattocopy, ClusStatistic stattosubtract) {
+		GeneticDistanceStat tocopy = (GeneticDistanceStat)stattocopy;
+		GeneticDistanceStat tosubtract = (GeneticDistanceStat)stattosubtract;
+		
+		m_SumWeight = tocopy.m_SumWeight - tosubtract.m_SumWeight;
+		m_Bits.copyAndSubtractFromThis(tocopy.m_Bits,tosubtract.m_Bits);
+		m_NbTarget = tocopy.m_NbTarget;
+		m_Attrs = tocopy.m_Attrs;
+		m_Modified = true;
 	}
 
 	public void subtractFromOther(ClusStatistic other) {

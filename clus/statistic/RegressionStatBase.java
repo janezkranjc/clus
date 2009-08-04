@@ -79,6 +79,10 @@ public abstract class RegressionStatBase extends ClusStatistic {
 	public void updateWeighted(DataTuple tuple, int idx) {
 		updateWeighted(tuple, tuple.getWeight());
 	}
+	
+	public void updateWeighted(SparseDataTuple tuple, int idx) {
+		updateWeighted((SparseDataTuple)tuple, tuple.getWeight());
+	}
 
 	public void computePrediction() {
 		// do not need to call calcMean() here

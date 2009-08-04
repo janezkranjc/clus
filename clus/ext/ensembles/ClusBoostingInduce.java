@@ -84,7 +84,13 @@ public class ClusBoostingInduce extends ClusInductionAlgorithm {
 	public ClusBoostingForest induceSingleUnprunedBoosting(ClusRun cr) throws ClusException, IOException {
 		ClusBoostingForest result = new ClusBoostingForest(getStatManager());
 		RowData trainData = ((RowData)cr.getTrainingSet()).shallowCloneData();
-		DepthFirstInduce tdidt = new DepthFirstInduce(this);
+		DepthFirstInduce tdidt;
+		if (getSchema().isSparse()) {
+			tdidt = new DepthFirstInduceSparse(this);
+		}
+		else {
+			tdidt = new DepthFirstInduce(this);
+		}
 		int[] outputEnsembleAt = getSettings().getNbBaggingSets().getIntVectorSorted();
 		int nbTrees = outputEnsembleAt[outputEnsembleAt.length-1];
 		int verbose = Settings.VERBOSE;
