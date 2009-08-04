@@ -85,8 +85,9 @@ public class SubsetSplit extends NominalSplit {
 		int card = 0;
 		double pos_freq = 0.0;
 		double bheur = Double.NEGATIVE_INFINITY;
-		// Not working for rules!
-		if (nbvalues == 2 && !getStatManager().isRuleInduce()) {
+		// Not working for rules except if constraint of tests to '1' is desired!
+		if (nbvalues == 2 && (!getStatManager().isRuleInduce()
+				|| getStatManager().getSettings().isConstrainedToFirstAttVal())) {
 			// Handle binary splits efficiently
 			card = 1;
 			isin[0] = true;

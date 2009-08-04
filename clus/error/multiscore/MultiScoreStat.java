@@ -126,4 +126,7 @@ public class MultiScoreStat extends ClusStatistic {
 	public void vote(ArrayList votes) {
 		System.err.println(getClass().getName() + "vote (): Not implemented");
 	}
+
+	public void updateWeighted(SparseDataTuple tuple, int idx) {
+	}
 }

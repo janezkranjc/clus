@@ -1379,8 +1379,7 @@ public class Clus implements CMDLineArgsProvider {
 
 	public final void baggingRun(ClusInductionAlgorithmType clss)
 			throws IOException, ClusException {
-		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".bag",
-				m_Schema, m_Sett);
+		ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".bag", m_Schema, m_Sett);
 		output.writeHeader();
 		ClusStatistic target = getStatManager().createStatistic(
 				ClusAttrType.ATTR_USE_TARGET);

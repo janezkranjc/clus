@@ -137,4 +137,9 @@ public class BitList implements Serializable {
 	private final static long bit(int bitIndex) {
 		return 1L << (bitIndex & BIT_INDEX_MASK);
 	}
+
+	public void copyAndSubtractFromThis(BitList bits, BitList bits2) {
+		System.err.println("BitList.java:copyAndSubtractFromThis(): unimplemented method!");
+		System.exit(-1);
+	}
 }

@@ -1,4 +1,4 @@
 
-[Tree]
-%Heuristic = RDispersionMlt
+[Rules]
+ConstrainedToFirstAttVal = Yes
 

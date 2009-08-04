@@ -950,9 +950,6 @@ public class Settings implements Serializable {
 	/**	Optimization Loss function type. Huber 1962 error. Like squared but robust for outliers. Friedman&Popescu 2005, p. 7*/
 	public final static int OPT_LOSS_FUNCTIONS_HUBER = 3;
 
-
-
-
 	/** GD optimization. Possible values for combining gradient targets to single gradient value. */
 	public final static String[] OPT_GD_MT_COMBINE_GRADIENTS = {"Avg", "Max", "MaxLoss", "MaxLossFast"};
 	/**	GD optimization, combining of targets - combine by taking average. */
@@ -970,8 +967,6 @@ public class Settings implements Serializable {
 	public final static String[] GD_EXTERNAL_METHOD_VALUES = {"update", "brute"};
 	public final static int GD_EXTERNAL_METHOD_GD = 0;
 	public final static int GD_EXTERNAL_METHOD_BRUTE = 1;
-
-
 
 	// Settings in the settings file.
 	protected INIFileNominal m_CoveringMethod;
@@ -992,6 +987,9 @@ public class Settings implements Serializable {
 	/** How many random rules are wanted. If > 0 only random rules are generated */
 	protected INIFileInt m_RandomRules;
 	protected INIFileBool m_RuleWiseErrors;
+	
+	// Rule tests are constrained to the first possible attribute value
+	protected INIFileBool m_constrainedToFirstAttVal;
 
 	//	Differential evolution optimization
 	/**	DE Number of individuals (population) during every iteration */
@@ -1056,9 +1054,6 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_OptGDMTGradientCombine;
 	/** GD How many different parameter combinations we try for T. Values between [T,1] */
 	protected INIFileInt m_OptGDNbOfTParameterTry;
-
-
-
 
 	public INIFileNominalOrDoubleOrVector getDispersionWeights() {
 		return m_DispersionWeights;
@@ -1203,6 +1198,10 @@ public class Settings implements Serializable {
   	public double getVarBasedDispNormWeight() {
   		return m_VarBasedDispNormWeight.getValue();
   	}
+  	
+	public boolean isConstrainedToFirstAttVal() {
+	 	return m_constrainedToFirstAttVal.getValue();
+	}
 
 	public double getOptDECrossProb() {
 		return m_OptDECrossProb.getValue();
@@ -1243,7 +1242,6 @@ public class Settings implements Serializable {
 	public void setOptNbZeroesPar(double newValue) {
 		m_OptNbZeroesPar.setValue(newValue);
 	}
-
 
 	public double getOptRuleWeightThreshold() {
 		return m_OptRuleWeightThreshold.getValue();
@@ -1332,7 +1330,6 @@ public class Settings implements Serializable {
 		return m_OptGDEarlyStopTreshold.getValue();
 	}
 
-
 	/** GD Maximum number of nonzero weights. If the number reached, only old ones are altered.
 	 * If = 0, no limit for nonzero weights.*/
 	public int getOptGDMaxNbWeights(){
@@ -1343,7 +1340,6 @@ public class Settings implements Serializable {
 	 * If = 0, no limit for nonzero weights.*/
 	public void setOptGDMaxNbWeights(int nbWeights) {
 		m_OptGDMaxNbWeights.setValue(nbWeights);
-
 	}
 
 	/** GD When early stopping is found, how many times we try to reduce the step size and try again
@@ -2004,6 +2000,7 @@ public class Settings implements Serializable {
 		m_SectionRules.addNode(m_RandomRules = new INIFileInt("RandomRules", 0));
 		m_SectionRules.addNode(m_RuleWiseErrors = new INIFileBool("PrintRuleWiseErrors", false));
 		m_SectionRules.addNode(m_PrintAllRules = new INIFileBool("PrintAllRules", true));
+		m_SectionRules.addNode(m_constrainedToFirstAttVal = new INIFileBool("ConstrainedToFirstAttVal", false));
 		m_SectionRules.addNode(m_OptDEPopSize = new INIFileInt("OptDEPopSize", 500));
 		m_SectionRules.addNode(m_OptDENumEval = new INIFileInt("OptDENumEval", 10000));
 		m_SectionRules.addNode(m_OptDECrossProb = new INIFileDouble("OptDECrossProb", 0.3));
