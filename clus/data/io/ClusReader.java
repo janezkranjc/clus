@@ -332,7 +332,8 @@ public class ClusReader {
 				m_Scratch.append((char)ch);
 			}
 			if (ch == ']'){
-				getNextChar(reader); //eat the ,
+				ch = getNextChar(reader); //eat the ,
+				if (ch == 10 || ch == 13) setLastChar(13);
 				break;
 			}
 			ch = getNextChar(reader);
