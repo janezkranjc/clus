@@ -94,7 +94,7 @@ public class RowData extends ClusData implements MSortable, Serializable {
 		}
 		return sb.toString();
 	}
-
+	
 	public String getSummary(){
 		return getSummary("");
 	}

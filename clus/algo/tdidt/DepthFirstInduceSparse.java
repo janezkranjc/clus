@@ -35,7 +35,14 @@ public class DepthFirstInduceSparse extends DepthFirstInduce {
 	}
 		
 	public void initializeExamples(ClusAttrType[] attrs, RowData data) {
-//		data.addIndices();
+		// first remove all examplelists from attributes (-> ensembles!)
+		for (int i = 0; i < attrs.length; i++) {
+			ClusAttrType at = attrs[i];
+			if (at.isSparse()) {
+				((SparseNumericAttrType)at).resetExamples();
+			}
+		}
+						
 		for (int i=0; i<data.getNbRows(); i++) {
 			SparseDataTuple tuple = (SparseDataTuple)data.getTuple(i);
 			tuple.addExampleToAttributes();		
@@ -46,21 +53,36 @@ public class DepthFirstInduceSparse extends DepthFirstInduce {
 		ClusAttrType[] attrs = getDescriptiveAttributes();
 		initializeExamples(attrs, data);
 		ArrayList<ClusAttrType> attrList = new ArrayList<ClusAttrType>();
+		ArrayList<ArrayList> examplelistList = new ArrayList<ArrayList>();
 		for (int i = 0; i < attrs.length; i++) {
 			ClusAttrType at = attrs[i];
 			if (at.isSparse()) {
-				if (((SparseNumericAttrType)at).getExamples().size() >= getSettings().getMinimalWeight()) attrList.add(at);
+				if (((SparseNumericAttrType)at).getExamples().size() >= getSettings().getMinimalWeight()) {
+					attrList.add(at);
+					
+					Object[] exampleArray = ((SparseNumericAttrType)at).getExamples().toArray();
+					RowData exampleData = new RowData(exampleArray,exampleArray.length);
+					exampleData.sortSparse((SparseNumericAttrType)at, m_FindBestTest.getSortHelper());				
+					ArrayList<SparseDataTuple> exampleList = new ArrayList<SparseDataTuple>();
+					for (int j=0; j<exampleData.getNbRows(); j++) {
+						exampleList.add((SparseDataTuple)exampleData.getTuple(j));
+					}
+					((SparseNumericAttrType)at).setExamples(exampleList);
+					examplelistList.add(exampleList);
+				}
 			}
 			else {
 				attrList.add(at);
+				examplelistList.add(null);
 			}
 		}
 		Object[] attrArray = attrList.toArray();	
-		induce(node, data, attrArray);
+		Object[] examplelistArray = examplelistList.toArray();	
+		induce(node, data, attrArray, examplelistArray);
 	}	
 	
 	
-	public void induce(ClusNode node, RowData data, Object[] attrs) {
+	public void induce(ClusNode node, RowData data, Object[] attrs, Object[] examplelists) {
 		//System.out.println("INDUCE SPARSE with " + attrs.length + " attributes");
 		// Initialize selector and perform various stopping criteria
 		if (initSelectorAndStopCrit(node, data)) {
@@ -71,8 +93,14 @@ public class DepthFirstInduceSparse extends DepthFirstInduce {
 		
 		for (int i = 0; i < attrs.length; i++) {
 			ClusAttrType at = (ClusAttrType)attrs[i];
+			ArrayList examplelist = (ArrayList)examplelists[i];
 			if (at instanceof NominalAttrType) m_FindBestTest.findNominal((NominalAttrType)at, data);
-			else m_FindBestTest.findNumeric((NumericAttrType)at, data);
+			else if (examplelist == null) {
+				m_FindBestTest.findNumeric((NumericAttrType)at, data);
+			}
+			else {
+				m_FindBestTest.findNumeric((NumericAttrType)at, examplelist);
+			}
 		}
 		
 		// Partition data + recursive calls
@@ -103,24 +131,27 @@ public class DepthFirstInduceSparse extends DepthFirstInduce {
 				child.initClusteringStat(m_StatManager, m_Root.getClusteringStat(), subsets[j]);
 				child.initTargetStat(m_StatManager, m_Root.getTargetStat(), subsets[j]);
 				ArrayList<ClusAttrType> attrList = new ArrayList<ClusAttrType>();
+				ArrayList<ArrayList> examplelistList = new ArrayList<ArrayList>();
 				for (int i = 0; i < attrs.length; i++) {
 					ClusAttrType at = (ClusAttrType)attrs[i];
 					if (at.isSparse()) {
 						ArrayList newExampleList = ((SparseNumericAttrType)at).pruneExampleList(subsets[j]);
-						if (newExampleList.size() >= getSettings().getMinimalWeight()) attrList.add(at);
+						if (newExampleList.size() >= getSettings().getMinimalWeight()) {
+							attrList.add(at);
+							examplelistList.add(newExampleList);
+						}
 					}
 					else {
 						attrList.add(at);
+						examplelistList.add(null);
 					}
 				}
 				Object[] attrArray = attrList.toArray();
-				induce(child, subsets[j], attrArray);
+				Object[] exampleListArray = examplelistList.toArray();
+				induce(child, subsets[j], attrArray, exampleListArray);
 			}
 		} else {
 			makeLeaf(node);
 		}
 	}
-	
-	
-	
 }

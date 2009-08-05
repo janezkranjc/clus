@@ -29,11 +29,14 @@ import clus.data.type.*;
 import clus.main.*;
 import clus.statistic.*;
 import clus.util.*;
+import java.util.ArrayList;
 
 public class FindBestTest {
 
-	protected CurrentBestTestAndHeuristic m_BestTest = new CurrentBestTestAndHeuristic();
+	public CurrentBestTestAndHeuristic m_BestTest = new CurrentBestTestAndHeuristic();
+//	public long m_Timer = 0;
 	protected RowDataSortHelper m_SortHelper = new RowDataSortHelper();
+
 	protected ClusStatManager m_StatManager;
 	protected NominalSplit m_Split;	
 	protected int m_MaxStats;
@@ -57,6 +60,10 @@ public class FindBestTest {
 		return m_StatManager;
 	}
 
+	public RowDataSortHelper getSortHelper() {
+		return m_SortHelper;
+	}
+	
 	public Settings getSettings() {
 		return getStatManager().getSettings();
 	}
@@ -71,6 +78,8 @@ public class FindBestTest {
 
 	public void findNominal(NominalAttrType at, RowData data) {
 		// Reset positive statistic
+//		long start_time = System.currentTimeMillis();
+		
 		int nbvalues = at.getNbValues();
 		m_BestTest.reset(nbvalues + 1);
 		int nb_rows = data.getNbRows();
@@ -95,6 +104,14 @@ public class FindBestTest {
 				m_BestTest.m_TestStat[value].updateWeighted(tuple, i);
 			}
 		}
+		
+/*		long stop_time = System.currentTimeMillis();
+		long elapsed = stop_time - start_time;
+		m_Timer += elapsed;
+*/		
+		
+//		System.out.println("done");
+
 		// Find best split
 		m_Split.findSplit(m_BestTest, at);
 	}
@@ -149,7 +166,42 @@ public class FindBestTest {
 			m_BestTest.m_PosStat.updateWeighted(tuple, i);
 		}
 	}
-
+	
+	// for sparse attributes (already sorted)
+	public void findNumeric(NumericAttrType at, ArrayList data) {
+		DataTuple tuple;
+		m_BestTest.reset(2);
+		// Missing values
+		int first = 0;
+		int nb_rows = data.size();
+		// Copy total statistic into corrected total
+		m_BestTest.copyTotal();
+		if (at.hasMissing()) {
+			// Because of sorting, all missing values are in the front :-)
+			while (first < nb_rows && at.isMissing((DataTuple)data.get(first))) {
+				tuple = (DataTuple)data.get(first);
+				m_BestTest.m_MissingStat.updateWeighted(tuple, first);
+				first++;
+			}
+			m_BestTest.subtractMissing();
+		}
+		double prev = Double.NaN;
+		
+		for (int i = first; i < nb_rows; i++) {
+			tuple = (DataTuple)data.get(i);
+			double value = at.getNumeric(tuple);
+			if (value != prev) {
+				if (value != Double.NaN) {
+					// System.err.println("Value (>): " + value);
+					m_BestTest.updateNumeric(value, at);
+				}
+				prev = value;
+			}
+			m_BestTest.m_PosStat.updateWeighted(tuple, i);
+		}	
+		m_BestTest.updateNumeric(0.0, at); // otherwise tests of the form "X>0.0" are not considered
+	}
+	
 	public void findNumericRandom(NumericAttrType at, RowData data, RowData orig_data, Random rn) {
 		DataTuple tuple;
 		int idx = at.getArrayIndex();
