@@ -33,7 +33,6 @@ import org.apache.commons.math.MathException;
 
 import clus.data.attweights.*;
 import clus.data.rows.DataTuple;
-import clus.data.rows.SparseDataTuple;
 import clus.data.rows.RowData;
 import clus.data.type.*;
 import clus.main.ClusStatManager;
@@ -87,12 +86,6 @@ public class CombStat extends ClusStatistic {
 	}
 
 	public void updateWeighted(DataTuple tuple, int idx) { // idx?
-		m_RegStat.updateWeighted(tuple, tuple.getWeight());
-		m_ClassStat.updateWeighted(tuple, tuple.getWeight());
-		m_SumWeight += tuple.getWeight();
-	}
-	
-	public void updateWeighted(SparseDataTuple tuple, int idx) { // idx?
 		m_RegStat.updateWeighted(tuple, tuple.getWeight());
 		m_ClassStat.updateWeighted(tuple, tuple.getWeight());
 		m_SumWeight += tuple.getWeight();

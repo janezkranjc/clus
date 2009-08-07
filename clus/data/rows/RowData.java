@@ -581,19 +581,8 @@ public class RowData extends ClusData implements MSortable, Serializable {
 	}
 
 	public void calcTotalStat(ClusStatistic stat) {
-		if (m_Schema.isSparse()) {
-			calcTotalStatSparse(stat);
-		}
-		else {
-			for (int i = 0; i < m_NbRows; i++) {
-				stat.updateWeighted(m_Data[i], i);
-			}
-		}
-	}
-	
-	public void calcTotalStatSparse(ClusStatistic stat) {
 		for (int i = 0; i < m_NbRows; i++) {
-			stat.updateWeighted((SparseDataTuple)m_Data[i], i);
+			stat.updateWeighted(m_Data[i], i);
 		}
 	}
 

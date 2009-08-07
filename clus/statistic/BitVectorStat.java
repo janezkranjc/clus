@@ -60,12 +60,6 @@ public class BitVectorStat extends ClusStatistic {
 		m_Bits.setBit(idx);
 		m_Modified = true;
 	}
-	
-	public void updateWeighted(SparseDataTuple tuple, int idx) {
-		m_SumWeight += tuple.getWeight();
-		m_Bits.setBit(idx);
-		m_Modified = true;
-	}
 
 	public void calcMean() {
 	}

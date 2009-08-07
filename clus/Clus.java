@@ -159,10 +159,8 @@ public class Clus implements CMDLineArgsProvider {
 		// Create induce
 		m_Induce = clss.createInduce(m_Schema, m_Sett, cargs);
 
-		
 		// Preprocess and initialize induce
 		m_Sett.update(m_Schema);
-		
 		// If not rule induction, reset some settings just to be sure
 		// in case rules from trees are used.
 		// I.e. this is used if the command line parameter is for decision trees
@@ -171,7 +169,6 @@ public class Clus implements CMDLineArgsProvider {
 		// trees as a covering method.
 		if (!m_Induce.getStatManager().isRuleInduce())
 			m_Sett.disableRuleInduceParams();
-
 		// Set XVal field in Settings
 		if (isxval)
 			Settings.IS_XVAL = true;
@@ -426,7 +423,7 @@ public class Clus implements CMDLineArgsProvider {
 			throws IOException, ClusException {
 		ClusStatManager mgr = getInduce().getStatManager();
 		ClusStatistic allStat = mgr.createStatistic(ClusAttrType.ATTR_USE_ALL);
-		data.calcTotalStat(allStat);
+//		data.calcTotalStat(allStat);
 		ClusStatistic[] stats = new ClusStatistic[1];
 		stats[0] = allStat;
 		/*

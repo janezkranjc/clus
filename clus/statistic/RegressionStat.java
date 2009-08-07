@@ -155,20 +155,6 @@ public class RegressionStat extends RegressionStatBase {
 		}
 	}
 
-	public void updateWeighted(SparseDataTuple tuple, double weight) {
-		m_NbExamples++;
-		m_SumWeight += weight;
-		Object[] sparseAttrIndices = tuple.getAttributeIndices();
-		for (int i = 0; i < sparseAttrIndices.length; i++) {
-			double val = tuple.getDoubleValueSparse((Integer)sparseAttrIndices[i]);
-			if (val != Double.POSITIVE_INFINITY) {
-				m_SumWeights[i] += weight;
-				m_SumValues[i] += weight*val;
-				m_SumSqValues[i] += weight*val*val;
-			}
-		}
-	}
-	
 	public void updateWeighted(DataTuple tuple, double weight) {
 		m_NbExamples++;
 		m_SumWeight += weight;

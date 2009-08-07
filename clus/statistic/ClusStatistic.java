@@ -105,7 +105,6 @@ public abstract class ClusStatistic implements Serializable {
 	}
 
 	public abstract void updateWeighted(DataTuple tuple, int idx);
-	public abstract void updateWeighted(SparseDataTuple tuple, int idx);
 
 	public void updateWeighted(DataTuple tuple, double weight) {
 	}

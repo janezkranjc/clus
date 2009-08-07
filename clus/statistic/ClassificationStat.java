@@ -211,10 +211,6 @@ public class ClassificationStat extends ClusStatistic {
 	public void updateWeighted(DataTuple tuple, int idx) {
 		updateWeighted(tuple, tuple.getWeight());
 	}
-	
-	public void updateWeighted(SparseDataTuple tuple, int idx) {
-		updateWeighted(tuple, tuple.getWeight());
-	}
 
 	public void updateWeighted(DataTuple tuple, double weight) {
 		m_NbExamples++;
