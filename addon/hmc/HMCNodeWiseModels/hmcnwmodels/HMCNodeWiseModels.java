@@ -236,10 +236,10 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			computed[node.getIndex()] = true;
 			doOneNode(node, hier, train, valid, test);
 			// recursively do children
-//			for (int i = 0; i < node.getNbChildren(); i++) {
-//				ClassTerm child = (ClassTerm)node.getChild(i);
-//				computeRecursive(child, hier, train, valid, test, computed);
-//			}
+			for (int i = 0; i < node.getNbChildren(); i++) {
+				ClassTerm child = (ClassTerm)node.getChild(i);
+				computeRecursive(child, hier, train, valid, test, computed);
+			}
 		}
 	}
 
