@@ -154,12 +154,17 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 		for (int j = 0; j < oschema.getNbAttributes(); j++) {
 			ClusAttrType atype = oschema.getAttrType(j);
 			if (!(atype instanceof ClassesAttrType)) {
-				ClusAttrType copy_atype = atype.cloneType();
-				cschema.addAttrType(copy_atype);
+				if (oschema.isSparse()) cschema.addAttrType(atype);
+				else {
+					ClusAttrType copy_atype = atype.cloneType();
+					cschema.addAttrType(copy_atype);
+				}
 			}
 		}
 		cschema.addAttrType(ctype);
 		cschema.initializeSettings(m_Clus.getSettings());
+		if (oschema.isSparse())
+			cschema.setSparse();
 		return cschema;
 	}
 
@@ -176,6 +181,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			RowData childData = createChildData(nodeData, ctype, child.getIndex());
 			ClusInductionAlgorithmType clss;
 			if (m_Cargs.hasOption("forest")) {
+				m_Clus.getSettings().setEnsembleMode(true);
 				clss = new ClusEnsembleClassifier(m_Clus);
 			} else {
 				clss = new ClusDecisionTree(m_Clus);
@@ -221,7 +227,6 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			ClusModelCollectionIO io = new ClusModelCollectionIO();
 			io.addModel(cr.addModelInfo(ClusModel.ORIGINAL));
 			io.save("hsc/model/" + name + ".model");
-
 		}
 	}
 
@@ -231,10 +236,10 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 			computed[node.getIndex()] = true;
 			doOneNode(node, hier, train, valid, test);
 			// recursively do children
-			for (int i = 0; i < node.getNbChildren(); i++) {
-				ClassTerm child = (ClassTerm)node.getChild(i);
-				computeRecursive(child, hier, train, valid, test, computed);
-			}
+//			for (int i = 0; i < node.getNbChildren(); i++) {
+//				ClassTerm child = (ClassTerm)node.getChild(i);
+//				computeRecursive(child, hier, train, valid, test, computed);
+//			}
 		}
 	}
 

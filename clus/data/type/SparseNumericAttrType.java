@@ -17,6 +17,7 @@ public class SparseNumericAttrType extends NumericAttrType {
 
 	protected Integer m_IntIndex;
 	protected ArrayList<SparseDataTuple> m_Examples;
+	protected double m_ExampleWeight;
 
 	public SparseNumericAttrType(String name) {
 		super(name);
@@ -51,26 +52,22 @@ public class SparseNumericAttrType extends NumericAttrType {
 		return m_Examples;
 	}
 	
+	public double getExampleWeight() {
+		return m_ExampleWeight;
+	}
+	
 	public void setExamples(ArrayList<SparseDataTuple> ex) {
 		m_Examples = ex;
 	}
 	
 	public void resetExamples() {
 		m_Examples = new ArrayList<SparseDataTuple>();
+		m_ExampleWeight = 0.0;
 	}
-	
-/*	public void sortExamples() {
-		Object[] exampleArray = getExamples().toArray();
-		RowData data = new RowData(exampleArray,exampleArray.length);
-		data.sort(this);
-		m_Examples = new ArrayList<SparseDataTuple>();
-		for (int i=0; i<data.getNbRows(); i++) {
-			m_Examples.add((SparseDataTuple)data.getTuple(i));
-		}
-	}*/
 	
 	public void addExample(SparseDataTuple tuple) {
 		m_Examples.add(tuple);
+		m_ExampleWeight += tuple.getWeight();
 	}
 	
 	public ArrayList pruneExampleList(RowData data) {

@@ -46,7 +46,7 @@ public class DepthFirstInduceSparse extends DepthFirstInduce {
 		for (int i=0; i<data.getNbRows(); i++) {
 			SparseDataTuple tuple = (SparseDataTuple)data.getTuple(i);
 			tuple.addExampleToAttributes();		
-		}
+		}		
 	}
 	
 	public void induce(ClusNode node, RowData data) {
@@ -57,7 +57,7 @@ public class DepthFirstInduceSparse extends DepthFirstInduce {
 		for (int i = 0; i < attrs.length; i++) {
 			ClusAttrType at = attrs[i];
 			if (at.isSparse()) {
-				if (((SparseNumericAttrType)at).getExamples().size() >= getSettings().getMinimalWeight()) {
+				if (((SparseNumericAttrType)at).getExampleWeight() >= getSettings().getMinimalWeight()) {
 					attrList.add(at);
 					
 					Object[] exampleArray = ((SparseNumericAttrType)at).getExamples().toArray();
@@ -83,7 +83,7 @@ public class DepthFirstInduceSparse extends DepthFirstInduce {
 	
 	
 	public void induce(ClusNode node, RowData data, Object[] attrs, Object[] examplelists) {
-		//System.out.println("INDUCE SPARSE with " + attrs.length + " attributes");
+		//System.out.println("INDUCE SPARSE with " + attrs.length + " attributes and " + data.getNbRows() + " examples");
 		// Initialize selector and perform various stopping criteria
 		if (initSelectorAndStopCrit(node, data)) {
 			makeLeaf(node);
@@ -136,7 +136,8 @@ public class DepthFirstInduceSparse extends DepthFirstInduce {
 					ClusAttrType at = (ClusAttrType)attrs[i];
 					if (at.isSparse()) {
 						ArrayList newExampleList = ((SparseNumericAttrType)at).pruneExampleList(subsets[j]);
-						if (newExampleList.size() >= getSettings().getMinimalWeight()) {
+						double exampleWeight = getExampleWeight(newExampleList);
+						if (exampleWeight >= getSettings().getMinimalWeight()) {
 							attrList.add(at);
 							examplelistList.add(newExampleList);
 						}
@@ -153,5 +154,15 @@ public class DepthFirstInduceSparse extends DepthFirstInduce {
 		} else {
 			makeLeaf(node);
 		}
+	}
+	
+	
+	public double getExampleWeight(ArrayList examples) {
+		double weight = 0.0;
+		for (int i=0; i<examples.size(); i++) {
+			SparseDataTuple tup = (SparseDataTuple)examples.get(i);
+			weight += tup.getWeight();
+		}
+		return weight;
 	}
 }
