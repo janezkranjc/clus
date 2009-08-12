@@ -659,6 +659,10 @@ public class ClusSchema implements Serializable {
 	public boolean isSparse() {
 		return m_IsSparse;
 	}
+	
+	public void setSparse() {
+		m_IsSparse = true;
+	}
 
 	public ClusAttrType[] getNonSparseAttributes() {
 		return m_NonSparse;
