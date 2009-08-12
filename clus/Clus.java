@@ -255,7 +255,7 @@ public class Clus implements CMDLineArgsProvider {
 		if (m_Sett.isOutTrainError()) {
 			m_Summary.setTrainError(error);
 		}
-		if (hasTestSet()) {
+		if (hasTestSet() && m_Sett.isOutTestError()) {
 			m_Summary.setTestError(error);
 		}
 		if (hasPruneSet() && m_Sett.isOutValidError()) {
@@ -761,7 +761,7 @@ public class Clus implements CMDLineArgsProvider {
 			calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr);
 		}
 		TupleIterator tsiter = cr.getTestIter();
-		if (tsiter != null) {
+		if (m_Sett.isOutTestError () && tsiter != null) {
 			if (Settings.VERBOSE > 0) System.out.println("Computing testing error");
 			calcError(tsiter, ClusModelInfo.TEST_ERR, cr);
 		}			

@@ -516,6 +516,7 @@ public class Settings implements Serializable {
 	protected INIFileBool m_OutFoldModels;
 	protected INIFileBool m_OutTrainErr;
 	protected INIFileBool m_OutValidErr;
+	protected INIFileBool m_OutTestErr;
 	protected INIFileBool m_ShowForest;
 	protected INIFileBool m_ShowBrFreq;
 	protected INIFileBool m_ShowUnknown;
@@ -535,7 +536,11 @@ public class Settings implements Serializable {
 	
 	public boolean isOutValidError() {
 		return m_OutValidErr.getValue();
-	}	
+	}
+	
+	public boolean isOutTestError() {
+		return m_OutTestErr.getValue();
+	}
 
 	public boolean isShowBranchFreq() {
 		return m_ShowBrFreq.getValue();
@@ -1940,6 +1945,7 @@ public class Settings implements Serializable {
 		output.addNode(m_ShowModels = new INIFileNominal("ShowModels", SHOW_MODELS, SHOW_MODELS_VALUES));
 		output.addNode(m_OutTrainErr = new INIFileBool("TrainErrors", true));
 		output.addNode(m_OutValidErr = new INIFileBool("ValidErrors", true));
+		output.addNode(m_OutTestErr = new INIFileBool("TestErrors", true));
 		output.addNode(m_OutFoldModels = new INIFileBool("AllFoldModels", true));
 		output.addNode(m_OutFoldErr = new INIFileBool("AllFoldErrors", false));
 		output.addNode(m_OutFoldData = new INIFileBool("AllFoldDatasets", false));

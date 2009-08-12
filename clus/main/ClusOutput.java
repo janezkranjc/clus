@@ -192,7 +192,7 @@ public class ClusOutput {
 				va_err.showError(cr, ClusModelInfo.VALID_ERR, bName+".valid", m_Writer);
 				m_Writer.println();
 			}
-			if (te_err != null) {
+			if (te_err != null && m_Sett.isOutTestError()) {
 				m_Writer.println("Testing error");
 				m_Writer.println("-------------");
 				m_Writer.println();
