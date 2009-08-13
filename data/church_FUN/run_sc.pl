@@ -117,6 +117,9 @@ open(IN,"../../$sfile.s") || die "Can't open '../../$sfile.s'";
 $targetwritten = 0;
 while ($line=<IN>) {
 	$line =~ s/\=\s*(\S+)\.arff/\= ..\/$1_SINGLE\.arff/g;
+	# Leander added 12/8/09 
+	$line =~ s/DAG/Tree/g;
+	# end Leander added
 	print TP $line;
 	if ($line =~ /\[Attributes\]/) {
 		print TP "Target = ?\n";
