@@ -36,7 +36,7 @@ import clus.util.ClusException;
 public class ClusBeamSyntacticConstraint {
 
 	ClusNode m_Constraint;
-	ArrayList m_ConstraintPredictions;
+	ArrayList<ClusStatistic> m_ConstraintPredictions;
 
 	public ClusBeamSyntacticConstraint(ClusRun run) throws ClusException, IOException{
 			initializeConstraint(run);
@@ -72,38 +72,25 @@ public class ClusBeamSyntacticConstraint {
 	}
 
 	/**Dragi
-	 * we call this method always after the ClusBeamModelDistance is initialized
-	 * so we can use the static variable from there
-	 *
 	 * @param run
 	 * @return predictions
 	 */
-	public ArrayList getPredictions(ClusRun run){
-		ClusStatistic stat;
+	public ArrayList<ClusStatistic> getPredictions(ClusRun run){
 		DataTuple tuple;
 		RowData train = (RowData)run.getTrainingSet();
-		ArrayList predictions = new ArrayList();
-		double[] singleattr;
-		boolean isNum = (run.getStatManager().getMode() == 1);
-
-		for (int k = 0; k < ClusBeamModelDistance.m_NbTarget; k++){
-			singleattr = new double[train.getNbRows()];
+		ArrayList<ClusStatistic> predictions = new ArrayList<ClusStatistic>();
 			for (int i = 0; i < (train.getNbRows()); i++){
 				tuple = train.getTuple(i);
-				stat = m_Constraint.predictWeighted(tuple);
-				if (isNum)	singleattr[i] = stat.getNumericPred()[k];
-				else	singleattr[i] = stat.getNominalPred()[k];
+				predictions.add(m_Constraint.predictWeighted(tuple));		
 			}
-		predictions.add(singleattr);
-		}
 		return predictions;
 	}
 
-	public ArrayList getConstraintPredictions(){
+	public ArrayList<ClusStatistic> getConstraintPredictions(){
 		return m_ConstraintPredictions;
 	}
 
-	public void setConstraintPredictions(ArrayList predictions){
+	public void setConstraintPredictions(ArrayList<ClusStatistic> predictions){
 		m_ConstraintPredictions = predictions;
 	}
 

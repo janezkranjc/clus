@@ -28,6 +28,7 @@ import clus.data.cols.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.data.attweights.*;
+import clus.ext.beamsearch.ClusBeam;
 import clus.ext.timeseries.TimeSeries;
 
 import java.io.*;
@@ -270,6 +271,10 @@ public abstract class ClusStatistic implements Serializable {
 		return Double.POSITIVE_INFINITY;
 	}
 
+	public double getSquaredDistance(ClusStatistic other) {
+		return Double.POSITIVE_INFINITY;
+	}
+	
 	public static void reset(ClusStatistic[] stat) {
 		for (int i = 0; i < stat.length; i++) stat[i].reset();
 	}
@@ -343,5 +348,8 @@ public abstract class ClusStatistic implements Serializable {
 
 	public String getDistanceName() {
 		return "Unknown Distance";
+	}
+	
+	public void setBeam(ClusBeam beam){
 	}
 }

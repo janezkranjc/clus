@@ -134,6 +134,7 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 		ClusBeam beam = new ClusBeam(sett.getBeamWidth(), sett.getBeamRemoveEqualHeur());
 		/* Create single leaf node */
 		RowData train = (RowData)run.getTrainingSet();
+		train.addIndices();//add the indices of the tuples
 		ClusStatistic stat = m_Induce.createTotalClusteringStat(train);
 		stat.calcMean();
 		m_Induce.initSelectorAndSplit(stat);
@@ -154,6 +155,8 @@ public class ClusBeamSearch extends ClusInductionAlgorithmType {
 		/* Make sure root also has target statistics computed */
 		root.initTargetStat(getStatManager(), train);
 		root.getTargetStat().calcMean();
+		root.getClusteringStat().setBeam(beam);//connection to the similarity measure...
+		root.getTargetStat().setBeam(beam);
 		/* Compute total weight */
 		double weight = root.getClusteringStat().getTotalWeight();
 		setTotalWeight(weight);

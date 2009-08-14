@@ -1556,6 +1556,10 @@ public class Settings implements Serializable {
 		return m_SizePenalty.getValue();
 	}
 
+	public boolean isBeamSearchMode(){
+		return m_SectionBeam.isEnabled();
+	}
+	
 	public int getBeamBestN() {
 		return m_BeamBestN.getValue();
 	}

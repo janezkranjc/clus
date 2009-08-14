@@ -608,6 +608,7 @@ public class ClassificationStat extends ClusStatistic {
 		return result / m_NbTarget;
 	}
 
+	
 	public void initNormalizationWeights(ClusAttributeWeights weights, boolean[] shouldNormalize) {
 		for (int i = 0; i < m_NbTarget; i++) {
 			int idx = m_Attrs[i].getIndex();
@@ -725,6 +726,21 @@ public class ClassificationStat extends ClusStatistic {
 				result[i][j] = m_ClassCounts[i][j]/total;//store the frequencies
 		}
 		return result;
+	}
+	
+	public double getSquaredDistance(ClusStatistic other) {
+		double[][] these = getProbabilityPrediction();
+		ClassificationStat o = (ClassificationStat)other;
+		double[][] others = o.getProbabilityPrediction();
+		double result = 0.0;
+		for (int i = 0; i < m_NbTarget; i++){//for each target
+			double distance = 0.0;
+			for (int j = 0; j < these[i].length; j++){//for each class from the target
+				distance += (these[i][j] - others[i][j]) * (these[i][j] - others[i][j]);
+			}
+			result += distance / these[i].length;
+		}
+		return result/m_NbTarget;
 	}
 
 }

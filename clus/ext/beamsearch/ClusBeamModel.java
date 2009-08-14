@@ -26,8 +26,10 @@
 package clus.ext.beamsearch;
 
 import clus.algo.tdidt.ClusNode;
+import clus.data.rows.DataTuple;
 import clus.main.*;
 import clus.model.ClusModel;
+import clus.statistic.ClusStatistic;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ public class ClusBeamModel implements Comparable, Serializable {
 	protected Object m_Refinement;
 
 	protected double m_DistanceToBeam; //stores the Similarity to beam
-	protected ArrayList m_Predictions; //stores the predictions for each target attribute for each row
+	protected ArrayList<ClusStatistic> m_Predictions; //stores the predictions for each target attribute for each row
 
 	public ClusBeamModel() {
 	}
@@ -153,11 +155,15 @@ public class ClusBeamModel implements Comparable, Serializable {
 		return m_DistanceToBeam;
 	}
 
-	public void setModelPredictions(ArrayList predictions){
+	public void setModelPredictions(ArrayList<ClusStatistic> predictions){
 		m_Predictions = predictions;
 	}
 
-	public ArrayList getModelPredictions(){
+	public ArrayList<ClusStatistic> getModelPredictions(){
 		return m_Predictions;
+	}
+	
+	public ClusStatistic getPredictionForTuple(DataTuple tuple){
+		return m_Predictions.get(tuple.getIndex());
 	}
 }

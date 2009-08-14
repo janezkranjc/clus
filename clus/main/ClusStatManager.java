@@ -78,6 +78,8 @@ public class ClusStatManager implements Serializable {
 	public final static int MODE_ILEVELC = 6;
 
 	public final static int MODE_PHYLO = 7;
+	
+	public final static int MODE_BEAM_SEARCH = 8;
 
 	protected int m_Mode = MODE_NONE;
 
@@ -344,6 +346,10 @@ public class ClusStatManager implements Serializable {
 		if (m_Settings.isSectionILevelCEnabled()) {
 			m_Mode = MODE_ILEVELC;
 		}
+		if (m_Settings.isBeamSearchMode() && (m_Settings.getBeamSimilarity() != 0.0)){
+			m_Mode = MODE_BEAM_SEARCH;
+		}
+		
 		if (nb_types == 0) {
 			System.err.println("No target value defined");
 		}
@@ -466,6 +472,12 @@ public class ClusStatManager implements Serializable {
 		case MODE_ILEVELC:
 			setTargetStatistic(new ILevelCStatistic(num2));
 			setClusteringStatistic(new ILevelCStatistic(num3));
+			break;
+		case MODE_BEAM_SEARCH:
+			if (num3.length != 0 && num2.length != 0){
+				setTargetStatistic(new ClusBeamSimRegrStat(num2,null));
+				setClusteringStatistic(new ClusBeamSimRegrStat(num3,null));
+			}
 			break;
 		}
 	}

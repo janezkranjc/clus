@@ -273,4 +273,16 @@ public class RegressionStat extends RegressionStatBase {
 	public RegressionStat getRegressionStat() {
 		return this;
 	}
+	
+	
+	public double getSquaredDistance(ClusStatistic other) {
+		double result = 0.0;
+		RegressionStat o = (RegressionStat)other;
+		for (int i = 0; i < m_NbAttrs; i++){
+			double distance = getMean(i) - o.getMean(i);
+			result += distance * distance;
+		}
+		return result;
+	}
+	
 }

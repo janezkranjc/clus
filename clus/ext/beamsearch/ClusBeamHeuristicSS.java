@@ -48,8 +48,10 @@ public class ClusBeamHeuristicSS extends ClusBeamHeuristic {
 			return Double.NEGATIVE_INFINITY;
 		}
 		if (missing.m_SumWeight == 0.0) {
-			double pos_error = c_pstat.getSVarS(m_TargetWeights);
-			double neg_error = c_tstat.getSVarSDiff(m_TargetWeights, c_pstat);
+			m_Neg.copy(c_tstat);
+			m_Neg.subtractFromThis(c_pstat);
+			double pos_error = m_Pos.getSVarS(m_TargetWeights);
+			double neg_error = m_Neg.getSVarS(m_TargetWeights);
 			return m_TreeOffset - (pos_error + neg_error)/m_NbTrain - 2*Settings.SIZE_PENALTY;
 		} else {
 			double pos_freq = n_pos / n_tot;
