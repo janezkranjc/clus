@@ -53,8 +53,8 @@ public class ClassificationStat extends ClusStatistic {
 	public NominalAttrType[] m_Attrs;
 
 	//* Class counts with [Target index][Class]
-	public double[] m_SumWeights;
 	public double[][] m_ClassCounts;
+	public double[] m_SumWeights;
 	public int[] m_MajorityClasses;
 
 	/**
@@ -129,10 +129,10 @@ public class ClassificationStat extends ClusStatistic {
 		ClassificationStat or = (ClassificationStat)other;
 		m_SumWeight = or.m_SumWeight;
 		m_NbExamples = or.m_NbExamples;
+		System.arraycopy(or.m_SumWeights, 0, m_SumWeights, 0, m_NbTarget);
 		for (int i = 0; i < m_NbTarget; i++) {
-			double[] my = m_ClassCounts[i];
-			double[] your = or.m_ClassCounts[i];
-			System.arraycopy(your, 0, my, 0, my.length);
+			double[] my = m_ClassCounts[i];			
+			System.arraycopy(or.m_ClassCounts[i], 0, my, 0, my.length);
 		}
 	}
 
@@ -144,10 +144,11 @@ public class ClassificationStat extends ClusStatistic {
 		copy.copy(this);
 		for (int i = 0; i < m_NbTarget; i++) {
 			for (int j = 0; j < m_ClassCounts[i].length; j++) {
-				copy.m_ClassCounts[i][j] /= m_SumWeight;
+				copy.m_ClassCounts[i][j] /= m_SumWeights[i];
 			}
 		}
-		copy.m_SumWeight = 1;
+		Arrays.fill(m_SumWeights, 1.0);
+		copy.m_SumWeight = 1.0;
 		return copy;
 	}
 
@@ -166,6 +167,7 @@ public class ClassificationStat extends ClusStatistic {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
 			for (int j = 0; j < my.length; j++) my[j] += weight*your[j];
+			m_SumWeights[i] += weight*or.m_SumWeights[i];
 		}
 	}
 
@@ -177,6 +179,7 @@ public class ClassificationStat extends ClusStatistic {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
 			for (int j = 0; j < my.length; j++) my[j] += your[j];
+			m_SumWeights[i] += or.m_SumWeights[i];
 		}
 	}
 
@@ -188,6 +191,7 @@ public class ClassificationStat extends ClusStatistic {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
 			for (int j = 0; j < my.length; j++) my[j] += scale*your[j];
+			m_SumWeights[i] += scale*or.m_SumWeights[i];
 		}
 	}
 
@@ -199,6 +203,7 @@ public class ClassificationStat extends ClusStatistic {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
 			for (int j = 0; j < my.length; j++) my[j] -= your[j];
+			m_SumWeights[i] -= or.m_SumWeights[i];
 		}
 	}
 
@@ -210,6 +215,7 @@ public class ClassificationStat extends ClusStatistic {
 			double[] my = m_ClassCounts[i];
 			double[] your = or.m_ClassCounts[i];
 			for (int j = 0; j < my.length; j++) my[j] = your[j] - my[j];
+			m_SumWeights[i] = or.m_SumWeights[i] - m_SumWeights[i];
 		}
 	}
 
@@ -225,6 +231,7 @@ public class ClassificationStat extends ClusStatistic {
 //			System.out.println("val: "+ val);
 			if (val != m_Attrs[i].getNbValues()) {
 				m_ClassCounts[i][val] += weight;
+				m_SumWeights[i] += weight;
 			}
 		}
 	}
@@ -260,12 +267,13 @@ public class ClassificationStat extends ClusStatistic {
 	public double entropy() {
 		double sum = 0.0;
 		for (int i = 0; i < m_NbTarget; i++) {
-			sum += entropy(i, m_SumWeight);
+			sum += entropy(i);
 		}
 		return sum;
 	}
 
-	public double entropy(int attr, double total) {
+	public double entropy(int attr) {
+		double total = m_SumWeights[attr];
 		if (total < 1e-6) {
 			return 0.0;
 		} else {
@@ -282,18 +290,18 @@ public class ClassificationStat extends ClusStatistic {
 	}
 
 	public double entropyDifference(ClassificationStat other) {
-		double sum = 0.0;
-		double tot = m_SumWeight - other.m_SumWeight;
-		for (int i = 0; i < m_NbTarget; i++) {
-			sum += entropyDifference(i, other, tot);
+		double sum = 0.0;		
+		for (int i = 0; i < m_NbTarget; i++) {			
+			sum += entropyDifference(i, other);
 		}
 		return sum;
 	}
 
-	public double entropyDifference(int attr, ClassificationStat other, double total) {
+	public double entropyDifference(int attr, ClassificationStat other) {
 		double acc = 0.0;
 		double[] clcts = m_ClassCounts[attr];
 		double[] otcts = other.m_ClassCounts[attr];
+		double total = m_SumWeights[attr] - other.m_SumWeights[attr];
 		for (int i = 0; i < clcts.length; i++) {
 			double diff = clcts[i] - otcts[i];
 			if (diff != 0.0) acc += diff/total*Math.log(diff/total);
@@ -302,13 +310,14 @@ public class ClassificationStat extends ClusStatistic {
 	}
 
 	public double gini(int attr) {
-		if (m_SumWeight == 0) {
+		double total = m_SumWeights[attr];
+		if (total == 0) {
 			return 0.0;
 		} else {
 			double sum = 0.0;
 			double[] clcts = m_ClassCounts[attr];
 			for (int i = 0; i < clcts.length; i++) {
-				double prob = clcts[i]/m_SumWeight;
+				double prob = clcts[i]/total;
 				sum += prob*prob;
 			}
 			return 1.0 - sum;
@@ -316,7 +325,7 @@ public class ClassificationStat extends ClusStatistic {
 	}
 
 	public double giniDifference(int attr, ClassificationStat other) {
-		double wDiff = m_SumWeight - other.m_SumWeight;
+		double wDiff = m_SumWeights[attr] - other.m_SumWeights[attr];
 		if (wDiff == 0) {
 			return 0.0;
 		} else {
@@ -561,7 +570,7 @@ public class ClassificationStat extends ClusStatistic {
 		double result = 0.0;
 		for (int i = 0; i < m_NbTarget; i++) {
 			int maj = getMajorityClass(i);
-			result += m_SumWeight - m_ClassCounts[i][maj];
+			result += m_SumWeights[i] - m_ClassCounts[i][maj];
 		}
 		return result / m_NbTarget;
 	}
@@ -574,11 +583,11 @@ public class ClassificationStat extends ClusStatistic {
 
 	public double getErrorDiff(ClusAttributeWeights scale, ClusStatistic other) {
 		double result = 0.0;
-		ClassificationStat or = (ClassificationStat)other;
-		double diff_total = m_SumWeight - other.m_SumWeight;
+		ClassificationStat or = (ClassificationStat)other;		
 		for (int i = 0; i < m_NbTarget; i++) {
 			int maj = getMajorityClassDiff(i, or);
 			double diff_maj = m_ClassCounts[i][maj] - or.m_ClassCounts[i][maj];
+			double diff_total = m_SumWeights[i] - or.m_SumWeights[i];
 			result += diff_total - diff_maj;
 		}
 		return result / m_NbTarget;
@@ -593,11 +602,10 @@ public class ClassificationStat extends ClusStatistic {
 	}
 
 	public double getSVarS(ClusAttributeWeights scale) {
-//		System.out.println("SVARS");
 		double result = 0.0;
 		double sum = m_SumWeight;
 		for (int i = 0; i < m_NbTarget; i++) {
-//			System.out.println(gini(i) + " " + scale.getWeight(m_Attrs[i]) + " " + sum);
+			// System.out.println(gini(i) + " " + scale.getWeight(m_Attrs[i]) + " " + sum);
 			result += gini(i) * scale.getWeight(m_Attrs[i]) * sum;
 		}
 		return result / m_NbTarget;
@@ -693,10 +701,9 @@ public class ClassificationStat extends ClusStatistic {
 
 	public void voteProbDistr(ArrayList votes) {
 		reset();
-		ClassificationStat vote;
 		int nb_votes = votes.size();
 		for (int j = 0; j < nb_votes; j++){
-			vote = (ClassificationStat) votes.get(j);
+			ClassificationStat vote = (ClassificationStat) votes.get(j);
 			for (int i = 0; i < m_NbTarget; i++){
 				addVote(vote);
 			}

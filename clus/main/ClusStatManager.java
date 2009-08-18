@@ -289,6 +289,7 @@ public class ClusStatManager implements Serializable {
 		}
 		if (hasBitEqualToOne(shouldNormalize)) {
 			CombStat cmb = (CombStat) stat;
+			data.calcTotalStat(stat);
 			RegressionStat rstat = cmb.getRegressionStat();
 			rstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
 			// Normalization is currently required for trees but not for rules

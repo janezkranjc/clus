@@ -398,7 +398,7 @@ public class CombStat extends ClusStatistic {
 	public double meanEntropy() {
 		double sent = 0;
 		for (int i = 0; i < m_NbNomAtts; i++) {
-			sent += entropy(i, m_NomAtts[i].getNbValues());
+			sent += entropy(i);
 		}
 		return sent / m_NbNomAtts;
 	}
@@ -410,8 +410,8 @@ public class CombStat extends ClusStatistic {
 	 * @return the entropy
 	 */
 	//TODO: Move to ClassificationStat
-	public double entropy(int attr, double total) {
-		return m_ClassStat.entropy(attr, total);
+	public double entropy(int attr) {
+		return m_ClassStat.entropy(attr);
 	}
 
 	/**

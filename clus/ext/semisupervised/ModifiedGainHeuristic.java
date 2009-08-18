@@ -31,9 +31,9 @@ public class ModifiedGainHeuristic extends ClusHeuristicImpl {
 		double tot_ent = 0.0;
 		// Entropy?
 		for (int i = 0; i < nb; i++) {
-			pos_ent += pstat.entropy(i, n_pos);
-			neg_ent += nstat.entropy(i, n_neg);
-			tot_ent += tstat.entropy(i, n_tot);
+			pos_ent += pstat.entropy(i);
+			neg_ent += nstat.entropy(i);
+			tot_ent += tstat.entropy(i);
 		}
 		// Gain?
 		double gain = tot_ent - (n_pos*pos_ent + n_neg*neg_ent)/n_tot;

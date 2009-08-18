@@ -423,7 +423,6 @@ public class Clus implements CMDLineArgsProvider {
 			throws IOException, ClusException {
 		ClusStatManager mgr = getInduce().getStatManager();
 		ClusStatistic allStat = mgr.createStatistic(ClusAttrType.ATTR_USE_ALL);
-//		data.calcTotalStat(allStat);
 		ClusStatistic[] stats = new ClusStatistic[1];
 		stats[0] = allStat;
 		/*
