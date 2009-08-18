@@ -24,7 +24,7 @@ sub copy_filter {
        }
     }
     while ($line = <IN>) {
-       chomp($line);
+       $line =~ s/[\n\r]//g;
        if (!($line =~ /^Induction Time\:/i) &&
            !($line =~ /^Pruning Time\:/i)) {
           print OUT "$line\n";

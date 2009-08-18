@@ -124,6 +124,10 @@ public class NominalAttrType extends ClusAttrType {
 	public final int getNbValues() {
 		return m_NbValues;
 	}
+	
+	public final int getNbValuesInclMissing() {
+		return m_NbValues + (m_NbMissing > 0 ? 1 : 0);
+	}
 
 	public String getValue(int idx) {
 		return m_Values[idx];

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import jeans.util.StringUtils;
 
@@ -84,11 +85,9 @@ public class RegressionStat extends RegressionStatBase {
 	public void reset() {
 		m_SumWeight = 0.0;
 		m_NbExamples = 0;
-		for (int i = 0; i < m_NbAttrs; i++) {
-			m_SumWeights[i] = 0.0;
-			m_SumValues[i] = 0.0;
-			m_SumSqValues[i] = 0.0;
-		}
+		Arrays.fill(m_SumWeights, 0.0);
+		Arrays.fill(m_SumValues, 0.0);
+		Arrays.fill(m_SumSqValues, 0.0);
 	}
 
 	public void copy(ClusStatistic other) {

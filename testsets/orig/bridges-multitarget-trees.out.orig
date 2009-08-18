@@ -1,17 +1,16 @@
 Clus run bridges
 ****************
 
-Date: 10/23/08 6:17 PM
+Date: 8/6/09 1:55 PM
 File: bridges-multitarget-trees.out
 Attributes: 13 (input: 7, output: 5)
 Missing values: Yes
-Memory usage: 12920 kB (initial), 13040 kB (data loaded)
 
 [General]
 Verbose = 1
 Compatibility = Latest
 RandomSeed = 0
-ResourceInfoLoaded = Yes
+ResourceInfoLoaded = No
 
 [Data]
 File = ../data/bridges/bridges.arff
@@ -20,6 +19,7 @@ PruneSet = 0.33
 PruneSetMax = Infinity
 XVal = 10
 RemoveMissingTarget = No
+NormalizeData = None
 
 [Attributes]
 Target = 9-13
@@ -39,8 +39,10 @@ MaxError = 0.0
 [Output]
 ShowModels = {Default, Pruned, Others}
 TrainErrors = Yes
+ValidErrors = Yes
 AllFoldModels = Yes
 AllFoldErrors = No
+AllFoldDatasets = No
 WriteErrorFile = No
 UnknownFrequency = No
 BranchFrequency = No
@@ -50,12 +52,14 @@ WritePredictions = {None}
 ModelIDFiles = No
 OutputPythonModel = No
 OutputDatabaseQueries = No
+WriteCurves = No
 
 [Nominal]
 MEstimate = 1.0
 
 [Model]
 MinimalWeight = 2.0
+MinimalNumberExamples = 0
 ParamTuneNumberFolds = 10
 ClassWeights = 0.0
 NominalSubsetTests = Yes
@@ -68,6 +72,7 @@ PruningMethod = CartVSB
 MSENominal = No
 ConvertToRules = No
 AlternativeSplits = No
+Optimize = {}
 
 [SIT]
 Main_target = Default
@@ -83,8 +88,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.096 sec (CPU)
-Pruning Time: 0.02 sec (CPU)
+Induction Time: 0.031 sec
+Pruning Time: 0 sec
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 47 (Leaves: 24)
@@ -104,8 +109,8 @@ Classification Error
              ? |       4 |    0 | 0 |  4
      -----------------------------------
                |      70 |    0 | 0 | 70
-     Accuracy: 0.842857
-     Cramer's coefficient: 0
+     Accuracy: 0.893939
+     Cramer's coefficient: 0.058849
 
 
    Attribute: material
@@ -117,8 +122,8 @@ Classification Error
              ? |    0 |    0 |     2 | 0 |  2
      ----------------------------------------
                |    0 |    0 |    70 | 0 | 70
-     Accuracy: 0.757143
-     Cramer's coefficient: 0
+     Accuracy: 0.779412
+     Cramer's coefficient: 0.020498
 
 
    Attribute: span
@@ -130,8 +135,8 @@ Classification Error
              ? |     0 |     10 |    0 | 0 | 10
      ------------------------------------------
                |     0 |     70 |    0 | 0 | 70
-     Accuracy: 0.514286
-     Cramer's coefficient: 0
+     Accuracy: 0.6
+     Cramer's coefficient: 0.109109
 
 
    Attribute: rel-l
@@ -143,8 +148,8 @@ Classification Error
              ? | 0 |   0 |  4 | 0 |  4
      ---------------------------------
                | 0 |   0 | 70 | 0 | 70
-     Accuracy: 0.571429
-     Cramer's coefficient: 0
+     Accuracy: 0.606061
+     Cramer's coefficient: 0.041613
 
 
    Attribute: type
@@ -160,8 +165,8 @@ Classification Error
              ? |    0 |      0 |        2 |    0 |        0 |   0 |      0 | 0 |  2
      ------------------------------------------------------------------------------
                |    0 |      0 |       70 |    0 |        0 |   0 |      0 | 0 | 70
-     Accuracy: 0.385714
-     Cramer's coefficient: 0
+     Accuracy: 0.397059
+     Cramer's coefficient: 0.011835
 
    Original: 
    Attribute: t-or-d
@@ -172,8 +177,8 @@ Classification Error
              ? |       4 |    0 | 0 |  4
      -----------------------------------
                |      65 |    5 | 0 | 70
-     Accuracy: 0.914286
-     Cramer's coefficient: 0.588348
+     Accuracy: 0.969697
+     Cramer's coefficient: 0.858021
 
 
    Attribute: material
@@ -185,8 +190,8 @@ Classification Error
              ? |    2 |    0 |     0 | 0 |  2
      ----------------------------------------
                |   13 |    8 |    49 | 0 | 70
-     Accuracy: 0.885714
-     Cramer's coefficient: 0.634251
+     Accuracy: 0.911765
+     Cramer's coefficient: 0.777323
 
 
    Attribute: span
@@ -198,8 +203,8 @@ Classification Error
              ? |     5 |      4 |    1 | 0 | 10
      ------------------------------------------
                |     8 |     41 |   21 | 0 | 70
-     Accuracy: 0.757143
-     Cramer's coefficient: 0.603439
+     Accuracy: 0.883333
+     Cramer's coefficient: 0.884744
 
 
    Attribute: rel-l
@@ -211,8 +216,8 @@ Classification Error
              ? |  1 |   1 |  2 | 0 |  4
      ----------------------------------
                | 24 |   6 | 40 | 0 | 70
-     Accuracy: 0.828571
-     Cramer's coefficient: 0.629845
+     Accuracy: 0.878788
+     Cramer's coefficient: 0.833003
 
 
    Attribute: type
@@ -228,8 +233,8 @@ Classification Error
              ? |    2 |      0 |        0 |    0 |        0 |   0 |      0 | 0 |  2
      ------------------------------------------------------------------------------
                |   13 |      4 |       29 |   10 |        9 |   0 |      5 | 0 | 70
-     Accuracy: 0.8
-     Cramer's coefficient: 0.686518
+     Accuracy: 0.823529
+     Cramer's coefficient: 0.748505
 
    Pruned: 
    Attribute: t-or-d
@@ -240,8 +245,8 @@ Classification Error
              ? |       4 |    0 | 0 |  4
      -----------------------------------
                |      70 |    0 | 0 | 70
-     Accuracy: 0.842857
-     Cramer's coefficient: 0
+     Accuracy: 0.893939
+     Cramer's coefficient: 0.058849
 
 
    Attribute: material
@@ -253,8 +258,8 @@ Classification Error
              ? |    0 |    0 |     2 | 0 |  2
      ----------------------------------------
                |   11 |    0 |    59 | 0 | 70
-     Accuracy: 0.871429
-     Cramer's coefficient: 0.521249
+     Accuracy: 0.897059
+     Cramer's coefficient: 0.647636
 
 
    Attribute: span
@@ -266,8 +271,8 @@ Classification Error
              ? |     0 |     10 |    0 | 0 | 10
      ------------------------------------------
                |     0 |     70 |    0 | 0 | 70
-     Accuracy: 0.514286
-     Cramer's coefficient: 0
+     Accuracy: 0.6
+     Cramer's coefficient: 0.109109
 
 
    Attribute: rel-l
@@ -279,8 +284,8 @@ Classification Error
              ? |  2 |   0 |  2 | 0 |  4
      ----------------------------------
                | 13 |   0 | 57 | 0 | 70
-     Accuracy: 0.685714
-     Cramer's coefficient: 0.308211
+     Accuracy: 0.727273
+     Cramer's coefficient: 0.389886
 
 
    Attribute: type
@@ -296,8 +301,8 @@ Classification Error
              ? |    0 |      0 |        2 |    0 |        0 |   0 |      0 | 0 |  2
      ------------------------------------------------------------------------------
                |   11 |      0 |       59 |    0 |        0 |   0 |      0 | 0 | 70
-     Accuracy: 0.485714
-     Cramer's coefficient: 0.323894
+     Accuracy: 0.5
+     Cramer's coefficient: 0.354796
 
 Weighted mean squared error (MSE) for Nominal Attributes (Weights [3.161,2.304,1.471,1.672,1.308])
    Default        : [0.7031,0.8643,0.747,0.8909,0.9886]: 0.8388
@@ -318,8 +323,8 @@ Classification Error
              ? |       2 |    0 | 0 |  2
      -----------------------------------
                |      34 |    0 | 0 | 34
-     Accuracy: 0.764706
-     Cramer's coefficient: 0
+     Accuracy: 0.8125
+     Cramer's coefficient: 0.060634
 
 
    Attribute: material
@@ -344,8 +349,8 @@ Classification Error
              ? |     0 |      6 |    0 | 0 |  6
      ------------------------------------------
                |     0 |     34 |    0 | 0 | 34
-     Accuracy: 0.411765
-     Cramer's coefficient: 0
+     Accuracy: 0.5
+     Cramer's coefficient: 0.137505
 
 
    Attribute: rel-l
@@ -357,8 +362,8 @@ Classification Error
              ? | 0 |   0 |  1 | 0 |  1
      ---------------------------------
                | 0 |   0 | 34 | 0 | 34
-     Accuracy: 0.529412
-     Cramer's coefficient: 0
+     Accuracy: 0.545455
+     Cramer's coefficient: 0.02111
 
 
    Attribute: type
@@ -386,8 +391,8 @@ Classification Error
              ? |       2 |    0 | 0 |  2
      -----------------------------------
                |      34 |    0 | 0 | 34
-     Accuracy: 0.764706
-     Cramer's coefficient: 0
+     Accuracy: 0.8125
+     Cramer's coefficient: 0.060634
 
 
    Attribute: material
@@ -400,7 +405,7 @@ Classification Error
      ----------------------------------------
                |    9 |    4 |    21 | 0 | 34
      Accuracy: 0.823529
-     Cramer's coefficient: 0.521475
+     Cramer's coefficient: 0.638674
 
 
    Attribute: span
@@ -412,8 +417,8 @@ Classification Error
              ? |     2 |      4 |    0 | 0 |  6
      ------------------------------------------
                |     5 |     18 |   11 | 0 | 34
-     Accuracy: 0.382353
-     Cramer's coefficient: 0.343515
+     Accuracy: 0.464286
+     Cramer's coefficient: 0.468454
 
 
    Attribute: rel-l
@@ -425,8 +430,8 @@ Classification Error
              ? |  0 |   0 |  1 | 0 |  1
      ----------------------------------
                | 17 |   0 | 17 | 0 | 34
-     Accuracy: 0.529412
-     Cramer's coefficient: 0.254801
+     Accuracy: 0.545455
+     Cramer's coefficient: 0.296343
 
 
    Attribute: type
@@ -443,7 +448,7 @@ Classification Error
      ------------------------------------------------------------------------------
                |    9 |      0 |       17 |    4 |        4 |   0 |      0 | 0 | 34
      Accuracy: 0.558824
-     Cramer's coefficient: 0.33375
+     Cramer's coefficient: 0.360491
 
    Pruned: 
    Attribute: t-or-d
@@ -454,8 +459,8 @@ Classification Error
              ? |       2 |    0 | 0 |  2
      -----------------------------------
                |      34 |    0 | 0 | 34
-     Accuracy: 0.764706
-     Cramer's coefficient: 0
+     Accuracy: 0.8125
+     Cramer's coefficient: 0.060634
 
 
    Attribute: material
@@ -468,7 +473,7 @@ Classification Error
      ----------------------------------------
                |    8 |    0 |    26 | 0 | 34
      Accuracy: 0.852941
-     Cramer's coefficient: 0.481812
+     Cramer's coefficient: 0.590097
 
 
    Attribute: span
@@ -480,8 +485,8 @@ Classification Error
              ? |     0 |      6 |    0 | 0 |  6
      ------------------------------------------
                |     0 |     34 |    0 | 0 | 34
-     Accuracy: 0.411765
-     Cramer's coefficient: 0
+     Accuracy: 0.5
+     Cramer's coefficient: 0.137505
 
 
    Attribute: rel-l
@@ -493,8 +498,8 @@ Classification Error
              ? | 0 |   0 |  1 | 0 |  1
      ---------------------------------
                | 8 |   0 | 26 | 0 | 34
-     Accuracy: 0.764706
-     Cramer's coefficient: 0.496139
+     Accuracy: 0.787879
+     Cramer's coefficient: 0.616115
 
 
    Attribute: type
@@ -511,7 +516,7 @@ Classification Error
      ------------------------------------------------------------------------------
                |    8 |      0 |       26 |    0 |        0 |   0 |      0 | 0 | 34
      Accuracy: 0.617647
-     Cramer's coefficient: 0.292201
+     Cramer's coefficient: 0.315613
 
 Weighted mean squared error (MSE) for Nominal Attributes (Weights [3.161,2.304,1.471,1.672,1.308])
    Default        : [1.0658,1.1553,0.8354,0.9812,0.9555]: 0.9986

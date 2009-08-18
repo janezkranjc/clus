@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.*;
@@ -52,6 +53,7 @@ public class ClassificationStat extends ClusStatistic {
 	public NominalAttrType[] m_Attrs;
 
 	//* Class counts with [Target index][Class]
+	public double[] m_SumWeights;
 	public double[][] m_ClassCounts;
 	public int[] m_MajorityClasses;
 
@@ -60,6 +62,7 @@ public class ClassificationStat extends ClusStatistic {
 	 */
 	public ClassificationStat(NominalAttrType[] nomAtts) {
 		m_NbTarget = nomAtts.length;
+		m_SumWeights = new double[m_NbTarget];
 		m_ClassCounts = new double[m_NbTarget][];
 		for (int i = 0; i < m_NbTarget; i++) {
 			m_ClassCounts[i] = new double[nomAtts[i].getNbValues()];
@@ -81,6 +84,7 @@ public class ClassificationStat extends ClusStatistic {
 		for (int i = 0; i < distro.length; i++) {
 			m_SumWeight += distro[i];
 		}
+		Arrays.fill(m_SumWeights, m_SumWeight);
 	}
 
 	/**
@@ -93,21 +97,22 @@ public class ClassificationStat extends ClusStatistic {
 		return m_Attrs[idx];
 	}
 
-	public void reset() {
-		m_SumWeight = 0.0;
+	public void reset() {		
 		m_NbExamples = 0;
+		m_SumWeight = 0.0;
+		Arrays.fill(m_SumWeights, 0.0);
 		for (int i = 0; i < m_NbTarget; i++) {
-			double[] clcts = m_ClassCounts[i];
-			for (int j = 0; j < clcts.length; j++) clcts[j] = 0.0;
+			Arrays.fill(m_ClassCounts[i], 0.0);
 		}
 	}
 
 	/** Resets the SumWeight and majority class count to weight and all other
 	 *  class counts to zero.
 	 */
-	public void resetToSimple(double weight) {
-		m_SumWeight = weight;
+	public void resetToSimple(double weight) {		
 		m_NbExamples = 0;
+		m_SumWeight = weight;
+		Arrays.fill(m_SumWeights, weight);
 		for (int i = 0; i < m_NbTarget; i++) {
 			double[] clcts = m_ClassCounts[i];
 			for (int j = 0; j < clcts.length; j++) {
