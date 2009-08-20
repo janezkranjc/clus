@@ -40,6 +40,7 @@ import clus.data.cols.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.data.attweights.*;
+import clus.ext.hierarchical.WHTDStatistic;
 
 /**
  * Classification statistics about the data. A child of ClusStatistic.
@@ -51,6 +52,7 @@ public class ClassificationStat extends ClusStatistic {
 
 	public int m_NbTarget;
 	public NominalAttrType[] m_Attrs;
+	public ClassificationStat m_Training;
 
 	//* Class counts with [Target index][Class]
 	public double[][] m_ClassCounts;
@@ -69,13 +71,23 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		m_Attrs = nomAtts;
 	}
+	
+	public void setTrainingStat(ClusStatistic train) {
+		m_Training = (ClassificationStat)train;
+	}
 
 	public int getNbNominalAttributes() {
 		return m_NbTarget;
 	}
 
+	public NominalAttrType[] getAttributes() {
+		return m_Attrs;
+	}	
+	
 	public ClusStatistic cloneStat() {
-		return new ClassificationStat(m_Attrs);
+		ClassificationStat res = new ClassificationStat(m_Attrs);
+		res.m_Training = m_Training;
+		return res;
 	}
 
 	public void initSingleTargetFrom(double[] distro) {
@@ -147,7 +159,7 @@ public class ClassificationStat extends ClusStatistic {
 				copy.m_ClassCounts[i][j] /= m_SumWeights[i];
 			}
 		}
-		Arrays.fill(m_SumWeights, 1.0);
+		Arrays.fill(copy.m_SumWeights, 1.0);
 		copy.m_SumWeight = 1.0;
 		return copy;
 	}
@@ -246,6 +258,10 @@ public class ClassificationStat extends ClusStatistic {
 				m_max = clcts[i];
 			}
 		}
+		if (m_max == 0.0 && m_Training != null) {
+			// no examples covered -> m_max = null -> use whole training set majority class
+			return m_Training.getMajorityClass(attr);
+		}
 		return m_class;
 	}
 
@@ -261,6 +277,10 @@ public class ClassificationStat extends ClusStatistic {
 				m_max = diff;
 			}
 		}
+		if (m_max == 0.0 && m_Training != null) {
+			// no examples covered -> m_max = null -> use whole training set majority class
+			return m_Training.getMajorityClass(attr);
+		}		
 		return m_class;
 	}
 
@@ -308,11 +328,22 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		return -acc/MathUtil.M_LN2;
 	}
+	
+	public double getProportion(int attr, int cls) {
+		double total = m_SumWeights[attr];
+		if (total <= MathUtil.C1E_9) {
+			// no examples -> assume training set distribution
+			return m_Training.getProportion(attr, cls);
+		} else {
+			return m_ClassCounts[attr][cls] / total;
+		}
+	}
 
 	public double gini(int attr) {
 		double total = m_SumWeights[attr];
-		if (total == 0) {
-			return 0.0;
+		if (total <= MathUtil.C1E_9) {
+			// no examples -> assume training set distribution
+			return m_Training.gini(attr);
 		} else {
 			double sum = 0.0;
 			double[] clcts = m_ClassCounts[attr];
@@ -326,8 +357,9 @@ public class ClassificationStat extends ClusStatistic {
 
 	public double giniDifference(int attr, ClassificationStat other) {
 		double wDiff = m_SumWeights[attr] - other.m_SumWeights[attr];
-		if (wDiff == 0) {
-			return 0.0;
+		if (wDiff <= MathUtil.C1E_9) {
+			// no examples -> assume training set distribution
+			return m_Training.gini(attr);
 		} else {
 			double sum = 0.0;
 			double[] clcts = m_ClassCounts[attr];

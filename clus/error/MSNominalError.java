@@ -83,13 +83,14 @@ public class MSNominalError extends ClusNominalError {
 	}
 
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
-		ClusStatistic stat = pred.getClassificationStat();
+		ClassificationStat stat = pred.getClassificationStat();
 		for (int i = 0; i < m_Dim; i++) {
 			NominalAttrType type = m_Attrs[i];
 			int value = type.getNominal(tuple);
 			for (int j = 0; j < type.getNbValues(); j++) {
 				double zeroOne = (value == j) ? 1.0 : 0.0;
-				double err = sqr(zeroOne - stat.getCount(i, j)/stat.getTotalWeight());
+				double prop = stat.getProportion(i, j);
+				double err = sqr(zeroOne - prop);
 				m_SumErr[i] += err;
 				m_SumSqErr[i] += sqr(err);
 			}

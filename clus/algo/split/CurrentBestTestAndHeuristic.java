@@ -320,6 +320,10 @@ public class CurrentBestTestAndHeuristic {
 
 	public final void setRootStatistic(ClusStatistic stat) {
 		m_Heuristic.setRootStatistic(stat);
+		for (int i = 0; i < m_TestStat.length; i++) {
+			m_TestStat[i].setTrainingStat(stat);
+		}
+		m_TotCorrStat.setTrainingStat(stat);
 	}
 
 	public final void statOnData(RowData data) {
