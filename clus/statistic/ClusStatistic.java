@@ -316,7 +316,7 @@ public abstract class ClusStatistic implements Serializable {
 		return null;
 	}
 
-	public ClusStatistic getClassificationStat() {
+	public ClassificationStat getClassificationStat() {
 		return null;
 	}
 

@@ -46,10 +46,6 @@ public class CombStat extends ClusStatistic {
 	public static int IN_HEURISTIC = 0;
 	public static int IN_OUTPUT = 1;
 
-	private int m_NbNumAtts;
-	private int m_NbNomAtts;
-	private NominalAttrType[] m_NomAtts;
-	private NumericAttrType[] m_NumAtts;
 	protected RegressionStat m_RegStat;
 	protected ClassificationStat m_ClassStat;
 	private ClusStatManager m_StatManager;
@@ -59,17 +55,23 @@ public class CombStat extends ClusStatistic {
 	 */
 	public CombStat(ClusStatManager statManager, NumericAttrType[] num, NominalAttrType[] nom) {
 		m_StatManager = statManager;
-		m_NbNumAtts = num.length;
-		m_NumAtts = num;
-		m_NbNomAtts = nom.length;
-		m_NomAtts = nom;
 		m_RegStat = new RegressionStat(num);
 		m_ClassStat = new ClassificationStat(nom);
 	}
-
-	public ClusStatistic cloneStat() {
-		return new CombStat(m_StatManager, m_NumAtts, m_NomAtts);
+	
+	public CombStat(ClusStatManager statManager, RegressionStat reg, ClassificationStat cls) {
+		m_StatManager = statManager;
+		m_RegStat = reg;
+		m_ClassStat = cls;
 	}
+	
+	public ClusStatistic cloneStat() {
+		return new CombStat(m_StatManager, (RegressionStat)m_RegStat.cloneStat(), (ClassificationStat)m_ClassStat.cloneStat());
+	}
+	
+	public ClusStatistic cloneSimple() {
+		return new CombStat(m_StatManager, (RegressionStat)m_RegStat.cloneSimple(), (ClassificationStat)m_ClassStat.cloneSimple());
+	}	
 
 	public RegressionStat getRegressionStat() {
 		return m_RegStat;
@@ -78,6 +80,12 @@ public class CombStat extends ClusStatistic {
 	public ClassificationStat getClassificationStat() {
 		return m_ClassStat;
 	}
+	
+	public void setTrainingStat(ClusStatistic train) {
+		CombStat ctrain = (CombStat)train;
+		m_RegStat.setTrainingStat(train.getRegressionStat());
+		m_ClassStat.setTrainingStat(train.getClassificationStat());
+	}	
 
 	public void updateWeighted(DataTuple tuple, double weight) {
 		m_RegStat.updateWeighted(tuple, weight);
@@ -329,7 +337,7 @@ public class CombStat extends ClusStatistic {
 		// [0,1] interval. This weight is in stdev units,
 		// default value = 4 = (-2sigma,2sigma) should cover 95% of examples
 		double norm = getSettings().getVarBasedDispNormWeight();
-		for (int i = 0; i < m_NbNumAtts; i++) {
+		for (int i = 0; i < m_RegStat.getNbNumericAttributes(); i++) {
 			if (use == IN_HEURISTIC) {
 				weight = m_StatManager.getClusteringWeights().getWeight(m_RegStat.getAttribute(i));
 			} else { // use == IN_OUTPUT
@@ -348,7 +356,7 @@ public class CombStat extends ClusStatistic {
 	public double meanDistNom(int use) {
 		double sumdist = 0;
 		double weight = 0;
-		for (int i = 0; i < m_NbNomAtts; i++) {
+		for (int i = 0; i < m_ClassStat.getNbNominalAttributes(); i++) {
 			if (use == IN_HEURISTIC) {
 				weight = m_StatManager.getClusteringWeights().getWeight(m_ClassStat.getAttribute(i));
 			} else { // use == IN_OUTPUT
@@ -397,10 +405,11 @@ public class CombStat extends ClusStatistic {
 	//TODO: Move to ClassificationStat
 	public double meanEntropy() {
 		double sent = 0;
-		for (int i = 0; i < m_NbNomAtts; i++) {
+		int nbNominal = m_ClassStat.getNbNominalAttributes();
+		for (int i = 0; i < nbNominal; i++) {
 			sent += entropy(i);
 		}
-		return sent / m_NbNomAtts;
+		return sent / nbNominal;
 	}
 
 	/**
@@ -422,14 +431,14 @@ public class CombStat extends ClusStatistic {
 		double sumdiff = 0;
 		double weight;
 		// Numeric atts: abs difference
-		for (int i = 0; i < m_NbNumAtts; i++) {
+		for (int i = 0; i < m_RegStat.getNbNumericAttributes(); i++) {
 			weight = m_StatManager.getClusteringWeights().
 			getWeight(m_RegStat.getAttribute(i));
 			sumdiff += Math.abs(prototypeNum(i) - stat.prototypeNum(i)) * weight;
 			// System.err.println("sumdiff: " + Math.abs(prototypeNum(i) - stat.prototypeNum(i)) * weight);
 		}
 		// Nominal atts: Manhattan distance
-		for (int i = 0; i < m_NbNomAtts; i++) {
+		for (int i = 0; i < m_ClassStat.getNbNominalAttributes(); i++) {
 			weight = m_StatManager.getClusteringWeights().
 			getWeight(m_ClassStat.getAttribute(i));
 			double sum = 0;
@@ -670,10 +679,6 @@ public class CombStat extends ClusStatistic {
 		CombStat or = (CombStat)other;
 		m_SumWeight = or.m_SumWeight;
 		m_StatManager = or.m_StatManager;
-		m_NbNumAtts = or.m_NbNumAtts;
-		m_NumAtts = or.m_NumAtts;
-		m_NbNomAtts = or.m_NbNomAtts;
-		m_NomAtts = or.m_NomAtts;
 		m_RegStat.copy(or.m_RegStat);
 		m_ClassStat.copy(or.m_ClassStat);
 	}

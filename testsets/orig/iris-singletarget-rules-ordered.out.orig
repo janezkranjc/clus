@@ -1,11 +1,11 @@
 Clus run iris
 *************
 
-Date: 12/12/08 7:50 PM
+Date: 8/20/09 5:24 PM
 File: iris-singletarget-rules-ordered.out
 Attributes: 5 (input: 4, output: 1)
 Missing values: No
-Memory usage: 12796 kB (initial), 12880 kB (data loaded)
+Memory usage: 12292 kB (initial), 12504 kB (data loaded)
 
 [General]
 Verbose = 1
@@ -43,8 +43,11 @@ MaxError = 0.0
 [Output]
 ShowModels = {Default, Pruned, Others}
 TrainErrors = Yes
+ValidErrors = Yes
+TestErrors = Yes
 AllFoldModels = Yes
 AllFoldErrors = Yes
+AllFoldDatasets = No
 WriteErrorFile = No
 UnknownFrequency = No
 BranchFrequency = No
@@ -54,12 +57,14 @@ WritePredictions = {None}
 ModelIDFiles = No
 OutputPythonModel = No
 OutputDatabaseQueries = No
+WriteCurves = No
 
 [Nominal]
 MEstimate = 1.0
 
 [Model]
 MinimalWeight = 2.0
+MinimalNumberExamples = 0
 ParamTuneNumberFolds = 10
 ClassWeights = 0.0
 NominalSubsetTests = Yes
@@ -72,6 +77,7 @@ PruningMethod = Default
 MSENominal = No
 ConvertToRules = No
 AlternativeSplits = No
+Optimize = {}
 
 [Rules]
 CoveringMethod = Standard
@@ -95,18 +101,23 @@ DispersionWeights =
   NominalWeight = 1.0
 RandomRules = 0
 PrintRuleWiseErrors = Yes
+PrintAllRules = Yes
+ConstrainedToFirstAttVal = No
 OptDEPopSize = 500
 OptDENumEval = 10000
 OptDECrossProb = 0.3
 OptDEWeight = 0.5
 OptDESeed = 0
+OptDERegulPower = 1.0
+OptDEProbMutationZero = 0.0
+OptDEProbMutationNonZero = 0.0
 OptRegPar = 0.0
 OptNbZeroesPar = 0.0
 OptRuleWeightThreshold = 0.1
 OptDELossFunction = Squared
-OptDERegulPower = 1.0
-OptDEProbMutationZero = 0.0
-OptDEProbMutationNonZero = 0.0
+OptAddLinearTerms = No
+OptOmitRulePredictions = No
+OptWeightGenerality = No
 OptHuberAlpha = 0.9
 OptGDMaxIter = 1000
 OptGDGradTreshold = 1.0
@@ -114,6 +125,10 @@ OptGDStepSize = 0.1
 OptGDMaxNbWeights = 0
 OptGDEarlyStopAmount = 0.0
 OptGDEarlyStopTreshold = 1.1
+OptGDNbOfStepSizeReduce = Infinity
+OptGDExternalMethod = update
+OptGDMTGradientCombine = Avg
+OptGDNbOfTParameterTry = 0
 
 [Beam]
 SizePenalty = 0.1
@@ -143,11 +158,11 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.104 sec (CPU)
+Induction Time: 0.112 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
-     Original: Rules = 4 (Tests: 7)
+     Original: Rules = 4 (Tests: 7 and linear terms: 0)
 
 Training error
 --------------

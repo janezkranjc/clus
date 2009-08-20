@@ -258,7 +258,7 @@ public class ClassificationStat extends ClusStatistic {
 				m_max = clcts[i];
 			}
 		}
-		if (m_max == 0.0 && m_Training != null) {
+		if (m_max <= MathUtil.C1E_9 && m_Training != null) {
 			// no examples covered -> m_max = null -> use whole training set majority class
 			return m_Training.getMajorityClass(attr);
 		}
@@ -277,7 +277,7 @@ public class ClassificationStat extends ClusStatistic {
 				m_max = diff;
 			}
 		}
-		if (m_max == 0.0 && m_Training != null) {
+		if (m_max <= MathUtil.C1E_9 && m_Training != null) {
 			// no examples covered -> m_max = null -> use whole training set majority class
 			return m_Training.getMajorityClass(attr);
 		}		

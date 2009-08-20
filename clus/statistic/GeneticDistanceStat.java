@@ -219,8 +219,10 @@ public class GeneticDistanceStat extends BitVectorStat {
 		return 0.0; //m_ClassCounts[idx][cls];
 	}
 
-	public ClusStatistic getClassificationStat() {
-		return this;
-	}
-
+//  FIXME: discuss this with Celine
+//  getClassificationStat() should not return something that is not a ClassificationStat
+//  better to disable this type of error measure in Phylo setting
+//	public ClassificationStat getClassificationStat() {
+//		return this;
+//	}
 }

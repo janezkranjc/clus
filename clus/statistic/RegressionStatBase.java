@@ -64,6 +64,10 @@ public abstract class RegressionStatBase extends ClusStatistic {
 	public int getNbAttributes() {
 		return m_NbAttrs;
 	}
+	
+	public NumericAttrType[] getAttributes() {
+		return m_Attrs;
+	}	
 
 	public NumericAttrType getAttribute(int idx) {
 		return m_Attrs[idx];

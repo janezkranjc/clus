@@ -204,6 +204,10 @@ public class RegressionStat extends RegressionStatBase {
 			if (k_tot == n_tot) {
 				result += (ss_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);
 			} else {
+				if (k_tot == 0.0) {
+					System.out.println("Help!!!!");
+					System.exit(0);
+				}
 				result += (ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot)*scale.getWeight(m_Attrs[i]);
 			}
 		}
