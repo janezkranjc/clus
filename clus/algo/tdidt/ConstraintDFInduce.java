@@ -170,6 +170,7 @@ public class ConstraintDFInduce extends DepthFirstInduce {
 		ClusStatistic tstat = createTotalTargetStat(data);
 		initSelectorAndSplit(cstat);
 		ClusNode root = createRootNode(data, cstat, tstat);
+		m_Root = root;
 		if (!m_FillIn) {
 			// Call induce on each leaf
 			induceRecursive(root, data);
