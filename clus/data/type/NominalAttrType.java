@@ -83,6 +83,12 @@ public class NominalAttrType extends ClusAttrType {
 		m_NbValues = values.length;
 		m_Values = values;
 	}
+	
+	public NominalAttrType(String name, ArrayList values) {
+		super(name);
+		m_NbValues = values.size();
+		m_Values = (String[]) values.toArray(new String[values.size()]);
+	}	
 
 	public NominalAttrType(String name) {
 		super(name);

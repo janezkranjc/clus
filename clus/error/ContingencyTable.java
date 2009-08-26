@@ -157,9 +157,9 @@ public class ContingencyTable extends ClusNominalError {
 			out.println("]");
 		} else {
 			for (int i = 0; i < m_Dim; i++) {
-				out.println();
-				out.println(getPrefix()+"Attribute: "+m_Attrs[i].getName());
-				showContTable(out, i);
+		//		out.println(); ***************************
+		//		out.println(getPrefix()+"Attribute: "+m_Attrs[i].getName());
+		//		showContTable(out, i);
 			}
 		}
 	}
@@ -294,10 +294,10 @@ public class ContingencyTable extends ClusNominalError {
 	}
 
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
-		int[] predicted = pred.getNominalPred();
+	/*	int[] predicted = pred.getNominalPred(); ******************************
 		for (int i = 0; i < m_Dim; i++) {
 			m_ContTable[i][getAttr(i).getNominal(tuple)][predicted[i]]++;
-		}
+		}*/
 	}
 
 	public void addInvalid(DataTuple tuple) {

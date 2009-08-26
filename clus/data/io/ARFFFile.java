@@ -119,9 +119,16 @@ public class ARFFFile {
 			schema.addAttrType(type);
 			type.initSettings(schema.getSettings());
 		} else if (uptype.startsWith("HIERARCHICAL")) {
-			ClassesAttrType type = new ClassesAttrType(aname, atype);
-			schema.addAttrType(type);
-			type.initSettings(schema.getSettings());
+			if(schema.getSettings().getHierSingleLabel()){
+				ClassesAttrTypeSingleLabel type = new ClassesAttrTypeSingleLabel(aname, atype);
+				schema.addAttrType(type);
+				type.initSettings(schema.getSettings());
+			}else{
+				ClassesAttrType type = new ClassesAttrType(aname, atype);
+				schema.addAttrType(type);
+				type.initSettings(schema.getSettings());
+			}
+			
 		} else if (uptype.equals("STRING")) {
 			schema.addAttrType(new StringAttrType(aname));
 		} else if (uptype.equals("KEY")) {

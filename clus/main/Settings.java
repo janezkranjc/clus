@@ -1411,6 +1411,7 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_HierOptimizeErrorMeasure;
 	protected INIFileString m_DefinitionFile;
 	protected INIFileBool m_HierNoRootPreds;
+	protected INIFileBool m_HierSingleLabel;
 	protected INIFileDouble m_HierPruneInSig;
 	protected INIFileBool m_HierUseBonferroni;
 	protected INIFileNominalOrDoubleOrVector m_HierClassThreshold;
@@ -1421,6 +1422,10 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.setEnabled(enable);
 	}
 
+	public boolean getHierSingleLabel() {
+		return m_HierSingleLabel.getValue();
+	}
+	
 	public int getHierType() {
 		return m_HierType.getValue();
 	}
@@ -2052,6 +2057,7 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierNoRootPreds = new INIFileBool("NoRootPredictions", false));
 		m_SectionHierarchical.addNode(m_HierPruneInSig = new INIFileDouble("PruneInSig", 0.0));
 		m_SectionHierarchical.addNode(m_HierUseBonferroni = new INIFileBool("Bonferroni", false));
+		m_SectionHierarchical.addNode(m_HierSingleLabel = new INIFileBool("SingleLabel", false));
 		m_SectionHierarchical.addNode(m_HierClassThreshold = new INIFileNominalOrDoubleOrVector("ClassificationThreshold", NONELIST));
 		m_HierClassThreshold.setNominal(0);
 		m_SectionHierarchical.addNode(m_RecallValues = new INIFileNominalOrDoubleOrVector("RecallValues", NONELIST));

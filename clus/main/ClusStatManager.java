@@ -427,8 +427,13 @@ public class ClusStatManager implements Serializable {
 		switch (m_Mode) {
 		case MODE_HIERARCHICAL:
 			if (getSettings().getHierDistance() == Settings.HIERDIST_WEIGHTED_EUCLIDEAN) {
-				setClusteringStatistic(new WHTDStatistic(m_Hier, getCompatibility()));
-				setTargetStatistic(new WHTDStatistic(m_Hier, getCompatibility()));
+				if(getSettings().getHierSingleLabel()){
+					setClusteringStatistic(new HierSingleLabelStat(m_Hier, getCompatibility()));
+					setTargetStatistic(new HierSingleLabelStat(m_Hier, getCompatibility()));
+				}else{
+					setClusteringStatistic(new WHTDStatistic(m_Hier, getCompatibility()));
+					setTargetStatistic(new WHTDStatistic(m_Hier, getCompatibility()));
+				}
 			} else {
 				ClusDistance dist = null;
 				if (getSettings().getHierDistance() == Settings.HIERDIST_JACCARD) {

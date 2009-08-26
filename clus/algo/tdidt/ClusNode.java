@@ -766,6 +766,7 @@ public class ClusNode extends MyNode implements ClusModel {
 					examples1 = examples.apply(m_Test, 1);
 				}
 				showAlternatives(writer);
+				writer.print(" (dist: "+ getTest().getHeuristicValue() +")"); //***************************
 				writeDistributionForInternalNode(writer, info);
 				writer.print(prefix + "+--yes: ");
 				((ClusNode)getChild(YES)).printTree(writer, info, prefix+"|       ",examples0);
