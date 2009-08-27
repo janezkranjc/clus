@@ -288,6 +288,7 @@ public class ClusStatManager implements Serializable {
 			}
 		}
 		if (hasBitEqualToOne(shouldNormalize)) {
+			data.calcTotalStat(stat);
 			CombStat cmb = (CombStat) stat;
 			data.calcTotalStat(stat);
 			RegressionStat rstat = cmb.getRegressionStat();
@@ -970,7 +971,7 @@ public class ClusStatManager implements Serializable {
 
 	public void computeTrainSetStat(RowData trainset) {
 		m_TrainSetStatAttrUse = new ClusStatistic[ClusAttrType.NB_ATTR_USE];
-		computeTrainSetStat(trainset, ClusAttrType.ATTR_USE_ALL);
+		if (getMode() != MODE_HIERARCHICAL) computeTrainSetStat(trainset, ClusAttrType.ATTR_USE_ALL);
 		computeTrainSetStat(trainset, ClusAttrType.ATTR_USE_CLUSTERING);
 		computeTrainSetStat(trainset, ClusAttrType.ATTR_USE_TARGET);
 	}

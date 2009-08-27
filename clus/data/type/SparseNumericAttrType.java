@@ -36,6 +36,9 @@ public class SparseNumericAttrType extends NumericAttrType {
 		SparseNumericAttrType at = new SparseNumericAttrType(m_Name);
 		cloneType(at);
 		at.setIndex(getIndex());
+		at.m_Sparse = m_Sparse;
+		at.setExamples(getExamples());
+		at.m_ExampleWeight = m_ExampleWeight;
 		return at;
 	}
 

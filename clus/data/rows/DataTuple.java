@@ -174,6 +174,10 @@ public class DataTuple implements Serializable {
 	public final void setWeight(double weight) {
 		m_Weight = weight;
 	}
+	
+	public final void setSchema(ClusSchema schema) {
+		m_Schema = schema;
+	}
 
 	public void writeTuple(PrintWriter wrt) {
 		int aidx = 0;

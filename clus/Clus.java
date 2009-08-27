@@ -172,6 +172,7 @@ public class Clus implements CMDLineArgsProvider {
 		// Set XVal field in Settings
 		if (isxval)
 			Settings.IS_XVAL = true;
+		
 		preprocess(); // necessary in order to link the labels to the class
 						// hierarchy in HMC (needs to be before
 						// m_Induce.initialize())
@@ -1133,6 +1134,7 @@ public class Clus implements CMDLineArgsProvider {
 			ClusSummary summ) throws IOException, ClusException {
 		// ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".out",
 		// m_Schema, m_Sett);
+		
 		ClusOutput output;
 		if (ClusEnsembleInduce.isOptimized()
 				&& (m_Sett.getNbBaggingSets().getVectorLength() > 1) && (m_Sett.getOneBag() < 1))
@@ -1142,7 +1144,6 @@ public class Clus implements CMDLineArgsProvider {
 		else
 			output = new ClusOutput(m_Sett.getAppName() + ".out", m_Schema,
 					m_Sett);
-
 		ClusRun cr = partitionData();
 		// Compute statistic on training data
 		getStatManager().computeTrainSetStat((RowData) cr.getTrainingSet());

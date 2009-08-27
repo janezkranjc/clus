@@ -143,6 +143,7 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 				clss = new ClassesTuple(0);
 			}
 			DataTuple new_tuple = tuple.deepCloneTuple();
+			new_tuple.setSchema(ctype.getSchema());
 			new_tuple.setObjectVal(clss, 0);
 			childData.setTuple(new_tuple, j);
 		}
@@ -154,11 +155,8 @@ public class HMCNodeWiseModels implements CMDLineArgsProvider {
 		for (int j = 0; j < oschema.getNbAttributes(); j++) {
 			ClusAttrType atype = oschema.getAttrType(j);
 			if (!(atype instanceof ClassesAttrType)) {
-				if (oschema.isSparse()) cschema.addAttrType(atype);
-				else {
-					ClusAttrType copy_atype = atype.cloneType();
-					cschema.addAttrType(copy_atype);
-				}
+				ClusAttrType copy_atype = atype.cloneType();
+				cschema.addAttrType(copy_atype);
 			}
 		}
 		cschema.addAttrType(ctype);
