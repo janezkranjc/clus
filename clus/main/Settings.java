@@ -542,6 +542,10 @@ public class Settings implements Serializable {
 		return m_OutTestErr.getValue();
 	}
 
+	public boolean isCalError() {
+		return m_CalErr.getValue();
+	}
+	
 	public boolean isShowBranchFreq() {
 		return m_ShowBrFreq.getValue();
 	}
@@ -1412,6 +1416,7 @@ public class Settings implements Serializable {
 	protected INIFileString m_DefinitionFile;
 	protected INIFileBool m_HierNoRootPreds;
 	protected INIFileBool m_HierSingleLabel;
+	protected INIFileBool m_CalErr;
 	protected INIFileDouble m_HierPruneInSig;
 	protected INIFileBool m_HierUseBonferroni;
 	protected INIFileNominalOrDoubleOrVector m_HierClassThreshold;
@@ -2058,13 +2063,15 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_HierPruneInSig = new INIFileDouble("PruneInSig", 0.0));
 		m_SectionHierarchical.addNode(m_HierUseBonferroni = new INIFileBool("Bonferroni", false));
 		m_SectionHierarchical.addNode(m_HierSingleLabel = new INIFileBool("SingleLabel", false));
+		m_SectionHierarchical.addNode(m_CalErr = new INIFileBool("CalculateErrors", true));
 		m_SectionHierarchical.addNode(m_HierClassThreshold = new INIFileNominalOrDoubleOrVector("ClassificationThreshold", NONELIST));
 		m_HierClassThreshold.setNominal(0);
 		m_SectionHierarchical.addNode(m_RecallValues = new INIFileNominalOrDoubleOrVector("RecallValues", NONELIST));
 		m_RecallValues.setNominal(0);		
 		m_SectionHierarchical.addNode(m_HierEvalClasses = new INIFileString("EvalClasses", NONE));
 		m_SectionHierarchical.setEnabled(false);
-
+		
+		
 		m_SectionILevelC = new INIFileSection("ILevelC");
 		m_SectionILevelC.addNode(m_ILevelCAlpha = new INIFileDouble("Alpha", 0.5));
 		m_SectionILevelC.addNode(m_ILevelCFile = new INIFileString("File", NONE));

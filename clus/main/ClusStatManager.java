@@ -738,7 +738,9 @@ public class ClusStatManager implements Serializable {
 			}
 			double[] recalls = getSettings().getRecallValues().getDoubleVector();
 			boolean wrCurves = getSettings().isWriteCurves();
-			parent.addError(new HierErrorMeasures(parent, m_Hier, recalls, getSettings().getCompatibility(), -1, wrCurves));
+			if(getSettings().isCalError()){
+					parent.addError(new HierErrorMeasures(parent, m_Hier, recalls, getSettings().getCompatibility(), -1, wrCurves));
+			}
 			break;
 		case MODE_ILEVELC:
 			NominalAttrType cls = (NominalAttrType) getSchema().getLastNonDisabledType();

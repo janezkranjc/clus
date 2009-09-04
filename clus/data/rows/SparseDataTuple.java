@@ -42,8 +42,8 @@ public class SparseDataTuple extends DataTuple {
 	public SparseDataTuple() {	
 	}	
 	
-	public void setDoubleValueSparse(double val, int index) {
-		m_Map.put(new Integer(index), new Double(val));
+	public void setDoubleValueSparse(Double val, Integer index) {
+		m_Map.put(index, val);
 	}
 
 	public double getDoubleValueSparse(int index) {

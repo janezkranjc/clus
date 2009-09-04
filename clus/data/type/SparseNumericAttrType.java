@@ -92,8 +92,23 @@ public class SparseNumericAttrType extends NumericAttrType {
 		return ((SparseDataTuple)tuple).getDoubleValueSparse(m_IntIndex) == MISSING;
 	}
 
+	protected final static Double[] DOUBLES = createPredefinedDoubles();
+	
+	protected static Double[] createPredefinedDoubles() {
+		Double[] values = new Double[10];
+		for (int i = 0; i < values.length; i++) {
+			values[i] = new Double(i);
+		}
+		return values;
+	}
+	
 	public void setNumeric(DataTuple tuple, double value) {
-		((SparseDataTuple)tuple).setDoubleValueSparse(value, m_IntIndex);
+		Double d_value = null;
+		for (int i = 0; i < DOUBLES.length; i++) {
+			if (DOUBLES[i].doubleValue() == value) d_value = DOUBLES[i];
+		}
+		if (d_value == null)d_value = new Double(value);
+		((SparseDataTuple)tuple).setDoubleValueSparse(d_value, m_IntIndex);
 	}
 
 	public ClusSerializable createRowSerializable() throws ClusException {
