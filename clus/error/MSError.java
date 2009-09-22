@@ -40,8 +40,7 @@ public class MSError extends ClusNumericError {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 
-	protected int[]	   m_nbEx;
-
+	protected int[]	m_nbEx;
 	protected double[] m_SumErr;
 	protected double[] m_SumSqErr;
 	protected ClusAttributeWeights m_Weights;

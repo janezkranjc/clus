@@ -28,6 +28,7 @@ import java.text.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import jeans.math.MathUtil;
 import jeans.util.StringUtils;
 
 import org.apache.commons.math.MathException;
@@ -49,6 +50,7 @@ public class RegressionStat extends RegressionStatBase {
 	public double[] m_SumValues;
 	public double[] m_SumWeights;
 	public double[] m_SumSqValues;
+	public RegressionStat m_Training;
 
 	public RegressionStat(NumericAttrType[] attrs) {
 		this(attrs, false);
@@ -63,12 +65,20 @@ public class RegressionStat extends RegressionStatBase {
 		}
 	}
 
+	public void setTrainingStat(ClusStatistic train) {
+		m_Training = (RegressionStat)train;
+	}	
+	
 	public ClusStatistic cloneStat() {
-		return new RegressionStat(m_Attrs, false);
+		RegressionStat res = new RegressionStat(m_Attrs, false);
+		res.m_Training = m_Training;
+		return res;
 	}
 
 	public ClusStatistic cloneSimple() {
-		return new RegressionStat(m_Attrs, true);
+		RegressionStat res = new RegressionStat(m_Attrs, true);
+		res.m_Training = m_Training;
+		return res;
 	}
 
 	/** Clone this statistic by taking the given weight into account.
@@ -191,7 +201,11 @@ public class RegressionStat extends RegressionStatBase {
 		double k_tot = m_SumWeights[i];
 		double sv_tot = m_SumValues[i];
 		double ss_tot = m_SumSqValues[i];
-		return (k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0;
+		if (k_tot <= MathUtil.C1E_9 && m_Training != null) {
+			return m_Training.getSVarS(i);
+		} else {
+			return (k_tot > 1.0) ? ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot : 0.0;
+		}
 	}
 
 	public double getSVarS(ClusAttributeWeights scale) {
@@ -204,11 +218,11 @@ public class RegressionStat extends RegressionStatBase {
 			if (k_tot == n_tot) {
 				result += (ss_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);
 			} else {
-				if (k_tot == 0.0) {
-					System.out.println("Help!!!!");
-					System.exit(0);
+				if (k_tot <= MathUtil.C1E_9 && m_Training != null) {
+					result += m_Training.getSVarS(i)*scale.getWeight(m_Attrs[i]);
+				} else {
+					result += (ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot)*scale.getWeight(m_Attrs[i]);
 				}
-				result += (ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot)*scale.getWeight(m_Attrs[i]);
 			}
 		}
 		return result / m_NbAttrs;
@@ -225,7 +239,11 @@ public class RegressionStat extends RegressionStatBase {
 			if (k_tot == n_tot) {
 				result += (ss_tot - sv_tot*sv_tot/n_tot)*scale.getWeight(m_Attrs[i]);
 			} else {
-				result += (ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot)*scale.getWeight(m_Attrs[i]);
+				if (k_tot <= MathUtil.C1E_9 && m_Training != null) {
+					result += m_Training.getSVarS(i)*scale.getWeight(m_Attrs[i]);
+				} else {
+					result += (ss_tot * (n_tot - 1) / (k_tot - 1) - n_tot * sv_tot/k_tot*sv_tot/k_tot)*scale.getWeight(m_Attrs[i]);
+				}
 			}
 		}
 		return result / m_NbAttrs;

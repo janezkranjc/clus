@@ -38,6 +38,7 @@ import clus.pruning.*;
 
 import clus.ext.hierarchical.*;
 import clus.ext.semisupervised.ModifiedGainHeuristic;
+import clus.ext.semisupervised.SemiSupMinLabeledWeightStopCrit;
 import clus.ext.sspd.*;
 import clus.ext.timeseries.*;
 import clus.ext.beamsearch.*;
@@ -666,8 +667,11 @@ public class ClusStatManager implements Serializable {
 	public void initStopCriterion() {
 		ClusStopCriterion stop = null;
 		int minEx = getSettings().getMinimalNbExamples();
+		double knownWeight = getSettings().getMinimalKnownWeight();			
 		if (minEx > 0) {
 			stop = new ClusStopCriterionMinNbExamples(minEx);
+		} else if (knownWeight > 0) {
+			stop = new SemiSupMinLabeledWeightStopCrit(knownWeight);
 		} else {
 			double minW = getSettings().getMinimalWeight();
 			stop = new ClusStopCriterionMinWeight(minW);

@@ -23,9 +23,11 @@
 package clus.error;
 
 import java.io.*;
+import java.util.Arrays;
 
 import clus.data.rows.DataTuple;
 import clus.data.type.NominalAttrType;
+import clus.data.type.NumericAttrType;
 import clus.main.Settings;
 import clus.statistic.ClusStatistic;
 
@@ -34,10 +36,12 @@ public class Accuracy extends ClusNominalError {
 	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
 
 	protected int[] m_NbCorrect;
+	protected int[] m_NbKnown;
 
 	public Accuracy(ClusErrorList par, NominalAttrType[] nom) {
 		super(par, nom);
 		m_NbCorrect = new int[m_Dim];
+		m_NbKnown = new int[m_Dim];
 	}
 
 	public boolean shouldBeLow() {
@@ -45,15 +49,15 @@ public class Accuracy extends ClusNominalError {
 	}
 
 	public void reset() {
-		for (int i = 0; i < m_Dim; i++) {
-			m_NbCorrect[i] = 0;
-		}
+		Arrays.fill(m_NbCorrect, 0);
+		Arrays.fill(m_NbKnown, 0);
 	}
 
 	public void add(ClusError other) {
 		Accuracy acc = (Accuracy)other;
 		for (int i = 0; i < m_Dim; i++) {
 			m_NbCorrect[i] += acc.m_NbCorrect[i];
+			m_NbKnown[i] += acc.m_NbKnown[i];
 		}
 	}
 
@@ -66,7 +70,8 @@ public class Accuracy extends ClusNominalError {
 	}
 
 	public double getModelErrorComponent(int i) {
-		return ((double)m_NbCorrect[i]) / getNbExamples();
+		// System.out.println("Correct: "+m_NbCorrect[i]+" known: "+m_NbKnown[i]+" nbex: "+getNbExamples());
+		return ((double)m_NbCorrect[i]) / m_NbKnown[i];
 	}
 
 	public double getModelError() {
@@ -89,13 +94,21 @@ public class Accuracy extends ClusNominalError {
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
 		int[] predicted = pred.getNominalPred();
 		for (int i = 0; i < m_Dim; i++) {
-			if (getAttr(i).getNominal(tuple) == predicted[i]) m_NbCorrect[i]++;
+			NominalAttrType attr = getAttr(i);
+			if (!attr.isMissing(tuple)) {
+				if (attr.getNominal(tuple) == predicted[i]) m_NbCorrect[i]++;
+				m_NbKnown[i]++;
+			}
 		}
 	}
 
 	public void addExample(DataTuple tuple, DataTuple pred) {
 		for (int i = 0; i < m_Dim; i++) {
-			if (getAttr(i).getNominal(tuple) == getAttr(i).getNominal(pred)) m_NbCorrect[i]++;
+			NominalAttrType attr = getAttr(i);
+			if (!attr.isMissing(tuple)) {
+				if (attr.getNominal(tuple) == attr.getNominal(pred)) m_NbCorrect[i]++;
+				m_NbKnown[i]++;
+			}
 		}
 	}
 

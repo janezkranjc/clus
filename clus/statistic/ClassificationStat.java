@@ -329,6 +329,10 @@ public class ClassificationStat extends ClusStatistic {
 		return -acc/MathUtil.M_LN2;
 	}
 	
+	public double getSumWeight(int attr) {
+		return m_SumWeights[attr];
+	}
+	
 	public double getProportion(int attr, int cls) {
 		double total = m_SumWeights[attr];
 		if (total <= MathUtil.C1E_9) {
@@ -719,13 +723,14 @@ public class ClassificationStat extends ClusStatistic {
 	}
 
 	public void voteMajority(ArrayList votes) {
-		reset();
-		ClassificationStat vote;
+		reset();		 
 		int nb_votes = votes.size();
+		m_SumWeight = nb_votes;
+		Arrays.fill(m_SumWeights, nb_votes);
 		for (int j = 0; j < nb_votes; j++){
-			vote = (ClassificationStat) votes.get(j);
+			ClassificationStat vote = (ClassificationStat)votes.get(j);
 			for (int i = 0; i < m_NbTarget; i++){
-				m_ClassCounts[i] [vote.getNominalPred()[i]] ++;
+				m_ClassCounts[i][vote.getNominalPred()[i]]++;				
 			}
 		}
 		calcMean();
@@ -746,12 +751,10 @@ public class ClassificationStat extends ClusStatistic {
 	public void addVote(ClusStatistic vote) {
 		ClassificationStat or = (ClassificationStat)vote;
 		m_SumWeight += or.m_SumWeight;
-		for (int i = 0; i < m_NbTarget; i++) {
+		for (int i = 0; i < m_NbTarget; i++) {			
+			m_SumWeights[i] += or.m_SumWeights[i];
 			double[] my = m_ClassCounts[i];
-			double[] your = or.m_ClassCounts[i];
-			double total = 0.0;
-			for (int k = 0; k < your.length; k++) total += your[k];
-			for (int j = 0; j < my.length; j++) my[j] += your[j]/total;
+			for (int j = 0; j < my.length; j++) my[j] += or.getProportion(i, j);
 		}
 	}
 
