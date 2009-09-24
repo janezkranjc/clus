@@ -46,6 +46,7 @@ import clus.algo.split.CurrentBestTestAndHeuristic;
 import clus.data.rows.*;
 import clus.data.attweights.*;
 import clus.error.multiscore.*;
+import clus.selection.OOBSelection;
 
 public class ClusNode extends MyNode implements ClusModel {
 
@@ -764,9 +765,10 @@ public class ClusNode extends MyNode implements ClusModel {
 				if (examples!=null){
 					examples0 = examples.apply(m_Test, 0);
 					examples1 = examples.apply(m_Test, 1);
-				}
+				}			
 				showAlternatives(writer);
-				writer.print(" (dist: "+ getTest().getHeuristicValue() +")"); //***************************
+				if (ClusStatManager.getMode() == ClusStatManager.MODE_PHYLO)
+					writer.print(" (dist: "+ getTest().getHeuristicValue() +")"); // should be printed for phylo trees
 				writeDistributionForInternalNode(writer, info);
 				writer.print(prefix + "+--yes: ");
 				((ClusNode)getChild(YES)).printTree(writer, info, prefix+"|       ",examples0);
@@ -778,7 +780,7 @@ public class ClusNode extends MyNode implements ClusModel {
 				} else {
 					((ClusNode)getChild(NO)).printTree(writer, info, prefix+"        ",examples1);
 				}
-			} else {//on the leaves
+			} else {
 				writer.println(m_Test.getTestString());
 				for (int i = 0; i < arity; i++) {
 					ClusNode child = (ClusNode)getChild(i);
@@ -796,7 +798,7 @@ public class ClusNode extends MyNode implements ClusModel {
 					}
 				}
 			}
-		} else {
+		} else {//on the leaves
 			if (m_TargetStat == null) {
 				writer.print("?");
 			} else {
@@ -812,6 +814,47 @@ public class ClusNode extends MyNode implements ClusModel {
 
 		}
 	}
+	
+	// only binary trees supported
+	// no "unknown" branches supported
+	public final void printPaths(PrintWriter writer, String prefix, RowData examples, OOBSelection oob_sel) {
+		//writer.flush();
+		//writer.println("nb ex: " + examples.getNbRows());
+		int arity = getNbChildren();
+		if (arity > 0) {
+			if (arity == 2) {
+
+				RowData examples0 = null;
+				RowData examples1 = null;
+				if (examples!=null){
+					examples0 = examples.apply(m_Test, 0);
+					examples1 = examples.apply(m_Test, 1);
+				}			
+				((ClusNode)getChild(YES)).printPaths(writer, prefix+"0",examples0,oob_sel);
+				((ClusNode)getChild(NO)).printPaths(writer, prefix+"1",examples1,oob_sel);
+				
+			} else {
+				System.out.println("PrintPaths error: only binary trees supported");
+			}
+		} else {//on the leaves
+			if (examples!=null){
+				//writer.println("LEAF");
+				for (int i=0; i<examples.getNbRows(); i++) {
+					int exampleindex = examples.getTuple(i).getIndex();
+					boolean oob = oob_sel.isSelected(exampleindex);
+					if (oob)
+						writer.println(exampleindex + "  " + prefix + "  OOB");
+					else writer.println(exampleindex + "  " + prefix);
+					writer.flush();
+				}	
+			}
+
+		}
+	}
+	
+	
+	
+	
 
 	/*to print the tree directly into an IDB : Elisa Fromont 13/06/2007*/
 	public final void printTreeInDatabase(PrintWriter writer, String tabitem[], int tabexist[], int cpt, String typetree) {

@@ -82,7 +82,7 @@ public class ClusStatManager implements Serializable {
 	
 	public final static int MODE_BEAM_SEARCH = 8;
 
-	protected int m_Mode = MODE_NONE;
+	protected static int m_Mode = MODE_NONE;
 
 	protected transient ClusHeuristic m_Heuristic;
 
@@ -135,7 +135,7 @@ public class ClusStatManager implements Serializable {
 		return m_Schema;
 	}
 
-	public final int getMode() {
+	public static final int getMode() {
 		return m_Mode;
 	}
 
