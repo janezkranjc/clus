@@ -387,14 +387,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 		
 		//print paths
-		System.out.println("nb tr: " + ((RowData)cr.getTrainingSet()).getNbRows() + " waarvan OOB: " + oob_sel.getNbSelected());
-		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("tree_"+i+".path")));
-		
-		for (int j=0; j<oob_sel.getNbRows(); j++) {
-			System.out.println(j + " " + ((RowData)cr.getTrainingSet()).getTuple(j).getIndex() + " " + oob_sel.getCount(j));
-		}
-		
-		((ClusNode)model).printPaths(pw, "", (RowData)cr.getTrainingSet(), oob_sel);
+		//PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("tree_"+i+".path")));		
+		//((ClusNode)model).printPaths(pw, "", (RowData)cr.getTrainingSet(), oob_sel);
 
 
 		//Valid only when test set is supplied
