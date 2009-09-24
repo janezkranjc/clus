@@ -32,6 +32,7 @@ import clus.model.*;
 import clus.model.test.*;
 import clus.statistic.*;
 import clus.ext.ensembles.*;
+import clus.heuristic.*;
 
 import java.io.*;
 import java.util.*;
@@ -93,13 +94,17 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 				return ClusEnsembleInduce.getRandomSubspaces();
 			case Settings.ENSEMBLE_BAGSUBSPACES:
 				return ClusEnsembleInduce.getRandomSubspaces();
+			case Settings.ENSEMBLE_NOBAGRFOREST:
+				ClusAttrType[] attrsAll1 = schema.getDescriptiveAttributes();
+				ClusEnsembleInduce.setRandomSubspaces(attrsAll1, schema.getSettings().getNbRandomAttrSelected());
+				return ClusEnsembleInduce.getRandomSubspaces();
 			default:
 				return schema.getDescriptiveAttributes();
 			}
 		}
 	}
 
-	public void filterAlternativeSplits(ClusNode node, RowData data, RowData[] subsets) {
+	public void filterAlternativeSplits2(ClusNode node, RowData data, RowData[] subsets) {
 		boolean removed = false;
 		CurrentBestTestAndHeuristic best = m_FindBestTest.getBestTest();
 		int arity = node.getTest().updateArity();
@@ -111,7 +116,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			if (altarity != arity) {
 				v.remove(k);
 				k--;
-				//System.out.println("Alternative split: " + nt.getString());
+				System.out.println("Alternative split with different arity: " + nt.getString());
 				removed = true;
 			} else {
 				boolean okay = true;
@@ -122,7 +127,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 						if (subsets[l].getNbRows()!=altrd.getNbRows()) {
 							v.remove(k);
 							k--;
-							//System.out.println("Alternative split: " + nt.getString());
+							System.out.println("Alternative split with different nb in subsets: " + nt.getString());
 							removed = true;
 							okay = false;
 						} else {
@@ -132,7 +137,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 									if (!subsets[l].getTuple(m).equals(altrd.getTuple(m))) {
 										v.remove(k);
 										k--;
-										//System.out.println("Alternative split: " + nt.getString());
+										System.out.println("Alternative split with different ex in subsets: " + nt.getString());
 										removed = true;
 										okay = false;
 									}
@@ -146,6 +151,60 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 		node.setAlternatives(v);
 //		if (removed) System.out.println("Alternative splits were possible");
 	}
+	
+	
+	
+	
+	
+	
+	public void filterAlternativeSplits(ClusNode node, RowData data, RowData[] subsets) {
+		boolean removed = false;
+		CurrentBestTestAndHeuristic best = m_FindBestTest.getBestTest();
+		int arity = node.getTest().updateArity();
+		ArrayList v = best.getAlternativeBest(); // alternatives: all tests that result in same heuristic value
+		for (int k = 0; k < v.size(); k++) {
+			NodeTest nt = (NodeTest) v.get(k);
+			int altarity = nt.updateArity();
+			// remove alternatives that have different arity than besttest
+			if (altarity != arity) {
+				v.remove(k);
+				k--;
+				System.out.println("Alternative split with different arity: " + nt.getString());
+				removed = true;
+			} 
+			else {
+				// arity altijd 2 hier
+				// exampleindices van subset[0] bijhouden, van alle alternatives zowel van subset[0] als subset[1] kijken of de indices gelijk zijn
+				int nbsubset0 = subsets[0].getNbRows();
+				int indices[] = new int[nbsubset0];
+				for (int m=0; m<nbsubset0; m++) {
+					indices[m] = subsets[0].getTuple(m).getIndex();
+				}
+				boolean same = false;
+				for (int l = 0; l < altarity; l++) {
+					RowData altrd = data.applyWeighted(nt, l);
+					if (altrd.getNbRows() == nbsubset0) {
+						int nbsame = 0;
+						for (int m=0; m<nbsubset0; m++) {
+							if (altrd.getTuple(m).getIndex() == indices[m]) {
+								nbsame++;
+							}
+						}
+						if (nbsame == nbsubset0) same = true;
+					}
+				}
+				if (!same) {
+					v.remove(k);
+					k--;
+					System.out.println("Alternative split with different ex in subsets: " + nt.getString());
+					removed = true;
+				}
+				
+				}
+			}
+		node.setAlternatives(v);
+//		if (removed) System.out.println("Alternative splits were possible");
+	}
 
 	public void makeLeaf(ClusNode node) {
 		node.makeLeaf();
@@ -155,21 +214,32 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 	}
 	
 	public void induce(ClusNode node, RowData data) {
+		//System.out.println("nonsparse induce");
 		// Initialize selector and perform various stopping criteria
 		if (initSelectorAndStopCrit(node, data)) {
 			makeLeaf(node);
 			return;
 		}
 		// Find best test
+		
+//		long start_time = System.currentTimeMillis();
+		
 		ClusAttrType[] attrs = getDescriptiveAttributes();
 		for (int i = 0; i < attrs.length; i++) {
 			ClusAttrType at = attrs[i];
 			if (at instanceof NominalAttrType) m_FindBestTest.findNominal((NominalAttrType)at, data);
 			else m_FindBestTest.findNumeric((NumericAttrType)at, data);
 		}
+		
+/*		long stop_time = System.currentTimeMillis();
+		long elapsed = stop_time - start_time;
+		m_Time += elapsed;*/
+		
 		// Partition data + recursive calls
 		CurrentBestTestAndHeuristic best = m_FindBestTest.getBestTest();
 		if (best.hasBestTest()) {
+//			start_time = System.currentTimeMillis();
+			
 			node.testToNode(best);
 			// Output best test
 			if (Settings.VERBOSE > 0) System.out.println("Test: "+node.getTestString()+" -> "+best.getHeuristicValue());
@@ -188,6 +258,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 				node.setClusteringStat(null);
 				node.setTargetStat(null);
 			}
+
 			for (int j = 0; j < arity; j++) {
 				ClusNode child = new ClusNode();
 				node.setChild(child, j);
@@ -252,6 +323,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			if (Settings.EXACT_TIME == false) break;
 		}
 		m_Root.postProc(null);
+
 		cleanSplit();
 		return m_Root;
 	}

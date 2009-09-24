@@ -69,8 +69,10 @@ public class ClusForest implements ClusModel, Serializable{
 			m_Stat = new RegressionStat(statmgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET));
 		}else if (statmgr.getMode() == ClusStatManager.MODE_HIERARCHICAL){
 			m_Stat = new WHTDStatistic(statmgr.getHier(),statmgr.getCompatibility());
+		}else if (statmgr.getMode() == ClusStatManager.MODE_PHYLO){
+			m_Stat = new GeneticDistanceStat(statmgr.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET));	
 		}else{
-			System.err.println(getClass().getName() + "initForest(): Error initializing the statistic");
+			System.err.println(getClass().getName() + " initForest(): Error initializing the statistic " + statmgr.getMode());
 		}
 		m_AppName = statmgr.getSettings().getFileAbsolute(statmgr.getSettings().getAppName());
 		m_AttributeList = "";

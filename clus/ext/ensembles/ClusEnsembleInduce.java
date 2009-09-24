@@ -22,7 +22,10 @@
 
 package clus.ext.ensembles;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -128,6 +131,11 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			induceBaggingSubspaces(cr);
 			break;
 			}
+		case 5: {  //RForest without bagging
+			System.out.println("Ensemble Method: Random Forest without Bagging");
+			induceRForestNoBagging(cr);
+			break;
+		}
 		}
 		if (m_FeatRank) {
 			m_FeatureRanking.sortFeatureRanks();
@@ -149,6 +157,62 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		return info.getModel();
 	}
 
+	// this ensemble method builds random forests (i.e. chooses the best test from a subset of attributes at each node), 
+	// but does not construct bootstrap replicates of the dataset
+	public void induceRForestNoBagging(ClusRun cr) throws ClusException, IOException {
+		m_OForest = new ClusForest(getStatManager());
+		m_DForest = new ClusForest(getStatManager());
+		long summ_time = 0; // = ResourceInfo.getTime();
+		TupleIterator train_iterator = null; // = train set iterator
+		TupleIterator test_iterator = null; // = test set iterator
+
+		if (m_OptMode){
+			train_iterator = cr.getTrainIter();
+			if (m_BagClus.hasTestSet()){
+				test_iterator = cr.getTestSet().getIterator();
+				m_Optimization = new ClusEnsembleInduceOptimization(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
+			} else m_Optimization = new ClusEnsembleInduceOptimization(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());	
+			m_Optimization.initPredictions(m_OForest.getStat());
+		}
+		for (int i = 1; i <= m_NbMaxBags; i++) {
+			long one_bag_time = ResourceInfo.getTime();
+			System.out.println("Bag: " + i);
+			ClusRun crSingle = new ClusRun(cr.getTrainingSet(), cr.getSummary());
+			DepthFirstInduce ind;
+			if (getSchema().isSparse()) {
+				ind = new DepthFirstInduceSparse(this);
+			}
+			else {
+				ind = new DepthFirstInduce(this);
+			}
+			ind.initialize();
+			crSingle.getStatManager().initClusteringWeights();
+			ClusModel model = ind.induceSingleUnpruned(crSingle);
+			summ_time += ResourceInfo.getTime() - one_bag_time;
+			if (m_OptMode){
+				//for i == 1 [i.e. the first run] it will initialize the predictions
+				if (i == 1) m_Optimization.initModelPredictionForTuples(model, train_iterator, test_iterator);
+				else m_Optimization.addModelPredictionForTuples(model, train_iterator, test_iterator, i);
+			}
+			else{
+				m_OForest.addModelToForest(model);
+				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
+				m_DForest.addModelToForest(defmod);
+			}
+			//Valid only when test set is supplied
+			if (m_OptMode && (i != m_NbMaxBags) && checkToOutEnsemble(i)){
+				crSingle.setInductionTime(summ_time);
+				postProcessForest(crSingle);
+				crSingle.setTestSet(cr.getTestIter());
+				crSingle.setTrainingSet(cr.getTrainingSet());
+				outputBetweenForest(crSingle, m_BagClus, "_" + i +"_");
+			}
+			crSingle.deleteData();
+			crSingle.setModels(new ArrayList());
+		}
+	}
+	
+	
 	public void induceSubspaces(ClusRun cr) throws ClusException, IOException {
 		m_OForest = new ClusForest(getStatManager());
 		m_DForest = new ClusForest(getStatManager());
@@ -206,6 +270,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 
 	public void induceBagging(ClusRun cr) throws ClusException, IOException {
 		int nbrows = cr.getTrainingSet().getNbRows();
+		((RowData)cr.getTrainingSet()).addIndices();
+		
 		m_OForest = new ClusForest(getStatManager());
 		m_DForest = new ClusForest(getStatManager());
 		TupleIterator train_iterator = null; // = train set iterator
@@ -319,6 +385,17 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
 			m_DForest.addModelToForest(defmod);
 		}
+		
+		//print paths
+		System.out.println("nb tr: " + ((RowData)cr.getTrainingSet()).getNbRows() + " waarvan OOB: " + oob_sel.getNbSelected());
+		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("tree_"+i+".path")));
+		
+		for (int j=0; j<oob_sel.getNbRows(); j++) {
+			System.out.println(j + " " + ((RowData)cr.getTrainingSet()).getTuple(j).getIndex() + " " + oob_sel.getCount(j));
+		}
+		
+		((ClusNode)model).printPaths(pw, "", (RowData)cr.getTrainingSet(), oob_sel);
+
 
 		//Valid only when test set is supplied
 		if (checkToOutEnsemble(i) && (getSettings().getOneBag() == -1)){
