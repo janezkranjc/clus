@@ -18,12 +18,14 @@ public class ClusEnsembleInduceOptimization {
 	public ClusEnsembleInduceOptimization(TupleIterator train, TupleIterator test, int nb_tuples) throws IOException, ClusException{
 		m_HashCodeTuple = new int[nb_tuples];
 		int count = 0;
-		train.init();
-		DataTuple train_tuple = train.readTuple();
-		while (train_tuple != null){
-			m_HashCodeTuple[count] = train_tuple.hashCode();
-			count++;
-			train_tuple = train.readTuple();
+		if (train != null){
+			train.init();
+			DataTuple train_tuple = train.readTuple();
+			while (train_tuple != null){
+				m_HashCodeTuple[count] = train_tuple.hashCode();
+				count++;
+				train_tuple = train.readTuple();
+			}
 		}
 		if (test != null){
 			test.init();
@@ -38,13 +40,15 @@ public class ClusEnsembleInduceOptimization {
 
 	public ClusEnsembleInduceOptimization(TupleIterator train, TupleIterator test) throws IOException, ClusException{
 		ArrayList<Integer> tuple_hash = new ArrayList<Integer>();
-		train.init();
-		DataTuple train_tuple = train.readTuple();
-		while (train_tuple != null){
-			tuple_hash.add(train_tuple.hashCode());
-			train_tuple = train.readTuple();
+		if (train != null){
+			train.init();
+			DataTuple train_tuple = train.readTuple();
+			while (train_tuple != null){
+				tuple_hash.add(train_tuple.hashCode());
+				train_tuple = train.readTuple();
+			}
+			train.init();
 		}
-		train.init();
 		if (test != null){
 			test.init();//restart the iterator
 			DataTuple test_tuple = test.readTuple();
@@ -65,15 +69,17 @@ public class ClusEnsembleInduceOptimization {
 	}
 
 	public void initModelPredictionForTuples(ClusModel model, TupleIterator train, TupleIterator test) throws IOException, ClusException{
-		train.init();
-		DataTuple train_tuple = train.readTuple();
-		while (train_tuple != null){
-			int position = locateTuple(train_tuple);
-			WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(train_tuple);
-			m_AvgPredictions[position] = stat.getNumericPred();
-			train_tuple = train.readTuple();
+		if (train != null){
+			train.init();
+			DataTuple train_tuple = train.readTuple();
+			while (train_tuple != null){
+				int position = locateTuple(train_tuple);
+				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(train_tuple);
+				m_AvgPredictions[position] = stat.getNumericPred();
+				train_tuple = train.readTuple();
+			}
+			train.init();
 		}
-		train.init();
 		if (test != null){
 			test.init();
 			DataTuple test_tuple = test.readTuple();
@@ -88,15 +94,17 @@ public class ClusEnsembleInduceOptimization {
 	}
 
 	public void addModelPredictionForTuples(ClusModel model, TupleIterator train, TupleIterator test, int nb_models) throws IOException, ClusException{
-		train.init();
-		DataTuple train_tuple = train.readTuple();
-		while (train_tuple != null){
-			int position = locateTuple(train_tuple);
-			WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(train_tuple);
-			m_AvgPredictions[position] = incrementPredictions(m_AvgPredictions[position], stat.getNumericPred(), nb_models);
-			train_tuple = train.readTuple();
+		if (train != null){
+			train.init();
+			DataTuple train_tuple = train.readTuple();
+			while (train_tuple != null){
+				int position = locateTuple(train_tuple);
+				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(train_tuple);
+				m_AvgPredictions[position] = incrementPredictions(m_AvgPredictions[position], stat.getNumericPred(), nb_models);
+				train_tuple = train.readTuple();
+			}
+			train.init();
 		}
-		train.init();
 		if (test != null){
 			test.init();
 			DataTuple test_tuple = test.readTuple();
