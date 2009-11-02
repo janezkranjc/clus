@@ -35,8 +35,10 @@ import clus.data.rows.*;
 import clus.data.type.*;
 import clus.ext.hierarchical.HierClassTresholdPruner;
 import clus.ext.hierarchical.WHTDStatistic;
+import clus.ext.hierarchical.HierSingleLabelStat;
 import clus.statistic.*;
 import clus.util.*;
+
 
 import java.io.*;
 import java.util.*;
@@ -68,7 +70,12 @@ public class ClusForest implements ClusModel, Serializable{
 		}else if (statmgr.getMode() == ClusStatManager.MODE_REGRESSION){
 			m_Stat = new RegressionStat(statmgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET));
 		}else if (statmgr.getMode() == ClusStatManager.MODE_HIERARCHICAL){
-			m_Stat = new WHTDStatistic(statmgr.getHier(),statmgr.getCompatibility());
+			if(statmgr.getSettings().getHierSingleLabel()){
+				m_Stat = new HierSingleLabelStat(statmgr.getHier(),statmgr.getCompatibility());
+			}
+			else {
+				m_Stat = new WHTDStatistic(statmgr.getHier(),statmgr.getCompatibility());
+			}
 		}else if (statmgr.getMode() == ClusStatManager.MODE_PHYLO){
 			m_Stat = new GeneticDistanceStat(statmgr.getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_TARGET));	
 		}else{
