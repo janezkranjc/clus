@@ -93,6 +93,7 @@ public class HierSingleLabelStat extends WHTDStatistic {
 			
 				if(prediction == -1){
 					prediction = i;
+					biggest = m_Means[i];
 				}else {
 					if(m_Means[i]>biggest){
 						prediction=i;
