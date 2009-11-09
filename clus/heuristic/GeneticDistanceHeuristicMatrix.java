@@ -774,7 +774,15 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 
 
 	public String getName() {
-		return "GeneticDistanceHeuristicMatrix";
+		switch (Settings.m_PhylogenyCriterion.getValue()) {
+		case Settings.PHYLOGENY_CRITERION_DISTANCES:
+			return "GeneticDistanceHeuristicMatrix -> NJCriterion";
+		case Settings.PHYLOGENY_CRITERION_MUTATIONS:
+			return "GeneticDistanceHeuristicMatrix";
+		case Settings.PHYLOGENY_CRITERION_MAXAVGPWDIST:
+			return "GeneticDistanceHeuristicMatrix -> Max of Avg PWDistances";
+		}
+		return "GeneticDistanceHeuristicMatrix"; 
 	}
 
 }
