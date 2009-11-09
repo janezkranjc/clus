@@ -25,6 +25,8 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 
 	public long m_SetDataTimer=0;
 	public long m_HeurTimer=0;
+	
+	protected double m_OerSumAllDistances;
 
 	public void setInitialData(ClusStatistic stat, RowData data) {
 		m_OerData = data;
@@ -102,15 +104,18 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 				}
 			}
 		}
-		/*for (int i=0; i<m_OerData.getNbRows(); i++) {
+		System.out.println("Distance matrix");
+		for (int i=0; i<m_OerData.getNbRows(); i++) {
 			for (int j=0; j<=i; j++) {
 				System.out.print(m_DistMatrix.get(i, j) + "  ");
 			}
 			System.out.println();
-		}*/
+		}
 	}
 
 	public void setData(RowData data) {
+		if (data.getNbRows() > 2) {
+		
 		long start_time = System.currentTimeMillis();
 
 		m_HeurComputed.clear();
@@ -123,6 +128,11 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		long stop_time = System.currentTimeMillis();
 		long elapsed = stop_time - start_time;
 		m_SetDataTimer += elapsed;
+		}
+		
+		if (m_Data.getNbRows() == m_OerData.getNbRows()) {
+			m_OerSumAllDistances = m_SumAllDistances;
+		}
 	}
 
 	public double[] constructComplDistVector(int[] indices, int[] complIndices) {
@@ -168,6 +178,26 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 //		long timeneeded = done_time-start_time;
 //		System.out.println("compvector : " + timeneeded);
 		return resultvector;
+	}
+	
+	
+	
+	public double getSumPairwiseDistanceBetween(int[] posindices, int[] negindices) {
+		double dist = 0.0;
+		for (int i=0; i<posindices.length; i++) {
+			int row = posindices[i];
+			for (int j=0; j<negindices.length; j++) {
+				int col = negindices[j];
+				dist += m_DistMatrix.get(row,col);
+			}
+		}
+		return dist;
+	}
+	
+	public double getAvgPairwiseDistanceBetween(int[] posindices, int[] negindices) {
+		double dist = getSumPairwiseDistanceBetween(posindices, negindices);
+		double nbpairs = posindices.length * negindices.length; 
+		return (dist / nbpairs);
 	}
 
 	public double getSumOfDistancesWithin(int[] indices) {
@@ -297,6 +327,8 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			return calcHeuristicDist(c_tstat, c_pstat, missing);
 		case Settings.PHYLOGENY_CRITERION_MUTATIONS:
 			return calcHeuristicPars(c_tstat, c_pstat, missing);
+		case Settings.PHYLOGENY_CRITERION_MAXAVGPWDIST:
+			return calcHeuristicArslan(c_tstat, c_pstat, missing);
 		}
 		return 0.0; // never executed
 	}
@@ -452,6 +484,178 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	// Calculates the total branch lengths, uses distance matrix and stores previously computed results
 	// The test that yields the largest heuristic will be chosen in the end. Since we want to minimize the total branch length,
 	// we maximize the inverse of it.
+	// this one simulates NJ splits (remark: change subsetsplits so that it tries all subsets)
+	public double calcHeuristicDistSimNJSplits(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
+
+		long start_time = System.currentTimeMillis();
+
+		// first create all needed statistics and data
+		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
+		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
+		GeneticDistanceStat nstat = (GeneticDistanceStat)tstat.cloneStat();
+		nstat.copy(tstat);
+		nstat.subtractFromThis(pstat);
+
+		double n_pos = pstat.m_SumWeight;
+		double n_neg = nstat.m_SumWeight;
+
+		// Acceptable test?
+		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
+			long stop_time = System.currentTimeMillis();
+			long elapsed = stop_time - start_time;
+			m_HeurTimer += elapsed;
+
+			return Double.NEGATIVE_INFINITY;
+		}
+		
+		// Acceptable test? -> simulate nj
+		if (n_pos > 2) {
+			long stop_time = System.currentTimeMillis();
+			long elapsed = stop_time - start_time;
+			m_HeurTimer += elapsed;
+
+			return Double.NEGATIVE_INFINITY;
+		}
+	
+
+		// If position missing for some sequence, don't use it in split (probably this approach is not optimal)
+		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
+			long stop_time = System.currentTimeMillis();
+			long elapsed = stop_time - start_time;
+			m_HeurTimer += elapsed;
+
+			return Double.NEGATIVE_INFINITY;
+		}
+		//-----------
+
+		// we check whether this split has been computed before
+		String key = pstat.getBits().toString();
+		Double value = (Double) m_HeurComputed.get(key);
+		if (value!=null) {
+			//System.out.println("found");
+			long stop_time = System.currentTimeMillis();
+			long elapsed = stop_time - start_time;
+			m_HeurTimer += elapsed;
+
+			return value.doubleValue();
+		}
+		// we also check whether the complement split has been computed before (left subtree <-> right subtree)
+		key = nstat.getBits().toString();
+		value = (Double) m_HeurComputed.get(key);
+		if (value!=null) {
+			//System.out.println("found");
+			long stop_time = System.currentTimeMillis();
+			long elapsed = stop_time - start_time;
+			m_HeurTimer += elapsed;
+
+			return value.doubleValue();
+		}
+
+//		long start_time = System.currentTimeMillis();
+
+		int[] posindices = constructIndexVector(m_Data, pstat);
+		int[] negindices = constructIndexVector(m_Data, nstat);
+
+
+
+
+		double result;
+		// root of the tree
+		if (m_Data.getNbRows() == m_OerData.getNbRows()) {
+			result = (m_SumAllDistances + (n_neg-1) * getSumOfDistancesWithin(posindices) + (n_pos-1) * getSumOfDistancesWithin(negindices)) / (n_pos*n_neg);
+		}
+
+		// other nodes
+		else {
+			
+			// neg indices concatten met complindices
+			
+			int nbnegind = negindices.length;
+			int nbcomplind = m_ComplDataIndices.length;
+			int nbjoinind = nbnegind + nbcomplind;
+			int[] joinind = new int[nbjoinind];
+			for (int i=0; i<nbnegind; i++) {
+				joinind[i] = negindices[i];
+			}
+			for (int i=0; i<nbcomplind; i++) {
+				joinind[i+nbnegind] = m_ComplDataIndices[i];
+			}
+			result = (m_OerSumAllDistances + (nbjoinind-1) * getSumOfDistancesWithin(posindices) + (n_pos-1) * getSumOfDistancesWithin(joinind)) / (n_pos*nbjoinind);
+			
+			
+			
+/*			double sumDistPosToCompl = 0.0;
+			double sumDistNegToCompl = 0.0;
+			for (int i=0; i<tstat.m_SumWeight; i++) {
+				if (pstat.getBits().getBit(i)) {
+					sumDistPosToCompl += m_SumDistWithCompl[i];
+				}
+				else {
+					sumDistNegToCompl += m_SumDistWithCompl[i];
+				}
+			}
+			double n_compl = m_ComplDataIndices.length;
+
+			// for the exact total branch length:
+			// double compdist = getSumOfDistancesWithin(m_ComplDataIndices); // if you want to compute exact total branch lengths, add this to result
+			// result = ((sumDistNegToCompl / (n_neg*n_compl)) + (sumDistPosToCompl / (n_pos*n_compl)) + (m_SumAllDistances / (n_pos*n_neg)) + (getSumOfDistancesWithin(posindices) * (2*n_neg - 1) / (n_pos*n_neg)) + (getSumOfDistancesWithin(negindices) * (2*n_pos - 1) / (n_pos*n_neg)))/2 + (compdist / n_compl);
+
+			// otherwise:
+			result = (sumDistNegToCompl / (n_neg*n_compl)) + (sumDistPosToCompl / (n_pos*n_compl)) + (m_SumAllDistances / (n_pos*n_neg)) + (getSumOfDistancesWithin(posindices) * (2*n_neg - 1) / (n_pos*n_neg)) + (getSumOfDistancesWithin(negindices) * (2*n_pos - 1) / (n_pos*n_neg));
+*/		}
+
+/*		long stop_time = System.nanoTime();
+		long elapsed = stop_time - start_time;
+		System.out.println("time = " + elapsed + " nanosec");*/
+
+		double finalresult = -1.0 * result;
+		m_HeurComputed.put(key,new Double(finalresult));
+
+		long stop_time = System.currentTimeMillis();
+		long elapsed = stop_time - start_time;
+		m_HeurTimer += elapsed;
+
+		return finalresult;
+	}
+	
+	
+	// Calculates the heuristic as done by Arslan and Bizargiy: take the split with the maximal avg pairwise distance.
+	public double calcHeuristicArslan(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
+
+		// first create all needed statistics and data
+		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
+		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
+		GeneticDistanceStat nstat = (GeneticDistanceStat)tstat.cloneStat();
+		nstat.copy(tstat);
+		nstat.subtractFromThis(pstat);
+
+		double n_pos = pstat.m_SumWeight;
+		double n_neg = nstat.m_SumWeight;
+
+		// Acceptable test?
+		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		
+		// If position missing for some sequence, don't use it in split (probably this approach is not optimal)
+		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		//-----------
+
+		int[] posindices = constructIndexVector(m_Data, pstat);
+		int[] negindices = constructIndexVector(m_Data, nstat);
+
+
+		double result = getAvgPairwiseDistanceBetween(posindices, negindices);
+		return result;
+	}
+
+	
+	
+	// Calculates the total branch lengths, uses distance matrix and stores previously computed results
+	// The test that yields the largest heuristic will be chosen in the end. Since we want to minimize the total branch length,
+	// we maximize the inverse of it.
 	public double calcHeuristicDist(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
 
 		long start_time = System.currentTimeMillis();
@@ -474,7 +678,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 
 			return Double.NEGATIVE_INFINITY;
 		}
-
+		
 		// If position missing for some sequence, don't use it in split (probably this approach is not optimal)
 		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
 			long stop_time = System.currentTimeMillis();
@@ -483,6 +687,16 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 
 			return Double.NEGATIVE_INFINITY;
 		}
+		
+		// If only 2 sequences left and one is pos and one is neg (since the last test passed), we don't need to calculate anything
+		if ((n_pos+n_neg) == 2*Settings.MINIMAL_WEIGHT) {
+			long stop_time = System.currentTimeMillis();
+			long elapsed = stop_time - start_time;
+			m_HeurTimer += elapsed;
+
+			return Double.POSITIVE_INFINITY;
+		}
+		
 		//-----------
 
 		// we check whether this split has been computed before
@@ -550,7 +764,6 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 
 		double finalresult = -1.0 * result;
 		m_HeurComputed.put(key,new Double(finalresult));
-
 
 		long stop_time = System.currentTimeMillis();
 		long elapsed = stop_time - start_time;

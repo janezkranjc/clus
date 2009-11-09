@@ -1713,10 +1713,11 @@ public class Settings implements Serializable {
 	public final static int PHYLOGENY_LINKAGE_COMPLETE = 1;
 	public final static int PHYLOGENY_LINKAGE_AVERAGE = 2;
 
-	public final static String[] PHYLOGENY_CRITERION={"Mutations", "Distances"};
+	public final static String[] PHYLOGENY_CRITERION={"Mutations", "Distances", "Max_Avg_PWDistance"};
 
 	public final static int PHYLOGENY_CRITERION_MUTATIONS = 0;
 	public final static int PHYLOGENY_CRITERION_DISTANCES = 1;
+	public final static int PHYLOGENY_CRITERION_MAXAVGPWDIST = 2;
 
 	public final static String[] PHYLOGENY_EFFICIENCY={"Matrix", "Sampling"};
 
