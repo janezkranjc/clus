@@ -104,13 +104,13 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 				}
 			}
 		}
-		System.out.println("Distance matrix");
+		/*System.out.println("Distance matrix");
 		for (int i=0; i<m_OerData.getNbRows(); i++) {
 			for (int j=0; j<=i; j++) {
 				System.out.print(m_DistMatrix.get(i, j) + "  ");
 			}
 			System.out.println();
-		}
+		}*/
 	}
 
 	public void setData(RowData data) {
