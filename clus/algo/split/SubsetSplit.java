@@ -69,7 +69,7 @@ public class SubsetSplit extends NominalSplit {
 	}
 
 	public void findSplit(CurrentBestTestAndHeuristic node, NominalAttrType type) {
-//		System.out.println("new attr: " + type);
+		//System.out.println("new attr: " + type);
 		double unk_freq = 0.0;
 		int nbvalues = type.getNbValues();
 		boolean isin[] = new boolean[nbvalues];
@@ -98,7 +98,6 @@ public class SubsetSplit extends NominalSplit {
 		}
 		else if ((getStatManager().getMode() == ClusStatManager.MODE_PHYLO) && (Settings.m_PhylogenySequence.getValue() == Settings.PHYLOGENY_SEQUENCE_DNA)) {
 //		else if (false) {
-
 			// if amino acids, we use the default method
 			boolean[] valid = new boolean[nbvalues];
 			// we try all subsets of size 1 (e.g. pos10=A) and 2 (e.g. pos10={AT}) (nbvalues = 5)
@@ -130,11 +129,11 @@ public class SubsetSplit extends NominalSplit {
 							m_CStat.add(node.m_TestStat[j]);
 							m_PStat.add(node.m_TestStat[j]);
 							m_PStat.add(node.m_TestStat[k]);
-							double mheur = node.calcHeuristic(m_MStat, m_PStat);
-							/*ClusStatistic[] csarray = new ClusStatistic[2];
+							//double mheur = node.calcHeuristic(m_MStat, m_PStat);
+							ClusStatistic[] csarray = new ClusStatistic[2];
 							csarray[0] = m_PStat;
 							csarray[1] = m_CStat;
-							double mheur = node.calcHeuristic(m_MStat, csarray, 2);*/
+							double mheur = node.calcHeuristic(m_MStat, csarray, 2);
 //							if (mheur > Double.NEGATIVE_INFINITY) System.out.println("j: " + j + " k: " + k + " mheur: " + mheur);
 							//System.out.println("mheur: " + mheur);
 							if (mheur > bheur) {
