@@ -1,4 +1,4 @@
 
 [Attributes]
-Disable = 6
-Target = 5
+Target = 3,4
+
