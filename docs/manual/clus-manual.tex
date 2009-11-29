@@ -8,7 +8,7 @@
 
 \title{Clus: User's Manual}
 
-\author{Hendrik Blockeel, Jan Struyf}
+\author{Jan Struyf, Bernard \v{Z}enko, Hendrik Blockeel, Sa\v{s}o D\v{z}eroski}
 
 \maketitle
 
@@ -47,15 +47,12 @@ For background information on the rationale behind the Clus system and its algor
 A longer list of publications describing applications of Clus is available on the Clus web site
 (\verb^www.cs.kuleuven.be/~dtai/clus/publications.html^).
 
+\chapter{Tutorial}
 
-\chapter{Installing and running Clus}
-
-\section{Installing Clus}
+\section{Installing and running Clus}
 
 After downloading Clus, unpack it into a directory of choice.
 You are now ready to run Clus.
-
-\section{Running Clus}
 
 Clus is based on Java from {\tt http://java.sun.com}. You will need 
 Java 2 version 1.5.x or above to run Clus. Clus is a command line 
@@ -82,8 +79,6 @@ cd /home/john/Clus/data/iris
 java -jar ../../Clus.jar iris.s
 \end{verbatim}
 
-
-
 The input to Clus is always a settings file (used to set various 
 parameters of the algorithms in Clus) and a data set in Weka's 
 ARFF format. The settings are briefly discussed below.
@@ -100,102 +95,6 @@ of Clus (Clus.jar), which is included with the Clus download. If you have
 modified and recompiled Clus, or if you are using the CVS version, then
 you should run Clus in a different way, which is explained below.
 
-\section{Compiling Clus}
-
-Note: The Clus download comes with a pre-compiled version of Clus 
-stored in the file Clus.jar. So, if you just want to run Clus as it is on a 
-data set, then you do not need to compile Clus. You can run it using the
-above instructions. On the other hand, if you wish to modify the source 
-code of Clus, or if you are using the CVS version, then you will need to 
-compile the source code of Clus. This can be done using the commands
-below or using the Eclipse IDE as pointed out in the next section.
-
-(Windows)
-
-\begin{small}
-\begin{verbatim}
-cd C:\Clus\src
-javac -d "bin" -cp ".;jars\commons-math-1.0.jar;jars\jgap.jar" clus/Clus.java
-\end{verbatim}
-\end{small}
-
-(Unix)
-
-\begin{small}
-\begin{verbatim}
-cd /home/john/Clus
-javac -d "bin" -cp ".:jars/commons-math-1.0.jar:jars/jgap.jar" clus/Clus.java
-\end{verbatim}
-\end{small}
-
-This will compile Clus and write the resulting .class files (Java executable 
-byte code) to the "bin" subdirectory.
-
-Alternatively, use the "./compile.sh" script provided in the Clus main directory.
-
-\section{Compiling Clus with Eclipse}
-
-In Eclipse, create a new project for Clus as follows:
-
-\begin{itemize}
-\item Choose \verb^File | New | Project^.
-\item Select "Java Project" in the dialog box.
-\item In the "New Java Project" dialog box:
- \begin{itemize}
- \item Enter "Clus" in the field "Project Name".
- \item Choose "Create project from existing source" and browse to the location where 
-      you unzipped Clus. E.g., \verb^/home/john/Clus^ or \verb^C:\Clus^.
- \item Click "Next".
- \item Select the "Source" tab of the build settings dialog box.
-     Change "Default output folder" (where the class files are generated) to: "Clus/bin".
- \item Select the "Libraries" tab of the build settings dialog box.
-     Click "Add external jars" and add in this way these three jars:\\
-        Clus/jars/commons-math-1.0.jar\\
-        Clus/jars/jgap.jar\\
-        Clus/jars/weka.jar
- \item Click "Finish".
- \end{itemize}
-\item Select the "Navigator" view (Choose Window | Show View | Navigator)
- \begin{itemize}
-   \item  Right click the "Clus" project in this view.
-   \item  Select "Properties" from the context menu.
-   \item  Select the "Java Compiler" tab.
-   \item  Set the "Java Compliance Level" to 5.0.
- \end{itemize}
-\end{itemize}
-Now Clus should be automatically compiled by Eclipse.
-To run Clus from Eclipse:
- \begin{itemize}
-   \item Set as main class "clus.Clus".
-   \item Set as arguments the name of your settings file (appfile.s).
-   \item Set as working directory, the directory on the file system where your data set is located.
-\end{itemize}
-
-\section{Running Clus after compiling the source code}
-
-These instructions are for running Clus after you compiled its source code (using the instructions "Compiling Clus" or "Compiling Clus with Eclipse"). To run the pre-compiled version that is available in the file "Clus.jar", see above.
-
-(Windows)
-\begin{small}
-\begin{verbatim}
-cd path\to\appfile.s
-java -cp "C:\Clus\bin;C:\Clus\jars\commons-math-1.0.jar;C:\Clus\jars\jgap.jar" 
-  clus.Clus appfile.s
-\end{verbatim}
-\end{small}
-
-(Unix)
-
-\begin{small}
-\begin{verbatim}
-cd path/to/appfile.s
-java -cp "$HOME/Clus/bin:$HOME/Clus/jars/commons-math-1.0.jar:$HOME/Clus/jars/jgap.jar" 
-  clus.Clus appfile.s
-\end{verbatim}
-\end{small}
-
-Alternatively, use the "./clus.sh" script provided in the Clus main directory after adjusting the line that defines CLUS\_DIR at the top of the script.
-
 \section{Input and output files for Clus}
 
 Clus uses two input files, with the names {\tt {\em app}.s} and {\tt {\em app}.arff}, with {\em app} a name chosen by the user.  The {\tt {\em app}.s} contains the parameter settings for Clus.  The {\tt {\em app}.arff} file contains the data to be read.  The results of a Clus run are put in an output file {\tt {\em app}.out}.  In the following chapters we discuss the formats of these files.
@@ -203,6 +102,34 @@ Clus uses two input files, with the names {\tt {\em app}.s} and {\tt {\em app}.a
 \section{Command line parameters for Clus}
 
 Clus accepts a number of command line parameters which affect its behavior.  An overview of these parameters and their meaning is given in Chapter~\ref{param:ch}.
+
+\chapter{Learning algorithms}
+
+\section{Tree learning}
+
+\subsection{Top-down induction}
+
+\subsection{Beam search}
+
+\subsection{Constrained induction}
+
+\subsection{Ensembles}
+
+\section{Rule learning}
+
+\subsection{Sequential covering algorithm}
+
+\subsection{Rule ensembles}
+
+\chapter{Case studies}
+
+\section{Multi-target regression and classification}
+
+\section{Hierarchical multi-label classification}
+
+\section{Time series clustering}
+
+\section{Clustering with instance level constraints}
 
 \chapter{Input format}
 
@@ -354,6 +281,11 @@ Some procedures used by Clus (e.g., creation of cross-validation folds) are rand
 \item {\tt MaxDepth = $o$} : $o$ is a positive integer or {\tt Infinity}.  Clus will build trees with depth at  most $o$.
 \item {\tt ConvertToRules = $o$} : $o$ is {\tt Yes} or {\tt No}.  If {\tt Yes},  Clus will convert the induced tree to a set of rules.
 \end{itemize}
+
+\section{Rules}
+
+
+\section{Ensembles}
 
 \section{Constraints}
 
@@ -723,6 +655,104 @@ Clus is run from the command line.  It takes a number of command line parameters
 \item {\tt -info} : gives information and summary statistics about the dataset.
 \item ...
 \end{itemize}
+
+\chapter{Developer Documentation}
+
+\section{Compiling Clus}
+
+Note: The Clus download comes with a pre-compiled version of Clus 
+stored in the file Clus.jar. So, if you just want to run Clus as it is on a 
+data set, then you do not need to compile Clus. You can run it using the
+above instructions. On the other hand, if you wish to modify the source 
+code of Clus, or if you are using the CVS version, then you will need to 
+compile the source code of Clus. This can be done using the commands
+below or using the Eclipse IDE as pointed out in the next section.
+
+(Windows)
+
+\begin{small}
+\begin{verbatim}
+cd C:\Clus\src
+javac -d "bin" -cp ".;jars\commons-math-1.0.jar;jars\jgap.jar" clus/Clus.java
+\end{verbatim}
+\end{small}
+
+(Unix)
+
+\begin{small}
+\begin{verbatim}
+cd /home/john/Clus
+javac -d "bin" -cp ".:jars/commons-math-1.0.jar:jars/jgap.jar" clus/Clus.java
+\end{verbatim}
+\end{small}
+
+This will compile Clus and write the resulting .class files (Java executable 
+byte code) to the "bin" subdirectory.
+
+Alternatively, use the "./compile.sh" script provided in the Clus main directory.
+
+\section{Compiling Clus with Eclipse}
+
+In Eclipse, create a new project for Clus as follows:
+
+\begin{itemize}
+\item Choose \verb^File | New | Project^.
+\item Select "Java Project" in the dialog box.
+\item In the "New Java Project" dialog box:
+ \begin{itemize}
+ \item Enter "Clus" in the field "Project Name".
+ \item Choose "Create project from existing source" and browse to the location where 
+      you unzipped Clus. E.g., \verb^/home/john/Clus^ or \verb^C:\Clus^.
+ \item Click "Next".
+ \item Select the "Source" tab of the build settings dialog box.
+     Change "Default output folder" (where the class files are generated) to: "Clus/bin".
+ \item Select the "Libraries" tab of the build settings dialog box.
+     Click "Add external jars" and add in this way these three jars:\\
+        Clus/jars/commons-math-1.0.jar\\
+        Clus/jars/jgap.jar\\
+        Clus/jars/weka.jar
+ \item Click "Finish".
+ \end{itemize}
+\item Select the "Navigator" view (Choose Window | Show View | Navigator)
+ \begin{itemize}
+   \item  Right click the "Clus" project in this view.
+   \item  Select "Properties" from the context menu.
+   \item  Select the "Java Compiler" tab.
+   \item  Set the "Java Compliance Level" to 5.0.
+ \end{itemize}
+\end{itemize}
+Now Clus should be automatically compiled by Eclipse.
+To run Clus from Eclipse:
+ \begin{itemize}
+   \item Set as main class "clus.Clus".
+   \item Set as arguments the name of your settings file (appfile.s).
+   \item Set as working directory, the directory on the file system where your data set is located.
+\end{itemize}
+
+\section{Running Clus after compiling the source code}
+
+These instructions are for running Clus after you compiled its source code (using the instructions "Compiling Clus" or "Compiling Clus with Eclipse"). To run the pre-compiled version that is available in the file "Clus.jar", see above.
+
+(Windows)
+\begin{small}
+\begin{verbatim}
+cd path\to\appfile.s
+java -cp "C:\Clus\bin;C:\Clus\jars\commons-math-1.0.jar;C:\Clus\jars\jgap.jar" 
+  clus.Clus appfile.s
+\end{verbatim}
+\end{small}
+
+(Unix)
+
+\begin{small}
+\begin{verbatim}
+cd path/to/appfile.s
+java -cp "$HOME/Clus/bin:$HOME/Clus/jars/commons-math-1.0.jar:$HOME/Clus/jars/jgap.jar" 
+  clus.Clus appfile.s
+\end{verbatim}
+\end{small}
+
+Alternatively, use the "./clus.sh" script provided in the Clus main directory after adjusting the line that defines CLUS\_DIR at the top of the script.
 
 \bibliographystyle{plain}
 \bibliography{.mlbib}
