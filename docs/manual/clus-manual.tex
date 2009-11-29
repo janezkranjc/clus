@@ -25,6 +25,8 @@
           textheight = 22cm
 }
 
+\newcommand{\clus}{\textsc{Clus}}
+
 \begin{document}
 
 \title{Clus: User's Manual}
@@ -49,7 +51,7 @@ This means that, while most decision tree learners induce classification or regr
 Clus generalizes this approach by learning trees that are interpreted as cluster
 hierarchies.  Depending on the task at hand, different goal criteria are to be optimized, and different heuristics will be suitable to achieve this.
 
-Classification and regression trees are special cases of these clustering trees, and by choosing the right parameter settings Clus can closely mimic the behavior of tree learners such as CART \cite{Breiman84:other} or C4.5 \cite{Quinlan83:other}.  However, its applicability goes well beyond classical classification or regression tasks: Clus can be used for conceptual clustering, semisupervised learning, multi-label classification, multi-task learning, 
+Classification and regression trees are special cases of these clustering trees, and by choosing the right parameter settings Clus can closely mimic the behavior of tree learners such as CART \cite{Breiman84:other} or C4.5 \cite{Quinlan93:other}.  However, its applicability goes well beyond classical classification or regression tasks: Clus can be used for conceptual clustering, semisupervised learning, multi-label classification, multi-task learning, 
 
 A full description of how Clus works is beyond the scope of this text.  In this User's Manual, we focus on how to use Clus: how to prepare its inputs, how to interpret the output, and how to change its behavior with the available parameters.
 
@@ -90,14 +92,14 @@ distribution and {\tt {\em app}.s} the name of your settings file. E.g.,
 
 (Windows)
 \begin{verbatim}
-cd C:\Clus\data\iris
-java -jar ..\..\Clus.jar iris.s
+cd C:\Clus\data\weather
+java -jar ..\..\Clus.jar weather.s
 \end{verbatim}
 
 (Unix)
 \begin{verbatim}
-cd /home/john/Clus/data/iris
-java -jar ../../Clus.jar iris.s
+cd $HOME/Clus/data/weather
+java -jar ../../Clus.jar weather.s
 \end{verbatim}
 
 The input to Clus is always a settings file (used to set various 
@@ -105,9 +107,9 @@ parameters of the algorithms in Clus) and a data set in Weka's
 ARFF format. The settings are briefly discussed below.
 
 In the example above, Clus will read its settings from the input file 
-``iris.s" and its input data from the file ``iris.arff". It will then construct 
+``weather.s" and its input data from the file ``weather.arff". It will then construct 
 (with these settings) a classification tree, which it will write to the 
-output file ``iris.out".
+output file ``weather.out".
 
 Try Clus first on the example data sets in the "data" directory.
 
@@ -123,6 +125,82 @@ you should run Clus in a different way, which is explained below.
 \end{figure}
 
 Clus uses two input files, with the names {\tt {\em app}.s} and {\tt {\em app}.arff}, with {\em app} a name chosen by the user.  The {\tt {\em app}.s} contains the parameter settings for Clus.  The {\tt {\em app}.arff} file contains the data to be read.  The results of a Clus run are put in an output file {\tt {\em app}.out}.  In the following chapters we discuss the formats of these files.
+
+\textbf{To be revised:} To illustrate how \clus{} works in practice, we describe its application to a toy multi-target learning problem called ``Weather'' in which the goal is to predict the target attributes temperature and humidity from the input attributes outlook and windy. Fig.~\ref{fig:toyex} shows the dataset, the parameter settings, and the resulting PCT for this task. This complete example can be found in the \clus{} software package's folder ``data/weather''.
+
+\begin{figure}[tb]
+\begin{tabular}[t]{ll}
+\begin{tabular}[t]{|l|}
+\multicolumn{1}{l}{Data file: weather.arff} \\ \hline
+\begin{minipage}[t]{7.4cm}
+\begin{Verbatim}[baselinestretch=1,fontsize=\footnotesize,fontshape=n]
+@RELATION "weather"
+
+@ATTRIBUTE outlook     {sunny,rainy,overcast}
+@ATTRIBUTE windy       {yes,no}
+@ATTRIBUTE temperature numeric
+@ATTRIBUTE humidity    numeric
+
+@DATA
+sunny,    no,  34, 50
+sunny,    no,  30, 55
+overcast, no,  20, 70 
+overcast, yes, 10, 75
+rainy,    no,  20, 88
+rainy,    no,  18, 95 
+rainy,    yes, 10, 95 
+rainy,    yes, 8,  90
+\end{Verbatim}
+\vspace{-3mm}
+\end{minipage} \\ \hline
+\end{tabular} & %
+\begin{tabular}[t]{|l|}
+\multicolumn{1}{l}{Settings file: weather.s} \\ \hline
+\begin{minipage}[t]{6cm}
+\begin{Verbatim}[baselinestretch=1,fontsize=\footnotesize,fontshape=n]
+[Attributes]
+Descriptive = 1-2
+Target = 3-4
+Clustering = 3-4
+
+[Tree]
+Heuristic = VarianceReduction
+\end{Verbatim}
+\vspace{-3mm}
+\end{minipage} \\ \hline
+\multicolumn{1}{l}{\mbox{}} \\[-2.5mm]
+\multicolumn{1}{l}{Part of the output file: weather.out} \\ \hline
+\begin{minipage}[t]{6cm}
+\begin{Verbatim}[baselinestretch=1,fontsize=\footnotesize,fontshape=n]
+outlook = sunny
++--yes: [32, 52.5]: 2
++--no:  outlook = rainy
+        +--yes: windy = yes
+        |       +--yes: [9, 92.5]: 2
+        |       +--no:  [19,91.5]: 2
+        +--no:  [15, 72.5]: 2
+\end{Verbatim}
+\vspace{-3mm}
+\end{minipage} \\ \hline
+\end{tabular}
+\end{tabular}
+\caption{\label{fig:toyex}Input and output files for a toy multi-target prediction problem where the goal is to predict temperature and humidity from the attributes outlook and windy. Each tree leaf is of the form ``[predicted temperature ($^\circ$C), predicted humidity ($\%$)]: number of covered examples''.}
+\end{figure}
+
+The input data is recorded in the ARFF format, which is also used by the popular Weka machine learning toolbox\footnote{\url{http://www.cs.waikato.ac.nz/ml/weka/}}. \clus{} adds a number of attribute types to this format such as attribute types to record time series and hierarchical classes. Details about this format and the extensions are available in the documentation that accompagnies \clus{}.
+
+Next to the input data, \clus{} requires a settings file, in which particular values for the parameters of the system can be specified. Our example includes values for four parameters. The parameters under the heading ``[Attributes]'' specify how the attributes are to be used. Here, the first two attributes (attributes 1-2) are to be used in the cluster descriptions, that is, in the tests that appear in the PCT's nodes. The last two attributes (attributes 3-4) are to be predicted. The setting ``Clustering = 3-4'' indicates that the clustering heuristic, which is used to construct the PCT, should be computed based on the target attributes only. Finally, ``Heuristic = VarianceReduction'' specifies that the heuristic is variance reduction.
+
+Once the data file and settings file is in place, one can run \clus{} to construct a PCT or a set of PCRs. \clus{} is a command line tool, so in order to run it, one has to open a command prompt or console window. The following example shows how to run Clus on the weather example on a Unix system. It assumes that \clus{} has been installed in a subfolder named ``clus'' of your home directory. Instructions for other operating systems can be found in the Clus documentation.
+
+\begin{Verbatim}[baselinestretch=1,fontsize=\footnotesize,fontshape=n]
+cd $HOME/clus/data/weather
+java -jar ../../Clus.jar weather.s
+\end{Verbatim}
+
+After \clus{} has been run, it will have created a file called ``weather.out'' that contains the results of the induction process. This file contains the induced PCT and a number of statistics such as the training set error and the test set error (if a test set has been provided).
+
+In this example, the resulting tree is a multi-target tree (Fig.~\ref{fig:toyex}): each leaf predicts a vector of which the first component is the predicted temperature and the second component the predicted humidity. Such a multi-target tree has several advantages over constructing a separate regression tree for each target variable. The most obvious one is the number of models: the user only has to interpret one tree instead of at one tree for each target. A second advantage is that the tree makes features that are relevant to all target variables explicit. For example, the first leaf of the tree in Fig.~\ref{fig:toyex} shows that ``outlook = sunny'' implies both a high temperature and a low humidity. Finally, due to the concept of inductive transfer, multi-target PCTs may also be more accurate than regression trees.
 
 \section{Command line parameters for Clus}
 
@@ -159,7 +237,7 @@ Clus accepts a number of command line parameters which affect its behavior.  An 
 \chapter{Input format}
 
 Like many machine earning systems, Clus learns from tabular data.
-These data are assumed to be in the ARFF format that is also used by the Weka data mining tool.  Full details on ARFF can be found elsewhere \cite{arff?}.
+These data are assumed to be in the ARFF format that is also used by the Weka data mining tool.  Full details on ARFF can be found elsewhere\footnote{\url{http://weka.wikispaces.com/ARFF}}.
 We here only give a minimal description.
 
 In the data table, each row represents an instance, and each column represents an attribute of the instances.  Each attribute has a name and a domain (the domain is the set of values it can take).  In the ARFF format, the names and domains of the attributes are declared up front, before the data are given.
@@ -176,7 +254,7 @@ An ARFF file follows the following format:
 {\tt @attribute} name domain\\
 ...\\
 \\
-{\tt @data} name domain\\
+{\tt @data}\\
 value$_1$, value$_2$, ..., value$_n$\\
 value$_1$, value$_2$, ..., value$_n$\\
 \end{tabbing}
@@ -230,6 +308,8 @@ rainy,71,91,TRUE,no
 \label{arff:fig}
 \end{figure}
 
+\textbf{*jans* todo: add sparse arff format}
+
 %\section{Hierarchical multi-label attributes}
 
 \begin{figure}
@@ -261,8 +341,6 @@ The settings file is structured into sections.  Each parameter belongs to a part
 
 We here explain the most common settings.  Figure~\ref{settings:fig} shows how they might occur in a settings file.
 
-{\bf * jans: the most important settings are already included in the list below, but it is probably useful to list and discuss for each of the common applications (single/multi target classification/regression, HMC, time series prediction, ...) the most appropriate settings. I should probably also extend the explanation for many of the settings.}
-
 In the following, we use the convention that $n$ is an integer, $r$ is a real, $s$ is a string, $y$ is an element of \{ {\tt Yes}, {\tt No} \}, and $o$ is another type of value.  Strings are denoted without quotes.
 
 \section{General}
@@ -275,7 +353,7 @@ Some procedures used by Clus (e.g., creation of cross-validation folds) are rand
 \section{Data}
 
 \begin{itemize}
-\item {\tt File = $s$} : $s$ is the name of the file that contains the training set.  The default value for $s$ is {\tt {\em app}.arff}.  Clus can read compressed ({\tt .arff.gz}) or uncompressed ({\tt .arff}) data files.
+\item {\tt File = $s$} : $s$ is the name of the file that contains the training set.  The default value for $s$ is {\tt {\em app}.arff}.  Clus can read compressed ({\tt .arff.zip}) or uncompressed ({\tt .arff}) data files.
 \item {\tt TestSet = $o$} : when $o$ is {\tt None}, no test set is used; if $o$ is a number between 0 and 1, Clus will use a proportion $o$ of the data file as a separate test set (used for evaluating the model but not for training); if $o$ is a valid file name containing a test set in ARFF format, Clus will evaluate the learned model on this test set.
 \item {\tt PruneSet = $o$} : defines whether and how to use a pruning set; the meaning of $o$ is identical as in the {\tt TestSet} setting
 \item {\tt XVal = $n$} : $n$ is the number of folds to be used in a cross-validation.  To perform cross-validation, Clus needs to be run with the {\tt -xval} option.
@@ -286,9 +364,9 @@ Some procedures used by Clus (e.g., creation of cross-validation folds) are rand
 \begin{itemize}
 \item {\tt Target = $o$} : sets the index of the target attributes.  Attributes are numbered 1 through $n$.  $o$ is a comma-separated list of integers $i$ or intervals $i-j$; e.g., {\tt 5,7-9} indicates that attributes 5, 7, 8 and 9 are target values.  Run {\tt clus -info ...} to list all attributes.
 {\bf * hb: klopt dit? originele doc suggereerde dat er maar 1 target kon zijn, maar dat is niet zo?}
-\item {\tt Disable = $o$} : disables the listed attributes (they will not be used for prediction).  Attributes are numbered 1 through $n$.  $o$ is a comma-separated list of integers $i$ or intervals $i-j$; e.g., {\tt 5,7-9} indicates that attributes 5, 7, 8 and 9 are target values.  Run {\tt clus -info ...} to list all attributes.
-\item {\tt Key = $o$} : with $o$ an attribute index, sets the key attribute; $o$ can be {\tt None}. 
-   {\bf * hb: what is this useful for?}
+\item {\tt Disable = $o$} : disables the listed attributes (they will not be read into memory and they will not be used).  Attributes are numbered 1 through $n$.  $o$ is a comma-separated list of integers $i$ or intervals $i-j$; e.g., {\tt 5,7-9} indicates that attributes 5, 7, 8 and 9 are target values.  Run {\tt clus -info ...} to list all attributes.
+\item {\tt Key = $o$} : sets the index of the key attributes; $o$ can be a range as in the previous settings, or it can be {\tt None} if there are no key attributes. A key attribute or a set of key attributes can be used as an example identifier. For example, if each instance represents a person, then the key attribute could store the person's name. Key attributes are not actually used by the induction algorithm, but they are written to output files, such as, ARFF files with predictions. See \texttt{[Output]/WritePredictions} for an example.
+
 \item {\tt Weight = $o$} : if $o$ = {\tt Normalize}, all numeric attributes are normalized.
    {\bf * hb: other options?}
 \end{itemize}
@@ -315,8 +393,8 @@ Some procedures used by Clus (e.g., creation of cross-validation folds) are rand
 \section{Constraints}
 
 \begin{itemize}
-\item {\tt Syntactic = $o$} : sets the file with syntactic constraints (e.g., a partial tree) \cite{paper-on-constraints}
-\item {\tt MaxSize = $o$} : sets the maximum size for Garofalakis pruning \cite{Garofalakis}; $o$ can be a positive integer or {\tt Infinity}
+\item {\tt Syntactic = $o$} : sets the file with syntactic constraints (e.g., a partial tree) \cite{Struyf06-KDID:proc}
+\item {\tt MaxSize = $o$} : sets the maximum size for Garofalakis pruning \cite{Garofalakis03:jrnl, Struyf06-KDID:proc}; $o$ can be a positive integer or {\tt Infinity}
 \item {\tt MaxError = $o$} : sets the maximum error for Garofalakis pruning; $o$ is a positive real or {\tt Infinity}
 \end{itemize}
 
@@ -334,9 +412,9 @@ Some procedures used by Clus (e.g., creation of cross-validation folds) are rand
 \section{Beam}
 
 \begin{itemize}
-\item {\tt SizePenalty = $o$} : sets the size penalty parameter used in the beam heuristic \cite{beam-paper}
-\item {\tt BeamWidth = $n$} : sets the width of the beam used in the beam search performed by Clus \cite{beam-paper}
-\item {\tt MaxSize = $o$} : sets the maximum size constraint \cite{beam-paper}; $o$ is a positive integer or {\tt Infinity}
+\item {\tt SizePenalty = $o$} : sets the size penalty parameter used in the beam heuristic \cite{Kocev07a:proc}
+\item {\tt BeamWidth = $n$} : sets the width of the beam used in the beam search performed by Clus \cite{Kocev07a:proc}
+\item {\tt MaxSize = $o$} : sets the maximum size constraint \cite{Kocev07a:proc}; $o$ is a positive integer or {\tt Infinity}
 \end{itemize}
 
 \begin{figure}
@@ -394,7 +472,7 @@ MaxSize = Infinity          % Sets the maximum size constraint
 A number of settings are relevant only when using Clus for Hierarchical Multi-label Classification (HMC).  These go in the separate section ``Hierarchical''.  The most important ones are:
 
 \begin{itemize}
-\item {\tt Type = $o$} : $o$ is {\tt Tree} or {\tt DAG}, and indicates whether the class hierarchy is a tree or a directed acyclic graph \cite{hmc-paper}
+\item {\tt Type = $o$} : $o$ is {\tt Tree} or {\tt DAG}, and indicates whether the class hierarchy is a tree or a directed acyclic graph \cite{Vens08:jrnl}
 \item {\tt WType = $o$} : defines how parents' class weights are aggregated in DAG-shaped hierarchies (\cite{Vens08:jrnl}, Section 4.1): possible values are {\tt ExpSumParentWeight}, {\tt ExpAvgParentWeight}, {\tt ExpMinParentWeight}, {\tt ExpMaxParentWeight}, and {\tt NoWeight}.  These define the weight of a class to be $w_0$ times the sum, average, minimum or maximum of the parent's weights, respectively, or to be 1.0 for all classes. 
 \item {\tt WParam = $r$} : sets the parameter $w_0$ used in the formula for defining the class weights (\cite{Vens08:jrnl}, Section 4.1)
 \item {\tt HSeparator = $o$} : $o$ is the separator used in the notation of values of the hierarchical domain (typically `/' or `.') 
