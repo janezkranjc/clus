@@ -1,10 +1,31 @@
-\documentstyle{report}
+\documentclass[a4paper]{report}
+\usepackage{geometry}
+\usepackage{graphics}
+\usepackage{ifpdf}
+\usepackage{makeidx}
+\usepackage{fancyhdr}
+\usepackage{fancyvrb}
+\usepackage{amsmath, amsthm, amssymb}
 
+\ifpdf
+\pdfinfo{
+  /Title    (Clus: User's Manual)
+  /Author   (Jan Struyf, Bernard Zenko, Hendrik Blockeel, Saso Dzeroski)
+}
+\usepackage[pdftex,colorlinks=true,pdfstartview=FitV,linkcolor=black,citecolor=black,urlcolor=black]{hyperref}
+\else
+\usepackage{url}
+\newcommand{\phantomsection}[1]{}
+\fi
 
+% geometry makes sure page size is correct in .pdf files
+\geometry{a4paper,
+          centering,
+          textwidth = 16cm,
+          textheight = 22cm
+}
 
 \begin{document}
-
-
 
 \title{Clus: User's Manual}
 
