@@ -341,7 +341,7 @@ The settings file is structured into sections.  Each parameter belongs to a part
 
 We here explain the most common settings.  Figure~\ref{settings:fig} shows how they might occur in a settings file.
 
-In the following, we use the convention that $n$ is an integer, $r$ is a real, $s$ is a string, $y$ is an element of \{ {\tt Yes}, {\tt No} \}, and $o$ is another type of value.  Strings are denoted without quotes.
+In the following, we use the convention that $n$ is an integer, $r$ is a real, $v$ is a vector of real values, $s$ is a string, $y$ is an element of \{ {\tt Yes}, {\tt No} \}, $r$ is an range of attribute indices, and $o$ is another type of value.  Strings are denoted without quotes. A vector is denoted as $[r_1,\ldots,r_n]$. An attribute range is a comma separated list of integers or intervals or \texttt{None} if the range is empty. For example, {\tt 5,7-9} indicates attributes 5, 7, 8 and 9. The first attribute in the dataset is attribute 1. Run {\tt clus -info {\em app}.s} to list all attributes together with their indices.
 
 \section{General}
 
@@ -362,13 +362,17 @@ Some procedures used by Clus (e.g., creation of cross-validation folds) are rand
 \section{Attributes}
 
 \begin{itemize}
-\item {\tt Target = $o$} : sets the index of the target attributes.  Attributes are numbered 1 through $n$.  $o$ is a comma-separated list of integers $i$ or intervals $i-j$; e.g., {\tt 5,7-9} indicates that attributes 5, 7, 8 and 9 are target values.  Run {\tt clus -info ...} to list all attributes.
-{\bf * hb: klopt dit? originele doc suggereerde dat er maar 1 target kon zijn, maar dat is niet zo?}
-\item {\tt Disable = $o$} : disables the listed attributes (they will not be read into memory and they will not be used).  Attributes are numbered 1 through $n$.  $o$ is a comma-separated list of integers $i$ or intervals $i-j$; e.g., {\tt 5,7-9} indicates that attributes 5, 7, 8 and 9 are target values.  Run {\tt clus -info ...} to list all attributes.
-\item {\tt Key = $o$} : sets the index of the key attributes; $o$ can be a range as in the previous settings, or it can be {\tt None} if there are no key attributes. A key attribute or a set of key attributes can be used as an example identifier. For example, if each instance represents a person, then the key attribute could store the person's name. Key attributes are not actually used by the induction algorithm, but they are written to output files, such as, ARFF files with predictions. See \texttt{[Output]/WritePredictions} for an example.
+\item {\tt Target = $r$} : sets the range of target attributes. The predictive clustering model will predict these attributes. If this setting is not specified, then it is equal to the index of the last attribute in the training dataset, i.e., the last attribute is the target by default. This setting overrides the \texttt{Disable} setting. This is convenient if one needs to build models that predict only a subset $S$ of all available target attributes $T$. Because {\tt Target} overrides {\tt Disable}, one can use the settings {\tt Disable = $T$} and {\tt Target = $S$} to this end. 
 
-\item {\tt Weight = $o$} : if $o$ = {\tt Normalize}, all numeric attributes are normalized.
-   {\bf * hb: other options?}
+\item {\tt Clustering = $r$} : sets the range of clustering attributes. The predictive clustering heuristic that is used to guide the model construction is computed with regard to these atrributes. If this setting is not specified, then the clustering attributes are by default equal to the target attributes.
+
+\item {\tt Descriptive = $r$} : sets the range of attributes that can be used in the descriptive part of the models. For a PCT, these attributes will be used to construct the tests in the internal nodes of the tree. For a set of PCRs, these attributes will appear in the rule conditions. If this setting is not specified, then the descriptive attributes are all attributes that are not target, key, or disabled.
+
+\item {\tt Disable = $r$} : sets the range of attributes that are to be ignored by Clus. These attributes are also not read into memory.
+
+\item {\tt Key = $r$} : sets the range of key attributes. A key attribute or a set of key attributes can be used as an example identifier. For example, if each instance represents a person, then the key attribute could store the person's name. Key attributes are not actually used by the induction algorithm, but they are written to output files, for example, to ARFF files with predictions. See \texttt{[Output]/WritePredictions} for an example.
+
+\item {\tt Weights = $o$} : sets the relative weights of the different attributes in the clustering heuristic. To set the weights of all clustering attributes to 1.0, use {\tt Weights = 1}. To use as  weights $w_i = 1/\mathrm{Var}(a_i)$, with $\mathrm{Var}(a_i)$ the variance of attribute $a_i$ in the input data, use {\tt Weights = Normalize}.
 \end{itemize}
 
 \section{Model}
@@ -382,7 +386,7 @@ Some procedures used by Clus (e.g., creation of cross-validation folds) are rand
 \begin{itemize}
 \item {\tt FTest = $r$} : sets the f-test stopping criterion for regression; a node will only be split if a statistical F-test indicates a significant (at level $r$) reduction of variance inside the subsets.
 \item {\tt MaxDepth = $o$} : $o$ is a positive integer or {\tt Infinity}.  Clus will build trees with depth at  most $o$.
-\item {\tt ConvertToRules = $o$} : $o$ is {\tt Yes} or {\tt No}.  If {\tt Yes},  Clus will convert the induced tree to a set of rules.
+\item {\tt ConvertToRules = $y$} : If {\tt Yes},  Clus will convert the induced tree to a set of rules.
 \end{itemize}
 
 \section{Rules}
@@ -484,7 +488,7 @@ A number of settings are relevant only when using Clus for Hierarchical Multi-la
    \item {\tt WeightedAverageAUPRC}: similar to AverageAUPRC, but each class's contribution is                         weighted by its relative frequency
    \item {\tt PooledAUPRC}: area under the average (or pooled) precision-recall curve
   \end{itemize}
-\item {\tt ClassificationThreshold = $o$} : The original tree constructed by Clus contains a vector of predicted probabilities (one for each class) in each leaf. Such a probabilistic prediction can be converted into a set of labels by applying a threshold $t$: all labels that are predicted with probability $> t$ are in the predicted set.  $o$ can be a set of thresholds, e.g., \{0.5, 0.75, 0.80, 0.90, 0.95\}. Clus will output for each value in the set a tree in which the predicted label sets are constructed with this particular threshold. So, in the example, the output file will contain 5 trees corresponding to the thresholds 0.5, 0.75, 0.80, 0.90 and 0.95.
+\item {\tt ClassificationThreshold = $o$} : The original tree constructed by Clus contains a vector of predicted probabilities (one for each class) in each leaf. Such a probabilistic prediction can be converted into a set of labels by applying a threshold $t$: all labels that are predicted with probability $> t$ are in the predicted set.  $o$ can be a set of thresholds, e.g., [0.5, 0.75, 0.80, 0.90, 0.95]. Clus will output for each value in the set a tree in which the predicted label sets are constructed with this particular threshold. So, in the example, the output file will contain 5 trees corresponding to the thresholds 0.5, 0.75, 0.80, 0.90 and 0.95.
 {\bf * hb: is the set of thresholds indeed written as a set, i.e. between curly braces?  And is it really $>t$, or $\geq t$?}
 \item {\tt RecallValues = $o$} : $o$ is a list of recall values. For each value, Clus will output the average of the precisions over all class-wise precision-recall curves that correspond to the particular recall value in the output file.
 {\bf * hb: "list": how is it denoted?}
