@@ -839,14 +839,49 @@ public class ClusNode extends MyNode implements ClusModel {
 		} else {//on the leaves
 			if (examples!=null){
 				//writer.println("LEAF");
-				for (int i=0; i<examples.getNbRows(); i++) {
-					int exampleindex = examples.getTuple(i).getIndex();
-					boolean oob = oob_sel.isSelected(exampleindex);
-					if (oob)
-						writer.println(exampleindex + "  " + prefix + "  OOB");
-					else writer.println(exampleindex + "  " + prefix);
-					writer.flush();
-				}	
+                String prediction = m_TargetStat.getPredictString();
+                for (int i=0; i<examples.getNbRows(); i++) {
+                        int exampleindex = examples.getTuple(i).getIndex();
+                        boolean oob = oob_sel.isSelected(exampleindex);
+                        if (oob)
+                                writer.println(exampleindex + "  " + prefix + " " + prediction + "  OOB");
+                        else writer.println(exampleindex + "  " + prefix + " " + prediction);
+                        writer.flush();
+                }	
+			}
+
+		}
+	}
+	
+	// printing test exs
+	public final void printPaths(PrintWriter writer, String prefix, RowData examples) {
+		//writer.flush();
+		//writer.println("nb ex: " + examples.getNbRows());
+		int arity = getNbChildren();
+		if (arity > 0) {
+			if (arity == 2) {
+
+				RowData examples0 = null;
+				RowData examples1 = null;
+				if (examples!=null){
+					examples0 = examples.apply(m_Test, 0);
+					examples1 = examples.apply(m_Test, 1);
+				}			
+				((ClusNode)getChild(YES)).printPaths(writer, prefix+"0",examples0);
+				((ClusNode)getChild(NO)).printPaths(writer, prefix+"1",examples1);
+				
+			} else {
+				System.out.println("PrintPaths error: only binary trees supported");
+			}
+		} else {//on the leaves
+			if (examples!=null){
+				//writer.println("LEAF");
+                String prediction = m_TargetStat.getPredictString();
+                for (int i=0; i<examples.getNbRows(); i++) {
+                        int exampleindex = examples.getTuple(i).getIndex();
+                        writer.println(exampleindex + "  " + prefix + " " + prediction + "  TEST");
+                        writer.flush();
+                }	
 			}
 
 		}

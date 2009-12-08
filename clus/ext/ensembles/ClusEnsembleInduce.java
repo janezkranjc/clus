@@ -271,6 +271,9 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	public void induceBagging(ClusRun cr) throws ClusException, IOException {
 		int nbrows = cr.getTrainingSet().getNbRows();
 		((RowData)cr.getTrainingSet()).addIndices();
+		if ((RowData)cr.getTestSet() != null) {
+			((RowData)cr.getTestSet()).addIndices();
+		}
 		
 		m_OForest = new ClusForest(getStatManager());
 		m_DForest = new ClusForest(getStatManager());
@@ -387,10 +390,10 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 		
 		//print paths
-		//PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("tree_"+i+".path")));		
-		//((ClusNode)model).printPaths(pw, "", (RowData)cr.getTrainingSet(), oob_sel);
-
-
+/*		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("tree_"+i+".path")));		
+		((ClusNode)model).printPaths(pw, "", (RowData)cr.getTrainingSet(), oob_sel);
+		if ((RowData)cr.getTestSet() != null) ((ClusNode)model).printPaths(pw, "", (RowData)cr.getTestSet());
+*/
 		//Valid only when test set is supplied
 		if (checkToOutEnsemble(i) && (getSettings().getOneBag() == -1)){
 			crSingle.setInductionTime(m_SummTime);
