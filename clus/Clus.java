@@ -1116,7 +1116,7 @@ public class Clus implements CMDLineArgsProvider {
 		// io.save(getSettings().getFileAbsolute(m_Sett.getAppName() +
 		// ".model"));
 		if (ClusEnsembleInduce.isOptimized()
-				&& (m_Sett.getNbBaggingSets().getVectorLength() > 1) && (m_Sett.getOneBag() < 1))
+				&& (m_Sett.getNbBaggingSets().getVectorLength() > 1) && (m_Sett.getBagSelection().getIntVectorSorted()[0] < 1))
 			io.save(getSettings().getFileAbsolute(
 					m_Sett.getAppName() + "_"
 							+ ClusEnsembleInduce.getMaxNbBags() + "_.model"));
@@ -1137,7 +1137,7 @@ public class Clus implements CMDLineArgsProvider {
 		
 		ClusOutput output;
 		if (ClusEnsembleInduce.isOptimized()
-				&& (m_Sett.getNbBaggingSets().getVectorLength() > 1) && (m_Sett.getOneBag() < 1))
+				&& (m_Sett.getNbBaggingSets().getVectorLength() > 1) && (m_Sett.getBagSelection().getIntVectorSorted()[0] < 1))
 			output = new ClusOutput(m_Sett.getAppName() + "_"
 					+ ClusEnsembleInduce.getMaxNbBags() + "_.out", m_Schema,
 					m_Sett);

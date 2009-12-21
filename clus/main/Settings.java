@@ -1770,11 +1770,12 @@ public class Settings implements Serializable {
 	public static INIFileNominal m_ClassificationVoteType;
 	protected INIFileInt m_RandomAttrSelected;
 	public static INIFileBool m_PrintAllModels;
+	public static INIFileBool m_PrintAllModelFiles;
 	public static boolean m_EnsembleMode = false;
 	public static INIFileBool m_EnsembleShouldOpt;
 	public static INIFileBool m_EnsembleOOBestimate;
 	protected INIFileBool m_FeatureRanking;
-	protected INIFileInt m_OneBag;
+	protected INIFileNominalOrIntOrVector m_BagSelection;
 
 	/** Do we want to use different random depth for different iterations of ensemble.
 	 * Used in tree to rules optimization method. The MaxDepth of tree is used as average.
@@ -1833,8 +1834,8 @@ public class Settings implements Serializable {
 		return m_RandomAttrSelected.getValue();
 	}
 
-	public int getOneBag() {
-		return m_OneBag.getValue();
+	public INIFileNominalOrIntOrVector getBagSelection() {
+		return m_BagSelection;
 	}
 
 	public void updateNbRandomAttrSelected(ClusSchema schema){
@@ -1849,12 +1850,16 @@ public class Settings implements Serializable {
 		m_RandomAttrSelected.setValue(value);
 	}
 
-	public void setOneBag(int value) {
-		m_OneBag.setValue(value);
+	public void setBagSelection(int value) {
+		m_BagSelection.setInt(value);
 	}
 
 	public static boolean isPrintEnsembleModels( ){
 		return m_PrintAllModels.getValue();
+	}
+	
+	public static boolean isPrintEnsembleModelFiles( ){
+		return m_PrintAllModelFiles.getValue();
 	}
 
 	public static boolean shouldOptimizeEnsemble( ){
@@ -2131,11 +2136,13 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_ClassificationVoteType =new INIFileNominal("VotingType", VOTING_TYPE,0));
 		m_SectionEnsembles.addNode(m_RandomAttrSelected = new INIFileInt("SelectRandomSubspaces", 0));
 		m_SectionEnsembles.addNode(m_PrintAllModels = new INIFileBool("PrintAllModels", false));
+		m_SectionEnsembles.addNode(m_PrintAllModelFiles = new INIFileBool("PrintAllModelFiles", false));
 		m_SectionEnsembles.addNode(m_EnsembleShouldOpt = new INIFileBool("Optimize", false));
 		m_SectionEnsembles.addNode(m_EnsembleOOBestimate = new INIFileBool("OOBestimate", false));
 		m_SectionEnsembles.addNode(m_FeatureRanking = new INIFileBool("FeatureRanking", false));
 		m_SectionEnsembles.addNode(m_EnsembleRandomDepth = new INIFileBool("EnsembleRandomDepth", false));
-		m_SectionEnsembles.addNode(m_OneBag = new INIFileInt("OneBag", -1));
+		m_SectionEnsembles.addNode(m_BagSelection = new INIFileNominalOrIntOrVector("BagSelection", NONELIST));
+		m_BagSelection.setInt(-1);
 		m_SectionEnsembles.setEnabled(false);
 
 		m_SectionKNN = new INIFileSection("kNN");
