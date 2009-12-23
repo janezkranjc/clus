@@ -69,7 +69,7 @@ public class SubsetSplit extends NominalSplit {
 	}
 
 	public void findSplit(CurrentBestTestAndHeuristic node, NominalAttrType type) {
-		//System.out.println("new attr: " + type);
+		//System.out.println("find split for attr: " + type);
 		double unk_freq = 0.0;
 		int nbvalues = type.getNbValues();
 		boolean isin[] = new boolean[nbvalues];
@@ -97,16 +97,16 @@ public class SubsetSplit extends NominalSplit {
 			pos_freq = CStat.m_SumWeight / m_MStat.m_SumWeight;
 		}
 		else if ((getStatManager().getMode() == ClusStatManager.MODE_PHYLO) && (Settings.m_PhylogenySequence.getValue() == Settings.PHYLOGENY_SEQUENCE_DNA)) {
-//		else if (false) {
-			// if amino acids, we use the default method
+		// for phylogenetic trees with DNA sequences, we use an optimization method: tests like pos10={A,t} are based on the results for tests pos10=A and pos10=T
+		// we do not do this for protein sequences, since there the alphabet is much larger, which would complicate things
+		//else if (false) {
 			boolean[] valid = new boolean[nbvalues];
 			// we try all subsets of size 1 (e.g. pos10=A) and 2 (e.g. pos10={AT}) (nbvalues = 5)
-			// we try all subsets of size 1
+			// first we try all subsets of size 1
 			for (int j = 0; j < nbvalues; j++) {
 				m_PStat.reset();
 				m_PStat.add(node.m_TestStat[j]);
 				double mheur = node.calcHeuristic(m_MStat, m_PStat);
-//				if (mheur > Double.NEGATIVE_INFINITY) System.out.println("j: " + j + " mheur: " + mheur);
 				if (mheur > bheur) {
 					bheur = mheur;
 					isin = new boolean[nbvalues];
@@ -119,7 +119,7 @@ public class SubsetSplit extends NominalSplit {
 					valid[j] = true;
 				}
 			}
-			// we try all subsets of size 2 (if both of the singleton subsets returned a valid heur value)
+			// then we try all subsets of size 2 (if both of the singleton subsets returned a valid heuristic value)
 			for (int j = 0; j < nbvalues; j++) {
 				if (valid[j])
 					for (int k = j+1; k < nbvalues; k++) {
@@ -129,12 +129,11 @@ public class SubsetSplit extends NominalSplit {
 							m_CStat.add(node.m_TestStat[j]);
 							m_PStat.add(node.m_TestStat[j]);
 							m_PStat.add(node.m_TestStat[k]);
-							//double mheur = node.calcHeuristic(m_MStat, m_PStat);
+							//double mheur = node.calcHeuristic(m_MStat, m_PStat); // use this if you want to compute the heuristic only in the case both singletons were valid
 							ClusStatistic[] csarray = new ClusStatistic[2];
 							csarray[0] = m_PStat;
 							csarray[1] = m_CStat;
-							double mheur = node.calcHeuristic(m_MStat, csarray, 2);
-//							if (mheur > Double.NEGATIVE_INFINITY) System.out.println("j: " + j + " k: " + k + " mheur: " + mheur);
+							double mheur = node.calcHeuristic(m_MStat, csarray, 2); // use this if you want to compute the heuristic only in the case both singletons were valid AND you want to reuse their computations
 							//System.out.println("mheur: " + mheur);
 							if (mheur > bheur) {
 								bheur = mheur;
@@ -159,7 +158,6 @@ public class SubsetSplit extends NominalSplit {
 				((ClusRuleHeuristicDispersion)node.m_Heuristic).setDataIndexes(new int[0]);
 			}
 			boolean allowSubsetSplits = getStatManager().getSettings().isNominalSubsetTests();
-//			boolean allowSubsetSplits = false;
 			while ((bvalue != -1) && ((card+1) < nbvalues)) {
 				bvalue = -1;
 				for (int j = 0; j < nbvalues; j++) {
@@ -215,7 +213,7 @@ public class SubsetSplit extends NominalSplit {
 //			System.out.println("attr: " + type + "  best test: " + node.m_BestTest.getString());
 		} else if (getStatManager().getSettings().showAlternativeSplits() && (((bheur > node.m_BestHeur - ClusHeuristic.DELTA) && (bheur < node.m_BestHeur + ClusHeuristic.DELTA)) || (bheur == Double.POSITIVE_INFINITY))) {
 			// if same heuristic: add to alternatives (list will later be pruned to remove those tests that do
-			// not give rise to exactly the same subsets)
+			// not yield exactly the same subsets)
 			node.addAlternativeBest(new SubsetTest(type, card, isin, pos_freq));
 		}
 	}

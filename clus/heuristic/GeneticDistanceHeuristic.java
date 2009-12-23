@@ -9,15 +9,16 @@ import java.util.*;
 
 public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 
-	protected RowData m_Data;
-	protected RowData m_OerData; // the complete data set at the root of the tree, this is needed for taking the complement of the data in this node
-	protected int[] m_DataIndices;
-	protected int[] m_ComplDataIndices;
+	protected RowData m_Data; // the data at the current node
+	protected RowData m_OerData; // the complete data set at the root of the tree, this is needed for taking the complement of the data in the current node
+	protected int[] m_DataIndices; // the indices (in the original dataset) of the data at the current node
+	protected int[] m_ComplDataIndices; // the indices (in the original dataset) of the data in the complement of the data at the current node
 
 	public String getName() {
 		return "GeneticDistanceHeuristic";
 	}
 
+	// called when a new node should be split
 	public void setData(RowData data) {
 		m_Data = data;
 		m_DataIndices = constructIndexVector(m_Data);
@@ -66,7 +67,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 				else currindex = indices[indexpos];
 			}
 			else if (currindex<index) {
-				System.out.println("GeneticDistanceHeuristic : Something is wrong with datatuple indices!");
+				System.err.println("GeneticDistanceHeuristic : Something is wrong with datatuple indices!");
 			}
 		}
 		return resultvector;
@@ -94,6 +95,8 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		return 0.0; // is never executed
 	}
 
+	
+	// the number of positions that are different
 	public double getEditDistance(String[] seq1, String[] seq2) {
 		//System.out.println("edit");
 		double p=0;
@@ -105,6 +108,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		return p;
 	}
 
+	// the percentage of positions that are different (only non-gap and non-missing positions taken into account!)
 	public double getPDistance(String[] seq1, String[] seq2) {
 		double p=0;
 		int nb = 0;
@@ -133,7 +137,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		double jk_distance;
 		if (p_distance > 0.749) {
 			jk_distance = 2.1562; // not defined for >= 0.75
-			System.out.println("Warning: infinite distances");
+			System.out.println("Warning: infinite Jukes Cantor distance (p-distance => 0.75), set to 2.1562");
 		}
 		else jk_distance = -0.75 * Math.log(1.0-((4.0*p_distance)/3.0));
 		return jk_distance;
@@ -188,17 +192,17 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		double p_distance = getPDistance(seq1, seq2);
 		double kimura;
 		if (p_distance > 0.8541) {
-			kimura = 12.84; // not defined for >= 0.75
-			System.out.println("Warning: infinite distances");
+			kimura = 12.84; // not defined for >= 0.8514
+			System.out.println("Warning: infinite AminoKimura distances (p-distance > 0.85), set to 12.84");
 		}
 		else kimura = -1.0 * Math.log(1.0 - p_distance - 0.2 * Math.pow(p_distance,2.0));
 		return kimura;
 	}
 
-
-
-
-	//-------------------- still used??
+/*************************************************************************************
+ * Not sure if the code below is still used / useful
+ * 
+ *************************************************************************************/
 
 
 	public double calculateStarDistance(GeneticDistanceStat stat, RowData data) {
@@ -231,8 +235,8 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		return dist;
 	}
 
-	public double calculatePairwiseDistance(GeneticDistanceStat pstat, RowData pdata, GeneticDistanceStat nstat, RowData ndata) {
-		boolean useSampling = true;
+/*	public double calculatePairwiseDistance(GeneticDistanceStat pstat, RowData pdata, GeneticDistanceStat nstat, RowData ndata) {
+		boolean useSampling = false;
 		int sampleSize = 500;
 
 		int nb = pstat.m_NbTarget;
@@ -303,7 +307,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		}
 
 		return dist;
-	}
+	}*/
 
 	public int getOriginalIndex(DataTuple tuple) {
 		//System.out.println("target tuple: " + tuple.toString());
@@ -562,6 +566,134 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 
 		return getDistance(proto_pos,proto_neg);
 	}
+	
+	// The test that yields the largest heuristic will be chosen in the end. Since we want to minimize the total branch length,
+	// we maximize the inverse of it.
+	/*public double calcHeuristicPars(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
+		// first create all needed statistics and data
+		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
+		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
+		GeneticDistanceStat nstat = (GeneticDistanceStat)tstat.cloneStat();
+		nstat.copy(tstat);
+		nstat.subtractFromThis(pstat);
+
+		double n_pos = pstat.m_SumWeight;
+		double n_neg = nstat.m_SumWeight;
+//		System.out.println("nb pos examples: " + n_pos);
+//		System.out.println("nb neg examples: " + n_neg);
+
+		// Acceptable test?
+		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
+			return Double.NEGATIVE_INFINITY;
+		}
+
+		// If split position missing for some sequence, don't use it in split (probably this approach is not optimal)
+		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
+			return Double.NEGATIVE_INFINITY;
+		}
+	// -------------
+
+		String key = pstat.getBits().toString();
+		Double value = (Double) m_HeurComputed.get(key);
+		if (value!=null) {
+			return value.doubleValue();
+		}
+
+		int[] posindices = constructIndexVector(m_Data, pstat);
+		int[] negindices = constructComplIndexVector(m_Data, posindices);
+
+		//double result = calculatePairwiseDistance(pstat,m_Data,nstat,m_Data);
+		//return result;
+		//return calculatePrototypeDistance(pstat,nstat);
+
+		//double interiordist = calculateMutations(tstat.m_NbTarget,pstat,m_Data,nstat,m_Data);
+//		double interiordist = calculatePrototypeDistance(pstat,nstat);
+//		double interiordist = calculatePairwiseDistance(pstat,m_Data,nstat,m_Data);
+//		double interiordist = calculateTotalDistanceBetweenPrototypeMatrices(tstat.m_NbTarget,pstat,nstat);
+		double interiordist = calcPWSLDistance(posindices, negindices);
+	//	System.out.println("heur = " + interiordist);
+
+
+
+		//double maxposdist = calculateTotalDistanceToPrototype(tstat.m_NbTarget, pstat,m_Data);
+		//double maxnegdist = calculateTotalDistanceToPrototype(tstat.m_NbTarget, nstat,m_Data);
+		//double posdist = calculateStarDistance(pstat,m_Data);
+		//double negdist = calculateStarDistance(nstat,m_Data);
+		//double minposdist = calculateMutationsWithin(tstat.m_NbTarget,pstat,m_Data);
+		//double minnegdist = calculateMutationsWithin(tstat.m_NbTarget,nstat,m_Data);
+		//double posdist = (maxposdist + minposdist) / 2;
+		//double negdist = (maxnegdist + minnegdist) / 2;
+
+		double result = interiordist;
+
+//		double result = calcTotalDistanceWithSlAsProto(posindices, negindices);
+		//System.out.println("posdist: " + posdist + " (max: " + maxposdist + ", min: " + minposdist + ") " + " negdist: " + negdist + " (max: " + maxnegdist + ", min: " + minnegdist + ") "+ " interior: " + interiordist + " result: " + result);
+
+		//return 0.0 - result;
+		return result;
+	}
+*/
+
+	public double calcPWSLDistance(int[] posindices, int[] negindices) {
+		// look for 2 ancestors with minimal distance
+		double dist = Double.MAX_VALUE;
+		int posanc = Integer.MAX_VALUE;
+		int neganc = Integer.MAX_VALUE;
+		for (int i=0; i<posindices.length; i++) {
+			for (int j=0; j<negindices.length; j++) {
+				int row = posindices[i];
+				int col = negindices[j];
+				double distance = 0; //m_DistMatrix.get(row, col);
+				if (distance < dist) {
+					posanc = row;
+					neganc = col;
+					dist = distance;
+				}
+			}
+		}
+		return dist;
+
+	}
+
+
+	public double calcTotalDistanceWithSlAsProto(int[] posindices, int[] negindices) {
+		// look for 2 ancestors with minimal distance
+		double dist = Double.MAX_VALUE;
+		int posanc = Integer.MAX_VALUE;
+		int neganc = Integer.MAX_VALUE;
+		for (int i=0; i<posindices.length; i++) {
+			for (int j=0; j<negindices.length; j++) {
+				int row = posindices[i];
+				int col = negindices[j];
+				double distance = 0; //m_DistMatrix.get(row, col);
+				if (distance < dist) {
+					posanc = row;
+					neganc = col;
+					dist = distance;
+				}
+			}
+		}
+
+		double posdist = 0.0;
+		for (int i=0; i<posindices.length; i++) {
+			int index = posindices[i];
+			posdist += 0; //m_DistMatrix.get(posanc, index);
+		}
+
+		double negdist = 0.0;
+		for (int i=0; i<negindices.length; i++) {
+			int index = negindices[i];
+			negdist += 0; //m_DistMatrix.get(neganc, index);
+		}
+
+		double result = dist + posdist + negdist;
+		return result;
+
+	}
+
+
+	
+	
 
 	/*	//old code
 	// The test that yields the largest heuristic will be chosen in the end. Since we want to minimize the total branch length,

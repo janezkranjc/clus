@@ -1688,49 +1688,27 @@ public class Settings implements Serializable {
  * Section: Phylogeny                                             	   *
  ***********************************************************************/
 
-	public final static String[] PHYLOGENY_DISTANCE_MEASURE={"JC","Kimura","PDist","Edit","AminoKimura"};
+	public final static String[] PHYLOGENY_DISTANCE_MEASURE={"PDist","Edit","JC","Kimura","AminoKimura"};
 
-	public final static int PHYLOGENY_DISTANCE_MEASURE_JC = 0;
-	public final static int PHYLOGENY_DISTANCE_MEASURE_KIMURA = 1;
-	public final static int PHYLOGENY_DISTANCE_MEASURE_PDIST = 2;
-	public final static int PHYLOGENY_DISTANCE_MEASURE_EDIT = 3;
+	public final static int PHYLOGENY_DISTANCE_MEASURE_PDIST = 0;
+	public final static int PHYLOGENY_DISTANCE_MEASURE_EDIT = 1;
+	public final static int PHYLOGENY_DISTANCE_MEASURE_JC = 2;
+	public final static int PHYLOGENY_DISTANCE_MEASURE_KIMURA = 3;
 	public final static int PHYLOGENY_DISTANCE_MEASURE_AMINOKIMURA = 4;
 
-	public final static String[] PHYLOGENY_SEQUENCE={"DNA","Amino"};
+	public final static String[] PHYLOGENY_SEQUENCE={"DNA","Protein"};
 
 	public final static int PHYLOGENY_SEQUENCE_DNA = 0;
 	public final static int PHYLOGENY_SEQUENCE_AMINO = 1;
 
-		
-	public final static String[] PHYLOGENY_PROTOTYPE_COMPLEXITY={"Pairwise","Prototype"};
+	public final static String[] PHYLOGENY_CRITERION={"BranchLengths", "MaxAvgPWDistance"};
 
-	public final static int PHYLOGENY_PROTOTYPE_COMPLEXITY_PAIRWISE = 0;
-	public final static int PHYLOGENY_PROTOTYPE_COMPLEXITY_PROTO = 1;
-
-	public final static String[] PHYLOGENY_LINKAGE={"Single","Complete","Average"};
-
-	public final static int PHYLOGENY_LINKAGE_SINGLE = 0;
-	public final static int PHYLOGENY_LINKAGE_COMPLETE = 1;
-	public final static int PHYLOGENY_LINKAGE_AVERAGE = 2;
-
-	public final static String[] PHYLOGENY_CRITERION={"Mutations", "Distances", "Max_Avg_PWDistance"};
-
-	public final static int PHYLOGENY_CRITERION_MUTATIONS = 0;
-	public final static int PHYLOGENY_CRITERION_DISTANCES = 1;
-	public final static int PHYLOGENY_CRITERION_MAXAVGPWDIST = 2;
-
-	public final static String[] PHYLOGENY_EFFICIENCY={"Matrix", "Sampling"};
-
-	public final static int PHYLOGENY_EFFICIENCY_MATRIX = 0;
-	public final static int PHYLOGENY_EFFICIENCY_SAMPLING = 1;
+	public final static int PHYLOGENY_CRITERION_BRANCHLENGTHS = 0;
+	public final static int PHYLOGENY_CRITERION_MAXAVGPWDIST = 1;
 
 	INIFileSection m_SectionPhylogeny;
 	public static INIFileNominal m_PhylogenyDM;
-	public static INIFileNominal m_PhylogenyProtoComlexity;
-	public static INIFileNominal m_PhylogenyLinkage;
 	public static INIFileNominal m_PhylogenyCriterion;
-	public static INIFileNominal m_PhylogenyEfficiency;
-	public static INIFileInt m_PhylogenySampleSize;
 	public static INIFileNominal m_PhylogenySequence;
 
 	public boolean isSectionPhylogenyEnabled() {
@@ -1740,11 +1718,7 @@ public class Settings implements Serializable {
 	public void setSectionPhylogenyEnabled(boolean enable) {
 		m_SectionPhylogeny.setEnabled(enable);
 	}
-
-	public static int getPhylogenySampleSize() {
-		return m_PhylogenySampleSize.getValue();
-	}
-
+	
 
 /***********************************************************************
  * Section: Ensemble methods                                           *
@@ -2122,11 +2096,7 @@ public class Settings implements Serializable {
 
 		m_SectionPhylogeny = new INIFileSection("Phylogeny");
 		m_SectionPhylogeny.addNode(m_PhylogenyDM=new INIFileNominal("DistanceMeasure", PHYLOGENY_DISTANCE_MEASURE,0));
-		m_SectionPhylogeny.addNode(m_PhylogenyProtoComlexity=new INIFileNominal("Prototype_or_Pairwise", PHYLOGENY_PROTOTYPE_COMPLEXITY,0));
-		m_SectionPhylogeny.addNode(m_PhylogenyLinkage=new INIFileNominal("Linkage", PHYLOGENY_LINKAGE,0));
 		m_SectionPhylogeny.addNode(m_PhylogenyCriterion=new INIFileNominal("OptimizationCriterion", PHYLOGENY_CRITERION,0));
-		m_SectionPhylogeny.addNode(m_PhylogenyEfficiency=new INIFileNominal("Efficiency", PHYLOGENY_EFFICIENCY,0));
-		m_SectionPhylogeny.addNode(m_PhylogenySampleSize=new INIFileInt("SampleSize", 1000000));
 		m_SectionPhylogeny.addNode(m_PhylogenySequence=new INIFileNominal("Sequence", PHYLOGENY_SEQUENCE,0));
 		m_SectionPhylogeny.setEnabled(false);
 

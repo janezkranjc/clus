@@ -640,14 +640,7 @@ public class ClusStatManager implements Serializable {
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_REDUCED_ERROR) {
 				m_Heuristic = new ReducedErrorHeuristic(createClusteringStat());
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GENETIC_DISTANCE) {
-				switch (Settings.m_PhylogenyEfficiency.getValue()) {
-				case Settings.PHYLOGENY_EFFICIENCY_MATRIX:
-					m_Heuristic = new GeneticDistanceHeuristicMatrix();
-					break;
-				case Settings.PHYLOGENY_EFFICIENCY_SAMPLING:
-					m_Heuristic = new GeneticDistanceHeuristicSampling();
-					break;
-				}
+				m_Heuristic = new GeneticDistanceHeuristicMatrix();
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_VARIANCE_REDUCTION) {
 				m_Heuristic = new VarianceReductionHeuristicEfficient(getClusteringWeights(), m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING));
 			} else if (getSettings().getHeuristic() == Settings.HEURISTIC_GAIN_RATIO) {

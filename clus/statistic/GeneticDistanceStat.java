@@ -18,8 +18,6 @@ public class GeneticDistanceStat extends BitVectorStat {
 
 	public int m_NbTarget;
 	public NominalAttrType[] m_Attrs;
-//	public double[][] m_ClassCounts;
-//	public int[] m_MajorityClasses;
 
   /**
    * Constructor for this class.
@@ -28,10 +26,6 @@ public class GeneticDistanceStat extends BitVectorStat {
 	public GeneticDistanceStat(NominalAttrType[] nomAtts) {
 		m_NbTarget = nomAtts.length;
 		m_Attrs = nomAtts;
-/*		m_ClassCounts = new double[m_NbTarget][];
-		for (int i = 0; i < m_NbTarget; i++) {
-			m_ClassCounts[i] = new double[nomAtts[i].getNbValues()];
-		}*/
 	}
 
 	public BitList getBits() {
@@ -42,12 +36,6 @@ public class GeneticDistanceStat extends BitVectorStat {
 		m_SumWeight += tuple.getWeight();
 		m_Bits.setBit(idx);
 		m_Modified = true;
-/*		for (int i = 0; i < m_NbTarget; i++) {
-			int val = m_Attrs[i].getNominal(tuple);
-			if (val != m_Attrs[i].getNbValues()) {
-				m_ClassCounts[i][val] += tuple.getWeight();
-			}
-		}	*/
 	}
 
 
@@ -76,10 +64,6 @@ public class GeneticDistanceStat extends BitVectorStat {
 		m_SumWeight = 0.0;
 		m_Bits.reset();
 		m_Modified = true;
-/*		for (int i = 0; i < m_NbTarget; i++) {
-			double[] clcts = m_ClassCounts[i];
-			for (int j = 0; j < clcts.length; j++) clcts[j] = 0.0;
-		}*/
 	}
 
 
@@ -94,7 +78,6 @@ public class GeneticDistanceStat extends BitVectorStat {
 		m_NbTarget = other.m_NbTarget;
 		m_Attrs = other.m_Attrs;
 		if (nb > 0) {
-			//System.out.println("Cloned nonzero size GeneticDistance stat " + nb);
 			setSDataSize(nb);
 		}
 	}
@@ -107,21 +90,11 @@ public class GeneticDistanceStat extends BitVectorStat {
 		m_Modified = or.m_Modified;
 		m_NbTarget = or.m_NbTarget;
 		m_Attrs = or.m_Attrs;
-/*		for (int i = 0; i < m_NbTarget; i++) {
-			double[] my = m_ClassCounts[i];
-			double[] your = or.m_ClassCounts[i];
-			System.arraycopy(your, 0, my, 0, my.length);
-		}*/
 	}
 
 	public void addPrediction(ClusStatistic other, double weight) {
 		GeneticDistanceStat or = (GeneticDistanceStat)other;
 		m_SumWeight += weight*or.m_SumWeight;
-/*		for (int i = 0; i < m_NbTarget; i++) {
-			double[] my = m_ClassCounts[i];
-			double[] your = or.m_ClassCounts[i];
-			for (int j = 0; j < my.length; j++) my[j] += weight*your[j];
-		}*/
 	}
 
 	public void add(ClusStatistic other) {
@@ -129,32 +102,17 @@ public class GeneticDistanceStat extends BitVectorStat {
 		m_SumWeight += or.m_SumWeight;
 		m_Bits.add(or.m_Bits);
 		m_Modified = true;
-/*		for (int i = 0; i < m_NbTarget; i++) {
-			double[] my = m_ClassCounts[i];
-			double[] your = or.m_ClassCounts[i];
-			for (int j = 0; j < my.length; j++) my[j] += your[j];
-		}*/
 	}
 
 	public void addScaled(double scale, ClusStatistic other) {
 		GeneticDistanceStat or = (GeneticDistanceStat)other;
 		m_SumWeight += scale*or.m_SumWeight;
-/*		for (int i = 0; i < m_NbTarget; i++) {
-			double[] my = m_ClassCounts[i];
-			double[] your = or.m_ClassCounts[i];
-			for (int j = 0; j < my.length; j++) my[j] += scale*your[j];
-		}*/
 	}
 	
 	public void subtractFromThis(BitList bits) {
 		m_SumWeight -= bits.getNbOnes();
 		m_Bits.subtractFromThis(bits);
 		m_Modified = true;
-/*		for (int i = 0; i < m_NbTarget; i++) {
-			double[] my = m_ClassCounts[i];
-			double[] your = or.m_ClassCounts[i];
-			for (int j = 0; j < my.length; j++) my[j] -= your[j];
-		}*/
 	}
 	
 	public void subtractFromThis(ClusStatistic other) {
@@ -162,11 +120,6 @@ public class GeneticDistanceStat extends BitVectorStat {
 		m_SumWeight -= or.m_SumWeight;
 		m_Bits.subtractFromThis(or.m_Bits);
 		m_Modified = true;
-/*		for (int i = 0; i < m_NbTarget; i++) {
-			double[] my = m_ClassCounts[i];
-			double[] your = or.m_ClassCounts[i];
-			for (int j = 0; j < my.length; j++) my[j] -= your[j];
-		}*/
 	}
 	
 	public void copyAndSubtractFromThis(ClusStatistic stattocopy, ClusStatistic stattosubtract) {
@@ -185,17 +138,12 @@ public class GeneticDistanceStat extends BitVectorStat {
 		m_SumWeight = or.m_SumWeight - m_SumWeight;
 		m_Bits.subtractFromOther(or.m_Bits);
 		m_Modified = true;
-/*		for (int i = 0; i < m_NbTarget; i++) {
-			double[] my = m_ClassCounts[i];
-			double[] your = or.m_ClassCounts[i];
-			for (int j = 0; j < my.length; j++) my[j] = your[j] - my[j];
-		}*/
 	}
 
 
 	public int[] getNominalPred() {
 		System.out.println("getNominalPred: not implemented for GeneticDistanceStat");
-		return  null;
+		return null;
 	}
 
 
@@ -216,7 +164,7 @@ public class GeneticDistanceStat extends BitVectorStat {
 	}
 
 	public double getCount(int idx, int cls) {
-		return 0.0; //m_ClassCounts[idx][cls];
+		return 0.0;
 	}
 
 //  FIXME: discuss this with Celine
