@@ -13,6 +13,7 @@ import clus.data.type.NumericAttrType;
 import clus.error.Accuracy;
 import clus.error.ClusErrorList;
 import clus.error.MSError;
+import clus.error.RelativeError;
 import clus.model.ClusModel;
 import clus.selection.OOBSelection;
 import clus.statistic.ClusStatistic;
@@ -151,7 +152,8 @@ public class ClusEnsembleFeatureRanking {
 		if (nom.length != 0) {
 			error.addError(new Accuracy(error, nom));
 		} else if (num.length != 0) {
-			error.addError(new MSError(error, num));
+//			error.addError(new MSError(error, num));
+			error.addError(new RelativeError(error, num));
 		} else System.err.println("Supported only nominal or numeric targets!");
 		/* attach model to given schema */
 		schema.attachModel(model);
