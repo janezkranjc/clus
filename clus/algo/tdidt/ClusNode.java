@@ -767,8 +767,6 @@ public class ClusNode extends MyNode implements ClusModel {
 					examples1 = examples.apply(m_Test, 1);
 				}			
 				showAlternatives(writer);
-				if (ClusStatManager.getMode() == ClusStatManager.MODE_PHYLO)
-					writer.print(" (dist: "+ getTest().getHeuristicValue() +")"); // should be printed for phylo trees
 				writeDistributionForInternalNode(writer, info);
 				writer.print(prefix + "+--yes: ");
 				((ClusNode)getChild(YES)).printTree(writer, info, prefix+"|       ",examples0);
