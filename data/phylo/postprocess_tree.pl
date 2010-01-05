@@ -4,9 +4,11 @@ $appl=$ARGV[0];
 
 # compact tree
 
-open(OUT,"$appl.out");
-open(POST,">$appl.clus-phi_tree");
-open(TMP,">$appl.tmp");
+open(OUT,"$appl.out") or die "$appl.out file was not found!\n";
+open(POST,">$appl.clus-phi_tree") or die "can not open $appl.clus-phi_tree!\n";
+open(TMP,">$appl.tmp") or die "can not open $appl.tmp!\n";
+
+print "Producing phylogenetic tree structure...\n";
 
 print POST "Phylogenetic tree structure:\n\n";
 
@@ -20,54 +22,61 @@ $line=<OUT>;
 
 while ($line=<OUT> and $line !~ /Pruned Model/)
 {
-        if ($line =~ /(.+)LEAF : (.+) sequence/)
-        {
-            $prefix = $1;   
-			$nbseq = $2;
-			print TMP "$prefix";
-			$prefix =~ s/yes:/ /g;
-			$prefix =~ s/no://g;
-			print POST "$prefix";
-			for $i (1..$nbseq)
-			{
-				$line=<OUT>;
-				if ($line =~ /"(.+)"/)
-				{
-					print POST " $1";
-					print TMP " $1";
-				}
-				else
-				{
-					print "no leaf name found\n";
-				}
-			}
-			print POST "\n";
-			print TMP "\n";
-			$line=<OUT>;
-			$line=<OUT>;
-			$line=<OUT>;
-			$line=<OUT>;
-			$line=<OUT>;
-			$line=<OUT>;
-			$line=<OUT>;
-        }
-		elsif (($line =~ /(.+:).+=/) or ($line =~ /(.+:).+in/))
-        {
-            $prefix = $1;
-			$prefix =~ s/yes:/ /g;
-			$prefix =~ s/no://g;
-			print POST "$prefix CLUSTER\n";
-			print TMP "$line";
-        }
-		elsif (($line =~ /=/) or ($line =~ /in/))
+	if ($line =~ /(.+)LEAF : (.+) sequence/)
+	{
+		$prefix = $1;   
+		$nbseq = $2;
+		
+		if ($nbseq > 1)
 		{
-			print TMP "$line";
+			print "Warning: more than one sequence found in a leaf!\n";
 		}
-        else
-        {
-            print POST $line;
-			print TMP $line;
-        }
+		
+		print TMP "$prefix";
+		$prefix =~ s/yes:/ /g;
+		$prefix =~ s/no://g;
+		print POST "$prefix";
+		
+		for $i (1..$nbseq)
+		{
+			$line=<OUT>;
+			if ($line =~ /"(.+)"/)
+			{
+				print POST " $1";
+				print TMP " $1";
+			}
+			else
+			{
+				print "no leaf name found\n";
+			}
+		}
+		print POST "\n";
+		print TMP "\n";
+		$line=<OUT>;
+		$line=<OUT>;
+		$line=<OUT>;
+		$line=<OUT>;
+		$line=<OUT>;
+		$line=<OUT>;
+		$line=<OUT>;
+		}
+	elsif (($line =~ /(.+:).+=/) or ($line =~ /(.+:).+in/))
+	{
+		$prefix = $1;
+		$prefix =~ s/yes://g;
+		$prefix =~ s/no://g;
+		print POST "$prefix CLUSTER\n";
+		print TMP "$line";
+	}
+	elsif (($line =~ /=/) or ($line =~ /in/))
+	{
+		print TMP "$line";
+	}
+	else
+	{
+		print POST $line;
+		print TMP $line;
+	}
 }
 close(OUT);
 close(POST);
@@ -75,8 +84,10 @@ close(TMP);
 
 # newick
 
+print "Producing newick format...\n";
+
 open(IN,"$appl.clus-phi_tree");
-open(OUT,">$appl.clus-phi_newick");
+open(OUT,">$appl.clus-phi_newick") or die "can not open $appl.clus-phi_newick!\n";
 $line=<IN>;
 &produce_newick_string();
 print OUT ";";
@@ -86,6 +97,8 @@ close(OUT);
 
 
 # full tree
+
+print "Producing phylogenetic tree with all splits listed...\n";
 
 open(IN,"$appl.tmp");
 @lines = <IN>;
@@ -112,7 +125,7 @@ sub produce_newick_string {
 	}
 	else
 	{
-		$line =~ /\+--\s+(\S+.+)$/;
+		$line =~ /\+--\s+(\S+)$/;
 		@sequences = split(" ",$1);
 		produce_sequences(@sequences);
 	}

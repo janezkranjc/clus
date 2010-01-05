@@ -1696,10 +1696,11 @@ public class Settings implements Serializable {
 	public final static int PHYLOGENY_DISTANCE_MEASURE_KIMURA = 3;
 	public final static int PHYLOGENY_DISTANCE_MEASURE_AMINOKIMURA = 4;
 
-	public final static String[] PHYLOGENY_SEQUENCE={"DNA","Protein"};
+	public final static String[] PHYLOGENY_SEQUENCE={"DNA","Protein","Any"};
 
 	public final static int PHYLOGENY_SEQUENCE_DNA = 0;
 	public final static int PHYLOGENY_SEQUENCE_AMINO = 1;
+	public final static int PHYLOGENY_SEQUENCE_ANY = 2;
 
 	public final static String[] PHYLOGENY_CRITERION={"BranchLengths", "MaxAvgPWDistance"};
 

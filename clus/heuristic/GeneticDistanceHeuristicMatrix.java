@@ -98,12 +98,12 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 
 	// executed each time a node has to be split
 	public void setData(RowData data) {
+		m_Data = data;
 		if (data.getNbRows() > 2) {
 		
 		//long start_time = System.currentTimeMillis();
 
 		m_HeurComputed.clear();
-		m_Data = data;
 		m_DataIndices = constructIndexVector(m_Data);
 		m_SumAllDistances = getSumOfDistancesWithin(m_DataIndices);
 		m_ComplDataIndices = constructComplIndexVector(m_OerData, m_DataIndices);
@@ -302,7 +302,8 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		}
 		
 		// If position missing for some sequence, don't use it in split (probably this approach is not optimal)
-		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
+		// By default, these positions can be used in split, but examples with missing values do not play a role in calculating heuristic
+		if (n_pos + n_neg != m_Data.getNbRows()) {
 			return Double.NEGATIVE_INFINITY;
 		}
 		
