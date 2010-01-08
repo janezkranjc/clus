@@ -96,10 +96,6 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 //
 //		// Adding single tree ends
 
-
-
-
-
 		// Train the decision tree ensemble with hopefully all the available settings.
 		ClusEnsembleInduce ensemble = new ClusEnsembleInduce(this, m_Clus);
 
@@ -202,10 +198,13 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 //		double value = trainStat.getDispersion(getStatManager().getClusteringWeights(), trainData);
 //		getStatManager().getHeuristic().setTrainDataHeurValue(value);
 
-		ClusModelInfo default_model = cr.addModelInfo(ClusModel.DEFAULT);
-		ClusModel def = ClusDecisionTree.induceDefault(cr);
-		default_model.setModel(def);
-		default_model.setName("Default");
+		
+		// Adds a single default predictor, however forest automatically adds a 
+		// forest of stumps as a default predictor.
+//		ClusModelInfo default_model = cr.addModelInfo(ClusModel.DEFAULT);
+//		ClusModel def = ClusDecisionTree.induceDefault(cr);
+//		default_model.setModel(def);
+//		default_model.setName("Default");
 
 //		ClusModelInfo model_info = cr.addModelInfo(ClusModel.ORIGINAL);
 //		model_info.setName("Original");
