@@ -592,7 +592,10 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 		}
 
-		if (getSettings().rulesFromTree() != Settings.CONVERT_RULES_NONE) {
+		// If we want to convert trees to rules but not use
+		// any of the rule learning tehniques anymore (if CoveringMethod != RulesFromTree)
+		if (getSettings().rulesFromTree() != Settings.CONVERT_RULES_NONE && 
+			getSettings().getCoveringMethod() != Settings.COVERING_METHOD_RULES_FROM_TREE) {
 			m_OForest.convertToRules(cr, false);
 		}
 	}
