@@ -125,7 +125,7 @@ sub produce_newick_string {
 	}
 	else
 	{
-		$line =~ /\+--\s+(\S+)$/;
+		$line =~ /\+--\s+(\S.+)$/;
 		@sequences = split(" ",$1);
 		produce_sequences(@sequences);
 	}
