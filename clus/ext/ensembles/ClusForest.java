@@ -394,7 +394,9 @@ public class ClusForest implements ClusModel, Serializable{
 		m_Forest.clear();
 	}
 	
-	/** Converts the forest to rule set and adds the model. Returns the ruleset
+	/** Converts the forest to rule set and adds the model.
+	 * Used only for getting information about the forest - not for creating the rule set itself
+	 * (CoveringMethod = RulesFromTree)
 	 * @param cr
 	 * @param addOnlyUnique Add only unique rules to rule set. Do NOT use this if you want to count something
 	 *                      on the original forest.
