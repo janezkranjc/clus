@@ -817,6 +817,7 @@ public class Clus implements CMDLineArgsProvider {
 	/**
 	 * Normalize the data so that most of the variables are within [-0.5,0.5]
 	 * range. Using Zenko, 2007 suggestion. TODO also for nominal attributes
+	 * Should not be used with GD optimization - it has an internal normalization. 
 	 *
 	 * @throws IOException
 	 * @throws ClusException
@@ -922,10 +923,10 @@ public class Clus implements CMDLineArgsProvider {
 					value /= 2 * Math.sqrt(variance[jNumAttrib]);
 					// value += 0.5; // Putting the mean to 0.5
 
-					// After this transformation the mean should be about 0.5
+					// After this transformation the mean should be about 0.0
 					// and variance about 0.25
 					// (and standard deviation 0.5). Thus 95% of values should
-					// be between [0,1]
+					// be between [-1,1]
 				}
 				type.setNumeric(tuple, value);
 				// The following should be done only once for every numtype but
