@@ -1,17 +1,16 @@
 Clus run bridges
 ****************
 
-Date: 8/20/09 6:14 PM
+Date: 1/10/10 12:32 PM
 File: bridges-multitarget-trees.out
 Attributes: 13 (input: 7, output: 5)
 Missing values: Yes
-Memory usage: 12220 kB (initial), 12256 kB (data loaded)
 
 [General]
 Verbose = 1
 Compatibility = Latest
 RandomSeed = 0
-ResourceInfoLoaded = Yes
+ResourceInfoLoaded = No
 
 [Data]
 File = ../data/bridges/bridges.arff
@@ -62,6 +61,7 @@ MEstimate = 1.0
 [Model]
 MinimalWeight = 2.0
 MinimalNumberExamples = 0
+MinimalKnownWeight = 0.0
 ParamTuneNumberFolds = 10
 ClassWeights = 0.0
 NominalSubsetTests = Yes
@@ -90,8 +90,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.096 sec (CPU)
-Pruning Time: 0.016 sec (CPU)
+Induction Time: 0.131 sec
+Pruning Time: 0.02 sec
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 39 (Leaves: 20)
@@ -550,9 +550,9 @@ location in {1,7,9,13,14,19,21,28,37,39,40,41,42,43,44,46,47,48,49}
 +--no:  clear-g = N
         +--yes: location in {3,25,27}
         |       +--yes: [THROUGH,WOOD,SHORT,S,WOOD] [4.0,2.0,3.0,3.0,2.0]: 4
-        |       +--no:  river = M
-        |               +--yes: [THROUGH,IRON,MEDIUM,S,SIMPLE-T] [2.2093023255813953,1.2093023255813953,2.0,1.0,1.2093023255813953]: 2.209302
-        |               +--no:  [THROUGH,WOOD,MEDIUM,S,WOOD] [3.0,3.0,2.0,3.0,3.0]: 3
+        |       +--no:  river = A
+        |               +--yes: [THROUGH,WOOD,MEDIUM,S,WOOD] [3.0,3.0,2.0,3.0,3.0]: 3
+        |               +--no:  [THROUGH,IRON,MEDIUM,S,SIMPLE-T] [2.2093023255813953,1.2093023255813953,2.0,1.0,1.2093023255813953]: 2.209302
         +--no:  location in {6,20,22,25,26,27,33,34}
                 +--yes: erected > 1902.0
                 |       +--yes: length > 884.0
