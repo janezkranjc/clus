@@ -1599,6 +1599,7 @@ public class Clus implements CMDLineArgsProvider {
 					clss = new ClusExhaustiveDFSearch(clus);
 				} else if (cargs.hasOption("sit")) {
 					// new part by beau
+					clus.getSettings().setSectionSITEnabled(true);
 					clss = new ClusDecisionTree(clus);
 					clss = new ClusSITDecisionTree(clss);
 				} else if (cargs.hasOption("forest")) {

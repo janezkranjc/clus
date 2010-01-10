@@ -372,6 +372,10 @@ public class Settings implements Serializable {
 	public void setMainTarget(String str) {
 		m_MainTarget.setValue(str);
 	}
+	
+	public void setSectionSITEnabled(boolean enable) {
+		m_SectionSIT.setEnabled(enable);
+	}
 
 /***********************************************************************
  * Section: Attribute - Normalization                                  *
@@ -1934,11 +1938,13 @@ public class Settings implements Serializable {
 		m_SectionSIT.addNode(m_Search = new INIFileString("Search","OneTarget"));
 		m_SectionSIT.addNode(m_Learner = new INIFileString("Learner","ClusLearner"));
 		m_SectionSIT.addNode(m_Error = new INIFileString("Error","MSE"));
+		m_SectionSIT.setEnabled(false);
 
-    	INIFileSection constr = new INIFileSection("Constraints");
+		INIFileSection constr = new INIFileSection("Constraints");
 		constr.addNode(m_SyntacticConstrFile = new INIFileString("Syntactic",	NONE));
 		constr.addNode(m_MaxSizeConstr = new INIFileNominalOrIntOrVector("MaxSize", INFINITY));
 		constr.addNode(m_MaxErrorConstr = new INIFileNominalOrDoubleOrVector("MaxError", INFINITY));
+		constr.addNode(m_TreeMaxDepth = new INIFileInt("MaxDepth", -1));
 		m_MaxSizeConstr.setNominal(0);
 		m_MaxErrorConstr.setDouble(0);
 
@@ -1950,16 +1956,16 @@ public class Settings implements Serializable {
 		output.addNode(m_OutFoldModels = new INIFileBool("AllFoldModels", true));
 		output.addNode(m_OutFoldErr = new INIFileBool("AllFoldErrors", false));
 		output.addNode(m_OutFoldData = new INIFileBool("AllFoldDatasets", false));
-		output.addNode(m_WriteErrorFile = new INIFileBool("WriteErrorFile", false));
 		output.addNode(m_ShowUnknown = new INIFileBool("UnknownFrequency", false));
 		output.addNode(m_ShowBrFreq = new INIFileBool("BranchFrequency", false));
 		output.addNode(m_ShowInfo = new INIFileNominal("ShowInfo", SHOW_INFO, SHOW_INFO_VALUES));
 		output.addNode(m_PrintModelAndExamples = new INIFileBool("PrintModelAndExamples", false));
+		output.addNode(m_WriteErrorFile = new INIFileBool("WriteErrorFile", false));
 		output.addNode(m_WritePredictions = new INIFileNominal("WritePredictions", WRITE_PRED, WRITE_PRED_VALUES));
-		output.addNode(m_ModelIDFiles = new INIFileBool("ModelIDFiles", false));
+		output.addNode(m_ModelIDFiles = new INIFileBool("WriteModelIDFiles", false));
+		output.addNode(m_WriteCurves = new INIFileBool("WriteCurves", false));
 		output.addNode(m_OutputPythonModel = new INIFileBool("OutputPythonModel", false));
 		output.addNode(m_OutputDatabaseQueries = new INIFileBool("OutputDatabaseQueries", false));
-		output.addNode(m_WriteCurves = new INIFileBool("WriteCurves", false));		
 
 		INIFileSection nominal = new INIFileSection("Nominal");
 		nominal.addNode(m_MEstimate = new INIFileDouble("MEstimate", 1.0));
@@ -1974,17 +1980,16 @@ public class Settings implements Serializable {
 
 		m_SectionTree = new INIFileSection("Tree");
 		m_SectionTree.addNode(m_Heuristic = new INIFileNominal("Heuristic", HEURISTICS, 0));
+		m_SectionTree.addNode(m_PruningMethod = new INIFileNominal("PruningMethod", PRUNING_METHODS, 0));
+		m_SectionTree.addNode(m_M5PruningMult = new INIFileDouble("M5PruningMult", 2.0));
+		m_SectionTree.addNode(m_1SERule = new INIFileBool("1-SE-Rule", false));
 		m_SectionTree.addNode(m_FTest = new INIFileNominalOrDoubleOrVector("FTest", NONELIST));
 		m_FTest.setDouble(1.0);
-		m_SectionTree.addNode(m_TreeMaxDepth = new INIFileInt("MaxDepth", -1));
 		m_SectionTree.addNode(m_BinarySplit = new INIFileBool("BinarySplit", true));
-		m_SectionTree.addNode(m_PruningMethod = new INIFileNominal("PruningMethod", PRUNING_METHODS, 0));
-		m_SectionTree.addNode(m_1SERule = new INIFileBool("1-SE-Rule", false));
-		m_SectionTree.addNode(m_MSENominal = new INIFileBool("MSENominal", false));
-		m_SectionTree.addNode(m_M5PruningMult = new INIFileDouble("M5PruningMult", 2.0));
 		m_SectionTree.addNode(m_RulesFromTree = new INIFileNominal("ConvertToRules", CONVERT_RULES, 0));
 		m_SectionTree.addNode(m_AlternativeSplits = new INIFileBool("AlternativeSplits", false));
-		m_SectionTree.addNode(m_TreeOptimize = new INIFileNominal("Optimize", TREE_OPTIMIZE_VALUES, TREE_OPTIMIZE_NONE));		
+		m_SectionTree.addNode(m_TreeOptimize = new INIFileNominal("Optimize", TREE_OPTIMIZE_VALUES, TREE_OPTIMIZE_NONE));
+		m_SectionTree.addNode(m_MSENominal = new INIFileBool("MSENominal", false));
 
 		m_SectionRules = new INIFileSection("Rules");
 		m_SectionRules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));

@@ -5,9 +5,9 @@ $$FILE: data/soybean/soybean.s
 $$FILE: data/weather/weather.s
 
 [Attributes]
-Descriptive = 1-2
 Target = 3-4
 Clustering = 3-4
+Descriptive = 1-2
 
 [Tree]
 Heuristic = VarianceReduction

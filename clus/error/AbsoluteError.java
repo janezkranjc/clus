@@ -81,7 +81,12 @@ public class AbsoluteError extends ClusNumericError {
 
 	public void showModelError(PrintWriter out, int detail) {
 		NumberFormat fr = getFormat();
-		out.println(showDoubleArray(m_AbsError, getNbExamples()) + ", Avg: "+fr.format(getModelError()));
+		StringBuffer buf = new StringBuffer();
+		buf.append(showDoubleArray(m_AbsError, getNbExamples()));
+		if (m_Dim > 1) {
+			buf.append(": "+fr.format(getModelError()/getNbExamples()));
+		}
+		out.println(buf.toString());
 	}
 
 	public void showRelativeError(PrintWriter out, boolean detail) {
