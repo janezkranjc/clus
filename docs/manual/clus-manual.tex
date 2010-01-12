@@ -31,6 +31,7 @@
 \renewcommand{\textfraction}{0.07}
 
 \newcommand{\clus}{\textsc{Clus}}
+\newcommand{\clusphy}{\textsc{Clus}-$\varphi$}
 
 \begin{document}
 
@@ -879,6 +880,81 @@ java -cp "$HOME/Clus/bin:$HOME/Clus/jars/commons-math-1.0.jar:$HOME/Clus/jars/jg
 \end{small}
 
 Alternatively, use the "./clus.sh" script provided in the \clus{} main directory after adjusting the line that defines CLUS\_DIR at the top of the script.
+
+\appendix
+\chapter{Constructing Phylogenetic Trees Using Clus}
+
+In this appendix, we describe the use of \clusphy{}, a method for phylogenetic tree reconstruction \cite{Vens10:proc}.
+Example files can be found in the following directory:  
+\begin{flushleft}
+\verb^$CLUS_DIR/data/phylo/.^
+\end{flushleft}
+
+The input to \clusphy{} consists of a multiple alignment (in ARFF format), a settings file, and optionally a distance matrix.
+
+\section{Input Format}
+Each position in the multiple alignment becomes an attribute in the ARFF file. The domain of these attributes is discrete and will typically consist of the values $A$, $C$, $T$, and $G$ for DNA sequences, and the amino acids for protein sequences. If gaps occur, they have to be listed in the attribute domain. Gaps are represented as `-'.
+Moreover, \clusphy{} requires a string attribute, that contains an identifier for the sequence.
+
+Perl scripts for converting PHY and FASTA files into the ARFF file format are available in the {\tt data/phylo/} directory.
+
+\section{Settings File}
+In order to construct phylogenetic trees, the settings file looks like the one shown in Fig.~\ref{phylosettingsreq:fig}. Apart from the settings shown in the figure, there are a number of extra settings, specific for phylogenetic tree reconstruction (see Fig.~\ref{phylosettingsopt:fig}). We discuss them in detail.
+
+\begin{figure}[tb]
+\hrule
+\begin{verbatim}
+[Tree]
+PruningMethod = None    
+FTest = 1.0    
+AlternativeSplits = true    % Gives a listing of all equivalent mutations in the nodes 
+Heuristic = GeneticDistance
+
+[Attributes]
+Key = 1                     % The identifier attribute
+Descriptive = 2-897         % All attributes corresponding to the alignment
+Target = 2-897              % All attributes corresponding to the alignment
+Weights = 1
+
+[Model]
+MinimalWeight = 1
+    
+[Data]
+File = chimp.arff
+
+[Output]
+TrainErrors = No
+PrintModelAndExamples = true
+\end{verbatim}
+\hrule
+\caption{Required settings for learning phylogenetic trees}
+\label{phylosettingsreq:fig}
+\end{figure}
+
+\begin{figure}[tb]
+\hrule
+\begin{verbatim}
+[Phylogeny]
+Sequence = DNA
+OptimizationCriterion = MinBranchLengths
+DistanceMatrix = mydistancematrix
+DistanceMeasure = JC
+\end{verbatim}
+\hrule
+\caption{Optional settings for learning phylogenetic trees}
+\label{phylosettingsopt:fig}
+\end{figure}
+
+\begin{itemize}
+\item {\tt Sequence = $o$} : defines which type of sequences is used. Possible values for $o$ are {\tt DNA}, {\tt Protein}, or {\tt Any}. The latter can be used in case a different alphabet than nucleotides or amino acids is used. The default value for $o$ is {\tt DNA}.
+\item {\tt OptimizationCriterion = $o$} : defines which criterion is optimized in the phylogentic tree heuristic. Possible values for $o$ are {\tt MinBranchLengths}, for minimizing the total branch length of the tree, and {\tt MaxAvgPWDistance}, for maximizing the average pairwise distance between two subclusters (i.e., as done in the PTDC algorithm \cite{Arslan07:proc}). The default value for $o$ is {\tt MinBranchLengths}.
+\item {\tt DistanceMatrix = $s$} : $s$ is the name of the optional pairwise distance matrix file. This file has to be formatted in the same way as in the Phylip software package \cite{Phylip3.6-08:misc}, i.e., the first line contains the number of sequences, and then for each sequence there is a line starting with its identifier and listing the pairwise distances to all the other sequences. See the example in the file \emph{mydistancematrix}. The rows in the distance matrix need to have the same ordering as the rows in the ARFF file.
+\item {\tt DistanceMeasure = $o$} : defines which genetic distance is used between pairs of sequences, in the case no distance matrix is given. Possible values for $o$ are {\tt Edit} for edit distance, {\tt PDist} for p-distance, i.e., the same as edit distance, with positions with gaps or missing values discarded, {\tt JC} for Jukes-Cantor distance, {\tt Kimura} for Kimura distance, and {\tt AminoKimura} for Kimura distance between amino acid sequences. See the Phylip documentation \cite{Phylip3.6-08:misc} for details.
+\end{itemize}
+
+\section{Output Files}
+De \emph{filename.out} file returned by \clusphy{} can be postprocessed by the \emph{postprocess\_tree.pl} perl script in the {\tt data/phylo/} directory. This script returns two files: \emph{filename.clus-phy\_tree}, which contains two tree representations (one with just the topology, and one with all mutations listed), and \emph{filename.clus-phy\_newick}, which contains the tree in the so-called Newick format, where clusters are represented by pairs of parentheses.
+
 
 \bibliographystyle{plain}
 \bibliography{.mlbib}
