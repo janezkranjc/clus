@@ -1,11 +1,21 @@
-# usage: perl postprocess_tree.pl appl (with appl the name of the settings file without ".s")
+###########################################################################################
+#
+# This script postprocesses the .out file. It extracts the tree from it and produces
+# two files: .clus-phy_tree (that contains the tree in two formats) and .clus-phy_newick
+# (that contains the tree in newick format).
+#
+# USAGE:
+# run "perl postprocess_tree.pl appl" 
+# where "appl" is the name of the settings file without ".s".
+#
+###########################################################################################
 
 $appl=$ARGV[0];
 
 # compact tree
 
 open(OUT,"$appl.out") or die "$appl.out file was not found!\n";
-open(POST,">$appl.clus-phi_tree") or die "can not open $appl.clus-phi_tree!\n";
+open(POST,">$appl.clus-phy_tree") or die "can not open $appl.clus-phy_tree!\n";
 open(TMP,">$appl.tmp") or die "can not open $appl.tmp!\n";
 
 print "Producing phylogenetic tree structure...\n";
@@ -86,8 +96,8 @@ close(TMP);
 
 print "Producing newick format...\n";
 
-open(IN,"$appl.clus-phi_tree");
-open(OUT,">$appl.clus-phi_newick") or die "can not open $appl.clus-phi_newick!\n";
+open(IN,"$appl.clus-phy_tree");
+open(OUT,">$appl.clus-phy_newick") or die "can not open $appl.clus-phy_newick!\n";
 $line=<IN>;
 &produce_newick_string();
 print OUT ";";
@@ -103,7 +113,7 @@ print "Producing phylogenetic tree with all splits listed...\n";
 open(IN,"$appl.tmp");
 @lines = <IN>;
 close(IN);
-open(OUT,">>$appl.clus-phi_tree");
+open(OUT,">>$appl.clus-phy_tree");
 print OUT "\n\nPhylogenetic tree with all splits listed:\n\n";
 print OUT @lines;
 close(OUT);

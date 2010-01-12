@@ -1,10 +1,10 @@
 Phylogenetic tree structure:
 
-+--  CLUSTER
++-- CLUSTER
 |       +--   orangutang
 |       +--   gibbonxxxx
 +-- CLUSTER
-        +--  CLUSTER
+        +-- CLUSTER
         |       +--   chimpanzee
         |       +--   homosapien
         +--   gorillaexx

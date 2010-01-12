@@ -9,7 +9,6 @@ Key = 1
 Descriptive = 2-897
 Target = 2-897
 Weights = 1
-ReduceMemoryNominalAttrs = yes
 
 [Model]
 MinimalWeight = 1
@@ -23,5 +22,5 @@ PrintModelAndExamples = true
 
 [Phylogeny]
 DistanceMeasure = JC
-OptimizationCriterion = BranchLengths
+OptimizationCriterion = MinBranchLengths
 Sequence = DNA

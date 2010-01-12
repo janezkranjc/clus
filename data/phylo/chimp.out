@@ -1,7 +1,7 @@
 Clus run chimp
 **************
 
-Date: 12/30/09 2:18 PM
+Date: 1/12/10 6:23 PM
 File: chimp.out
 Attributes: 897 (input: 896, output: 896)
 Missing values: No
@@ -28,7 +28,7 @@ Key = 1
 Disable = None
 Weights = 1.0
 ClusteringWeights = 1.0
-ReduceMemoryNominalAttrs = Yes
+ReduceMemoryNominalAttrs = No
 
 [Constraints]
 Syntactic = None
@@ -77,8 +77,9 @@ Optimize = {}
 
 [Phylogeny]
 DistanceMeasure = JC
-OptimizationCriterion = BranchLengths
+OptimizationCriterion = MinBranchLengths
 Sequence = DNA
+DistanceMatrix = dist
 
 [SIT]
 Main_target = Default
@@ -94,8 +95,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.071 sec
-Pruning Time: 0.001 sec
+Induction Time: 0.163 sec
+Pruning Time: 0 sec
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 9 (Leaves: 5)
