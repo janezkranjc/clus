@@ -1706,7 +1706,7 @@ public class Settings implements Serializable {
 	public final static int PHYLOGENY_SEQUENCE_AMINO = 1;
 	public final static int PHYLOGENY_SEQUENCE_ANY = 2;
 
-	public final static String[] PHYLOGENY_CRITERION={"BranchLengths", "MaxAvgPWDistance"};
+	public final static String[] PHYLOGENY_CRITERION={"MinBranchLengths", "MaxAvgPWDistance"};
 
 	public final static int PHYLOGENY_CRITERION_BRANCHLENGTHS = 0;
 	public final static int PHYLOGENY_CRITERION_MAXAVGPWDIST = 1;
@@ -1715,7 +1715,12 @@ public class Settings implements Serializable {
 	public static INIFileNominal m_PhylogenyDM;
 	public static INIFileNominal m_PhylogenyCriterion;
 	public static INIFileNominal m_PhylogenySequence;
+	public static INIFileString m_PhylogenyDistanceMatrix;
 
+	public String getPhylogenyDistanceMatrix() {
+		return m_PhylogenyDistanceMatrix.getValue();
+	}
+	
 	public boolean isSectionPhylogenyEnabled() {
 		return m_SectionPhylogeny.isEnabled();
 	}
@@ -2104,6 +2109,7 @@ public class Settings implements Serializable {
 		m_SectionPhylogeny.addNode(m_PhylogenyDM=new INIFileNominal("DistanceMeasure", PHYLOGENY_DISTANCE_MEASURE,0));
 		m_SectionPhylogeny.addNode(m_PhylogenyCriterion=new INIFileNominal("OptimizationCriterion", PHYLOGENY_CRITERION,0));
 		m_SectionPhylogeny.addNode(m_PhylogenySequence=new INIFileNominal("Sequence", PHYLOGENY_SEQUENCE,0));
+		m_SectionPhylogeny.addNode(m_PhylogenyDistanceMatrix = new INIFileString("DistanceMatrix", "dist"));
 		m_SectionPhylogeny.setEnabled(false);
 
 		m_SectionEnsembles = new INIFileSection("Ensemble");

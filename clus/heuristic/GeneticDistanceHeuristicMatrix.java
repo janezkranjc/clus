@@ -39,7 +39,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	// try to read distance matrix; if not present, compute it
 	public void constructMatrix(ClusStatistic stat) {
 		try {
-			m_DistMatrix = read("dist", m_OerData.getSchema().getSettings());
+			m_DistMatrix = read(m_OerData.getSchema().getSettings());
 		}
 		catch (IOException e) {
 			m_DistMatrix = new MSymMatrix(m_OerData.getNbRows());
@@ -76,8 +76,9 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		}*/
 	}
 	
-	// reading distance matrix, should be in same directory as settings file and have name "dist"
-	public MSymMatrix read(String filename, Settings sett) throws IOException {
+	// reading distance matrix (default name is "dist")
+	public MSymMatrix read(Settings sett) throws IOException {
+		String filename = sett.getPhylogenyDistanceMatrix();
 		ClusReader reader = new ClusReader(filename, sett);
 		int nb = (int) reader.readFloat();
 		System.out.println("  Loading Distance Matrix: "+filename+" (Size: "+nb+")");
