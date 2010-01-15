@@ -22,5 +22,5 @@ PrintModelAndExamples = true
 
 [Phylogeny]
 DistanceMeasure = JC
-OptimizationCriterion = MinBranchLengths
+OptimizationCriterion = MinTotBranchLength
 Sequence = DNA

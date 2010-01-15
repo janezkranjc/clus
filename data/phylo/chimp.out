@@ -1,7 +1,7 @@
 Clus run chimp
 **************
 
-Date: 1/12/10 6:23 PM
+Date: 1/15/10 11:29 AM
 File: chimp.out
 Attributes: 897 (input: 896, output: 896)
 Missing values: No
@@ -34,6 +34,7 @@ ReduceMemoryNominalAttrs = No
 Syntactic = None
 MaxSize = Infinity
 MaxError = 0.0
+MaxDepth = Infinity
 
 [Output]
 ShowModels = {Default, Pruned, Others}
@@ -43,16 +44,16 @@ TestErrors = Yes
 AllFoldModels = Yes
 AllFoldErrors = No
 AllFoldDatasets = No
-WriteErrorFile = No
 UnknownFrequency = No
 BranchFrequency = No
 ShowInfo = {Count}
 PrintModelAndExamples = Yes
+WriteErrorFile = No
 WritePredictions = {None}
-ModelIDFiles = No
+WriteModelIDFiles = No
+WriteCurves = No
 OutputPythonModel = No
 OutputDatabaseQueries = No
-WriteCurves = No
 
 [Nominal]
 MEstimate = 1.0
@@ -67,26 +68,18 @@ NominalSubsetTests = Yes
 
 [Tree]
 Heuristic = GeneticDistance
-MaxDepth = Infinity
-BinarySplit = Yes
 PruningMethod = None
-MSENominal = No
+BinarySplit = Yes
 ConvertToRules = No
 AlternativeSplits = Yes
 Optimize = {}
+MSENominal = No
 
 [Phylogeny]
 DistanceMeasure = JC
-OptimizationCriterion = MinBranchLengths
+OptimizationCriterion = MinTotBranchLength
 Sequence = DNA
 DistanceMatrix = dist
-
-[SIT]
-Main_target = Default
-Recursive = No
-Search = OneTarget
-Learner = ClusLearner
-Error = MSE
 
 Run: 01
 *******
@@ -95,8 +88,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.163 sec
-Pruning Time: 0 sec
+Induction Time: 0.079 sec
+Pruning Time: 0.001 sec
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 9 (Leaves: 5)
