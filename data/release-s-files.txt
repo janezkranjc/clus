@@ -153,3 +153,41 @@ Weights = 1.0
 [ILevelC]
 File = iris.constraints
 
+$$FILE: data/phylo/chimp.s
+
+$$COPY: chimp.clus-phy_newick
+$$COPY: chimp.clus-phy_tree
+$$COPY: chimp.out
+$$COPY: fasta2arff.pl
+$$COPY: mydistancematrix
+$$COPY: phy2arff.pl
+$$COPY: postprocess_tree.pl
+
+[Tree]
+PruningMethod = None
+FTest = 1.0
+AlternativeSplits = true
+Heuristic = GeneticDistance
+
+[Attributes]
+Key = 1
+Descriptive = 2-897
+Target = 2-897
+Weights = 1
+
+[Model]
+MinimalWeight = 1
+
+[Data]
+File = chimp.arff
+
+[Output]
+TrainErrors = No
+PrintModelAndExamples = true
+
+[Phylogeny]
+DistanceMeasure = JC
+OptimizationCriterion = MinTotBranchLength
+Sequence = DNA
+
+
