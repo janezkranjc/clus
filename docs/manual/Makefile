@@ -39,7 +39,7 @@ cfig:
 
 
 almostclean:
-	-rm -f $(DOCUMENT).out $(DOCUMENT).aux $(DOCUMENT).dvi $(DOCUMENT).log
+	-rm -f $(DOCUMENT).out $(DOCUMENT).aux $(DOCUMENT).dvi $(DOCUMENT).log $(DOCUMENT).bbl $(DOCUMENT).blg $(DOCUMENT).toc
 
 clean:
 	-rm -f $(DOCUMENT).out $(DOCUMENT).aux $(DOCUMENT).log $(DOCUMENT).dvi $(DOCUMENT).pdf $(DOCUMENT).ps $(DOCUMENT).bbl $(DOCUMENT).blg $(DOCUMENT).idx $(DOCUMENT).ilg $(DOCUMENT).ind $(DOCUMENT).toc

@@ -1,11 +1,11 @@
 #!/bin/sh
-VERS="2.8"
+VERS="2.9"
 rm -rf release
 mkdir -p release
 mkdir -p release/Clus
 cp addon/script/compile.sh release/Clus/
 cp addon/script/clus.sh release/Clus/
-cp -r clus addon jars jeans sit LICENSE.txt README.txt release/Clus/
+cp -r clus addon jars jeans sit docs LICENSE.txt README.txt release/Clus/
 rm -rf release/Clus/jeans/graph/trayicon
 rm -rf release/Clus/data/test_m5_prune
 rm -rf release/Clus/jars/weka.jar
