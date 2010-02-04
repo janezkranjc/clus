@@ -869,7 +869,6 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		PrintWriter wrt_pred = null;
 
 		OptAlg optAlg = null;
-
 		OptProbl.OptParam param = rset.giveFormForWeightOptimization(wrt_pred, data);
 		ArrayList weights = null;
 
@@ -948,16 +947,23 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 
 		// Print weights of rules
 		System.out.print("The weights for rules:");
+		
 		for (int j = 0; j < rset.getModelSize(); j++) {
-			rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue());
+			rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue()); // Set the rule weights
 			System.out.print(((Double)weights.get(j)).doubleValue()+ "; ");
 			//System.out.print(((Double)rset.getRule(j).getOptWeight()).doubleValue()+ " -- ");
 		}
 		System.out.print("\n");
 		rset.removeLowWeightRules();
+		
+		// If linear terms are used, include the normalizing to their weights and the all covering rule
+		if (getSettings().isOptAddLinearTerms() 
+				&& getSettings().getOptNormalizeLinearTerms() == Settings.OPT_LIN_TERM_NORM_CONVERT) {
+			rset.convertToPlainLinearTerms();
+		}
+
 		RowData data_copy = (RowData)data.cloneData();
-		updateDefaultRule(rset, data_copy);
-		// TODO: Should I update all the rules also, rerun the optimization?
+		updateDefaultRule(rset, data_copy); // Just to show that the default rule is void.
 		return rset;
 	}
 
@@ -1147,6 +1153,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 
 	/**
 	 * Updates the default rule. This is the rule that is used if no other rule covers the example.
+	 * For rule ensembles this is, in effect, void rule.
 	 */
 	public void updateDefaultRule(ClusRuleSet rset, RowData data) {
 		for (int i = 0; i < rset.getModelSize(); i++) {

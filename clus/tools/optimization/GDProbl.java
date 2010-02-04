@@ -25,9 +25,13 @@
  */
 package clus.tools.optimization;
 
+import java.io.PrintWriter;
+import java.text.NumberFormat;
 import java.util.*;
 
 import clus.main.*;
+import clus.tools.optimization.OptProbl.OptParam;
+import clus.util.ClusFormat;
 
 // Created 28.11.2008 from previous DeProbl class
 
@@ -74,7 +78,7 @@ public class GDProbl extends OptProbl {
 	//protected double[][] m_meanPredictors;
 
 	/** For covariance computing, we need means (expected values) of true values
-	 * [target] */
+	 * [target] OBSOLETE*/
 	protected double[] m_meanTrueValues;
 
 	/**
@@ -111,7 +115,7 @@ public class GDProbl extends OptProbl {
 
 
 	/**
-	 * Constructor for problem to be solved with differential evolution. Both classification and regression.
+	 * Constructor for problem to be solved with gradient descent. Currently only for regression.
 	 * @param stat_mgr Statistics
 	 * @param dataInformation The true values and predictions for the instances. These are used by OptimProbl.
 	 *                        The optimization procedure is based on this data information
@@ -122,10 +126,15 @@ public class GDProbl extends OptProbl {
 
 
 		//m_meanPredictors = new double[getNumVar()][getNbOfTargets()];
+		// We do not want to use average in covariance computing
 		m_meanTrueValues = new double[getNbOfTargets()];
 
-		if (getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE) {
-				computeMeans(); // Compute means for targets over the whole training set
+//		if (getSettings().isOptNormalization()) { // Normalize data inside optimization
+//			normalizeData(optInfo);	
+//		} else
+		if  (!getSettings().isOptNormalization() &&
+				getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE) {
+			m_meanTrueValues = computeMeans(); // TODO ?Compute means for targets over the whole training set
 		}
 
 		// If early stopping criteria is chosen, reserve part of the training set for early stop testing.
@@ -164,6 +173,7 @@ public class GDProbl extends OptProbl {
 				// Thus skip the instance in indexOfUnUsedInstance if it is already taken
 				for (int indexOfUnUsedInstance = 0; indexOfUnUsedInstance < newIndex; iNewTestInstance++) {
 					if (!selectedInstances[iNewTestInstance])
+						
 						indexOfUnUsedInstance++;
 				}
 				// Still if we ended up to selected index, skip all the selected
@@ -228,6 +238,8 @@ public class GDProbl extends OptProbl {
 			changeData(rest);  // Change data for super class
 
 			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop);
+			// Give the same std devs for this smaller part of data.
+			m_earlyStopProbl.modifyDataStatistics(getDataStdDevs());
 
 			// We are using Fitness function of  the problem. Let us put the reg penalty to 0 because we do not
 			// want to use it
@@ -238,7 +250,7 @@ public class GDProbl extends OptProbl {
 
 
 		int nbWeights = getNumVar();
-		int nbTargets = getNbOfTargets();
+//		int nbTargets = getNbOfTargets();
 
 		//m_covariances = new double[nbWeights][nbWeights][nbTargets];
 		m_covariances = new double[nbWeights][nbWeights];
@@ -255,6 +267,53 @@ public class GDProbl extends OptProbl {
 		//initGDForNewRunWithSamePredictions();
 	}
 
+//	/** Normalizes the predictions and true values by (x-avg)/(2*std dev).*/
+//	private void normalizeData(OptParam optInfo) {
+//		int nbOfTargets = getNbOfTargets();
+//		int nbOfInstances = getNbOfInstances();
+//		int nbOfRules = optInfo.m_rulePredictions.length;
+//		int nbOfOtherPred = optInfo.m_baseFuncPredictions.length;
+//		
+//		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++){
+//			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++){			
+//				// True values
+//				if (isValidValue(optInfo.m_trueValues[iInstance][iTarget])){
+//					if (!getSettings().isOptDefaultShiftPred() && false) { // TODO is this useful at all?
+//						optInfo.m_trueValues[iInstance][iTarget] -=
+//							getDataMean(iTarget);
+//					}
+//						
+//					optInfo.m_trueValues[iInstance][iTarget] /=
+//						2*getDataStdDev(iTarget);
+//				}
+//			
+//				// Other predictions
+//				for (int iPred = 0; iPred < nbOfOtherPred; iPred++){
+//					// Predictions
+//					if (!getSettings().isOptDefaultShiftPred()&& false) { // TODO is this useful at all?
+//						optInfo.m_baseFuncPredictions[iInstance][iPred][iTarget][0] -=
+//							getDataMean(iTarget);
+//					}
+//					optInfo.m_baseFuncPredictions[iInstance][iPred][iTarget][0] /=
+//						2*getDataStdDev(iTarget);
+//				}
+//			}
+//			
+//			// Rule redictions	
+//			for (int iRule = 0; iRule < nbOfRules; iRule++){
+//
+//				if (!getSettings().isOptDefaultShiftPred()&& false) { // TODO is this useful at all?
+//					optInfo.m_rulePredictions[iRule].m_prediction[iTarget][0]-=
+//						getDataMean(iTarget);
+//				}
+//					
+//				optInfo.m_rulePredictions[iRule].m_prediction[iTarget][0] /=
+//						2*getDataStdDev(iTarget);
+//			}
+//
+//		}
+//	}
+
 
 	/** Initialize GD optimization for new run with same predictions and true values
 	 * This can be used if some parameters change. Thus we e.g. do not compute covariances
@@ -262,7 +321,7 @@ public class GDProbl extends OptProbl {
 	 */
 	public void initGDForNewRunWithSamePredictions() {
 		int nbWeights = getNumVar();
-		int nbTargets = getNbOfTargets();
+//		int nbTargets = getNbOfTargets();
 
 		if (getSettings().getOptGDEarlyStopAmount() > 0) {
 			//			m_oldFitnesses = new ArrayList<Double>();
@@ -290,28 +349,62 @@ public class GDProbl extends OptProbl {
 		m_stepSize = getSettings().getOptGDStepSize();
 	}
 
+// TODO Moved to OptProbl
+//	/** Compute means (e.g. for covariance computation) for true values
+//	 * For predictions means are not computed because, e.g. for all covering rule the its effect would
+//	 * go to zero (by prediction - mean)
+//	 * If the data is normalized, mean of true value is 0 and mean is not needed to compute*/
+//	//protected void computeMeans(double[] predMeans, double[] trueValMeans) {
+//	protected double[] computeMeans() {
+//		int nbOfTargets = getNbOfTargets();
+//		int nbOfValidValues = 0;
+//		double[] means = new double[nbOfTargets];
+//		
+//		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++){
+//			means[iTarget] = 0;
+//			for (int iInstance = 0; iInstance < getNbOfInstances(); iInstance++){
+//				if (isValidValue(getTrueValue(iInstance,iTarget))){
+//					means[iTarget] +=
+//						getTrueValue(iInstance,iTarget);
+//					nbOfValidValues++;
+//				}
+//			}
+//			means[iTarget] /= nbOfValidValues;
+//		}
+//		return means;
+//	}
 
-	/** Compute means for covariance computation for true values
-	 * For predictions means are not computed because, e.g. for all covering rule the its effect would
-	 * go to zero (by prediction - mean)
-	 * If the data is normalized, mean of true value is 0 and mean is not needed to compute*/
-	//protected void computeMeans(double[] predMeans, double[] trueValMeans) {
-	protected void computeMeans() {
-		int nbOfTargets = getNbOfTargets();
-		int nbOfValidValues = 0;
-		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++){
-			m_meanTrueValues[iTarget] = 0;
-			for (int iInstance = 0; iInstance < getNbOfInstances(); iInstance++){
-				if (isValidValue(getTrueValue(iInstance,iTarget))){
-					m_meanTrueValues[iTarget] +=
-						getTrueValue(iInstance,iTarget);
-					nbOfValidValues++;
-				}
-			}
-			m_meanTrueValues[iTarget] /= nbOfValidValues;
+	/**
+	 * Generates a zero vector.
+	 */
+	protected ArrayList<Double> getInitialWeightVector()
+	{
+		ArrayList<Double> result = new ArrayList<Double>(getNumVar());
+		for (int i = 0; i < getNumVar(); i++) {
+			result.add(new Double(0.0));
 		}
-	}
 
+		// The following is commented because causes overfitting - too big weight values in the beginning
+//		if (getSettings().isOptOmitRulePredictions()) {
+//			// Start first weight (default value) with better value - mean value
+//			double[] means = computeMeans();
+//			
+//			double sumOfMeans = 0;
+//			
+//			// Take average over how to get the average with the first rule
+//			for (int i = 0; i < getNbOfTargets(); ++i) {
+//				sumOfMeans += means[i]/getPredictionsWhenCovered(0,0,i);			
+//			}
+//			sumOfMeans /= getNbOfTargets();
+//			
+//			// Scale the weight to better value
+//			result.set(0, sumOfMeans);		
+//		}
+
+		return result;
+	}
+	
+	
 	/** Estimate of expected value of covariance for given prediction.
 	 * The covariance of this prediction with its true value is returned.
 	 */
@@ -331,6 +424,9 @@ public class GDProbl extends OptProbl {
 			}
 
 			covs[iTarget] /= getNbOfInstances();
+			if (getSettings().isOptNormalization()) {
+				covs[iTarget] /= 2*getDataStdDev(iTarget);
+			}
 		}
 
 		double avgCov = 0;
@@ -340,11 +436,6 @@ public class GDProbl extends OptProbl {
 		return avgCov;
 		//return covs;
 	}
-
-	private boolean isValidValue(double pred) {
-		return !Double.isInfinite(pred) && !Double.isNaN(pred);
-	}
-
 
 	/**
 	 * Return the right stored covariance
@@ -422,6 +513,10 @@ public class GDProbl extends OptProbl {
 //				covs[iTarget] += firstPred * secondPred;
 			}
 			covs[iTarget] /= getNbOfInstances();
+			
+			if (getSettings().isOptNormalization()) {
+				covs[iTarget] /= 2*getDataStdDev(iTarget);
+			}
 		}
 		
 		double avgCov = 0;
@@ -431,19 +526,6 @@ public class GDProbl extends OptProbl {
 		}
 		return avgCov;
 //		return covs;
-	}
-
-
-	/**
-	 * Generates a zero vector.
-	 */
-	protected ArrayList<Double> getZeroVector()
-	{
-		ArrayList<Double> result = new ArrayList<Double>(getNumVar());
-		for (int i = 0; i < getNumVar(); i++) {
-			result.add(new Double(0.0));
-		}
-		return result;
 	}
 
 
@@ -551,7 +633,7 @@ public class GDProbl extends OptProbl {
 
 	/** Recomputation of gradients for least squares loss function */
 	public void modifyGradientSquared(int[] changedWeightIndex) {
-		int nbOfTargets = getNbOfTargets();
+		//int nbOfTargets = getNbOfTargets();
 		// New gradients are computed with the old gradients.
 		// Only the changed gradients are stored here
 		// However since we use affective gradients which are not YET changed,
@@ -593,10 +675,10 @@ public class GDProbl extends OptProbl {
 		// different settings
 
 		// What is the gradient that affects
-		int nbOfTargets = getNbOfTargets();
+		//int nbOfTargets = getNbOfTargets();
 		switch (getSettings().getOptGDMTGradientCombine()) {
 		case Settings.OPT_GD_MT_GRADIENT_AVG:
-		{ // Average over the gradients. Leaves local minimas.
+		{ // Average over the gradients.
 
 			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
 //				m_affectiveGradientsForIter[iGradient] = 0;
@@ -680,7 +762,7 @@ public class GDProbl extends OptProbl {
 		// different settings
 
 		// What is the gradient that affects
-		int nbOfTargets = getNbOfTargets();
+		//int nbOfTargets = getNbOfTargets();
 		switch (getSettings().getOptGDMTGradientCombine()) {
 		case Settings.OPT_GD_MT_GRADIENT_AVG:
 		case Settings.OPT_GD_MT_GRADIENT_MAX_GRADIENT:
@@ -954,4 +1036,18 @@ public class GDProbl extends OptProbl {
 		//turha.add(new Integer(maxDepths));
 		return maxDepths;
 	}	
+	
+	/** Print gradients to output file. */
+	public void printGradientsToFile(int iterNro, PrintWriter wrt) {
+		if (!m_printGDDebugInformation)
+			return;
+
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+		wrt.print("Iteration " + iterNro +":");
+		for (int i = 0; i < m_affectiveGradientsForIter.length; i++) {
+			wrt.print(fr.format((double)m_affectiveGradientsForIter[i])+"\t");
+		}
+		wrt.print("\n");
+	}
+		
 }

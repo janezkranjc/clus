@@ -61,10 +61,14 @@ public class OptProbl {
 			m_rulePredictions = new RulePred[nbRule]; for (int jRul=0; jRul<nbRule;jRul++) {m_rulePredictions[jRul]=new OptProbl.RulePred(nbInst,nbTarg);}
 			m_baseFuncPredictions = new double[nbOtherBaseFunc][nbInst][nbTarg][1];	m_trueValues = new double[nbInst][nbTarg];}
 
-		public OptParam(RulePred[] rulePredictions, double[][][][] predictions,	double[][] trueValues ){m_rulePredictions = rulePredictions; m_baseFuncPredictions = predictions; m_trueValues = trueValues;}
+		public OptParam(RulePred[] rulePredictions, double[][][][] predictions,	double[][] trueValues){m_rulePredictions = rulePredictions; m_baseFuncPredictions = predictions; m_trueValues = trueValues;}
+		//public OptParam(RulePred[] rulePredictions, double[][][][] predictions,	double[][] trueValues ){m_rulePredictions = rulePredictions; m_baseFuncPredictions = predictions; m_trueValues = trueValues;}
 		public RulePred[] m_rulePredictions;
 		public double[][][][] m_baseFuncPredictions;
 		public double[][] m_trueValues;
+		/** Offset parameter for normalization. Needed overall prediction in loss value computation. NOT
+		 * needed in gradient calculation. */
+//		public double[] m_offsetParam;
 
 	}
 
@@ -106,9 +110,16 @@ public class OptProbl {
 	private double[][] m_TrueVal;
 	private ClusStatManager m_StatMgr;
 	private boolean m_ClssTask;
+	
+//	/** For normalization during optimization, the averages for each of the targets */
+//	private double[] m_TargetAvg;
+	/** For normalization during optimization, the std devs for each of the targets */
+	private double[] m_TargetStdDev;
+	
+	
 
 	/**
-	 * Constructor for problem to be solved with differential evolution. Both classification and regression.
+	 * Constructor for problem to be solved with optimization. Both classification and regression.
 	 * @param stat_mgr Statistics
 	 * @param dataInformation The true values and predictions for the instances. These are used by OptimProbl.
 	 *                        The optimization procedure is based on this data information
@@ -122,8 +133,8 @@ public class OptProbl {
 
 		m_StatMgr = stat_mgr;
 
-		if (m_StatMgr.getMode() != ClusStatManager.MODE_REGRESSION &&
-				m_StatMgr.getMode() != ClusStatManager.MODE_CLASSIFY)
+		if (ClusStatManager.getMode() != ClusStatManager.MODE_REGRESSION &&
+				ClusStatManager.getMode() != ClusStatManager.MODE_CLASSIFY)
 		{
 			System.err.println("Weight optimization: Mixed types of targets (reg/clas) not implemented. Assuming regression.\n ");
 			//				"The targets are of different kind, i.e. they are not all for regression or for classifying.\n" +
@@ -132,7 +143,29 @@ public class OptProbl {
 			//				"The optimization may not work in this case also.\n");
 		}
 
-		m_ClssTask = (m_StatMgr.getMode() == ClusStatManager.MODE_CLASSIFY);
+		m_ClssTask = (ClusStatManager.getMode() == ClusStatManager.MODE_CLASSIFY);
+
+		
+		
+		// Compute data statistics
+		
+		if (!m_ClssTask) { // regression
+			double[] targetAvg = computeMeans();
+			m_TargetStdDev = computeDataStdDevs(targetAvg);
+		}
+		
+	}
+	
+	/**
+	 * Modify the data information. If we already have the averages and stdDevs computed, use them instead.
+	 * @param averages Averages for each target.
+	 * @param stdDevs Standard deviations for each target.
+	 * 
+	 */
+//	protected void modifyDataStatistics(double[] averages, double[] stdDevs ) {
+	protected void modifyDataStatistics(double[] stdDevs ) {
+//		m_TargetAvg = averages;
+		m_TargetStdDev = stdDevs;
 	}
 
 
@@ -331,9 +364,11 @@ public class OptProbl {
 		double[] prediction = new double[nbOfTargets];
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++)
 		{
-				if (predictionSums[iTarget] != null)
-					prediction[iTarget] = predictionSums[iTarget][0];
-
+			if (predictionSums[iTarget] != null) {
+				// If internal normalization has been used, we need to use the offset parameter to 
+				// shift the prediction to right place. If internal normalization is not used, the values should be zero		
+				prediction[iTarget] = predictionSums[iTarget][0];
+			}
 		}
 
 		return prediction;
@@ -462,6 +497,10 @@ public class OptProbl {
 				}
 
 				loss += ((double)1)/numberOfTargets*attributeLoss; // TODO: the weights for attributes are now equal
+				
+				if (getSettings().isOptNormalization()) {
+					loss /= 2*getDataStdDev(jTarget);
+				}
 			}
 		}
 		return loss/numberOfInstances; // Average loss over instances
@@ -724,16 +763,6 @@ public class OptProbl {
 	}
 
 	/**
-	 * Returns all the targets
-	 * @param iInstance
-	 * @return
-	 */
-//	protected double[] getTrueValues(int iInstance)  {
-//		return m_TrueVal[iInstance];
-//	} TODO remove
-
-
-	/**
 	 * The loss function should be separate in the sense
 	 * that it does not use member functions.
 	 * @return
@@ -763,4 +792,95 @@ public class OptProbl {
 		m_TrueVal = newData.m_trueValues;
 	}
 
+	/** Is prediction/true value valid value
+	 */
+	protected boolean isValidValue(double pred) {
+		return !Double.isInfinite(pred) && !Double.isNaN(pred);
+	}
+
+	
+	/** Compute means (e.g. for covariance computation) for true values
+	 * For predictions means are not computed because, e.g. for all covering rule the its effect would
+	 * go to zero (by prediction - mean)
+	 * If the data is normalized, mean of true value is 0 and mean is not needed to compute
+	 * @return Averages for targets of the data.*/
+	protected double[] computeMeans() {
+		int nbOfTargets = getNbOfTargets();
+		int nbOfInstances = getNbOfInstances();
+		double[] means = new double[nbOfTargets];
+		
+		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++){
+			int nbOfValidValues = 0;
+			means[iTarget] = 0;
+			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++){
+				if (isValidValue(getTrueValue(iInstance,iTarget))){
+					means[iTarget] +=
+						getTrueValue(iInstance,iTarget);
+					nbOfValidValues++;
+				}
+			}
+			means[iTarget] /= nbOfValidValues;
+		}
+		return means;
+	}
+	
+	/** Compute standard deviations for given values.
+	 * To normalize the targets you should divide with 2* stddev (after shifting by - avg).
+	 * After this transformation the mean should be about 0.0 and variance about 0.25
+	 * (and standard deviation 0.5). Thus 95% of values should be between [-1,1] (assuming normal distribution).
+	 * If stdDev would be zero, we return 0.5 (and thus the divider should be 2*0.5 = 1).
+	 * @param means Precomputed means.
+	 * @return Standard deviations for targets of the data.*/
+	private double[] computeDataStdDevs(double[] means) {
+		int nbOfTargets = getNbOfTargets();
+		int nbOfInstances = getNbOfInstances();
+
+		double[] stdDevs = new double[nbOfTargets];
+		
+		// Compute variances
+		for (int jTarget = 0; jTarget < nbOfTargets; jTarget++) {
+			double variance = 0;
+			int nbOfValidValues = 0; 
+			
+			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
+
+				// The following could be done by numTypes.isMissing(tuple)
+				// also, but seems to be equivalent
+				if (isValidValue(getTrueValue(iInstance,jTarget))) {// Value not given
+					variance += Math.pow(getTrueValue(iInstance,jTarget) - means[jTarget], 2.0);
+					nbOfValidValues++;
+				}
+			}
+
+			// Divide with the number of examples
+			if (variance == 0) {
+				// If variance is zero, all the values are the same, so division
+				// is not needed.
+				variance = 0.25; // And the divider will be 2*sqrt(1/4)= 1
+			} else {
+				variance /= nbOfValidValues;
+			}
+			
+			stdDevs[jTarget] = Math.sqrt(variance);
+		}
+
+		return stdDevs;
+	}
+	
+	/** For normalization during optimization, the std devs for each of the targets */	
+	protected double getDataStdDev(int iTarget) {
+		return m_TargetStdDev[iTarget];
+	}
+
+	/** For normalization during optimization, the std devs for each of the targets */	
+	protected double[] getDataStdDevs() {
+		return m_TargetStdDev;
+	}
+	
+//	/** For normalization during optimization, the averages for each of the targets */	
+//	protected double getDataMean(int iTarget) {
+//		return m_TargetAvg[iTarget];
+//	}
+
+	
 }

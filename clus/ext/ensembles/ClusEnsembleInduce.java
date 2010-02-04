@@ -630,12 +630,11 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	public static int getMaxNbBags(){
 		return ClusEnsembleInduce.m_NbMaxBags;
 	}
-	/**
-	 * 
-	 * @param attrs
-	 * @param select
+	
+	/** Selects random subspaces.
+	 * @param attrs For which attributes
+	 * @param select How many.
 	 */
-
 	public static ClusAttrType[] selectRandomSubspaces(ClusAttrType[] attrs, int select){
 		int origsize = attrs.length;
 		int[] samples = new int [origsize];

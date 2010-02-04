@@ -953,6 +953,8 @@ public class Settings implements Serializable {
 
 	public static boolean IS_RULE_SIG_TESTING = false;
 
+	
+	
 	// ***************** WEIGHT OPTIMIZATION
 
 	// Differential evolution algorithm
@@ -985,6 +987,17 @@ public class Settings implements Serializable {
 	public final static String[] GD_EXTERNAL_METHOD_VALUES = {"update", "brute"};
 	public final static int GD_EXTERNAL_METHOD_GD = 0;
 	public final static int GD_EXTERNAL_METHOD_BRUTE = 1;
+	
+	public final static String[] OPT_LINEAR_TERM_NORM_VALUES = {"No", "Yes", "YesAndConvert"};
+	/**	Do not normalize linear terms at all */
+	public final static int OPT_LIN_TERM_NORM_NO = 0;
+	/**	Normalize linear terms for optimization and leave the 
+	 *  normalization to the resulting rule ensemble. DEFAULT.*/
+	public final static int OPT_LIN_TERM_NORM_YES = 1;
+	/**	Normalize linear terms for optimization, but after optimization
+	 * convert the linear terms to plain terms without normalization without changing the resulting
+	 * prediction. */
+	public final static int OPT_LIN_TERM_NORM_CONVERT = 2;
 
 	// Settings in the settings file.
 	protected INIFileNominal m_CoveringMethod;
@@ -1038,15 +1051,29 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_OptLossFunction;
 	/** Optimization For Huber 1962 loss function an alpha value for outliers has to be given. */
 	protected INIFileDouble m_OptHuberAlpha;
-	/** Do we add the descriptive attributes as linear terms to rule set */
+	/** Shift predictions according to the default prediction. Should increase the accuracy. Default true. */
+	protected INIFileBool m_OptDefaultShiftPred;
+	/** Do we add the descriptive attributes as linear terms to rule set. Default No. */
 	protected INIFileBool m_OptAddLinearTerms;
-	/** Do we omit the rule predictions such that the predictions are changed to 1. This does
-	 * not do anything to the linear terms. */
+	/** If linear terms are added, are they scaled so that each variable has similar effect.
+	 * You get similar effect by normalizing the data. Default Yes. */
+	protected INIFileNominal m_OptNormalizeLinearTerms;
+	/** If linear terms are added, are truncated so that they do not predict values greater or lower
+	 * than found in the training set. Default Yes. */
+	protected INIFileBool m_OptLinearTermsTruncate;
+	/** Do we omit the rule predictions such that the (single target) predictions are changed to 1. This does
+	 * not do anything to the linear terms. Default Yes. */
 	protected INIFileBool m_OptOmitRulePredictions;
 	/** Do we scale the predictions for optimization based on the coverage
-	 * This should put more weight to general rules
+	 * This should put more weight to general rules. Default No.
 	 */
 	protected INIFileBool m_OptWeightGenerality;
+	/** Do we normalize the targets of predictions and true values internally for optimization.
+	 * This normalization is inverted after the optimization. On default YES, because
+	 * it should make at least GD optimization work better (covariance computing may not work otherwise).
+	 * This makes the error function very similar to RRMSE.
+	 */
+	protected INIFileBool m_OptNormalization;
 
 	// Gradient descent optimization
 	/** GD Maximum amount of iterations */
@@ -1265,21 +1292,46 @@ public class Settings implements Serializable {
 		return m_OptRuleWeightThreshold.getValue();
 	}
 
+	
+	/** Shift predictions according to the default prediction. Should increase the accuracy */
+	public boolean isOptDefaultShiftPred() {
+		return m_OptDefaultShiftPred.getValue();
+	}
+	
 	/** Do we add linear terms to rule set */
 	public boolean isOptAddLinearTerms() {
 	  	return m_OptAddLinearTerms.getValue();
 	}
 
-	/** Do we omit the rule predictions such that the predictions are changed to 1. This does
-	 * not do anything to the linear terms. */
+	/** Do we scale linear terms so that the attributes have similar effect */
+	public boolean isOptNormalizeLinearTerms() {
+		return (m_OptNormalizeLinearTerms.getValue() != OPT_LIN_TERM_NORM_NO);
+	}
+
+	/** What kind of normalization are we using */
+	public int getOptNormalizeLinearTerms() {
+		return m_OptNormalizeLinearTerms.getValue();
+	}
+	
+	/** Are linear terms truncated so that they do not predict values greater or lower
+	 * than found in the training set.*/
+	public boolean isOptLinearTermsTruncate() {
+		return m_OptLinearTermsTruncate.getValue();
+	}
+	/** Do we omit rule predictions */
 	public boolean isOptOmitRulePredictions() {
-	  	return m_OptOmitRulePredictions.getValue();
+		return m_OptOmitRulePredictions.getValue();
 	}
 
 	/** Do we scale the predictions of the rules with the generality. This puts more weight to general rules
 	 */
 	public boolean isOptWeightGenerality() {
 	  	return m_OptWeightGenerality.getValue();
+	}
+	
+	/** Do we normalize the predictions and true values internally for optimization.*/
+	public boolean isOptNormalization() {
+	  	return m_OptNormalization.getValue();
 	}
 
 	/** Type of Loss function for DE optimization */
@@ -2031,9 +2083,13 @@ public class Settings implements Serializable {
 		m_SectionRules.addNode(m_OptNbZeroesPar = new INIFileDouble("OptNbZeroesPar", 0.0));
 		m_SectionRules.addNode(m_OptRuleWeightThreshold = new INIFileDouble("OptRuleWeightThreshold", 0.1));
 		m_SectionRules.addNode(m_OptLossFunction = new INIFileNominal("OptDELossFunction",OPT_LOSS_FUNCTIONS, 0));
+		m_SectionRules.addNode(m_OptDefaultShiftPred = new INIFileBool("OptDefaultShiftPred", true));
 		m_SectionRules.addNode(m_OptAddLinearTerms = new INIFileBool("OptAddLinearTerms", false));
-		m_SectionRules.addNode(m_OptOmitRulePredictions = new INIFileBool("OptOmitRulePredictions", false));
+		m_SectionRules.addNode(m_OptNormalizeLinearTerms = new INIFileNominal("OptNormalizeLinearTerms", OPT_LINEAR_TERM_NORM_VALUES, OPT_LIN_TERM_NORM_YES));
+		m_SectionRules.addNode(m_OptLinearTermsTruncate = new INIFileBool("OptLinearTermsTruncate", true));
+		m_SectionRules.addNode(m_OptOmitRulePredictions = new INIFileBool("OptOmitRulePredictions", true));
 		m_SectionRules.addNode(m_OptWeightGenerality = new INIFileBool("OptWeightGenerality", false));
+		m_SectionRules.addNode(m_OptNormalization = new INIFileBool("OptNormalization", true));
 		m_SectionRules.addNode(m_OptHuberAlpha = new INIFileDouble("OptHuberAlpha", 0.9));
 		m_SectionRules.addNode(m_OptGDMaxIter = new INIFileInt("OptGDMaxIter", 1000));
 //		m_SectionRules.addNode(m_OptGDLossFunction = new INIFileNominal("OptGDLossFunction", GD_LOSS_FUNCTIONS, 0));

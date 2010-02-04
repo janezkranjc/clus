@@ -55,7 +55,7 @@ public class DeAlg extends OptAlg {
 	 *
 	 */
 	public DeAlg(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation) {
-		super(stat_mgr, dataInformation);
+		super(stat_mgr);
 		m_DeProbl = new DeProbl(stat_mgr, dataInformation);
 		m_Pop = new DePop(stat_mgr, m_DeProbl);
 		//		m_StatMgr = stat_mgr;

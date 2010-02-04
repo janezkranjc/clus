@@ -62,7 +62,7 @@ public class GDAlg extends OptAlg{
 	 *                        Warning: The parameter may be modified!
 	 */
 	public GDAlg(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation) {
-		super(stat_mgr, dataInformation);
+		super(stat_mgr);
 		m_GDProbl = new GDProbl(stat_mgr, dataInformation);
 		initGDForNewRunWithSamePredictions();
 		m_earlyStopStep = 100;
@@ -75,7 +75,7 @@ public class GDAlg extends OptAlg{
 	public void initGDForNewRunWithSamePredictions() {
 		m_GDProbl.initGDForNewRunWithSamePredictions();
 
-		m_weights = m_GDProbl.getZeroVector();
+		m_weights = m_GDProbl.getInitialWeightVector();
 
 		// If normalization is not used and rules are not omitted the first rule should be the average
 		// Thus starting from weight 1 is the best way.
@@ -83,7 +83,8 @@ public class GDAlg extends OptAlg{
 		// should be set to AVG. So the effect is similar to previous.
 		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED &&
 				!getSettings().isOptOmitRulePredictions() &&
-				getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE) {
+				getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE &&
+				!getSettings().isOptNormalization()) {
 			// If rule predictions are omitted, the default rule prediction is not useful anymore.
 			// Also if normalization is used, default rule should be 0 anyway
 			m_weights.set(0,1.0); // default rule
@@ -171,7 +172,8 @@ public class GDAlg extends OptAlg{
 			}
 
 			// Print
-			OutputLog(nbOfIterations, wrt_log);
+			OutputLog(nbOfIterations, wrt_log); //Weights
+			//m_GDProbl.printGradientsToFile(nbOfIterations, wrt_log); //gradients 
 			//3)
 			// Search for maximum gradients
 			int[] maxGradients = m_GDProbl.getMaxGradients(nbOfIterations);
@@ -296,8 +298,7 @@ public class GDAlg extends OptAlg{
 	private double[] m_newChange;
 
 
-	/** Information about the previous change for oscillation warning. The changed dimension.
-	 * Works only if one dimension at time changed. */ //TODO
+	/** Information about the previous change for oscillation warning. The changed dimension.*/
 	private int[] m_iPrevDimension;
 	private int[] m_iNewDimension;
 
@@ -412,7 +413,6 @@ public class GDAlg extends OptAlg{
 	}
 
 	public double getBestFitness() {
-		// TODO Auto-generated method stub
 		return m_GDProbl.getBestFitness();
 	}
 

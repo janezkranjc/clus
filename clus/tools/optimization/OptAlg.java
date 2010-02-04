@@ -45,7 +45,7 @@ public abstract class OptAlg {
 	 * @param dataInformation The true values and predictions for the instances. These are used by OptimProbl.
 	 *                        The optimization procedure is based on this data information
 	 */
-	public OptAlg(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation) {
+	public OptAlg(ClusStatManager stat_mgr) {
 		m_StatMgr = stat_mgr;
 //		m_Probl = new DeProbl(stat_mgr, dataInformation);
 	}

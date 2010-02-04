@@ -69,6 +69,14 @@ public class ClusRule implements ClusModel, Serializable {
 	/** For Truncation */
 	protected double m_linearTermMaxValue = 0;
 	protected double m_linearTermMinValue = 0;
+	
+	/** Offset (of descriptive attribute) that is taken away from linear term*/
+	protected double m_linearTermOffset = 0;
+	/** Standard deviation for descriptive attributes, used for scaling linear terms.*/
+	protected double m_linearTermStdDev = 0.5;
+	/** Is the scaling of linear terms used in all the predictions. If not, used only for
+	 * undefined predictions */
+	protected boolean m_scaleLinearTerms = false;
 
 	/** Array of tuples covered by this rule */
 	protected ArrayList m_Data = new ArrayList();
@@ -101,9 +109,10 @@ public class ClusRule implements ClusModel, Serializable {
 	 * @par linearTermDimension Descriptive dimension that the linear term is based on.
 	 * @par linearTermTargetDim Target dimension this linear term is predicting.
 	 * @par maxValue Maximum value of the dimension in the data set. Used for truncation.
-	 * @par minValue Minimum value of the dimension in the data set. Used for truncation. */
+	 * @par minValue Minimum value of the dimension in the data set. Used for truncation.
+	 * @par offSetValue Value used for shifting  the linear prediction. */
 	public ClusRule(ClusStatManager statManager, int linearTermDimension, int linearTermTargetDim,
-			        double maxValue, double minValue) {
+	        		double maxValue, double minValue, double[] offSetValues, double[] stdDevValues) {
 		m_StatManager = statManager;
 		m_TrainErrorScore = -1;
 		m_OptWeight = -1;
@@ -113,6 +122,12 @@ public class ClusRule implements ClusModel, Serializable {
 
 		m_linearTermMaxValue = maxValue;
 		m_linearTermMinValue = minValue;
+
+		if (offSetValues != null && stdDevValues != null) { 
+			m_linearTermOffset = offSetValues[m_descriptiveDimForLinearTerm];
+			m_linearTermStdDev = stdDevValues[m_descriptiveDimForLinearTerm];
+			m_scaleLinearTerms = true;
+		}
 
 	}
 
@@ -130,17 +145,57 @@ public class ClusRule implements ClusModel, Serializable {
 		if (m_isLinearTerm){
 			if (!(m_TargetStat instanceof RegressionStat))
 				System.err.println("Error: Using linear terms for optimization is implemented for single target regression only.");
+			
+			RegressionStat stat = ((RegressionStat) m_TargetStat);
+			
 			double value = tuple.getDoubleVal(m_descriptiveDimForLinearTerm);
+			
+			// The descriptive value may be undefined. In this case we usually just predict "undefined",
+			// however if we are converting everything back to normal rules, we need to convert "avg" to make
+			// predictions not to change during convertion.
 			if (Double.isNaN(value) || Double.isInfinite(value)){
-				value = Double.NaN;
+				
+				// The linear terms are converted back to "normal". For undefined predictions, this
+				// causes problems if not treated specifically.
+				// If scaling is still used, prediction = 0 (similar effect as undefined
+				// if converting has already happened, prediction = average, which is what it should be.
+				if (getSettings().getOptNormalizeLinearTerms() == Settings.OPT_LIN_TERM_NORM_CONVERT) {
+					value = m_linearTermOffset;
+				} else {
+					// Mark all the target values as NaN. Otherwise causes problems in optimization.
+					for (int i = 0; i < stat.m_NbAttrs; i++) {
+						stat.m_Means[i] = Double.NaN;
+						stat.m_SumValues[i] = Double.NaN;
+						stat.m_SumWeights[i] = 1;
+					}				
+					value = Double.NaN;
+				}
+			}
+			
+			if (!Double.isNaN(value)){
+				// If defined prediction, clear predictions (do not leave NaNs)
+				for (int i = 0; i < stat.m_NbAttrs; i++) {
+					stat.m_Means[i] = 0;
+					stat.m_SumValues[i] = 0;
+					stat.m_SumWeights[i] = 1;
+				}
 			}
 
 			// Truncated version - the linear term holds only on the range of training set.
-//			value = Math.max(Math.min(value, m_linearTermMaxValue), m_linearTermMinValue);
+			if (getSettings().isOptLinearTermsTruncate() &&
+					!Double.isNaN(m_linearTermMaxValue) && !Double.isNaN(m_linearTermMinValue)) {
+				value = Math.max(Math.min(value, m_linearTermMaxValue), m_linearTermMinValue);
+			}
 
-			// Only change the target dimension, rest are still zero
-			// DEBUG: TARKISTA ETTA TOSIAAN MUUT OVAT ZERO EIKA ESIM> NULL
-			RegressionStat stat = ((RegressionStat) m_TargetStat);
+			
+			if (m_scaleLinearTerms) { 
+				value -= m_linearTermOffset; // Shift 
+				value /= 2*m_linearTermStdDev; // scale
+			}
+
+
+
+			// Only change the target dimensio			
 			stat.m_Means[m_targetDimForLinearTerm] = value;
 			stat.m_SumValues[m_targetDimForLinearTerm] = value;
 			stat.m_SumWeights[m_targetDimForLinearTerm] = 1;
@@ -226,7 +281,10 @@ public class ClusRule implements ClusModel, Serializable {
 
 		if (m_isLinearTerm){
 			if (!(m_TargetStat instanceof RegressionStat))
-				System.err.println("Error: Using linear terms for optimization is implemented for single target regression only.");
+				System.err.println("Error: Using linear terms for optimization is implemented for regression only.");
+			if (getSettings().getOptNormalizeLinearTerms() == Settings.OPT_LIN_TERM_NORM_CONVERT) {
+				return true; // Always covers, otherwise problems with converting.
+			}
 			double value = tuple.getDoubleVal(m_descriptiveDimForLinearTerm);
 			return !Double.isNaN(value) && !Double.isInfinite(value);
 		}
@@ -570,7 +628,23 @@ public class ClusRule implements ClusModel, Serializable {
 				wrt.print(extra);
 			}
 		} else {
-			wrt.println("Linear term for the numerical attribute with index "+ m_descriptiveDimForLinearTerm);
+			wrt.println("Linear term for the numerical attribute with index "+ m_descriptiveDimForLinearTerm 
+					+ " predicting target index " + m_targetDimForLinearTerm);
+				
+			if (getSettings().isOptLinearTermsTruncate()) {
+				wrt.println("The prediction is truncated on the interval [" 
+							+ m_linearTermMinValue + "," + m_linearTermMaxValue + "].");
+			}
+
+			if (getSettings().getOptNormalizeLinearTerms() == Settings.OPT_LIN_TERM_NORM_CONVERT) {
+				wrt.println("Linear term prediction was scaled and shifted by (x-average)/(2*standard deviation) during normalization.");
+			} else if (getSettings().getOptNormalizeLinearTerms() == Settings.OPT_LIN_TERM_NORM_YES) {
+				wrt.println("Linear term prediction is scaled and shifted by (x-average)/(2*standard deviation)");
+			}
+			if (getSettings().isOptNormalizeLinearTerms()){
+				wrt.println("      Standard deviation: " + m_linearTermStdDev);
+				wrt.println("      Average           : " + m_linearTermOffset);
+			}
 		}
 		if (getSettings().computeDispersion() && (m_CombStat[ClusModel.TRAIN] != null)) {
 			//if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
@@ -769,7 +843,7 @@ public class ClusRule implements ClusModel, Serializable {
 
 	public double getOptWeight() {
 		if (m_OptWeight != -1) { // FIXME this is not any more the sign for uninitialized weight
-		  return m_OptWeight;
+			return m_OptWeight;
 		} else {
 			System.err.println("Warning: Optimal rule weight not initialized!");
 			return -1.0;
@@ -849,6 +923,8 @@ public class ClusRule implements ClusModel, Serializable {
 
 	/** Is this a regular rule or some other type of learner (e.g. linear term) */
 	public boolean isRegularRule() {
+		//NOTE if there is some other nonregular rule than linear term, at least 
+		//ClusRuleSet.invertNormalizationForWeights might have to be changed	
 		return !m_isLinearTerm;
 	}
 
@@ -870,6 +946,12 @@ public class ClusRule implements ClusModel, Serializable {
 	}
 
 	public void retrieveStatistics(ArrayList list) {
+	}
+
+	/** Mark that scaling factors are not used anymore for this rule.
+	 * Except for undefined linear term predictions */
+	public void noScalingLinearTerms() {
+		m_scaleLinearTerms = false;
 	}
 
 }
