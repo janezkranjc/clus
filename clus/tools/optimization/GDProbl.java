@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.util.*;
 
+import clus.algo.rules.ClusRuleSet;
 import clus.main.*;
 import clus.tools.optimization.OptProbl.OptParam;
 import clus.util.ClusFormat;
@@ -121,8 +122,8 @@ public class GDProbl extends OptProbl {
 	 *                        The optimization procedure is based on this data information
 	 * @param isClassification Is it classification or regression?
 	 */
-	public GDProbl(ClusStatManager stat_mgr, OptParam optInfo) {
-		super(stat_mgr, optInfo);
+	public GDProbl(ClusStatManager stat_mgr, OptParam optInfo, ClusRuleSet rset) {
+		super(stat_mgr, optInfo, rset);
 
 
 		//m_meanPredictors = new double[getNumVar()][getNbOfTargets()];
@@ -237,7 +238,7 @@ public class GDProbl extends OptProbl {
 
 			changeData(rest);  // Change data for super class
 
-			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop);
+			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop, rset);
 			// Give the same std devs for this smaller part of data.
 			m_earlyStopProbl.modifyDataStatistics(getDataStdDevs());
 
@@ -245,6 +246,9 @@ public class GDProbl extends OptProbl {
 			// want to use it
 			getSettings().setOptRegPar(0);
 			getSettings().setOptNbZeroesPar(0);
+			
+			// if implicit linear terms are used, tell about which instances were selected
+			rset.storeImplicitLinearValidationSet(selectedInstances);
 
 		}
 
@@ -992,7 +996,7 @@ public class GDProbl extends OptProbl {
 		if (newFitness > getSettings().getOptGDEarlyStopTreshold()*m_minFitness) {
 			stop = true;
 			if (m_printGDDebugInformation)
-				System.err.println("\nGD: Independent test set error increase detected - overfitting.\n");
+				System.out.println("\nGD: Independent test set error increase detected - overfitting.\n");
 		}
 
 		return stop;

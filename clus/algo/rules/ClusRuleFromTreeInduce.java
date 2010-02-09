@@ -127,7 +127,8 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 						getStatManager()));
 		}
 
-		System.out.println("Transformed " + forestModel.getNbModels() + " trees in ensemble into rules.\n\tCreated " +
+		if (Settings.VERBOSE > 0) 
+			System.out.println("Transformed " + forestModel.getNbModels() + " trees in ensemble into rules.\n\tCreated " +
 				+ ruleSet.getModelSize() +  " rules. (" + numberOfUniqueRules + " of them are unique.)");
 
 		RowData trainingData = (RowData)cr.getTrainingSet();
@@ -142,7 +143,7 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 			left_over = createTotalTargetStat(trainingData);
 			left_over.calcMean();
 		} else {
-			System.out.println("All training examples covered - default rule on entire training set!");
+			if (Settings.VERBOSE > 0) System.out.println("All training examples covered - default rule on entire training set!");
 			ruleSet.m_Comment = new String(" (on entire training set)");
 			left_over = getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_TARGET).cloneStat();
 			left_over.copy(getStatManager().getTrainSetStat(ClusAttrType.ATTR_USE_TARGET));

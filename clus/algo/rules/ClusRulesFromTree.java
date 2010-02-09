@@ -97,9 +97,9 @@ public class ClusRulesFromTree {
 
 			// Find the rule weights with optimization algorithm.
 			if (optimizeRuleWeights == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {
-				optAlg = (OptAlg) new GDAlg(mgr, param);
+				optAlg = (OptAlg) new GDAlg(mgr, param, ruleSet);
 			} else {
-				optAlg = (OptAlg) new DeAlg(mgr, param);
+				optAlg = (OptAlg) new DeAlg(mgr, param, ruleSet);
 			}
 
 			ArrayList<Double> weights = optAlg.optimize();

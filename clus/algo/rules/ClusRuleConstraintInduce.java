@@ -415,9 +415,9 @@ public class ClusRuleConstraintInduce extends ClusInductionAlgorithm {
 		
 		// Find the rule weights with optimization algorithm.
 		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {	
-			optAlg = (OptAlg) new GDAlg(getStatManager(), param);
+			optAlg = (OptAlg) new GDAlg(getStatManager(), param, rset);
 		} else {
-			optAlg = (OptAlg) new DeAlg(getStatManager(), param);
+			optAlg = (OptAlg) new DeAlg(getStatManager(), param, rset);
 		}
 
 		ArrayList weights = optAlg.optimize();

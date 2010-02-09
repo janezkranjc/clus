@@ -29,6 +29,7 @@ import java.io.*;
 import java.text.NumberFormat;
 import java.util.*;
 
+import clus.algo.rules.ClusRuleSet;
 import clus.main.*;
 import clus.tools.optimization.OptProbl;
 import clus.tools.optimization.OptAlg;
@@ -54,9 +55,9 @@ public class DeAlg extends OptAlg {
 	 *                        The optimization procedure is based on this data information
 	 *
 	 */
-	public DeAlg(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation) {
+	public DeAlg(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation, ClusRuleSet rset) {
 		super(stat_mgr);
-		m_DeProbl = new DeProbl(stat_mgr, dataInformation);
+		m_DeProbl = new DeProbl(stat_mgr, dataInformation, rset);
 		m_Pop = new DePop(stat_mgr, m_DeProbl);
 		//		m_StatMgr = stat_mgr;
 //		m_Probl = new OptimProbl(stat_mgr, parameters);

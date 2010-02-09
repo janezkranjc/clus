@@ -30,6 +30,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+
+import clus.algo.rules.ClusRuleSet;
 import clus.main.ClusStatManager;
 import clus.main.Settings;
 import clus.util.ClusFormat;
@@ -61,9 +63,9 @@ public class GDAlg extends OptAlg{
 	 *                        The optimization procedure is based on this data information.
 	 *                        Warning: The parameter may be modified!
 	 */
-	public GDAlg(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation) {
+	public GDAlg(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation, ClusRuleSet rset) {
 		super(stat_mgr);
-		m_GDProbl = new GDProbl(stat_mgr, dataInformation);
+		m_GDProbl = new GDProbl(stat_mgr, dataInformation, rset);
 		initGDForNewRunWithSamePredictions();
 		m_earlyStopStep = 100;
 	}
@@ -119,7 +121,7 @@ public class GDAlg extends OptAlg{
 	 */
 	public ArrayList<Double> optimize() {
 
-		System.out.print("\nGradient descent: Optimizing rule weights (" + getSettings().getOptGDMaxIter() + ") ");
+		if (Settings.VERBOSE > 0) System.out.print("\nGradient descent: Optimizing rule weights (" + getSettings().getOptGDMaxIter() + ") ");
 
 		PrintWriter wrt_log = null;
 
@@ -145,7 +147,8 @@ public class GDAlg extends OptAlg{
 		int nbOfIterations = 0;
 		while(nbOfIterations < getSettings().getOptGDMaxIter()) {
 
-			if (nbOfIterations % (Math.ceil(getSettings().getOptGDMaxIter()/50.0)) == 0) System.out.print(".");
+			if (Settings.VERBOSE > 0 && nbOfIterations % (Math.ceil(getSettings().getOptGDMaxIter()/50.0)) == 0) 
+				System.out.print(".");
 			if (nbOfIterations % m_earlyStopStep == 0 && getSettings().getOptGDEarlyStopAmount() > 0 &&
 					m_GDProbl.isEarlyStop(m_weights))
 			{
@@ -153,15 +156,15 @@ public class GDAlg extends OptAlg{
 					wrt_log.println("Increase in test fitness. Reducing step size or stopping.");
 				}
 
-				System.err.print("\n\tOverfitting after " + nbOfIterations + " iterations.");
+				if (Settings.VERBOSE > 0) System.out.print("\n\tOverfitting after " + nbOfIterations + " iterations.");
 				if (m_earlyStopStepsizeReducedNb < getSettings().getOptGDNbOfStepSizeReduce()){
 					m_earlyStopStepsizeReducedNb++;
 					m_GDProbl.dropStepSize(0.1); // Drop stepsize to tenth.
 					m_GDProbl.restoreBestWeight(m_weights); // restoring the weight with minimum fitness
 					m_GDProbl.initGradients(m_weights);
-					System.err.print(" Reducing step, continuing.\n");
+					if (Settings.VERBOSE > 0) System.out.print(" Reducing step, continuing.\n");
 				} else {
-					System.err.print(" Stopping.\n");
+					if (Settings.VERBOSE > 0) System.out.print(" Stopping.\n");
 					wrt_log.println("Early stopping detected after " + nbOfIterations + " iterations.");
 					break;
 				}
@@ -246,7 +249,7 @@ public class GDAlg extends OptAlg{
 			nbOfIterations++;
 		} // While
 
-		System.out.println(" done!");
+		if (Settings.VERBOSE > 0) System.out.println(" done!");
 
 		if (getSettings().getOptGDEarlyStopAmount() > 0) {
 			m_GDProbl.isEarlyStop(m_weights); // Check if current weights have better fitness than the best so far

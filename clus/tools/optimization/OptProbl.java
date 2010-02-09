@@ -29,6 +29,8 @@ import java.util.*;
 
 import clus.main.*;
 import clus.algo.rules.ClusRule;
+import clus.algo.rules.ClusRuleSet;
+import clus.data.rows.DataTuple;
 import clus.data.type.*;
 import clus.statistic.*;
 
@@ -59,13 +61,15 @@ public class OptProbl {
 		/** An empty class */
 		public OptParam(int nbRule, int nbOtherBaseFunc, int nbInst, int nbTarg) {
 			m_rulePredictions = new RulePred[nbRule]; for (int jRul=0; jRul<nbRule;jRul++) {m_rulePredictions[jRul]=new OptProbl.RulePred(nbInst,nbTarg);}
-			m_baseFuncPredictions = new double[nbOtherBaseFunc][nbInst][nbTarg][1];	m_trueValues = new double[nbInst][nbTarg];}
+//			m_baseFuncPredictions = new double[nbOtherBaseFunc][nbInst][nbTarg][1];	m_trueValues = new double[nbInst][nbTarg];}
+			m_baseFuncPredictions = new double[nbOtherBaseFunc][nbInst][nbTarg][1];	m_trueValues = new TrueValues[nbInst];}
 
-		public OptParam(RulePred[] rulePredictions, double[][][][] predictions,	double[][] trueValues){m_rulePredictions = rulePredictions; m_baseFuncPredictions = predictions; m_trueValues = trueValues;}
+		public OptParam(RulePred[] rulePredictions, double[][][][] predictions,	TrueValues[] trueValues){m_rulePredictions = rulePredictions; m_baseFuncPredictions = predictions; m_trueValues = trueValues;}
 		//public OptParam(RulePred[] rulePredictions, double[][][][] predictions,	double[][] trueValues ){m_rulePredictions = rulePredictions; m_baseFuncPredictions = predictions; m_trueValues = trueValues;}
 		public RulePred[] m_rulePredictions;
 		public double[][][][] m_baseFuncPredictions;
-		public double[][] m_trueValues;
+		public TrueValues[] m_trueValues;
+		//public double[][] m_trueValues;
 		/** Offset parameter for normalization. Needed overall prediction in loss value computation. NOT
 		 * needed in gradient calculation. */
 //		public double[] m_offsetParam;
@@ -105,9 +109,33 @@ public class OptProbl {
 	 */
 	protected double[][][][] m_BaseFuncPred;
 
+	/** 
+	 * If we want to save memory (amount of linear terms may be huge) we are not yet explicitly 
+	 * adding the linear terms to the set. Instead we are asking from the rule set for the prediction.
+	 * This is used only if a switch is set on.
+	 */
+	protected ClusRuleSet m_LinTermMemSavePred = null;
 	
-	/** True target values for the data points. [instance][target index] */
-	private double[][] m_TrueVal;
+	
+	/**
+	 * True values of the instances. Includes targets for single line (example)
+	 * and maybe a reference (if implicit linear terms are used) for the line
+	 * this represents.
+	 */
+	static public class TrueValues {
+		/** An empty class */
+		public TrueValues(int nbTarg){m_targets = new double[nbTarg];}
+		public TrueValues(int nbTarg, DataTuple instance){m_targets = new double[nbTarg]; m_dataExample = instance;}
+		/** Data tuple this true value is connected. May be null if not  needed */
+		public DataTuple m_dataExample; 
+		public double[] m_targets; // [target index]
+	}
+	
+
+	/** True target values for the data points. [instance] */
+	private TrueValues[] m_TrueVal;
+/* * True target values for the data points. [instance][target index] */
+//	private double[][] m_TrueVal;
 	private ClusStatManager m_StatMgr;
 	private boolean m_ClssTask;
 	
@@ -125,13 +153,22 @@ public class OptProbl {
 	 *                        The optimization procedure is based on this data information
 	 * @param isClassification Is it classification or regression?
 	 */
-	public OptProbl(ClusStatManager stat_mgr, OptParam optInfo) {
-		m_NumVar = (optInfo.m_baseFuncPredictions).length+(optInfo.m_rulePredictions).length;
+	public OptProbl(ClusStatManager stat_mgr, OptParam optInfo, ClusRuleSet rset) {
+		m_StatMgr = stat_mgr;
+
+		if (getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY){
+			int nbOfTargetAtts = m_StatMgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET).length;
+			int nbOfDescrAtts = m_StatMgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE).length;
+			m_NumVar = (optInfo.m_baseFuncPredictions).length+(optInfo.m_rulePredictions).length
+				+nbOfTargetAtts*nbOfDescrAtts;
+			m_LinTermMemSavePred = rset;
+		}else
+			m_NumVar = (optInfo.m_baseFuncPredictions).length+(optInfo.m_rulePredictions).length;
+		
 		m_BaseFuncPred = optInfo.m_baseFuncPredictions;
 		m_RulePred = optInfo.m_rulePredictions;
 		m_TrueVal = optInfo.m_trueValues;
 
-		m_StatMgr = stat_mgr;
 
 		if (ClusStatManager.getMode() != ClusStatManager.MODE_REGRESSION &&
 				ClusStatManager.getMode() != ClusStatManager.MODE_CLASSIFY)
@@ -467,7 +504,7 @@ public class OptProbl {
 	 * @param prediction The prediction. [Instance][Target]
 	 * @return Loss for the data.
 	 */
-	private double lossSquared(double[][] trueValue, double[][] prediction, int indTarget)
+	private double lossSquared(TrueValues[] trueValue, double[][] prediction, int indTarget)
 	{
 
 		double loss = 0;
@@ -478,7 +515,7 @@ public class OptProbl {
 
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
-				loss += Math.pow(trueValue[iInstance][indTarget]-prediction[iInstance][indTarget],2);
+				loss += Math.pow(trueValue[iInstance].m_targets[indTarget]-prediction[iInstance][indTarget],2);
 			}
 
 		} else {
@@ -493,7 +530,8 @@ public class OptProbl {
 					//					boolean debug = false;
 					//					debug = true;
 					//				}
-					attributeLoss += Math.pow(trueValue[iInstance][jTarget]-prediction[iInstance][jTarget],2);
+					attributeLoss += Math.pow(trueValue[iInstance].m_targets[jTarget]
+					                           -prediction[iInstance][jTarget],2);
 				}
 
 				loss += ((double)1)/numberOfTargets*attributeLoss; // TODO: the weights for attributes are now equal
@@ -515,7 +553,7 @@ public class OptProbl {
 	 * @return Loss for the data.
 	 */
 	//Suggested by Zenko 2007, p. 27
-	private double lossRRMSE(double[][] trueValue, double[][] prediction){
+	private double lossRRMSE(TrueValues[] trueValue, double[][] prediction){
 
 		double loss = 0;
 		int numberOfInstances = prediction.length;
@@ -530,14 +568,14 @@ public class OptProbl {
 			// Compute mean of true values
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
-				attribMean += trueValue[iInstance][jTarget];
+				attribMean += trueValue[iInstance].m_targets[jTarget];
 			}
 			attribMean = attribMean/numberOfInstances;
 
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
-				attributeLoss += Math.pow(prediction[iInstance][jTarget]-trueValue[iInstance][jTarget],2);
-				attribVariance += Math.pow(attribMean-trueValue[iInstance][jTarget],2);
+				attributeLoss += Math.pow(prediction[iInstance][jTarget]-trueValue[iInstance].m_targets[jTarget],2);
+				attribVariance += Math.pow(attribMean-trueValue[iInstance].m_targets[jTarget],2);
 			}
 
 			// TODO: the weights for attributes are now equal
@@ -556,7 +594,7 @@ public class OptProbl {
 	 * @return Loss for the data.
 	 */
 	//Suggested by Friedman&Popescu 2007, p. 7
-	private double lossHuber(double[][] trueValue, double[][] prediction){
+	private double lossHuber(TrueValues[] trueValue, double[][] prediction){
 
 		double loss = 0;
 		int numberOfInstances = prediction.length;
@@ -577,10 +615,10 @@ public class OptProbl {
 			double attributeLoss = 0; // Loss for one attribute.
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
-				if (Math.abs(trueValue[iInstance][jTarget]-prediction[iInstance][jTarget]) < deltas[jTarget]) {
-					attributeLoss += Math.pow(trueValue[iInstance][jTarget]-prediction[iInstance][jTarget],2);
+				if (Math.abs(trueValue[iInstance].m_targets[jTarget]-prediction[iInstance][jTarget]) < deltas[jTarget]) {
+					attributeLoss += Math.pow(trueValue[iInstance].m_targets[jTarget]-prediction[iInstance][jTarget],2);
 				} else { // Smoothed for distant objects
-					attributeLoss += deltas[jTarget]*(Math.abs(trueValue[iInstance][jTarget]-prediction[iInstance][jTarget])
+					attributeLoss += deltas[jTarget]*(Math.abs(trueValue[iInstance].m_targets[jTarget]-prediction[iInstance][jTarget])
 											-deltas[jTarget]/2);
 				}
 			}
@@ -598,11 +636,11 @@ public class OptProbl {
 	 * Delta value depends on the alpha quantiles of the data
 	 *
 	 */
-	private double[] computeHuberDeltas(double[][] trueValues,
+	private double[] computeHuberDeltas(TrueValues[] trueValues,
 			double[][] predictions) {
 
 		int numberOfInstances = trueValues.length;
-		int numberOfTargets = trueValues[0].length;
+		int numberOfTargets = trueValues[0].m_targets.length;
 
 		// Alpha quantile for how much of data is considered potential outliers
 		double alpha = getSettings().getOptHuberAlpha();
@@ -613,7 +651,7 @@ public class OptProbl {
 		for (int jTarget = 0; jTarget < numberOfTargets; jTarget++){
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
-				targetDistances[iInstance] = Math.abs(trueValues[iInstance][jTarget]
+				targetDistances[iInstance] = Math.abs(trueValues[iInstance].m_targets[jTarget]
 				                                    - predictions[iInstance][jTarget]);
 			}
 			// Sort in ascending order
@@ -635,7 +673,7 @@ public class OptProbl {
 	 */
 	// TODO Squared error ramp loss could also be used
 	//Suggested by Zenko 2007, p. 26
-	private double loss01(double[][] trueValue, double[][] prediction)
+	private double loss01(TrueValues[] trueValue, double[][] prediction)
 	{
 		int accuracy = 0;
 		int numberOfInstances = prediction.length;
@@ -645,7 +683,7 @@ public class OptProbl {
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
 
-				if (trueValue[iInstance][jTarget] == prediction[iInstance][jTarget])
+				if (trueValue[iInstance].m_targets[jTarget] == prediction[iInstance][jTarget])
 				{
 					accuracy++;
 				}
@@ -697,7 +735,11 @@ public class OptProbl {
 	 */
 	final protected boolean isCovered(int iRule, int iInstance) {
 		if (iRule >= m_RulePred.length) {
-			return !Double.isNaN(m_BaseFuncPred[iRule-m_RulePred.length][iInstance][0][0]);
+			if (getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY) {
+				return true; // Not spare function call.
+			} else {
+				return !Double.isNaN(m_BaseFuncPred[iRule-m_RulePred.length][iInstance][0][0]);
+			}
 		} else {
 			return m_RulePred[iRule].m_cover[iInstance];
 		}
@@ -740,7 +782,13 @@ public class OptProbl {
 	 */
 	final protected double getPredictionsWhenCovered(int iRule, int iInstance, int iTarget, int iClass) {
 		if (iRule >= m_RulePred.length) {
-			return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][iClass];
+			if (getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY) {
+				return m_LinTermMemSavePred.predictImplicitLinTerm(iRule-m_RulePred.length,
+						m_TrueVal[iInstance].m_dataExample, iTarget,
+						m_RulePred[0].m_prediction.length); // Nb of targets.
+			} else {
+				return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][iClass];
+			}
 		} else {
 			return m_RulePred[iRule].m_prediction[iTarget][iClass];
 		}
@@ -751,15 +799,21 @@ public class OptProbl {
 	 * If used right, gives always prediction.
 	 */
 	final protected double getPredictionsWhenCovered(int iRule, int iInstance, int iTarget) {
-		if (iRule >= m_RulePred.length) {
-			return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][0];
-		} else {
-			return m_RulePred[iRule].m_prediction[iTarget][0];
-		}
+		return getPredictionsWhenCovered(iRule, iInstance, iTarget, 0);
+//		if (iRule >= m_RulePred.length) {
+//			if (getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY) {
+//				return m_LinTermMemSavePred.predictImplicitLinTerm(iRule-m_RulePred.length,iInstance,iTarget,
+//						m_RulePred[0].m_prediction.length); // Nb of targets.
+//			} else {
+//				return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][0];
+//			}
+//		} else {
+//			return m_RulePred[iRule].m_prediction[iTarget][0];
+//		}
 	}
 
 	protected double getTrueValue(int iInstance, int iTarget)  {
-		return m_TrueVal[iInstance][iTarget];
+		return m_TrueVal[iInstance].m_targets[iTarget];
 	}
 
 	/**
@@ -767,7 +821,7 @@ public class OptProbl {
 	 * that it does not use member functions.
 	 * @return
 	 */
-	private double[][] getTrueValues() {
+	private TrueValues[] getTrueValues() {
 		return m_TrueVal;
 	}
 

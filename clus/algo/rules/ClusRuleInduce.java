@@ -874,16 +874,16 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 
 		// Find the rule weights with optimization algorithm.
 		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {
-			optAlg = (OptAlg) new GDAlg(getStatManager(), param);
+			optAlg = (OptAlg) new GDAlg(getStatManager(), param, rset);
 		} else if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_OPTIMIZED) {
-			optAlg = (OptAlg) new DeAlg(getStatManager(), param);
+			optAlg = (OptAlg) new DeAlg(getStatManager(), param, rset);
 		} else if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED_BINARY) {
 			weights = callExternalGDBinary(getStatManager(), param);
 
 			// The last one is so called intercept. Should be added to all predictions
 			// Because of this we add a rule with prediction 1 and always true condition.
 			// Thus the last weight will be for this.
-			System.out.println("Adding intercept rule created by binary explicitly to rule set.");
+			if (Settings.VERBOSE > 0) System.out.println("Adding intercept rule created by binary explicitly to rule set.");
 			ClusRule interceptRule = new ClusRule(m_StatManager);
 			interceptRule.m_TargetStat = getStatManager().createTargetStat();
 			if (!(interceptRule.m_TargetStat instanceof RegressionStat))
@@ -933,7 +933,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 						// Fitness is smaller than previously, store these weights
 						weights = newWeights;
 						minFitness = gdalg.getBestFitness();
-						System.err.println("\nThe T value " + (firstTVal+iRun*interTVal) +
+						if (Settings.VERBOSE > 0) 
+							System.err.println("\nThe T value " + (firstTVal+iRun*interTVal) +
 								" is best so far with test fitness: " + minFitness);
 					}
 				}
@@ -944,18 +945,25 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				weights = optAlg.optimize();
 			}
 		}
-
+		
 		// Print weights of rules
-		System.out.print("The weights for rules:");
-		
-		for (int j = 0; j < rset.getModelSize(); j++) {
-			rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue()); // Set the rule weights
-			System.out.print(((Double)weights.get(j)).doubleValue()+ "; ");
-			//System.out.print(((Double)rset.getRule(j).getOptWeight()).doubleValue()+ " -- ");
+		if (Settings.VERBOSE > 0) {
+			System.out.print("The weights for rules:");
+
+			for (int j = 0; j < rset.getModelSize(); j++) {
+				rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue()); // Set the rule weights
+				System.out.print(((Double)weights.get(j)).doubleValue()+ "; ");
+				//System.out.print(((Double)rset.getRule(j).getOptWeight()).doubleValue()+ " -- ");
+			}
+			System.out.print("\n");
 		}
-		System.out.print("\n");
-		rset.removeLowWeightRules();
+		int indexOfLastHandledWeight = rset.removeLowWeightRules()+1;
 		
+		//if needed, add implicit linear terms explicitly. this has to be done after removing low weight rules
+		if (getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY) {
+			rset.addImplicitLinearTermsExplicitly(weights, indexOfLastHandledWeight);
+		}
+
 		// If linear terms are used, include the normalizing to their weights and the all covering rule
 		if (getSettings().isOptAddLinearTerms() 
 				&& getSettings().getOptNormalizeLinearTerms() == Settings.OPT_LIN_TERM_NORM_CONVERT) {
@@ -1027,7 +1035,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		// Examples
 		for (int iInstance = 0 ; iInstance < dataInformation.m_trueValues.length; iInstance++){
 			//fPSInstances.write("" + (float) dataInformation.m_trueValues[iInstance][0]);
-			fPSInstances.write("" + dataInformation.m_trueValues[iInstance][0]);
+			fPSInstances.write("" + dataInformation.m_trueValues[iInstance].m_targets[0]);
 			if (iInstance != dataInformation.m_trueValues.length-1)
 				fPSInstances.write(",");
 		}

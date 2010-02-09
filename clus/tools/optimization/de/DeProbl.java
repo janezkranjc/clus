@@ -27,6 +27,7 @@ package clus.tools.optimization.de;
 
 import java.util.*;
 
+import clus.algo.rules.ClusRuleSet;
 import clus.main.*;
 import clus.statistic.*;
 
@@ -49,8 +50,8 @@ public class DeProbl extends clus.tools.optimization.OptProbl {
 	 * @param dataInformation The true values and predictions for the instances. These are used by OptimProbl.
 	 *                        The optimization procedure is based on this data information
 	 */
-	public DeProbl(ClusStatManager stat_mgr, OptParam optInfo) {
-		super(stat_mgr, optInfo);
+	public DeProbl(ClusStatManager stat_mgr, OptParam optInfo, ClusRuleSet rset) {
+		super(stat_mgr, optInfo, rset);
 
 		m_VarMin = new ArrayList<Double>(getNumVar());
 		m_VarMax = new ArrayList<Double>(getNumVar());
