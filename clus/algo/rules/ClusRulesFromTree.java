@@ -92,7 +92,6 @@ public class ClusRulesFromTree {
 				optimizeRuleWeights == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {
 			OptAlg optAlg = null;
 
-			// TODO: Add the file name for the parameter, not null. It is an output file.
 			OptProbl.OptParam param = ruleSet.giveFormForWeightOptimization(null, data);
 
 			// Find the rule weights with optimization algorithm.

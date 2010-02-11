@@ -122,21 +122,19 @@ public class GDProbl extends OptProbl {
 	 *                        The optimization procedure is based on this data information
 	 * @param isClassification Is it classification or regression?
 	 */
-	public GDProbl(ClusStatManager stat_mgr, OptParam optInfo, ClusRuleSet rset) {
-		super(stat_mgr, optInfo, rset);
+	public GDProbl(ClusStatManager stat_mgr, OptParam optInfo) {
+		super(stat_mgr, optInfo);
 
 
 		//m_meanPredictors = new double[getNumVar()][getNbOfTargets()];
 		// We do not want to use average in covariance computing
 		m_meanTrueValues = new double[getNbOfTargets()];
 
-//		if (getSettings().isOptNormalization()) { // Normalize data inside optimization
-//			normalizeData(optInfo);	
-//		} else
-		if  (!getSettings().isOptNormalization() &&
-				getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE) {
-			m_meanTrueValues = computeMeans(); // TODO ?Compute means for targets over the whole training set
-		}
+		// Mean using seems to reduce accuracy always.
+//		if  (!getSettings().isOptNormalization() &&
+//				getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE) {
+//			m_meanTrueValues = computeMeans();
+//		}
 
 		// If early stopping criteria is chosen, reserve part of the training set for early stop testing.
 		if (getSettings().getOptGDEarlyStopAmount() > 0) {
@@ -151,11 +149,11 @@ public class GDProbl extends OptProbl {
 			m_dataEarlyStop = new OptParam(optInfo.m_rulePredictions.length,
 					optInfo.m_baseFuncPredictions.length,
 					nbDataTest,
-					getNbOfTargets());
+					getNbOfTargets(), optInfo.m_implicitLinearTerms);
 			OptParam rest = new OptParam(optInfo.m_rulePredictions.length,
 					optInfo.m_baseFuncPredictions.length,
 					getNbOfInstances()-nbDataTest,
-					getNbOfTargets());
+					getNbOfTargets(), optInfo.m_implicitLinearTerms);
 
 			// Copy the prediction and true value references (no cloning)
 
@@ -238,7 +236,7 @@ public class GDProbl extends OptProbl {
 
 			changeData(rest);  // Change data for super class
 
-			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop, rset);
+			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop);
 			// Give the same std devs for this smaller part of data.
 			m_earlyStopProbl.modifyDataStatistics(getDataStdDevs());
 
@@ -246,10 +244,6 @@ public class GDProbl extends OptProbl {
 			// want to use it
 			getSettings().setOptRegPar(0);
 			getSettings().setOptNbZeroesPar(0);
-			
-			// if implicit linear terms are used, tell about which instances were selected
-			rset.storeImplicitLinearValidationSet(selectedInstances);
-
 		}
 
 
@@ -270,54 +264,6 @@ public class GDProbl extends OptProbl {
 		// This is called from GDAlg
 		//initGDForNewRunWithSamePredictions();
 	}
-
-//	/** Normalizes the predictions and true values by (x-avg)/(2*std dev).*/
-//	private void normalizeData(OptParam optInfo) {
-//		int nbOfTargets = getNbOfTargets();
-//		int nbOfInstances = getNbOfInstances();
-//		int nbOfRules = optInfo.m_rulePredictions.length;
-//		int nbOfOtherPred = optInfo.m_baseFuncPredictions.length;
-//		
-//		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++){
-//			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++){			
-//				// True values
-//				if (isValidValue(optInfo.m_trueValues[iInstance][iTarget])){
-//					if (!getSettings().isOptDefaultShiftPred() && false) { // TODO is this useful at all?
-//						optInfo.m_trueValues[iInstance][iTarget] -=
-//							getDataMean(iTarget);
-//					}
-//						
-//					optInfo.m_trueValues[iInstance][iTarget] /=
-//						2*getDataStdDev(iTarget);
-//				}
-//			
-//				// Other predictions
-//				for (int iPred = 0; iPred < nbOfOtherPred; iPred++){
-//					// Predictions
-//					if (!getSettings().isOptDefaultShiftPred()&& false) { // TODO is this useful at all?
-//						optInfo.m_baseFuncPredictions[iInstance][iPred][iTarget][0] -=
-//							getDataMean(iTarget);
-//					}
-//					optInfo.m_baseFuncPredictions[iInstance][iPred][iTarget][0] /=
-//						2*getDataStdDev(iTarget);
-//				}
-//			}
-//			
-//			// Rule redictions	
-//			for (int iRule = 0; iRule < nbOfRules; iRule++){
-//
-//				if (!getSettings().isOptDefaultShiftPred()&& false) { // TODO is this useful at all?
-//					optInfo.m_rulePredictions[iRule].m_prediction[iTarget][0]-=
-//						getDataMean(iTarget);
-//				}
-//					
-//				optInfo.m_rulePredictions[iRule].m_prediction[iTarget][0] /=
-//						2*getDataStdDev(iTarget);
-//			}
-//
-//		}
-//	}
-
 
 	/** Initialize GD optimization for new run with same predictions and true values
 	 * This can be used if some parameters change. Thus we e.g. do not compute covariances
@@ -353,30 +299,6 @@ public class GDProbl extends OptProbl {
 		m_stepSize = getSettings().getOptGDStepSize();
 	}
 
-// TODO Moved to OptProbl
-//	/** Compute means (e.g. for covariance computation) for true values
-//	 * For predictions means are not computed because, e.g. for all covering rule the its effect would
-//	 * go to zero (by prediction - mean)
-//	 * If the data is normalized, mean of true value is 0 and mean is not needed to compute*/
-//	//protected void computeMeans(double[] predMeans, double[] trueValMeans) {
-//	protected double[] computeMeans() {
-//		int nbOfTargets = getNbOfTargets();
-//		int nbOfValidValues = 0;
-//		double[] means = new double[nbOfTargets];
-//		
-//		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++){
-//			means[iTarget] = 0;
-//			for (int iInstance = 0; iInstance < getNbOfInstances(); iInstance++){
-//				if (isValidValue(getTrueValue(iInstance,iTarget))){
-//					means[iTarget] +=
-//						getTrueValue(iInstance,iTarget);
-//					nbOfValidValues++;
-//				}
-//			}
-//			means[iTarget] /= nbOfValidValues;
-//		}
-//		return means;
-//	}
 
 	/**
 	 * Generates a zero vector.

@@ -51,7 +51,7 @@ public class DeProbl extends clus.tools.optimization.OptProbl {
 	 *                        The optimization procedure is based on this data information
 	 */
 	public DeProbl(ClusStatManager stat_mgr, OptParam optInfo, ClusRuleSet rset) {
-		super(stat_mgr, optInfo, rset);
+		super(stat_mgr, optInfo);
 
 		m_VarMin = new ArrayList<Double>(getNumVar());
 		m_VarMax = new ArrayList<Double>(getNumVar());

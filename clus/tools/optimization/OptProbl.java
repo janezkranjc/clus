@@ -28,7 +28,6 @@ package clus.tools.optimization;
 import java.util.*;
 
 import clus.main.*;
-import clus.algo.rules.ClusRule;
 import clus.algo.rules.ClusRuleSet;
 import clus.data.rows.DataTuple;
 import clus.data.type.*;
@@ -59,21 +58,18 @@ public class OptProbl {
 	 */
 	static public class OptParam {
 		/** An empty class */
-		public OptParam(int nbRule, int nbOtherBaseFunc, int nbInst, int nbTarg) {
+		public OptParam(int nbRule, int nbOtherBaseFunc, int nbInst, int nbTarg, ImplicitLinearTerms implicitLinTerms) {
 			m_rulePredictions = new RulePred[nbRule]; for (int jRul=0; jRul<nbRule;jRul++) {m_rulePredictions[jRul]=new OptProbl.RulePred(nbInst,nbTarg);}
 //			m_baseFuncPredictions = new double[nbOtherBaseFunc][nbInst][nbTarg][1];	m_trueValues = new double[nbInst][nbTarg];}
-			m_baseFuncPredictions = new double[nbOtherBaseFunc][nbInst][nbTarg][1];	m_trueValues = new TrueValues[nbInst];}
+			m_baseFuncPredictions = new double[nbOtherBaseFunc][nbInst][nbTarg][1];	m_trueValues = new TrueValues[nbInst]; m_implicitLinearTerms = implicitLinTerms;}
 
-		public OptParam(RulePred[] rulePredictions, double[][][][] predictions,	TrueValues[] trueValues){m_rulePredictions = rulePredictions; m_baseFuncPredictions = predictions; m_trueValues = trueValues;}
+		public OptParam(RulePred[] rulePredictions, double[][][][] predictions,	TrueValues[] trueValues, ImplicitLinearTerms implicitLinTerms){m_rulePredictions = rulePredictions; m_baseFuncPredictions = predictions; m_trueValues = trueValues;m_implicitLinearTerms = implicitLinTerms;}
 		//public OptParam(RulePred[] rulePredictions, double[][][][] predictions,	double[][] trueValues ){m_rulePredictions = rulePredictions; m_baseFuncPredictions = predictions; m_trueValues = trueValues;}
 		public RulePred[] m_rulePredictions;
 		public double[][][][] m_baseFuncPredictions;
 		public TrueValues[] m_trueValues;
 		//public double[][] m_trueValues;
-		/** Offset parameter for normalization. Needed overall prediction in loss value computation. NOT
-		 * needed in gradient calculation. */
-//		public double[] m_offsetParam;
-
+		public ImplicitLinearTerms m_implicitLinearTerms = null;
 	}
 
 	/** Number of weights/variables to optimize */
@@ -111,10 +107,10 @@ public class OptProbl {
 
 	/** 
 	 * If we want to save memory (amount of linear terms may be huge) we are not yet explicitly 
-	 * adding the linear terms to the set. Instead we are asking from the rule set for the prediction.
+	 * adding the linear terms to the set. Instead we are asking from the linear term set for the prediction.
 	 * This is used only if a switch is set on.
 	 */
-	protected ClusRuleSet m_LinTermMemSavePred = null;
+	protected ImplicitLinearTerms m_LinTermMemSavePred = null;
 	
 	
 	/**
@@ -153,7 +149,7 @@ public class OptProbl {
 	 *                        The optimization procedure is based on this data information
 	 * @param isClassification Is it classification or regression?
 	 */
-	public OptProbl(ClusStatManager stat_mgr, OptParam optInfo, ClusRuleSet rset) {
+	public OptProbl(ClusStatManager stat_mgr, OptParam optInfo) {
 		m_StatMgr = stat_mgr;
 
 		if (getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY){
@@ -161,10 +157,11 @@ public class OptProbl {
 			int nbOfDescrAtts = m_StatMgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE).length;
 			m_NumVar = (optInfo.m_baseFuncPredictions).length+(optInfo.m_rulePredictions).length
 				+nbOfTargetAtts*nbOfDescrAtts;
-			m_LinTermMemSavePred = rset;
 		}else
 			m_NumVar = (optInfo.m_baseFuncPredictions).length+(optInfo.m_rulePredictions).length;
 		
+		// May be null if not used
+		m_LinTermMemSavePred = optInfo.m_implicitLinearTerms;
 		m_BaseFuncPred = optInfo.m_baseFuncPredictions;
 		m_RulePred = optInfo.m_rulePredictions;
 		m_TrueVal = optInfo.m_trueValues;
@@ -534,7 +531,7 @@ public class OptProbl {
 					                           -prediction[iInstance][jTarget],2);
 				}
 
-				loss += ((double)1)/numberOfTargets*attributeLoss; // TODO: the weights for attributes are now equal
+				loss += ((double)1)/numberOfTargets*attributeLoss;
 				
 				if (getSettings().isOptNormalization()) {
 					loss /= 2*getDataStdDev(jTarget);
@@ -578,7 +575,6 @@ public class OptProbl {
 				attribVariance += Math.pow(attribMean-trueValue[iInstance].m_targets[jTarget],2);
 			}
 
-			// TODO: the weights for attributes are now equal
 			loss += ((double)1)/numberOfTargets*Math.sqrt(attributeLoss/attribVariance);
 		}
 
@@ -623,7 +619,7 @@ public class OptProbl {
 				}
 			}
 
-			loss += ((double)1)/numberOfTargets*attributeLoss; // TODO: the weights for attributes are now equal
+			loss += ((double)1)/numberOfTargets*attributeLoss;
 		}
 
 		return loss/numberOfInstances; // Average loss over instances
@@ -688,7 +684,6 @@ public class OptProbl {
 					accuracy++;
 				}
 			}
-			//TODO add the weights for attributes
 		}
 
 		// For all the target attributes, the weight is now 1/numberOfTargets
@@ -783,7 +778,7 @@ public class OptProbl {
 	final protected double getPredictionsWhenCovered(int iRule, int iInstance, int iTarget, int iClass) {
 		if (iRule >= m_RulePred.length) {
 			if (getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY) {
-				return m_LinTermMemSavePred.predictImplicitLinTerm(iRule-m_RulePred.length,
+				return m_LinTermMemSavePred.predict(iRule-m_RulePred.length,
 						m_TrueVal[iInstance].m_dataExample, iTarget,
 						m_RulePred[0].m_prediction.length); // Nb of targets.
 			} else {

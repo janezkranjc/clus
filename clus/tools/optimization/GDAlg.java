@@ -65,7 +65,7 @@ public class GDAlg extends OptAlg{
 	 */
 	public GDAlg(ClusStatManager stat_mgr, OptProbl.OptParam dataInformation, ClusRuleSet rset) {
 		super(stat_mgr);
-		m_GDProbl = new GDProbl(stat_mgr, dataInformation, rset);
+		m_GDProbl = new GDProbl(stat_mgr, dataInformation);
 		initGDForNewRunWithSamePredictions();
 		m_earlyStopStep = 100;
 	}
@@ -81,8 +81,6 @@ public class GDAlg extends OptAlg{
 
 		// If normalization is not used and rules are not omitted the first rule should be the average
 		// Thus starting from weight 1 is the best way.
-		// TODO If internal normalization of data is used, for omitted predictions the weight
-		// should be set to AVG. So the effect is similar to previous.
 		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED &&
 				!getSettings().isOptOmitRulePredictions() &&
 				getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE &&
@@ -92,9 +90,6 @@ public class GDAlg extends OptAlg{
 			m_weights.set(0,1.0); // default rule
 			m_GDProbl.computeCovariancesIfNeeded(0);
 		}
-//		System.err.println("Remove the following lines");
-//		m_weights.set(0,1.0); // default rule
-//		m_GDProbl.computeCovariancesIfNeeded(0);
 
 		// Oscillation detection
 		m_prevChange = null;

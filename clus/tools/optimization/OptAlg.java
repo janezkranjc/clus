@@ -29,7 +29,6 @@ import java.util.ArrayList;
 
 import clus.main.ClusStatManager;
 import clus.main.Settings;
-import clus.tools.optimization.de.DeProbl;
 
 /**
  * Abstract super class for optimization of weights of base learners.
