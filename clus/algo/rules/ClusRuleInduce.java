@@ -945,11 +945,14 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 				weights = optAlg.optimize();
 			}
 		}
+
+		for (int j = 0; j < rset.getModelSize(); j++) {
+			rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue()); // Set the rule weights
+		}
 		
 		// Print weights of rules
 		if (Settings.VERBOSE > 0) {
 			System.out.print("The weights for rules:");
-
 			for (int j = 0; j < rset.getModelSize(); j++) {
 				rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue()); // Set the rule weights
 				System.out.print(((Double)weights.get(j)).doubleValue()+ "; ");
