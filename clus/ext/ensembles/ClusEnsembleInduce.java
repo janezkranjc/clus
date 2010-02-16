@@ -176,7 +176,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 		for (int i = 1; i <= m_NbMaxBags; i++) {
 			long one_bag_time = ResourceInfo.getTime();
-			System.out.println("Bag: " + i);
+			if (Settings.VERBOSE > 0) System.out.println("Bag: " + i);
 			ClusRun crSingle = new ClusRun(cr.getTrainingSet(), cr.getSummary());
 			DepthFirstInduce ind;
 			if (getSchema().isSparse()) {
@@ -230,7 +230,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 		for (int i = 1; i <= m_NbMaxBags; i++) {
 			long one_bag_time = ResourceInfo.getTime();
-			System.out.println("Bag: " + i);
+			if (Settings.VERBOSE > 0) System.out.println("Bag: " + i);
 			ClusRun crSingle = new ClusRun(cr.getTrainingSet(), cr.getSummary());
 			ClusEnsembleInduce.setRandomSubspaces(cr.getStatManager().getSchema().getDescriptiveAttributes(), cr.getStatManager().getSettings().getNbRandomAttrSelected());
 			DepthFirstInduce ind;
@@ -347,7 +347,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 
 		long one_bag_time = ResourceInfo.getTime();
-		System.out.println("Bag: " + i);
+		if (Settings.VERBOSE > 0) System.out.println("Bag: " + i);
 		ClusRun crSingle = m_BagClus.partitionDataBasic(cr.getTrainingSet(),msel,cr.getSummary(),i);
 		DepthFirstInduce ind;
 		if (getSchema().isSparse()) {
@@ -509,7 +509,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 		for (int i = 1; i <= m_NbMaxBags; i++) {
 			long one_bag_time = ResourceInfo.getTime();
-			System.out.println("Bag: " + i);
+			if (Settings.VERBOSE > 0) System.out.println("Bag: " + i);
 			BaggingSelection msel = new BaggingSelection(nbrows);
 			ClusRun crSingle = m_BagClus.partitionDataBasic(cr.getTrainingSet(),msel,cr.getSummary(),i);
 			ClusEnsembleInduce.setRandomSubspaces(cr.getStatManager().getSchema().getDescriptiveAttributes(), cr.getStatManager().getSettings().getNbRandomAttrSelected());

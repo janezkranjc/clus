@@ -109,6 +109,12 @@ public class ClusRuleLinearTerm extends ClusRule {
 		return C_implicitTerms;
 	}
 	
+	/** When the real linear terms are added to RuleSet, the implicit ones can be deleted */ 
+	static protected void DeleteImplicitLinearTerms() {
+		C_implicitTerms.DeleteImplicitLinearTerms();
+		C_implicitTerms = null;
+	}
+	
 
 	
 	
@@ -232,7 +238,6 @@ public class ClusRuleLinearTerm extends ClusRule {
 	}
 	
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
-		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		wrt.println("Linear term for the numerical attribute with index "+ m_descriptiveDimForLinearTerm 
 				+ " predicting target index " + m_targetDimForLinearTerm);
 			
@@ -251,7 +256,7 @@ public class ClusRuleLinearTerm extends ClusRule {
 			wrt.println("      Average           : " + C_offSetValues[m_descriptiveDimForLinearTerm]);
 		}
 
-		commonPrintForRuleTypes(wrt, info, fr);
+		commonPrintForRuleTypes(wrt, info);
 	}
 	
 	/** Is this a regular rule or some other type of learner (e.g. linear term) */

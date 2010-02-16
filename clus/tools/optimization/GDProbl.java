@@ -238,7 +238,7 @@ public class GDProbl extends OptProbl {
 
 			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop);
 			// Give the same std devs for this smaller part of data.
-			m_earlyStopProbl.modifyDataStatistics(getDataStdDevs());
+			m_earlyStopProbl.modifyDataStatistics(getNormFactors());
 
 			// We are using Fitness function of  the problem. Let us put the reg penalty to 0 because we do not
 			// want to use it
@@ -351,7 +351,7 @@ public class GDProbl extends OptProbl {
 
 			covs[iTarget] /= getNbOfInstances();
 			if (getSettings().isOptNormalization()) {
-				covs[iTarget] /= 2*getDataStdDev(iTarget);
+				covs[iTarget] /= getNormFactor(iTarget);
 			}
 		}
 
@@ -441,7 +441,7 @@ public class GDProbl extends OptProbl {
 			covs[iTarget] /= getNbOfInstances();
 			
 			if (getSettings().isOptNormalization()) {
-				covs[iTarget] /= 2*getDataStdDev(iTarget);
+				covs[iTarget] /= getNormFactor(iTarget);
 			}
 		}
 		

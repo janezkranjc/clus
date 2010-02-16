@@ -1007,6 +1007,15 @@ public class Settings implements Serializable {
 	/** Use linear terms in optimization, but add them explicitly after optimization (if weight is zero). */
 	public final static int OPT_GD_ADD_LIN_YES_SAVE_MEMORY = 2;
 	
+	public final static String[] OPT_NORMALIZATION = {"No", "Yes", "YesVariance"};
+	/** Do not normalize*/
+	public final static int OPT_NORMALIZATION_NO = 0;
+	/** Normalize during optimization with 2*std dev. Default. */
+	public final static int OPT_NORMALIZATION_YES = 1;
+	/** Normalize during optimization with variance. */
+	public final static int OPT_NORMALIZATION_YES_VARIANCE = 2;
+
+	
 	// Settings in the settings file.
 	protected INIFileNominal m_CoveringMethod;
 	protected INIFileNominal m_PredictionMethod;
@@ -1082,8 +1091,10 @@ public class Settings implements Serializable {
 	 * The normalization is done with statistical factors of TARGET ATTRIBUTES.
 	 * This normalization is inverted after the optimization. On default YES, because
 	 * it should make at least GD optimization work better (covariance computing may not work otherwise).
-	 * This makes the error function very similar to RRMSE.*/
-	protected INIFileBool m_OptNormalization;
+	 * This makes the error function very similar to RRMSE.
+	 * Alternatively YesVariance normalizes with variance.*/
+//	protected INIFileBool m_OptNormalization;
+	protected INIFileNominal m_OptNormalization;
 
 	// Gradient descent optimization
 	/** GD Maximum amount of iterations */
@@ -1346,9 +1357,13 @@ public class Settings implements Serializable {
 	
 	/** Do we normalize the predictions and true values internally for optimization.*/
 	public boolean isOptNormalization() {
-	  	return m_OptNormalization.getValue();
+	  	return m_OptNormalization.getValue() != Settings.OPT_NORMALIZATION_NO;
 	}
 
+	/** How we normalize the predictions and true values internally for optimization.*/
+	public int getOptNormalization() {
+	  	return m_OptNormalization.getValue();
+	}
 	/** Type of Loss function for DE optimization */
 	public int getOptDELossFunction() {
 		return m_OptLossFunction.getValue();
@@ -2104,7 +2119,8 @@ public class Settings implements Serializable {
 		m_SectionRules.addNode(m_OptLinearTermsTruncate = new INIFileBool("OptLinearTermsTruncate", true));
 		m_SectionRules.addNode(m_OptOmitRulePredictions = new INIFileBool("OptOmitRulePredictions", true));
 		m_SectionRules.addNode(m_OptWeightGenerality = new INIFileBool("OptWeightGenerality", false));
-		m_SectionRules.addNode(m_OptNormalization = new INIFileBool("OptNormalization", true));
+//		m_SectionRules.addNode(m_OptNormalization = new INIFileBool("OptNormalization", true));
+		m_SectionRules.addNode(m_OptNormalization = new INIFileNominal("OptNormalization", OPT_NORMALIZATION, OPT_NORMALIZATION_YES));
 		m_SectionRules.addNode(m_OptHuberAlpha = new INIFileDouble("OptHuberAlpha", 0.9));
 		m_SectionRules.addNode(m_OptGDMaxIter = new INIFileInt("OptGDMaxIter", 1000));
 //		m_SectionRules.addNode(m_OptGDLossFunction = new INIFileNominal("OptGDLossFunction", GD_LOSS_FUNCTIONS, 0));

@@ -144,7 +144,7 @@ public class Clus implements CMDLineArgsProvider {
 
 		if (getSettings().getNormalizeData() != Settings.NORMALIZE_DATA_NONE) {
 			System.out.println("Normalizing numerical data");
-			m_Data = returnNormalizedData();
+			m_Data = returnNormalizedData(m_Data);
 		}
 
 		m_Schema.printInfo();
@@ -822,11 +822,12 @@ public class Clus implements CMDLineArgsProvider {
 	 * @throws IOException
 	 * @throws ClusException
 	 */
-	public final RowData returnNormalizedData() throws IOException,
-			ClusException {
-		RowData data = m_Data;
+	public static final RowData returnNormalizedData(RowData data)
+	//throws IOException, ClusException 
+	{
+//		RowData data = m_Data;
 
-		NumericAttrType[] numTypes = getSchema().getNumericAttrUse(
+		NumericAttrType[] numTypes = data.getSchema().getNumericAttrUse(
 				ClusAttrType.ATTR_USE_ALL);
 		// NominalAttrType[] nomTypes =
 		// getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
@@ -939,7 +940,7 @@ public class Clus implements CMDLineArgsProvider {
 			normalized.add(tuple);
 		}
 
-		RowData normalized_data = new RowData(normalized, getSchema());
+		RowData normalized_data = new RowData(normalized, data.getSchema());
 		System.out.println("Normalized number of examples: "
 				+ normalized_data.getNbRows());
 

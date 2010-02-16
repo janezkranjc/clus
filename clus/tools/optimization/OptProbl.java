@@ -138,7 +138,7 @@ public class OptProbl {
 //	/** For normalization during optimization, the averages for each of the targets */
 //	private double[] m_TargetAvg;
 	/** For normalization during optimization, the std devs for each of the targets */
-	private double[] m_TargetStdDev;
+	private double[] m_TargetNormFactor;
 	
 	
 
@@ -185,7 +185,7 @@ public class OptProbl {
 		
 		if (!m_ClssTask) { // regression
 			double[] targetAvg = computeMeans();
-			m_TargetStdDev = computeDataStdDevs(targetAvg);
+			m_TargetNormFactor = computeOptNormFactors(targetAvg);
 		}
 		
 	}
@@ -193,13 +193,13 @@ public class OptProbl {
 	/**
 	 * Modify the data information. If we already have the averages and stdDevs computed, use them instead.
 	 * @param averages Averages for each target.
-	 * @param stdDevs Standard deviations for each target.
+	 * @param normFactor Standard deviations for each target.
 	 * 
 	 */
 //	protected void modifyDataStatistics(double[] averages, double[] stdDevs ) {
-	protected void modifyDataStatistics(double[] stdDevs ) {
+	protected void modifyDataStatistics(double[] normFactor ) {
 //		m_TargetAvg = averages;
-		m_TargetStdDev = stdDevs;
+		m_TargetNormFactor = normFactor;
 	}
 
 
@@ -534,7 +534,7 @@ public class OptProbl {
 				loss += ((double)1)/numberOfTargets*attributeLoss;
 				
 				if (getSettings().isOptNormalization()) {
-					loss /= 2*getDataStdDev(jTarget);
+					loss /= getNormFactor(jTarget);
 				}
 			}
 		}
@@ -873,18 +873,19 @@ public class OptProbl {
 		return means;
 	}
 	
-	/** Compute standard deviations for given values.
+	/** Compute normalization scaling factors for given values.
 	 * To normalize the targets you should divide with 2* stddev (after shifting by - avg).
 	 * After this transformation the mean should be about 0.0 and variance about 0.25
 	 * (and standard deviation 0.5). Thus 95% of values should be between [-1,1] (assuming normal distribution).
 	 * If stdDev would be zero, we return 0.5 (and thus the divider should be 2*0.5 = 1).
+	 * Another option is to normalize with the variance (similar to RRMSE then).
 	 * @param means Precomputed means.
 	 * @return Standard deviations for targets of the data.*/
-	private double[] computeDataStdDevs(double[] means) {
+	private double[] computeOptNormFactors(double[] means) {
 		int nbOfTargets = getNbOfTargets();
 		int nbOfInstances = getNbOfInstances();
-
-		double[] stdDevs = new double[nbOfTargets];
+	
+		double[] scaleFactor = new double[nbOfTargets];
 		
 		// Compute variances
 		for (int jTarget = 0; jTarget < nbOfTargets; jTarget++) {
@@ -910,20 +911,24 @@ public class OptProbl {
 				variance /= nbOfValidValues;
 			}
 			
-			stdDevs[jTarget] = Math.sqrt(variance);
+			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES)
+				scaleFactor[jTarget] = 2*Math.sqrt(variance);
+			else //Settings.OPT_NORMALIZATION_YES_VARIANCE
+				scaleFactor[jTarget] = variance;
+				
 		}
 
-		return stdDevs;
+		return scaleFactor;
 	}
 	
-	/** For normalization during optimization, the std devs for each of the targets */	
-	protected double getDataStdDev(int iTarget) {
-		return m_TargetStdDev[iTarget];
+	/** For normalization during optimization, the scaling factor for each of the targets */	
+	protected double getNormFactor(int iTarget) {
+		return m_TargetNormFactor[iTarget];
 	}
 
 	/** For normalization during optimization, the std devs for each of the targets */	
-	protected double[] getDataStdDevs() {
-		return m_TargetStdDev;
+	protected double[] getNormFactors() {
+		return m_TargetNormFactor;
 	}
 	
 //	/** For normalization during optimization, the averages for each of the targets */	

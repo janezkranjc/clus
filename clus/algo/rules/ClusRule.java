@@ -478,7 +478,6 @@ public class ClusRule implements ClusModel, Serializable {
 	}
 
 	public void printModel(PrintWriter wrt, StatisticPrintInfo info) {
-		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		wrt.print("IF ");
 		if (m_Tests.size() == 0) {
 			wrt.print("true");
@@ -505,11 +504,12 @@ public class ClusRule implements ClusModel, Serializable {
 			wrt.print(extra);
 		}
 
-		commonPrintForRuleTypes(wrt, info, fr);
+		commonPrintForRuleTypes(wrt, info);
 	}
 	
 	/** Print for also nonregular rules */
-	protected void commonPrintForRuleTypes(PrintWriter wrt, StatisticPrintInfo info, NumberFormat fr) {
+	protected void commonPrintForRuleTypes(PrintWriter wrt, StatisticPrintInfo info) {
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		if (getSettings().isRulePredictionOptimized()) {
 			wrt.println("\n   Rule weight        : " + fr.format(getOptWeight()));
 		}
@@ -705,7 +705,7 @@ public class ClusRule implements ClusModel, Serializable {
 	}
 
 	public double getOptWeight() {
-		if (m_OptWeight != -1) { // FIXME this is not any more the sign for uninitialized weight
+		if (m_OptWeight != -1) { // TODO this is not ALWAYS the sign for uninitialized weight
 			return m_OptWeight;
 		} else {
 			System.err.println("Warning: Optimal rule weight not initialized!");

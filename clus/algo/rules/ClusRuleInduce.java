@@ -933,6 +933,10 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 						// Fitness is smaller than previously, store these weights
 						weights = newWeights;
 						minFitness = gdalg.getBestFitness();
+						
+						rset.m_optWeightBestTValue = firstTVal+iRun*interTVal;
+						rset.m_optWeightBestFitness = minFitness;
+						
 						if (Settings.VERBOSE > 0) 
 							System.err.println("\nThe T value " + (firstTVal+iRun*interTVal) +
 								" is best so far with test fitness: " + minFitness);

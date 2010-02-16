@@ -69,6 +69,11 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	protected boolean m_HasRuleErrors;
 	protected String m_Comment;
 	
+	/** If weights are optimized, what was the best T value that was used for this rule set */
+	protected double m_optWeightBestTValue = 0;
+	/** If weights are optimized, what was the fitness of best T value that was used for this rule set */
+	protected double m_optWeightBestFitness = 0;
+	
 	public ClusRuleSet(ClusStatManager statmanager) {
 		m_StatManager = statmanager;
 	}
@@ -391,6 +396,19 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		double[][] avg_dispersion = new double[2][3];
 		double[] avg_coverage = new double[2];
 		double[][] avg_prod = new double[2][3];
+		
+		if (!Settings.isPrintAllRules())
+			wrt.println("Set of "+ m_Rules.size() +" rules.\n");
+		
+		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED
+				&& getSettings().getOptGDNbOfTParameterTry() > 1) {
+			// Print the T value that won the game.
+			wrt.println("Gradient descent optimization: Smallest test fitness of "
+					+ fr.format(m_optWeightBestFitness) + " with T value: " + fr.format(m_optWeightBestTValue) + "\n");
+			
+		}
+				
+		
 		for (int i = 0; i < m_Rules.size(); i++) {
 			ClusRule rule = (ClusRule)m_Rules.get(i);
 			if (headers) {
@@ -431,9 +449,6 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				wrt.println();
 			}
 		}
-
-		if (!Settings.isPrintAllRules())
-			wrt.println("Set of "+ m_Rules.size() +" rules.\n");
 
 		if (m_TargetStat != null && m_TargetStat.isValidPrediction()) {
 			if (headers) {
@@ -761,6 +776,7 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	 * @return Parameters for optimization. Include true values and predictions for each of the data instances.
 	 */
 	public OptProbl.OptParam giveFormForWeightOptimization(PrintWriter outLogFile, RowData data){
+		//data = Clus.returnNormalizedData(data);
 
 		ClusSchema schema = data.getSchema();
 
@@ -1273,6 +1289,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}	
 		if (Settings.VERBOSE > 0) 
 			System.out.println("\tAdded "+ addedTerms +" linear terms explicitly to the set.");
+		
+		ClusRuleLinearTerm.DeleteImplicitLinearTerms(); // Not needed anymore
 
 	}
 }
