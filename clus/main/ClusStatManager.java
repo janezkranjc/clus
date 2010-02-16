@@ -90,7 +90,7 @@ public class ClusStatManager implements Serializable {
 
 	protected boolean m_BeamSearch;
 
-	protected boolean m_RuleInduce;
+	protected boolean m_RuleInduceOnly;
 
 	protected Settings m_Settings;
 
@@ -214,7 +214,7 @@ public class ClusStatManager implements Serializable {
 			result.setAllWeights(winfo.getDouble());
 		}
 		// Normalize the weights for classification/regression rules only
-		if (isRuleInduce() && isClassificationOrRegression()) {
+		if (isRuleInduceOnly() && isClassificationOrRegression()) {
 			double sum = 0;
 			for (int i = 0; i < num.length; i++) {
 				NumericAttrType cr_num = num[i];
@@ -242,7 +242,8 @@ public class ClusStatManager implements Serializable {
 		NumericAttrType[] num = m_Schema.getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
 		NominalAttrType[] nom = m_Schema.getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
 		initWeights(m_DispersionWeights, num, nom, getSettings().getDispersionWeights());
-		if (getSettings().getVerbose() >= 1 && isRuleInduce() && getSettings().computeDispersion()) {
+		if (getSettings().getVerbose() >= 1 && (isRuleInduceOnly() || isTreeToRuleInduce())
+				&& getSettings().computeDispersion()) {
 			System.out.println("Dispersion:   "	+ m_DispersionWeights.getName(m_Schema.getAllAttrUse(ClusAttrType.ATTR_USE_ALL)));
 		}
 	}
@@ -295,7 +296,7 @@ public class ClusStatManager implements Serializable {
 			RegressionStat rstat = cmb.getRegressionStat();
 			rstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
 			// Normalization is currently required for trees but not for rules
-			if (!isRuleInduce()) {
+			if (!isRuleInduceOnly()) {
 				ClassificationStat cstat = cmb.getClassificationStat();
 				cstat.initNormalizationWeights(m_NormalizationWeights, shouldNormalize);
 			}
@@ -392,7 +393,7 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public boolean heuristicNeedsCombStat() {
-		if (isRuleInduce()) {
+		if (isRuleInduceOnly()) {
 			//if (m_Mode == MODE_HIERARCHICAL) {
 			//	return false;
 			//}
@@ -586,7 +587,7 @@ public class ClusStatManager implements Serializable {
 
 	public void initHeuristic() throws ClusException {
 		// All rule learning heuristics should go here, except for rules from trees
-		if (isRuleInduce() && m_Settings.getCoveringMethod() != Settings.COVERING_METHOD_RULES_FROM_TREE) {
+		if (isRuleInduceOnly() && !isTreeToRuleInduce()) {
 			initRuleHeuristic();
 			return;
 		}
@@ -993,12 +994,17 @@ public class ClusStatManager implements Serializable {
 			return true;
 	}
 
-	public void setRuleInduce(boolean rule) {
-		m_RuleInduce = rule;
+	public void setRuleInduceOnly(boolean rule) {
+		m_RuleInduceOnly = rule;
 	}
 
-	public boolean isRuleInduce() {
-		return m_RuleInduce;
+	public boolean isRuleInduceOnly() {
+		return m_RuleInduceOnly;
+	}
+
+	/** Often Tree to Rule is a exception for isRuleInduceOnly */
+	public boolean isTreeToRuleInduce() {
+		return getSettings().getCoveringMethod() == Settings.COVERING_METHOD_RULES_FROM_TREE;
 	}
 
 	public void setBeamSearch(boolean beam) {
@@ -1118,6 +1124,9 @@ public class ClusStatManager implements Serializable {
 			// Multi-label classification
 		} else if (covering == Settings.COVERING_METHOD_UNION) {
 			sett.setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_UNION);
+		} else if (covering == Settings.COVERING_METHOD_RULES_FROM_TREE) {
+			sett.setHeuristic(Settings.HEURISTIC_VARIANCE_REDUCTION);
+			sett.setRuleAddingMethod(Settings.RULE_ADDING_METHOD_ALWAYS);		
 		}
 	}
 }

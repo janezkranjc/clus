@@ -178,7 +178,7 @@ public class FindBestTestRules extends FindBestTest {
 			m_BestTest.m_PosStat.updateWeighted(tuple, i);
 		}
 		// For rules check inverse splits also
-		if (m_StatManager.isRuleInduce()) {
+		if (m_StatManager.isRuleInduceOnly()) {
 			m_BestTest.reset();
 			DataTuple next_tuple = data.getTuple(nb_rows-1);
 			double next = at.getNumeric(next_tuple);

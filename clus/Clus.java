@@ -167,7 +167,7 @@ public class Clus implements CMDLineArgsProvider {
 		// but the transformation for rules is used.
 		// It is also possible to use command line parameter -rules and use
 		// trees as a covering method.
-		if (!m_Induce.getStatManager().isRuleInduce())
+		if (!m_Induce.getStatManager().isRuleInduceOnly())
 			m_Sett.disableRuleInduceParams();
 		// Set XVal field in Settings
 		if (isxval)

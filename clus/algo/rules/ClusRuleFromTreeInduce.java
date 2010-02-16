@@ -100,7 +100,17 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		ClusEnsembleInduce ensemble = new ClusEnsembleInduce(this, m_Clus);
 
 		ensemble.induceAll(cr);
-
+		getSettings().returnRuleInduceParams();
+		
+		// Following  might cause problems
+		//	clus.main.ClusStatManager.heuristicNeedsCombStat() -- ok as long as Heuristic = VarianceReduction	
+		//	clus.main.ClusStatManager.initDispersionWeights -- ok (just printing)
+		//clus.main.ClusStatManager.initHeuristic -- treetorule was already excluded
+		//clus.main.ClusStatManager.initNormalizationWeights -- ok does not hold for tree to rule
+		//clus.main.ClusStatManager.initWeighs -- ok, if left away makes the ensemble be as good as it is with forest only
+		// however, not sure if this affects the FIRE at all - normalization for rules (changes weights)
+		// clus.initialize -- ok, the undefined values have to be restored(?)
+		
 		/** The real trained ensemble model without pruning. Use unpruned tree because weight optimizing
 		 * should get rid of bad rules anyway. */
 		ClusForest forestModel = (ClusForest)cr.getModel(ClusModel.ORIGINAL);

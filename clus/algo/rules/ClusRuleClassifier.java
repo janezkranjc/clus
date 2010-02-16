@@ -55,8 +55,8 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 			} else {
 				induce = (ClusInductionAlgorithm) new ClusRuleInduce(schema, sett);
 			}
+			induce.getStatManager().setRuleInduceOnly(true); // Tells that the rule is the way to go
 		}
-		induce.getStatManager().setRuleInduce(true); // Tells that the rule is the way to go
 		induce.getStatManager().initRuleSettings();
 		return induce;
 	}
@@ -78,7 +78,11 @@ public class ClusRuleClassifier extends ClusInductionAlgorithmType {
 	}
 
 	public void postProcess(ClusRun cr) throws ClusException, IOException {
-		ClusModelInfo def_model = cr.addModelInfo(ClusModel.DEFAULT);
-		def_model.setModel(ClusDecisionTree.induceDefault(cr));
+		// For RulesFromTree the default is already an ensemble.
+		if (getSettings().getCoveringMethod() != Settings.COVERING_METHOD_RULES_FROM_TREE) {
+			ClusModelInfo def_model = cr.addModelInfo(ClusModel.DEFAULT);
+			def_model.setModel(ClusDecisionTree.induceDefault(cr));
+		}
+
 	}
 }

@@ -1251,12 +1251,27 @@ public class Settings implements Serializable {
 	 	return m_HeurPrototypeDistPar.getValue() > 0;
 	}
 
+	private double m_origHeurRuleDistPar = 0;
+	private int m_origRulePredictionMethod = 0;
+	private int m_origCoveringMethod = 0;
+	
 	public void disableRuleInduceParams() {
+		m_origHeurRuleDistPar = getHeurRuleDistPar();
+		m_origRulePredictionMethod = getRulePredictionMethod();
+		m_origCoveringMethod = getCoveringMethod();
+		
 		setHeurRuleDistPar(0.0);
 		setRulePredictionMethod(RULE_PREDICTION_METHOD_DECISION_LIST);
 		setCoveringMethod(COVERING_METHOD_RULES_FROM_TREE);
 	}
 
+	public void returnRuleInduceParams() {
+		setHeurRuleDistPar(m_origHeurRuleDistPar);
+		setRulePredictionMethod(m_origRulePredictionMethod);
+		setCoveringMethod(m_origCoveringMethod);
+	}
+
+	
 	public boolean computeDispersion() {
 		return m_ComputeDispersion.getValue();
   	}
