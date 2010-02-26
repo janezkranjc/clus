@@ -73,7 +73,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	
     /** Random tree depths for different iterations, used for tree to rules optimization procedures.
      * This is static because we want different tree depths for different folds. */
-	static protected Random m_randTreeDepth = new Random(0);
+//	static protected Random m_randTreeDepth = new Random(0);
 
 	public ClusEnsembleInduce(ClusSchema schema, Settings sett, Clus clus) throws ClusException, IOException {
 		super(schema, sett);
@@ -342,8 +342,9 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	public void induceOneBag(ClusRun cr, int i, int origMaxDepth, OOBSelection oob_sel, OOBSelection oob_total, TupleIterator train_iterator, TupleIterator test_iterator, BaggingSelection msel) throws ClusException, IOException {
 		if (getSettings().isEnsembleRandomDepth()) {
 			// Set random tree max depth
-			getSettings().setTreeMaxDepth(GDProbl.randDepthWighExponentialDistribution(m_randTreeDepth.nextDouble(),
-																				 origMaxDepth));
+			getSettings().setTreeMaxDepth(GDProbl.randDepthWighExponentialDistribution(
+//					m_randTreeDepth.nextDouble(),
+					ClusRandom.nextDouble(ClusRandom.RANDOM_INT_RANFOR_TREE_DEPTH), origMaxDepth));
 		}
 
 		long one_bag_time = ResourceInfo.getTime();

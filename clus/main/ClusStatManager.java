@@ -98,6 +98,7 @@ public class ClusStatManager implements Serializable {
 
 	protected ClusStatistic[] m_StatisticAttrUse;
 
+	/** Variance used for normalization of attributes during error computation etc. */
 	protected ClusAttributeWeights m_NormalizationWeights;
 
 	protected ClusAttributeWeights m_ClusteringWeights;
@@ -267,6 +268,7 @@ public class ClusStatManager implements Serializable {
 		}
 	}
 
+	/** Initializes normalization weights to m_NormalizationWeights variable */
 	public void initNormalizationWeights(ClusStatistic stat, ClusData data)	throws ClusException {
 		int nbattr = m_Schema.getNbAttributes();
 		m_NormalizationWeights.setAllWeights(1.0);

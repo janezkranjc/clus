@@ -25,6 +25,8 @@
  */
 package clus.tools.optimization;
 
+import java.io.PrintWriter;
+import java.text.NumberFormat;
 import java.util.*;
 
 import clus.main.*;
@@ -32,6 +34,7 @@ import clus.algo.rules.ClusRuleSet;
 import clus.data.rows.DataTuple;
 import clus.data.type.*;
 import clus.statistic.*;
+import clus.util.ClusFormat;
 
 // Created 28.11.2008 from previous DeProbl class
 
@@ -135,8 +138,9 @@ public class OptProbl {
 	private ClusStatManager m_StatMgr;
 	private boolean m_ClssTask;
 	
-//	/** For normalization during optimization, the averages for each of the targets */
-//	private double[] m_TargetAvg;
+	/** For normalization during optimization, the averages for each of the targets.
+	 * If normalization is not used, means equal 0.*/
+	private double[] m_TargetAvg;
 	/** For normalization during optimization, the std devs for each of the targets */
 	private double[] m_TargetNormFactor;
 	
@@ -183,9 +187,17 @@ public class OptProbl {
 		
 		// Compute data statistics
 		
-		if (!m_ClssTask) { // regression
-			double[] targetAvg = computeMeans();
-			m_TargetNormFactor = computeOptNormFactors(targetAvg);
+		if (!m_ClssTask) { // regression	
+			m_TargetAvg = new double[getNbOfTargets()]; // Only zeroes
+			
+			// Normalization factors and means are only stored if they are used 
+			if (getSettings().isOptNormalization()) {
+				double[] means = computeMeans();
+				m_TargetNormFactor = computeOptNormFactors(means);
+				if (getSettings().getOptNormalization() != Settings.OPT_NORMALIZATION_ONLY_SCALING)
+					m_TargetAvg = means;
+			}
+							
 		}
 		
 	}
@@ -196,9 +208,9 @@ public class OptProbl {
 	 * @param normFactor Standard deviations for each target.
 	 * 
 	 */
-//	protected void modifyDataStatistics(double[] averages, double[] stdDevs ) {
-	protected void modifyDataStatistics(double[] normFactor ) {
-//		m_TargetAvg = averages;
+	protected void modifyDataStatistics(double[] averages, double[] normFactor ) {
+//	protected void modifyDataStatistics(double[] normFactor ) {
+		m_TargetAvg = averages;
 		m_TargetNormFactor = normFactor;
 	}
 
@@ -487,7 +499,7 @@ public class OptProbl {
 			//Default case
 		case Settings.OPT_LOSS_FUNCTIONS_SQUARED:
 		default:
-			loss = lossSquared(getTrueValues(), prediction, iTarget);
+			loss = lossSquared(prediction, iTarget);
 			break;
 		}
 
@@ -501,7 +513,7 @@ public class OptProbl {
 	 * @param prediction The prediction. [Instance][Target]
 	 * @return Loss for the data.
 	 */
-	private double lossSquared(TrueValues[] trueValue, double[][] prediction, int indTarget)
+	private double lossSquared( double[][] prediction, int indTarget)
 	{
 
 		double loss = 0;
@@ -512,7 +524,7 @@ public class OptProbl {
 
 			for(int iInstance = 0; iInstance < numberOfInstances; iInstance++)
 			{
-				loss += Math.pow(trueValue[iInstance].m_targets[indTarget]-prediction[iInstance][indTarget],2);
+				loss += Math.pow(getTrueValue(iInstance,indTarget)-prediction[iInstance][indTarget],2);
 			}
 
 		} else {
@@ -527,7 +539,7 @@ public class OptProbl {
 					//					boolean debug = false;
 					//					debug = true;
 					//				}
-					attributeLoss += Math.pow(trueValue[iInstance].m_targets[jTarget]
+					attributeLoss += Math.pow(getTrueValue(iInstance,jTarget)
 					                           -prediction[iInstance][jTarget],2);
 				}
 
@@ -808,12 +820,13 @@ public class OptProbl {
 	}
 
 	protected double getTrueValue(int iInstance, int iTarget)  {
-		return m_TrueVal[iInstance].m_targets[iTarget];
+		return m_TrueVal[iInstance].m_targets[iTarget]-m_TargetAvg[iTarget];
 	}
 
 	/**
 	 * The loss function should be separate in the sense
 	 * that it does not use member functions.
+	 * OBSOLETE, does not take into account target avg even if it should!
 	 * @return
 	 */
 	private TrueValues[] getTrueValues() {
@@ -861,6 +874,7 @@ public class OptProbl {
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++){
 			int nbOfValidValues = 0;
 			means[iTarget] = 0;
+			
 			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++){
 				if (isValidValue(getTrueValue(iInstance,iTarget))){
 					means[iTarget] +=
@@ -868,6 +882,7 @@ public class OptProbl {
 					nbOfValidValues++;
 				}
 			}
+		
 			means[iTarget] /= nbOfValidValues;
 		}
 		return means;
@@ -879,6 +894,8 @@ public class OptProbl {
 	 * (and standard deviation 0.5). Thus 95% of values should be between [-1,1] (assuming normal distribution).
 	 * If stdDev would be zero, we return 0.5 (and thus the divider should be 2*0.5 = 1).
 	 * Another option is to normalize with the variance (similar to RRMSE then).
+	 * However, because in squared loss we are taking the normalization outside the loss function
+	 * we have to take square of these, thus variance^2 and stddev^2
 	 * @param means Precomputed means.
 	 * @return Standard deviations for targets of the data.*/
 	private double[] computeOptNormFactors(double[] means) {
@@ -911,17 +928,26 @@ public class OptProbl {
 				variance /= nbOfValidValues;
 			}
 			
-			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES)
-				scaleFactor[jTarget] = 2*Math.sqrt(variance);
-			else //Settings.OPT_NORMALIZATION_YES_VARIANCE
-				scaleFactor[jTarget] = variance;
+			
+			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES_VARIANCE)
+				scaleFactor[jTarget] = Math.pow(variance,2.0);
+			else
+				scaleFactor[jTarget] = 4*variance;
+				
+			
+//			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES)
+//				scaleFactor[jTarget] = 2*Math.sqrt(variance);
+//			else //Settings.OPT_NORMALIZATION_YES_VARIANCE
+//				scaleFactor[jTarget] = variance;
 				
 		}
 
 		return scaleFactor;
 	}
 	
-	/** For normalization during optimization, the scaling factor for each of the targets */	
+	/** For normalization during optimization, the scaling factor for each of the targets.
+	 * For single prediction/true value Math.sqrt() of this should be used, because this is 
+	 * meant for e.g. covariance computing. */	
 	protected double getNormFactor(int iTarget) {
 		return m_TargetNormFactor[iTarget];
 	}
@@ -931,10 +957,120 @@ public class OptProbl {
 		return m_TargetNormFactor;
 	}
 	
+	protected double[] getMeans() {
+		return m_TargetAvg;
+	}
+	
+	
+	/** Prepare predictions for normalization, the predictions might have to be changed */
+	protected void preparePredictionsForNormalization() {
+	
+		// Preparations are needed only if some normalization with average shifting is needed.
+		// Also prediction omitting negates the need for these
+		if (!getSettings().isOptNormalization() 
+				|| getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_ONLY_SCALING
+				|| getSettings().isOptOmitRulePredictions())
+			return;
+		
+		// Change only the first rule, this changes the overall average of predictions
+		// The first rule should now include the averages in practice, check this
+		for (int iTarg = 0; iTarg < getNbOfTargets(); iTarg++) {
+			if (getPredictionsWhenCovered(0, 0, iTarg) != m_TargetAvg[iTarg]) {
+				System.err.println("Error: Difference in preparePredictionsForNormalization for target nb "+ iTarg
+						+ ". The values are " + getPredictionsWhenCovered(0, 0, iTarg)
+						+ " and " + m_TargetAvg[iTarg]);
+				System.exit(1);
+			}
+			m_RulePred[0].m_prediction[iTarg][0] = Math.sqrt(getNormFactor(iTarg));
+		}
+		
+
+	}
+	/** Changes rule set to undo the changes done to predictions */
+	protected void changeRuleSetToUndoNormNormalization(ClusRuleSet rset) {
+		// These are needed only if some normalization with average shifting is needed.
+		if (!getSettings().isOptNormalization() 
+				|| getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_ONLY_SCALING)
+			return;
+
+		double[] newPred = new double[getNbOfTargets()];
+		for (int iTarg = 0; iTarg < getNbOfTargets(); iTarg++) {
+			 // Let's add the prediction got in the optimization to the average
+			newPred[iTarg] = getPredictionsWhenCovered(0, 0, iTarg)*rset.getRule(0).getOptWeight()
+							+m_TargetAvg[iTarg];
+		}
+		rset.getRule(0).setNumericPrediction(newPred);
+		rset.getRule(0).setOptWeight(1.0);
+	}
+	
+	
+	
 //	/** For normalization during optimization, the averages for each of the targets */	
 //	protected double getDataMean(int iTarget) {
 //		return m_TargetAvg[iTarget];
 //	}
+
+
+	private String printPred(int ruleIndex, int exampleIndex) {
+		NumberFormat fr = ClusFormat.THREE_AFTER_DOT;
+		String print = "[";
+		for (int iTarg = 0; iTarg < getNbOfTargets(); iTarg++) {
+			double pred = (double)getPredictionsWhenCovered(ruleIndex, exampleIndex, iTarg);
+			if (getSettings().isOptNormalization()) {
+				pred /= Math.sqrt(getNormFactor(iTarg)); // For single pred you have to take sqrt
+			}
+			print += "" + fr.format(pred);
+			if (iTarg != getNbOfTargets()-1)
+				print += "; ";
+		}
+		print += "]";
+		return print;
+	}
+	
+	/** Print predictions to output file. */
+	protected void printPredictionsToFile(PrintWriter wrt) {
+		wrt.print("Norm factors: [");
+		for (int iTarget = 0; iTarget < getNbOfTargets(); iTarget++) {
+			wrt.print(getNormFactor(iTarget));
+			if (iTarget != getNbOfTargets()-1)
+				wrt.print("; ");
+		}
+		wrt.print("]\n");
+		for (int iRule = 0; iRule < getNumVar(); iRule++) {
+			if (iRule < m_RulePred.length)
+				wrt.print(printPred(iRule, 0));
+			else {
+				// Print for all the instances
+				for (int iInstance = 0; iInstance < this.getNbOfInstances(); iInstance++){
+					wrt.print(isCovered(iRule, iInstance) ? printPred(iRule, 0):"[NA]");
+				}
+			}
+			wrt.print("\n");
+		}
+
+	}
+
+
+	/** Print true values to output file. */
+	protected void printTrueValuesToFile(PrintWriter wrt) {
+		NumberFormat fr = ClusFormat.THREE_AFTER_DOT;
+		for (int iTrueVal = 0; iTrueVal < getNbOfInstances(); iTrueVal++) {
+
+			wrt.print("[");
+			for (int iTarg = 0; iTarg < getNbOfTargets(); iTarg++) {
+				double val = (double)getTrueValue(iTrueVal, iTarg);
+				if (getSettings().isOptNormalization()) {
+					val /= Math.sqrt(getNormFactor(iTarg));
+				}
+				wrt.print(fr.format(val));
+				if (iTarg != getNbOfTargets()-1)
+					wrt.print("; ");
+			}
+			wrt.print("]\n");
+
+		}
+		wrt.print("\n");
+	}
 
 	
 }

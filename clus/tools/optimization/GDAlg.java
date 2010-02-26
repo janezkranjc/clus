@@ -25,6 +25,7 @@
  */
 package clus.tools.optimization;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -68,6 +69,27 @@ public class GDAlg extends OptAlg{
 		m_GDProbl = new GDProbl(stat_mgr, dataInformation);
 		initGDForNewRunWithSamePredictions();
 		m_earlyStopStep = 100;
+
+		// If you want to check these, put early stop amount to 0
+		if (GDProbl.m_printGDDebugInformation) {
+			String fname = getSettings().getDataFile();
+
+			PrintWriter wrt_pred = null;
+			PrintWriter wrt_true = null;
+			try {
+				wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".gd-pred")));
+				wrt_true = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".gd-true")));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+
+			m_GDProbl.printPredictionsToFile(wrt_pred);
+			wrt_pred.close();
+			m_GDProbl.printTrueValuesToFile(wrt_true);
+			wrt_true.close();
+		}
+
 	}
 
 	/** Initialize GD optimization for new run with same predictions and true values
@@ -120,12 +142,14 @@ public class GDAlg extends OptAlg{
 
 		PrintWriter wrt_log = null;
 
-		try {
-			wrt_log = new PrintWriter(new OutputStreamWriter
-					(new FileOutputStream("gradDesc.log")));
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Log file could not be opened. Logging omitted.");
+		if (GDProbl.m_printGDDebugInformation) {
+			try {
+				wrt_log = new PrintWriter(new OutputStreamWriter
+						(new FileOutputStream("gradDesc.log")));
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.err.println("Log file could not be opened. Logging omitted.");
+			}
 		}
 
 		if (m_GDProbl.isClassifTask()){
@@ -147,9 +171,8 @@ public class GDAlg extends OptAlg{
 			if (nbOfIterations % m_earlyStopStep == 0 && getSettings().getOptGDEarlyStopAmount() > 0 &&
 					m_GDProbl.isEarlyStop(m_weights))
 			{
-				if (GDProbl.m_printGDDebugInformation) {
+				if (GDProbl.m_printGDDebugInformation)
 					wrt_log.println("Increase in test fitness. Reducing step size or stopping.");
-				}
 
 				if (Settings.VERBOSE > 0) System.out.print("\n\tOverfitting after " + nbOfIterations + " iterations.");
 				if (m_earlyStopStepsizeReducedNb < getSettings().getOptGDNbOfStepSizeReduce()){
@@ -160,7 +183,8 @@ public class GDAlg extends OptAlg{
 					if (Settings.VERBOSE > 0) System.out.print(" Reducing step, continuing.\n");
 				} else {
 					if (Settings.VERBOSE > 0) System.out.print(" Stopping.\n");
-					wrt_log.println("Early stopping detected after " + nbOfIterations + " iterations.");
+					if (GDProbl.m_printGDDebugInformation)
+						wrt_log.println("Early stopping detected after " + nbOfIterations + " iterations.");
 					break;
 				}
 			} else if (nbOfIterations % (10*m_earlyStopStep) == 0 && nbOfIterations > 0){
@@ -204,9 +228,8 @@ public class GDAlg extends OptAlg{
 			// It should be smaller because otherwise we are going even further from the optimal point.
 			if (oscillation) {
 
-				if (GDProbl.m_printGDDebugInformation) {
+				if (GDProbl.m_printGDDebugInformation)
 					wrt_log.println("Detected oscillation, reducing step size of: " + m_GDProbl.m_stepSize);
-				}
 
 				// For MaxLoss combination the oscillation may be because we are finding some local
 				// optimum point for some weight and it is the most significant. Let us put this weight
@@ -250,9 +273,12 @@ public class GDAlg extends OptAlg{
 			m_GDProbl.isEarlyStop(m_weights); // Check if current weights have better fitness than the best so far
 			m_GDProbl.restoreBestWeight(m_weights); // Result are the weights with best fitness
 		}
-		wrt_log.println("The result of optimization");
+		
+		if (GDProbl.m_printGDDebugInformation)
+			wrt_log.println("The result of optimization");
 		OutputLog(nbOfIterations, wrt_log);
-		wrt_log.close();
+		if (GDProbl.m_printGDDebugInformation)
+			wrt_log.close();
 //		System.err.println("CHANGING THE WEIGHTS< REMOVE THISE");
 //		for (int i=0; i< m_weights.size(); i++)
 //			m_weights.set(i,1.0); // default rule
@@ -413,5 +439,12 @@ public class GDAlg extends OptAlg{
 	public double getBestFitness() {
 		return m_GDProbl.getBestFitness();
 	}
-
+	
+	public void preparePredictionsForNormalization(){
+		m_GDProbl.preparePredictionsForNormalization();
+	}
+	
+	public void changeRuleSetToUndoNormNormalization(ClusRuleSet rset) {
+		m_GDProbl.changeRuleSetToUndoNormNormalization(rset);
+	}
 }

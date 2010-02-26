@@ -904,6 +904,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		{
 			// If using external binary, optimization is already done.
 
+			// If needed, prepares for norm.
+			optAlg.preparePredictionsForNormalization();
+			
 			if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED
 					&& getSettings().getOptGDNbOfTParameterTry() > 1) {
 
@@ -953,6 +956,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		for (int j = 0; j < rset.getModelSize(); j++) {
 			rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue()); // Set the rule weights
 		}
+		
+		// Undo inside normalization on rule set if needed
+		optAlg.changeRuleSetToUndoNormNormalization(rset);
 		
 		// Print weights of rules
 		if (Settings.VERBOSE > 0) {

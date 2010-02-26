@@ -26,8 +26,6 @@
 package clus.algo.rules;
 
 import java.io.PrintWriter;
-import java.text.NumberFormat;
-
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
 import clus.data.type.ClusAttrType;
@@ -38,7 +36,6 @@ import clus.statistic.ClusStatistic;
 import clus.statistic.RegressionStat;
 import clus.statistic.StatisticPrintInfo;
 import clus.tools.optimization.ImplicitLinearTerms;
-import clus.util.ClusFormat;
 
 /** A linear term that has been included in the rule set.
  * The weights of these linear terms can also be optimized with GD algorithm.
@@ -333,7 +330,7 @@ public class ClusRuleLinearTerm extends ClusRule {
 	
 	/** Compute standard deviation and mean for each of the given attributes.
 	 * @return Index 0 is mean, index 1 std dev. */ 
-	static private double[][] calcStdDevsForTheSet(RowData data, NumericAttrType[] numTypes) {
+	static protected double[][] calcStdDevsForTheSet(RowData data, NumericAttrType[] numTypes) {
 
 		// ** Some of the values are not valid. These should not be used for
 		// computing variance etc. *//

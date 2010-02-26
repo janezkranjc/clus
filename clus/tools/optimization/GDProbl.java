@@ -29,9 +29,7 @@ import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.util.*;
 
-import clus.algo.rules.ClusRuleSet;
 import clus.main.*;
-import clus.tools.optimization.OptProbl.OptParam;
 import clus.util.ClusFormat;
 
 // Created 28.11.2008 from previous DeProbl class
@@ -238,7 +236,8 @@ public class GDProbl extends OptProbl {
 
 			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop);
 			// Give the same std devs for this smaller part of data.
-			m_earlyStopProbl.modifyDataStatistics(getNormFactors());
+			//m_earlyStopProbl.modifyDataStatistics(getNormFactors());
+			m_earlyStopProbl.modifyDataStatistics(getMeans(),getNormFactors());
 
 			// We are using Fitness function of  the problem. Let us put the reg penalty to 0 because we do not
 			// want to use it
@@ -427,6 +426,8 @@ public class GDProbl extends OptProbl {
 				covs[iTarget] += predictWithRule(iFirstRule,iInstance,iTarget) *
 				                 predictWithRule(iSecondRule,iInstance,iTarget);
 
+				// The following is commented out because I think it is only a property of resource
+				// tracking software. This can't take so much memory.
 				// We optimize this function because this is the one that takes most of the time (70%).
 				// We should use "predictWithRule" method, but this is slightly faster
 //				double firstPred = getPredictions(iFirstRule,iInstance,iTarget);

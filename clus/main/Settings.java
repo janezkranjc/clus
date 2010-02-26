@@ -1007,13 +1007,15 @@ public class Settings implements Serializable {
 	/** Use linear terms in optimization, but add them explicitly after optimization (if weight is zero). */
 	public final static int OPT_GD_ADD_LIN_YES_SAVE_MEMORY = 2;
 	
-	public final static String[] OPT_NORMALIZATION = {"No", "Yes", "YesVariance"};
+	public final static String[] OPT_NORMALIZATION = {"No", "Yes", "OnlyScaling", "YesVariance"};
 	/** Do not normalize*/
 	public final static int OPT_NORMALIZATION_NO = 0;
-	/** Normalize during optimization with 2*std dev. Default. */
+	/** Normalize during optimization with 2*std dev and shifting with average. Default. */
 	public final static int OPT_NORMALIZATION_YES = 1;
+	/** Normalize during optimization with 2*std dev. Default. */
+	public final static int OPT_NORMALIZATION_ONLY_SCALING = 2;
 	/** Normalize during optimization with variance. */
-	public final static int OPT_NORMALIZATION_YES_VARIANCE = 2;
+	public final static int OPT_NORMALIZATION_YES_VARIANCE = 3;
 
 	
 	// Settings in the settings file.

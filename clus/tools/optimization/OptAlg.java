@@ -27,6 +27,7 @@ package clus.tools.optimization;
 
 import java.util.ArrayList;
 
+import clus.algo.rules.ClusRuleSet;
 import clus.main.ClusStatManager;
 import clus.main.Settings;
 
@@ -59,6 +60,13 @@ public abstract class OptAlg {
 		return m_StatMgr.getSettings();
 	}
 
+	public void preparePredictionsForNormalization(){
+	}
+	
+	public void changeRuleSetToUndoNormNormalization(ClusRuleSet rset) {
+	}
+
+	
 //	protected OptProbl getProbl() {
 //		return m_Probl;
 //	}

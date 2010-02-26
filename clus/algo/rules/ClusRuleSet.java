@@ -794,7 +794,8 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		
 		if (getSettings().isOptOmitRulePredictions()){
 			// after creating default rule, before adding linear terms or weighting generality
-			omitRulePredictions();
+			omitRulePredictions(
+					(ClusRuleLinearTerm.calcStdDevsForTheSet(data, m_StatManager.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET)))[1]);
 		}
 
 		if (getSettings().isOptWeightGenerality()) {
@@ -1082,8 +1083,9 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		}
 	}
 
-	/** Changes the rule predictions such that they always predict 1. This is by Friedman 2005; */
-	private void omitRulePredictions() {
+	/** Changes the rule predictions such that they always predict 1. This is by Friedman 2005; 
+	 * @param stdDevs Used for omitting. Target std devs.*/
+	private void omitRulePredictions(double[] stdDevs) {
 		if (Settings.VERBOSE > 0) 
 			System.out.println("Omitting rule predictions for optimization.");
 		for (int iRule = 0; iRule < getModelSize(); iRule++)
@@ -1100,10 +1102,23 @@ public class ClusRuleSet implements ClusModel, Serializable {
 
 					//double scalingValue = Double.POSITIVE_INFINITY;
 					double scalingValue = 0.0;
+					// We try to find the value that is greatest compared to std dev.
+					// However, in actual scaling, we may not be using std dev information.
+					double maxCompareValue = 0.0;
 					for (int iTarget = 0; iTarget < stat.m_NbAttrs; iTarget++) {
 //						if (Math.abs(stat.m_Means[iTarget]) < Math.abs(scalingValue)) {
-						if (Math.abs(stat.m_Means[iTarget]) > Math.abs(scalingValue)) {
-							scalingValue = stat.m_Means[iTarget];
+//						if (Math.abs(stat.m_Means[iTarget]) > Math.abs(scalingValue)) {
+						if (Math.abs(stat.m_Means[iTarget]/(2*stdDevs[iTarget])) 
+								> Math.abs(maxCompareValue)) {
+						
+							maxCompareValue = stat.m_Means[iTarget]/(2*stdDevs[iTarget]);
+
+							scalingValue = stat.m_Means[iTarget]; //Scales values to abs(x)<=1
+							
+							if (getSettings().isOptNormalization()) 
+								 // After normalization, the greatest value is 1
+								scalingValue /= 2*stdDevs[iTarget];
+								
 						}
 					}
 
@@ -1123,8 +1138,11 @@ public class ClusRuleSet implements ClusModel, Serializable {
 				} else {
 
 					// Single target
-					stat.m_Means[0] = 1;
-					stat.m_SumValues[0] = 1;
+					if (getSettings().isOptNormalization()) 
+						stat.m_Means[0] = 2*stdDevs[0];
+					else
+						stat.m_Means[0] = 1;
+					stat.m_SumValues[0] = stat.m_Means[0];
 					stat.m_SumWeights[0] = 1;
 				}
 

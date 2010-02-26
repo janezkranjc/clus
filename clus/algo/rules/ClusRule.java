@@ -40,7 +40,7 @@ import clus.model.test.*;
 import clus.util.*;
 import clus.data.type.*;
 import clus.error.*;
-import clus.ext.ilevelc.ILevelCStatistic;
+//import clus.ext.ilevelc.ILevelCStatistic;
 import clus.ext.ilevelc.ILevelConstraint;
 
 public class ClusRule implements ClusModel, Serializable {
@@ -598,6 +598,19 @@ public class ClusRule implements ClusModel, Serializable {
 		m_TargetStat = stat;
 	}
 
+	/** Given double predictions, sets the target stat. A simpler way than setTargetStat */
+	public void setNumericPrediction(double[] newPred) {
+		RegressionStat stat = (RegressionStat)getTargetStat();
+		
+		for (int iTarget = 0; iTarget < stat.m_NbAttrs; iTarget++) {
+			stat.m_Means[iTarget] = newPred[iTarget];
+			stat.m_SumValues[iTarget] = stat.m_Means[iTarget];
+			stat.m_SumWeights[iTarget] = 1;
+		}
+		setTargetStat(stat);
+	}
+
+	
 	public void setClusteringStat(ClusStatistic stat) {
 		m_ClusteringStat = stat;
 	}

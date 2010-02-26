@@ -1,12 +1,12 @@
 package clus.algo.rules;
 
 import java.io.IOException;
-import java.util.ArrayList;
+//import java.util.ArrayList;
 
 import clus.Clus;
-import clus.algo.tdidt.ClusDecisionTree;
+//import clus.algo.tdidt.ClusDecisionTree;
 import clus.algo.tdidt.ClusNode;
-import clus.algo.tdidt.DepthFirstInduce;
+//import clus.algo.tdidt.DepthFirstInduce;
 import clus.algo.rules.ClusRulesFromTree;
 import clus.data.rows.RowData;
 import clus.data.type.ClusAttrType;
@@ -19,7 +19,6 @@ import clus.main.ClusRun;
 import clus.main.Settings;
 import clus.model.ClusModel;
 import clus.model.ClusModelInfo;
-import clus.pruning.PruneTree;
 import clus.statistic.ClusStatistic;
 import clus.util.ClusException;
 //import clus.algo.tdidt.ClusNode;
@@ -96,6 +95,11 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 //
 //		// Adding single tree ends
 
+		// The params may already have been disabled, thus we do not want to disable them again
+		// (forgets original values)
+		getSettings().returnRuleInduceParams();
+		getSettings().disableRuleInduceParams();
+		
 		// Train the decision tree ensemble with hopefully all the available settings.
 		ClusEnsembleInduce ensemble = new ClusEnsembleInduce(this, m_Clus);
 
@@ -147,7 +151,6 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		// Do not have any idea what it is about
 
 		// The default rule
-		// TODO: Investigate different possibilities for the default rule
 		ClusStatistic left_over;
 		if (trainingData.getNbRows() > 0) {
 			left_over = createTotalTargetStat(trainingData);
