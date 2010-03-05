@@ -814,53 +814,64 @@ public class Clus implements CMDLineArgsProvider {
 		io.save(model_name);
 	}
 
-	/**
-	 * Normalize the data so that most of the variables are within [-0.5,0.5]
-	 * range. Using Zenko, 2007 suggestion. TODO also for nominal attributes
-	 * Should not be used with GD optimization - it has an internal normalization. 
-	 *
-	 * @throws IOException
-	 * @throws ClusException
-	 */
-	public static final RowData returnNormalizedData(RowData data)
-	//throws IOException, ClusException 
-	{
-//		RowData data = m_Data;
+	/** Compute standard deviation and mean for each of the given attributes.
+	 * @param data All the data
+	 * @param numTypes Attributes we are computing these for. 
+	 * @return Index 0 includes means, index 1 std dev. */ 
+	static public double[][] calcStdDevsForTheSet(RowData data, NumericAttrType[] numTypes) {
 
-		NumericAttrType[] numTypes = data.getSchema().getNumericAttrUse(
-				ClusAttrType.ATTR_USE_ALL);
-		// NominalAttrType[] nomTypes =
-		// getSchema().getNominalAttrUse(ClusAttrType.ATTR_USE_ALL);
-
-		// Variance and mean for numeric types.
-		double[] variance = new double[numTypes.length];
-		double[] mean = new double[numTypes.length];
 		// ** Some of the values are not valid. These should not be used for
 		// computing variance etc. *//
-		double[] nbOfValidValues = new double[numTypes.length];
+		int[] nbOfValidValues = new int[numTypes.length];
 
-		// Computing the means
+		// First means
+		double[] means = new double[numTypes.length];
+		
+		/** Floating point computation is not to be trusted. It is important to track if variance = 0,
+		 * (we are otherwise getting huge factors with 1/std dev). 
+		 */
+		boolean[] varIsNonZero = new boolean[numTypes.length];
+		
+		// Check if variance = 0 i.e. all values are the same
+		double[] prevAcceptedValue = new double[numTypes.length];
+		
+		for (int i = 0; i < prevAcceptedValue.length; i++)
+			prevAcceptedValue[i] = Double.NaN;
+
+		// Computing the means	
 		for (int iRow = 0; iRow < data.getNbRows(); iRow++) {
 			DataTuple tuple = data.getTuple(iRow);
 
 			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
 				double value = numTypes[jNumAttrib].getNumeric(tuple);
-				if (!Double.isNaN(value) && !Double.isInfinite(value)) {// Value
-																		// not
-																		// given
-					mean[jNumAttrib] += value;
+				if (!Double.isNaN(value) && !Double.isInfinite(value)) { // Value not given
+					
+					// Check if variance is zero
+					if (!Double.isNaN(prevAcceptedValue[jNumAttrib]) &&
+							prevAcceptedValue[jNumAttrib] != value)
+						varIsNonZero[jNumAttrib] = true;
+					
+					prevAcceptedValue[jNumAttrib] = value;
+					means[jNumAttrib] += value;
 					nbOfValidValues[jNumAttrib]++;
 				}
 			}
 		}
-
+		
 		// Divide with the number of examples
 		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
 			if (nbOfValidValues[jNumAttrib] == 0) {
 				nbOfValidValues[jNumAttrib] = 1; // Do not divide with zero
 			}
-			mean[jNumAttrib] /= nbOfValidValues[jNumAttrib];
+			if (!varIsNonZero[jNumAttrib]) // if variance = 0, do not do any floating point computation
+				means[jNumAttrib] = prevAcceptedValue[jNumAttrib];
+			else
+				means[jNumAttrib] /= nbOfValidValues[jNumAttrib];
 		}
+		
+		/** Variance for each of the attributes*/
+		double[] variance = new double[numTypes.length];
+		
 
 		// Computing the variances
 		for (int iRow = 0; iRow < data.getNbRows(); iRow++) {
@@ -868,60 +879,72 @@ public class Clus implements CMDLineArgsProvider {
 
 			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
 				double value = numTypes[jNumAttrib].getNumeric(tuple);
-
-				// The following could be done by numTypes.isMissing(tuple)
-				// also, but seems to be equivalent
-				if (!Double.isNaN(value) && !Double.isInfinite(value)) // Value
-																		// not
-																		// given
-					variance[jNumAttrib] += Math.pow(value - mean[jNumAttrib],
-							2.0);
+				if (!Double.isNaN(value) && !Double.isInfinite(value)) // Value not given
+					variance[jNumAttrib] += Math.pow(value - means[jNumAttrib], 2.0);
 			}
 		}
 
+		double[] stdDevs = new double[numTypes.length];
+		
+		
+		
 		// Divide with the number of examples
 		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
-			if (variance[jNumAttrib] == 0) {
+			//if (variance[jNumAttrib] == 0) {
+			if (!varIsNonZero[jNumAttrib]) {
 				// If variance is zero, all the values are the same, so division
 				// is not needed.
 				variance[jNumAttrib] = 0.25; // And the divider will be
 												// 2*1/sqrt(4)= 1
+				System.out.println("Warning: Variance of attribute "  + jNumAttrib +" is zero.");
 			} else {
 				variance[jNumAttrib] /= nbOfValidValues[jNumAttrib];
 			}
 
+			stdDevs[jNumAttrib] = Math.sqrt(variance[jNumAttrib]);
 		}
+		
+		double[][] meanAndStdDev = new double[2][];
+		meanAndStdDev[0] = means;
+		meanAndStdDev[1] = stdDevs;
+		return meanAndStdDev;	
+	}
+	
+	
+	/**
+	 * Normalize the data so that most of the variables are within [-0.5,0.5]
+	 * range. Using Zenko, 2007 suggestion.
+	 * Should not be used with GD optimization - it has an internal normalization. 
+	 */
+	public static final RowData returnNormalizedData(RowData data) {
+
+		NumericAttrType[] numTypes = data.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_ALL);
+		double[][] meanAndStdDev = calcStdDevsForTheSet(data, numTypes);
+
+		// Variance and mean for numeric types.
+		double[] stdDevs = meanAndStdDev[1];
+		double[] mean = meanAndStdDev[0];
 
 		ArrayList<DataTuple> normalized = new ArrayList<DataTuple>();
+
+		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++)
+			numTypes[jNumAttrib].setSparse(false); // Sparsity assumes that all values are > 0
+
 		// Make the alterations
 		for (int iRow = 0; iRow < data.getNbRows(); iRow++) {
 			DataTuple tuple = data.getTuple(iRow).deepCloneTuple();
-
-			// if (getSettings().getNormalizeData() ==
-			// Settings.NORMALIZE_DATA_ALL) {
-			// for (int jNomAttrib = 0; jNomAttrib < tuple.m_Ints.length;
-			// jNomAttrib++) {
-			// NominalAttrType type = nomTypes[jNomAttrib];
-			// int value = type.getNominal(tuple);
-			//
-			// // value -= median[jNomAttrib];
-			// // value /= Math.sqrt(variance[jNomAttrib]);
-			// type.setNominal(tuple, value);
-			// }
-			// }
 
 			for (int jNumAttrib = 0; jNumAttrib < tuple.m_Doubles.length; jNumAttrib++) {
 				NumericAttrType type = numTypes[jNumAttrib];
 
 				double value = type.getNumeric(tuple);
-				if (!Double.isNaN(value) && !Double.isInfinite(value)) {// Value
-																		// not
-																		// given
+				if (!Double.isNaN(value) && !Double.isInfinite(value)) {// Value not given
 					value -= mean[jNumAttrib]; // Putting the mean to 0
+					
 					// Suggestion by Zenko 2007 p. 22 4*standard deviation.
 					// However we are also moving the data to
 					// zero mean. Thus we take only 2 * standard deviation.
-					value /= 2 * Math.sqrt(variance[jNumAttrib]);
+					value /= 2 * stdDevs[jNumAttrib];
 					// value += 0.5; // Putting the mean to 0.5
 
 					// After this transformation the mean should be about 0.0
@@ -933,13 +956,10 @@ public class Clus implements CMDLineArgsProvider {
 				// The following should be done only once for every numtype but
 				// it does not
 				// take very much time
-				type.setSparse(false); // Sparsity assumes that all values are >
-										// 0
-
 			}
 			normalized.add(tuple);
 		}
-
+		
 		RowData normalized_data = new RowData(normalized, data.getSchema());
 		System.out.println("Normalized number of examples: "
 				+ normalized_data.getNbRows());

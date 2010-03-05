@@ -76,10 +76,6 @@ public class GDProbl extends OptProbl {
 	 * go to zero (by prediction - mean)*/
 	//protected double[][] m_meanPredictors;
 
-	/** For covariance computing, we need means (expected values) of true values
-	 * [target] OBSOLETE*/
-	protected double[] m_meanTrueValues;
-
 	/**
 	 * Number of rules with nonzero weights. I.e. how many trues in m_isWeightNonZero.
 	 * The 'default rule' - the first rule that is always a constant is not counted!
@@ -125,14 +121,6 @@ public class GDProbl extends OptProbl {
 
 
 		//m_meanPredictors = new double[getNumVar()][getNbOfTargets()];
-		// We do not want to use average in covariance computing
-		m_meanTrueValues = new double[getNbOfTargets()];
-
-		// Mean using seems to reduce accuracy always.
-//		if  (!getSettings().isOptNormalization() &&
-//				getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE) {
-//			m_meanTrueValues = computeMeans();
-//		}
 
 		// If early stopping criteria is chosen, reserve part of the training set for early stop testing.
 		if (getSettings().getOptGDEarlyStopAmount() > 0) {
@@ -344,8 +332,7 @@ public class GDProbl extends OptProbl {
 				if (isValidValue(trueVal)) // Not a valid true value, rare but happens. Can happen for linear terms.
 					//covs[iTarget] += trueVal*predictWithRule(iPred, iInstance,iTarget);
 					covs[iTarget] +=
-						(trueVal-m_meanTrueValues[iTarget])*
-						predictWithRule(iPred, iInstance,iTarget);
+						trueVal*predictWithRule(iPred, iInstance,iTarget);
 			}
 
 			covs[iTarget] /= getNbOfInstances();

@@ -1253,24 +1253,35 @@ public class Settings implements Serializable {
 	 	return m_HeurPrototypeDistPar.getValue() > 0;
 	}
 
+	private boolean m_ruleInduceParamsDisabled = false;
 	private double m_origHeurRuleDistPar = 0;
 	private int m_origRulePredictionMethod = 0;
 	private int m_origCoveringMethod = 0;
 	
+	/** For forest induction, disable rule parameters that interfere. If you need to return the originals
+	 * use returnRuleInduceParams 
+	 */
 	public void disableRuleInduceParams() {
-		m_origHeurRuleDistPar = getHeurRuleDistPar();
-		m_origRulePredictionMethod = getRulePredictionMethod();
-		m_origCoveringMethod = getCoveringMethod();
-		
-		setHeurRuleDistPar(0.0);
-		setRulePredictionMethod(RULE_PREDICTION_METHOD_DECISION_LIST);
-		setCoveringMethod(COVERING_METHOD_RULES_FROM_TREE);
+		if (!m_ruleInduceParamsDisabled) { // Make sure the original values are not lost.
+			m_origHeurRuleDistPar = getHeurRuleDistPar();
+			m_origRulePredictionMethod = getRulePredictionMethod();
+			m_origCoveringMethod = getCoveringMethod();
+			
+			setHeurRuleDistPar(0.0);
+			setRulePredictionMethod(RULE_PREDICTION_METHOD_DECISION_LIST);
+			setCoveringMethod(COVERING_METHOD_RULES_FROM_TREE);
+			m_ruleInduceParamsDisabled = true; // Mark that these are disabled
+		}
 	}
 
+	/** For TreesToRules induction return the original parameters after forest induced */
 	public void returnRuleInduceParams() {
-		setHeurRuleDistPar(m_origHeurRuleDistPar);
-		setRulePredictionMethod(m_origRulePredictionMethod);
-		setCoveringMethod(m_origCoveringMethod);
+		if (m_ruleInduceParamsDisabled) { // Only if they have been disabled previously
+			setHeurRuleDistPar(m_origHeurRuleDistPar);
+			setRulePredictionMethod(m_origRulePredictionMethod);
+			setCoveringMethod(m_origCoveringMethod);
+			m_ruleInduceParamsDisabled = false; // Mark that not anymore disabled
+		}
 	}
 
 	
@@ -2357,7 +2368,12 @@ public class Settings implements Serializable {
 
 	public void show(PrintWriter where) throws IOException {
 		updateDisabledSettings();
+		//For TreeToRules PredictionMethod might have been temporarily put to DecisionList instead of some other
+		if (getCoveringMethod() == Settings.COVERING_METHOD_RULES_FROM_TREE)
+			returnRuleInduceParams();
 		m_Ini.save(where);
+		if (getCoveringMethod() == Settings.COVERING_METHOD_RULES_FROM_TREE)
+			disableRuleInduceParams(); 
 	}
 
 	public String getFileAbsolute(String fname) {

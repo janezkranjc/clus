@@ -26,6 +26,8 @@
 package clus.algo.rules;
 
 import java.io.PrintWriter;
+
+import clus.Clus;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
 import clus.data.type.ClusAttrType;
@@ -50,6 +52,8 @@ public class ClusRuleLinearTerm extends ClusRule {
 	static private double[] C_offSetValues = null;
 	/** Class variable. Standard deviation  values (of descriptive attributes) for all the linear terms */
 	static private double[] C_stdDevValues = null;
+	/** Class variable. Standard deviation  values of TARGET attributes for all the linear terms */
+	static private double[] C_targetStdDevs = null;
 	/** Class variable. For linear term truncate, maximum value found for descriptive attributes in training */
 	static private double[] C_maxValues = null;
 	/** Class variable. For linear term truncate, minimum value found for descriptive attributes in training */
@@ -80,6 +84,11 @@ public class ClusRuleLinearTerm extends ClusRule {
 			
 			C_offSetValues = meansAndStdDevs[0];
 			C_stdDevValues = meansAndStdDevs[1];
+			
+			// We also scale the values according to target std values.
+			// Mean could also be used, but it can be handled with the first rule anyway.
+			double[][] targetMeansAndStdDevs = calcStdDevsForTheSet(data, C_statManager.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET));
+			C_targetStdDevs = targetMeansAndStdDevs[1];
 		}
 	}
 	
@@ -97,11 +106,12 @@ public class ClusRuleLinearTerm extends ClusRule {
 		if (data.getSchema().getSettings().getOptAddLinearTerms() != Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY)
 			return null;
 		
-		double[][] values = new double[4][];
+		double[][] values = new double[5][];
 		values[0] = C_offSetValues;
 		values[1] = C_stdDevValues;
-		values[2] = C_maxValues;
-		values[3] = C_minValues;
+		values[2] = C_targetStdDevs;
+		values[3] = C_maxValues;
+		values[4] = C_minValues;
 		C_implicitTerms = new ImplicitLinearTerms(data, C_statManager, values);
 		return C_implicitTerms;
 	}
@@ -215,7 +225,9 @@ public class ClusRuleLinearTerm extends ClusRule {
 	
 		if (C_offSetValues != null && m_scaleLinearTerm) value -= C_offSetValues[m_descriptiveDimForLinearTerm]; // Shift 
 		if (C_stdDevValues != null && m_scaleLinearTerm) value /= 2*C_stdDevValues[m_descriptiveDimForLinearTerm]; // scale
+		if (C_targetStdDevs != null && m_scaleLinearTerm) value *= 2*C_targetStdDevs[m_targetDimForLinearTerm];
 
+		
 		// Only change the target dimension			
 		stat.m_Means[m_targetDimForLinearTerm] = value;
 		stat.m_SumValues[m_targetDimForLinearTerm] = value;
@@ -244,13 +256,16 @@ public class ClusRuleLinearTerm extends ClusRule {
 		}
 
 		if (getSettings().getOptNormalizeLinearTerms() == Settings.OPT_LIN_TERM_NORM_CONVERT) {
-			wrt.println("Linear term prediction was scaled and shifted by (x-average)/(2*standard deviation) during normalization.");
+			//wrt.println("Linear term prediction was scaled and shifted by (x-average)/(2*standard deviation) during normalization.");
+			wrt.println("Linear term prediction was scaled and shifted by (x-average)*(standard deviation of target)/(standard deviation of descriptive) during normalization.");
 		} else if (getSettings().getOptNormalizeLinearTerms() == Settings.OPT_LIN_TERM_NORM_YES) {
-			wrt.println("Linear term prediction is scaled and shifted by (x-average)/(2*standard deviation)");
+			//wrt.println("Linear term prediction is scaled and shifted by (x-average)/(2*standard deviation)");
+			wrt.println("Linear term prediction is scaled and shifted by (x-average)*(standard deviation of target)/(standard deviation of descriptive)");
 		}
 		if (getSettings().isOptNormalizeLinearTerms()){
-			wrt.println("      Standard deviation: " + C_stdDevValues[m_descriptiveDimForLinearTerm]);
-			wrt.println("      Average           : " + C_offSetValues[m_descriptiveDimForLinearTerm]);
+			wrt.println("      Standard deviation (targ) : " + C_targetStdDevs[m_targetDimForLinearTerm]);
+			wrt.println("      Standard deviation (descr): " + C_stdDevValues[m_descriptiveDimForLinearTerm]);
+			wrt.println("      Average                   : " + C_offSetValues[m_descriptiveDimForLinearTerm]);
 		}
 
 		commonPrintForRuleTypes(wrt, info);
@@ -331,74 +346,107 @@ public class ClusRuleLinearTerm extends ClusRule {
 	/** Compute standard deviation and mean for each of the given attributes.
 	 * @return Index 0 is mean, index 1 std dev. */ 
 	static protected double[][] calcStdDevsForTheSet(RowData data, NumericAttrType[] numTypes) {
-
-		// ** Some of the values are not valid. These should not be used for
-		// computing variance etc. *//
-		double[] nbOfValidValues = new double[numTypes.length];
-
-		// First means
-		double[] means = new double[numTypes.length];
-		
-		// Computing the variances
-		for (int iRow = 0; iRow < data.getNbRows(); iRow++) {
-			DataTuple tuple = data.getTuple(iRow);
-
-			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
-				double value = numTypes[jNumAttrib].getNumeric(tuple);
-				if (!Double.isNaN(value) && !Double.isInfinite(value)) { // Value not given
-					means[jNumAttrib] += value;
-					nbOfValidValues[jNumAttrib]++;
-				}
-			}
-		}
-		
-		// Divide with the number of examples
-		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
-			if (nbOfValidValues[jNumAttrib] == 0) {
-				nbOfValidValues[jNumAttrib] = 1; // Do not divide with zero
-			}
-			means[jNumAttrib] /= nbOfValidValues[jNumAttrib];
-		}
-		
-		/** Variance for each of the attributes*/
-		double[] variance = new double[numTypes.length];
-		
-
-		// Computing the variances
-		for (int iRow = 0; iRow < data.getNbRows(); iRow++) {
-			DataTuple tuple = data.getTuple(iRow);
-
-			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
-				double value = numTypes[jNumAttrib].getNumeric(tuple);
-				if (!Double.isNaN(value) && !Double.isInfinite(value)) // Value not given
-					variance[jNumAttrib] += Math.pow(value - means[jNumAttrib], 2.0);
-			}
-		}
-
-		double[] stdDevs = new double[numTypes.length];
-		
-		
-		
-		// Divide with the number of examples
-		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
-			if (variance[jNumAttrib] == 0) {
-				// If variance is zero, all the values are the same, so division
-				// is not needed.
-				variance[jNumAttrib] = 0.25; // And the divider will be
-												// 2*1/sqrt(4)= 1
-				System.out.println("Warning: Variance of attribute "  + jNumAttrib +" is zero.");
-			} else {
-				variance[jNumAttrib] /= nbOfValidValues[jNumAttrib];
-			}
-
-			stdDevs[jNumAttrib] = Math.sqrt(variance[jNumAttrib]);
-		}
-		
-		double[][] meanAndStdDev = new double[2][];
-		meanAndStdDev[0] = means;
-		meanAndStdDev[1] = stdDevs;
-		return meanAndStdDev;	
+		return Clus.calcStdDevsForTheSet(data, numTypes);
 	}
+	
+//	/** Compute standard deviation and mean for each of the given attributes.
+//	 * @return Index 0 is mean, index 1 std dev. */ 
+//	static protected double[][] calcStdDevsForTheSet(RowData data, NumericAttrType[] numTypes) {
+//
+//		// ** Some of the values are not valid. These should not be used for
+//		// computing variance etc. *//
+//		//double[] nbOfValidValues = new double[numTypes.length];
+//		int[] nbOfValidValues = new int[numTypes.length];
+//
+//		// First means
+//		double[] means = new double[numTypes.length];
+//		
+//		/** Floating point computation is not to be trusted. It is important to track if variance = 0,
+//		 * (we are otherwise getting huge factors with 1/std dev). 
+//		 */
+//		boolean[] varIsNonZero = new boolean[numTypes.length];
+//		
+//		// Check if variance = 0 i.e. all values are the same
+//		double[] prevAcceptedValue = new double[numTypes.length];
+//		
+//		for (int i = 0; i < prevAcceptedValue.length; i++)
+//			prevAcceptedValue[i] = Double.NaN;
+//
+//		// Computing the means	
+//		for (int iRow = 0; iRow < data.getNbRows(); iRow++) {
+//			DataTuple tuple = data.getTuple(iRow);
+//
+//			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+//				double value = numTypes[jNumAttrib].getNumeric(tuple);
+//				if (!Double.isNaN(value) && !Double.isInfinite(value)) { // Value not given
+//					
+//					// Check if variance is zero
+//					if (!Double.isNaN(prevAcceptedValue[jNumAttrib]) &&
+//							prevAcceptedValue[jNumAttrib] != value)
+//						varIsNonZero[jNumAttrib] = true;
+//					
+//					prevAcceptedValue[jNumAttrib] = value;
+//					means[jNumAttrib] += value;
+//					nbOfValidValues[jNumAttrib]++;
+//				}
+//				if (jNumAttrib == 20)
+//					System.out.println("DEBUG: loytyi");
+//			}
+//		}
+//		
+//		// Divide with the number of examples
+//		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+//			if (nbOfValidValues[jNumAttrib] == 0) {
+//				nbOfValidValues[jNumAttrib] = 1; // Do not divide with zero
+//			}
+//			if (!varIsNonZero[jNumAttrib]) // if variance = 0, do not do any floating point computation
+//				means[jNumAttrib] = prevAcceptedValue[jNumAttrib];
+//			else
+//				means[jNumAttrib] /= nbOfValidValues[jNumAttrib];
+//		}
+//		
+//		/** Variance for each of the attributes*/
+//		double[] variance = new double[numTypes.length];
+//		
+//
+//		// Computing the variances
+//		for (int iRow = 0; iRow < data.getNbRows(); iRow++) {
+//			DataTuple tuple = data.getTuple(iRow);
+//
+//			for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+//				double value = numTypes[jNumAttrib].getNumeric(tuple);
+//				if (!Double.isNaN(value) && !Double.isInfinite(value)) // Value not given
+//					variance[jNumAttrib] += Math.pow(value - means[jNumAttrib], 2.0);
+//				if (jNumAttrib == 20)
+//					System.out.println("DEBUG: loytyi");
+//			}
+//		}
+//
+//		double[] stdDevs = new double[numTypes.length];
+//		
+//		
+//		
+//		// Divide with the number of examples
+//		for (int jNumAttrib = 0; jNumAttrib < numTypes.length; jNumAttrib++) {
+//			//if (variance[jNumAttrib] == 0) {
+//			if (!varIsNonZero[jNumAttrib]) {
+//				// If variance is zero, all the values are the same, so division
+//				// is not needed.
+//				variance[jNumAttrib] = 0.25; // And the divider will be
+//												// 2*1/sqrt(4)= 1
+//				System.out.println("Warning: Variance of attribute "  + jNumAttrib +" is zero.");
+//			} else {
+//				variance[jNumAttrib] /= nbOfValidValues[jNumAttrib];
+//			}
+//
+//			stdDevs[jNumAttrib] = Math.sqrt(variance[jNumAttrib]);
+//		}
+//		
+//		double[][] meanAndStdDev = new double[2][];
+//		meanAndStdDev[0] = means;
+//		meanAndStdDev[1] = stdDevs;
+//		return meanAndStdDev;	
+//	}
 
 	public double[] convertToPlainTerm(double[] addToDefaultPred, double defaultWeight) {
 		//Normalization was of type w0*DEFAULT + w1 (x_8-AVG_8)/(2*stdDev)
@@ -408,10 +456,12 @@ public class ClusRuleLinearTerm extends ClusRule {
 		// Include the shifting to the average term
 		addToDefaultPred[m_targetDimForLinearTerm] -= 
 			getOptWeight()*C_offSetValues[m_descriptiveDimForLinearTerm]
-		    / (defaultWeight*2*C_stdDevValues[m_descriptiveDimForLinearTerm]);
+              		*2*C_targetStdDevs[m_targetDimForLinearTerm] // scaling for target
+			        / (defaultWeight*2*C_stdDevValues[m_descriptiveDimForLinearTerm]);
 
 		// Include scaling to the linear term weight 
-		setOptWeight(getOptWeight()/(2*C_stdDevValues[m_descriptiveDimForLinearTerm]));
+		setOptWeight(getOptWeight()*2*C_targetStdDevs[m_targetDimForLinearTerm]
+		                          /(2*C_stdDevValues[m_descriptiveDimForLinearTerm]));
 		
 		// Remove the use of scaling in the rule
 		m_scaleLinearTerm = false;

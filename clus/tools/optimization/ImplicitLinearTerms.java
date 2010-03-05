@@ -48,6 +48,8 @@ public class ImplicitLinearTerms {
 	private double[] m_offSetValues = null;
 	/** Standard deviation  values (of descriptive attributes) for all the linear terms */
 	private double[] m_stdDevValues = null;
+	/** Standard deviation  values of TARGET attributes for all the linear terms */
+	static private double[] m_targetStdDevs = null;
 	/** For linear term truncate, maximum value found for descriptive attributes in training */
 	private double[] m_maxValues = null;
 	/** For linear term truncate, minimum value found for descriptive attributes in training */
@@ -64,8 +66,9 @@ public class ImplicitLinearTerms {
 		
 		m_offSetValues = values[0];
 		m_stdDevValues = values[1];
-		m_maxValues = values[2];
-		m_minValues = values[3];
+		m_targetStdDevs = values[2];
+		m_maxValues = values[3];
+		m_minValues = values[4];
 		
 		if (Settings.VERBOSE > 0) {
 			int nbTargets = (m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET)).getNbAttributes();
@@ -81,6 +84,7 @@ public class ImplicitLinearTerms {
 		m_StatManager = null;
 		m_offSetValues = null;
 		m_stdDevValues = null;
+		m_targetStdDevs = null;
 		m_maxValues = null;
 		m_minValues = null;
 	}
@@ -126,6 +130,11 @@ public class ImplicitLinearTerms {
 		if (m_offSetValues != null && m_stdDevValues != null) { 
 			value -= m_offSetValues[iDescriptiveAttr]; // Shift 
 			value /= 2*m_stdDevValues[iDescriptiveAttr]; // scale
+		}
+		
+		// Cast the linear term value according to the target
+		if (m_targetStdDevs != null) {
+			value *= 2*m_targetStdDevs[iTarget];
 		}
 		
 		return !Double.isNaN(value) ? value : 0;

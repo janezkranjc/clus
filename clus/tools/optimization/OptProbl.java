@@ -25,6 +25,9 @@
  */
 package clus.tools.optimization;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.util.*;
@@ -192,8 +195,10 @@ public class OptProbl {
 			
 			// Normalization factors and means are only stored if they are used 
 			if (getSettings().isOptNormalization()) {
-				double[] means = computeMeans();
-				m_TargetNormFactor = computeOptNormFactors(means);
+				double[] valuesFor0Variance = null;
+				boolean[] varIsNonZero = checkZeroVariance(valuesFor0Variance);
+				double[] means = computeMeans(varIsNonZero, valuesFor0Variance);
+				m_TargetNormFactor = computeOptNormFactors(means, varIsNonZero, valuesFor0Variance);
 				if (getSettings().getOptNormalization() != Settings.OPT_NORMALIZATION_ONLY_SCALING)
 					m_TargetAvg = means;
 			}
@@ -860,30 +865,79 @@ public class OptProbl {
 		return !Double.isInfinite(pred) && !Double.isNaN(pred);
 	}
 
+	/** Returns zero variance targets. These are important to trac because otherwise we get 1/var or
+	 * 1/std dev huge factors. Because of floating point computation variance may be nonzero.
+	 * @param var0Values Values for the variables with variance = 0, for other variables the value is 0 always.
+	 * @return Booleans if the target variances are non zero. True <-> variance != 0
+	 */
+	protected boolean[] checkZeroVariance(double[] var0Values) {
+		int nbOfTargets = getNbOfTargets();
+		int nbOfInstances = getNbOfInstances();
+
+		/** Floating point computation is not to be trusted. It is important to track if variance = 0,
+		 * (we are otherwise getting huge factors with 1/std dev). */
+		boolean[] varIsNonZero = new boolean[nbOfTargets];
+		
+		// Check if variance = 0 i.e. all values are the same
+		double[] prevAcceptedValue = new double[nbOfTargets];
+
+		for (int i = 0; i < prevAcceptedValue.length; i++)
+			prevAcceptedValue[i] = Double.NaN;
+		
+		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
+			
+			// Stop when nonzero variance is proved
+			for (int iInstance = 0; iInstance < nbOfInstances && !varIsNonZero[iTarget]; iInstance++) {
+				double value = getTrueValue(iInstance,iTarget);
+				if (isValidValue(value)) {
+					if (!Double.isNaN(prevAcceptedValue[iTarget]) &&
+						prevAcceptedValue[iTarget] != value) {
+						
+						varIsNonZero[iTarget] = true;
+					}
+					prevAcceptedValue[iTarget] = value;
+				}
+			}
+		}
+		
+		var0Values = new double[nbOfTargets];
+		
+		for (int i = 0; i < prevAcceptedValue.length; i++) {
+			if (!varIsNonZero[i])
+				var0Values[i] = prevAcceptedValue[i];
+		}
+			
+		return varIsNonZero;
+	}
 	
 	/** Compute means (e.g. for covariance computation) for true values
 	 * For predictions means are not computed because, e.g. for all covering rule the its effect would
 	 * go to zero (by prediction - mean)
 	 * If the data is normalized, mean of true value is 0 and mean is not needed to compute
+	 * @param valuesFor0Variance 
 	 * @return Averages for targets of the data.*/
-	protected double[] computeMeans() {
+	protected double[] computeMeans(boolean[] varIsNonZero, double[] valuesFor0Variance) {
 		int nbOfTargets = getNbOfTargets();
 		int nbOfInstances = getNbOfInstances();
 		double[] means = new double[nbOfTargets];
 		
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++){
-			int nbOfValidValues = 0;
-			means[iTarget] = 0;
-			
-			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++){
-				if (isValidValue(getTrueValue(iInstance,iTarget))){
-					means[iTarget] +=
-						getTrueValue(iInstance,iTarget);
-					nbOfValidValues++;
+
+			if (!varIsNonZero[iTarget]) // Variance zero. Do not trust floating points
+				means[iTarget] = valuesFor0Variance[iTarget];
+			else {
+				int nbOfValidValues = 0;
+				means[iTarget] = 0;
+				
+				for (int iInstance = 0; iInstance < nbOfInstances; iInstance++){
+					if (isValidValue(getTrueValue(iInstance,iTarget))){
+						means[iTarget] += getTrueValue(iInstance,iTarget);;
+						nbOfValidValues++;
+					}
 				}
+			
+				means[iTarget] /= nbOfValidValues;
 			}
-		
-			means[iTarget] /= nbOfValidValues;
 		}
 		return means;
 	}
@@ -897,8 +951,10 @@ public class OptProbl {
 	 * However, because in squared loss we are taking the normalization outside the loss function
 	 * we have to take square of these, thus variance^2 and stddev^2
 	 * @param means Precomputed means.
+	 * @param valuesFor0Variance 
+	 * @param varIsNonZero 
 	 * @return Standard deviations for targets of the data.*/
-	private double[] computeOptNormFactors(double[] means) {
+	private double[] computeOptNormFactors(double[] means, boolean[] varIsNonZero, double[] valuesFor0Variance) {
 		int nbOfTargets = getNbOfTargets();
 		int nbOfInstances = getNbOfInstances();
 	
@@ -907,18 +963,22 @@ public class OptProbl {
 		// Compute variances
 		for (int jTarget = 0; jTarget < nbOfTargets; jTarget++) {
 			double variance = 0;
-			int nbOfValidValues = 0; 
+			int nbOfValidValues = 0;
 			
-			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
-
-				// The following could be done by numTypes.isMissing(tuple)
-				// also, but seems to be equivalent
-				if (isValidValue(getTrueValue(iInstance,jTarget))) {// Value not given
-					variance += Math.pow(getTrueValue(iInstance,jTarget) - means[jTarget], 2.0);
-					nbOfValidValues++;
+			if (!varIsNonZero[jTarget]) // Variance zero. Do not trust floating points
+				variance = 0;
+			else {
+				for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
+	
+					// The following could be done by numTypes.isMissing(tuple)
+					// also, but seems to be equivalent
+					if (isValidValue(getTrueValue(iInstance,jTarget))) {// Value not given
+						variance += Math.pow(getTrueValue(iInstance,jTarget) - means[jTarget], 2.0);
+						nbOfValidValues++;
+					}
 				}
 			}
-
+			
 			// Divide with the number of examples
 			if (variance == 0) {
 				// If variance is zero, all the values are the same, so division
@@ -927,8 +987,7 @@ public class OptProbl {
 			} else {
 				variance /= nbOfValidValues;
 			}
-			
-			
+
 			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES_VARIANCE)
 				scaleFactor[jTarget] = Math.pow(variance,2.0);
 			else
@@ -969,7 +1028,8 @@ public class OptProbl {
 		// Also prediction omitting negates the need for these
 		if (!getSettings().isOptNormalization() 
 				|| getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_ONLY_SCALING
-				|| getSettings().isOptOmitRulePredictions())
+//				|| getSettings().isOptOmitRulePredictions()
+				)
 			return;
 		
 		// Change only the first rule, this changes the overall average of predictions
@@ -984,7 +1044,27 @@ public class OptProbl {
 			m_RulePred[0].m_prediction[iTarg][0] = Math.sqrt(getNormFactor(iTarg));
 		}
 		
+		
+		//DEBUG, after the changes, print these again!
+		// If you want to check these, put early stop amount to 0
+		if (GDProbl.m_printGDDebugInformation) {
+			String fname = getSettings().getDataFile();
 
+			PrintWriter wrt_pred = null;
+			PrintWriter wrt_true = null;
+			try {
+				wrt_pred = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".gd-pred")));
+				wrt_true = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname+".gd-true")));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+
+			printPredictionsToFile(wrt_pred);
+			wrt_pred.close();
+			printTrueValuesToFile(wrt_true);
+			wrt_true.close();
+		}
 	}
 	/** Changes rule set to undo the changes done to predictions */
 	protected void changeRuleSetToUndoNormNormalization(ClusRuleSet rset) {
@@ -1004,12 +1084,6 @@ public class OptProbl {
 	}
 	
 	
-	
-//	/** For normalization during optimization, the averages for each of the targets */	
-//	protected double getDataMean(int iTarget) {
-//		return m_TargetAvg[iTarget];
-//	}
-
 
 	private String printPred(int ruleIndex, int exampleIndex) {
 		NumberFormat fr = ClusFormat.THREE_AFTER_DOT;
@@ -1029,17 +1103,21 @@ public class OptProbl {
 	
 	/** Print predictions to output file. */
 	protected void printPredictionsToFile(PrintWriter wrt) {
-		wrt.print("Norm factors: [");
-		for (int iTarget = 0; iTarget < getNbOfTargets(); iTarget++) {
-			wrt.print(getNormFactor(iTarget));
-			if (iTarget != getNbOfTargets()-1)
-				wrt.print("; ");
+		if (getSettings().isOptNormalization()) {
+			wrt.print("Norm factors: [");
+			for (int iTarget = 0; iTarget < getNbOfTargets(); iTarget++) {
+				wrt.print(getNormFactor(iTarget));
+				if (iTarget != getNbOfTargets()-1)
+					wrt.print("; ");
+			}
+			wrt.print("]\n");
 		}
-		wrt.print("]\n");
 		for (int iRule = 0; iRule < getNumVar(); iRule++) {
-			if (iRule < m_RulePred.length)
+			if (iRule < m_RulePred.length) {
+				wrt.print("Rule nb " + iRule +": ");
 				wrt.print(printPred(iRule, 0));
-			else {
+			} else {
+				wrt.print("Term nb " + iRule +": ");
 				// Print for all the instances
 				for (int iInstance = 0; iInstance < this.getNbOfInstances(); iInstance++){
 					wrt.print(isCovered(iRule, iInstance) ? printPred(iRule, 0):"[NA]");

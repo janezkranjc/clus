@@ -1088,7 +1088,15 @@ public class ClusRuleSet implements ClusModel, Serializable {
 	private void omitRulePredictions(double[] stdDevs) {
 		if (Settings.VERBOSE > 0) 
 			System.out.println("Omitting rule predictions for optimization.");
-		for (int iRule = 0; iRule < getModelSize(); iRule++)
+		
+		// It depends on inner normalization if rule0 is omitted
+		// If normalization is done in such a way that x-avg for all the targets, do not omit because it will be omitted later anyway.
+		int iRule = 0;
+		if (getSettings().isOptNormalization() && 
+				getSettings().getOptNormalization() != Settings.OPT_NORMALIZATION_ONLY_SCALING)
+			iRule = 1;
+			
+		for (; iRule < getModelSize(); iRule++)
 		{
 			ClusRule rule = getRule(iRule);
 			if (rule.isRegularRule()) {// If this is linear term, do not touch it
