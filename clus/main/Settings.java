@@ -693,6 +693,7 @@ public class Settings implements Serializable {
 	protected INIFileBool m_1SERule;
 	protected INIFileBool m_MSENominal;
 	protected INIFileDouble m_M5PruningMult;
+	/** Do we transform leaves or all nodes of tree to rules */
 	protected INIFileNominal m_RulesFromTree;
 	protected INIFileNominal m_TreeOptimize;	
 
@@ -1089,7 +1090,7 @@ public class Settings implements Serializable {
 	/** Do we scale the predictions for optimization based on the coverage
 	 * This should put more weight to general rules. Default No.*/
 	protected INIFileBool m_OptWeightGenerality;
-	/** Do we normalize the targets of predictions and true values internally for optimization.¨
+	/** Do we normalize the targets of predictions and true values internally for optimization.
 	 * The normalization is done with statistical factors of TARGET ATTRIBUTES.
 	 * This normalization is inverted after the optimization. On default YES, because
 	 * it should make at least GD optimization work better (covariance computing may not work otherwise).
@@ -1120,7 +1121,7 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_OptGDExternalMethod;
 	/** GD How to combine multiple targets to single gradient value for step taking */
 	protected INIFileNominal m_OptGDMTGradientCombine;
-	/** GD How many different parameter combinations we try for T. Values between [T,1] */
+	/** GD How many different parameter combinations we try for T. Values between [m_OptGDGradTreshold,1] */
 	protected INIFileInt m_OptGDNbOfTParameterTry;
 
 	public INIFileNominalOrDoubleOrVector getDispersionWeights() {
@@ -2369,10 +2370,11 @@ public class Settings implements Serializable {
 	public void show(PrintWriter where) throws IOException {
 		updateDisabledSettings();
 		//For TreeToRules PredictionMethod might have been temporarily put to DecisionList instead of some other
-		if (getCoveringMethod() == Settings.COVERING_METHOD_RULES_FROM_TREE)
+		boolean tempInduceParamNeeded = m_ruleInduceParamsDisabled; // They were changed in the first place
+		if (getCoveringMethod() == Settings.COVERING_METHOD_RULES_FROM_TREE && tempInduceParamNeeded)
 			returnRuleInduceParams();
 		m_Ini.save(where);
-		if (getCoveringMethod() == Settings.COVERING_METHOD_RULES_FROM_TREE)
+		if (getCoveringMethod() == Settings.COVERING_METHOD_RULES_FROM_TREE && tempInduceParamNeeded)
 			disableRuleInduceParams(); 
 	}
 
