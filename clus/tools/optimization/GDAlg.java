@@ -101,17 +101,17 @@ public class GDAlg extends OptAlg{
 
 		m_weights = m_GDProbl.getInitialWeightVector();
 
-		// If normalization is not used and rules are not omitted the first rule should be the average
-		// Thus starting from weight 1 is the best way.
-		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED &&
-				!getSettings().isOptOmitRulePredictions() &&
-				getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE &&
-				!getSettings().isOptNormalization()) {
-			// If rule predictions are omitted, the default rule prediction is not useful anymore.
-			// Also if normalization is used, default rule should be 0 anyway
-			m_weights.set(0,1.0); // default rule
-			m_GDProbl.computeCovariancesIfNeeded(0);
-		}
+//		// If normalization is not used and rules are not omitted the first rule should be the average
+//		// Thus starting from weight 1 is the best way.
+//		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED &&
+//				!getSettings().isOptOmitRulePredictions() &&
+//				getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE &&
+//				!getSettings().isOptNormalization()) {
+//			// If rule predictions are omitted, the default rule prediction is not useful anymore.
+//			// Also if normalization is used, default rule should be 0 anyway
+//			m_weights.set(0,1.0); // default rule
+//			m_GDProbl.computeCovariancesIfNeeded(0);
+//		}
 
 		// Oscillation detection
 		m_prevChange = null;
@@ -161,7 +161,7 @@ public class GDAlg extends OptAlg{
 			return null;
 		}
 		// Compute initial gradients
-		m_GDProbl.initGradients(m_weights);
+		m_GDProbl.fullGradientComputation(m_weights);
 
 		int nbOfIterations = 0;
 		while(nbOfIterations < getSettings().getOptGDMaxIter()) {
@@ -179,7 +179,7 @@ public class GDAlg extends OptAlg{
 					m_earlyStopStepsizeReducedNb++;
 					m_GDProbl.dropStepSize(0.1); // Drop stepsize to tenth.
 					m_GDProbl.restoreBestWeight(m_weights); // restoring the weight with minimum fitness
-					m_GDProbl.initGradients(m_weights);
+					m_GDProbl.fullGradientComputation(m_weights);
 					if (Settings.VERBOSE > 0) System.out.print(" Reducing step, continuing.\n");
 				} else {
 					if (Settings.VERBOSE > 0) System.out.print(" Stopping.\n");
@@ -188,9 +188,8 @@ public class GDAlg extends OptAlg{
 					break;
 				}
 			} else if (nbOfIterations % (10*m_earlyStopStep) == 0 && nbOfIterations > 0){
-				// If we went to 'then', we do not have to compute the gradients again.
-			//if (nbOfIterations % (10*m_earlyStopStep) == 0 && nbOfIterations > 0){
-				m_GDProbl.initGradients(m_weights);
+				// Let's compute gradients gradients from scratch again now and again.
+				m_GDProbl.fullGradientComputation(m_weights);
 			}
 
 			// Print
@@ -212,7 +211,13 @@ public class GDAlg extends OptAlg{
 			//Change of the weight according to this gradient.
 			double[] valueChange = new double[maxGradients.length];
 
+
+			boolean debugPrint = Settings.VERBOSE > 0 && false; 			//DEBUG
+			
+			if (debugPrint) System.out.print("\nDEBUG: Computing covariances, total " + maxGradients.length + "\n");
+			
 			for (int iiGradient = 0; iiGradient < maxGradients.length; iiGradient++) {
+				if (debugPrint) System.out.print(iiGradient%10);
 				//c) We are changing the value of the weight. Let's compute the covariance if it is not yet done
 				m_GDProbl.computeCovariancesIfNeeded(maxGradients[iiGradient]);
 
@@ -222,7 +227,7 @@ public class GDAlg extends OptAlg{
 				// For detecting oscillation. If oscillation is already true, do not change it to false.
 				oscillation = (detectOscillation(iiGradient, valueChange[iiGradient]) || oscillation);
 			}
-
+			if (debugPrint) System.out.print("\nDEBUG: Computing covariances ended\n");
 			// If oscillation was detected we do not take real steps.
 			// we reduce the step size until the new step is smaller than the first one.
 			// It should be smaller because otherwise we are going even further from the optimal point.
@@ -309,7 +314,7 @@ public class GDAlg extends OptAlg{
 		// We are lowering the step size just enough to prevent further oscillation
 		// We make the new step size a little smaller than is limit (because of rounding mistakes)
 		m_GDProbl.dropStepSize(m_minStepSizeReduction*0.99);
-		m_minStepSizeReduction = 1;
+		m_minStepSizeReduction = 1; // Step done, reset this now
 	}
 
 
@@ -343,9 +348,9 @@ public class GDAlg extends OptAlg{
 					- m_prevChange[iiGradient]);
 		}
 
-		// Compute the gradients again. This should be done so often that this costs very much. Thus we
+		// Compute the gradients again. This should no be done so often that this costs very much. Thus we
 		// Can compute them again from scratch.
-		m_GDProbl.initGradients(m_weights);
+		m_GDProbl.fullGradientComputation(m_weights);
 
 		// Empty the oscillation control parameters (previous step was never done)
 		m_prevChange = null;
@@ -439,12 +444,8 @@ public class GDAlg extends OptAlg{
 	public double getBestFitness() {
 		return m_GDProbl.getBestFitness();
 	}
-	
-	public void preparePredictionsForNormalization(){
-		m_GDProbl.preparePredictionsForNormalization();
-	}
-	
-	public void changeRuleSetToUndoNormNormalization(ClusRuleSet rset) {
+		
+	public void postProcess(ClusRuleSet rset) {
 		m_GDProbl.changeRuleSetToUndoNormNormalization(rset);
 	}
 }

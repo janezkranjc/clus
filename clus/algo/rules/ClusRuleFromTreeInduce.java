@@ -11,6 +11,7 @@ import clus.algo.rules.ClusRulesFromTree;
 import clus.data.rows.RowData;
 import clus.data.type.ClusAttrType;
 import clus.data.type.ClusSchema;
+import clus.data.type.NumericAttrType;
 //import clus.ext.ensembles.ClusBoostingForest;
 import clus.ext.ensembles.ClusEnsembleInduce;
 import clus.ext.ensembles.ClusForest;
@@ -50,54 +51,9 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 	 */
 	public ClusModel induceSingleUnpruned(ClusRun cr) throws ClusException, IOException {
 
-
-
-
-//		// Also add a single tree without limit depth to the ensemble
-//		int oldValue = getSettings().getTreeMaxDepth();
-//		int oldPredMethod = getSettings().getRulePredictionMethod();
-//
-//		// For some kind of reason this is changed for trees
-//		getSettings().setRulePredictionMethod(Settings.RULE_PREDICTION_METHOD_DECISION_LIST);
-//		getSettings().setTreeMaxDepth(-1); // Set the value to infinity
-//
-//		DepthFirstInduce treeInduce = new DepthFirstInduce(this);
-//		treeInduce.initialize();
-//		cr.getStatManager().initClusteringWeights(); // This is done for ensembles also
-//		ClusModel treeModel = treeInduce.induceSingleUnpruned(cr);
-//
-//		// Pruning
-//		ClusNode pruned = (ClusNode)treeModel;
-//		PruneTree pruner = getStatManager().getTreePruner(cr.getPruneSet());
-//		pruner.setTrainingData((RowData) cr.getTrainingSet());
-//		pruner.prune(pruned);
-//
-//		// Transform the tree into rules and add them to current rule set
-////		int numberOfTreeUniqRules =
-////			ruleSet.addRuleSet(treeTransform.constructRules((ClusNode)treeModel,
-////			ruleSet.addRuleSet(treeTransform.constructRules((ClusNode)pruned,
-////					getStatManager()));
-//
-//
-//		getSettings().setOptGDMaxNbWeights(Math.max(pruned.getNbLeaf(), 10));
-//		System.err.println("Changing maximum number of weights on tree size. REMOVE THIS.");
-//
-//		// Change the value back
-//		getSettings().setTreeMaxDepth(oldValue);
-//		getSettings().setRulePredictionMethod(oldPredMethod);
-//
-//
-//
-////		System.out.println("Added a single decision tree to rules. " + ruleSet.getModelSize()
-////	            +  " rules in total. (" + numberOfTreeUniqRules + " unique rules from single tree.)");
-//
-//
-//
-//		// Adding single tree ends
-
 		// The params may already have been disabled, thus we do not want to disable them again
 		// (forgets original values)
-		getSettings().returnRuleInduceParams();
+//		getSettings().returnRuleInduceParams();
 		getSettings().disableRuleInduceParams();
 		
 		// Train the decision tree ensemble with hopefully all the available settings.

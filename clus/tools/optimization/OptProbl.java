@@ -34,6 +34,7 @@ import java.util.*;
 
 import clus.main.*;
 import clus.algo.rules.ClusRuleSet;
+import clus.algo.rules.RuleNormalization;
 import clus.data.rows.DataTuple;
 import clus.data.type.*;
 import clus.statistic.*;
@@ -88,9 +89,22 @@ public class OptProbl {
 	 */
 	static public class RulePred {
 		/** An empty class */
-		public RulePred(int nbInst, int nbTarg){m_cover = new boolean[nbInst];m_prediction = new double[nbTarg][1];}
-		public RulePred(boolean[] cover, double[][] prediction){m_cover = cover;m_prediction=prediction;}
-		public boolean[] m_cover; // [instance] that are covered
+//		public RulePred(int nbInst, int nbTarg){m_cover = new boolean[nbInst];m_prediction = new double[nbTarg][1];}
+//		public RulePred(boolean[] cover, double[][] prediction){m_cover = cover;m_prediction=prediction;}
+
+/*		public RulePred(int nbInst, int nbTarg){m_cover = new WAHBitSet();m_prediction = new double[nbTarg][1];}
+		public RulePred(WAHBitSet cover, double[][] prediction){m_cover = cover;m_prediction=prediction;}
+
+		//public boolean[] m_cover; // [instance] that are covered
+		public WAHBitSet m_cover; // [instance] that are covered
+		public double[][] m_prediction; // [target index][class value]
+*/
+
+		public RulePred(int nbInst, int nbTarg){m_cover = new BitSet(nbInst);m_prediction = new double[nbTarg][1];}
+		public RulePred(BitSet cover, double[][] prediction){m_cover = cover;m_prediction=prediction;}
+
+		//public boolean[] m_cover; // [instance] that are covered
+		public BitSet m_cover; // [instance] that are covered
 		public double[][] m_prediction; // [target index][class value]
 	}
 	/**
@@ -98,9 +112,8 @@ public class OptProbl {
 	 * Rule predictions [rule index]. Includes the prediction and boolean array of covered instances.
 	 * Similar to m_BaseFuncPred but only for rules (constant prediction if covers).
 	 */
-	protected RulePred[] m_RulePred;
+	private RulePred[] m_RulePred;
 
-	
 	/**
 	 * Other base function predictions [function index][instance][target index][class_value] is for 
 	 * nominal attributes or [function index][instance][target index][0] for regression.
@@ -109,14 +122,14 @@ public class OptProbl {
 	 * These base functions have always indices AFTER rules.
 	 * For rules use the other array, it is faster!
 	 */
-	protected double[][][][] m_BaseFuncPred;
+	private double[][][][] m_BaseFuncPred;
 
 	/** 
 	 * If we want to save memory (amount of linear terms may be huge) we are not yet explicitly 
 	 * adding the linear terms to the set. Instead we are asking from the linear term set for the prediction.
 	 * This is used only if a switch is set on.
 	 */
-	protected ImplicitLinearTerms m_LinTermMemSavePred = null;
+	private ImplicitLinearTerms m_LinTermMemSavePred = null;
 	
 	
 	/**
@@ -147,7 +160,8 @@ public class OptProbl {
 	/** For normalization during optimization, the std devs for each of the targets */
 	private double[] m_TargetNormFactor;
 	
-	
+	/** Do we use save memory version of linear terms. A very often used function call */
+	boolean m_saveMemoryLinears;
 
 	/**
 	 * Constructor for problem to be solved with optimization. Both classification and regression.
@@ -159,12 +173,14 @@ public class OptProbl {
 	public OptProbl(ClusStatManager stat_mgr, OptParam optInfo) {
 		m_StatMgr = stat_mgr;
 
-		if (getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY){
+		m_saveMemoryLinears = getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY;
+		
+		if (m_saveMemoryLinears){
 			int nbOfTargetAtts = m_StatMgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_TARGET).length;
 			int nbOfDescrAtts = m_StatMgr.getSchema().getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE).length;
 			m_NumVar = (optInfo.m_baseFuncPredictions).length+(optInfo.m_rulePredictions).length
 				+nbOfTargetAtts*nbOfDescrAtts;
-		}else
+		} else
 			m_NumVar = (optInfo.m_baseFuncPredictions).length+(optInfo.m_rulePredictions).length;
 		
 		// May be null if not used
@@ -195,30 +211,28 @@ public class OptProbl {
 			
 			// Normalization factors and means are only stored if they are used 
 			if (getSettings().isOptNormalization()) {
-				double[] valuesFor0Variance = null;
-				boolean[] varIsNonZero = checkZeroVariance(valuesFor0Variance);
-				double[] means = computeMeans(varIsNonZero, valuesFor0Variance);
-				m_TargetNormFactor = computeOptNormFactors(means, varIsNonZero, valuesFor0Variance);
+//				double[] valuesFor0Variance = new double[getNbOfTargets()];
+//				boolean[] varIsNonZero = checkZeroVariance(valuesFor0Variance);
+//				double[] means = computeMeans(varIsNonZero, valuesFor0Variance);
+//				m_TargetNormFactor = computeOptNormFactors(means, varIsNonZero, valuesFor0Variance);
+				m_TargetNormFactor = initNormFactors();
 				if (getSettings().getOptNormalization() != Settings.OPT_NORMALIZATION_ONLY_SCALING)
-					m_TargetAvg = means;
+					m_TargetAvg = initMeans();
 			}
-							
 		}
-		
 	}
 	
-	/**
-	 * Modify the data information. If we already have the averages and stdDevs computed, use them instead.
-	 * @param averages Averages for each target.
-	 * @param normFactor Standard deviations for each target.
-	 * 
-	 */
-	protected void modifyDataStatistics(double[] averages, double[] normFactor ) {
-//	protected void modifyDataStatistics(double[] normFactor ) {
-		m_TargetAvg = averages;
-		m_TargetNormFactor = normFactor;
-	}
-
+//	/**
+//	 * Modify the data information. If we already have the averages and stdDevs computed, use them instead.
+//	 * @param averages Averages for each target.
+//	 * @param normFactor Standard deviations for each target.
+//	 * TODO remove
+//	 */
+//	protected void modifyDataStatistics(double[] averages, double[] normFactor ) {
+////	protected void modifyDataStatistics(double[] normFactor ) {
+//		m_TargetAvg = averages;
+//		m_TargetNormFactor = normFactor;
+//	}
 
 
 	/**
@@ -229,7 +243,7 @@ public class OptProbl {
 	 * @return fitness score
 	 */
 
-	public double calcFitness(ArrayList<Double> genes) {
+	final public double calcFitness(ArrayList<Double> genes) {
 		return calcFitnessForTarget(genes, -1);
 	}
 
@@ -729,15 +743,15 @@ public class OptProbl {
 	}
 
 	/** Number of variables to be optimized */
-	public int getNumVar() {
+	final public int getNumVar() {
 		return m_NumVar;
 	}
 
-	protected Settings getSettings() {
+	final protected Settings getSettings() {
 		return m_StatMgr.getSettings();
 	}
 
-	protected ClusStatistic getTargetStat() {
+	final protected ClusStatistic getTargetStat() {
 		return m_StatMgr.getStatistic(ClusAttrType.ATTR_USE_TARGET);
 	}
 
@@ -747,13 +761,15 @@ public class OptProbl {
 	 */
 	final protected boolean isCovered(int iRule, int iInstance) {
 		if (iRule >= m_RulePred.length) {
-			if (getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY) {
-				return true; // Not spare function call.
-			} else {
-				return !Double.isNaN(m_BaseFuncPred[iRule-m_RulePred.length][iInstance][0][0]);
-			}
+			return m_saveMemoryLinears ? true : !Double.isNaN(m_BaseFuncPred[iRule-m_RulePred.length][iInstance][0][0]);
+//			if (m_saveMemoryLinears) {
+//				return true; // Not spare function call.
+//			} else {
+//				return !Double.isNaN(m_BaseFuncPred[iRule-m_RulePred.length][iInstance][0][0]);
+//			}
 		} else {
-			return m_RulePred[iRule].m_cover[iInstance];
+//			return m_RulePred[iRule].m_cover[iInstance];
+			return m_RulePred[iRule].m_cover.get(iInstance);
 		}
 			
 	}
@@ -762,7 +778,7 @@ public class OptProbl {
 //	/** Value of base function prediction. Can be used also for nominal attributes.
 //	 * Note that this does not use the include of default rule!
 //	 * So this is not the real prediction but can be NaN.
-//	 */
+//	 */ TODO remove
 //	final protected double getPredictions( int iRule, int iInstance, int iTarget, int iClass) {
 //		if (iRule >= m_RulePred.length) {
 //			return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][iClass];
@@ -793,8 +809,8 @@ public class OptProbl {
 	 * If used right, gives always prediction.
 	 */
 	final protected double getPredictionsWhenCovered(int iRule, int iInstance, int iTarget, int iClass) {
-		if (iRule >= m_RulePred.length) {
-			if (getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY) {
+		if (!isRuleTerm(iRule)) {
+			if (m_saveMemoryLinears) {
 				return m_LinTermMemSavePred.predict(iRule-m_RulePred.length,
 						m_TrueVal[iInstance].m_dataExample, iTarget,
 						m_RulePred[0].m_prediction.length); // Nb of targets.
@@ -806,26 +822,21 @@ public class OptProbl {
 		}
 	}
 	
+	/** Is the predictor of given index a regular rule */ 
+	final protected boolean isRuleTerm(int index) {
+		return index < m_RulePred.length;
+	}
 	/** Value of base function prediction in regression use
 	 * when we already know that instance is covered! Use isCovered for this.
 	 * If used right, gives always prediction.
 	 */
 	final protected double getPredictionsWhenCovered(int iRule, int iInstance, int iTarget) {
 		return getPredictionsWhenCovered(iRule, iInstance, iTarget, 0);
-//		if (iRule >= m_RulePred.length) {
-//			if (getSettings().getOptAddLinearTerms() == Settings.OPT_GD_ADD_LIN_YES_SAVE_MEMORY) {
-//				return m_LinTermMemSavePred.predictImplicitLinTerm(iRule-m_RulePred.length,iInstance,iTarget,
-//						m_RulePred[0].m_prediction.length); // Nb of targets.
-//			} else {
-//				return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][0];
-//			}
-//		} else {
-//			return m_RulePred[iRule].m_prediction[iTarget][0];
-//		}
 	}
 
-	protected double getTrueValue(int iInstance, int iTarget)  {
-		return m_TrueVal[iInstance].m_targets[iTarget]-m_TargetAvg[iTarget];
+	// If mean not given, it is zero
+	final protected double getTrueValue(int iInstance, int iTarget)  {
+		return m_TrueVal[iInstance].m_targets[iTarget]-getMean(iTarget);
 	}
 
 	/**
@@ -834,15 +845,15 @@ public class OptProbl {
 	 * OBSOLETE, does not take into account target avg even if it should!
 	 * @return
 	 */
-	private TrueValues[] getTrueValues() {
+	final private TrueValues[] getTrueValues() {
 		return m_TrueVal;
 	}
 
-	protected boolean isClassifTask() {
+	final protected boolean isClassifTask() {
 		return m_ClssTask;
 	}
 
-	protected int getNbOfInstances() {
+	final protected int getNbOfInstances() {
 		return m_TrueVal.length;
 	}
 
@@ -852,7 +863,7 @@ public class OptProbl {
 
 	/** Change the data used for learning. This is used if part of the data
 	 * is used for e.g. testing. */
-	protected void changeData(OptParam newData) {
+	final protected void changeData(OptParam newData) {
 		m_BaseFuncPred = newData.m_baseFuncPredictions;
 		m_RulePred = newData.m_rulePredictions;
 //		m_defaultPred = newData.m_defaultPrediction;
@@ -861,187 +872,229 @@ public class OptProbl {
 
 	/** Is prediction/true value valid value
 	 */
-	protected boolean isValidValue(double pred) {
+	final protected boolean isValidValue(double pred) {
 		return !Double.isInfinite(pred) && !Double.isNaN(pred);
 	}
 
-	/** Returns zero variance targets. These are important to trac because otherwise we get 1/var or
-	 * 1/std dev huge factors. Because of floating point computation variance may be nonzero.
-	 * @param var0Values Values for the variables with variance = 0, for other variables the value is 0 always.
-	 * @return Booleans if the target variances are non zero. True <-> variance != 0
-	 */
-	protected boolean[] checkZeroVariance(double[] var0Values) {
-		int nbOfTargets = getNbOfTargets();
-		int nbOfInstances = getNbOfInstances();
-
-		/** Floating point computation is not to be trusted. It is important to track if variance = 0,
-		 * (we are otherwise getting huge factors with 1/std dev). */
-		boolean[] varIsNonZero = new boolean[nbOfTargets];
-		
-		// Check if variance = 0 i.e. all values are the same
-		double[] prevAcceptedValue = new double[nbOfTargets];
-
-		for (int i = 0; i < prevAcceptedValue.length; i++)
-			prevAcceptedValue[i] = Double.NaN;
-		
-		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-			
-			// Stop when nonzero variance is proved
-			for (int iInstance = 0; iInstance < nbOfInstances && !varIsNonZero[iTarget]; iInstance++) {
-				double value = getTrueValue(iInstance,iTarget);
-				if (isValidValue(value)) {
-					if (!Double.isNaN(prevAcceptedValue[iTarget]) &&
-						prevAcceptedValue[iTarget] != value) {
-						
-						varIsNonZero[iTarget] = true;
-					}
-					prevAcceptedValue[iTarget] = value;
-				}
-			}
-		}
-		
-		var0Values = new double[nbOfTargets];
-		
-		for (int i = 0; i < prevAcceptedValue.length; i++) {
-			if (!varIsNonZero[i])
-				var0Values[i] = prevAcceptedValue[i];
-		}
-			
-		return varIsNonZero;
-	}
+//	/** Returns zero variance targets. These are important to trac because otherwise we get 1/var or
+//	 * 1/std dev huge factors. Because of floating point computation variance may be nonzero.
+//	 * @param var0Values Values for the variables with variance = 0, for other variables the value is 0 always.
+//	 * @return Booleans if the target variances are non zero. True <-> variance != 0 TODO remove
+//	 */
+//	protected boolean[] checkZeroVariance(double[] var0Values) {
+//		int nbOfTargets = getNbOfTargets();
+//		int nbOfInstances = getNbOfInstances();
+//
+//		/** Floating point computation is not to be trusted. It is important to track if variance = 0,
+//		 * (we are otherwise getting huge factors with 1/std dev). */
+//		boolean[] varIsNonZero = new boolean[nbOfTargets];
+//		
+//		// Check if variance = 0 i.e. all values are the same
+//		double[] prevAcceptedValue = new double[nbOfTargets];
+//
+//		for (int i = 0; i < prevAcceptedValue.length; i++)
+//			prevAcceptedValue[i] = Double.NaN;
+//		
+//		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
+//			
+//			// Stop when nonzero variance is proved
+//			for (int iInstance = 0; iInstance < nbOfInstances && !varIsNonZero[iTarget]; iInstance++) {
+//				double value = getTrueValue(iInstance,iTarget);
+//				if (isValidValue(value)) {
+//					if (!Double.isNaN(prevAcceptedValue[iTarget]) &&
+//						prevAcceptedValue[iTarget] != value) {
+//						
+//						varIsNonZero[iTarget] = true;
+//					}
+//					prevAcceptedValue[iTarget] = value;
+//				}
+//			}
+//		}
+//		
+//		for (int i = 0; i < prevAcceptedValue.length; i++) {
+//			if (!varIsNonZero[i])
+//				var0Values[i] = prevAcceptedValue[i];
+//		}
+//			
+//		return varIsNonZero;
+//	}
+//	
+//	/** Compute means (e.g. for covariance computation) for true values
+//	 * For predictions means are not computed because, e.g. for all covering rule the its effect would
+//	 * go to zero (by prediction - mean)
+//	 * If the data is normalized, mean of true value is 0 and mean is not needed to compute
+//	 * @param valuesFor0Variance 
+//	 * @return Averages for targets of the data.*/
+//	protected double[] computeMeans(boolean[] varIsNonZero, double[] valuesFor0Variance) {
+//		int nbOfTargets = getNbOfTargets();
+//		int nbOfInstances = getNbOfInstances();
+//		double[] means = new double[nbOfTargets];
+//		
+//		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++){
+//
+//			if (!varIsNonZero[iTarget]) // Variance zero. Do not trust floating points
+//				means[iTarget] = valuesFor0Variance[iTarget];
+//			else {
+//				int nbOfValidValues = 0;
+//				means[iTarget] = 0;
+//				
+//				for (int iInstance = 0; iInstance < nbOfInstances; iInstance++){
+//					if (isValidValue(getTrueValue(iInstance,iTarget))){
+//						means[iTarget] += getTrueValue(iInstance,iTarget);;
+//						nbOfValidValues++;
+//					}
+//				}
+//			
+//				means[iTarget] /= nbOfValidValues;
+//			}
+//		}
+//		return means;
+//	}
+//	
+//	/** Compute normalization scaling factors for given values.
+//	 * To normalize the targets you should divide with 2* stddev (after shifting by - avg).
+//	 * After this transformation the mean should be about 0.0 and variance about 0.25
+//	 * (and standard deviation 0.5). Thus 95% of values should be between [-1,1] (assuming normal distribution).
+//	 * If stdDev would be zero, we return 0.5 (and thus the divider should be 2*0.5 = 1).
+//	 * Another option is to normalize with the variance (similar to RRMSE then).
+//	 * However, because in squared loss we are taking the normalization outside the loss function
+//	 * we have to take square of these, thus variance^2 and stddev^2
+//	 * @param means Precomputed means.
+//	 * @param valuesFor0Variance 
+//	 * @param varIsNonZero 
+//	 * @return Standard deviations for targets of the data.*/
+//	private double[] computeOptNormFactors(double[] means, boolean[] varIsNonZero, double[] valuesFor0Variance) {
+//		int nbOfTargets = getNbOfTargets();
+//		int nbOfInstances = getNbOfInstances();
+//	
+//		double[] scaleFactor = new double[nbOfTargets];
+//		
+//		// Compute variances
+//		for (int jTarget = 0; jTarget < nbOfTargets; jTarget++) {
+//			double variance = 0;
+//			int nbOfValidValues = 0;
+//			
+//			if (!varIsNonZero[jTarget]) // Variance zero. Do not trust floating points
+//				variance = 0;
+//			else {
+//				for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
+//	
+//					// The following could be done by numTypes.isMissing(tuple)
+//					// also, but seems to be equivalent
+//					if (isValidValue(getTrueValue(iInstance,jTarget))) {// Value not given
+//						variance += Math.pow(getTrueValue(iInstance,jTarget) - means[jTarget], 2.0);
+//						nbOfValidValues++;
+//					}
+//				}
+//			}
+//			
+//			// Divide with the number of examples
+//			if (variance == 0) {
+//				// If variance is zero, all the values are the same, so division
+//				// is not needed.
+//				variance = 0.25; // And the divider will be 2*sqrt(1/4)= 1
+//			} else {
+//				variance /= nbOfValidValues;
+//			}
+//
+//			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES_VARIANCE)
+//				scaleFactor[jTarget] = Math.pow(variance,2.0);
+//			else
+//				scaleFactor[jTarget] = 4*variance;
+//				
+//			
+////			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES)
+////				scaleFactor[jTarget] = 2*Math.sqrt(variance);
+////			else //Settings.OPT_NORMALIZATION_YES_VARIANCE
+////				scaleFactor[jTarget] = variance;
+//				
+//		}
+//
+//		return scaleFactor;
+//	}
 	
-	/** Compute means (e.g. for covariance computation) for true values
-	 * For predictions means are not computed because, e.g. for all covering rule the its effect would
-	 * go to zero (by prediction - mean)
-	 * If the data is normalized, mean of true value is 0 and mean is not needed to compute
-	 * @param valuesFor0Variance 
-	 * @return Averages for targets of the data.*/
-	protected double[] computeMeans(boolean[] varIsNonZero, double[] valuesFor0Variance) {
-		int nbOfTargets = getNbOfTargets();
-		int nbOfInstances = getNbOfInstances();
-		double[] means = new double[nbOfTargets];
-		
-		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++){
-
-			if (!varIsNonZero[iTarget]) // Variance zero. Do not trust floating points
-				means[iTarget] = valuesFor0Variance[iTarget];
-			else {
-				int nbOfValidValues = 0;
-				means[iTarget] = 0;
-				
-				for (int iInstance = 0; iInstance < nbOfInstances; iInstance++){
-					if (isValidValue(getTrueValue(iInstance,iTarget))){
-						means[iTarget] += getTrueValue(iInstance,iTarget);;
-						nbOfValidValues++;
-					}
-				}
-			
-				means[iTarget] /= nbOfValidValues;
-			}
+	
+	/** Initializes means with global means, this is not always done, sometimes mean = 0 */
+	private double[] initMeans() {
+		double[] means = new double[getNbOfTargets()];
+		for (int iTarget = 0; iTarget < getNbOfTargets(); iTarget++) {
+			means[iTarget] = RuleNormalization.getTargMean(iTarget);
 		}
 		return means;
 	}
-	
-	/** Compute normalization scaling factors for given values.
-	 * To normalize the targets you should divide with 2* stddev (after shifting by - avg).
-	 * After this transformation the mean should be about 0.0 and variance about 0.25
-	 * (and standard deviation 0.5). Thus 95% of values should be between [-1,1] (assuming normal distribution).
-	 * If stdDev would be zero, we return 0.5 (and thus the divider should be 2*0.5 = 1).
-	 * Another option is to normalize with the variance (similar to RRMSE then).
-	 * However, because in squared loss we are taking the normalization outside the loss function
-	 * we have to take square of these, thus variance^2 and stddev^2
-	 * @param means Precomputed means.
-	 * @param valuesFor0Variance 
-	 * @param varIsNonZero 
-	 * @return Standard deviations for targets of the data.*/
-	private double[] computeOptNormFactors(double[] means, boolean[] varIsNonZero, double[] valuesFor0Variance) {
-		int nbOfTargets = getNbOfTargets();
-		int nbOfInstances = getNbOfInstances();
-	
-		double[] scaleFactor = new double[nbOfTargets];
-		
-		// Compute variances
-		for (int jTarget = 0; jTarget < nbOfTargets; jTarget++) {
-			double variance = 0;
-			int nbOfValidValues = 0;
-			
-			if (!varIsNonZero[jTarget]) // Variance zero. Do not trust floating points
-				variance = 0;
-			else {
-				for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
-	
-					// The following could be done by numTypes.isMissing(tuple)
-					// also, but seems to be equivalent
-					if (isValidValue(getTrueValue(iInstance,jTarget))) {// Value not given
-						variance += Math.pow(getTrueValue(iInstance,jTarget) - means[jTarget], 2.0);
-						nbOfValidValues++;
-					}
-				}
-			}
-			
-			// Divide with the number of examples
-			if (variance == 0) {
-				// If variance is zero, all the values are the same, so division
-				// is not needed.
-				variance = 0.25; // And the divider will be 2*sqrt(1/4)= 1
-			} else {
-				variance /= nbOfValidValues;
-			}
 
+	/** Initializes norm factors based on precomputed std dev values. Norm factor is always
+	 * a square of normalization factor of SINGLE term (because this is used for normalizing product
+	 * of two terms) */
+	private double[] initNormFactors() {
+		double[] scaleFactor = new double[getNbOfTargets()];
+		for (int iTarget = 0; iTarget < getNbOfTargets(); iTarget++) {
 			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES_VARIANCE)
-				scaleFactor[jTarget] = Math.pow(variance,2.0);
-			else
-				scaleFactor[jTarget] = 4*variance;
-				
-			
-//			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES)
-//				scaleFactor[jTarget] = 2*Math.sqrt(variance);
-//			else //Settings.OPT_NORMALIZATION_YES_VARIANCE
-//				scaleFactor[jTarget] = variance;
-				
+				scaleFactor[iTarget] = Math.pow(RuleNormalization.getTargStdDev(iTarget),4); //Math.pow(variance,2.0);
+			else // std dev
+				scaleFactor[iTarget] = 4*Math.pow(RuleNormalization.getTargStdDev(iTarget),2); //4*variance;
 		}
-
 		return scaleFactor;
 	}
+
 	
 	/** For normalization during optimization, the scaling factor for each of the targets.
 	 * For single prediction/true value Math.sqrt() of this should be used, because this is 
 	 * meant for e.g. covariance computing. */	
-	protected double getNormFactor(int iTarget) {
+	final protected double getNormFactor(int iTarget) {
 		return m_TargetNormFactor[iTarget];
 	}
 
-	/** For normalization during optimization, the std devs for each of the targets */	
-	protected double[] getNormFactors() {
-		return m_TargetNormFactor;
+	final protected double getMean(int iAttr) {
+		return m_TargetAvg[iAttr];
 	}
 	
-	protected double[] getMeans() {
-		return m_TargetAvg;
+	/** Returns boolean array of rule covering */
+//	protected WAHBitSet getRuleCovers(int iRule) {
+	final protected BitSet getRuleCovers(int iRule) {
+		return m_RulePred[iRule].m_cover;
 	}
 	
+	/** Returns the index of next covered instance for the rule */
+	final protected int getRuleNextCovered(int iRule, int iFromIndex) {
+		return m_RulePred[iRule].m_cover.nextSetBit(iFromIndex);
+	}
 	
+	/**
+	 * Returns target dimension for linear term with this index.
+	 * @param iLinTerm
+	 * @return
+	 */
+	final protected int getLinTargetDim(int iLinTerm) {
+		return (iLinTerm-m_RulePred.length)%getNbOfTargets();
+	}
+	/**
+	 * Returns descriptive dimension for linear term with this index.
+	 * @param iLinTerm
+	 * @return
+	 */
+	final protected int getLinDescrDim(int iLinTerm) {
+		return (int) Math.floor((double)(iLinTerm-m_RulePred.length)/getNbOfTargets());
+	}
 	/** Prepare predictions for normalization, the predictions might have to be changed */
 	protected void preparePredictionsForNormalization() {
 	
 		// Preparations are needed only if some normalization with average shifting is needed.
 		// Also prediction omitting negates the need for these
 		if (!getSettings().isOptNormalization() 
-				|| getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_ONLY_SCALING
-//				|| getSettings().isOptOmitRulePredictions()
-				)
+				|| getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_ONLY_SCALING)
 			return;
 		
 		// Change only the first rule, this changes the overall average of predictions
 		// The first rule should now include the averages in practice, check this
 		for (int iTarg = 0; iTarg < getNbOfTargets(); iTarg++) {
-			if (getPredictionsWhenCovered(0, 0, iTarg) != m_TargetAvg[iTarg]) {
+			if (getPredictionsWhenCovered(0, 0, iTarg) != getMean(iTarg)) {
 				System.err.println("Error: Difference in preparePredictionsForNormalization for target nb "+ iTarg
 						+ ". The values are " + getPredictionsWhenCovered(0, 0, iTarg)
-						+ " and " + m_TargetAvg[iTarg]);
+						+ " and " + getMean(iTarg));
 				System.exit(1);
 			}
-			m_RulePred[0].m_prediction[iTarg][0] = Math.sqrt(getNormFactor(iTarg));
+			m_RulePred[0].m_prediction[iTarg][0] = Math.sqrt(getNormFactor(iTarg)); // e.g. 2* std dev 
 		}
 		
 		
@@ -1077,7 +1130,7 @@ public class OptProbl {
 		for (int iTarg = 0; iTarg < getNbOfTargets(); iTarg++) {
 			 // Let's add the prediction got in the optimization to the average
 			newPred[iTarg] = getPredictionsWhenCovered(0, 0, iTarg)*rset.getRule(0).getOptWeight()
-							+m_TargetAvg[iTarg];
+							+getMean(iTarg);
 		}
 		rset.getRule(0).setNumericPrediction(newPred);
 		rset.getRule(0).setOptWeight(1.0);

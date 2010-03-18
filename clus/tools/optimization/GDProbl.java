@@ -46,10 +46,8 @@ public class GDProbl extends OptProbl {
 
 	/**
 	 * Covariances between weights. Are computed only if needed.
-	 * [iFirstWeight][iSecondWeight][iTarget]
-	 * OBSOLETE, only averages of covariances are used any more!
+	 * [iFirstWeight][iSecondWeight]
 	 */
-	//protected double[][][] m_covariances;  OBSOLETE, only averages of covariances are used any more!
 	protected double[][] m_covariances;
 
 	/**
@@ -70,34 +68,28 @@ public class GDProbl extends OptProbl {
 
 
 
-	/** For covariance computing, we need means (expected values) of predictions
-	 * [predictor][target]
-	 * OBSOLETE. For predictions means are not computed because, e.g. for all covering rule the its effect would
-	 * go to zero (by prediction - mean)*/
-	//protected double[][] m_meanPredictors;
-
 	/**
 	 * Number of rules with nonzero weights. I.e. how many trues in m_isWeightNonZero.
 	 * The 'default rule' - the first rule that is always a constant is not counted!
 	 */
 	protected int m_nbOfNonZeroRules;
 
-	/** Computed negative gradients for each of the dimensions
-	 * [iWeight][iTarget]*/
-//	protected double[][] m_gradients;
+	/** Covariances between predictors and true values. If all the weights are zero,
+	 * these are also the initial gradients before the first iteration.
+	 * Weights are zero, so these do not have to be computed again 
+	 * when running with same predictions and true values (different T values).
+	 * These are also used when computing gradients from scratch.
+	 */
+	protected double[] m_predCovWithTrue;
+	
+	/** Computed negative gradient averages for each of the dimensions
+	 * [iWeight]*/
 	protected double[] m_gradients;
 
 	/** Includes the weights that are banned.
 	 * One value for each of the weights, if value > nbOfIterations, weight is banned.
 	 */
 	protected int[] m_bannedWeights;
-
-	/** Affective gradients ON THIS ITERATION.
-	 * These are computed again after every alteration of gradients
-	 * and are valid only until the next modification.
-	 * In here we combine different targets to single gradient value.
-	 */
-	protected double[] m_affectiveGradientsForIter;
 
 	/** Step size for gradient descent */
 	protected double m_stepSize;
@@ -119,7 +111,10 @@ public class GDProbl extends OptProbl {
 	public GDProbl(ClusStatManager stat_mgr, OptParam optInfo) {
 		super(stat_mgr, optInfo);
 
-
+		// If needed, prepares for norm. Has to be done after normalization computation and before covariance computing.
+		// May be safe to do this before splitting validation set (if default rule is used stored/used in validation set by mistake).
+		preparePredictionsForNormalization();
+		
 		//m_meanPredictors = new double[getNumVar()][getNbOfTargets()];
 
 		// If early stopping criteria is chosen, reserve part of the training set for early stop testing.
@@ -180,7 +175,11 @@ public class GDProbl extends OptProbl {
 				}
 				
 				for (int iRule = 0; iRule < optInfo.m_rulePredictions.length;iRule++){
-					m_dataEarlyStop.m_rulePredictions[iRule].m_cover[iTestSetInstance] = optInfo.m_rulePredictions[iRule].m_cover[iNewTestInstance];
+//					m_dataEarlyStop.m_rulePredictions[iRule].m_cover.set(iTestSetInstance,
+//							optInfo.m_rulePredictions[iRule].m_cover.get(iNewTestInstance));
+					if (optInfo.m_rulePredictions[iRule].m_cover.get(iNewTestInstance))
+						m_dataEarlyStop.m_rulePredictions[iRule].m_cover.set(iTestSetInstance);
+
 				}
 
 			}
@@ -203,7 +202,10 @@ public class GDProbl extends OptProbl {
 					}
 					
 					for (int iRule = 0; iRule < optInfo.m_rulePredictions.length;iRule++){
-						rest.m_rulePredictions[iRule].m_cover[iInstanceRestIndex] = optInfo.m_rulePredictions[iRule].m_cover[iInstance];
+//						rest.m_rulePredictions[iRule].m_cover.set(iInstanceRestIndex,
+//								optInfo.m_rulePredictions[iRule].m_cover.get(iInstance));
+						if (optInfo.m_rulePredictions[iRule].m_cover.get(iInstance))
+							rest.m_rulePredictions[iRule].m_cover.set(iInstanceRestIndex);
 					}
 					
 					iInstanceRestIndex++;
@@ -225,7 +227,7 @@ public class GDProbl extends OptProbl {
 			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop);
 			// Give the same std devs for this smaller part of data.
 			//m_earlyStopProbl.modifyDataStatistics(getNormFactors());
-			m_earlyStopProbl.modifyDataStatistics(getMeans(),getNormFactors());
+//			m_earlyStopProbl.modifyDataStatistics(getMeans(),getNormFactors());
 
 			// We are using Fitness function of  the problem. Let us put the reg penalty to 0 because we do not
 			// want to use it
@@ -248,8 +250,7 @@ public class GDProbl extends OptProbl {
 		}
 		m_isCovComputed = new boolean[nbWeights]; // Initial value is false
 
-		// This is called from GDAlg
-		//initGDForNewRunWithSamePredictions();
+		initPredictorVsTrueValuesCovariances();
 	}
 
 	/** Initialize GD optimization for new run with same predictions and true values
@@ -258,10 +259,8 @@ public class GDProbl extends OptProbl {
 	 */
 	public void initGDForNewRunWithSamePredictions() {
 		int nbWeights = getNumVar();
-//		int nbTargets = getNbOfTargets();
 
 		if (getSettings().getOptGDEarlyStopAmount() > 0) {
-			//			m_oldFitnesses = new ArrayList<Double>();
 			m_minFitness = Double.POSITIVE_INFINITY;
 			m_minFitWeights = new ArrayList<Double>(getNumVar());
 
@@ -282,7 +281,7 @@ public class GDProbl extends OptProbl {
 		m_gradients = new double[nbWeights];  // Initial value is zero
 
 		m_nbOfNonZeroRules = 0;
-		m_affectiveGradientsForIter = new double[nbWeights];
+		m_gradients = new double[nbWeights];
 		m_stepSize = getSettings().getOptGDStepSize();
 	}
 
@@ -296,34 +295,31 @@ public class GDProbl extends OptProbl {
 		for (int i = 0; i < getNumVar(); i++) {
 			result.add(new Double(0.0));
 		}
-
-		// The following is commented because causes overfitting - too big weight values in the beginning
-//		if (getSettings().isOptOmitRulePredictions()) {
-//			// Start first weight (default value) with better value - mean value
-//			double[] means = computeMeans();
-//			
-//			double sumOfMeans = 0;
-//			
-//			// Take average over how to get the average with the first rule
-//			for (int i = 0; i < getNbOfTargets(); ++i) {
-//				sumOfMeans += means[i]/getPredictionsWhenCovered(0,0,i);			
-//			}
-//			sumOfMeans /= getNbOfTargets();
-//			
-//			// Scale the weight to better value
-//			result.set(0, sumOfMeans);		
-//		}
-
 		return result;
 	}
 	
+	/* Returns average covariance between a prediction and true values */
+	final protected double getCovForPrediction(int iPred) {
+		return m_predCovWithTrue[iPred];
+	}
+	/** Compute covariances between predictors and true values. With all zero weight vector these are also
+	 * initial gradients before first iteration.
+	 */
+	protected void initPredictorVsTrueValuesCovariances() {
+
+		m_predCovWithTrue = new double[getNumVar()];
+	
+		// Compute all the covariances for current weights.
+		for (int iPred = 0; iPred < getNumVar(); iPred++ ) {
+			m_predCovWithTrue[iPred] = computePredVsTrueValueCov(iPred);
+		}
+	}
+
 	
 	/** Estimate of expected value of covariance for given prediction.
 	 * The covariance of this prediction with its true value is returned.
 	 */
-//	 * Return the covariance for each of the targets.
-//	protected double[] getCovForPrediction(int iPred) {
-	protected double getCovForPrediction(int iPred) {
+	private double computePredVsTrueValueCov(int iPred) {
 		double[] covs = new double[getNbOfTargets()];
 		int nbOfTargets = getNbOfTargets();
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
@@ -346,15 +342,13 @@ public class GDProbl extends OptProbl {
 			avgCov += covs[iTarget]/nbOfTargets;
 		}
 		return avgCov;
-		//return covs;
 	}
 
 	/**
 	 * Return the right stored covariance
 	 */
 	// Only one corner is computed (the other is similar)
-//	protected double[] getWeightCov(int iFirst, int iSecond) {
-	protected double getWeightCov(int iFirst, int iSecond) {
+	final protected double getWeightCov(int iFirst, int iSecond) {
 		int min = Math.min(iFirst, iSecond);
 		int max = Math.max(iFirst, iSecond);
 		//if (Double.isNaN(m_covariances[min][max][0]))
@@ -363,13 +357,13 @@ public class GDProbl extends OptProbl {
 		return m_covariances[min][max];
 	}
 
-	/** Compute the covariances for this dimension. This means that
+	/** Compute the covariances for this weight/prediction dimension. This means that
 	 * we compute all the pairs where this takes part.
 	 * Because for covariance
 	 * cov(a,b) = cov(b,a) compute only one of them.
 	 * @par dimension The dimension for which the covariances are computed
 	 */
-	protected void computeWeightCov(int dimension) {
+	private void computeWeightCov(int dimension) {
 		// Because of symmetry cov(dimension, b) is already computed if for some earlier phase b was dimension
 		// Thus if covariances for b are computed, this does not have to be computed anymore.
 
@@ -397,21 +391,37 @@ public class GDProbl extends OptProbl {
 	/**
 	 * Compute covariance between two predictions (base learner predictions).
 	 * This is a help function for computeWeightCov
-	 * @param iFirst Base learner index
-	 * @param iSecond Base learner index.
+	 * NOTE: Second parameter index HAS to be greater or equal to first
+	 * @param iPrevious Base learner index
+	 * @param iLatter Base learner index. NOTE: iLatter >= iPrevious
 	 * @return
 	 */
 //	private double[] computeCovFor2Preds(int iFirstRule, int iSecondRule) {
-	private double computeCovFor2Preds(int iFirstRule, int iSecondRule) {
+	private double computeCovFor2Preds(int iPrevious, int iLatter) {
+		double eka = 0;
+		// If one of them is linear term, it has to be the later one
+		if (isRuleTerm(iLatter)) {
+			// Covariance for 2 rule predictions
+			return computeCovFor2Rules(iPrevious, iLatter);
+		} else if (isRuleTerm(iPrevious)) {
+			// Covariance for rule and linear term
+			return computeCovForRuleAndLin(iPrevious, iLatter);
+		} else {
+			// Covariance for 2 linear terms
+			return computeCovFor2Lin(iPrevious, iLatter);
+		}
+		
+/*		// General computation
 		int nbOfTargets = getNbOfTargets();
 		int nbOfInstances = getNbOfInstances();
 
 		double[] covs = new double[nbOfTargets];
 
+		//TODO first instances, then targets. CHECK if instance is covered, if not, skip
 		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
 			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
-				covs[iTarget] += predictWithRule(iFirstRule,iInstance,iTarget) *
-				                 predictWithRule(iSecondRule,iInstance,iTarget);
+				covs[iTarget] += predictWithRule(iPrevious,iInstance,iTarget) *
+				                 predictWithRule(iLatter,iInstance,iTarget);
 
 				// The following is commented out because I think it is only a property of resource
 				// tracking software. This can't take so much memory.
@@ -440,29 +450,119 @@ public class GDProbl extends OptProbl {
 		}
 		return avgCov;
 //		return covs;
+*/	}
+
+	/** For two linear terms.
+	 * @param iPrevious
+	 * @param iLatter Rule index. NOTE: iLatter >= iPrevious
+	 * @return
+	 */
+	private double computeCovFor2Lin(int iPrevious, int iLatter) {
+		int nbOfInstances = getNbOfInstances();
+		int nbOfTargets = getNbOfTargets();
+		
+		// Go through only those dimensions that linear term is not always zero for
+		int iTarget = getLinTargetDim(iPrevious);
+		
+		if (iTarget != getLinTargetDim(iLatter)) return 0;
+		
+		// Compute value
+		double avgCov = 0;
+		
+		for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
+			avgCov += predictWithRule(iPrevious,iInstance,iTarget)*
+							predictWithRule(iLatter,iInstance,iTarget);
+		}
+		avgCov /= (nbOfTargets*getNbOfInstances());
+		
+		if (getSettings().isOptNormalization()) {
+			avgCov /= getNormFactor(iTarget);
+		}
+
+		// Store the value to all the places where this descriptive attribute is used.
+		//TODO how to mark that these covariances are computed already!!!!
+		// In practice takes so little time, that does not matter?
+		return avgCov;
 	}
 
+	/** For rule and linear term we skip the instances rule does not cover.
+	 * @param iRule Rule index.
+	 * @param iLinear Linear term index. NOTE: iLinear >= iRule
+	 * @return
+	 */
+	private double computeCovForRuleAndLin(int iRule, int iLinear) {
+		int nbOfTargets = getNbOfTargets();
+		
+		// Go through only those dimensions that linear term is not always zero for
+		int iTarget = getLinTargetDim(iLinear);
+		
+		double avgCov = 0;
+		
+		// Go through the covered examples always jumping to next covered
+		for (int iInstance = getRuleNextCovered(iRule,0);
+					iInstance >= 0; iInstance = getRuleNextCovered(iRule,iInstance+1)) {
+			avgCov += getPredictionsWhenCovered(iLinear,iInstance,iTarget);
+		}
 
+		avgCov *= getPredictionsWhenCovered(iRule,0,iTarget);
+
+		avgCov /= (nbOfTargets*getNbOfInstances());
+		
+		if (getSettings().isOptNormalization()) {
+			avgCov /= getNormFactor(iTarget);
+		}
+		return avgCov;
+	}
+
+	/** For rules the prediction is always the same. We first count: how many
+	 * instances both rules cover (prediction != 0). Then the covariance is
+	 * pred1*pred2*([nb both rules cover]/[nb of instances])
+	 * @param iPrevious
+	 * @param iLatter Rule index. NOTE: iLatter >= iPrevious
+	 * @return
+	 */
+	private double computeCovFor2Rules(int iPrevious, int iLatter) {
+		BitSet prev = (BitSet) (getRuleCovers(iPrevious).clone());
+		BitSet latter = getRuleCovers(iLatter);
+		prev.and(latter); // prev is now a AND bitset of both of these
+//		WAHBitSet latter = getRuleCovers(iLatter);
+//		WAHBitSet prev = latter.and(getRuleCovers(iPrevious));
+
+
+		int nbOfTargets = getNbOfTargets();
+		double avgCov = 0;
+		
+		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
+			double cov = 0;
+			cov += getPredictionsWhenCovered(iPrevious,0,iTarget)*
+					  getPredictionsWhenCovered(iLatter,0,iTarget);
+			
+			if (getSettings().isOptNormalization()) {
+				cov /= getNormFactor(iTarget);
+			}
+			avgCov += cov/nbOfTargets;
+		}
+		avgCov *= ((double) prev.cardinality())/getNbOfInstances();
+		
+		return avgCov;
+	}
 
 	/** Returns the real prediction when this rule is used. If the rule does
 	 * not give prediction for some target, default rule is used.
 	 * ONLY FOR REGRESSION! Classification not implemented.
 	 */
 	final protected double predictWithRule(int iRule, int iInstance, int iTarget) {
-		return 	isCovered(iRule,iInstance) ? getPredictionsWhenCovered(iRule, iInstance, iTarget) : 0;
+		return isCovered(iRule,iInstance) ? getPredictionsWhenCovered(iRule, iInstance, iTarget) : 0;
 	}
 
-	/** Compute the gradients for weights */
-	public void initGradients(ArrayList<Double> weights) {
+	/** Compute the gradients for weights from scratch */
+	public void fullGradientComputation(ArrayList<Double> weights) {	
 		// Compute all the gradients for current weights.
 		for (int iWeight = 0; iWeight < weights.size(); iWeight++ ) {
 			m_gradients[iWeight] = getGradient(iWeight, weights);
 		}
-
-		initCombineGradientValues(weights);
 	}
-
-
+	
 	/** Compute gradient for the given weight dimension */
 	protected double getGradient(int iWeightDim, ArrayList<Double> weights) {
 
@@ -491,31 +591,20 @@ public class GDProbl extends OptProbl {
 		return gradient;
 	}
 
+		
 	/**
 	 * Squared loss gradient. p. 18 in Friedman & Popescu, 2004
 	 * @param iGradWeightDim Weight dimension for which the gradient is computed.
 	 * @return Gradient average
 	 */
-//	private double[] gradientSquared(int iGradWeightDim, ArrayList<Double> weights) {
 	private double gradientSquared(int iGradWeightDim, ArrayList<Double> weights) {
 
-		//double[] gradient = new double[getNbOfTargets()] ;
-		double gradient = 0;
-//		int nbOfTargets = getNbOfTargets();
-
-		gradient = getCovForPrediction(iGradWeightDim);
+		double gradient = getCovForPrediction(iGradWeightDim);
 
 		for (int iWeight = 0; iWeight < getNumVar(); iWeight++){
-			//if (m_isWeightNonZero[weights.get(iWeight).doubleValue() != 0) {
 			if (m_isWeightNonZero[iWeight]) {
 				gradient -= weights.get(iWeight).doubleValue()
                 					* getWeightCov(iWeight,iGradWeightDim);
-
-//				double[] covariance = getWeightCov(iWeight,iGradWeightDim);
-//				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-//					gradient[iTarget] -= weights.get(iWeight).doubleValue()
-//					                     * covariance[iTarget];
-//				}
 			}
 		}
 
@@ -528,189 +617,91 @@ public class GDProbl extends OptProbl {
 	 * @param changedWeightIndex The index of weights that have changed. Only these affect the change in the new gradient.
 	 * 						  Friedman&Popescu p.18
 	 */
-	protected void modifyGradients(int[] changedWeightIndex, ArrayList<Double> weights) {
+	final protected void modifyGradients(int[] changedWeightIndex, ArrayList<Double> weights) {
 
-		switch (getSettings().getOptGDLossFunction()) {
-		case Settings.OPT_LOSS_FUNCTIONS_01ERROR:
-		case Settings.OPT_LOSS_FUNCTIONS_HUBER:
-		case Settings.OPT_LOSS_FUNCTIONS_RRMSE:
-			//TODO Huber and alpha computing
-			//Default case
-		case Settings.OPT_LOSS_FUNCTIONS_SQUARED:
-		default:
+//		switch (getSettings().getOptGDLossFunction()) {
+//		case Settings.OPT_LOSS_FUNCTIONS_01ERROR:
+//		case Settings.OPT_LOSS_FUNCTIONS_HUBER:
+//		case Settings.OPT_LOSS_FUNCTIONS_RRMSE:
+//			//TODO Huber and alpha computing
+//			//Default case
+//		case Settings.OPT_LOSS_FUNCTIONS_SQUARED:
+//		default:
 			modifyGradientSquared(changedWeightIndex);
-			break;
-		}
-		modifyCombineGradientValues(weights, changedWeightIndex); // Combine new gradient values
+//			break;
+//		}
 	}
 
 
 	/** Recomputation of gradients for least squares loss function */
-	public void modifyGradientSquared(int[] changedWeightIndex) {
-		//int nbOfTargets = getNbOfTargets();
+	public void modifyGradientSquared(int[] iChangedWeights) {
+
 		// New gradients are computed with the old gradients.
 		// Only the changed gradients are stored here
 		// However since we use affective gradients which are not YET changed,
 		// we can use directly them.
-//		double[] oldGradsOfChanged = new double[changedWeightIndex.length];
-//
-//		for (int iCopy = 0; iCopy < changedWeightIndex.length; iCopy++) {
-//			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++)
-//				oldGradsOfChanged[iCopy][iTarget] = m_gradients[changedWeightIndex[iCopy]][iTarget];
-//		}
+		
+		// Could store only the changes to the gradients and do the actual change afterwards in another for loop
+		double[] oldGradsOfChanged = new double[iChangedWeights.length];
 
-		// Index over the gradient we are changing (ALL GRADIENTS)
-		for (int iWeightChange = 0; iWeightChange < m_gradients.length; iWeightChange++) {
-			// Index over the other gradients that are affecting (THE WEIGHTS THAT ALTERED)
-			for (int iiAffecting = 0; iiAffecting < changedWeightIndex.length; iiAffecting++) {
-				double cov = getWeightCov(changedWeightIndex[iiAffecting],iWeightChange);
-//				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-					//The stepsize * old gradients is equal to the change!
-					// However we have to use the AFFECTIVE gradients (the gradients that were used last iteration)
-					m_gradients[iWeightChange] -= m_stepSize*
-						m_affectiveGradientsForIter[changedWeightIndex[iiAffecting]]*
-										cov;
+		for (int iCopy = 0; iCopy < iChangedWeights.length; iCopy++) {
+			oldGradsOfChanged[iCopy] = m_gradients[iChangedWeights[iCopy]];
+		} 
+				
+		// The next few lines take about 80% of processor time. 
+		
+		/** If we reach linear terms with the first loop, we can skip
+		 * most of the terms in the second loop (because cov is 0)
+		 */
+		boolean firstLinearTermReached = false;
+		int nbOfTargs = getNbOfTargets();
+		int nbOfChanged = iChangedWeights.length; // does this make more effective?
+		int nbOfGrads = m_gradients.length;
+		
+		// Index over the other gradients that are affecting (THE WEIGHTS THAT ALTERED)
+		for (int iiAffecting = 0; iiAffecting < nbOfChanged; iiAffecting++) {	
+			if (!firstLinearTermReached && 
+					!isRuleTerm(iChangedWeights[iiAffecting]))
+				firstLinearTermReached = true;
 
-//				}
+			boolean secondLinearTermReached = false;
+			// Index over the gradient we are changing (ALL GRADIENTS)
+			for (int iWeightChange = 0; iWeightChange < nbOfGrads; iWeightChange++) {
+				double cov = getWeightCov(iChangedWeights[iiAffecting],iWeightChange);
+				m_gradients[iWeightChange] -= cov*m_stepSize*oldGradsOfChanged[iiAffecting];
+				
+				if (firstLinearTermReached){
+					if (secondLinearTermReached) {		
+					// Skip to only those linear terms, for which cov(iWeightChange,iChangedWeights[iiAffecting])!= 0
+						iWeightChange += nbOfTargs-1;					
+					} else if (!isRuleTerm(iWeightChange)) {
+						// Jump to the first linear term that has covariance nonzero with iiAffecting.
+						// This is linear term number linTargetDim(). However this is already the first linear term and there is already
+						// ++ because of for loop -> -2
+						iWeightChange += (getLinTargetDim(iChangedWeights[iiAffecting])+nbOfTargs-1)%nbOfTargs;			
+
+						secondLinearTermReached = true;
+					}
+				}
+
 			}
 		}
 	}
 
 
-	/** After changing the gradient values, we have to combine them to single
-	 * gradient value that is used for step taking etc. This is done in this function.
-	 * The gradient values are stored in m_affectiveGradientsForIter and are
-	 * valid until next gradient change
-	 */
-	protected void initCombineGradientValues(ArrayList<Double> weights) {
-		// Compute affective gradients for this iteration. They are based on
-		// new gradient values. They are easiest to compute from scratch
-		// because it does not cost much and the fast updating method is different for
-		// different settings
-
-		// What is the gradient that affects
-		//int nbOfTargets = getNbOfTargets();
-		switch (getSettings().getOptGDMTGradientCombine()) {
-		case Settings.OPT_GD_MT_GRADIENT_AVG:
-		{ // Average over the gradients.
-
-			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
-//				m_affectiveGradientsForIter[iGradient] = 0;
-				m_affectiveGradientsForIter[iGradient] = m_gradients[iGradient];
-
-//				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-//					m_affectiveGradientsForIter[iGradient] +=
-//						m_gradients[iGradient][iTarget];
-//				}
-//				m_affectiveGradientsForIter[iGradient] /= nbOfTargets;
-			}
-			break;
-		}
-		case Settings.OPT_GD_MT_GRADIENT_MAX_GRADIENT:
-		{// Take the maximum gradient. So go according to the biggest slope.
-
-			
-			// The efficient version was not really efficient. Also max loss is worse than avg.
-			System.err.println("Error: Multi-target max gradient not implemented.");
-			System.exit(1);
-			
-//			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
-//				double maxGradient = 0;
-//				for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-//					if (Math.abs(maxGradient) < Math.abs(m_gradients[iGradient][iTarget]))
-//						maxGradient = m_gradients[iGradient][iTarget];
-//				}
-//				m_affectiveGradientsForIter[iGradient] = maxGradient;
-//			}
-//			break;
-		}
-
-		case Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE:
-		{
-			// The efficient version was not really efficient. Also max loss is worse than avg.
-			System.err.println("Error: Multi-target max loss not implemented.");
-			System.exit(1);
-			
-//			
-//			// Assume the loss function is the max of all the target loss functions
-//			// this creates convex loss function. Thus we select the gradient that
-//			// is for the maximal target loss function.
-//			int iMaxTargetLossFunctionValue = 0;
-//			double[] lossFunctionValues = new double[nbOfTargets];
+//	private void modifyDEBUGGradients(double[] oldGradsOfChanged, int[]iChangedWeights) {
+//		// Index over the gradient we are changing (ALL GRADIENTS)
+//		for (int iWeightChange = 0; iWeightChange < m_gradients.length; iWeightChange++) {
+//			// Index over the other gradients that are affecting (THE WEIGHTS THAT ALTERED)
+//			for (int iiAffecting = 0; iiAffecting < iChangedWeights.length; iiAffecting++) {
+//				double cov = getWeightCov(iChangedWeights[iiAffecting],iWeightChange);
+//				//The (stepsize * old gradients) is equal to the WEIGHT change!
+//				m_gradients[iWeightChange] -= m_stepSize*oldGradsOfChanged[iiAffecting]*cov;
 //
-//			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-//				// Compute loss function for training set
-//				lossFunctionValues[iTarget] = calcFitnessForTarget(weights, iTarget);
-//				// Greatest loss = greatest fitness function return value
-//				if (lossFunctionValues[iTarget]
-//				                       > lossFunctionValues[iMaxTargetLossFunctionValue]) {
-//					iMaxTargetLossFunctionValue = iTarget;
-//				}
 //			}
-//
-//			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
-//				m_affectiveGradientsForIter[iGradient] = m_gradients[iGradient][iMaxTargetLossFunctionValue];
-//			}
-//			break;
-		}
-		case Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE_FAST:
-		{
-			// The efficient version was not really efficient. Also max loss is worse than avg.
-			System.err.println("Error: Multi-target max loss, efficient computation not implemented.");
-			System.exit(1);
-		}
-
-		}
-
-	}
-
-
-	/** This does mostly the same as initCombineGradientValues:
-	 * Computes the combined gradient values from all the different targets.
-	 * However, this is meant after modifying the gradients and is faster.
-	 */
-	protected void modifyCombineGradientValues(ArrayList<Double> weights, int[] changedWeightIndex) {
-		// Compute affective gradients for this iteration. They are based on
-		// new gradient values. They are easiest to compute from scratch
-		// because it does not cost much and the fast updating method is different for
-		// different settings
-
-		// What is the gradient that affects
-		//int nbOfTargets = getNbOfTargets();
-		switch (getSettings().getOptGDMTGradientCombine()) {
-		case Settings.OPT_GD_MT_GRADIENT_AVG:
-		case Settings.OPT_GD_MT_GRADIENT_MAX_GRADIENT:
-		{
-			initCombineGradientValues(weights);
-			break;
-		}
-
-//		case Settings.OPT_GD_MT_GRADIENT_MAX_LOSS_VALUE:
-//		{
-//			// Assume the loss function is the max of all the target loss functions
-//			// this creates convex loss function. Thus we select the gradient that
-//			// is for the maximal target loss function.
-//			int iMaxTargetLossFunctionValue = 0;
-//			double[] lossFunctionValues = new double[nbOfTargets];
-//
-//			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-//				// Compute loss function for training set
-//				lossFunctionValues[iTarget] = calcFitnessForTarget(weights, iTarget);
-//				// Greatest loss = greatest fitness function return value
-//				if (lossFunctionValues[iTarget]
-//				                       > lossFunctionValues[iMaxTargetLossFunctionValue]) {
-//					iMaxTargetLossFunctionValue = iTarget;
-//				}
-//			}
-//
-//			for (int iGradient = 0; iGradient < m_affectiveGradientsForIter.length; iGradient++) {
-//				m_affectiveGradientsForIter[iGradient] = m_gradients[iGradient][iMaxTargetLossFunctionValue];
-//			}
-//			break;
 //		}
-		}
+//	}
 
-	}
 
 	/** Return the gradients with maximum absolute value. For the weights we want to change
 	 * The function is assuming (if max allowed rule nb is set) that index 0 of gradients includes
@@ -728,16 +719,16 @@ public class GDProbl extends OptProbl {
 		}
 
 		double maxGrad = 0; // Maximum gradient
-		for (int iGrad = 0; iGrad < m_affectiveGradientsForIter.length; iGrad++) {
+		for (int iGrad = 0; iGrad < m_gradients.length; iGrad++) {
 			if (m_bannedWeights != null && m_bannedWeights[iGrad] > nbOfIterations) {
 				// The weight is banned
 				continue;
 			}
 			// We choose the gradient if max nb of weights is reached only if it is
 			// already nonzero
-			if (Math.abs(m_affectiveGradientsForIter[iGrad]) > maxGrad
+			if (Math.abs(m_gradients[iGrad]) > maxGrad
 					&& (!maxNbOfWeightReached || m_isWeightNonZero[iGrad] || iGrad == 0))
-				maxGrad = Math.abs(m_affectiveGradientsForIter[iGrad]);
+				maxGrad = Math.abs(m_gradients[iGrad]);
 		}
 
 		ArrayList<Integer> iMaxGradients = new ArrayList<Integer>();
@@ -746,12 +737,12 @@ public class GDProbl extends OptProbl {
 		double minAllowed = getSettings().getOptGDGradTreshold() * maxGrad;
 
 		// Copy all the items that are greater to a returned array
-		for (int iCopy = 0; iCopy < m_affectiveGradientsForIter.length; iCopy++) {
+		for (int iCopy = 0; iCopy < m_gradients.length; iCopy++) {
 			if (m_bannedWeights != null && m_bannedWeights[iCopy] > nbOfIterations) {
 				// The weight is banned
 				continue;
 			}
-			if (Math.abs(m_affectiveGradientsForIter[iCopy]) >= minAllowed
+			if (Math.abs(m_gradients[iCopy]) >= minAllowed
 					&& (!maxNbOfWeightReached || m_isWeightNonZero[iCopy] || iCopy == 0)) {
 				iMaxGradients.add(iCopy);
 				// If the treshold is 1, we only want to change one dimension at time
@@ -796,8 +787,8 @@ public class GDProbl extends OptProbl {
 						ListIterator<Integer> iAllowed  = iAllowedNewMaxGradients.listIterator();
 						while (iAllowed.hasNext()) {
 							// If we already went too far
-							if (Math.abs(m_affectiveGradientsForIter[iAllowed.next()])
-							    <  Math.abs(m_affectiveGradientsForIter[iMaxGradients.get(iGrad)])) {
+							if (Math.abs(m_gradients[iAllowed.next()])
+							    <  Math.abs(m_gradients[iMaxGradients.get(iGrad)])) {
 								iAllowed.previous();
 								break;
 							}
@@ -841,9 +832,9 @@ public class GDProbl extends OptProbl {
 	 * Compute the change of target weight because of the gradient
 	 * @param iTargetWeight Weight index we want to change.
 	 */
-	public double howMuchWeightChanges(int iTargetWeight) {
+	final public double howMuchWeightChanges(int iTargetWeight) {
 //		return m_stepSize* m_gradients[iTargetWeight];
-		return m_stepSize* m_affectiveGradientsForIter[iTargetWeight];
+		return m_stepSize* m_gradients[iTargetWeight];
 	}
 
 	/** Compute the needed covariances for the weight. Only called
@@ -865,7 +856,7 @@ public class GDProbl extends OptProbl {
 	}
 	/** In case of oscillation, make the step size shorter
 	 * We should be changing the step size just enough not to prevent further oscillation */
-	public void dropStepSize(double amount) {
+	final public void dropStepSize(double amount) {
 		if (amount >=1)
 			System.err.println("Something wrong with dropStepSize. Argument >= 1.");
 
@@ -958,8 +949,8 @@ public class GDProbl extends OptProbl {
 
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		wrt.print("Iteration " + iterNro +":");
-		for (int i = 0; i < m_affectiveGradientsForIter.length; i++) {
-			wrt.print(fr.format((double)m_affectiveGradientsForIter[i])+"\t");
+		for (int i = 0; i < m_gradients.length; i++) {
+			wrt.print(fr.format((double)m_gradients[i])+"\t");
 		}
 		wrt.print("\n");
 	}

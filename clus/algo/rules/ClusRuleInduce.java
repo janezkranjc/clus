@@ -28,6 +28,7 @@ import java.io.*;
 import java.util.*;
 import java.text.DecimalFormat;
 
+import clus.Clus;
 import clus.algo.*;
 import clus.algo.split.*;
 import clus.algo.tdidt.*;
@@ -871,7 +872,9 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		OptAlg optAlg = null;
 		OptProbl.OptParam param = rset.giveFormForWeightOptimization(wrt_pred, data);
 		ArrayList weights = null;
-
+		
+		if (Settings.VERBOSE > 0) System.out.println("Preparing for optimization.");
+		
 		// Find the rule weights with optimization algorithm.
 		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED) {
 			optAlg = (OptAlg) new GDAlg(getStatManager(), param, rset);
@@ -900,13 +903,12 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			rset.m_Rules.add(interceptRule); // Adds the rule to the last position
 		}
 
+		if (Settings.VERBOSE > 0) System.out.println("Preparations ended. Starting optimization.");
+		
 		if (getSettings().getRulePredictionMethod() != Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED_BINARY)
 		{
 			// If using external binary, optimization is already done.
-
-			// If needed, prepares for norm.
-			optAlg.preparePredictionsForNormalization();
-			
+		
 			if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED
 					&& getSettings().getOptGDNbOfTParameterTry() > 1) {
 
@@ -957,8 +959,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 			rset.getRule(j).setOptWeight(((Double)weights.get(j)).doubleValue()); // Set the rule weights
 		}
 		
-		// Undo inside normalization on rule set if needed
-		optAlg.changeRuleSetToUndoNormNormalization(rset);
+		// Postprocessing if needed. -- Undo inside normalization on rule set if needed
+		optAlg.postProcess(rset);
 		
 		// Print weights of rules
 		if (Settings.VERBOSE > 0) {

@@ -25,6 +25,7 @@
  */
 package clus.tools.optimization;
 
+import clus.algo.rules.ClusRuleLinearTerm;
 import clus.data.rows.DataTuple;
 import clus.data.rows.RowData;
 import clus.data.type.ClusAttrType;
@@ -44,31 +45,26 @@ public class ImplicitLinearTerms {
 	private RowData m_linearTermPredictions = null;
 	private ClusStatManager m_StatManager = null;
 
-	/** Offset values (means of descriptive attributes) for all the linear terms */
-	private double[] m_offSetValues = null;
-	/** Standard deviation  values (of descriptive attributes) for all the linear terms */
-	private double[] m_stdDevValues = null;
-	/** Standard deviation  values of TARGET attributes for all the linear terms */
-	static private double[] m_targetStdDevs = null;
-	/** For linear term truncate, maximum value found for descriptive attributes in training */
-	private double[] m_maxValues = null;
-	/** For linear term truncate, minimum value found for descriptive attributes in training */
-	private double[] m_minValues = null;
+//	/** For linear term truncate, maximum value found for descriptive attributes in training */
+//	private double[] m_maxValues = null;
+//	/** For linear term truncate, minimum value found for descriptive attributes in training */
+//	private double[] m_minValues = null;
 	
 	/** Create implicit linear terms
 	 * @param data
 	 * @param statMgr
 	 * @param values Scaling values and truncate values for the linear terms.
 	 */
-	public ImplicitLinearTerms(RowData data, ClusStatManager statMgr, double[][] values) {
+	public ImplicitLinearTerms(RowData data, ClusStatManager statMgr){
+		//, double[][] values) {
 		m_linearTermPredictions = data;
 		m_StatManager = statMgr;
 		
-		m_offSetValues = values[0];
-		m_stdDevValues = values[1];
-		m_targetStdDevs = values[2];
-		m_maxValues = values[3];
-		m_minValues = values[4];
+//		m_offSetValues = values[0];
+//		m_stdDevValues = values[1];
+//		m_targetStdDevs = values[2];
+//		m_maxValues = values[0];
+//		m_minValues = values[1];
 		
 		if (Settings.VERBOSE > 0) {
 			int nbTargets = (m_StatManager.getStatistic(ClusAttrType.ATTR_USE_TARGET)).getNbAttributes();
@@ -82,12 +78,27 @@ public class ImplicitLinearTerms {
 	public void DeleteImplicitLinearTerms() {
 		m_linearTermPredictions = null;
 		m_StatManager = null;
-		m_offSetValues = null;
-		m_stdDevValues = null;
-		m_targetStdDevs = null;
-		m_maxValues = null;
-		m_minValues = null;
+//		m_maxValues = null;
+//		m_minValues = null;
 	}
+	
+//	/** Offset values (means of descriptive attributes) for all the linear terms.
+//	 */
+//	private static double getOffSetValue(int iDescAttr) {
+//		return RuleNormalization.getDescMean(iDescAttr);
+//	}
+//
+//	/** Standard deviation values (of descriptive attributes) for all the linear terms 
+//	 */
+//	private static double getDescStdDev(int iDescAttr) {
+//		return RuleNormalization.getDescStdDev(iDescAttr);
+//	}
+//
+//	/** Standard deviation values of TARGET attributes for all the linear terms
+//	 */
+//	private static double getTargStdDev(int iTargAttr) {
+//		return RuleNormalization.getTargStdDev(iTargAttr);
+//	}
 	
 	/** If linear terms are not added excplicitly to the rule set (to save memory), this function
 	 * returns the prediction. If the value is NaN, 0 is returned
@@ -107,37 +118,13 @@ public class ImplicitLinearTerms {
 		/** Which descriptive attribute value will be the target */
 		int iDescriptiveAttr = (int) Math.floor((double)iLinTerm/nbOfTargets);
 		
-		double value = (m_linearTermPredictions.getSchema().
-				getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE))[iDescriptiveAttr].getNumeric(instance);
+//		double value = (m_linearTermPredictions.getSchema().
+//				getNumericAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE))[iDescriptiveAttr].getNumeric(instance);
 
-
-		if (Double.isNaN(value) || Double.isInfinite(value)){
-			if (getSettings().getOptNormalizeLinearTerms() == Settings.OPT_LIN_TERM_NORM_CONVERT) {
-				value = m_offSetValues[iDescriptiveAttr];
-			} else {				
-				value = Double.NaN;
-			}
-		}
-		// Truncated version - the linear term holds only on the range of training set.
-		if (getSettings().isOptLinearTermsTruncate() &&
-				!Double.isNaN(m_maxValues[iDescriptiveAttr]) 
-				&& !Double.isNaN(m_minValues[iDescriptiveAttr])) {
-			value = Math.max(Math.min(value, m_maxValues[iDescriptiveAttr]),
-					m_minValues[iDescriptiveAttr]);
-		}
-
-
-		if (m_offSetValues != null && m_stdDevValues != null) { 
-			value -= m_offSetValues[iDescriptiveAttr]; // Shift 
-			value /= 2*m_stdDevValues[iDescriptiveAttr]; // scale
-		}
+		double pred = ClusRuleLinearTerm.attributeToLinTermPrediction(getSettings(), instance, iDescriptiveAttr,
+				iLinTermTargetAttr, nbOfTargets, true); // Always scale linear terms
 		
-		// Cast the linear term value according to the target
-		if (m_targetStdDevs != null) {
-			value *= 2*m_targetStdDevs[iTarget];
-		}
-		
-		return !Double.isNaN(value) ? value : 0;
+		return !Double.isNaN(pred) ? pred : 0;
 	}	
 
 	private Settings getSettings() {

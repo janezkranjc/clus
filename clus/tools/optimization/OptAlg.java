@@ -56,19 +56,11 @@ public abstract class OptAlg {
 	 */
 	abstract public ArrayList<Double> optimize();
 
-	protected Settings getSettings() {
+	final protected Settings getSettings() {
 		return m_StatMgr.getSettings();
 	}
 
-	public void preparePredictionsForNormalization(){
+	public void postProcess(ClusRuleSet rset) {
 	}
-	
-	public void changeRuleSetToUndoNormNormalization(ClusRuleSet rset) {
-	}
-
-	
-//	protected OptProbl getProbl() {
-//		return m_Probl;
-//	}
 
 }
