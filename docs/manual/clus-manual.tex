@@ -32,6 +32,7 @@
 
 \newcommand{\clus}{\textsc{Clus}}
 \newcommand{\clusphy}{\textsc{Clus}-$\varphi$}
+\newcommand{\comment}[1]{{\color{red}\textbf{COMMENT:} #1}}
 
 \begin{document}
 
@@ -49,11 +50,11 @@
 
 \chapter{Introduction}
 
-This text is a user's manual for the open source machine learning system \clus{}. \clus{} is a decision tree and rule learning system that works in the {\em predictive clustering} framework \cite{Blockeel1998icml}.
+This text is a user's manual for the open source machine learning system \clus{}. \clus{} is a decision tree and rule learning system that works in the \emph{predictive clustering} framework \cite{Blockeel1998icml}.
 
 While most decision tree learners induce classification or regression trees, \clus{} generalizes this approach by learning trees that are interpreted as cluster hierarchies. We call such trees predictive clustering trees or PCTs. Depending on the learning task at hand, different goal criteria are to be optimized while creating the clusters, and different heuristics will be suitable to achieve this.
 
-Classification and regression trees are special cases of PCTs, and by choosing the right parameter settings \clus{} can closely mimic the behavior of tree learners such as CART \cite{Breiman84:other} or C4.5 \cite{Quinlan93:other}.  However, its applicability goes well beyond classical classification or regression tasks: \clus{} has been successfully applied to many different tasks including multi-task learning (multi-target classification and regression), structured output learning, multi-label classification, hierarchical classification, and time series prediction. Next to these supervised learning tasks, PCTs are also applicable to semi-supervised learning, subgroup discovery, and clustering.
+Classification and regression trees are special cases of PCTs, and by choosing the right parameter settings \clus{} can closely mimic the behavior of tree learners such as CART \cite{Breiman84:other} or C4.5 \cite{Quinlan1993}.  However, its applicability goes well beyond classical classification or regression tasks: \clus{} has been successfully applied to many different tasks including multi-task learning (multi-target classification and regression), structured output learning, multi-label classification, hierarchical classification, and time series prediction. Next to these supervised learning tasks, PCTs are also applicable to semi-supervised learning, subgroup discovery, and clustering.
 
 In a similar way, predictive clustering rules (PCRs) generalize classification rule sets \cite{Clark91:proc} and also apply to the aforementioned learning tasks.
 
@@ -61,19 +62,22 @@ A full description of how \clus{} works is beyond the scope of this text. In thi
 
 For background information on the rationale behind the \clus{} system and its algorithms we refer to the following papers:
 
-\begin{itemize}
+\comment{Should we add something else here, e.g., ensembles? Or this should be just the 'core' papers?}
+\begin{itemize} 
 
 \item H. Blockeel, L. De Raedt, and J. Ramon, Top-down induction of clustering trees, Proceedings of the 15th International Conference on Machine Learning (Shavlik, J., ed.), pp. 55-63, 1998.
 
 \item B.~{\v{Z}}enko and S.~D{\v{z}}eroski. Learning classification rules for multiple target attributes. In Advances in Knowledge Discovery and Data Mining, pp. 454-465, 2008.
 
-\item H. Blockeel, S. D\v zeroski, and J. Grbovic, Simultaneous prediction of multiple chemical parameters of river water quality with TILDE, Proceedings of the Third European Conference on Principles of Data Mining and Knowledge Discovery (Zytkow, J.M. and Rauch, J., eds.), vol 1704, LNAI, pp. 32-40, 1999.
+\item H. Blockeel, S. D\v zeroski, and J. Grbovi\'c, Simultaneous prediction of multiple chemical parameters of river water quality with TILDE, Proceedings of the Third European Conference on Principles of Data Mining and Knowledge Discovery (Zytkow, J.M. and Rauch, J., eds.), vol 1704, LNAI, pp. 32-40, 1999.
 
 \item  C. Vens, J. Struyf, L. Schietgat, S. D\v zeroski and H. Blockeel, Decision trees for hierarchical multi-label classification. Machine Learning 73(2):185-214, 2008.
 \end{itemize}
 
 A longer list of publications describing applications of \clus{} is available on the \clus{} web site
 (\url{www.cs.kuleuven.be/~dtai/clus/publications.html}).
+
+\comment{A sentence or two on the structure of the manual should go here?}
 
 \chapter{Tutorial}
 
@@ -84,7 +88,7 @@ A longer list of publications describing applications of \clus{} is available on
 \clus{} is written in the Java programming language, which is available from {\tt http://java.sun.com}. You will need Java version 1.5.x or above. To run \clus{}, it suffices to install the Java Runtime Environment (JRE). If you want to make changes to \clus{} and compile its source code, then you will need to install the Java Development Kit (JDK) instead of the JRE.
 \end{sloppypar}
 
-After downloading \clus{}, unpack it into a directory of your choice. \clus{} is a command line application and should be started from the command prompt (Windows) or a terminal window (Unix). To start \clus{}, enter the command:
+The \clus\ software is released under the GNU General Public License version 3 or later and is available for download at \url{http://www.cs.kuleuven.be/~dtai/clus/}. After downloading \clus{}, unpack it into a directory of your choice. \clus{} is a command line application and should be started from the command prompt (Windows) or a terminal window (Unix). To start \clus{}, enter the command:
 \begin{flushleft}
 \verb^java -jar $CLUS_DIR/Clus.jar^ {\em filename}\verb^.s^
 \end{flushleft}
@@ -107,17 +111,18 @@ java -jar ../../Clus.jar weather.s
 
 \noindent{}Try \clus{} first on the example data sets in the ``data'' directory of the \clus{} distribution.
 
-Note that the above instructions are for running the pre-compiled version of \clus{} (Clus.jar), which is included with the \clus{} download. If you have modified and recompiled \clus{}, or if you are using the CVS version, then you should run \clus{} in a different way, as is explained in Chapter~\ref{ch:devel}.
+Note that the above instructions are for running the pre-compiled version of \clus{} (Clus.jar), which is included with the \clus{} download. If you have modified and recompiled \clus{}, or if you are using the CVS version, then you should run \clus{} in a different way, as is explained in Chapter~\ref{ch:devel}. \\\comment{If we mention CVS, I guess we should also include instructions for getting CVS access -- but can we provide public CVS access?.}
 
 \section{Input and Output Files for Clus}
 
 \begin{figure}[tb]
 \includegraphics{fig/clusinout}
 \caption{\label{fig:iofiles}Input and output files of Clus.}
+\comment{.xval and predictions are not always produced - should we mention this here?}
 \end{figure}
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 [Attributes]
 Descriptive = 1-2
@@ -132,7 +137,7 @@ Heuristic = VarianceReduction
 \label{weathers:fig}
 \end{figure}
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 @RELATION "weather"
 
@@ -157,7 +162,7 @@ rainy,    yes, 8,  90
 \end{figure}
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 Clus run "weather"
 ******************
@@ -257,9 +262,7 @@ The Weather example is a small multi-target or multi-task learning problem \cite
 \chapter{Input Format}
 \label{ch:data}
 
-Like many machine earning systems, Clus learns from tabular data.
-These data are assumed to be in the ARFF format that is also used by the Weka data mining tool.  Full details on ARFF can be found elsewhere\footnote{\url{http://weka.wikispaces.com/ARFF}}.
-We here only give a minimal description.
+Like many machine earning systems, \clus\ learns from tabular data. These data are assumed to be in the ARFF format that is also used by the Weka data mining tool.  Full details on ARFF can be found elsewhere\footnote{\url{http://weka.wikispaces.com/ARFF}}. We here only give a minimal description.
 
 In the data table, each row represents an instance, and each column represents an attribute of the instances.  Each attribute has a name and a domain (the domain is the set of values it can take).  In the ARFF format, the names and domains of the attributes are declared up front, before the data are given.
 
@@ -281,15 +284,13 @@ value$_1$, value$_2$, ..., value$_n$\\
 \end{tabbing}
 
 The domain of an attribute can be one of:
-\begin{tabbing}
-\tt real\\
-{\tt \{ } nomvalue$_1$, nomvalue$_2$, ..., nomvalue$_n$ {\tt \} }\\
-{\tt hierarchical} hvalue$_1$, hvalue$_2$, ..., hvalue$_n$
-\end{tabbing}
+\begin{itemize}
+	\item\tt real
+	\item{\tt \{ } nomvalue$_1$, nomvalue$_2$, ..., nomvalue$_n$ {\tt \} }
+	\item{\tt hierarchical} hvalue$_1$, hvalue$_2$, ..., hvalue$_n$
+\end{itemize}
 
-The first option, {\tt real}, indicates that the domain is the set of real numbers.
-
-The second type of domain is called a discrete domain.  Discrete domains are defined by enumerating the values they contain.  These values are nominal.
+The first option, {\tt real}, indicates that the domain is the set of real numbers. The second type of domain is called a discrete domain.  Discrete domains are defined by enumerating the values they contain.  These values are nominal.
 
 The third type of domain is called ``hierarchical multi-label".  It implies two things: first, the attribute takes as value a {\em set} of values from the domain, rather than a single value; second, the domain has a hierarchical structure.  The elements of the domain are typically denoted $v_1/v_2/.../v_i$ with $i \leq d$ where $d$ is the depth of the hierarchy.  This type of domain is useful in the context of hierarchical multi-label classification.  
 
@@ -298,7 +299,7 @@ The values in a	 row occur in the same order as the attributes: the $i$'th value
 Figure~\ref{weatherarff:fig} shows an example of an ARFF file. An example of a table containing hierarchical multi-label attributes is shown in Figure~\ref{arffhmc:fig}. Finally, an ARFF file with a time series attribute is shown in Figure~\ref{arfftimeser:fig}.
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 @RELATION HMCNewsGroups
 
@@ -316,13 +317,13 @@ Figure~\ref{weatherarff:fig} shows an example of an ARFF file. An example of a t
 0,...,0,alt/atheism
 ...
 \end{verbatim}
-\hrule
+\hrule\vspace{1em}
 \caption{An ARFF file that includes an hierarchical multi-label attribute.}
 \label{arffhmc:fig}
 \end{figure}
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 @RELATION GeneExpressionTimeSeries
 
@@ -349,7 +350,7 @@ YAL008W,0,1,0,0,0,0,0,0,0,0,0,0,0,...,0,0,0,0,[0.49, 1.01, 1.33, 1.23, 1.32, 1.0
 \end{figure}
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 @RELATION SparseData
 
@@ -373,6 +374,8 @@ YAL008W,0,1,0,0,0,0,0,0,0,0,0,0,0,...,0,0,0,0,[0.49, 1.01, 1.33, 1.23, 1.32, 1.0
 \label{arffsparse:fig}
 \end{figure}
 
+%
+%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Settings File}
 \label{ch:sett}
 
@@ -419,17 +422,84 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 \section{Model}
 
 \begin{itemize}
-\item {\tt MinimalWeight = $r$} : \clus{} only generates splits with at least $r$ instances in each subset.
+\item {\tt MinimalWeight = $r$} : \clus{} only generates splits with at least $r$ instances in each subset (tree leaves or rules).
 \end{itemize}
 
 \section{Tree}
 
 \begin{itemize}
-\item {\tt FTest = $r$} : sets the f-test stopping criterion for regression; a node will only be split if a statistical F-test indicates a significant (at level $r$) reduction of variance inside the subsets.
-\item {\tt ConvertToRules = $y$} : If {\tt Yes},  \clus{} will convert the induced tree to a set of rules.
+	\item {\tt FTest = $r$} : sets the f-test stopping criterion for regression; a node will only be split if a statistical F-test indicates a significant (at level $r$) reduction of variance inside the subsets.
+	\item {\tt ConvertToRules = $y$} : If {\tt Yes},  \clus{} will convert the induced tree to a set of rules.
+	\item \texttt{Heuristic = $o$} : $o$ is a subset of \{\raggedright\texttt{Default, ReducedError, Gain, GainRatio, SSPD,\newline VarianceReduction, MEstimate, Morishita, DispersionAdt, DispersionMlt, RDispersionAdt, RDispersionMlt, GeneticDistance, SemiSupervised, VarianceReductionMissing}\}. Sets the heuristic function that is used for evaluating the splits when generating trees or rules.
+	
+	\comment{To be checked, references added!}
+	\begin{itemize}
+		\item \texttt{Default}: default heuristic, if learning trees this is equal to \texttt{VarianceReduction}, if learning rules this setting is equal to \texttt{RDispersionMlt},
+		\item \texttt{ReducedError}: reduced error heuristic, can be used for trees,
+		\item \texttt{Gain}: information gain heuristic, can be used for classification trees,
+		\item \texttt{GainRatio}: information gain ratio heuristic, can be used for classification trees,
+		\item \texttt{SSPD}: sum of squared distances, can be used for regression trees,
+		\item \texttt{VarianceReduction}: variance reduction heuristic, can be used for trees,
+		\item \texttt{MEstimate}: $m$-estimate heuristic, can be used for classification trees,
+		\item \texttt{Morishita}: Morishita heuristic \cite{Sese2004} ?, can be used for trees,
+		\item \texttt{DispersionAdt}: additive dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules,
+		\item \texttt{DispersionMlt}: multiplicative dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules,
+		\item \texttt{RDispersionAdt}: additive relative dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules,
+		\item \texttt{RDispersionMlt}: multiplicative relative dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules, the default heuristic for learning predictive clustering rules,
+		\item \texttt{GeneticDistance}:
+		\item \texttt{SemiSupervised}:
+		\item \texttt{VarianceReductionMissing}:
+	\end{itemize}
+	\item \texttt{PruningMethod = $o$} : $o$ is a subset of \{\raggedright\texttt{Default, None, C4.5, M5, M5Multi, ReducedErrorVSB, Garofalakis, GarofalakisVSB, CartVSB, CartMaxSize}\}. Sets the pruning method for trees.
+	\begin{itemize}
+		\item \texttt{Default}: default pruning method for trees, if learning classification trees this is equal to \texttt{C4.5}, if learning regression trees this is equal to \texttt{M5}, \comment{Is this true?}
+		\item \texttt{None}: no post-pruning of learned rules is done,
+		\item \texttt{C4.5}: pruning as in C4.5 \cite{Quinlan1993}, can be used for classification trees,
+		\item \texttt{M5}: pruning as in M5 \cite{Quinlan1992},	can be used for regression trees,
+		\item \texttt{M5Multi}: 			
+		\item \texttt{ReducedErrorVSB}: 
+		\item \texttt{Garofalakis}: 
+		\item \texttt{GarofalakisVSB}: 
+		\item \texttt{CartVSB}: 
+		\item \texttt{CartVSB}: 
+		\item \texttt{CartMaxSize}: 
+	\end{itemize}
 \end{itemize}
 
 \section{Rules}
+
+Please note that the parameter for selecting rule learning heuristic in actually located in the \texttt{[Tree]} section!
+
+\begin{itemize}
+	\item \texttt{CoveringMethod = $o$} : $o$ is a subset of \{\texttt{Standard, % WeightedMultiplicative, WeightedAdditive, 
+	WeightedError, %Union, BeamRuleDefSet, 
+	RandomRuleSet, %StandardBootstrap, 
+	HeurOnly, RulesFromTree}\}, defines how the rules are constructed.
+	\begin{itemize}
+		\item \texttt{Standard}: standard covering algorithm \cite{Michalski1969}, all examples covered by the new rule are removed from the current learning set, can be used for learning ordered rules,
+		%\item \texttt{WeightedMultiplicative}: 
+		%\item \texttt{WeightedAdditive}: 
+		\item \texttt{WeightedError}: error weighted covering algorithm \cite{Zenko07} (Section 4.5), examples covered by the new rule are not removed from the current learning set, but their weight is decreased inversely proportional to the error the new rule makes when predicting their target values, can be used for learning unordered rules,
+		%\item \texttt{Union}: 
+		%\item \texttt{BeamRuleDefSet}: 
+		\item \texttt{RandomRuleSet}: rules are generated randomly, experimental,
+		%\item \texttt{StandardBootstrap}: 
+		\item \texttt{HeurOnly}: no covering is used, the heuristic function takes into account the already learned rules and the examples they cover, experimental
+		\item \texttt{RulesFromTree}: rules are not learned with the covering approach, but a tree is learned first and then transcribed into a rule set.
+	\end{itemize}
+	\item \texttt{CoveringWeight = $r$} : weight controlling the amount by which weights of covered examples are reduced within the error weighted covering algorithm -- $\zeta$ in \cite{Zenko07} (Section 4.5, Equations 4.6 and 4.8), valid values are between 0 and 1, by default it is set to 0.1, can be used for unordered rules with error weighted covering method.
+	\item \texttt{RuleAddingMethod = $o$} : $o$ is a subset of \{\texttt{Always, IfBetter, IfBetterBeam}\}, defines how rules are added to the rule set.
+	\begin{itemize}
+		\item \texttt{Always}: each rule when constructed is always added to the rule set,
+		\item \texttt{IfBetter}: rule is only added to the rule set if the performance of the rule set with the new rule is better than without it,
+		\item \texttt{IfBetterBeam}: similar to \texttt{IfBetter}, but if the rule does not improve the performance of the rule set, other rules from the beam are also evaluated and possibly added to the rule set.
+	\end{itemize}
+	The default value is \texttt{Always}, for regression rules setting this option to \texttt{IfBetter} is recommended.
+	\item \texttt{PrintRuleWiseErrors = $y$}: If \texttt{Yes},  \clus{} will print error estimation for each rule separately.
+%	\item \texttt{PredictionMethod = $o$} : $o$ is a subset of \{\texttt{DecisionList", "TotCoverageWeighted", %"CoverageWeighted", "AccuracyWeighted",
+%		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union", "GDOptimized", "GDOptimizedBinary"
+\item {\tt ComputeDispersion = $y$}: If \texttt{Yes},  \clus{} will print some additional dispersion estimation for each rule and entire rule set.
+\end{itemize}
 
 
 \section{Ensembles}
@@ -463,7 +533,7 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 \end{itemize}
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 [General]
 RandomSeed = 0              % seed of random generator
@@ -511,7 +581,7 @@ MaxSize = Infinity          % Sets the maximum size constraint
 \label{settings:fig}
 \end{figure}
 
-
+%
 \section{Hierarchical}
 
 A number of settings are relevant only when using \clus{} for Hierarchical Multi-label Classification (HMC).  These go in the separate section ``Hierarchical''.  The most important ones are:
@@ -538,7 +608,7 @@ A number of settings are relevant only when using \clus{} for Hierarchical Multi
 Figure~\ref{settings-hmc:fig} summarizes these briefly.
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 [Hierarchical]
 Type = Tree                         % Tree or DAG hierarchy?
@@ -593,7 +663,7 @@ When \clus{} is finished, it writes the results of the run into an output file w
 {\tt {\em filename}.out}.  An example of such an output file is shown in Figures \ref{output1:fig} to \ref{output4:fig}.
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 Clus run "weather"
 ******************
@@ -658,7 +728,7 @@ OutputDatabaseQueries = No
 \end{figure}
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \small
 \begin{verbatim}
 [Nominal]
@@ -683,13 +753,13 @@ AlternativeSplits = No
 Optimize = {}
 MSENominal = No
 \end{verbatim}
-\hrule
+\hrule\vspace{1em}
 \caption{Example output file (part 2, settings (ctd.)).}
 \label{output2:fig}
 \end{figure}
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \footnotesize
 \begin{verbatim}
 Run: 01
@@ -737,7 +807,7 @@ Pearson correlation coefficient
 \end{figure}
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 Default Model
 *************
@@ -795,7 +865,7 @@ The output file contains the learned models, represented as decision trees.  The
 Note: The \clus{} download comes with a pre-compiled version of \clus{} stored in the file Clus.jar. So, if you just want to run \clus{} as it is on a data set, then you do not need to compile \clus{}. You can run it by following the instructions in Section~\ref{sec:run}. On the other hand, if you wish to modify the source code of \clus{}, or if you are using the CVS version, then you will need to compile the source code of \clus{}. This can be done using the commands
 below or using the Eclipse IDE as pointed out in the next section.
 
-(Windows)
+\vspace*{1em}\noindent(Windows)
 
 \begin{small}
 \begin{verbatim}
@@ -804,7 +874,7 @@ javac -d "bin" -cp ".;jars\commons-math-1.0.jar;jars\jgap.jar" clus/Clus.java
 \end{verbatim}
 \end{small}
 
-(Unix)
+\noindent(Unix)
 
 \begin{small}
 \begin{verbatim}
@@ -812,10 +882,9 @@ cd /home/john/Clus
 javac -d "bin" -cp ".:jars/commons-math-1.0.jar:jars/jgap.jar" clus/Clus.java
 \end{verbatim}
 \end{small}
-
 This will compile \clus{} and write the resulting .class files (Java executable 
 byte code) to the "bin" subdirectory.
-
+%
 Alternatively, use the "./compile.sh" script provided in the \clus{} main directory.
 
 \section{Compiling Clus with Eclipse}
@@ -860,7 +929,7 @@ To run \clus{} from Eclipse:
 
 These instructions are for running \clus{} after you compiled its source code (using the instructions "Compiling Clus" or "Compiling Clus with Eclipse"). To run the pre-compiled version that is available in the file "Clus.jar", see Section~\ref{sec:run}.
 
-(Windows)
+\vspace*{1em}\noindent(Windows)
 \begin{small}
 \begin{verbatim}
 cd path\to\appfile.s
@@ -869,7 +938,7 @@ java -cp "C:\Clus\bin;C:\Clus\jars\commons-math-1.0.jar;C:\Clus\jars\jgap.jar"
 \end{verbatim}
 \end{small}
 
-(Unix)
+\noindent(Unix)
 
 \begin{small}
 \begin{verbatim}
@@ -878,8 +947,45 @@ java -cp "$HOME/Clus/bin:$HOME/Clus/jars/commons-math-1.0.jar:$HOME/Clus/jars/jg
   clus.Clus appfile.s
 \end{verbatim}
 \end{small}
-
+%
 Alternatively, use the "./clus.sh" script provided in the \clus{} main directory after adjusting the line that defines CLUS\_DIR at the top of the script.
+
+\section{Code Organization}
+Here we only provide a rough guide to the \clus\ code by listing some of the key classes and packages.
+\begin{description}
+	\item[\texttt{clus/Clus.java}] the main class with the main method, which is called when starting \clus.
+	\item[\texttt{clus/algo}] package with learning algorithms, e.g., sub-package \texttt{clus/algo/tdidt} includes tree learning algorithm and \texttt{clus/algo/rules} includes rule learning algorithm, \texttt{clus/algo/split} includes classes used for generating conditions in both trees and rules.
+	\item[\texttt{clus/data}] package with sub-packages and classes related to reading and storing of the data.
+	\item[\texttt{clus/error}] package where different error estimation measures are defined.
+	\item[\texttt{clus/ext}] some extensions of base tree learning methods can be found here, e.g., sub-package \texttt{hierarchical} contains extensions needed for hierarchical classification, \texttt{ensembles} contains ensembles of trees and \texttt{timeseries} contains extensions for predicting time-series data.
+	\item[\texttt{clus/heuristic}] contains classes implementing heuristic functions for tree learning (heuristics for rule learning are located in package \texttt{clus/algo/rules}).
+	\item[\texttt{clus/main}] contains some important support classes such as:
+	\begin{description}
+		\item[\texttt{ClusRun.java}]
+		\item[\texttt{ClusStat.java}]
+		\item[\texttt{ClusStatManager.java}]
+		\item[\texttt{Settings.java}] all the \clus\ settings are defined here.
+	\end{description}
+	\item[\texttt{clus/model}] classes used for representations of models can be found here, including tests that appear in trees and rules (\texttt{clus/model/test}).
+	\item[\texttt{clus/pruning}] contains methods for tree pruning.
+	\item[\texttt{clus/statistic}] contains classes used for storing and manipulating different information and statistics on data. The key classes are:
+	\begin{description}
+		\item[\texttt{ClusStatistic.java}] super class for all statistics used in \clus.
+		\item[\texttt{ClassificationStat.java}] class for storing information on nominal attributes (e.g., counts for each possible nominal value)
+		\item[\texttt{RegressionStat.java}] class for storing information on numeric attributes (e.g., sums of values and sums of squared values).
+		\item[\texttt{CombStat.java}] class for storing information on nominal and numeric attributes (contains \texttt{ClassificationStat} and \texttt{RegressionStat} classes).
+	\end{description}
+ 	\item[\texttt{clus/tools}] contains some support code, e.g., sub-package \texttt{optimization} contains optimization procedures used in rule ensemble learning.
+ 	\item[\texttt{clus/weka}] contains classes for interfacing with Weka machine learning package.
+\end{description}
+
+\chapter{Examples}
+In this chapter we demonstrate some simple examples (in addition to the example on learning predictive clustering trees for multi-target prediction presented throughout the manual) how \clus\ can be used for solving different tasks. All the used data sets can be found in the directory \texttt{data/} of the \clus\ distribution. 
+\comment{Not sure yet about this ...}
+\section{Learning Rules for Multi-target Prediction}
+\section{Learning Trees for Hierarchical Multi-label Classification}
+\section{Learning Tree Ensembles}
+\section{Learning Rule Ensembles}
 
 \appendix
 \chapter{Constructing Phylogenetic Trees Using Clus}
@@ -902,7 +1008,7 @@ Perl scripts for converting PHY and FASTA files into the ARFF file format are av
 In order to construct phylogenetic trees, the settings file looks like the one shown in Fig.~\ref{phylosettingsreq:fig}. Apart from the settings shown in the figure, there are a number of extra settings, specific for phylogenetic tree reconstruction (see Fig.~\ref{phylosettingsopt:fig}). We discuss them in detail.
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 [Tree]
 PruningMethod = None    
@@ -932,7 +1038,7 @@ PrintModelAndExamples = true
 \end{figure}
 
 \begin{figure}[tb]
-\hrule
+\hrule\vspace{1em}
 \begin{verbatim}
 [Phylogeny]
 Sequence = DNA
