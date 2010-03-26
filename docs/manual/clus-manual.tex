@@ -32,7 +32,8 @@
 
 \newcommand{\clus}{\textsc{Clus}}
 \newcommand{\clusphy}{\textsc{Clus}-$\varphi$}
-\newcommand{\comment}[1]{{\color{red}\textbf{COMMENT:} #1}}
+%\newcommand{\comment}[1]{{\color{red}\textbf{COMMENT:} #1}}
+\newcommand{\comment}[1]{} % off
 
 \begin{document}
 
@@ -498,11 +499,43 @@ Please note that the parameter for selecting rule learning heuristic in actually
 	\item \texttt{PrintRuleWiseErrors = $y$}: If \texttt{Yes},  \clus{} will print error estimation for each rule separately.
 %	\item \texttt{PredictionMethod = $o$} : $o$ is a subset of \{\texttt{DecisionList", "TotCoverageWeighted", %"CoverageWeighted", "AccuracyWeighted",
 %		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union", "GDOptimized", "GDOptimizedBinary"
-\item {\tt ComputeDispersion = $y$}: If \texttt{Yes},  \clus{} will print some additional dispersion estimation for each rule and entire rule set.
+	\item {\tt ComputeDispersion = $y$}: If \texttt{Yes},  \clus{} will print some additional dispersion estimation for each rule and entire rule set.
 \end{itemize}
 
 
 \section{Ensembles}
+\begin{itemize}
+	\item \texttt{Iterations = $n$}: $n$ defines a number of base-level models (trees) in the ensemble, by default it is set to 10.
+	\item \texttt{EnsembleMethod = $o$} : $o$ is a subset of \{\texttt{Bagging, RForest, RSubspaces, BagSubspaces}\} defines the ensemble method.
+	\begin{itemize}
+		\item \texttt{Bagging}: Bagging \cite{Breiman}
+		\item \texttt{RForest}: Random forest \cite{Breiman}
+		\item \texttt{RSubspaces}: Random Subspaces \cite{Tin Kam Ho}
+		\item \texttt{BagSubspaces}: Bagging of subspaces \cite{Panov and Dzeroski, IDA 2007}
+	\end{itemize}
+	\item \texttt{VotingType = $o$} : $o$ is a subset of \{\texttt{Majority, ProbabilityDistribution}\} selects the voting scheme for combining predictions of base-level models.
+	\begin{itemize}
+		\item \texttt{Majority}: each base-level model casts one vote, for regression this is equal to averageing
+		\item \texttt{ProbabilityDistribution}: each base-level model casts probability distributions for each target attribute, does not work for regression
+	\end{itemize}
+	Kohavi et al \cite{Kohavi} recommend the latter option.
+	\item \texttt{SelectRandomSubspaces = $n$}: $n$ defines size of feature subset for random forests, random subspaces and bagging of subspaces. Default setting is 0, which means floor(log with basis 2 of the number of descriptive attributes +1) as recommended by Breiman \cite{, Random Forest, Machine Learning Journal}
+	\item {\tt PrintAllModels = $y$}: If \texttt{Yes}, \clus\ will print all base-level models of an ensemble in the output file. The default setting is \texttt{No}.
+	\item {\tt PrintAllModelFiles = $y$}: If \texttt{Yes}, \clus\ will save all base-level models of an ensemble in the model file. The default setting is \texttt{No}, which prevents from creating very large model files.
+	\item {\tt Optimize = $y$}: If \texttt{Yes}, \clus\ will optimize memory usage during learning. The default setting is \texttt{No}.
+	\item {\tt OOBestimate = $y$}: If \texttt{Yes}, out-of-bag estimate of the performance of the ensemble will be done. The default setting is \texttt{No}.
+	\item {\tt FeatureRanking = $y$}: If \texttt{Yes}, feature ranking via random forests will be performed. The default setting is \texttt{No}.
+	\item {\tt EnsembleRandomDepth = $y$}: If \texttt{Yes}, different random depth for each base-level model is selected. Used, e.g., in rule ensembles. The \texttt{MaxDepth} setting from \texttt{[Tree]} section is used as average. The default setting is \texttt{No}.
+%BagSelection = -1
+	% 'Quasi' parallel implementation for ensembles
+	% its value is an integer ranging from -1 to the number of trees in the ensemble
+	% if set to -1, then the parallel implementation is discarded
+	% if set to 0, then CLUS combines the predictions from the different bags
+	% if set to i, i in 1..EnsembleSize, then CLUS learns the model for the i-th bag
+	% if set as interval [val1-val2], this means to learn all bags between val1 and val2, including val1 and val2
+	
+	 
+\end{itemize}
 
 \section{Constraints}
 
@@ -979,13 +1012,13 @@ Here we only provide a rough guide to the \clus\ code by listing some of the key
  	\item[\texttt{clus/weka}] contains classes for interfacing with Weka machine learning package.
 \end{description}
 
-\chapter{Examples}
-In this chapter we demonstrate some simple examples (in addition to the example on learning predictive clustering trees for multi-target prediction presented throughout the manual) how \clus\ can be used for solving different tasks. All the used data sets can be found in the directory \texttt{data/} of the \clus\ distribution. 
-\comment{Not sure yet about this ...}
-\section{Learning Rules for Multi-target Prediction}
-\section{Learning Trees for Hierarchical Multi-label Classification}
-\section{Learning Tree Ensembles}
-\section{Learning Rule Ensembles}
+%\chapter{Examples}
+%In this chapter we demonstrate some simple examples (in addition to the example on learning predictive clustering trees for multi-target prediction presented throughout the manual) how \clus\ can be used for solving different tasks. All the used data sets can be found in the directory \texttt{data/} of the \clus\ distribution. 
+%\comment{Not sure yet about this ...}
+%\section{Learning Rules for Multi-target Prediction}
+%\section{Learning Trees for Hierarchical Multi-label Classification}
+%\section{Learning Tree Ensembles}
+%\section{Learning Rule Ensembles}
 
 \appendix
 \chapter{Constructing Phylogenetic Trees Using Clus}
