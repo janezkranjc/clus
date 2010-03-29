@@ -262,10 +262,10 @@ The \emph{Weather} example is a small multi-target or multi-task learning proble
 \chapter{Input Format}
 \label{ch:data}
 
-Like many machine earning systems, \clus\ learns from tabular data. These data are assumed to be in the ARFF format that is also used by the Weka data mining tool.  Full details on ARFF can be found elsewhere\footnote{\url{http://weka.wikispaces.com/ARFF}}. We here only give a minimal description.
+Like many machine learning systems, \clus\ learns from tabular data. These data are assumed to be in the ARFF format that is also used by the Weka data mining tool.  Full details on ARFF can be found elsewhere\footnote{\url{http://weka.wikispaces.com/ARFF}}. We here only give a minimal description.
 
-In the data table, each row represents an instance, and each column represents an attribute of the instances.  Each attribute has a name and a domain (the domain is the set of values it can take).  In the ARFF format, the names and domains of the attributes are declared up front, before the data are given.
-
+In the data table, each row represents an instance, and each column represents an attribute of the instances.  Each attribute has a name and a domain (the domain is the set of values it can take). In the ARFF format, the names and domains of the attributes are declared up front, before the data are given. The syntax is not case sensitive.
+%
 An ARFF file follows the following format:
 
 \begin{tabbing}
@@ -279,24 +279,30 @@ An ARFF file follows the following format:
 ...\\
 \\
 {\tt @DATA}\\
-value$_1$, value$_2$, ..., value$_n$\\
-value$_1$, value$_2$, ..., value$_n$\\
+value$_1$, value$_2$, ... , value$_n$\\
+value$_1$, value$_2$, ... , value$_n$\\
 \end{tabbing}
 
-The domain of an attribute can be one of:
+\noindent The domain of an attribute can be one of:
 \begin{itemize}
-	\item\tt real
-	\item{\tt \{ } nomvalue$_1$, nomvalue$_2$, ..., nomvalue$_n$ {\tt \} }
-	\item{\tt hierarchical} hvalue$_1$, hvalue$_2$, ..., hvalue$_n$
+	\item \texttt{numeric}
+	\item \texttt{\{} nomvalue$_1$, nomvalue$_2$, ... , nomvalue$_n$ \texttt{\}}
+	\item \texttt{string}
+	\item \texttt{hierarchical} hvalue$_1$, hvalue$_2$, ... , hvalue$_n$
+	\item \texttt{timeseries}
 \end{itemize}
+%
+The first option, \texttt{numeric} (\texttt{real} and \texttt{integer} are also legal and are treated in the same way), indicates that the domain is the set of real numbers. The second type of domain is called a discrete domain.  Discrete domains are defined by enumerating the values they contain. These values are nominal. The third domain type is \texttt{string} and can be used for attributes containing arbitrary textual values.
 
-The first option, {\tt real}, indicates that the domain is the set of real numbers. The second type of domain is called a discrete domain.  Discrete domains are defined by enumerating the values they contain.  These values are nominal.
-
-The third type of domain is called ``hierarchical multi-label".  It implies two things: first, the attribute takes as value a {\em set} of values from the domain, rather than a single value; second, the domain has a hierarchical structure.  The elements of the domain are typically denoted $v_1/v_2/.../v_i$ with $i \leq d$ where $d$ is the depth of the hierarchy.  This type of domain is useful in the context of hierarchical multi-label classification.  
+The fourth type of domain is called \texttt{hierarchical} (multi-label). It implies two things: first, the attribute can take as a value a \emph{set of values} from the domain, rather than just a single value; second, the domain has a hierarchical structure.  The elements of the domain are typically denoted $v_1/v_2/.../v_i$ with $i \leq d$ where $d$ is the depth of the hierarchy. This type of domain is useful in the context of hierarchical multi-label classification and is not part of the standard ARFF syntax.  
 
 The values in a	 row occur in the same order as the attributes: the $i$'th value is assigned to the $i$'th attribute.  Values in the rows must be real values if the domain of the corresponding attribute is continuous, or a member of the specified set of values if the domain is discrete.  For hierarchical multi-label attributes, a set of values from the domain can be given; this set is written by listing its elements separated by \verb^@^.
 
-Figure~\ref{weatherarff:fig} shows an example of an ARFF file. An example of a table containing hierarchical multi-label attributes is shown in Figure~\ref{arffhmc:fig}. Finally, an ARFF file with a time series attribute is shown in Figure~\ref{arfftimeser:fig}.
+The last type of domain is \texttt{timeseries}. A time series is a fixed length series of numeric data where individual numbers are written in brackets and separated with commas. All time series of a given attribute must be of the same length. This domain type is also not part of the standard ARFF syntax.
+
+\clus\ also supports sparse ARFF format where only non-zero data values are stored. The header of a sparse ARFF file is the same, but each data instance is written in curly braces and each attribute value is written as an attribute number (starting from zero) and the value separated by space; values of different attributes are separated by commas.
+
+Figure~\ref{weatherarff:fig} shows an example of an ARFF file. An example of a table containing hierarchical multi-label attributes is shown in Figure~\ref{arffhmc:fig}, an example ARFF file with a time series attribute is shown in Figure~\ref{arfftimeser:fig}, and an example sparse ARFF file is shown in Figure~\ref{arffsparse:fig}.
 
 \begin{figure}[tb]
 \hrule\vspace{1em}
