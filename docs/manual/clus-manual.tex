@@ -37,7 +37,7 @@
 
 \begin{document}
 
-\title{Clus: User's Manual}
+\title{\clus: User's Manual}
 
 \author{Jan Struyf, Bernard \v{Z}enko, Hendrik Blockeel, Sa\v{s}o D\v{z}eroski}
 
@@ -48,45 +48,44 @@
 \tableofcontents
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}
 
 This text is a user's manual for the open source machine learning system \clus{}. \clus{} is a decision tree and rule learning system that works in the \emph{predictive clustering} framework \cite{Blockeel1998icml}.
-
+% Should we avoid one (or two) sentence paragraphs?
 While most decision tree learners induce classification or regression trees, \clus{} generalizes this approach by learning trees that are interpreted as cluster hierarchies. We call such trees predictive clustering trees or PCTs. Depending on the learning task at hand, different goal criteria are to be optimized while creating the clusters, and different heuristics will be suitable to achieve this.
 
 Classification and regression trees are special cases of PCTs, and by choosing the right parameter settings \clus{} can closely mimic the behavior of tree learners such as CART \cite{Breiman84:other} or C4.5 \cite{Quinlan1993}.  However, its applicability goes well beyond classical classification or regression tasks: \clus{} has been successfully applied to many different tasks including multi-task learning (multi-target classification and regression), structured output learning, multi-label classification, hierarchical classification, and time series prediction. Next to these supervised learning tasks, PCTs are also applicable to semi-supervised learning, subgroup discovery, and clustering.
-
+%
 In a similar way, predictive clustering rules (PCRs) generalize classification rule sets \cite{Clark91:proc} and also apply to the aforementioned learning tasks.
 
-A full description of how \clus{} works is beyond the scope of this text. In this User's Manual, we focus on how to use \clus{}: how to prepare its inputs, how to interpret the output, and how to change its behavior with the available parameters.
-
+A full description of how \clus{} works is beyond the scope of this text. In this User's Manual, we focus on how to use \clus{}: how to prepare its inputs, how to interpret the outputs, and how to change its behavior with the available parameters.
+%
 For background information on the rationale behind the \clus{} system and its algorithms we refer to the following papers:
 
-\comment{Should we add something else here, e.g., ensembles? Or this should be just the 'core' papers?}
 \begin{itemize} 
 
-\item H. Blockeel, L. De Raedt, and J. Ramon, Top-down induction of clustering trees, Proceedings of the 15th International Conference on Machine Learning (Shavlik, J., ed.), pp. 55-63, 1998.
+% Should we add some additional papers here?
+\item H. Blockeel, L. De Raedt, and J. Ramon, Top-down induction of clustering trees, Proceedings of the 15th International Conference on Machine Learning (J. Shavlik, ed.), pp. 55-63, 1998.
 
 \item B.~{\v{Z}}enko and S.~D{\v{z}}eroski. Learning classification rules for multiple target attributes. In Advances in Knowledge Discovery and Data Mining, pp. 454-465, 2008.
 
-\item H. Blockeel, S. D\v zeroski, and J. Grbovi\'c, Simultaneous prediction of multiple chemical parameters of river water quality with TILDE, Proceedings of the Third European Conference on Principles of Data Mining and Knowledge Discovery (Zytkow, J.M. and Rauch, J., eds.), vol 1704, LNAI, pp. 32-40, 1999.
+\item H. Blockeel, S. D\v zeroski, and J. Grbovi\'c, Simultaneous prediction of multiple chemical parameters of river water quality with TILDE, Proceedings of the Third European Conference on Principles of Data Mining and Knowledge Discovery (J.M. \.{Z}ytkow and J. Rauch, eds.), vol 1704, LNAI, pp. 32-40, 1999.
 
 \item  C. Vens, J. Struyf, L. Schietgat, S. D\v zeroski and H. Blockeel, Decision trees for hierarchical multi-label classification. Machine Learning 73(2):185-214, 2008.
 \end{itemize}
 
-A longer list of publications describing applications of \clus{} is available on the \clus{} web site
+A longer list of publications describing different aspects and applications of \clus{} is available on the \clus{} web site
 (\url{www.cs.kuleuven.be/~dtai/clus/publications.html}).
 
-\comment{A sentence or two on the structure of the manual should go here?}
-
+%%%%%%%%%%%%%%%%%%
 \chapter{Tutorial}
 
-\section{Installing and Running Clus}
+\section{Installing and Running \clus}
 \label{sec:run}
 
 \begin{sloppypar}
-\clus{} is written in the Java programming language, which is available from {\tt http://java.sun.com}. You will need Java version 1.5.x or above. To run \clus{}, it suffices to install the Java Runtime Environment (JRE). If you want to make changes to \clus{} and compile its source code, then you will need to install the Java Development Kit (JDK) instead of the JRE.
+\clus{} is written in the Java programming language, which is available from {\tt http://java.sun.com}. You will need Java version 1.5.x or newer. To run \clus{}, it suffices to install the Java Runtime Environment (JRE). If you want to make changes to \clus{} and compile its source code, then you will need to install the Java Development Kit (JDK) instead of the JRE.
 \end{sloppypar}
 
 The \clus\ software is released under the GNU General Public License version 3 or later and is available for download at \url{http://www.cs.kuleuven.be/~dtai/clus/}. After downloading \clus{}, unpack it into a directory of your choice. \clus{} is a command line application and should be started from the command prompt (Windows) or a terminal window (Unix). To start \clus{}, enter the command:
@@ -94,7 +93,7 @@ The \clus\ software is released under the GNU General Public License version 3 o
 \verb^java -jar $CLUS_DIR/Clus.jar^ {\em filename}\verb^.s^
 \end{flushleft}
 
-\noindent{}with \verb^$CLUS_DIR/Clus.jar^ the location of \verb^Clus.jar^ in your \clus{} distribution and {\tt {\em filename}.s} the name of your settings file. E.g.,
+\noindent{}with \verb^$CLUS_DIR/Clus.jar^ the location of \verb^Clus.jar^ in your \clus{} distribution and {\tt {\em filename}.s} the name of your settings file. In order to verify that your \clus\ installation is working properly, you might try something like:
 
 \begin{list}{\labelitemi}{\leftmargin=1.5cm}
 \item[Windows:]\mbox{}
@@ -110,19 +109,19 @@ java -jar ../../Clus.jar weather.s
 \end{verbatim}
 \end{list}
 
-\noindent{}Try \clus{} first on the example data sets in the ``data'' directory of the \clus{} distribution.
+\noindent{}This runs \clus{} on a simple example \emph{Weather.} You can also try other example data sets in the \texttt{data} directory of the \clus{} distribution.
 
-Note that the above instructions are for running the pre-compiled version of \clus{} (Clus.jar), which is included with the \clus{} download. If you have modified and recompiled \clus{}, or if you are using the CVS version, then you should run \clus{} in a different way, as is explained in Chapter~\ref{ch:devel}. \\\comment{If we mention CVS, I guess we should also include instructions for getting CVS access -- but can we provide public CVS access?.}
+Note that the above instructions are for running the pre-compiled version of \clus{} (\texttt{Clus.jar}), which is included with the \clus{} download. If you have modified and recompiled \clus{}, or if you are using the CVS version, then you should run \clus{} in a different way, as is explained in Chapter~\ref{ch:devel}. If you want get direct CVS access, please contact the developers.
 
-\section{Input and Output Files for Clus}
+\section{Input and Output Files for \clus}
 
-\begin{figure}[tb]
+\begin{figure}%[tb]
 \includegraphics{fig/clusinout}
-\caption{\label{fig:iofiles}Input and output files of Clus.}
-\comment{.xval and predictions are not always produced - should we mention this here?}
+\caption{\label{fig:iofiles}Input and output files of \clus.}
+% .xval and predictions are not always produced - should we mention this in the figure?
 \end{figure}
 
-\begin{figure}[tb]
+\begin{figure}%[tb]
 \hrule\vspace{1em}
 \begin{verbatim}
 [Attributes]
@@ -134,10 +133,10 @@ Clustering = 3-4
 Heuristic = VarianceReduction
 \end{verbatim}
 \hrule
-\caption{The settings file (weather.s) for the Weather example.}
+\caption{The settings file (\texttt{weather.s}) for the \emph{Weather} example.}
 \label{weathers:fig}
 \end{figure}
-\begin{figure}[tb]
+\begin{figure}%[tb]
 \hrule\vspace{1em}
 \begin{verbatim}
 @RELATION "weather"
@@ -158,7 +157,7 @@ rainy,    yes, 10, 95
 rainy,    yes, 8,  90
 \end{verbatim}
 \hrule
-\caption{The training data (weather.arff) for the Weather example (in Weka's ARFF format).}
+\caption{The training data (\texttt{weather.arff}) for the \emph{Weather} example (in Weka's ARFF format).}
 \label{weatherarff:fig}
 \end{figure}
 
@@ -220,17 +219,17 @@ outlook = sunny
 +--no:  [14.5,85.5]: 6
 \end{verbatim}
 \hrule
-\caption{The Weather example's output (weather.out). (Some parts have been omitted for brevity.)}
+\caption{The \emph{Weather} example's output (\texttt{weather.out}). (Some parts have been omitted for brevity.)}
 \label{weatherout:fig}
 \end{figure}
 
-\clus{} uses (at least) two input files and these are named {\tt {\em filename}.s} and {\tt {\em filename}.arff}, with {\tt {\em filename}} a name chosen by the user.  The file {\tt {\em filename}.s} contains the parameter settings for \clus{}.  The file {\tt {\em filename}.arff} contains the training data to be read. The format of the data file is Weka's ARFF format\footnote{\url{http://weka.wikispaces.com/ARFF}}. The results of a \clus{} run are put in an output file {\tt {\em filename}.out}. Figure~\ref{fig:iofiles} gives an overview of the input and output files supported by \clus{}. The format of the data files is described in detail in Chapter~\ref{ch:data}, the format of the settings file is discussed in Chapter~\ref{ch:sett}, and the output files are covered in Chapter~\ref{ch:output}. 
+\clus{} uses (at least) two input files and these are named {\tt {\em filename}.s} and {\tt {\em filename}.arff}, with {\tt {\em filename}} a name chosen by the user.  The file {\tt {\em filename}.s} contains the parameter settings for \clus{}. The file {\tt {\em filename}.arff} contains the training data to be read. The format of the data file is Weka's ARFF format\footnote{\url{http://weka.wikispaces.com/ARFF}}. The results of a \clus{} run are put in an output file {\tt {\em filename}.out}. Figure~\ref{fig:iofiles} gives an overview of the input and output files supported by \clus{}. The format of the data files is described in detail in Chapter~\ref{ch:data}, the format of the settings file is discussed in Chapter~\ref{ch:sett}, and the output files are covered in Chapter~\ref{ch:output}. Optionally, \clus\ can also generate a detailed output of the cross-validation (\texttt{weather.xval}) and model predictions in ARFF format.
 
-In the Weather example of Section~\ref{sec:run}, \clus{} will read its settings from the input file ``weather.s'' (shown in Figure~\ref{weathers:fig}) and its input data from the file ``weather.arff'' (Figure~\ref{weatherarff:fig}). It will then construct (with these settings) a PCT, which it will write to the output file ``weather.out'' (Figure~\ref{weatherout:fig}).
+In the \emph{Weather} example of Section~\ref{sec:run}, \clus{} will read its settings from the input file \texttt{weather.s} (shown in Figure~\ref{weathers:fig}) and its input data from the file \texttt{weather.arff} (Figure~\ref{weatherarff:fig}). It will then construct (with these settings) a PCT, which it will write to the output file \texttt{weather.out} (Figure~\ref{weatherout:fig}).
 
-The Weather example is a small multi-target or multi-task learning problem \cite{Caruana97:jrnl} in which the goal is to predict the target attributes temperature and humidity from the input attributes outlook and windy. The details about the learning task are specified in the settings file (Figure~\ref{weathers:fig}). Our example includes values for four parameters. The parameters under the heading ``[Attributes]'' specify how the attributes are to be used. Here, the first two attributes (attributes 1-2) are to be used in the cluster descriptions, that is, in the tests that appear in the PCT's nodes. The last two attributes (attributes 3-4) are to be predicted. The setting ``Clustering = 3-4'' indicates that the clustering heuristic, which is used to construct the PCT, should be computed based on the target attributes only. Finally, ``Heuristic = VarianceReduction'' specifies that the heuristic is variance reduction. Chapter~\ref{ch:sett} provides a detailed description of each setting supported by \clus{}.
+The \emph{Weather} example is a small multi-target or multi-task learning problem \cite{Caruana97:jrnl} in which the goal is to predict the target attributes \emph{temperature} and \emph{humidity} from the input attributes \emph{outlook} and \emph{windy.} The details about the learning task are specified in the settings file (Figure~\ref{weathers:fig}). Our example includes values for four parameters. The parameters under the heading \texttt{[Attributes]} specify how the attributes are to be used. Here, the first two attributes (attributes 1-2) are to be used in the cluster descriptions, that is, in the tests that appear in the PCT's nodes. The last two attributes (attributes 3-4) are to be predicted. The setting \texttt{Clustering = 3-4} indicates that the clustering heuristic, which is used to construct the PCT, should be computed based on the target attributes only. Finally, \texttt{Heuristic = VarianceReduction} specifies that the heuristic is variance reduction. Chapter~\ref{ch:sett} provides a detailed description of each setting supported by \clus{}.
 
-\clus{} writes the resulting PCT together with a number of statistics such as the training set error and the test set error (if a test set has been provided) to its output file (Figure~\ref{weatherout:fig}).  In this example, the resulting tree is a multi-target tree: each leaf predicts a vector of which the first component is the predicted temperature and the second component the predicted humidity. Such a multi-target tree has several advantages over constructing a separate regression tree for each target variable. The most obvious one is the number of models: the user only has to interpret one tree instead of at one tree for each target. A second advantage is that the tree makes features that are relevant to all target variables explicit. For example, the first leaf of the tree in Figure~\ref{weatherout:fig} shows that ``outlook = sunny'' implies both a high temperature and a low humidity. Finally, due to the concept of inductive transfer, multi-target PCTs may also be more accurate than regression trees. More information about multi-target trees can be found in the following publications: \cite{Blockeel1998icml, Blockeel99:proc, Struyf06-KDID:proc, Piccart08-DS-:proc}.
+\clus{} writes the resulting PCT together with a number of statistics such as the training set error and the test set error (if a test set has been provided) to its output file (Figure~\ref{weatherout:fig}).  In this example, the resulting tree is a multi-target tree: each leaf predicts a vector of which the first component is the predicted \emph{temperature} and the second component the predicted \emph{humidity.} Such a multi-target tree has several advantages over constructing a separate regression tree for each target variable. The most obvious one is the number of models: the user only has to interpret one tree instead of at one tree for each target. A second advantage is that the tree makes features that are relevant to all target variables explicit. For example, the first leaf of the tree in Figure~\ref{weatherout:fig} shows that \texttt{outlook = sunny} implies both a high temperature and a low humidity. Finally, due to the concept of inductive transfer, multi-target PCTs may also be more accurate than regression trees. More information about multi-target trees can be found in the following publications: \cite{Blockeel1998icml, Blockeel99:proc, Struyf06-KDID:proc, Piccart08-DS-:proc}.
 
 % \chapter{Learning Algorithms}
 % 
