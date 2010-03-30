@@ -59,7 +59,7 @@ Classification and regression trees are special cases of PCTs, and by choosing t
 %
 In a similar way, predictive clustering rules (PCRs) generalize classification rule sets \cite{Clark91:proc} and also apply to the aforementioned learning tasks.
 
-A full description of how \clus{} works is beyond the scope of this text. In this User's Manual, we focus on how to use \clus{}: how to prepare its inputs, how to interpret the outputs, and how to change its behavior with the available parameters.
+A full description of how \clus{} works is beyond the scope of this text. In this User's Manual, we focus on how to use \clus{}: how to prepare its inputs, how to interpret the outputs, and how to change its behavior with the available parameters. This manual is a work in progress and all comments are welcome.
 %
 For background information on the rationale behind the \clus{} system and its algorithms we refer to the following papers:
 
@@ -387,11 +387,11 @@ YAL008W,0,1,0,0,0,0,0,0,0,0,0,0,0,...,0,0,0,0,[0.49, 1.01, 1.33, 1.23, 1.32, 1.0
 
 The algorithms included in the \clus{} system have a number of parameters that influence their behavior.  Most parameters have a default setting; the specification of a value for such parameters is optional.  For parameters that do not have a default setting or which should get another value than the default, a value must be specified in the settings file, {\tt {\em filename}.s}.
 
-The settings file is structured into sections.  Each parameter belongs to a particular section.  Including the section headers is optional, however; these sections are meant to help users structure the settings file but are not mandatory.
+The settings file is structured into sections.  Each parameter belongs to a particular section.  Including the section headers (section names written in brackets) is optional, however; these headers are meant to help users structure the settings and their use is recommended.
 
-We here explain the most common settings.  Figure~\ref{settings:fig} shows how they might occur in a settings file.
+We here explain the most common settings. Some settings that are connected to experimental or not yet fully implemented features of \clus\ are either marked as such or not presented at all.  Figure~\ref{settings:fig} shows  an example of a settings file. All the settings (including the default ones) that were used in a specific \clus\ run are printed at the beginning of the output file (\texttt{\emph{filename}.out}).
 
-In the following, we use the convention that $n$ is an integer, $r$ is a real, $v$ is a vector of real values, $s$ is a string, $y$ is an element of \{ {\tt Yes}, {\tt No} \}, $r$ is an range of attribute indices, and $o$ is another type of value.  Strings are denoted without quotes. A vector is denoted as $[r_1,\ldots,r_n]$. An attribute range is a comma separated list of integers or intervals or \texttt{None} if the range is empty. For example, {\tt 5,7-9} indicates attributes 5, 7, 8 and 9. The first attribute in the dataset is attribute 1. Run {\tt clus -info {\em filename}.s} to list all attributes together with their indices.
+In the following, we use the convention that $n$ is an integer, $r$ is a real, $v$ is a vector of real values, $s$ is a string, $y$ is an element of \{ {\tt Yes}, {\tt No} \}, $r$ is an range of attribute indices, and $o$ is another type of value.  Strings are denoted without quotes. A vector is denoted as $[r_1,\ldots,r_n]$. An attribute range is a comma separated list of integers or intervals or \texttt{None} if the range is empty. For example, {\tt 5,7-9} indicates attributes 5, 7, 8 and 9. The first attribute in the dataset is attribute 1. Run {\tt clus -info {\em filename}.s} to list all attributes together with their indices. We now explain the settings organized into sections.
 
 \section{General}
 
@@ -403,22 +403,22 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 \section{Data}
 
 \begin{itemize}
-\item {\tt File = $s$} : $s$ is the name of the file that contains the training set.  The default value for $s$ is {\tt {\em filename}.arff}.  \clus{} can read compressed ({\tt .arff.zip}) or uncompressed ({\tt .arff}) data files.
+\item {\tt File = $s$} : $s$ is the name of the file that contains the training set.  The default value for $s$ is {\tt {\em filename}.arff}.  \clus{} can read compressed ({\tt .arff.zip}) or uncompressed ({\tt .arff}) data files. Path can also be included in the string.
 \item {\tt TestSet = $o$} : when $o$ is {\tt None}, no test set is used; if $o$ is a number between 0 and 1, \clus{} will use a proportion $o$ of the data file as a separate test set (used for evaluating the model but not for training); if $o$ is a valid file name containing a test set in ARFF format, \clus{} will evaluate the learned model on this test set.
-\item {\tt PruneSet = $o$} : defines whether and how to use a pruning set; the meaning of $o$ is identical as in the {\tt TestSet} setting
-\item {\tt XVal = $n$}\label{sett:xval} : $n$ is the number of folds to be used in a cross-validation.  To perform cross-validation, \clus{} needs to be run with the {\tt -xval} option.
+\item {\tt PruneSet = $o$} : defines whether and how to use a pruning set; the meaning of $o$ is identical as in the {\tt TestSet} setting.
+\item {\tt XVal = $n$}\label{sett:xval} : $n$ is the number of folds to be used in a cross-validation.  To perform cross-validation, \clus{} needs to be run with the {\tt -xval} command line parameter.
 \end{itemize}
 
 \section{Attributes}
 
 \begin{itemize}
-\item {\tt Target = $r$} : sets the range of target attributes. The predictive clustering model will predict these attributes. If this setting is not specified, then it is equal to the index of the last attribute in the training dataset, i.e., the last attribute is the target by default. This setting overrides the \texttt{Disable} setting. This is convenient if one needs to build models that predict only a subset $S$ of all available target attributes $T$. Because {\tt Target} overrides {\tt Disable}, one can use the settings {\tt Disable = $T$} and {\tt Target = $S$} to this end. 
+\item {\tt Target = $r$} : sets the range of target attributes. The predictive clustering model will predict these attributes. If this setting is not specified, then it is equal to the index of the last attribute in the training dataset, i.e., the last attribute is the target by default. This setting overrides the \texttt{Disable} setting. This is convenient if one needs to build models that predict only a subset $S$ of all available target attributes $T$ (and other target attributes should not be used as descriptive attributes). Because {\tt Target} overrides {\tt Disable}, one can use the settings {\tt Disable = $T$} and {\tt Target = $S$} to achieve this. 
 
 \item {\tt Clustering = $r$} : sets the range of clustering attributes. The predictive clustering heuristic that is used to guide the model construction is computed with regard to these atrributes. If this setting is not specified, then the clustering attributes are by default equal to the target attributes.
 
 \item {\tt Descriptive = $r$} : sets the range of attributes that can be used in the descriptive part of the models. For a PCT, these attributes will be used to construct the tests in the internal nodes of the tree. For a set of PCRs, these attributes will appear in the rule conditions. If this setting is not specified, then the descriptive attributes are all attributes that are not target, key, or disabled.
 
-\item {\tt Disable = $r$} : sets the range of attributes that are to be ignored by Clus. These attributes are also not read into memory.
+\item {\tt Disable = $r$} : sets the range of attributes that are to be ignored by \clus. These attributes are also not read into memory.
 
 \item {\tt Key = $r$} : sets the range of key attributes. A key attribute or a set of key attributes can be used as an example identifier. For example, if each instance represents a person, then the key attribute could store the person's name. Key attributes are not actually used by the induction algorithm, but they are written to output files, for example, to ARFF files with predictions. See \texttt{[Output]/WritePredictions} for an example.
 
@@ -428,46 +428,46 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 \section{Model}
 
 \begin{itemize}
-\item {\tt MinimalWeight = $r$} : \clus{} only generates splits with at least $r$ instances in each subset (tree leaves or rules).
+\item {\tt MinimalWeight = $r$} : \clus{} only generates clusters with at least $r$ instances in each subset (tree leaves or rules). This is a standard setting used for pre-pruning of trees and rules.
 \end{itemize}
 
 \section{Tree}
 
 \begin{itemize}
 	\item {\tt FTest = $r$} : sets the f-test stopping criterion for regression; a node will only be split if a statistical F-test indicates a significant (at level $r$) reduction of variance inside the subsets.
-	\item {\tt ConvertToRules = $y$} : If {\tt Yes},  \clus{} will convert the induced tree to a set of rules.
-	\item \texttt{Heuristic = $o$} : $o$ is a subset of \{\raggedright\texttt{Default, ReducedError, Gain, GainRatio, SSPD,\newline VarianceReduction, MEstimate, Morishita, DispersionAdt, DispersionMlt, RDispersionAdt, RDispersionMlt, GeneticDistance, SemiSupervised, VarianceReductionMissing}\}. Sets the heuristic function that is used for evaluating the splits when generating trees or rules.
-	
-	\comment{To be checked, references added!}
+	\item {\tt ConvertToRules = $o$} : $o$ is a subset of \texttt{\{No, Leaves, AllNodes\}}. \clus{} can convert a tree (or ensemble of trees) into a set of rules. The default setting is \texttt{No}, if set to \texttt{Leaves}, only tree leaves are converted to rules, if set to \texttt{AllNodes}, also the internal nodes of tree(s) are converted. This setting can be used for learning rule ensembles \cite{Aho2009}.
+	\item \texttt{Heuristic = $o$} : $o$ is a subset of \{\raggedright\texttt{Default, ReducedError, Gain, GainRatio, % SSPD,
+	VarianceReduction, MEstimate, Morishita, DispersionAdt, DispersionMlt, RDispersionAdt, RDispersionMlt%, GeneticDistance, SemiSupervised, VarianceReductionMissing
+	}\}. Sets the heuristic function that is used for evaluating the clusters (splits) when generating trees or rules. Please note that this setting is used for trees as well as rules.
+%	
 	\begin{itemize}
-		\item \texttt{Default}: default heuristic, if learning trees this is equal to \texttt{VarianceReduction}, if learning rules this setting is equal to \texttt{RDispersionMlt},
-		\item \texttt{ReducedError}: reduced error heuristic, can be used for trees,
-		\item \texttt{Gain}: information gain heuristic, can be used for classification trees,
-		\item \texttt{GainRatio}: information gain ratio heuristic, can be used for classification trees,
-		\item \texttt{SSPD}: sum of squared distances, can be used for regression trees,
-		\item \texttt{VarianceReduction}: variance reduction heuristic, can be used for trees,
-		\item \texttt{MEstimate}: $m$-estimate heuristic, can be used for classification trees,
-		\item \texttt{Morishita}: Morishita heuristic \cite{Sese2004} ?, can be used for trees,
-		\item \texttt{DispersionAdt}: additive dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules,
-		\item \texttt{DispersionMlt}: multiplicative dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules,
-		\item \texttt{RDispersionAdt}: additive relative dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules,
-		\item \texttt{RDispersionMlt}: multiplicative relative dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules, the default heuristic for learning predictive clustering rules,
-		\item \texttt{GeneticDistance}:
-		\item \texttt{SemiSupervised}:
-		\item \texttt{VarianceReductionMissing}:
+		\item \texttt{Default}: default heuristic, if learning trees this is equal to \texttt{VarianceReduction}, if learning rules this setting is equal to \texttt{RDispersionMlt}.
+		\item \texttt{ReducedError}: reduced error heuristic, can be used for trees.
+		\item \texttt{Gain}: information gain heuristic, can be used for classification trees.
+		\item \texttt{GainRatio}: information gain ratio heuristic \cite{Quinlan1986}, can be used for classification trees.
+		%\item \texttt{SSPD}: sum of squared distances, can be used for regression trees,
+		\item \texttt{VarianceReduction}: variance reduction heuristic, can be used for trees.
+		\item \texttt{MEstimate}: $m$-estimate heuristic \cite{CestnikBratko1991}, can be used for classification trees.
+		\item \texttt{Morishita}: Morishita heuristic \cite{Sese2004}, can be used for trees.% Is this correct?
+		\item \texttt{DispersionAdt}: additive dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules.
+		\item \texttt{DispersionMlt}: multiplicative dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules.
+		\item \texttt{RDispersionAdt}: additive relative dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules.
+		\item \texttt{RDispersionMlt}: multiplicative relative dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules, the default heuristic for learning predictive clustering rules.
+		%\item \texttt{GeneticDistance}:
+		%\item \texttt{SemiSupervised}:
+		%\item \texttt{VarianceReductionMissing}:
 	\end{itemize}
-	\item \texttt{PruningMethod = $o$} : $o$ is a subset of \{\raggedright\texttt{Default, None, C4.5, M5, M5Multi, ReducedErrorVSB, Garofalakis, GarofalakisVSB, CartVSB, CartMaxSize}\}. Sets the pruning method for trees.
+	\item \texttt{PruningMethod = $o$} : $o$ is a subset of \{\raggedright\texttt{Default, None, C4.5, M5, M5Multi, ReducedErrorVSB, Garofalakis, GarofalakisVSB, CartVSB, CartMaxSize}\}. Sets the post-pruning method for trees.
 	\begin{itemize}
-		\item \texttt{Default}: default pruning method for trees, if learning classification trees this is equal to \texttt{C4.5}, if learning regression trees this is equal to \texttt{M5}, \comment{Is this true?}
-		\item \texttt{None}: no post-pruning of learned rules is done,
+		\item \texttt{Default}: default pruning method for trees, if learning classification trees this is equal to \texttt{C4.5}, if learning regression trees this is equal to \texttt{M5}. % Is this true?
+		\item \texttt{None}: no post-pruning of learned trees is performed.
 		\item \texttt{C4.5}: pruning as in C4.5 \cite{Quinlan1993}, can be used for classification trees,
 		\item \texttt{M5}: pruning as in M5 \cite{Quinlan1992},	can be used for regression trees,
-		\item \texttt{M5Multi}: 			
+		\item \texttt{M5Multi}: M5 \cite{Quinlan1992} pruning generalized for multi-target regression trees	% Is this true?		
 		\item \texttt{ReducedErrorVSB}: 
-		\item \texttt{Garofalakis}: 
+		\item \texttt{Garofalakis}: pruning method proposed by Garofalakis et al. \cite{Garofalakis03:jrnl} used for constraint induction of trees. % Is this true?
 		\item \texttt{GarofalakisVSB}: 
-		\item \texttt{CartVSB}: 
-		\item \texttt{CartVSB}: 
+		\item \texttt{CartVSB}: pruning as in the CART book \cite{cart84}.
 		\item \texttt{CartMaxSize}: 
 	\end{itemize}
 \end{itemize}
@@ -480,17 +480,17 @@ Please note that the parameter for selecting rule learning heuristic in actually
 	\item \texttt{CoveringMethod = $o$} : $o$ is a subset of \{\texttt{Standard, % WeightedMultiplicative, WeightedAdditive, 
 	WeightedError, %Union, BeamRuleDefSet, 
 	RandomRuleSet, %StandardBootstrap, 
-	HeurOnly, RulesFromTree}\}, defines how the rules are constructed.
+	HeurOnly, RulesFromTree}\}, defines how the rules are generated.
 	\begin{itemize}
-		\item \texttt{Standard}: standard covering algorithm \cite{Michalski1969}, all examples covered by the new rule are removed from the current learning set, can be used for learning ordered rules,
+		\item \texttt{Standard}: standard covering algorithm \cite{Michalski1969}, all examples covered by the new rule are removed from the current learning set, can be used for learning ordered rules.
 		%\item \texttt{WeightedMultiplicative}: 
 		%\item \texttt{WeightedAdditive}: 
-		\item \texttt{WeightedError}: error weighted covering algorithm \cite{Zenko07} (Section 4.5), examples covered by the new rule are not removed from the current learning set, but their weight is decreased inversely proportional to the error the new rule makes when predicting their target values, can be used for learning unordered rules,
+		\item \texttt{WeightedError}: error weighted covering algorithm \cite{Zenko07} (Section 4.5), examples covered by the new rule are not removed from the current learning set, but their weight is decreased inversely proportional to the error the new rule makes when predicting their target values, can be used for learning unordered rules.
 		%\item \texttt{Union}: 
 		%\item \texttt{BeamRuleDefSet}: 
-		\item \texttt{RandomRuleSet}: rules are generated randomly, experimental,
+		\item \texttt{RandomRuleSet}: rules are generated randomly, (experimental feature).
 		%\item \texttt{StandardBootstrap}: 
-		\item \texttt{HeurOnly}: no covering is used, the heuristic function takes into account the already learned rules and the examples they cover, experimental
+		\item \texttt{HeurOnly}: no covering is used, the heuristic function takes into account the already learned rules and the examples they cover to focus on yet uncovered examples, (experimental feature).
 		\item \texttt{RulesFromTree}: rules are not learned with the covering approach, but a tree is learned first and then transcribed into a rule set.
 	\end{itemize}
 	\item \texttt{CoveringWeight = $r$} : weight controlling the amount by which weights of covered examples are reduced within the error weighted covering algorithm -- $\zeta$ in \cite{Zenko07} (Section 4.5, Equations 4.6 and 4.8), valid values are between 0 and 1, by default it is set to 0.1, can be used for unordered rules with error weighted covering method.
@@ -505,6 +505,12 @@ Please note that the parameter for selecting rule learning heuristic in actually
 %	\item \texttt{PredictionMethod = $o$} : $o$ is a subset of \{\texttt{DecisionList", "TotCoverageWeighted", %"CoverageWeighted", "AccuracyWeighted",
 %		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union", "GDOptimized", "GDOptimizedBinary"
 	\item {\tt ComputeDispersion = $y$}: If \texttt{Yes},  \clus{} will print some additional dispersion estimation for each rule and entire rule set.
+	\item \texttt{OptGDMaxIter = $n$}: $n$ defines a number of iterations that a gradient descent algorithm for
+optimizing rule weights makes, used for learning rule ensembles \cite{Aho2009}. The default value is 1000.
+	\item \texttt{OptGDMaxNbWeights = $n$}: $n$ defines a maximum number of of allowed nonzero weights for
+rules/linear terms, used for learning rule ensembles \cite{Aho2009}. If we have enough modified weights, only the nonzero ones are altered for the rest of the optimization. With this we can limit the size of the rule set. The default value of 0 means no rule set size limitation.
+	\item \texttt{OptGDGradTreshold = $r$} : the $\tau$ treshold value for the gradient descent (GD) algorithm used for learning rule ensembles \cite{Aho2009}. $\tau$ defines the limit by which gradients are changed during every iteration of the GD algorithm. If $\tau$=1 effect is similar to L1 regularization (Lasso) and $\tau$=0 the effect is similar to L2. If \texttt{OptGDMaxNbWeights} is used, setting $\tau$=1 is usually enough (it is the fastest). Possible values are from the [0,1] interval, the default is 1.
+	\item \texttt{OptGDNbOfTParameterTry = $n$}: $n$ defines how many different $\tau$ values are checked between \texttt{Opt\-GD\-Grad\-Treshold} and 1. We use a validation set to compute, which $\tau$ value gives the best accuracy. If \texttt{OptGDMaxNbWeights} is used, usually only a single value $\tau$=1 is enough (fastest).
 \end{itemize}
 
 
@@ -548,7 +554,7 @@ Please note that the parameter for selecting rule learning heuristic in actually
 \item {\tt Syntactic = $o$} : sets the file with syntactic constraints (e.g., a partial tree) \cite{Struyf06-KDID:proc}
 \item {\tt MaxSize = $o$} : sets the maximum size for Garofalakis pruning \cite{Garofalakis03:jrnl, Struyf06-KDID:proc}; $o$ can be a positive integer or {\tt Infinity}
 \item {\tt MaxError = $o$} : sets the maximum error for Garofalakis pruning; $o$ is a positive real or {\tt Infinity}
-\item {\tt MaxDepth = $o$} : $o$ is a positive integer or {\tt Infinity}. \clus{} will build trees with depth at most $o$.
+\item {\tt MaxDepth = $o$} : $o$ is a positive integer or {\tt Infinity}. \clus{} will build trees with depth at most $o$. In the context of rule ensemble learning \cite{Aho2009}, this sets the average maximum depth of trees that are then converted into rules and a value of 3 seems to work fine.
 \end{itemize}
 
 \section{Output}
@@ -664,6 +670,7 @@ EvalClasses = None                  % classes to evaluate
 \label{settings-hmc:fig}
 \end{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Command Line Parameters}
 \label{param:ch}
 
