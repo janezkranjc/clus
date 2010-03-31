@@ -338,12 +338,12 @@ public class ARFFFile {
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fname)));
 		ClusSchema schema = data.getSchema();
 		int nbAttr = schema.getNbAttributes();
-		// First print the header - names for attributes
-		for (int iColumn = 0; iColumn < nbAttr; iColumn++)
-		{
-			wrt.print(schema.getAttrType(iColumn).getName() + "\t");
-		}
-		wrt.print("\n"); // line feed
+//		// First print the header - names for attributes
+//		for (int iColumn = 0; iColumn < nbAttr; iColumn++)
+//		{
+//			wrt.print(schema.getAttrType(iColumn).getName() + "\t");
+//		}
+//		wrt.print("\n"); // line feed
 		// Learning/testing examples
 		for (int jRow = 0; jRow < data.getNbRows(); jRow++) {
 			DataTuple tuple = data.getTuple(jRow);
