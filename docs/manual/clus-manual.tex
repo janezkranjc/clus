@@ -55,7 +55,7 @@ This text is a user's manual for the open source machine learning system \clus{}
 % Should we avoid one (or two) sentence paragraphs?
 While most decision tree learners induce classification or regression trees, \clus{} generalizes this approach by learning trees that are interpreted as cluster hierarchies. We call such trees predictive clustering trees or PCTs. Depending on the learning task at hand, different goal criteria are to be optimized while creating the clusters, and different heuristics will be suitable to achieve this.
 
-Classification and regression trees are special cases of PCTs, and by choosing the right parameter settings \clus{} can closely mimic the behavior of tree learners such as CART \cite{Breiman84:other} or C4.5 \cite{Quinlan1993}.  However, its applicability goes well beyond classical classification or regression tasks: \clus{} has been successfully applied to many different tasks including multi-task learning (multi-target classification and regression), structured output learning, multi-label classification, hierarchical classification, and time series prediction. Next to these supervised learning tasks, PCTs are also applicable to semi-supervised learning, subgroup discovery, and clustering.
+Classification and regression trees are special cases of PCTs, and by choosing the right parameter settings \clus{} can closely mimic the behavior of tree learners such as CART \cite{Breiman1984} or C4.5 \cite{Quinlan1993}.  However, its applicability goes well beyond classical classification or regression tasks: \clus{} has been successfully applied to many different tasks including multi-task learning (multi-target classification and regression), structured output learning, multi-label classification, hierarchical classification, and time series prediction. Next to these supervised learning tasks, PCTs are also applicable to semi-supervised learning, subgroup discovery, and clustering.
 %
 In a similar way, predictive clustering rules (PCRs) generalize classification rule sets \cite{Clark91:proc} and also apply to the aforementioned learning tasks.
 
@@ -447,7 +447,7 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 		\item \texttt{GainRatio}: information gain ratio heuristic \cite{Quinlan1986}, can be used for classification trees.
 		%\item \texttt{SSPD}: sum of squared distances, can be used for regression trees,
 		\item \texttt{VarianceReduction}: variance reduction heuristic, can be used for trees.
-		\item \texttt{MEstimate}: $m$-estimate heuristic \cite{CestnikBratko1991}, can be used for classification trees.
+		\item \texttt{MEstimate}: $m$-estimate heuristic \cite{Cestnik1990}, can be used for classification trees.
 		\item \texttt{Morishita}: Morishita heuristic \cite{Sese2004}, can be used for trees.% Is this correct?
 		\item \texttt{DispersionAdt}: additive dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules.
 		\item \texttt{DispersionMlt}: multiplicative dispersion heuristic \cite{Zenko07} pages 37--38, can be used for rules.
@@ -467,7 +467,7 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 		\item \texttt{ReducedErrorVSB}: 
 		\item \texttt{Garofalakis}: pruning method proposed by Garofalakis et al. \cite{Garofalakis03:jrnl} used for constraint induction of trees. % Is this true?
 		\item \texttt{GarofalakisVSB}: 
-		\item \texttt{CartVSB}: pruning as in the CART book \cite{cart84}.
+		\item \texttt{CartVSB}: pruning as in the CART book \cite{Breiman1984}.
 		\item \texttt{CartMaxSize}: 
 	\end{itemize}
 \end{itemize}
@@ -480,7 +480,7 @@ Please note that the parameter for selecting rule learning heuristic in actually
 	\item \texttt{CoveringMethod = $o$} : $o$ is a subset of \{\texttt{Standard, % WeightedMultiplicative, WeightedAdditive, 
 	WeightedError, %Union, BeamRuleDefSet, 
 	RandomRuleSet, %StandardBootstrap, 
-	HeurOnly, RulesFromTree}\}, defines how the rules are generated.
+	HeurOnly, RulesFromTree}\}. Defines how the rules are generated.
 	\begin{itemize}
 		\item \texttt{Standard}: standard covering algorithm \cite{Michalski1969}, all examples covered by the new rule are removed from the current learning set, can be used for learning ordered rules.
 		%\item \texttt{WeightedMultiplicative}: 
@@ -494,7 +494,9 @@ Please note that the parameter for selecting rule learning heuristic in actually
 		\item \texttt{RulesFromTree}: rules are not learned with the covering approach, but a tree is learned first and then transcribed into a rule set.
 	\end{itemize}
 	\item \texttt{CoveringWeight = $r$} : weight controlling the amount by which weights of covered examples are reduced within the error weighted covering algorithm -- $\zeta$ in \cite{Zenko07} (Section 4.5, Equations 4.6 and 4.8), valid values are between 0 and 1, by default it is set to 0.1, can be used for unordered rules with error weighted covering method.
-	\item \texttt{RuleAddingMethod = $o$} : $o$ is a subset of \{\texttt{Always, IfBetter, IfBetterBeam}\}, defines how rules are added to the rule set.
+	\item \texttt{InstCoveringWeightThreshold = $r$} : instance weight threshold used in error weighted covering algorithm for learning unordered rules. When an instance's weight falls below this threshold, it is removed from the current learning set.  $\epsilon$ in \cite{Zenko07} (Section 4.5), valid values are between 0 and 1, by default it is set to 0.1.
+	\item \texttt{MaxRulesNb = $n$}: $n$ defines a maximum number of rules in a rule set. By default it is set to 1000.
+	\item \texttt{RuleAddingMethod = $o$} : $o$ is a subset of \{\texttt{Always, IfBetter, IfBetterBeam}\}. Defines how rules are added to the rule set.
 	\begin{itemize}
 		\item \texttt{Always}: each rule when constructed is always added to the rule set,
 		\item \texttt{IfBetter}: rule is only added to the rule set if the performance of the rule set with the new rule is better than without it,
@@ -505,38 +507,42 @@ Please note that the parameter for selecting rule learning heuristic in actually
 %	\item \texttt{PredictionMethod = $o$} : $o$ is a subset of \{\texttt{DecisionList", "TotCoverageWeighted", %"CoverageWeighted", "AccuracyWeighted",
 %		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union", "GDOptimized", "GDOptimizedBinary"
 	\item {\tt ComputeDispersion = $y$}: If \texttt{Yes},  \clus{} will print some additional dispersion estimation for each rule and entire rule set.
-	\item \texttt{OptGDMaxIter = $n$}: $n$ defines a number of iterations that a gradient descent algorithm for
+	\item \texttt{OptGDMaxIter = $n$} : $n$ defines a number of iterations that a gradient descent algorithm for
 optimizing rule weights makes, used for learning rule ensembles \cite{Aho2009}. The default value is 1000.
 	\item \texttt{OptGDMaxNbWeights = $n$}: $n$ defines a maximum number of of allowed nonzero weights for
 rules/linear terms, used for learning rule ensembles \cite{Aho2009}. If we have enough modified weights, only the nonzero ones are altered for the rest of the optimization. With this we can limit the size of the rule set. The default value of 0 means no rule set size limitation.
 	\item \texttt{OptGDGradTreshold = $r$} : the $\tau$ treshold value for the gradient descent (GD) algorithm used for learning rule ensembles \cite{Aho2009}. $\tau$ defines the limit by which gradients are changed during every iteration of the GD algorithm. If $\tau$=1 effect is similar to L1 regularization (Lasso) and $\tau$=0 the effect is similar to L2. If \texttt{OptGDMaxNbWeights} is used, setting $\tau$=1 is usually enough (it is the fastest). Possible values are from the [0,1] interval, the default is 1.
-	\item \texttt{OptGDNbOfTParameterTry = $n$}: $n$ defines how many different $\tau$ values are checked between \texttt{Opt\-GD\-Grad\-Treshold} and 1. We use a validation set to compute, which $\tau$ value gives the best accuracy. If \texttt{OptGDMaxNbWeights} is used, usually only a single value $\tau$=1 is enough (fastest).
+	\item \texttt{OptGDNbOfTParameterTry = $n$} : $n$ defines how many different $\tau$ values are checked between \texttt{Opt\-GD\-Grad\-Treshold} and 1. We use a validation set to compute, which $\tau$ value gives the best accuracy. If \texttt{OptGDMaxNbWeights} is used, usually only a single value $\tau$=1 is enough (fastest).
+	\item \texttt{OptAddLinearTerms = $o$} : $o$ is a subset of \{\texttt{No, Yes, YesSaveMemory}\}. Defines whether to add descriptive attributes as linear terms to the rule set. For some data sets, this increases the accuracy. Especially for multi-target data sets it also slows the algorithm down. For these, use value \texttt{YesSaveMemory}, otherwise it can take a lot of memory. For single target data sets \texttt{Yes} is faster. Used for learning rule ensembles \cite{Aho2009}.
+	\item \texttt{OptLinearTermsTruncate = $y$} : Used in conjunction with the above \texttt{OptAddLinearTerms} setting. If \texttt{Yes}, the linear terms are truncated so that they do not predict values greater or smaller than found in the training set. This adds more resistance to outliers. The default setting is \texttt{Yes}. Used for learning rule ensembles \cite{Aho2009}.
+	\item \texttt{OptNormalizeLinearTerms = $o$} : $o$ is a subset of \{\texttt{No, Yes, YesAndConvert}\}. Defines whether the
+linear terms are scaled so that each descriptive attribute has a similar effect. The default setting is \texttt{Yes} and it should always be used. However, if you want to transform the rule ensemble so that linear terms are of "standard type", you may use \texttt{YesAndConvert} setting. This moves the effect of normalizations to weights and default prediction after optimization. Used for learning rule ensembles \cite{Aho2009}.
 \end{itemize}
 
 
 \section{Ensembles}
 \begin{itemize}
-	\item \texttt{Iterations = $n$}: $n$ defines a number of base-level models (trees) in the ensemble, by default it is set to 10.
+	\item \texttt{Iterations = $n$} : $n$ defines the number of base-level models (trees) in the ensemble, by default it is set to 10.
 	\item \texttt{EnsembleMethod = $o$} : $o$ is a subset of \{\texttt{Bagging, RForest, RSubspaces, BagSubspaces}\} defines the ensemble method.
 	\begin{itemize}
-		\item \texttt{Bagging}: Bagging \cite{Breiman}
-		\item \texttt{RForest}: Random forest \cite{Breiman}
-		\item \texttt{RSubspaces}: Random Subspaces \cite{Tin Kam Ho}
-		\item \texttt{BagSubspaces}: Bagging of subspaces \cite{Panov and Dzeroski, IDA 2007}
+		\item \texttt{Bagging}: Bagging \cite{Breiman1996}.
+		\item \texttt{RForest}: Random forest \cite{Breiman2001}.
+		\item \texttt{RSubspaces}: Random Subspaces \cite{Ho1998}.
+		\item \texttt{BagSubspaces}: Bagging of subspaces \cite{PanovDzeroski2007}.
 	\end{itemize}
 	\item \texttt{VotingType = $o$} : $o$ is a subset of \{\texttt{Majority, ProbabilityDistribution}\} selects the voting scheme for combining predictions of base-level models.
 	\begin{itemize}
-		\item \texttt{Majority}: each base-level model casts one vote, for regression this is equal to averageing
-		\item \texttt{ProbabilityDistribution}: each base-level model casts probability distributions for each target attribute, does not work for regression
+		\item \texttt{Majority}: each base-level model casts one vote, for regression this is equal to averageing.
+		\item \texttt{ProbabilityDistribution}: each base-level model casts probability distributions for each target attribute, does not work for regression.
 	\end{itemize}
-	Kohavi et al \cite{Kohavi} recommend the latter option.
-	\item \texttt{SelectRandomSubspaces = $n$}: $n$ defines size of feature subset for random forests, random subspaces and bagging of subspaces. Default setting is 0, which means floor(log with basis 2 of the number of descriptive attributes +1) as recommended by Breiman \cite{, Random Forest, Machine Learning Journal}
-	\item {\tt PrintAllModels = $y$}: If \texttt{Yes}, \clus\ will print all base-level models of an ensemble in the output file. The default setting is \texttt{No}.
+	The default value is \texttt{Majority}, Bauer and Kohavi \cite{BauerKohavi1999} recommend \texttt{ProbabilityDistribution}.
+	\item \texttt{SelectRandomSubspaces = $n$} : $n$ defines size of feature subset for random forests, random subspaces and bagging of subspaces. Default setting is 0, which means $\mathrm{floor}(\log_2(\mathrm{number\ of\ descriptive\ attributes} +1))$ as recommended by Breiman \cite{Breiman2001}.
+	\item {\tt PrintAllModels = $y$} : If \texttt{Yes}, \clus\ will print all base-level models of an ensemble in the output file. The default setting is \texttt{No}.
 	\item {\tt PrintAllModelFiles = $y$}: If \texttt{Yes}, \clus\ will save all base-level models of an ensemble in the model file. The default setting is \texttt{No}, which prevents from creating very large model files.
-	\item {\tt Optimize = $y$}: If \texttt{Yes}, \clus\ will optimize memory usage during learning. The default setting is \texttt{No}.
-	\item {\tt OOBestimate = $y$}: If \texttt{Yes}, out-of-bag estimate of the performance of the ensemble will be done. The default setting is \texttt{No}.
-	\item {\tt FeatureRanking = $y$}: If \texttt{Yes}, feature ranking via random forests will be performed. The default setting is \texttt{No}.
-	\item {\tt EnsembleRandomDepth = $y$}: If \texttt{Yes}, different random depth for each base-level model is selected. Used, e.g., in rule ensembles. The \texttt{MaxDepth} setting from \texttt{[Tree]} section is used as average. The default setting is \texttt{No}.
+	\item {\tt Optimize = $y$} : If \texttt{Yes}, \clus\ will optimize memory usage during learning. The default setting is \texttt{No}.
+	\item {\tt OOBestimate = $y$} : If \texttt{Yes}, out-of-bag estimate of the performance of the ensemble will be done. The default setting is \texttt{No}.
+	\item {\tt FeatureRanking = $y$} : If \texttt{Yes}, feature ranking via random forests will be performed. The default setting is \texttt{No}.
+	\item {\tt EnsembleRandomDepth = $y$} : If \texttt{Yes}, different random depth for each base-level model is selected. Used, e.g., in rule ensembles. The \texttt{MaxDepth} setting from \texttt{[Tree]} section is used as average. The default setting is \texttt{No}.
 %BagSelection = -1
 	% 'Quasi' parallel implementation for ensembles
 	% its value is an integer ranging from -1 to the number of trees in the ensemble
@@ -551,29 +557,29 @@ rules/linear terms, used for learning rule ensembles \cite{Aho2009}. If we have 
 \section{Constraints}
 
 \begin{itemize}
-\item {\tt Syntactic = $o$} : sets the file with syntactic constraints (e.g., a partial tree) \cite{Struyf06-KDID:proc}
-\item {\tt MaxSize = $o$} : sets the maximum size for Garofalakis pruning \cite{Garofalakis03:jrnl, Struyf06-KDID:proc}; $o$ can be a positive integer or {\tt Infinity}
-\item {\tt MaxError = $o$} : sets the maximum error for Garofalakis pruning; $o$ is a positive real or {\tt Infinity}
+\item {\tt Syntactic = $o$} : sets the file with syntactic constraints (e.g., a partial tree) \cite{Struyf06-KDID:proc}.
+\item {\tt MaxSize = $o$} : sets the maximum size for Garofalakis pruning \cite{Garofalakis03:jrnl, Struyf06-KDID:proc}; $o$ can be a positive integer or {\tt Infinity}.
+\item {\tt MaxError = $o$} : sets the maximum error for Garofalakis pruning; $o$ is a positive real or {\tt Infinity}.
 \item {\tt MaxDepth = $o$} : $o$ is a positive integer or {\tt Infinity}. \clus{} will build trees with depth at most $o$. In the context of rule ensemble learning \cite{Aho2009}, this sets the average maximum depth of trees that are then converted into rules and a value of 3 seems to work fine.
 \end{itemize}
 
 \section{Output}
 
 \begin{itemize}
-\item {\tt AllFoldModels = $y$} : if set to {\tt Yes}, \clus{} will output the model built in each fold of a cross-validation
-\item {\tt AllFoldErrors = $y$} : if set to {\tt Yes}, \clus{} will output the test set error (and other evaluation measures) for each fold
-\item {\tt TrainErrors = $y$} : if set to {\tt Yes}, \clus{} will output the training set error (and other evaluation measures)
-\item {\tt UnknownFrequency = $y$} : if set to {\tt Yes}, \clus{} will show in each node of the tree the proportion of instances that had a missing value for the test in that node
-\item {\tt BranchFrequency = $y$} : if set to {\tt Yes}, \clus{} will show in each node of the tree, for each possible outcome of the test in that node, the proportion of instances that had that outcome
+\item {\tt AllFoldModels = $y$} : if set to {\tt Yes}, \clus{} will output the model built in each fold of a cross-validation.
+\item {\tt AllFoldErrors = $y$} : if set to {\tt Yes}, \clus{} will output the test set error (and other evaluation measures) for each fold.
+\item {\tt TrainErrors = $y$} : if set to {\tt Yes}, \clus{} will output the training set error (and other evaluation measures).
+\item {\tt UnknownFrequency = $y$} : if set to {\tt Yes}, \clus{} will show in each node of the tree the proportion of instances that had a missing value for the test in that node.
+\item {\tt BranchFrequency = $y$} : if set to {\tt Yes}, \clus{} will show in each node of the tree, for each possible outcome of the test in that node, the proportion of instances that had that outcome.
 \item {\tt WritePredictions = $o$} : $o$ is a subset of \{Train,Test\}. If $o$ includes ``Train'', then the prediction for each training instance will be written to an ARFF output file. The file is named {\tt {\em filename}.train.{\em i}.pred.arff} with $i$ the iteration. In a single run, $i = 1$. In a 10 fold cross-validation, $i$ will vary from 1 to 10. If $o$ includes ``Test'', then the predictions for each test instance will be written to disk. The file is named {\tt {\em filename}.test.pred.arff}.
 \end{itemize}
 
 \section{Beam}
 
 \begin{itemize}
-\item {\tt SizePenalty = $o$} : sets the size penalty parameter used in the beam heuristic \cite{Kocev07a:proc}
-\item {\tt BeamWidth = $n$} : sets the width of the beam used in the beam search performed by \clus{} \cite{Kocev07a:proc}
-\item {\tt MaxSize = $o$} : sets the maximum size constraint \cite{Kocev07a:proc}; $o$ is a positive integer or {\tt Infinity}
+\item {\tt SizePenalty = $o$} : sets the size penalty parameter used in the beam heuristic \cite{Kocev07a:proc}.
+\item {\tt BeamWidth = $n$} : sets the width of the beam used in the beam search performed by \clus{} \cite{Kocev07a:proc}.
+\item {\tt MaxSize = $o$} : sets the maximum size constraint \cite{Kocev07a:proc}; $o$ is a positive integer or {\tt Infinity}.
 \end{itemize}
 
 \begin{figure}[tb]
