@@ -1156,7 +1156,6 @@ public class Clus implements CMDLineArgsProvider {
 			ClusSummary summ) throws IOException, ClusException {
 		// ClusOutput output = new ClusOutput(m_Sett.getAppName() + ".out",
 		// m_Schema, m_Sett);
-		
 		ClusOutput output;
 		if (ClusEnsembleInduce.isOptimized()
 				&& (m_Sett.getNbBaggingSets().getVectorLength() > 1) && (m_Sett.getBagSelection().getIntVectorSorted()[0] < 1))
@@ -1177,6 +1176,8 @@ public class Clus implements CMDLineArgsProvider {
 		 * (RowData)cr.getTrainingSet(), true);
 		 * ARFFFile.writeFRSData("train-all.pl", (RowData)cr.getTrainingSet(),
 		 * true);
+		 ARFFFile.writeRData("trainDataForR.all.data",(RowData)cr.getTrainingSet()); 
+		 System.err.println("CHANGING DATA TO R FORMAT, REMOVE THIS CODE");
 		 */
 		// Induce model
 		induce(cr, clss);
@@ -1322,14 +1323,14 @@ public class Clus implements CMDLineArgsProvider {
 		 * ARFFFile.writeOrangeData("test-"+fold+".tab", cr.getTestSet());
 		 * ARFFFile.writeOrangeData("train-"+fold+".tab",
 		 * (RowData)cr.getTrainingSet());
-		 *
-		 * ARFFFile.writeRData("trainDataForR."+ fold + ".data",
-		 * (RowData)cr.getTrainingSet()); ARFFFile.writeRData("testDataForR."+
-		 * fold + ".data", (RowData)cr.getTestSet());
-		 * ARFFFile.writeRDataNominalLabels("nominalLabels.data",
-		 * (RowData)cr.getTrainingSet());
-		 * System.err.println("CHANGING DATA TO R FORMAT, REMOVE THIS CODE");
 		 */
+//		 ARFFFile.writeRData("trainDataForR."+ fold + ".data",
+//		 (RowData)cr.getTrainingSet()); ARFFFile.writeRData("testDataForR."+
+//		 fold + ".data", (RowData)cr.getTestSet());
+//		 ARFFFile.writeRDataNominalLabels("nominalLabels.data",
+//		 (RowData)cr.getTrainingSet());
+//		 System.err.println("CHANGING DATA TO R FORMAT, REMOVE THIS CODE");
+		 
 
 		// Induce tree
 		induce(cr, clss);
