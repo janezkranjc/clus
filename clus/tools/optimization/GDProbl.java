@@ -665,10 +665,10 @@ public class GDProbl extends OptProbl {
 				firstLinearTermReached = true;
 
 			boolean secondLinearTermReached = false;
+			double stepAmount = m_stepSize*oldGradsOfChanged[iiAffecting];
 			// Index over the gradient we are changing (ALL GRADIENTS)
 			for (int iWeightChange = 0; iWeightChange < nbOfGrads; iWeightChange++) {
-				double cov = getWeightCov(iChangedWeights[iiAffecting],iWeightChange);
-				m_gradients[iWeightChange] -= cov*m_stepSize*oldGradsOfChanged[iiAffecting];
+				m_gradients[iWeightChange] -= getWeightCov(iChangedWeights[iiAffecting],iWeightChange)*stepAmount;
 				
 				if (firstLinearTermReached){
 					if (secondLinearTermReached) {		
