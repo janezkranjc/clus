@@ -10,7 +10,7 @@
 \ifpdf
 \pdfinfo{
   /Title    (Clus: User's Manual)
-  /Author   (Jan Struyf, Bernard Zenko, Hendrik Blockeel, Saso Dzeroski)
+  /Author   (Jan Struyf, Bernard Zenko, Hendrik Blockeel, Celine Vens, Saso Dzeroski)
 }
 \usepackage[pdftex,colorlinks=true,pdfstartview=FitV,linkcolor=black,citecolor=black,urlcolor=black]{hyperref}
 \else
@@ -79,7 +79,7 @@ A longer list of publications describing different aspects and applications of \
 (\url{www.cs.kuleuven.be/~dtai/clus/publications.html}).
 
 %%%%%%%%%%%%%%%%%%
-\chapter{Tutorial}
+\chapter{Getting Started}
 
 \section{Installing and Running \clus}
 \label{sec:run}
@@ -225,11 +225,35 @@ outlook = sunny
 
 \clus{} uses (at least) two input files and these are named {\tt {\em filename}.s} and {\tt {\em filename}.arff}, with {\tt {\em filename}} a name chosen by the user.  The file {\tt {\em filename}.s} contains the parameter settings for \clus{}. The file {\tt {\em filename}.arff} contains the training data to be read. The format of the data file is Weka's ARFF format\footnote{\url{http://weka.wikispaces.com/ARFF}}. The results of a \clus{} run are put in an output file {\tt {\em filename}.out}. Figure~\ref{fig:iofiles} gives an overview of the input and output files supported by \clus{}. The format of the data files is described in detail in Chapter~\ref{ch:data}, the format of the settings file is discussed in Chapter~\ref{ch:sett}, and the output files are covered in Chapter~\ref{ch:output}. Optionally, \clus\ can also generate a detailed output of the cross-validation (\texttt{weather.xval}) and model predictions in ARFF format.
 
-In the \emph{Weather} example of Section~\ref{sec:run}, \clus{} will read its settings from the input file \texttt{weather.s} (shown in Figure~\ref{weathers:fig}) and its input data from the file \texttt{weather.arff} (Figure~\ref{weatherarff:fig}). It will then construct (with these settings) a PCT, which it will write to the output file \texttt{weather.out} (Figure~\ref{weatherout:fig}).
+\section{A Step-by-step Example}
 
-The \emph{Weather} example is a small multi-target or multi-task learning problem \cite{Caruana97:jrnl} in which the goal is to predict the target attributes \emph{temperature} and \emph{humidity} from the input attributes \emph{outlook} and \emph{windy.} The details about the learning task are specified in the settings file (Figure~\ref{weathers:fig}). Our example includes values for four parameters. The parameters under the heading \texttt{[Attributes]} specify how the attributes are to be used. Here, the first two attributes (attributes 1-2) are to be used in the cluster descriptions, that is, in the tests that appear in the PCT's nodes. The last two attributes (attributes 3-4) are to be predicted. The setting \texttt{Clustering = 3-4} indicates that the clustering heuristic, which is used to construct the PCT, should be computed based on the target attributes only. Finally, \texttt{Heuristic = VarianceReduction} specifies that the heuristic is variance reduction. Chapter~\ref{ch:sett} provides a detailed description of each setting supported by \clus{}.
+\clus{} come with a number of example datasets.  In this section we briefly have a look at the {\em Weather} dataset, and how it can be processed by \clus{}.  We use Unix notation for paths to filenames; in Windows notation the slashes become backslashes (see also previous section).
 
-\clus{} writes the resulting PCT together with a number of statistics such as the training set error and the test set error (if a test set has been provided) to its output file (Figure~\ref{weatherout:fig}).  In this example, the resulting tree is a multi-target tree: each leaf predicts a vector of which the first component is the predicted \emph{temperature} and the second component the predicted \emph{humidity.} Such a multi-target tree has several advantages over constructing a separate regression tree for each target variable. The most obvious one is the number of models: the user only has to interpret one tree instead of at one tree for each target. A second advantage is that the tree makes features that are relevant to all target variables explicit. For example, the first leaf of the tree in Figure~\ref{weatherout:fig} shows that \texttt{outlook = sunny} implies both a high temperature and a low humidity. Finally, due to the concept of inductive transfer, multi-target PCTs may also be more accurate than regression trees. More information about multi-target trees can be found in the following publications: \cite{Blockeel1998icml, Blockeel99:proc, Struyf06-KDID:proc, Piccart08-DS-:proc}.
+Open the directory {\tt Clus/data/weather}, which contains the {\em Weather} dataset.
+
+First inspect the file {\tt weather.arff}.  Its contents is also shown in Figure~\ref{weatherarff:fig}.
+This file contains the input data that \clus{} will learn from.  It is in the ARFF format: first, the name of the table is given; then, the attributes and their domains are listed; finally, the table itself is listed.
+
+Next, inspect the file {\tt weather.s}.  This file is also shown in Figure~\ref{weathers:fig}.  
+It is the {\em settings} file, the file where \clus{} will find information about the task it should perform, values for its parameters, and other information that guides it behavior.
+
+%In the \emph{Weather} example of Section~\ref{sec:run}, \clus{} will read its settings from the input file \texttt{weather.s} (shown in Figure~\ref{weathers:fig}) and its input data from the file \texttt{weather.arff} (Figure~\ref{weatherarff:fig}). It will then construct (with these settings) a PCT, which it will write to the output file \texttt{weather.out} (Figure~\ref{weatherout:fig}).
+
+The \emph{Weather} example is a small multi-target or multi-task learning problem \cite{Caruana97:jrnl}, in which the goal is to predict the target attributes \emph{temperature} and \emph{humidity} from the input attributes \emph{outlook} and \emph{windy.}  This kind of information is what goes in the settings file.
+% Our example includes values for four parameters. 
+The parameters under the heading \texttt{[Attributes]} specify the role of the different attributes. In our learning problem, the first two attributes (attributes 1-2: outlook and windy) are {\em descriptive} attributes: they are to be used in the cluster descriptions, that is, in the tests that appear in the predictive clustering tree's nodes (or, in rule learning, the conditions that appear in predictive clustering rules). The last two attributes (attributes 3-4) are so-called {\em target} attributes: these are to be predicted from the descriptive attributes. The setting \texttt{Clustering = 3-4} indicates that the clustering heuristic, which is used to construct the tree, should be computed based on the target attributes only.  (That is, \clus{}Êshould try to produce clusters that are coherent with respect to the target attributes, not necessarily with respect to all attributes.)
+Finally, in the {\tt Tree} section of the settings file, which contains parameters specific to tree learning, \texttt{Heuristic = VarianceReduction} specifies that, among different clustering heuristics that are available, the heuristic that should be used for this run is variance reduction. 
+
+These are only a few possible settings.  Chapter~\ref{ch:sett} provides a detailed description of each setting supported by \clus{}.  
+
+Now that we have some idea of what the settings file and data file look like, let's run \clus{} on these data and see what the result is.  From the Unix command line, type, in the directory where the weather files are:
+\begin{verbatim}
+java -jar ../../Clus.jar weather.s
+\end{verbatim}
+
+\clus{} now reads the data and settings files, performs it computations, and writes the resulting predictive clustering tree, together with a number of statistics such as the training set error and the test set error (if a test set has been provided), to an output file, {\tt weather.out}.  Open that file and inspect its contents; it should look like the file shown in Figure~\ref{weatherout:fig}.  The file contains information about the \clus{} run, including some statistics, and of course also the final result: the predictive clustering tree that we wanted to learn.  By default, \clus{} shows both an ``original model'' (the tree before pruning it) and a ``pruned model'', which is a simplified version of the original one.
+
+In this example, the resulting tree is a multi-target tree: each leaf predicts a vector of which the first component is the predicted \emph{temperature} (attribute 3) and the second component the predicted \emph{humidity} (attribute 4).  A feature that distinguished \clus{}Êfrom other decision tree learners is exactly the fact that \clus{}Êcan produce this kind of trees.  Constructing a multi-target tree has several advantages over constructing a separate regression tree for each target variable. The most obvious one is the number of models: the user only has to interpret one tree instead of at one tree for each target. A second advantage is that the tree makes features that are relevant to all target variables explicit. For example, the first leaf of the tree in Figure~\ref{weatherout:fig} shows that \texttt{outlook = sunny} implies both a high temperature and a low humidity. Finally, due to so-called inductive transfer, multi-target PCTs may also be more accurate than regression trees. More information about multi-target trees can be found in the following publications: \cite{Blockeel1998icml, Blockeel99:proc, Struyf06-KDID:proc, Piccart08-DS:proc}.
 
 % \chapter{Learning Algorithms}
 % 
@@ -266,7 +290,7 @@ Like many machine learning systems, \clus\ learns from tabular data. These data 
 
 In the data table, each row represents an instance, and each column represents an attribute of the instances.  Each attribute has a name and a domain (the domain is the set of values it can take). In the ARFF format, the names and domains of the attributes are declared up front, before the data are given. The syntax is not case sensitive.
 %
-An ARFF file follows the following format:
+An ARFF file has the following format:
 
 \begin{tabbing}
 {\tt \% all comment lines are optional, start with \%, and can occur }\\
@@ -294,13 +318,13 @@ value$_1$, value$_2$, ... , value$_n$\\
 %
 The first option, \texttt{numeric} (\texttt{real} and \texttt{integer} are also legal and are treated in the same way), indicates that the domain is the set of real numbers. The second type of domain is called a discrete domain.  Discrete domains are defined by enumerating the values they contain. These values are nominal. The third domain type is \texttt{string} and can be used for attributes containing arbitrary textual values.
 
-The fourth type of domain is called \texttt{hierarchical} (multi-label). It implies two things: first, the attribute can take as a value a \emph{set of values} from the domain, rather than just a single value; second, the domain has a hierarchical structure.  The elements of the domain are typically denoted $v_1/v_2/.../v_i$ with $i \leq d$ where $d$ is the depth of the hierarchy. This type of domain is useful in the context of hierarchical multi-label classification and is not part of the standard ARFF syntax.  
+The fourth type of domain is called \texttt{hierarchical} (multi-label). It implies two things: first, the attribute can take as a value a \emph{set of values} from the domain, rather than just a single value; second, the domain has a hierarchical structure.  The elements of the domain are typically denoted $v_1/v_2/.../v_i$, with $i \leq d$, where $d$ is the depth of the hierarchy.  A set of such elements is denoted by just listing them, separated by \verb^@^.  This type of domain is useful in the context of hierarchical multi-label classification and is not part of the standard ARFF syntax.  
 
-The values in a	 row occur in the same order as the attributes: the $i$'th value is assigned to the $i$'th attribute.  Values in the rows must be real values if the domain of the corresponding attribute is continuous, or a member of the specified set of values if the domain is discrete.  For hierarchical multi-label attributes, a set of values from the domain can be given; this set is written by listing its elements separated by \verb^@^.
+The last type of domain is \texttt{timeseries}. A time series is a fixed length series of numeric data where individual numbers are written in brackets and separated with commas. All time series of a given attribute must be of the same length. This domain type, too, is not part of the standard ARFF syntax.
 
-The last type of domain is \texttt{timeseries}. A time series is a fixed length series of numeric data where individual numbers are written in brackets and separated with commas. All time series of a given attribute must be of the same length. This domain type is also not part of the standard ARFF syntax.
+The values in a	 row occur in the same order as the attributes: the $i$'th value is assigned to the $i$'th attribute.  The values must, obviously, be elements of the specified domain.  
 
-\clus\ also supports sparse ARFF format where only non-zero data values are stored. The header of a sparse ARFF file is the same, but each data instance is written in curly braces and each attribute value is written as an attribute number (starting from zero) and the value separated by space; values of different attributes are separated by commas.
+\clus\ also supports the sparse ARFF format, where only non-zero data values are stored. The header of a sparse ARFF file is the same, but each data instance is written in curly braces and each attribute value is written as an attribute number (starting from zero) and the value separated by space; values of different attributes are separated by commas.
 
 Figure~\ref{weatherarff:fig} shows an example of an ARFF file. An example of a table containing hierarchical multi-label attributes is shown in Figure~\ref{arffhmc:fig}, an example ARFF file with a time series attribute is shown in Figure~\ref{arfftimeser:fig}, and an example sparse ARFF file is shown in Figure~\ref{arffsparse:fig}.
 
@@ -474,9 +498,10 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 
 \section{Rules}
 
-Please note that the parameter for selecting rule learning heuristic in actually located in the \texttt{[Tree]} section!
+%Please note that the parameter for selecting rule learning heuristic in actually located in the \texttt{[Tree]} section!
 
 \begin{itemize}
+	\item \texttt{Heuristic = $o$} : determines the heuristic for rule learning; see the Tree section for details.
 	\item \texttt{CoveringMethod = $o$} : $o$ is a subset of \{\texttt{Standard, % WeightedMultiplicative, WeightedAdditive, 
 	WeightedError, %Union, BeamRuleDefSet, 
 	RandomRuleSet, %StandardBootstrap, 
@@ -651,11 +676,10 @@ A number of settings are relevant only when using \clus{} for Hierarchical Multi
   \end{itemize}
 \item {\tt ClassificationThreshold = $o$} : The original tree constructed by \clus{} contains a vector of predicted probabilities (one for each class) in each leaf. Such a probabilistic prediction can be converted into a set of labels by applying a threshold $t$: all labels that are predicted with probability $\geq t$ are in the predicted set.  $o$ can be a list of thresholds, e.g., [0.5, 0.75, 0.80, 0.90, 0.95]. \clus{} will output for each value in the set a tree in which the predicted label sets are constructed with this particular threshold. So, in the example, the output file will contain 5 trees corresponding to the thresholds 0.5, 0.75, 0.80, 0.90 and 0.95.
 
-\item {\tt RecallValues = $o$} : $o$ is a list of recall values, e.g., [0.1, 0.2, 0.3]. For each value, \clus{} will output the average of the precisions over all class-wise precision-recall curves that correspond to the particular recall value in the output file.
+\item {\tt RecallValues = $v$} : $v$ is a list of recall values, e.g., [0.1, 0.2, 0.3]. For each value, \clus{} will output the average of the precisions over all class-wise precision-recall curves that correspond to the particular recall value in the output file.
 \item {\tt EvalClasses = $o$} : If $o$ is {\tt None}, \clus{} computes average error measures across all classes in the class  hierarchy. If $o$ is a list of classes, then the error measures are only computed with regard to the classes in this list.
 \end{itemize}
-
-Figure~\ref{settings-hmc:fig} summarizes these briefly.
+Figure~\ref{settings-hmc:fig} summarizes these settings briefly.
 
 \begin{figure}[tb]
 \hrule\vspace{1em}
@@ -693,7 +717,7 @@ EvalClasses = None                  % classes to evaluate
 
 \item {\tt -beam} : construct a tree using beam search \cite{Kocev07a:proc}.
 
-\item {\tt -sit} : run Empirical Asymmetric Selective Transfer \cite{Piccart08-DS-:proc}.
+\item {\tt -sit} : run Empirical Asymmetric Selective Transfer \cite{Piccart08-DS:proc}.
 
 \item {\tt -silent} : run \clus{} with reduced screen output.
 
@@ -1093,7 +1117,7 @@ PrintModelAndExamples = true
 \begin{verbatim}
 [Phylogeny]
 Sequence = DNA
-OptimizationCriterion = MinBranchLengths
+OptimizationCriterion = MinTotBranchLength
 DistanceMatrix = mydistancematrix
 DistanceMeasure = JC
 \end{verbatim}
@@ -1104,13 +1128,13 @@ DistanceMeasure = JC
 
 \begin{itemize}
 \item {\tt Sequence = $o$} : defines which type of sequences is used. Possible values for $o$ are {\tt DNA}, {\tt Protein}, or {\tt Any}. The latter can be used in case a different alphabet than nucleotides or amino acids is used. The default value for $o$ is {\tt DNA}.
-\item {\tt OptimizationCriterion = $o$} : defines which criterion is optimized in the phylogentic tree heuristic. Possible values for $o$ are {\tt MinTotBranchLength}, for minimizing the total branch length of the tree, and {\tt MaxAvgPWDistance}, for maximizing the average pairwise distance between two subclusters (i.e., as done in the PTDC algorithm \cite{Arslan07:proc}). The default value for $o$ is {\tt MinTotBranchLength}.
-\item {\tt DistanceMatrix = $s$} : $s$ is the name of the optional pairwise distance matrix file. This file has to be formatted in the same way as in the Phylip software package \cite{Phylip3.6-08:misc}, i.e., the first line contains the number of sequences, and then for each sequence there is a line starting with its identifier and listing the pairwise distances to all the other sequences. See the example in the file \emph{mydistancematrix}. The rows in the distance matrix need to have the same ordering as the rows in the ARFF file.
+\item {\tt OptimizationCriterion = $o$} : defines which criterion is optimized in the phylogenetic tree heuristic. Possible values for $o$ are {\tt MinTotBranchLength}, for minimizing the total branch length of the tree, and {\tt MaxAvgPWDistance}, for maximizing the average pairwise distance between two subclusters (i.e., as done in the PTDC algorithm \cite{Arslan07:proc}). The default value for $o$ is {\tt MinTotBranchLength}.
+\item {\tt DistanceMatrix = $s$} : $s$ is the name of the optional pairwise distance matrix file. This file has to be formatted in the same way as in the Phylip software package \cite{Phylip3.6-08:misc}, i.e., the first line contains the number of sequences, and then for each sequence there is a line starting with its identifier and listing the pairwise distances to all the other sequences. See the example in the file \tt{mydistancematrix}. The rows in the distance matrix need to have the same ordering as the rows in the ARFF file.
 \item {\tt DistanceMeasure = $o$} : defines which genetic distance is used between pairs of sequences, in the case no distance matrix is given. Possible values for $o$ are {\tt Edit} for edit distance, {\tt PDist} for p-distance, i.e., the same as edit distance, with positions with gaps or missing values discarded, {\tt JC} for Jukes-Cantor distance, {\tt Kimura} for Kimura distance, and {\tt AminoKimura} for Kimura distance between amino acid sequences. See the Phylip documentation \cite{Phylip3.6-08:misc} for details.
 \end{itemize}
 
 \section{Output Files}
-De \emph{filename.out} file returned by \clusphy{} can be postprocessed by the \emph{postprocess\_tree.pl} perl script in the {\tt data/phylo/} directory. This script returns two files: \emph{filename.clus-phy\_tree}, which contains two tree representations (one with just the topology, and one with all mutations listed), and \emph{filename.clus-phy\_newick}, which contains the tree in the so-called Newick format, where clusters are represented by pairs of parentheses.
+The \emph{filename.out} file returned by \clusphy{} can be postprocessed by the \emph{postprocess\_tree.pl} perl script in the {\tt data/phylo/} directory. This script returns two files: \emph{filename.clus-phy\_tree}, which contains two tree representations (one with just the topology, and one with all mutations listed), and \emph{filename.clus-phy\_newick}, which contains the tree in the so-called Newick format, where clusters are represented by pairs of parentheses.
 
 
 \bibliographystyle{plain}
