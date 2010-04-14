@@ -928,10 +928,7 @@ public class Settings implements Serializable {
 	 *  the total learning set and its coverage
 	 */
 	public final static int RULE_PREDICTION_METHOD_ACC_COV_WEIGHTED = 4;
-
-	/**
-	 *  TODO Not yet implemented.
-	 */
+	//  TODO Not yet implemented.
 	public final static int RULE_PREDICTION_METHOD_EQUALLY_WEIGHTED = 5;
 	/** Differential evolution optimization of rule weights */
 	public final static int RULE_PREDICTION_METHOD_OPTIMIZED = 6;
@@ -941,9 +938,7 @@ public class Settings implements Serializable {
 	/** Use external binary file for gradient descent optimization of rule weights */
 	public final static int RULE_PREDICTION_METHOD_GD_OPTIMIZED_BINARY = 9;
 
-
 	public final static String[] RULE_ADDING_METHODS =	{"Always", "IfBetter", "IfBetterBeam"};
-
 	// Always adds a rule to the rule set
 	public final static int RULE_ADDING_METHOD_ALWAYS = 0;
 	// Only adds a rule to the rule set if it improves the rule set performance
@@ -953,8 +948,6 @@ public class Settings implements Serializable {
 	public final static int RULE_ADDING_METHOD_IF_BETTER_BEAM = 2;
 
 	public static boolean IS_RULE_SIG_TESTING = false;
-
-	
 	
 	// ***************** WEIGHT OPTIMIZATION
 
@@ -1017,7 +1010,6 @@ public class Settings implements Serializable {
 	public final static int OPT_NORMALIZATION_ONLY_SCALING = 2;
 	/** Normalize during optimization with variance. */
 	public final static int OPT_NORMALIZATION_YES_VARIANCE = 3;
-
 	
 	// Settings in the settings file.
 	protected INIFileNominal m_CoveringMethod;
@@ -2078,7 +2070,9 @@ public class Settings implements Serializable {
 		output.addNode(m_PrintModelAndExamples = new INIFileBool("PrintModelAndExamples", false));
 		output.addNode(m_WriteErrorFile = new INIFileBool("WriteErrorFile", false));
 		output.addNode(m_WritePredictions = new INIFileNominal("WritePredictions", WRITE_PRED, WRITE_PRED_VALUES));
-		output.addNode(m_ModelIDFiles = new INIFileBool("WriteModelIDFiles", false));
+		// If this option name is to be changed, it must also be changed in testsets/iris-classify.s
+		//output.addNode(m_ModelIDFiles = new INIFileBool("WriteModelIDFiles", false));
+		output.addNode(m_ModelIDFiles = new INIFileBool("ModelIDFiles", false));
 		output.addNode(m_WriteCurves = new INIFileBool("WriteCurves", false));
 		output.addNode(m_OutputPythonModel = new INIFileBool("OutputPythonModel", false));
 		output.addNode(m_OutputDatabaseQueries = new INIFileBool("OutputDatabaseQueries", false));

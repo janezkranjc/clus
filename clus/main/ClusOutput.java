@@ -310,7 +310,7 @@ public class ClusOutput {
 	public static void printHeader() {
 		System.out.println("Clus v"+Clus.VERSION+" - Software for Predictive Clustering");
 		System.out.println();
-		System.out.println("Copyright (C) 2007, 2008");
+		System.out.println("Copyright (C) 2007, 2008, 2009, 2010");
 		System.out.println("   Katholieke Universiteit Leuven, Leuven, Belgium");
 		System.out.println("   Jozef Stefan Institute, Ljubljana, Slovenia");
 		System.out.println();
