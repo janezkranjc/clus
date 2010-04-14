@@ -61,18 +61,62 @@ In a similar way, predictive clustering rules (PCRs) generalize classification r
 
 A full description of how \clus{} works is beyond the scope of this text. In this User's Manual, we focus on how to use \clus{}: how to prepare its inputs, how to interpret the outputs, and how to change its behavior with the available parameters. This manual is a work in progress and all comments are welcome.
 %
-For background information on the rationale behind the \clus{} system and its algorithms we refer to the following papers:
+For background information on the rationale behind the \clus{} system and its algorithms we refer the reader to the following papers:
 
 \begin{itemize} 
 
-% Should we add some additional papers here?
-\item H. Blockeel, L. De Raedt, and J. Ramon, Top-down induction of clustering trees, Proceedings of the 15th International Conference on Machine Learning (J. Shavlik, ed.), pp. 55-63, 1998.
+\item H.~Blockeel, L.~De Raedt, and J.~Ramon.
+\newblock Top-down induction of clustering trees.
+\newblock In \emph{Proceedings of the 15th International Conference on Machine
+  Learning}, pages 55--63, 1998.
 
-\item B.~{\v{Z}}enko and S.~D{\v{z}}eroski. Learning classification rules for multiple target attributes. In Advances in Knowledge Discovery and Data Mining, pp. 454-465, 2008.
+\item H.~Blockeel and J.~Struyf.
+\newblock Efficient algorithms for decision tree cross-validation.
+\newblock \emph{Journal of Machine Learning Research}, 3: 621--650,
+  December 2002.
 
 \item H. Blockeel, S. D\v zeroski, and J. Grbovi\'c, Simultaneous prediction of multiple chemical parameters of river water quality with TILDE, Proceedings of the Third European Conference on Principles of Data Mining and Knowledge Discovery (J.M. \.{Z}ytkow and J. Rauch, eds.), vol 1704, LNAI, pp. 32-40, 1999.
 
-\item  C. Vens, J. Struyf, L. Schietgat, S. D\v zeroski and H. Blockeel, Decision trees for hierarchical multi-label classification. Machine Learning 73(2):185-214, 2008.
+\item T.~Aho, B.~{\v{Z}}enko, and S.~D{\v{z}}eroski.
+\newblock Rule ensembles for multi-target regression.
+\newblock In \emph{Proceedings of 9th IEEE International Conference on Data
+  Mining (ICDM 2009)}, pages 21--30, 2009.
+
+\item E.~Fromont, H.~Blockeel, and J.~Struyf.
+\newblock Integrating decision tree learning into inductive databases.
+\newblock \emph{Lecture Notes in Computer Science}, 4747: 81--96,
+  2007.
+
+\item D.~Kocev, C.~Vens, J.~Struyf, and S.~D{\v{z}}eroski.
+\newblock Ensembles of multi-objective decision trees.
+\newblock \emph{Lecture Notes in Computer Science}, 4701: 624--631,
+  2007.
+
+\item I.~Slavkov, V.~Gjorgjioski, J.~Struyf, and S.~D{\v z}eroski.
+\newblock Finding explained groups of time-course gene expression profiles with
+  predictive clustering trees.
+\newblock \emph{Molecular Biosystems}, 2009.
+\newblock To appear.
+
+\item J.~Struyf and S.~D\v{z}eroski.
+\newblock Clustering trees with instance level constraints.
+\newblock \emph{Lecture Notes in Computer Science}, 4701: 359--370,
+  2007.
+
+\item J.~Struyf and S.~D{\v{z}}eroski.
+\newblock Constraint based induction of multi-objective regression trees.
+\newblock \emph{Lecture Notes in Computer Science}, 3933: 110--121,
+  2005.
+
+\item C.~Vens, J.~Struyf, L.~Schietgat, S.~D{\v z}eroski, and H.~Blockeel.
+\newblock Decision trees for hierarchical multi-label classification.
+\newblock \emph{Machine Learning}, 73 (2): 185--214, 2008.
+
+\item B.~{\v{Z}}enko and S.~D{\v{z}}eroski.
+\newblock Learning classification rules for multiple target attributes.
+\newblock In \emph{Advances in Knowledge Discovery and Data Mining}, pages
+  454--465, 2008.
+
 \end{itemize}
 
 A longer list of publications describing different aspects and applications of \clus{} is available on the \clus{} web site
@@ -227,34 +271,38 @@ outlook = sunny
 
 \section{A Step-by-step Example}
 
-\clus{} come with a number of example datasets.  In this section we briefly have a look at the {\em Weather} dataset, and how it can be processed by \clus{}.  We use Unix notation for paths to filenames; in Windows notation the slashes become backslashes (see also previous section).
+Distribution of \clus{} includes a number of example datasets.  In this section we briefly take a look at the {\em Weather} dataset, and how it can be processed by \clus{}.  We use Unix notation for paths to filenames; in Windows notation the slashes become backslashes (see also previous section).
+\begin{enumerate}
+  \item Move to the directory {\tt Clus/data/weather}, which contains the {\em Weather} dataset:
+\begin{verbatim}
+cd Clus/data/weather
+\end{verbatim}
 
-Open the directory {\tt Clus/data/weather}, which contains the {\em Weather} dataset.
-
-First inspect the file {\tt weather.arff}.  Its contents is also shown in Figure~\ref{weatherarff:fig}.
+  \item First inspect the file {\tt weather.arff}.  Its contents is also shown in Figure~\ref{weatherarff:fig}.
 This file contains the input data that \clus{} will learn from.  It is in the ARFF format: first, the name of the table is given; then, the attributes and their domains are listed; finally, the table itself is listed.
 
-Next, inspect the file {\tt weather.s}.  This file is also shown in Figure~\ref{weathers:fig}.  
+  \item Next, inspect the file {\tt weather.s}.  This file is also shown in Figure~\ref{weathers:fig}.  
 It is the {\em settings} file, the file where \clus{} will find information about the task it should perform, values for its parameters, and other information that guides it behavior.
 
 %In the \emph{Weather} example of Section~\ref{sec:run}, \clus{} will read its settings from the input file \texttt{weather.s} (shown in Figure~\ref{weathers:fig}) and its input data from the file \texttt{weather.arff} (Figure~\ref{weatherarff:fig}). It will then construct (with these settings) a PCT, which it will write to the output file \texttt{weather.out} (Figure~\ref{weatherout:fig}).
 
 The \emph{Weather} example is a small multi-target or multi-task learning problem \cite{Caruana97:jrnl}, in which the goal is to predict the target attributes \emph{temperature} and \emph{humidity} from the input attributes \emph{outlook} and \emph{windy.}  This kind of information is what goes in the settings file.
 % Our example includes values for four parameters. 
-The parameters under the heading \texttt{[Attributes]} specify the role of the different attributes. In our learning problem, the first two attributes (attributes 1-2: outlook and windy) are {\em descriptive} attributes: they are to be used in the cluster descriptions, that is, in the tests that appear in the predictive clustering tree's nodes (or, in rule learning, the conditions that appear in predictive clustering rules). The last two attributes (attributes 3-4) are so-called {\em target} attributes: these are to be predicted from the descriptive attributes. The setting \texttt{Clustering = 3-4} indicates that the clustering heuristic, which is used to construct the tree, should be computed based on the target attributes only.  (That is, \clus{}Êshould try to produce clusters that are coherent with respect to the target attributes, not necessarily with respect to all attributes.)
+The parameters under the heading \texttt{[Attributes]} specify the role of the different attributes. In our learning problem, the first two attributes (attributes 1-2: \emph{outlook} and \emph{windy}) are \emph{descriptive} attributes: they are to be used in the cluster descriptions, that is, in the tests that appear in the predictive clustering tree's nodes (or, in rule learning, the conditions that appear in predictive clustering rules). The last two attributes (attributes 3-4) are so-called {\em target} attributes: these are to be predicted from the descriptive attributes. The setting \texttt{Clustering = 3-4} indicates that the clustering heuristic, which is used to construct the tree, should be computed based on the target attributes only.  (That is, \clus{} should try to produce clusters that are coherent with respect to the target attributes, not necessarily with respect to all attributes.)
 Finally, in the {\tt Tree} section of the settings file, which contains parameters specific to tree learning, \texttt{Heuristic = VarianceReduction} specifies that, among different clustering heuristics that are available, the heuristic that should be used for this run is variance reduction. 
 
 These are only a few possible settings.  Chapter~\ref{ch:sett} provides a detailed description of each setting supported by \clus{}.  
 
-Now that we have some idea of what the settings file and data file look like, let's run \clus{} on these data and see what the result is.  From the Unix command line, type, in the directory where the weather files are:
+  \item Now that we have some idea of what the settings file and data file look like, let's run \clus{} on these data and see what the result is.  From the Unix command line, type, in the directory where the weather files are:
 \begin{verbatim}
 java -jar ../../Clus.jar weather.s
 \end{verbatim}
 
-\clus{} now reads the data and settings files, performs it computations, and writes the resulting predictive clustering tree, together with a number of statistics such as the training set error and the test set error (if a test set has been provided), to an output file, {\tt weather.out}.  Open that file and inspect its contents; it should look like the file shown in Figure~\ref{weatherout:fig}.  The file contains information about the \clus{} run, including some statistics, and of course also the final result: the predictive clustering tree that we wanted to learn.  By default, \clus{} shows both an ``original model'' (the tree before pruning it) and a ``pruned model'', which is a simplified version of the original one.
+  \item \clus{} now reads the data and settings files, performs it computations, and writes the resulting predictive clustering tree, together with a number of statistics such as the training set error and the test set error (if a test set has been provided), to an output file, {\tt weather.out}.  Open that file and inspect its contents; it should look like the file shown in Figure~\ref{weatherout:fig}.  The file contains information about the \clus{} run, including some statistics, and of course also the final result: the predictive clustering tree that we wanted to learn.  By default, \clus{} shows both an ``original model'' (the tree before pruning it) and a ``pruned model'', which is a simplified version of the original one.
 
-In this example, the resulting tree is a multi-target tree: each leaf predicts a vector of which the first component is the predicted \emph{temperature} (attribute 3) and the second component the predicted \emph{humidity} (attribute 4).  A feature that distinguished \clus{}Êfrom other decision tree learners is exactly the fact that \clus{}Êcan produce this kind of trees.  Constructing a multi-target tree has several advantages over constructing a separate regression tree for each target variable. The most obvious one is the number of models: the user only has to interpret one tree instead of at one tree for each target. A second advantage is that the tree makes features that are relevant to all target variables explicit. For example, the first leaf of the tree in Figure~\ref{weatherout:fig} shows that \texttt{outlook = sunny} implies both a high temperature and a low humidity. Finally, due to so-called inductive transfer, multi-target PCTs may also be more accurate than regression trees. More information about multi-target trees can be found in the following publications: \cite{Blockeel1998icml, Blockeel99:proc, Struyf06-KDID:proc, Piccart08-DS:proc}.
+In this example, the resulting tree is a multi-target tree: each leaf predicts a vector of which the first component is the predicted \emph{temperature} (attribute 3) and the second component the predicted \emph{humidity} (attribute 4).  A feature that distinguishes \clus{} from other decision tree learners is exactly the fact that \clus{} can produce this kind of trees.  Constructing a multi-target tree has several advantages over constructing a separate regression tree for each target variable. The most obvious one is the number of models: the user only has to interpret one tree instead of one tree for each target. A second advantage is that the tree makes features that are relevant to all target variables explicit. For example, the first leaf of the tree in Figure~\ref{weatherout:fig} shows that \texttt{outlook = sunny} implies both a high temperature and a low humidity. Finally, due to so-called inductive transfer, multi-target PCTs may also be more accurate than regression trees. More information about multi-target trees can be found in the following publications: \cite{Blockeel1998icml, Blockeel99:proc, Struyf06-KDID:proc, Piccart08-DS:proc}.
 
+\end{enumerate}
 % \chapter{Learning Algorithms}
 % 
 % \section{Tree Learning}
@@ -540,8 +588,7 @@ rules/linear terms, used for learning rule ensembles \cite{Aho2009}. If we have 
 	\item \texttt{OptGDNbOfTParameterTry = $n$} : $n$ defines how many different $\tau$ values are checked between \texttt{Opt\-GD\-Grad\-Treshold} and 1. We use a validation set to compute, which $\tau$ value gives the best accuracy. If \texttt{OptGDMaxNbWeights} is used, usually only a single value $\tau$=1 is enough (fastest).
 	\item \texttt{OptAddLinearTerms = $o$} : $o$ is a subset of \{\texttt{No, Yes, YesSaveMemory}\}. Defines whether to add descriptive attributes as linear terms to the rule set. For some data sets, this increases the accuracy. Especially for multi-target data sets it also slows the algorithm down. For these, use value \texttt{YesSaveMemory}, otherwise it can take a lot of memory. For single target data sets \texttt{Yes} is faster. Used for learning rule ensembles \cite{Aho2009}.
 	\item \texttt{OptLinearTermsTruncate = $y$} : Used in conjunction with the above \texttt{OptAddLinearTerms} setting. If \texttt{Yes}, the linear terms are truncated so that they do not predict values greater or smaller than found in the training set. This adds more resistance to outliers. The default setting is \texttt{Yes}. Used for learning rule ensembles \cite{Aho2009}.
-	\item \texttt{OptNormalizeLinearTerms = $o$} : $o$ is a subset of \{\texttt{No, Yes, YesAndConvert}\}. Defines whether the
-linear terms are scaled so that each descriptive attribute has a similar effect. The default setting is \texttt{Yes} and it should always be used. However, if you want to transform the rule ensemble so that linear terms are of "standard type", you may use \texttt{YesAndConvert} setting. This moves the effect of normalizations to weights and default prediction after optimization. Used for learning rule ensembles \cite{Aho2009}.
+	\item \texttt{OptNormalizeLinearTerms = $o$} : $o$ is a subset of \{\texttt{No, Yes, YesAndConvert}\}. Defines whether the linear terms are scaled so that each descriptive attribute has a similar effect. The default setting is \texttt{Yes} and it should always be used. However, if you want to transform the rule ensemble so that linear terms are of "standard type", you may use \texttt{YesAndConvert} setting. This moves the effect of normalizations to weights and default prediction after optimization. Used for learning rule ensembles \cite{Aho2009}.
 \end{itemize}
 
 
@@ -596,7 +643,7 @@ linear terms are scaled so that each descriptive attribute has a similar effect.
 \item {\tt TrainErrors = $y$} : if set to {\tt Yes}, \clus{} will output the training set error (and other evaluation measures).
 \item {\tt UnknownFrequency = $y$} : if set to {\tt Yes}, \clus{} will show in each node of the tree the proportion of instances that had a missing value for the test in that node.
 \item {\tt BranchFrequency = $y$} : if set to {\tt Yes}, \clus{} will show in each node of the tree, for each possible outcome of the test in that node, the proportion of instances that had that outcome.
-\item {\tt WritePredictions = $o$} : $o$ is a subset of \{Train,Test\}. If $o$ includes ``Train'', then the prediction for each training instance will be written to an ARFF output file. The file is named {\tt {\em filename}.train.{\em i}.pred.arff} with $i$ the iteration. In a single run, $i = 1$. In a 10 fold cross-validation, $i$ will vary from 1 to 10. If $o$ includes ``Test'', then the predictions for each test instance will be written to disk. The file is named {\tt {\em filename}.test.pred.arff}.
+\item {\tt WritePredictions = $o$} : $o$ is a subset of \{\texttt{Train,Test}\}. If $o$ includes ``Train'', then the prediction for each training instance will be written to an ARFF output file. The file is named {\tt {\em filename}.train. {\em i}.pred.arff} with $i$ the iteration. In a single run, $i = 1$. In a 10 fold cross-validation, $i$ will vary from 1 to 10. If $o$ includes ``Test'', then the predictions for each test instance will be written to disk. The file is named {\tt {\em filename}.test.pred.arff}.
 \end{itemize}
 
 \section{Beam}
@@ -1061,6 +1108,9 @@ Here we only provide a rough guide to the \clus\ code by listing some of the key
 %\section{Learning Trees for Hierarchical Multi-label Classification}
 %\section{Learning Tree Ensembles}
 %\section{Learning Rule Ensembles}
+
+\chapter*{Acknowledgments}
+The research involved in development of this software was supported by the Research Foundation Flanders (FWO-Vlaanderen) and the Slovenian Research Agency. We thank all our collaborators who have contributed to the development of \clus{}, and in particular (in inverse alphabetical order) L. Schietgat, I. Slavkov, D. Kocev, V. Gjorgjioski, E. Fromont and T. Aho.
 
 \appendix
 \chapter{Constructing Phylogenetic Trees Using Clus}
