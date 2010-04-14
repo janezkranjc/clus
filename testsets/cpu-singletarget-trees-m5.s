@@ -11,7 +11,7 @@ File = ../data/cpu/cpu.arff
 RemoveMissingTarget = Yes
 
 [Tree]
-Heuristic = SSReduction
+Heuristic = VarianceReduction
 PruningMethod = M5
 
 

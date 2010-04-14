@@ -1,16 +1,17 @@
 Clus run bridges
 ****************
 
-Date: 8/6/09 1:55 PM
+Date: 4/14/10 8:22 PM
 File: bridges-multitarget-rules-unordered.out
 Attributes: 13 (input: 7, output: 5)
 Missing values: Yes
+Memory usage: 12028 kB (initial), 12068 kB (data loaded)
 
 [General]
 Verbose = 1
 Compatibility = Latest
 RandomSeed = 0
-ResourceInfoLoaded = No
+ResourceInfoLoaded = Yes
 
 [Data]
 File = ../data/bridges/bridges.arff
@@ -38,24 +39,26 @@ ReduceMemoryNominalAttrs = No
 Syntactic = None
 MaxSize = Infinity
 MaxError = 0.0
+MaxDepth = Infinity
 
 [Output]
 ShowModels = {Default, Pruned, Others}
 TrainErrors = Yes
 ValidErrors = Yes
+TestErrors = Yes
 AllFoldModels = Yes
 AllFoldErrors = Yes
 AllFoldDatasets = No
-WriteErrorFile = No
 UnknownFrequency = No
 BranchFrequency = No
 ShowInfo = {Count}
 PrintModelAndExamples = No
+WriteErrorFile = No
 WritePredictions = {None}
 ModelIDFiles = No
+WriteCurves = No
 OutputPythonModel = No
 OutputDatabaseQueries = No
-WriteCurves = No
 
 [Nominal]
 MEstimate = 1.0
@@ -63,19 +66,19 @@ MEstimate = 1.0
 [Model]
 MinimalWeight = 2.0
 MinimalNumberExamples = 0
+MinimalKnownWeight = 0.0
 ParamTuneNumberFolds = 10
 ClassWeights = 0.0
 NominalSubsetTests = Yes
 
 [Tree]
 Heuristic = RDispersionMlt
-MaxDepth = Infinity
-BinarySplit = Yes
 PruningMethod = Default
-MSENominal = No
+BinarySplit = Yes
 ConvertToRules = No
 AlternativeSplits = No
 Optimize = {}
+MSENominal = No
 
 [Rules]
 CoveringMethod = WeightedError
@@ -113,9 +116,13 @@ OptRegPar = 0.0
 OptNbZeroesPar = 0.0
 OptRuleWeightThreshold = 0.1
 OptDELossFunction = Squared
+OptDefaultShiftPred = Yes
 OptAddLinearTerms = No
-OptOmitRulePredictions = No
+OptNormalizeLinearTerms = Yes
+OptLinearTermsTruncate = Yes
+OptOmitRulePredictions = Yes
 OptWeightGenerality = No
+OptNormalization = Yes
 OptHuberAlpha = 0.9
 OptGDMaxIter = 1000
 OptGDGradTreshold = 1.0
@@ -142,13 +149,6 @@ BeamSortOnTrainParameteres = No
 DistSyntacticConstr = None
 BeamToForest = No
 
-[SIT]
-Main_target = Default
-Recursive = No
-Search = OneTarget
-Learner = ClusLearner
-Error = MSE
-
 Run: 01
 *******
 
@@ -156,8 +156,8 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.686 sec
-Pruning Time: 0 sec
+Induction Time: 1.092 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Rules = 12 (Tests: 33 and linear terms: 0)
@@ -311,9 +311,9 @@ IF clear-g = G AND
    location in {3,4,6,8,10,11,12,13,15,16,17,18,21,22,23,24,25,26,27,28,29,31,32,35,36,38,41,51,52} AND
    erected > 1876.0
 THEN [THROUGH,STEEL,MEDIUM,F,SIMPLE-T] [39.0,37.0,32.0,22.0,28.0]: 39
-   Dispersion (train): [0.457915 : 0.003562 , 0.454353]
+   Dispersion (train): [0.457803 : 0.003593 , 0.45421]
    Coverage   (train): 39
-   Cover*Disp (train): 17.858692
+   Cover*Disp (train): 17.854302
 
 Training error
 Number of examples: 85 (covered: 39)
@@ -387,9 +387,9 @@ Rule 2:
 IF erected > 1894.0 AND
    location in {1,2,6,7,9,13,14,19,21,24,36,37,40,41,42,43,44,47,48,49}
 THEN [THROUGH,STEEL,LONG,F,ARCH] [16.6,21.6,21.4,21.6,6.2]: 21.6
-   Dispersion (train): [0.462988 : 0.006612 , 0.456376]
+   Dispersion (train): [0.462901 : 0.006669 , 0.456233]
    Coverage   (train): 28
-   Cover*Disp (train): 12.963668
+   Cover*Disp (train): 12.961232
 
 Training error
 Number of examples: 85 (covered: 28)
@@ -463,9 +463,9 @@ Rule 3:
 IF location in {6,24,27,29,32} AND
    erected <= 1,892
 THEN [THROUGH,WOOD,MEDIUM,S,WOOD] [8.0,8.0,5.0,8.0,8.0]: 8
-   Dispersion (train): [0.359137 : 0.001653 , 0.357484]
+   Dispersion (train): [0.359039 : 0.001668 , 0.357371]
    Coverage   (train): 9
-   Cover*Disp (train): 3.232236
+   Cover*Disp (train): 3.23135
 
 Training error
 Number of examples: 85 (covered: 9)
@@ -542,9 +542,9 @@ IF clear-g = G AND
    erected <= 1,903 AND
    purpose = HIGHWAY
 THEN [THROUGH,IRON,MEDIUM,F,SIMPLE-T] [5.8,3.4,4.4,5.8,4.6]: 5.8
-   Dispersion (train): [0.365353 : 0.000072 , 0.365281]
+   Dispersion (train): [0.365239 : 0.000073 , 0.365166]
    Coverage   (train): 14
-   Cover*Disp (train): 5.114946
+   Cover*Disp (train): 5.113343
 
 Training error
 Number of examples: 85 (covered: 14)
@@ -618,9 +618,9 @@ Rule 5:
 IF location in {3,28} AND
    erected <= 1,864
 THEN [THROUGH,IRON,SHORT,S,SUSPEN] [3.0,3.0,3.0,3.0,2.0]: 3
-   Dispersion (train): [0.253908 : 0.000676 , 0.253232]
+   Dispersion (train): [0.253834 : 0.000682 , 0.253153]
    Coverage   (train): 3
-   Cover*Disp (train): 0.761725
+   Cover*Disp (train): 0.761503
 
 Training error
 Number of examples: 85 (covered: 3)
@@ -695,9 +695,9 @@ IF length > 1770.0 AND
    erected > 1924.0 AND
    erected <= 1,939
 THEN [DECK,STEEL,MEDIUM,S-F,CANTILEV] [4.0,4.2,4.2,2.0,3.0]: 4.2
-   Dispersion (train): [0.451855 : 0.002919 , 0.448936]
+   Dispersion (train): [0.451739 : 0.002944 , 0.448795]
    Coverage   (train): 5
-   Cover*Disp (train): 2.259276
+   Cover*Disp (train): 2.258694
 
 Training error
 Number of examples: 85 (covered: 5)
@@ -775,9 +775,9 @@ IF clear-g = G AND
    erected <= 1,928 AND
    river in {A,M}
 THEN [THROUGH,STEEL,MEDIUM,S,SIMPLE-T] [5.12,5.12,4.72,2.3200000000000003,1.7199999999999995]: 5.12
-   Dispersion (train): [0.477884 : 0.002813 , 0.475071]
+   Dispersion (train): [0.477759 : 0.002837 , 0.474922]
    Coverage   (train): 30
-   Cover*Disp (train): 14.336534
+   Cover*Disp (train): 14.332768
 
 Training error
 Number of examples: 85 (covered: 30)
@@ -852,9 +852,9 @@ IF river in {M,O} AND
    length > 900.0 AND
    erected <= 1,927
 THEN [THROUGH,STEEL,LONG,F,CANTILEV] [2.84,2.84,2.84,1.8399999999999996,1.64]: 2.84
-   Dispersion (train): [0.561553 : 0.001333 , 0.56022]
+   Dispersion (train): [0.561387 : 0.001344 , 0.560043]
    Coverage   (train): 24
-   Cover*Disp (train): 13.477261
+   Cover*Disp (train): 13.473299
 
 Training error
 Number of examples: 85 (covered: 24)
@@ -929,9 +929,9 @@ IF lanes > 2.0 AND
    erected > 1928.0 AND
    length > 900.0
 THEN [DECK,STEEL,LONG,S-F,CONT-T] [3.4,3.5999999999999996,2.4,2.0,3.1999999999999997]: 3.6
-   Dispersion (train): [0.520164 : 0.00216 , 0.518004]
+   Dispersion (train): [0.520019 : 0.002179 , 0.51784]
    Coverage   (train): 13
-   Cover*Disp (train): 6.762127
+   Cover*Disp (train): 6.760247
 
 Training error
 Number of examples: 85 (covered: 13)
@@ -1005,9 +1005,9 @@ Rule 10:
 IF river in {A,Y} AND
    erected <= 1,892
 THEN [THROUGH,WOOD,SHORT,S,WOOD] [2.8,1.5999999999999999,1.7999999999999998,1.7999999999999998,1.5999999999999999]: 2.8
-   Dispersion (train): [0.553472 : 0.001219 , 0.552253]
+   Dispersion (train): [0.553309 : 0.001229 , 0.552079]
    Coverage   (train): 15
-   Cover*Disp (train): 8.302081
+   Cover*Disp (train): 8.299628
 
 Training error
 Number of examples: 85 (covered: 15)
@@ -1080,9 +1080,9 @@ Rule 11:
 ========
 IF length <= 1,320
 THEN [THROUGH,STEEL,MEDIUM,S-F,SUSPEN] [2.0,1.4,1.8800000000000001,1.6800000000000002,1.48]: 2.2
-   Dispersion (train): [0.679787 : 0.00587 , 0.673917]
+   Dispersion (train): [0.679625 : 0.00592 , 0.673705]
    Coverage   (train): 36
-   Cover*Disp (train): 24.47233
+   Cover*Disp (train): 24.466499
 
 Training error
 Number of examples: 85 (covered: 36)
@@ -1155,9 +1155,9 @@ Rule 12:
 ========
 IF length > 1030.0
 THEN [DECK,STEEL,LONG,F,CANTILEV] [1.32,2.2800000000000002,1.4,1.8800000000000001,0.6799999999999999]: 2.28
-   Dispersion (train): [0.684154 : 0.003466 , 0.680689]
+   Dispersion (train): [0.683969 : 0.003495 , 0.680474]
    Coverage   (train): 53
-   Cover*Disp (train): 36.26017
+   Cover*Disp (train): 36.250378
 
 Training error
 Number of examples: 85 (covered: 53)
@@ -1233,9 +1233,9 @@ Default = [THROUGH,STEEL,MEDIUM,S,ARCH] [1.04,0.84,0.8799999999999999,0.56,0.56]
 
 Rule set dispersion:
 =====================
-   Avg_Dispersion  (train): 0.485681 = 0.002696 + 0.482985
+   Avg_Dispersion  (train): 0.485552 = 0.002719 + 0.482833
    Avg_Coverage    (train): 22.416667
-   Avg_Cover*Disp  (train): 12.150087 = 0.076192 + 12.073895
+   Avg_Cover*Disp  (train): 12.146937 = 0.076846 + 12.070091
    Avg_Dispersion  (test):  0 = 0 + 0
    Avg_Coverage    (test):  0
    Avg_Cover*Disp  (test):  0 = 0 + 0

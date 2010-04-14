@@ -1,11 +1,11 @@
 Clus run iris
 *************
 
-Date: 12/20/08 11:46 PM
+Date: 4/14/10 8:04 PM
 File: iris-ilevelc.out
 Attributes: 5 (input: 4, output: 4)
 Missing values: No
-Memory usage: 12812 kB (initial), 12896 kB (data loaded)
+Memory usage: 12000 kB (initial), 12240 kB (data loaded)
 
 [General]
 Verbose = 1
@@ -35,20 +35,24 @@ ReduceMemoryNominalAttrs = No
 Syntactic = None
 MaxSize = Infinity
 MaxError = 0.0
+MaxDepth = Infinity
 
 [Output]
 ShowModels = {Default, Pruned, Others}
-TrainErrors = No
+TrainErrors = Yes
+ValidErrors = Yes
+TestErrors = Yes
 AllFoldModels = Yes
 AllFoldErrors = No
 AllFoldDatasets = No
-WriteErrorFile = No
 UnknownFrequency = No
 BranchFrequency = No
 ShowInfo = {Count}
 PrintModelAndExamples = No
+WriteErrorFile = No
 WritePredictions = {None}
 ModelIDFiles = No
+WriteCurves = No
 OutputPythonModel = No
 OutputDatabaseQueries = No
 
@@ -57,19 +61,21 @@ MEstimate = 1.0
 
 [Model]
 MinimalWeight = 2.0
+MinimalNumberExamples = 0
+MinimalKnownWeight = 0.0
 ParamTuneNumberFolds = 10
 ClassWeights = 0.0
 NominalSubsetTests = Yes
 
 [Tree]
-Heuristic = SSReduction
-FTest = 1.0
-MaxDepth = Infinity
-BinarySplit = Yes
+Heuristic = VarianceReduction
 PruningMethod = None
-MSENominal = No
+FTest = 1.0
+BinarySplit = Yes
 ConvertToRules = No
 AlternativeSplits = No
+Optimize = {}
+MSENominal = No
 
 [ILevelC]
 Alpha = 0.5
@@ -78,13 +84,6 @@ NbRandomConstraints = 20
 RunCOPKMeans = No
 RunMPCKMeans = No
 
-[SIT]
-Main_target = Default
-Recursive = No
-Search = OneTarget
-Learner = ClusLearner
-Error = MSE
-
 Run: 01
 *******
 
@@ -92,7 +91,7 @@ Statistics
 ----------
 
 FTValue (FTest): 1.0
-Induction Time: 0.008 sec (CPU)
+Induction Time: 0.004 sec (CPU)
 Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
@@ -103,8 +102,8 @@ Training error
 
 Number of examples: 150
 Mean absolute error (MAE)
-   Default        : [0.6876,0.3331,1.5619,0.6589], Avg: 121.5563
-   Original       : [0.3461,0.2668,0.3202,0.1964], Avg: 42.3555
+   Default        : [0.6876,0.3331,1.5619,0.6589]: 0.8104
+   Original       : [0.3461,0.2668,0.3202,0.1964]: 0.2824
 Mean squared error (MSE)
    Default        : [0.6811,0.1868,3.0924,0.5785]: 1.1347
    Original       : [0.188,0.1236,0.1938,0.0707]: 0.144
@@ -123,8 +122,8 @@ Testing error
 
 Number of examples: 150
 Mean absolute error (MAE)
-   Default        : [0.6876,0.3331,1.5619,0.6589], Avg: 121.5563
-   Original       : [0.365,0.2582,0.3143,0.1735], Avg: 41.6639
+   Default        : [0.6876,0.3331,1.5619,0.6589]: 0.8104
+   Original       : [0.365,0.2582,0.3143,0.1735]: 0.2778
 Mean squared error (MSE)
    Default        : [0.6811,0.1868,3.0924,0.5785]: 1.1347
    Original       : [0.2165,0.1117,0.1768,0.0534]: 0.1396

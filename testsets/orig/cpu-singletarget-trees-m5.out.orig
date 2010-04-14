@@ -1,11 +1,11 @@
 Clus run 'cpu'
 **************
 
-Date: 1/6/09 3:59 PM
+Date: 4/14/10 8:20 PM
 File: cpu-singletarget-trees-m5.out
 Attributes: 8 (input: 7, output: 1)
 Missing values: No
-Memory usage: 13072 kB (initial), 13196 kB (data loaded)
+Memory usage: 11880 kB (initial), 12280 kB (data loaded)
 
 [General]
 Verbose = 1
@@ -35,20 +35,24 @@ ReduceMemoryNominalAttrs = No
 Syntactic = None
 MaxSize = Infinity
 MaxError = 0.0
+MaxDepth = Infinity
 
 [Output]
 ShowModels = {Default, Pruned, Others}
 TrainErrors = Yes
+ValidErrors = Yes
+TestErrors = Yes
 AllFoldModels = Yes
 AllFoldErrors = No
 AllFoldDatasets = No
-WriteErrorFile = No
 UnknownFrequency = No
 BranchFrequency = No
 ShowInfo = {Count}
 PrintModelAndExamples = No
+WriteErrorFile = No
 WritePredictions = {None}
 ModelIDFiles = No
+WriteCurves = No
 OutputPythonModel = No
 OutputDatabaseQueries = No
 
@@ -58,27 +62,21 @@ MEstimate = 1.0
 [Model]
 MinimalWeight = 2.0
 MinimalNumberExamples = 0
+MinimalKnownWeight = 0.0
 ParamTuneNumberFolds = 10
 ClassWeights = 0.0
 NominalSubsetTests = Yes
 
 [Tree]
-Heuristic = SSReduction
-FTest = 1.0
-MaxDepth = Infinity
-BinarySplit = Yes
+Heuristic = VarianceReduction
 PruningMethod = M5
-MSENominal = No
 M5PruningMult = 2.0
+FTest = 1.0
+BinarySplit = Yes
 ConvertToRules = No
 AlternativeSplits = No
-
-[SIT]
-Main_target = Default
-Recursive = No
-Search = OneTarget
-Learner = ClusLearner
-Error = MSE
+Optimize = {}
+MSENominal = No
 
 Run: 01
 *******
@@ -88,7 +86,7 @@ Statistics
 
 FTValue (FTest): 1.0
 Induction Time: 0.076 sec (CPU)
-Pruning Time: 0.02 sec (CPU)
+Pruning Time: 0 sec (CPU)
 Model information
      Default: Nodes = 1 (Leaves: 1)
      Original: Nodes = 173 (Leaves: 87)
@@ -99,9 +97,9 @@ Training error
 
 Number of examples: 209
 Mean absolute error (MAE)
-   Default        : [87.3828], Avg: 18263.0048
-   Original       : [5.437], Avg: 1136.3333
-   Pruned         : [18.1298], Avg: 3789.1322
+   Default        : [87.3828]
+   Original       : [5.437]
+   Pruned         : [18.1298]
 Mean squared error (MSE)
    Default        : [23835.1685]
    Original       : [369.0247]

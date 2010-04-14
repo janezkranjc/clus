@@ -10,7 +10,7 @@
 File = ../data/iris/iris.arff
 
 [Tree]
-Heuristic = SSReduction
+Heuristic = VarianceReduction
 
 [Output]
 TrainErrors = Yes
