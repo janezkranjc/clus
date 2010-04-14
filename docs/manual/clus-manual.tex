@@ -507,8 +507,8 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 
 \begin{itemize}
 	\item {\tt FTest = $r$} : sets the f-test stopping criterion for regression; a node will only be split if a statistical F-test indicates a significant (at level $r$) reduction of variance inside the subsets.
-	\item {\tt ConvertToRules = $o$} : $o$ is a subset of \texttt{\{No, Leaves, AllNodes\}}. \clus{} can convert a tree (or ensemble of trees) into a set of rules. The default setting is \texttt{No}, if set to \texttt{Leaves}, only tree leaves are converted to rules, if set to \texttt{AllNodes}, also the internal nodes of tree(s) are converted. This setting can be used for learning rule ensembles \cite{Aho2009}.
-	\item \texttt{Heuristic = $o$} : $o$ is a subset of \{\raggedright\texttt{Default, ReducedError, Gain, GainRatio, % SSPD,
+	\item {\tt ConvertToRules = $o$} : $o$ is an element of \texttt{\{No, Leaves, AllNodes\}}. \clus{} can convert a tree (or ensemble of trees) into a set of rules. The default setting is \texttt{No}, if set to \texttt{Leaves}, only tree leaves are converted to rules, if set to \texttt{AllNodes}, also the internal nodes of tree(s) are converted. This setting can be used for learning rule ensembles \cite{Aho2009}.
+	\item \texttt{Heuristic = $o$} : $o$ is an element of \{\raggedright\texttt{Default, ReducedError, Gain, GainRatio, % SSPD,
 	VarianceReduction, MEstimate, Morishita, DispersionAdt, DispersionMlt, RDispersionAdt, RDispersionMlt%, GeneticDistance, SemiSupervised, VarianceReductionMissing
 	}\}. Sets the heuristic function that is used for evaluating the clusters (splits) when generating trees or rules. Please note that this setting is used for trees as well as rules.
 %	
@@ -529,18 +529,18 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 		%\item \texttt{SemiSupervised}:
 		%\item \texttt{VarianceReductionMissing}:
 	\end{itemize}
-	\item \texttt{PruningMethod = $o$} : $o$ is a subset of \{\raggedright\texttt{Default, None, C4.5, M5, M5Multi, ReducedErrorVSB, Garofalakis, GarofalakisVSB, CartVSB, CartMaxSize}\}. Sets the post-pruning method for trees.
+	\item \texttt{PruningMethod = $o$} : $o$ is an element of \{\raggedright\texttt{Default, None, C4.5, M5, M5Multi, ReducedErrorVSB, Garofalakis, GarofalakisVSB, CartVSB, CartMaxSize}\}. Sets the post-pruning method for trees.
 	\begin{itemize}
-		\item \texttt{Default}: default pruning method for trees, if learning classification trees this is equal to \texttt{C4.5}, if learning regression trees this is equal to \texttt{M5}. % Is this true?
+		\item \texttt{Default}: default pruning method for trees, if learning classification trees this is equal to \texttt{C4.5}, if learning regression trees this is equal to \texttt{M5}. % Is this true -> Yes
 		\item \texttt{None}: no post-pruning of learned trees is performed.
 		\item \texttt{C4.5}: pruning as in C4.5 \cite{Quinlan1993}, can be used for classification trees,
 		\item \texttt{M5}: pruning as in M5 \cite{Quinlan1992},	can be used for regression trees,
-		\item \texttt{M5Multi}: M5 \cite{Quinlan1992} pruning generalized for multi-target regression trees	% Is this true?
+		\item \texttt{M5Multi}: experimental modification to M5 \cite{Quinlan1992} pruning for multi-target regression trees.
 		\item \texttt{ReducedErrorVSB}: reduced error pruning where the error is estimated on a separate validation data set (VSB = validation set based pruning).
-		\item \texttt{Garofalakis}: pruning method proposed by Garofalakis et al. \cite{Garofalakis03:jrnl} used for constraint induction of trees. % Is this true?
+		\item \texttt{Garofalakis}: pruning method proposed by Garofalakis et al. \cite{Garofalakis03:jrnl} used for constraint induction of trees.
 		\item \texttt{GarofalakisVSB}: same as \texttt{Garofalakis}, but the error is estimated on a separate validation data set.
 		\item \texttt{CartVSB}: pruning method that is implemented in CART \cite{Breiman1984}, and uses a separate validation set. It seems to work better than M5 on the multi-target regression data sets.
-		\item \texttt{CartMaxSize}: pruning method that is also implemented in CART \cite{Breiman1984}, but uses cross-validation to tune the pruning parameter to achieve the desired tree size. % Is this true?
+		\item \texttt{CartMaxSize}: pruning method that is also implemented in CART \cite{Breiman1984}, but uses cross-validation to tune the pruning parameter to achieve the desired tree size.
 	\end{itemize}
 \end{itemize}
 
@@ -550,7 +550,7 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 
 \begin{itemize}
 	\item \texttt{Heuristic = $o$} : determines the heuristic for rule learning; see the Tree section for details.
-	\item \texttt{CoveringMethod = $o$} : $o$ is a subset of \{\texttt{Standard, % WeightedMultiplicative, WeightedAdditive, 
+	\item \texttt{CoveringMethod = $o$} : $o$ is an element of \{\texttt{Standard, % WeightedMultiplicative, WeightedAdditive, 
 	WeightedError, %Union, BeamRuleDefSet, 
 	RandomRuleSet, %StandardBootstrap, 
 	HeurOnly, RulesFromTree}\}. Defines how the rules are generated.
@@ -569,7 +569,7 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 	\item \texttt{CoveringWeight = $r$} : weight controlling the amount by which weights of covered examples are reduced within the error weighted covering algorithm -- $\zeta$ in \cite{Zenko07} (Section 4.5, Equations 4.6 and 4.8), valid values are between 0 and 1, by default it is set to 0.1, can be used for unordered rules with error weighted covering method.
 	\item \texttt{InstCoveringWeightThreshold = $r$} : instance weight threshold used in error weighted covering algorithm for learning unordered rules. When an instance's weight falls below this threshold, it is removed from the current learning set.  $\epsilon$ in \cite{Zenko07} (Section 4.5), valid values are between 0 and 1, by default it is set to 0.1.
 	\item \texttt{MaxRulesNb = $n$}: $n$ defines a maximum number of rules in a rule set. By default it is set to 1000.
-	\item \texttt{RuleAddingMethod = $o$} : $o$ is a subset of \{\texttt{Always, IfBetter, IfBetterBeam}\}. Defines how rules are added to the rule set.
+	\item \texttt{RuleAddingMethod = $o$} : $o$ is an element of \{\texttt{Always, IfBetter, IfBetterBeam}\}. Defines how rules are added to the rule set.
 	\begin{itemize}
 		\item \texttt{Always}: each rule when constructed is always added to the rule set,
 		\item \texttt{IfBetter}: rule is only added to the rule set if the performance of the rule set with the new rule is better than without it,
@@ -577,7 +577,7 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 	\end{itemize}
 	The default value is \texttt{Always}, for regression rules setting this option to \texttt{IfBetter} is recommended.
 	\item \texttt{PrintRuleWiseErrors = $y$}: If \texttt{Yes},  \clus{} will print error estimation for each rule separately.
-%	\item \texttt{PredictionMethod = $o$} : $o$ is a subset of \{\texttt{DecisionList", "TotCoverageWeighted", %"CoverageWeighted", "AccuracyWeighted",
+%	\item \texttt{PredictionMethod = $o$} : $o$ is an element of \{\texttt{DecisionList", "TotCoverageWeighted", %"CoverageWeighted", "AccuracyWeighted",
 %		"AccCovWeighted", "EquallyWeighted", "Optimized", "Union", "GDOptimized", "GDOptimizedBinary"
 	\item {\tt ComputeDispersion = $y$}: If \texttt{Yes},  \clus{} will print some additional dispersion estimation for each rule and entire rule set.
 	\item \texttt{OptGDMaxIter = $n$} : $n$ defines a number of iterations that a gradient descent algorithm for
@@ -586,23 +586,23 @@ optimizing rule weights makes, used for learning rule ensembles \cite{Aho2009}. 
 rules/linear terms, used for learning rule ensembles \cite{Aho2009}. If we have enough modified weights, only the nonzero ones are altered for the rest of the optimization. With this we can limit the size of the rule set. The default value of 0 means no rule set size limitation.
 	\item \texttt{OptGDGradTreshold = $r$} : the $\tau$ treshold value for the gradient descent (GD) algorithm used for learning rule ensembles \cite{Aho2009}. $\tau$ defines the limit by which gradients are changed during every iteration of the GD algorithm. If $\tau$=1 effect is similar to L1 regularization (Lasso) and $\tau$=0 the effect is similar to L2. If \texttt{OptGDMaxNbWeights} is used, setting $\tau$=1 is usually enough (it is the fastest). Possible values are from the [0,1] interval, the default is 1.
 	\item \texttt{OptGDNbOfTParameterTry = $n$} : $n$ defines how many different $\tau$ values are checked between \texttt{Opt\-GD\-Grad\-Treshold} and 1. We use a validation set to compute, which $\tau$ value gives the best accuracy. If \texttt{OptGDMaxNbWeights} is used, usually only a single value $\tau$=1 is enough (fastest).
-	\item \texttt{OptAddLinearTerms = $o$} : $o$ is a subset of \{\texttt{No, Yes, YesSaveMemory}\}. Defines whether to add descriptive attributes as linear terms to the rule set. For some data sets, this increases the accuracy. Especially for multi-target data sets it also slows the algorithm down. For these, use value \texttt{YesSaveMemory}, otherwise it can take a lot of memory. For single target data sets \texttt{Yes} is faster. Used for learning rule ensembles \cite{Aho2009}.
+	\item \texttt{OptAddLinearTerms = $o$} : $o$ is an element of \{\texttt{No, Yes, YesSaveMemory}\}. Defines whether to add descriptive attributes as linear terms to the rule set. For some data sets, this increases the accuracy. Especially for multi-target data sets it also slows the algorithm down. For these, use value \texttt{YesSaveMemory}, otherwise it can take a lot of memory. For single target data sets \texttt{Yes} is faster. Used for learning rule ensembles \cite{Aho2009}.
 	\item \texttt{OptLinearTermsTruncate = $y$} : Used in conjunction with the above \texttt{OptAddLinearTerms} setting. If \texttt{Yes}, the linear terms are truncated so that they do not predict values greater or smaller than found in the training set. This adds more resistance to outliers. The default setting is \texttt{Yes}. Used for learning rule ensembles \cite{Aho2009}.
-	\item \texttt{OptNormalizeLinearTerms = $o$} : $o$ is a subset of \{\texttt{No, Yes, YesAndConvert}\}. Defines whether the linear terms are scaled so that each descriptive attribute has a similar effect. The default setting is \texttt{Yes} and it should always be used. However, if you want to transform the rule ensemble so that linear terms are of "standard type", you may use \texttt{YesAndConvert} setting. This moves the effect of normalizations to weights and default prediction after optimization. Used for learning rule ensembles \cite{Aho2009}.
+	\item \texttt{OptNormalizeLinearTerms = $o$} : $o$ is an element of \{\texttt{No, Yes, YesAndConvert}\}. Defines whether the linear terms are scaled so that each descriptive attribute has a similar effect. The default setting is \texttt{Yes} and it should always be used. However, if you want to transform the rule ensemble so that linear terms are of "standard type", you may use \texttt{YesAndConvert} setting. This moves the effect of normalizations to weights and default prediction after optimization. Used for learning rule ensembles \cite{Aho2009}.
 \end{itemize}
 
 
 \section{Ensembles}
 \begin{itemize}
 	\item \texttt{Iterations = $n$} : $n$ defines the number of base-level models (trees) in the ensemble, by default it is set to 10.
-	\item \texttt{EnsembleMethod = $o$} : $o$ is a subset of \{\texttt{Bagging, RForest, RSubspaces, BagSubspaces}\} defines the ensemble method.
+	\item \texttt{EnsembleMethod = $o$} : $o$ is an element of \{\texttt{Bagging, RForest, RSubspaces, BagSubspaces}\} defines the ensemble method.
 	\begin{itemize}
 		\item \texttt{Bagging}: Bagging \cite{Breiman1996}.
 		\item \texttt{RForest}: Random forest \cite{Breiman2001}.
 		\item \texttt{RSubspaces}: Random Subspaces \cite{Ho1998}.
 		\item \texttt{BagSubspaces}: Bagging of subspaces \cite{PanovDzeroski2007}.
 	\end{itemize}
-	\item \texttt{VotingType = $o$} : $o$ is a subset of \{\texttt{Majority, ProbabilityDistribution}\} selects the voting scheme for combining predictions of base-level models.
+	\item \texttt{VotingType = $o$} : $o$ is an element of \{\texttt{Majority, ProbabilityDistribution}\} selects the voting scheme for combining predictions of base-level models.
 	\begin{itemize}
 		\item \texttt{Majority}: each base-level model casts one vote, for regression this is equal to averageing.
 		\item \texttt{ProbabilityDistribution}: each base-level model casts probability distributions for each target attribute, does not work for regression.
