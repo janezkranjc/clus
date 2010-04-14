@@ -487,12 +487,12 @@ Some procedures used by \clus{} (e.g., creation of cross-validation folds) are r
 		\item \texttt{None}: no post-pruning of learned trees is performed.
 		\item \texttt{C4.5}: pruning as in C4.5 \cite{Quinlan1993}, can be used for classification trees,
 		\item \texttt{M5}: pruning as in M5 \cite{Quinlan1992},	can be used for regression trees,
-		\item \texttt{M5Multi}: M5 \cite{Quinlan1992} pruning generalized for multi-target regression trees	% Is this true?		
-		%\item \texttt{ReducedErrorVSB}: 
+		\item \texttt{M5Multi}: M5 \cite{Quinlan1992} pruning generalized for multi-target regression trees	% Is this true?
+		\item \texttt{ReducedErrorVSB}: reduced error pruning where the error is estimated on a separate validation data set (VSB = validation set based pruning).
 		\item \texttt{Garofalakis}: pruning method proposed by Garofalakis et al. \cite{Garofalakis03:jrnl} used for constraint induction of trees. % Is this true?
-		%\item \texttt{GarofalakisVSB}: 
-		\item \texttt{CartVSB}: pruning as in the CART book \cite{Breiman1984}.
-		%\item \texttt{CartMaxSize}: 
+		\item \texttt{GarofalakisVSB}: same as \texttt{Garofalakis}, but the error is estimated on a separate validation data set.
+		\item \texttt{CartVSB}: pruning method that is implemented in CART \cite{Breiman1984}, and uses a separate validation set. It seems to work better than M5 on the multi-target regression data sets.
+		\item \texttt{CartMaxSize}: pruning method that is also implemented in CART \cite{Breiman1984}, but uses cross-validation to tune the pruning parameter to achieve the desired tree size. % Is this true?
 	\end{itemize}
 \end{itemize}
 
