@@ -47,8 +47,8 @@
 
 \tableofcontents
 
-
-%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}
 
 This text is a user's manual for the open source machine learning system \clus{}. \clus{} is a decision tree and rule learning system that works in the \emph{predictive clustering} framework \cite{Blockeel1998icml}.
@@ -122,7 +122,8 @@ For background information on the rationale behind the \clus{} system and its al
 A longer list of publications describing different aspects and applications of \clus{} is available on the \clus{} web site
 (\url{www.cs.kuleuven.be/~dtai/clus/publications.html}).
 
-%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Getting Started}
 
 \section{Installing and Running \clus}
@@ -157,6 +158,8 @@ java -jar ../../Clus.jar weather.s
 
 Note that the above instructions are for running the pre-compiled version of \clus{} (\texttt{Clus.jar}), which is included with the \clus{} download. If you have modified and recompiled \clus{}, or if you are using the CVS version, then you should run \clus{} in a different way, as is explained in Chapter~\ref{ch:devel}. If you want get direct CVS access, please contact the developers.
 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Input and Output Files for \clus}
 
 \begin{figure}%[tb]
@@ -269,9 +272,11 @@ outlook = sunny
 
 \clus{} uses (at least) two input files and these are named {\tt {\em filename}.s} and {\tt {\em filename}.arff}, with {\tt {\em filename}} a name chosen by the user.  The file {\tt {\em filename}.s} contains the parameter settings for \clus{}. The file {\tt {\em filename}.arff} contains the training data to be read. The format of the data file is Weka's ARFF format\footnote{\url{http://weka.wikispaces.com/ARFF}}. The results of a \clus{} run are put in an output file {\tt {\em filename}.out}. Figure~\ref{fig:iofiles} gives an overview of the input and output files supported by \clus{}. The format of the data files is described in detail in Chapter~\ref{ch:data}, the format of the settings file is discussed in Chapter~\ref{ch:sett}, and the output files are covered in Chapter~\ref{ch:output}. Optionally, \clus\ can also generate a detailed output of the cross-validation (\texttt{weather.xval}) and model predictions in ARFF format.
 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{A Step-by-step Example}
 
-Distribution of \clus{} includes a number of example datasets.  In this section we briefly take a look at the {\em Weather} dataset, and how it can be processed by \clus{}.  We use Unix notation for paths to filenames; in Windows notation the slashes become backslashes (see also previous section).
+The \clus{} distribution includes a number of example datasets.  In this section we briefly take a look at the {\em Weather} dataset, and how it can be processed by \clus{}.  We use Unix notation for paths to filenames; in Windows notation the slashes become backslashes (see also previous section).
 \begin{enumerate}
   \item Move to the directory {\tt Clus/data/weather}, which contains the {\em Weather} dataset:
 \begin{verbatim}
@@ -331,10 +336,12 @@ In this example, the resulting tree is a multi-target tree: each leaf predicts a
 % 
 % \section{Clustering with Instance Level Constraints}
 
+%
+%%%%%%%%%%%%%%%%%%%%%
 \chapter{Input Format}
 \label{ch:data}
 
-Like many machine learning systems, \clus\ learns from tabular data. These data are assumed to be in the ARFF format that is also used by the Weka data mining tool.  Full details on ARFF can be found elsewhere\footnote{\url{http://weka.wikispaces.com/ARFF}}. We here only give a minimal description.
+Like many machine learning systems, \clus\ learns from tabular data. These data are assumed to be in the ARFF format that is also used by the Weka data mining tool.  Full details on ARFF can be found elsewhere\footnote{\url{http://weka.wikispaces.com/ARFF}}. We only give a minimal description here.
 
 In the data table, each row represents an instance, and each column represents an attribute of the instances.  Each attribute has a name and a domain (the domain is the set of values it can take). In the ARFF format, the names and domains of the attributes are declared up front, before the data are given. The syntax is not case sensitive.
 %
@@ -372,7 +379,7 @@ The last type of domain is \texttt{timeseries}. A time series is a fixed length 
 
 The values in a	 row occur in the same order as the attributes: the $i$'th value is assigned to the $i$'th attribute.  The values must, obviously, be elements of the specified domain.  
 
-\clus\ also supports the sparse ARFF format, where only non-zero data values are stored. The header of a sparse ARFF file is the same, but each data instance is written in curly braces and each attribute value is written as an attribute number (starting from zero) and the value separated by space; values of different attributes are separated by commas.
+\clus\ also supports the sparse ARFF format, where only non-zero data values are stored. The header of a sparse ARFF file is the same, but each data instance is written in curly braces and each attribute value is written as a pair of the attribute number (starting from zero) and its value separated by a space; values of different attributes are separated by commas.
 
 Figure~\ref{weatherarff:fig} shows an example of an ARFF file. An example of a table containing hierarchical multi-label attributes is shown in Figure~\ref{arffhmc:fig}, an example ARFF file with a time series attribute is shown in Figure~\ref{arfftimeser:fig}, and an example sparse ARFF file is shown in Figure~\ref{arffsparse:fig}.
 
@@ -396,7 +403,7 @@ Figure~\ref{weatherarff:fig} shows an example of an ARFF file. An example of a t
 ...
 \end{verbatim}
 \hrule\vspace{1em}
-\caption{An ARFF file that includes an hierarchical multi-label attribute.}
+\caption{An ARFF file that includes a hierarchical multi-label attribute.}
 \label{arffhmc:fig}
 \end{figure}
 
@@ -423,7 +430,7 @@ YAL008W,0,1,0,0,0,0,0,0,0,0,0,0,0,...,0,0,0,0,[0.49, 1.01, 1.33, 1.23, 1.32, 1.0
 ...
 \end{verbatim}
 \hrule
-\caption{An ARFF file that includes an time series attribute.}
+\caption{An ARFF file that includes a time series attribute.}
 \label{arfftimeser:fig}
 \end{figure}
 
