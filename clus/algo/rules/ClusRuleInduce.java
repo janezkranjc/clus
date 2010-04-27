@@ -914,8 +914,8 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 
 				// Running optimization multiple times and selecting the best one.
 				GDAlg gdalg = (GDAlg) optAlg;
-				double firstTVal = getSettings().getOptGDGradTreshold();
-				double lastTVal = 1.0;
+				double firstTVal = 1.0;
+				double lastTVal = getSettings().getOptGDGradTreshold();
 				// What is the difference for intervals so that we get enough runs
 				double interTVal = (lastTVal-firstTVal)/
 								(getSettings().getOptGDNbOfTParameterTry()-1);
@@ -934,7 +934,11 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 
 					ArrayList<Double> newWeights = gdalg.optimize();
 
-					if (gdalg.getBestFitness() <= minFitness) {
+					if (Settings.VERBOSE > 0) 
+						System.err.print("\nThe T value " + (firstTVal+iRun*interTVal) +
+								" has a test fitness: " + gdalg.getBestFitness());
+
+					if (gdalg.getBestFitness() < minFitness) {
 						// Fitness is smaller than previously, store these weights
 						weights = newWeights;
 						minFitness = gdalg.getBestFitness();
@@ -943,12 +947,20 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 						rset.m_optWeightBestFitness = minFitness;
 						
 						if (Settings.VERBOSE > 0) 
-							System.err.println("\nThe T value " + (firstTVal+iRun*interTVal) +
-								" is best so far with test fitness: " + minFitness);
+							System.err.print(" - best so far!");
+
+						// If fitness increasing, check if we are stopping early
+					} else if (getSettings().getOptGDEarlyTTryStop() && 
+							gdalg.getBestFitness() > getSettings().getOptGDEarlyStopTreshold()*minFitness) {
+
+						if (Settings.VERBOSE > 0) 
+							System.err.print(" - early T value stop reached.");
+
+						break;
 					}
 				}
 
-				getSettings().setOptGDGradTreshold(firstTVal);
+				getSettings().setOptGDGradTreshold(lastTVal);
 			} else {
 				// Running only once
 				weights = optAlg.optimize();
@@ -964,7 +976,7 @@ public class ClusRuleInduce extends ClusInductionAlgorithm {
 		
 		// Print weights of rules
 		if (Settings.VERBOSE > 0) {
-			System.out.print("The weights for rules:");
+			System.out.print("\nThe weights for rules:");
 			for (int j = 0; j < rset.getModelSize(); j++) {
 				System.out.print(((Double)weights.get(j)).doubleValue()+ "; ");
 			}

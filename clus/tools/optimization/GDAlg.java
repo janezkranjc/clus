@@ -162,7 +162,7 @@ public class GDAlg extends OptAlg{
 		}
 		// Compute initial gradients
 		m_GDProbl.fullGradientComputation(m_weights);
-
+		
 		int nbOfIterations = 0;
 		while(nbOfIterations < getSettings().getOptGDMaxIter()) {
 
@@ -187,14 +187,18 @@ public class GDAlg extends OptAlg{
 						wrt_log.println("Early stopping detected after " + nbOfIterations + " iterations.");
 					break;
 				}
-			} else if (nbOfIterations % (10*m_earlyStopStep) == 0 && nbOfIterations > 0){
-				// Let's compute gradients gradients from scratch again now and again.
-				m_GDProbl.fullGradientComputation(m_weights);
 			}
+	
+			// Following does not seem to affect the accuracy at all (should affect only very minorly in theory also)
+			// However, seems to increase computational time about 10%
+//			else if (nbOfIterations % (10*m_earlyStopStep) == 0 && nbOfIterations > 0){
+//				// Let's compute gradients gradients from scratch again now and again.
+//				m_GDProbl.fullGradientComputation(m_weights);
+//			}
 
 			// Print
 			OutputLog(nbOfIterations, wrt_log); //Weights
-			//m_GDProbl.printGradientsToFile(nbOfIterations, wrt_log); //gradients 
+ 
 			//3)
 			// Search for maximum gradients
 			int[] maxGradients = m_GDProbl.getMaxGradients(nbOfIterations);
@@ -225,17 +229,21 @@ public class GDAlg extends OptAlg{
 				valueChange[iiGradient] = m_GDProbl.howMuchWeightChanges(maxGradients[iiGradient]);
 
 				// For detecting oscillation. If oscillation is already true, do not change it to false.
-				oscillation = (detectOscillation(iiGradient, valueChange[iiGradient]) || oscillation);
+				if (nbOfIterations < 100)
+					oscillation = (detectOscillation(iiGradient, valueChange[iiGradient]) || oscillation);
 			}
 			if (debugPrint) System.out.print("\nDEBUG: Computing covariances ended\n");
 			// If oscillation was detected we do not take real steps.
 			// we reduce the step size until the new step is smaller than the first one.
 			// It should be smaller because otherwise we are going even further from the optimal point.
-			if (oscillation) {
+			if (oscillation){// && !getSettings().isOptGDIsDynStepsize()) {
 
 				if (GDProbl.m_printGDDebugInformation)
 					wrt_log.println("Detected oscillation, reducing step size of: " + m_GDProbl.m_stepSize);
 
+				if (debugPrint) 
+					System.out.println("DEBUG: Detected oscillation on iteration " + nbOfIterations + ", reducing step size of: " + m_GDProbl.m_stepSize);
+				//System.exit(1); //DEBUG
 				// For MaxLoss combination the oscillation may be because we are finding some local
 				// optimum point for some weight and it is the most significant. Let us put this weight
 				// to a banned list for some iterations
@@ -245,6 +253,7 @@ public class GDAlg extends OptAlg{
 				{
 					putOscillatingWeightsToBan(nbOfIterations);
 				} else {
+					
 					// This is needed if we are changing more than one dimension at time.
 					// The step size is made for the biggest oscillation and thus some of the other oscillating ones
 					// never come back to sensible values.
@@ -254,7 +263,8 @@ public class GDAlg extends OptAlg{
 				continue; // Start next iteration
 			} else {
 				// Store the current data for use in the next iterations.
-				storeTheOscillationData();
+				if (nbOfIterations < 100)
+					storeTheOscillationData();
 			}
 
 			// After it is sure no oscillation is detected, make the changes
@@ -333,6 +343,7 @@ public class GDAlg extends OptAlg{
 
 	/** A iteration has been done and oscillation not detected - store the previous changes */
 	private void storeTheOscillationData() {
+//		if (getSettings().isOptGDIsDynStepsize()) return;
 		m_prevChange = m_newChange.clone();
 		m_iPrevDimension = m_iNewDimension.clone();
 	}
@@ -365,6 +376,7 @@ public class GDAlg extends OptAlg{
 	/** Stores the used gradients for oscillation detection later.
 	 * Also initialization tasks for oscillation. */
 	private void storeGradientsForOscillation(int[] maxGradients) {
+//		if (getSettings().isOptGDIsDynStepsize()) return;
 		m_iNewDimension = maxGradients.clone();
 		m_newChange = new double[maxGradients.length];
 	}
@@ -375,6 +387,7 @@ public class GDAlg extends OptAlg{
 	 *  @param valueChange How much the weight is going to be changed
 	 * @return If oscillation was detected.*/
 	private boolean detectOscillation(int iiNewChange, double valueChange) {
+//		if (getSettings().isOptGDIsDynStepsize()) return false;
 		boolean detectOscillation = false;
 
 		// Store the value for the change, dimensions have already been stored
@@ -391,6 +404,8 @@ public class GDAlg extends OptAlg{
 				if (valueChange*m_prevChange[iiPrevChange] < 0 &&
 						Math.abs(valueChange) > Math.abs(m_prevChange[iiPrevChange])) {
 
+//					System.err.println("DEBUG: Found out oscillation for weight " + m_iPrevDimension[iiPrevChange] + 
+	//						" that was nb " +iiPrevChange + " last iteration and "+ iiNewChange + " now.");
 					// OSCILLATION DETECTED
 					if (m_iOscillatingWeights != null) {
 						m_iOscillatingWeights.add(m_iPrevDimension[iiPrevChange]);
@@ -432,13 +447,17 @@ public class GDAlg extends OptAlg{
 			testFitness = m_GDProbl.m_earlyStopProbl.calcFitness(m_weights);
 
 
-		wrt.print("Iteration " + iterNro + " (" + fr.format(trainingFitness) + ", " + fr.format(testFitness) +  "): ");
+		wrt.print("Iteration " + iterNro + " ");
+//		if (getSettings().isOptGDIsDynStepsize())
+//			wrt.print("Step size: " + m_GDProbl.m_stepSize + " ");
+		wrt.print("(" + fr.format(trainingFitness) + ", " + fr.format(testFitness) +  "): ");
 //		else
 		//wrt.print("Iteration " + iterNro + ": ");
 		for (int i = 0; i < m_weights.size(); i++) {
 			wrt.print(fr.format((double)m_weights.get(i))+"\t");
 		}
 		wrt.print("\n");
+		//m_GDProbl.printGradientsToFile(nbOfIterations, wrt_log); //gradients //DEBUG
 	}
 
 	public double getBestFitness() {
