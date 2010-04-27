@@ -521,6 +521,7 @@ public class Settings implements Serializable {
 
 	protected INIFileInt m_SetsData;
 	protected INIFileBool m_OutFoldErr;
+	/** Print out data to .arff files for each fold, m_WritePredictions has to be given value to this to work */
 	protected INIFileBool m_OutFoldData;
 	protected INIFileBool m_OutFoldModels;
 	protected INIFileBool m_OutTrainErr;
@@ -532,6 +533,7 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_ShowInfo;
 	protected INIFileNominal m_ShowModels;
 	protected INIFileBool m_PrintModelAndExamples;
+	/** Write test/train predictions to files */
 	protected INIFileNominal m_WritePredictions;
 	protected INIFileBool m_WriteErrorFile;
 	protected INIFileBool m_ModelIDFiles;
@@ -1097,14 +1099,18 @@ public class Settings implements Serializable {
 	/** GD Treshold [0,1] for changing the gradient. This portion of maximum gradients are affecting.
  	 * A value between [0,1].If 1 (default) this is simliar to L1 regularization (Lasso) and 0 similar to L2.*/
 	protected INIFileDouble m_OptGDGradTreshold;
-	/** GD Step size ]0,1] for each iteration. */
+	/** GD Initial step size ]0,1] for each iteration. */
 	protected INIFileDouble m_OptGDStepSize;
+	///** GD Compute dynamic optimal step lenght for each iteration */
+	//protected INIFileBool m_OptGDIsDynStepsize;
 	/** GD Maximum number of nonzero weights. If the number reached, only old ones are altered.
 	 * If = 0, no limit for nonzero weights.*/
 	protected INIFileInt m_OptGDMaxNbWeights;
 	/** GD User early stopping criteria for this amount of data. If 0, no early stopping used. */
 	protected INIFileDouble m_OptGDEarlyStopAmount;
-	/** GD Early stopping criteria treshold. Value should be greater than 1.*/
+	/** GD Early stopping criteria treshold. Value should be greater than 1. Used at least
+	 * for stopping GD optimization for single T value. However, if OptGDEarlyTTryStop true, also
+	 * used for stopping to try new T values. */
 	protected INIFileDouble m_OptGDEarlyStopTreshold;
 	/** GD When early stopping is found, how many times we try to reduce the step size and try again
 	 * Default is Infinity. In this case we use all the iterations by reducing step size. */
@@ -1115,6 +1121,9 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_OptGDMTGradientCombine;
 	/** GD How many different parameter combinations we try for T. Values between [m_OptGDGradTreshold,1] */
 	protected INIFileInt m_OptGDNbOfTParameterTry;
+	/** GD When running from T=1 down, do we stop if the error starts to increase. Should make optimization
+	 * a lot faster, but may decrease the accuracy.*/
+	protected INIFileBool m_OptGDEarlyTTryStop;
 
 	public INIFileNominalOrDoubleOrVector getDispersionWeights() {
 		return m_DispersionWeights;
@@ -1441,6 +1450,11 @@ public class Settings implements Serializable {
 		return m_OptGDStepSize.getValue();
 	}
 
+//	/** GD Step size ]0,1] for each iteration. */
+//	public boolean isOptGDIsDynStepsize(){
+//		return m_OptGDIsDynStepsize.getValue();
+//	}
+
 	/** Amount of data used for early stopping check. If zero, not used. */
 	public double getOptGDEarlyStopAmount() {
 		return m_OptGDEarlyStopAmount.getValue();
@@ -1483,6 +1497,12 @@ public class Settings implements Serializable {
 	/** GD How many different parameter combinations we try for T. Values between [T,1] */
 	public int getOptGDNbOfTParameterTry() {
 		return m_OptGDNbOfTParameterTry.getValue();
+	}
+	
+	/** GD When running from T=1 down, do we stop if the error starts to increase. Should make optimization
+	 * a lot faster, but may decrease the accuracy.*/
+	public boolean getOptGDEarlyTTryStop() {
+		return m_OptGDEarlyTTryStop.getValue();
 	}
 
 
@@ -1840,8 +1860,10 @@ public class Settings implements Serializable {
 	public final static String[] ENSEMBLE_TYPE = {"Bagging", "RForest", "RSubspaces", "BagSubspaces", "Boosting", "NoBagRForest"};
 
 	public final static int ENSEMBLE_BAGGING = 0;
-	public final static int ENSEMBLE_RFOREST = 1;
+	public final static int ENSEMBLE_RFOREST = 1; 
+	/** Random subspaces */
 	public final static int ENSEMBLE_RSUBSPACES = 2;
+	/** Bagging of subspaces */
 	public final static int ENSEMBLE_BAGSUBSPACES = 3;
 	public final static int ENSEMBLE_BOOSTING = 4;
 	public final static int ENSEMBLE_NOBAGRFOREST = 5;
@@ -1853,13 +1875,19 @@ public class Settings implements Serializable {
 
 	INIFileSection m_SectionEnsembles;
 	protected INIFileNominalOrIntOrVector m_NbBags;
+	/** Used ensemble method */
 	public static INIFileNominal m_EnsembleMethod;
+	/** Voting type, for regression mean is always used, the options are for classification */
 	public static INIFileNominal m_ClassificationVoteType;
+	/** Size of the feature set used during tree induction. Used for random forests, random 
+	 * subspaces and bagging of subspaces. If left to default 0, floor(log_2 #DescAttr) + 1 is used.*/
 	protected INIFileInt m_RandomAttrSelected;
 	public static INIFileBool m_PrintAllModels;
 	public static INIFileBool m_PrintAllModelFiles;
 	public static boolean m_EnsembleMode = false;
+	/** Time & memory optimization */
 	public static INIFileBool m_EnsembleShouldOpt;
+	/** Estimate error with time & memory optimization */
 	public static INIFileBool m_EnsembleOOBestimate;
 	protected INIFileBool m_FeatureRanking;
 	protected INIFileNominalOrIntOrVector m_BagSelection;
@@ -2149,6 +2177,7 @@ public class Settings implements Serializable {
 //		m_SectionRules.addNode(m_OptGDLossFunction = new INIFileNominal("OptGDLossFunction", GD_LOSS_FUNCTIONS, 0));
 		m_SectionRules.addNode(m_OptGDGradTreshold = new INIFileDouble("OptGDGradTreshold", 1));
 		m_SectionRules.addNode(m_OptGDStepSize = new INIFileDouble("OptGDStepSize", 0.1));
+//		m_SectionRules.addNode(m_OptGDIsDynStepsize = new INIFileBool("OptGDIsDynStepsize", true));
 		m_SectionRules.addNode(m_OptGDMaxNbWeights = new INIFileInt("OptGDMaxNbWeights", 0));
 		m_SectionRules.addNode(m_OptGDEarlyStopAmount = new INIFileDouble("OptGDEarlyStopAmount", 0.0));
 		m_SectionRules.addNode(m_OptGDEarlyStopTreshold = new INIFileDouble("OptGDEarlyStopTreshold", 1.1));
@@ -2156,6 +2185,7 @@ public class Settings implements Serializable {
 		m_SectionRules.addNode(m_OptGDExternalMethod = new INIFileNominal("OptGDExternalMethod",GD_EXTERNAL_METHOD_VALUES, 0));
 		m_SectionRules.addNode(m_OptGDMTGradientCombine = new INIFileNominal("OptGDMTGradientCombine",OPT_GD_MT_COMBINE_GRADIENTS, 0));
 		m_SectionRules.addNode(m_OptGDNbOfTParameterTry = new INIFileInt("OptGDNbOfTParameterTry",0));
+		m_SectionRules.addNode(m_OptGDEarlyTTryStop = new INIFileBool("OptGDEarlyTTryStop",false));
 		m_SectionRules.setEnabled(false);
 
 		m_SectionHierarchical = new INIFileSection("Hierarchical");
