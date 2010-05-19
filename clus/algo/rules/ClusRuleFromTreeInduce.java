@@ -137,8 +137,8 @@ public class ClusRuleFromTreeInduce extends ClusRuleInduce {
 		if (getSettings().isRulePredictionOptimized()) {
 			ruleSet = optimizeRuleSet(ruleSet, (RowData)cr.getTrainingSet());
 		}
-		ruleSet.setTrainErrorScore(); // Not always needed?
-		ruleSet.addDataToRules(trainingData);
+//		ruleSet.setTrainErrorScore(); // Seems to be needed only for some other covering method. Not always needed?
+//		ruleSet.addDataToRules(trainingData); // May take huge amount of memory
 
 		// Computing dispersion
 		if (getSettings().computeDispersion()) {
