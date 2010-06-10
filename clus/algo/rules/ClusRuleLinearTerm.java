@@ -204,7 +204,7 @@ public class ClusRuleLinearTerm extends ClusRule {
 	 /** Returns the prediction by this linear term for the tuple. */
 	public ClusStatistic predictWeighted(DataTuple tuple) {
 		if (!(m_TargetStat instanceof RegressionStat))
-			System.err.println("Error: Using linear terms for optimization is implemented for single target regression only.");
+			System.err.println("Error: Using linear terms for optimization is implemented for regression only.");
 		
 		RegressionStat stat = ((RegressionStat) m_TargetStat);
 		
