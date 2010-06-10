@@ -168,24 +168,40 @@ public class GDAlg extends OptAlg{
 
 			if (Settings.VERBOSE > 0 && nbOfIterations % (Math.ceil(getSettings().getOptGDMaxIter()/50.0)) == 0) 
 				System.out.print(".");
-			if (nbOfIterations % m_earlyStopStep == 0 && getSettings().getOptGDEarlyStopAmount() > 0 &&
-					m_GDProbl.isEarlyStop(m_weights))
-			{
-				if (GDProbl.m_printGDDebugInformation)
-					wrt_log.println("Increase in test fitness. Reducing step size or stopping.");
-
-				if (Settings.VERBOSE > 0) System.out.print("\n\tOverfitting after " + nbOfIterations + " iterations.");
-				if (m_earlyStopStepsizeReducedNb < getSettings().getOptGDNbOfStepSizeReduce()){
-					m_earlyStopStepsizeReducedNb++;
-					m_GDProbl.dropStepSize(0.1); // Drop stepsize to tenth.
-					m_GDProbl.restoreBestWeight(m_weights); // restoring the weight with minimum fitness
-					m_GDProbl.fullGradientComputation(m_weights);
-					if (Settings.VERBOSE > 0) System.out.print(" Reducing step, continuing.\n");
-				} else {
-					if (Settings.VERBOSE > 0) System.out.print(" Stopping.\n");
+			if (nbOfIterations % m_earlyStopStep == 0) {
+				
+				// Is lower bound already reached if dyn step size used
+				boolean dynStepSizeLowerBoundWasNotReachedAlready = false;
+				// Drop step size always
+				if (getSettings().isOptGDIsDynStepsize()) {
+					dynStepSizeLowerBoundWasNotReachedAlready = m_GDProbl.dropStepDynamicStepSize();
+				}
+				
+				if (getSettings().getOptGDEarlyStopAmount() > 0 &&
+						m_GDProbl.isEarlyStop(m_weights))
+				{
 					if (GDProbl.m_printGDDebugInformation)
-						wrt_log.println("Early stopping detected after " + nbOfIterations + " iterations.");
-					break;
+						wrt_log.println("Increase in test fitness. Reducing step size or stopping.");
+
+					if (Settings.VERBOSE > 0) System.out.print("\n\tOverfitting after " + nbOfIterations + " iterations.");
+
+					// If dynamic step size, only restore previous weights. Step size is already dropped
+					if (getSettings().isOptGDIsDynStepsize() && dynStepSizeLowerBoundWasNotReachedAlready) {
+						m_GDProbl.restoreBestWeight(m_weights); // restoring the weight with minimum fitness
+						m_GDProbl.fullGradientComputation(m_weights);					
+					} else if (!getSettings().isOptGDIsDynStepsize() &&
+							m_earlyStopStepsizeReducedNb < getSettings().getOptGDNbOfStepSizeReduce()){
+						m_earlyStopStepsizeReducedNb++;
+						m_GDProbl.dropStepSize(0.1); // Drop stepsize to tenth.
+						m_GDProbl.restoreBestWeight(m_weights); // restoring the weight with minimum fitness
+						m_GDProbl.fullGradientComputation(m_weights);
+						if (Settings.VERBOSE > 0) System.out.print(" Reducing step, continuing.\n");
+					} else {
+						if (Settings.VERBOSE > 0) System.out.print(" Stopping.\n");
+						if (GDProbl.m_printGDDebugInformation)
+							wrt_log.println("Early stopping detected after " + nbOfIterations + " iterations.");
+							break;
+					}
 				}
 			}
 	
@@ -236,7 +252,7 @@ public class GDAlg extends OptAlg{
 			// If oscillation was detected we do not take real steps.
 			// we reduce the step size until the new step is smaller than the first one.
 			// It should be smaller because otherwise we are going even further from the optimal point.
-			if (oscillation){// && !getSettings().isOptGDIsDynStepsize()) {
+			if (oscillation && !getSettings().isOptGDIsDynStepsize()) {
 
 				if (GDProbl.m_printGDDebugInformation)
 					wrt_log.println("Detected oscillation, reducing step size of: " + m_GDProbl.m_stepSize);
@@ -343,7 +359,7 @@ public class GDAlg extends OptAlg{
 
 	/** A iteration has been done and oscillation not detected - store the previous changes */
 	private void storeTheOscillationData() {
-//		if (getSettings().isOptGDIsDynStepsize()) return;
+		if (getSettings().isOptGDIsDynStepsize()) return;
 		m_prevChange = m_newChange.clone();
 		m_iPrevDimension = m_iNewDimension.clone();
 	}
@@ -376,7 +392,7 @@ public class GDAlg extends OptAlg{
 	/** Stores the used gradients for oscillation detection later.
 	 * Also initialization tasks for oscillation. */
 	private void storeGradientsForOscillation(int[] maxGradients) {
-//		if (getSettings().isOptGDIsDynStepsize()) return;
+		if (getSettings().isOptGDIsDynStepsize()) return;
 		m_iNewDimension = maxGradients.clone();
 		m_newChange = new double[maxGradients.length];
 	}
@@ -387,7 +403,7 @@ public class GDAlg extends OptAlg{
 	 *  @param valueChange How much the weight is going to be changed
 	 * @return If oscillation was detected.*/
 	private boolean detectOscillation(int iiNewChange, double valueChange) {
-//		if (getSettings().isOptGDIsDynStepsize()) return false;
+		if (getSettings().isOptGDIsDynStepsize()) return false;
 		boolean detectOscillation = false;
 
 		// Store the value for the change, dimensions have already been stored
@@ -448,8 +464,8 @@ public class GDAlg extends OptAlg{
 
 
 		wrt.print("Iteration " + iterNro + " ");
-//		if (getSettings().isOptGDIsDynStepsize())
-//			wrt.print("Step size: " + m_GDProbl.m_stepSize + " ");
+		if (getSettings().isOptGDIsDynStepsize())
+			wrt.print("Step size: " + m_GDProbl.m_stepSize + " ");
 		wrt.print("(" + fr.format(trainingFitness) + ", " + fr.format(testFitness) +  "): ");
 //		else
 		//wrt.print("Iteration " + iterNro + ": ");
