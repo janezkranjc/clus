@@ -262,10 +262,11 @@ public class GDProbl extends OptProbl {
 		initPredictorVsTrueValuesCovariances();
 		
 		// dynamic step size computation
-//		if (getSettings().isOptGDIsDynStepsize()) {
+		if (getSettings().isOptGDIsDynStepsize()) {
 //			m_predictorMeans = new double[getNumVar()][getNbOfTargets()];
 //			computePredictorMeans();
-//		}
+			computeDynStepSize();
+		}
 	}
 
 
@@ -304,8 +305,52 @@ public class GDProbl extends OptProbl {
 //		if (getSettings().isOptGDIsDynStepsize()) {
 //			m_gradientNormSquared = 0;
 //			m_gradPredProduct = new double[getNbOfTargets()];
-////			initDynStepSize();
+//			initDynStepSize();
 //		}
+	}
+
+	double m_dynStepLowerBound = 0;
+	double m_dynStepSizeDrop = 0;
+	private void computeDynStepSize() {
+
+		for (int dimension = 0; dimension < getNumVar(); dimension++) {
+			m_covariances[dimension][dimension] = computeCovFor2Preds(dimension, dimension);
+		}
+		
+		
+		double sum = 0;
+		for (int dimension = 0; dimension < getNumVar(); dimension++) {
+			sum += getWeightCov(dimension, dimension);
+		}
+		m_dynStepLowerBound = 1.0/sum;
+		if (m_printGDDebugInformation) System.out.println("DEBUG: DynStepSize lower bound is " + m_dynStepLowerBound);
+
+		// getSettings().getOptGDMaxIter()/m_earlyStopStep = nb of drops
+		// TODO 100 Change to variable m_earlyStopStep
+		//m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/100.0-1)); 
+//		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/9);
+//		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/1000.0-1)); // first 1/10 of iterations used
+//		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/5000.0-1)); // first 1/2 of iterations used
+		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/5000.0-1)); // first 1/2 of iterations used
+		
+	}
+
+	
+	/** Drop step size locarithmically.
+	 * Returns false if lower bound was already reached before this drop
+	 * Thus returns if this drop was useful at all*/
+	public boolean dropStepDynamicStepSize() {
+		if (m_stepSize > m_dynStepLowerBound) {
+			m_stepSize = Math.max(m_stepSize*m_dynStepSizeDrop, m_dynStepLowerBound);
+			return true;
+		} else 
+			return false;
+		
+		
+
+//		dropStepSize(m_dynStepSizeDrop);
+		//i = [1:20];2.^(log2(MAX-10E-5)*(i-1)/(size(i,2)-1))
+		// = i = [1:20];(10E-5).^((i-1)/(size(i,2)-1)), kun MAX = 1
 	}
 
 
@@ -1293,6 +1338,9 @@ public class GDProbl extends OptProbl {
 		}
 		wrt.print("\n");
 	}
+
+
+
 
 //	/** Computes predictor means for dynamic step size computation */
 //	private void computePredictorMeans() {
