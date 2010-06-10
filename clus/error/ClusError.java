@@ -188,10 +188,6 @@ public abstract class ClusError implements Serializable {
  * @throws IOException 
  ***************************************************************************/
 
-	public void showModelError(PrintWriter out, String bName, int detail) throws IOException {
-		showModelError(out, detail);
-	}
-	
 	public void showModelError(PrintWriter out, int detail) {
 		for (int i = 0; i < m_Dim; i++) {
 			if (i != 0) out.print(", ");

@@ -167,8 +167,8 @@ public class ClusOutput {
 				}
 			}
 		}
-		// Compute basename
-		String bName = FileUtil.getName(m_Fname);
+		// Compute basename - not needed
+		//String bName = FileUtil.getName(m_Fname);
 		m_Writer.println();
 		ClusErrorList te_err = cr.getTestError();
 		if (m_Sett.isOutFoldError() || detail) {
@@ -179,7 +179,8 @@ public class ClusOutput {
 					else m_Writer.println("Training error");
 					m_Writer.println("--------------");
 					m_Writer.println();
-					tr_err.showError(cr, ClusModelInfo.TRAIN_ERR, bName+".train", m_Writer);
+					//tr_err.showError(cr, ClusModelInfo.TRAIN_ERR, bName+".train", m_Writer);
+					tr_err.showError(cr, ClusModelInfo.TRAIN_ERR, m_Writer);
 					m_Writer.println();
 				}
 				ClusErrorList.printExtraError(cr, ClusModelInfo.TRAIN_ERR, m_Writer);
@@ -189,14 +190,16 @@ public class ClusOutput {
 				m_Writer.println("Validation error");
 				m_Writer.println("----------------");
 				m_Writer.println();
-				va_err.showError(cr, ClusModelInfo.VALID_ERR, bName+".valid", m_Writer);
+				//va_err.showError(cr, ClusModelInfo.VALID_ERR, bName+".valid", m_Writer);
+				va_err.showError(cr, ClusModelInfo.VALID_ERR, m_Writer);
 				m_Writer.println();
 			}
 			if (te_err != null && m_Sett.isOutTestError()) {
 				m_Writer.println("Testing error");
 				m_Writer.println("-------------");
 				m_Writer.println();
-				te_err.showError(cr, ClusModelInfo.TEST_ERR, bName+".test", m_Writer);
+				//te_err.showError(cr, ClusModelInfo.TEST_ERR, bName+".test", m_Writer);
+				te_err.showError(cr, ClusModelInfo.TEST_ERR, m_Writer);
 				m_Writer.println();
 			}
 		}
@@ -270,13 +273,14 @@ public class ClusOutput {
 			if (mi != null)	m_Writer.println("     "+mi.getName()+": "+getQuotient(mi.getModelSize(), runs));
 		}
 		m_Writer.println();
-		String bName = FileUtil.getName(m_Fname);		
+//		String bName = FileUtil.getName(m_Fname);		
 		ClusErrorList tr_err = summary.getTrainError();
 		if (m_Sett.isOutTrainError() && tr_err != null) {
 			m_Writer.println("Training error");
 			m_Writer.println("--------------");
 			m_Writer.println();
-			tr_err.showError(summary, ClusModelInfo.TRAIN_ERR, bName+".train", m_Writer);
+//			tr_err.showError(summary, ClusModelInfo.TRAIN_ERR, bName+".train", m_Writer);
+			tr_err.showError(summary, ClusModelInfo.TRAIN_ERR, m_Writer);
 			m_Writer.println();
 		}
 		ClusErrorList va_err = summary.getValidationError();
@@ -284,7 +288,8 @@ public class ClusOutput {
 			m_Writer.println("Validation error");
 			m_Writer.println("----------------");
 			m_Writer.println();
-			va_err.showError(summary, ClusModelInfo.VALID_ERR, bName+".valid", m_Writer);
+//			va_err.showError(summary, ClusModelInfo.VALID_ERR, bName+".valid", m_Writer);
+			va_err.showError(summary, ClusModelInfo.VALID_ERR, m_Writer);
 			m_Writer.println();
 		}
 		ClusErrorList te_err = summary.getTestError();
@@ -292,7 +297,8 @@ public class ClusOutput {
 			m_Writer.println("Testing error");
 			m_Writer.println("-------------");
 			m_Writer.println();
-			te_err.showError(summary, ClusModelInfo.TEST_ERR, bName+".test", m_Writer);
+//			te_err.showError(summary, ClusModelInfo.TEST_ERR, bName+".test", m_Writer);
+			te_err.showError(summary, ClusModelInfo.TEST_ERR, m_Writer);
 		}
 		m_Writer.println();
 		m_Writer.flush();
