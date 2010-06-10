@@ -1079,8 +1079,7 @@ public class OptProbl {
 	/** Prepare predictions for normalization, the predictions might have to be changed */
 	protected void preparePredictionsForNormalization() {
 	
-		// Preparations are needed only if some normalization with average shifting is needed.
-		// Also prediction omitting negates the need for these
+		// Preparations are needed only if some normalization with average shifting is used.
 		if (!getSettings().isOptNormalization() 
 				|| getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_ONLY_SCALING)
 			return;

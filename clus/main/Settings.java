@@ -168,6 +168,7 @@ public class Settings implements Serializable {
 	protected INIFileStringOrDouble m_TestSet;
 	protected INIFileStringOrDouble m_PruneSet;
 	protected INIFileStringOrInt m_PruneSetMax;
+	/** How many folds are we having in xval OR gives a file that defines the used folds (in the data set)*/
 	protected INIFileStringOrInt m_XValFolds;
 	protected INIFileBool m_RemoveMissingTarget;
 
@@ -1102,7 +1103,7 @@ public class Settings implements Serializable {
 	/** GD Initial step size ]0,1] for each iteration. */
 	protected INIFileDouble m_OptGDStepSize;
 	///** GD Compute dynamic optimal step lenght for each iteration */
-	//protected INIFileBool m_OptGDIsDynStepsize;
+	protected INIFileBool m_OptGDIsDynStepsize;
 	/** GD Maximum number of nonzero weights. If the number reached, only old ones are altered.
 	 * If = 0, no limit for nonzero weights.*/
 	protected INIFileInt m_OptGDMaxNbWeights;
@@ -1450,10 +1451,10 @@ public class Settings implements Serializable {
 		return m_OptGDStepSize.getValue();
 	}
 
-//	/** GD Step size ]0,1] for each iteration. */
-//	public boolean isOptGDIsDynStepsize(){
-//		return m_OptGDIsDynStepsize.getValue();
-//	}
+	/** GD Step size ]0,1] for each iteration. */
+	public boolean isOptGDIsDynStepsize(){
+		return m_OptGDIsDynStepsize.getValue();
+	}
 
 	/** Amount of data used for early stopping check. If zero, not used. */
 	public double getOptGDEarlyStopAmount() {
@@ -2177,7 +2178,7 @@ public class Settings implements Serializable {
 //		m_SectionRules.addNode(m_OptGDLossFunction = new INIFileNominal("OptGDLossFunction", GD_LOSS_FUNCTIONS, 0));
 		m_SectionRules.addNode(m_OptGDGradTreshold = new INIFileDouble("OptGDGradTreshold", 1));
 		m_SectionRules.addNode(m_OptGDStepSize = new INIFileDouble("OptGDStepSize", 0.1));
-//		m_SectionRules.addNode(m_OptGDIsDynStepsize = new INIFileBool("OptGDIsDynStepsize", true));
+		m_SectionRules.addNode(m_OptGDIsDynStepsize = new INIFileBool("OptGDIsDynStepsize", false));
 		m_SectionRules.addNode(m_OptGDMaxNbWeights = new INIFileInt("OptGDMaxNbWeights", 0));
 		m_SectionRules.addNode(m_OptGDEarlyStopAmount = new INIFileDouble("OptGDEarlyStopAmount", 0.0));
 		m_SectionRules.addNode(m_OptGDEarlyStopTreshold = new INIFileDouble("OptGDEarlyStopTreshold", 1.1));
