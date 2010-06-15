@@ -1102,7 +1102,7 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_OptGDGradTreshold;
 	/** GD Initial step size ]0,1] for each iteration. */
 	protected INIFileDouble m_OptGDStepSize;
-	///** GD Compute dynamic optimal step lenght for each iteration */
+	/** GD Compute lower limit of step size based on the predictions */
 	protected INIFileBool m_OptGDIsDynStepsize;
 	/** GD Maximum number of nonzero weights. If the number reached, only old ones are altered.
 	 * If = 0, no limit for nonzero weights.*/
@@ -2178,7 +2178,7 @@ public class Settings implements Serializable {
 //		m_SectionRules.addNode(m_OptGDLossFunction = new INIFileNominal("OptGDLossFunction", GD_LOSS_FUNCTIONS, 0));
 		m_SectionRules.addNode(m_OptGDGradTreshold = new INIFileDouble("OptGDGradTreshold", 1));
 		m_SectionRules.addNode(m_OptGDStepSize = new INIFileDouble("OptGDStepSize", 0.1));
-		m_SectionRules.addNode(m_OptGDIsDynStepsize = new INIFileBool("OptGDIsDynStepsize", false));
+		m_SectionRules.addNode(m_OptGDIsDynStepsize = new INIFileBool("OptGDIsDynStepsize", true));
 		m_SectionRules.addNode(m_OptGDMaxNbWeights = new INIFileInt("OptGDMaxNbWeights", 0));
 		m_SectionRules.addNode(m_OptGDEarlyStopAmount = new INIFileDouble("OptGDEarlyStopAmount", 0.0));
 		m_SectionRules.addNode(m_OptGDEarlyStopTreshold = new INIFileDouble("OptGDEarlyStopTreshold", 1.1));
@@ -2186,7 +2186,7 @@ public class Settings implements Serializable {
 		m_SectionRules.addNode(m_OptGDExternalMethod = new INIFileNominal("OptGDExternalMethod",GD_EXTERNAL_METHOD_VALUES, 0));
 		m_SectionRules.addNode(m_OptGDMTGradientCombine = new INIFileNominal("OptGDMTGradientCombine",OPT_GD_MT_COMBINE_GRADIENTS, 0));
 		m_SectionRules.addNode(m_OptGDNbOfTParameterTry = new INIFileInt("OptGDNbOfTParameterTry",0));
-		m_SectionRules.addNode(m_OptGDEarlyTTryStop = new INIFileBool("OptGDEarlyTTryStop",false));
+		m_SectionRules.addNode(m_OptGDEarlyTTryStop = new INIFileBool("OptGDEarlyTTryStop",true));
 		m_SectionRules.setEnabled(false);
 
 		m_SectionHierarchical = new INIFileSection("Hierarchical");

@@ -170,12 +170,12 @@ public class GDAlg extends OptAlg{
 				System.out.print(".");
 			if (nbOfIterations % m_earlyStopStep == 0) {
 				
-				// Is lower bound already reached if dyn step size used
-				boolean dynStepSizeLowerBoundWasNotReachedAlready = false;
-				// Drop step size always
-				if (getSettings().isOptGDIsDynStepsize()) {
-					dynStepSizeLowerBoundWasNotReachedAlready = m_GDProbl.dropStepDynamicStepSize();
-				}
+//				// Is lower bound already reached if dyn step size used
+//				boolean dynStepSizeLowerBoundWasNotReachedAlready = false;
+//				// Drop step size always
+//				if (getSettings().isOptGDIsDynStepsize()) {
+//					dynStepSizeLowerBoundWasNotReachedAlready = m_GDProbl.dropStepDynamicStepSize();
+//				}
 				
 				if (getSettings().getOptGDEarlyStopAmount() > 0 &&
 						m_GDProbl.isEarlyStop(m_weights))
@@ -185,18 +185,19 @@ public class GDAlg extends OptAlg{
 
 					if (Settings.VERBOSE > 0) System.out.print("\n\tOverfitting after " + nbOfIterations + " iterations.");
 
-					// If dynamic step size, only restore previous weights. Step size is already dropped
-					if (getSettings().isOptGDIsDynStepsize() && dynStepSizeLowerBoundWasNotReachedAlready) {
-						m_GDProbl.restoreBestWeight(m_weights); // restoring the weight with minimum fitness
-						m_GDProbl.fullGradientComputation(m_weights);					
-					} else if (!getSettings().isOptGDIsDynStepsize() &&
+//					// If dynamic step size, only restore previous weights. Step size is already dropped
+//					if (getSettings().isOptGDIsDynStepsize() && dynStepSizeLowerBoundWasNotReachedAlready) {
+//						m_GDProbl.restoreBestWeight(m_weights); // restoring the weight with minimum fitness
+//						m_GDProbl.fullGradientComputation(m_weights);					
+//					} else 
+					if (!getSettings().isOptGDIsDynStepsize() &&
 							m_earlyStopStepsizeReducedNb < getSettings().getOptGDNbOfStepSizeReduce()){
 						m_earlyStopStepsizeReducedNb++;
 						m_GDProbl.dropStepSize(0.1); // Drop stepsize to tenth.
 						m_GDProbl.restoreBestWeight(m_weights); // restoring the weight with minimum fitness
 						m_GDProbl.fullGradientComputation(m_weights);
 						if (Settings.VERBOSE > 0) System.out.print(" Reducing step, continuing.\n");
-					} else {
+					} else { // If dynamic step size, stop always
 						if (Settings.VERBOSE > 0) System.out.print(" Stopping.\n");
 						if (GDProbl.m_printGDDebugInformation)
 							wrt_log.println("Early stopping detected after " + nbOfIterations + " iterations.");

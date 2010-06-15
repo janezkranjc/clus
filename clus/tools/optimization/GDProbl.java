@@ -271,6 +271,8 @@ public class GDProbl extends OptProbl {
 
 
 
+	double m_dynStepLowerBound = 0;
+	
 	/** Initialize GD optimization for new run with same predictions and true values
 	 * This can be used if some parameters change. Thus we e.g. do not compute covariances
 	 * again
@@ -302,15 +304,13 @@ public class GDProbl extends OptProbl {
 		m_stepSize = getSettings().getOptGDStepSize();
 		
 		// dynamic step size computation
-//		if (getSettings().isOptGDIsDynStepsize()) {
-//			m_gradientNormSquared = 0;
-//			m_gradPredProduct = new double[getNbOfTargets()];
-//			initDynStepSize();
-//		}
+		if (getSettings().isOptGDIsDynStepsize()) {
+			m_stepSize = m_dynStepLowerBound;
+		}
 	}
 
-	double m_dynStepLowerBound = 0;
-	double m_dynStepSizeDrop = 0;
+
+//	double m_dynStepSizeDrop = 0;
 	private void computeDynStepSize() {
 
 		for (int dimension = 0; dimension < getNumVar(); dimension++) {
@@ -331,7 +331,7 @@ public class GDProbl extends OptProbl {
 //		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/9);
 //		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/1000.0-1)); // first 1/10 of iterations used
 //		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/5000.0-1)); // first 1/2 of iterations used
-		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/5000.0-1)); // first 1/2 of iterations used
+//		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/5000.0-1)); // first 1/2 of iterations used
 		
 	}
 
@@ -339,19 +339,19 @@ public class GDProbl extends OptProbl {
 	/** Drop step size locarithmically.
 	 * Returns false if lower bound was already reached before this drop
 	 * Thus returns if this drop was useful at all*/
-	public boolean dropStepDynamicStepSize() {
-		if (m_stepSize > m_dynStepLowerBound) {
-			m_stepSize = Math.max(m_stepSize*m_dynStepSizeDrop, m_dynStepLowerBound);
-			return true;
-		} else 
-			return false;
-		
+//	public boolean dropStepDynamicStepSize() {
+//		if (m_stepSize > m_dynStepLowerBound) {
+//			m_stepSize = Math.max(m_stepSize*m_dynStepSizeDrop, m_dynStepLowerBound);
+//			return true;
+//		} else 
+//			return false;
+//		
 		
 
 //		dropStepSize(m_dynStepSizeDrop);
 		//i = [1:20];2.^(log2(MAX-10E-5)*(i-1)/(size(i,2)-1))
 		// = i = [1:20];(10E-5).^((i-1)/(size(i,2)-1)), kun MAX = 1
-	}
+//	}
 
 
 	/**
@@ -1128,7 +1128,8 @@ public class GDProbl extends OptProbl {
 					&& (!maxNbOfWeightReached || m_isWeightNonZero[iCopy] || iCopy == 0)) {
 				iMaxGradients.add(iCopy);
 				// If the treshold is 1, we only want to change one dimension at time
-				if (getSettings().getOptGDGradTreshold() == 1.0)
+				// Default rule is not counted
+				if (getSettings().getOptGDGradTreshold() == 1.0 && iCopy != 0)
 					break;
 			}
 		}
