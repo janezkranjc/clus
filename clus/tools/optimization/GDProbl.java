@@ -184,18 +184,12 @@ public class GDProbl extends OptProbl {
 				}
 				
 				for (int iRule = 0; iRule < optInfo.m_rulePredictions.length;iRule++){
-//					m_dataEarlyStop.m_rulePredictions[iRule].m_cover.set(iTestSetInstance,
-//							optInfo.m_rulePredictions[iRule].m_cover.get(iNewTestInstance));
 					if (optInfo.m_rulePredictions[iRule].m_cover.get(iNewTestInstance))
 						m_dataEarlyStop.m_rulePredictions[iRule].m_cover.set(iTestSetInstance);
 
 				}
 
 			}
-			// Add rest of the instances to training set
-//			int sum = 0;
-//			for (int i =0;i<selectedInstances.length;i++)
-//				if (selectedInstances[i]) sum++;
 
 			/** Index for the rest array */
 			int iInstanceRestIndex = 0;
@@ -211,8 +205,7 @@ public class GDProbl extends OptProbl {
 					}
 					
 					for (int iRule = 0; iRule < optInfo.m_rulePredictions.length;iRule++){
-//						rest.m_rulePredictions[iRule].m_cover.set(iInstanceRestIndex,
-//								optInfo.m_rulePredictions[iRule].m_cover.get(iInstance));
+
 						if (optInfo.m_rulePredictions[iRule].m_cover.get(iInstance))
 							rest.m_rulePredictions[iRule].m_cover.set(iInstanceRestIndex);
 					}
@@ -235,8 +228,6 @@ public class GDProbl extends OptProbl {
 
 			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop);
 			// Give the same std devs for this smaller part of data.
-			//m_earlyStopProbl.modifyDataStatistics(getNormFactors());
-//			m_earlyStopProbl.modifyDataStatistics(getMeans(),getNormFactors());
 
 			// We are using Fitness function of  the problem. Let us put the reg penalty to 0 because we do not
 			// want to use it
@@ -263,8 +254,6 @@ public class GDProbl extends OptProbl {
 		
 		// dynamic step size computation
 		if (getSettings().isOptGDIsDynStepsize()) {
-//			m_predictorMeans = new double[getNumVar()][getNbOfTargets()];
-//			computePredictorMeans();
 			computeDynStepSize();
 		}
 	}
@@ -327,33 +316,11 @@ public class GDProbl extends OptProbl {
 
 		// getSettings().getOptGDMaxIter()/m_earlyStopStep = nb of drops
 		// TODO 100 Change to variable m_earlyStopStep
-		//m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/100.0-1)); 
-//		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/9);
 //		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/1000.0-1)); // first 1/10 of iterations used
-//		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/5000.0-1)); // first 1/2 of iterations used
-//		m_dynStepSizeDrop = Math.pow(m_dynStepLowerBound, 1.0/(getSettings().getOptGDMaxIter()/5000.0-1)); // first 1/2 of iterations used
-		
+
 	}
 
 	
-	/** Drop step size locarithmically.
-	 * Returns false if lower bound was already reached before this drop
-	 * Thus returns if this drop was useful at all*/
-//	public boolean dropStepDynamicStepSize() {
-//		if (m_stepSize > m_dynStepLowerBound) {
-//			m_stepSize = Math.max(m_stepSize*m_dynStepSizeDrop, m_dynStepLowerBound);
-//			return true;
-//		} else 
-//			return false;
-//		
-		
-
-//		dropStepSize(m_dynStepSizeDrop);
-		//i = [1:20];2.^(log2(MAX-10E-5)*(i-1)/(size(i,2)-1))
-		// = i = [1:20];(10E-5).^((i-1)/(size(i,2)-1)), kun MAX = 1
-//	}
-
-
 	/**
 	 * Generates a zero vector.
 	 */
@@ -410,62 +377,6 @@ public class GDProbl extends OptProbl {
 		}
 		return avgCov;
 	}
-//	
-//	private double computePredVsTrueValueCov(int iPred) {
-//		return computePredVsTrueValueCov(iPred,1);
-//	}
-//	
-//	/** Estimate of expected value of covariance for given prediction.
-//	 * The covariance of this prediction with its true value is returned.
-//	 */
-//	private double computePredVsTrueValueCov(int iPred, int power) {
-//		double avgCov = 0;
-//		int nbOfTargets = getNbOfTargets();
-//		int nbOfInst = getNbOfInstances();
-//		for (int iInstance = 0; iInstance < nbOfInst; iInstance++) {
-//			double cov = 0;
-//			for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-// 				double trueVal = getTrueValue(iInstance,iTarget);
-// 				
-// 				if (isValidValue(trueVal)){ // Not a valid true value, rare but happens. Can happen for linear terms.
-//	 				if (getSettings().isOptNormalization()) 
-//						trueVal /=getNormFactor(iTarget);
-//	 				
-//	 				cov += trueVal*predictWithRule(iPred, iInstance,iTarget);
-// 				}
-//			}
-//			avgCov += Math.pow(cov/nbOfTargets, power);
-//		}
-//
-//		avgCov /= nbOfInst;
-//		return avgCov;
-//	}
-//	
-//	
-//	private double computePredVsTrueValueCov(int iPred) {
-//		double[] covs = new double[getNbOfTargets()];
-//		int nbOfTargets = getNbOfTargets();
-//		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-// 			for (int iInstance = 0; iInstance < getNbOfInstances(); iInstance++) {
-//				double trueVal = getTrueValue(iInstance,iTarget);
-//				if (isValidValue(trueVal)) // Not a valid true value, rare but happens. Can happen for linear terms.
-//					//covs[iTarget] += trueVal*predictWithRule(iPred, iInstance,iTarget);
-//					covs[iTarget] +=
-//						trueVal*predictWithRule(iPred, iInstance,iTarget);
-//			}
-//
-//			covs[iTarget] /= getNbOfInstances();
-//			if (getSettings().isOptNormalization()) {
-//				covs[iTarget] /= getNormFactor(iTarget);
-//			}
-//		}
-//
-//		double avgCov = 0;
-//		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-//			avgCov += covs[iTarget]/nbOfTargets;
-//		}
-//		return avgCov;
-//	}
 
 	/**
 	 * Return the right stored covariance
@@ -648,9 +559,6 @@ public class GDProbl extends OptProbl {
 		BitSet prev = (BitSet) (getRuleCovers(iPrevious).clone());
 		BitSet latter = getRuleCovers(iLatter);
 		prev.and(latter); // prev is now a AND bitset of both of these
-//		WAHBitSet latter = getRuleCovers(iLatter);
-//		WAHBitSet prev = latter.and(getRuleCovers(iPrevious));
-
 
 		int nbOfTargets = getNbOfTargets();
 		double avgCov = 0;
@@ -782,8 +690,6 @@ public class GDProbl extends OptProbl {
 		int nbOfChanged = iChangedWeights.length; // does this make more effective?
 		int nbOfGrads = m_gradients.length;
 		
-//		double usedStepSize = m_stepSize;
-		
 		// Index over the other gradients that are affecting (THE WEIGHTS THAT ALTERED)
 		for (int iiAffecting = 0; iiAffecting < nbOfChanged; iiAffecting++) {	
 			if (!firstLinearTermReached && 
@@ -812,278 +718,9 @@ public class GDProbl extends OptProbl {
 
 			}
 		}
-//		if (getSettings().isOptGDIsDynStepsize())
-//			modifyDynamicStepSizeComputation(iChangedWeights, oldGradsOfChanged);
-
 	}
 	
 	
-//	/** The numerator of dynamic step size computation*/
-//	private double m_dynStepNumerator;
-//	/** Denominator of dynamic step size computation */
-//	private double m_dynStepDivider;
-//	double m_MaxStepSize = Double.POSITIVE_INFINITY; //DEBUG
-	
-	
-//	/** Computes step size from scratch when weights equal zero. */
-//	private void computeDynamicStepSizeComputation() {
-//
-//		m_dynStepNumerator = 0;
-//		m_dynStepDivider = 0;
-//		
-//		int nbOfTargs = getNbOfTargets();
-//		int nbWeights = getNumVar();
-//		int nbInst = getNbOfInstances();
-//		
-//		for (int iWeights = 0; iWeights < nbWeights; iWeights++) {	
-//			m_dynStepNumerator += computePredVsTrueValueCov(iWeights, 2)*nbOfTargs*nbInst;
-//		}
-//			
-//		double m_dynStepDivider = 0;
-//		for (int outerTarget = 0; outerTarget < nbOfTargs; outerTarget++) {
-//			for (int iInstance = 0; iInstance < nbInst; iInstance++) {
-//				for (int iWeight = 0; iWeight < nbWeights; iWeight++) {
-//					double cov = 0;
-//					for (int iTarget = 0; iTarget < nbOfTargs; iTarget++) {
-//						double trueVal = getTrueValue(iInstance,iTarget);
-//
-//						if (isValidValue(trueVal)){ // Not a valid true value, rare but happens. Can happen for linear terms.
-//							if (getSettings().isOptNormalization()) 
-//								trueVal /=getNormFactor(iTarget);
-//
-//							cov += trueVal*predictWithRule(iWeight, iInstance,iTarget)
-//									*predictWithRule(iWeight, iInstance, outerTarget);
-//						}
-//					}
-//					m_dynStepDivider += Math.pow(cov/nbOfTargs, 2);
-//				} // weights
-//			} // instances
-//			m_dynStepDivider /= nbInst;
-//		}	
-//		m_stepSize = Math.min(computeOptimalStepSize(), m_MaxStepSize);
-//	}
-	
-//	/** Get "optimal" step size for this iteration based on precomputed variables.*/
-//	private double computeOptimalStepSize() {
-//		return m_dynStepNumerator/m_dynStepDivider;
-//	}
-//
-//	/** Makes modifications needed for dynamic step size computation.
-//	 * Need new gradient values for this */
-//	private void modifyDynamicStepSizeComputation(int[] iChangedWeights,
-//			double[] oldGradsOfChanged) {
-//		
-//		int nbOfTargs = getNbOfTargets();
-//		int nbOfChanged = iChangedWeights.length; // does this make more effective?
-//		
-//		// Index over the other gradients that are affecting (THE WEIGHTS THAT ALTERED)
-//		for (int iiAffecting = 0; iiAffecting < nbOfChanged; iiAffecting++) {	
-//			double weightChange = m_stepSize*oldGradsOfChanged[iiAffecting];
-//			//y^2 =(x+dx)^2 A=(x^2+2xdx+dx^2)A = x^2 A+(2xdx+dx^2)A
-//			m_dynStepNumerator += (2*m_dynStepNumerator*weightChange+Math.pow(weightChange,2))
-//			                      *m_dynStepNumeratorFirstTerm[iChangedWeights[iiAffecting]]
-//			                      - weightChange*m_dynStepNumeratorSecondTerm[iChangedWeights[iiAffecting]];
-//			
-//			m_dynStepDivider += (2*m_dynStepDivider*weightChange+Math.pow(weightChange,2))
-//            					*m_dynStepDividerFirstTerm[iChangedWeights[iiAffecting]] 
-//            					- weightChange*m_dynStepDividerSecondTerm[iChangedWeights[iiAffecting]];		
-//		}
-//		m_stepSize = Math.min(computeOptimalStepSize(), m_MaxStepSize);
-//	}
-//	private double[] m_dynStepNumeratorFirstTerm = null;
-//	private double[] m_dynStepNumeratorSecondTermPart1 = null;
-//	private double[] m_dynStepNumeratorSecondTermPart2 = null;
-//	private double[] m_dynStepDividerFirstTerm = null;
-//	private double[] m_dynStepDividerSecondTerm = null;
-//	private double[] m_dynStepDividerSecondTermPart1 = null;
-//	private double[] m_dynStepDividerSecondTermPart2 = null;
-//	
-//	/** Compute the values needed for dynamic step size modification.
-//	 * Assume all weights are zero. */
-//	private void initDynStepSize() {
-//		System.println("Error: Dynamic step size not implemented!")
-//		System.exit(1);
-//		int nbOfTargs = getNbOfTargets();
-//		int nbWeights = getNumVar();
-//		int nbInst = getNbOfInstances();
-//
-//		m_dynStepNumeratorFirstTerm = new double[nbWeights];
-//		m_dynStepNumeratorSecondTermPart1 = new double[nbWeights];
-//		m_dynStepNumeratorSecondTermPart2 = new double[nbWeights];
-//		m_dynStepDividerFirstTerm = new double[nbWeights];
-//		m_dynStepDividerSecondTerm = new double[nbWeights];
-//		
-//
-//		
-//		// numerator
-//		
-//		for (int iChangingWeight = 0; iChangingWeight < nbWeights; iChangingWeight++){
-//			for (int iInstance = 0; iInstance < nbInst; iInstance++) {
-//				for (int iWeight = 0; iWeight < nbWeights; iWeight++) {
-//					double covTrue = 0;
-//					double covPred = 0;
-//					double numeratorSecondPart1 = 0;
-//					double numeratorSecondPart2 = 0;
-//					for (int iTarget = 0; iTarget < nbOfTargs; iTarget++) {
-//						double trueVal = getTrueValue(iInstance,iTarget);
-//						if (!isValidValue(trueVal)) trueVal = 0; // Not a valid true value, rare but happens. Can happen for linear terms.
-//
-//						double firstPred = predictWithRule(iWeight, iInstance, iTarget);
-//						if (getSettings().isOptNormalization()) {
-//							firstPred /= getNormFactor(iTarget);
-//						}
-//						
-//						covTrue += trueVal*firstPred;
-//						covPred += firstPred*predictWithRule(iChangingWeight, iInstance, iTarget);
-//
-//						for (int iInnerWeight = 0; iInnerWeight < nbWeights; iInnerWeight++) {
-//							if ()
-//						} // Inner weight
-//						
-//					} //targets
-//					m_dynStepNumeratorFirstTerm[iChangingWeight] += Math.pow(covPred, 2);
-//					m_dynStepNumeratorSecondTerm = new double[nbWeights];
-//				} // weights
-//			} // instances
-//			m_dynStepNumeratorFirstTerm[iChangingWeight] /= nbOfTargs;
-//		}
-//		
-//		m_dynStepNumerator = 0;
-//		for (int iInstance = 0; iInstance < nbInst; iInstance++) {
-//			for (int iWeight = 0; iWeight < nbWeights; iWeight++) {
-//				double covTrue = 0;
-//				for (int iTarget = 0; iTarget < nbOfTargs; iTarget++) {
-//					double trueVal = getTrueValue(iInstance,iTarget);
-//					if (!isValidValue(trueVal)) trueVal = 0;
-//					if (getSettings().isOptNormalization()) {
-//						trueVal /= getNormFactor(iTarget);
-//					}
-//					covTrue += predictWithRule(iWeight, iInstance, iTarget)*trueVal;
-//				}
-//				m_dynStepNumerator += Math.pow(covTrue,2);
-//			} // weights
-//		} // instances
-//		m_dynStepNumerator /= nbOfTargs;
-//		
-//		
-//		
-//		// divider
-//		for (int iChangingWeight = 0; iChangingWeight < nbWeights; iChangingWeight++){
-//			for (int outerTarget = 0; outerTarget < nbOfTargs; outerTarget++) {
-//				for (int iInstance = 0; iInstance < nbInst; iInstance++) {
-//					double dividerSecondPart1 = 0;
-//					double dividerSecondPart2 = 0;
-//					double dividerFirstTermTemp = 0;
-//					for (int iWeight = 0; iWeight < nbWeights; iWeight++) {
-//						double covTrue = 0;
-//						double covPred = 0;
-//						double nonCovPred = predictWithRule(iWeight, iInstance, outerTarget);
-//						if (getSettings().isOptNormalization()) {
-//							nonCovPred /= Math.sqrt(getNormFactor(outerTarget)); // We are having third power now
-//						}
-//						
-//						for (int iTarget = 0; iTarget < nbOfTargs; iTarget++) {
-//							double firstPred =predictWithRule(iWeight, iInstance, iTarget);
-//							if (getSettings().isOptNormalization()) {
-//								firstPred /= getNormFactor(iTarget); // Normal normalization
-//							}
-//
-//							double trueVal = getTrueValue(iInstance,iTarget);
-//							if (!isValidValue(trueVal)) trueVal = 0; // Not a valid true value, rare but happens. Can happen for linear terms.
-//
-//							covTrue += trueVal*firstPred;
-//							covPred += firstPred*predictWithRule(iChangingWeight, iInstance, iTarget);						
-//						}
-//						m_dynStepDividerSecondTerm[iChangingWeight] += covPred*covTrue;
-//						dividerFirstTermTemp += covPred*nonCovPred;
-//						dividerSecondPart1 += covPred*nonCovPred;
-//						dividerSecondPart2 += covTrue*nonCovPred; 
-//					} // weights
-//					m_dynStepDividerFirstTerm[iChangingWeight] += Math.pow(dividerFirstTermTemp, 2);
-//					m_dynStepDividerSecondTerm[iChangingWeight] += dividerSecondPart1*dividerSecondPart2;
-//				} // instances
-//			} // outerTarget
-//			m_dynStepDividerFirstTerm[iChangingWeight] /= nbOfTargs*nbOfTargs;
-//			m_dynStepDividerSecondTerm[iChangingWeight] *= 2/nbOfTargs*nbOfTargs;
-//		}
-//		
-//		m_dynStepDivider = 0;
-//		for (int outerTarget = 0; outerTarget < nbOfTargs; outerTarget++) {
-//			for (int iInstance = 0; iInstance < nbInst; iInstance++) {
-//				double temp = 0;
-//				for (int iWeight = 0; iWeight < nbWeights; iWeight++) {
-//					double nonCovPred = predictWithRule(iWeight, iInstance, outerTarget);
-//					if (getSettings().isOptNormalization()) {
-//						nonCovPred /= Math.sqrt(getNormFactor(outerTarget)); // We are having third power now
-//					}
-//					for (int iTarget = 0; iTarget < nbOfTargs; iTarget++) {
-//						double trueVal = getTrueValue(iInstance,iTarget);
-//						if (!isValidValue(trueVal)) trueVal = 0;
-//						if (getSettings().isOptNormalization()) {
-//							trueVal /= getNormFactor(outerTarget);
-//						}
-//						temp += predictWithRule(iWeight, iInstance, iTarget)*trueVal*nonCovPred;
-//					}
-//				} // weights
-//				m_dynStepDivider += Math.pow(temp,2);
-//			} // instances
-//		} // outerTarget
-//		m_dynStepDivider /= nbOfTargs*nbOfTargs;
-//	}
-	
-//	private double computeOptimalStepSize() {
-//		double result = getNbOfTargets()*m_gradientNormSquared;
-//		double divider = 0;
-//		for (int iTarg = 0; iTarg < getNbOfTargets(); iTarg++){
-//			divider += Math.pow(m_gradPredProduct[iTarg],2);
-//		}
-//		return result/divider;
-//	}
-
-
-//	/** Makes modifications needed for dynamic step size computation.
-//	 * Need new gradient values for this */
-//	private void modifyDynamicStepSizeComputation(int[] iChangedWeights,
-//			double[] oldGradsOfChanged) {
-//		
-//		int nbOfTargs = getNbOfTargets();
-//		int nbOfChanged = iChangedWeights.length; // does this make more effective?
-//		
-//		// Index over the other gradients that are affecting (THE WEIGHTS THAT ALTERED)
-//		for (int iiAffecting = 0; iiAffecting < nbOfChanged; iiAffecting++) {	
-//			m_gradientNormSquared += Math.pow(m_gradients[iChangedWeights[iiAffecting]], 2)
-//					- Math.pow(oldGradsOfChanged[iiAffecting], 2);
-//			for (int iTarget = 0; iTarget < nbOfTargs; iTarget++) {
-//				m_gradPredProduct[iTarget] += (m_gradients[iChangedWeights[iiAffecting]] 
-//				                               - oldGradsOfChanged[iiAffecting])
-//									* getPredMean(iChangedWeights[iiAffecting], iTarget);
-//			}
-//		}
-//		m_stepSize = Math.min(computeOptimalStepSize(), m_MaxStepSize);
-//	}
-
-	
-
-	
-//	/** Computes step size from scratch. */
-//	private void computeDynamicStepSizeComputation() {
-//		
-//		int nbOfTargs = getNbOfTargets();
-//		int nbWeights = getNumVar();
-//		for (int iWeights = 0; iWeights < nbWeights; iWeights++) {	
-//			m_gradientNormSquared += Math.pow(m_gradients[iWeights], 2);
-//			
-//			for (int iTarget = 0; iTarget < nbOfTargs; iTarget++) {
-//				m_gradPredProduct[iTarget] += m_gradients[iWeights]
-//									* getPredMean(iWeights, iTarget);
-//			}
-//		}
-//		m_stepSize = Math.min(computeOptimalStepSize(), m_MaxStepSize);
-//	}	
-
-
-
-
 
 	/** Return the gradients with maximum absolute value. For the weights we want to change
 	 * The function is assuming (if max allowed rule nb is set) that index 0 of gradients includes
@@ -1340,33 +977,5 @@ public class GDProbl extends OptProbl {
 		wrt.print("\n");
 	}
 
-
-
-
-//	/** Computes predictor means for dynamic step size computation */
-//	private void computePredictorMeans() {
-//		
-//		int nbOfPred = getNumVar();
-//		int nbOfTarg = getNbOfTargets();
-//		int nbInstances = this.getNbOfInstances();
-//		
-//		for (int iPred = 0; iPred < nbOfPred; iPred++) {
-//			for (int iTarg = 0; iTarg < nbOfTarg; iTarg++) {
-//				if (isRuleTerm(iPred))
-//					m_predictorMeans[iPred][iTarg] = getPredictionsWhenCovered(iPred,0,iTarg)*
-//								((double)getRuleCovers(iPred).cardinality()) / nbInstances;
-//				
-//				for (int iInst = 0; iInst < nbInstances; iInst++) {
-//					// Linear terms
-//					m_predictorMeans[iPred][iTarg] += 
-//						getPredictionsWhenCovered(iPred, iInst, iTarg)/nbInstances;					
-//				}
-//			}
-//		}		
-//	}
-//	
-//	private double getPredMean(int iPred, int iTarg) {
-//		return m_predictorMeans[iPred][iTarg];
-//	}
 	
 }

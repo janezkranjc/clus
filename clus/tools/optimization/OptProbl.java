@@ -222,19 +222,6 @@ public class OptProbl {
 		}
 	}
 	
-//	/**
-//	 * Modify the data information. If we already have the averages and stdDevs computed, use them instead.
-//	 * @param averages Averages for each target.
-//	 * @param normFactor Standard deviations for each target.
-//	 * TODO remove
-//	 */
-//	protected void modifyDataStatistics(double[] averages, double[] normFactor ) {
-////	protected void modifyDataStatistics(double[] normFactor ) {
-//		m_TargetAvg = averages;
-//		m_TargetNormFactor = normFactor;
-//	}
-
-
 	/**
 	 * Fitness function over all targets.
 	 * The classification prediction is voting without weights.
@@ -775,35 +762,6 @@ public class OptProbl {
 	}
 
 	
-//	/** Value of base function prediction. Can be used also for nominal attributes.
-//	 * Note that this does not use the include of default rule!
-//	 * So this is not the real prediction but can be NaN.
-//	 */ TODO remove
-//	final protected double getPredictions( int iRule, int iInstance, int iTarget, int iClass) {
-//		if (iRule >= m_RulePred.length) {
-//			return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][iClass];
-//		} else {
-//			// if not covered, return NaN
-//			return m_RulePred[iRule].m_cover[iInstance]?
-//					m_RulePred[iRule].m_prediction[iTarget][iClass]:Double.NaN;
-//		}		
-//	}
-	
-//	/** Value of base function prediction in regression use.
-//	 * Note that this does not use the include of default rule!
-//	 * So this is not the real prediction but can be NaN.
-//	 */
-//	final protected double getPredictions(int iRule, int iInstance, int iTarget) {
-//		if (iRule >= m_RulePred.length) {
-//			return m_BaseFuncPred[iRule-m_RulePred.length][iInstance][iTarget][0];
-//		} else {
-//			// if not covered, return NaN
-//			return m_RulePred[iRule].m_cover[iInstance]?
-//					m_RulePred[iRule].m_prediction[iTarget][0]:Double.NaN;
-//		}
-//	}
-
-	
 	/** Value of base function prediction. Can be used also for nominal attributes
 	 * when we already know that instance is covered! Use isCovered for this.
 	 * If used right, gives always prediction.
@@ -876,144 +834,6 @@ public class OptProbl {
 		return !Double.isInfinite(pred) && !Double.isNaN(pred);
 	}
 
-//	/** Returns zero variance targets. These are important to trac because otherwise we get 1/var or
-//	 * 1/std dev huge factors. Because of floating point computation variance may be nonzero.
-//	 * @param var0Values Values for the variables with variance = 0, for other variables the value is 0 always.
-//	 * @return Booleans if the target variances are non zero. True <-> variance != 0 TODO remove
-//	 */
-//	protected boolean[] checkZeroVariance(double[] var0Values) {
-//		int nbOfTargets = getNbOfTargets();
-//		int nbOfInstances = getNbOfInstances();
-//
-//		/** Floating point computation is not to be trusted. It is important to track if variance = 0,
-//		 * (we are otherwise getting huge factors with 1/std dev). */
-//		boolean[] varIsNonZero = new boolean[nbOfTargets];
-//		
-//		// Check if variance = 0 i.e. all values are the same
-//		double[] prevAcceptedValue = new double[nbOfTargets];
-//
-//		for (int i = 0; i < prevAcceptedValue.length; i++)
-//			prevAcceptedValue[i] = Double.NaN;
-//		
-//		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++) {
-//			
-//			// Stop when nonzero variance is proved
-//			for (int iInstance = 0; iInstance < nbOfInstances && !varIsNonZero[iTarget]; iInstance++) {
-//				double value = getTrueValue(iInstance,iTarget);
-//				if (isValidValue(value)) {
-//					if (!Double.isNaN(prevAcceptedValue[iTarget]) &&
-//						prevAcceptedValue[iTarget] != value) {
-//						
-//						varIsNonZero[iTarget] = true;
-//					}
-//					prevAcceptedValue[iTarget] = value;
-//				}
-//			}
-//		}
-//		
-//		for (int i = 0; i < prevAcceptedValue.length; i++) {
-//			if (!varIsNonZero[i])
-//				var0Values[i] = prevAcceptedValue[i];
-//		}
-//			
-//		return varIsNonZero;
-//	}
-//	
-//	/** Compute means (e.g. for covariance computation) for true values
-//	 * For predictions means are not computed because, e.g. for all covering rule the its effect would
-//	 * go to zero (by prediction - mean)
-//	 * If the data is normalized, mean of true value is 0 and mean is not needed to compute
-//	 * @param valuesFor0Variance 
-//	 * @return Averages for targets of the data.*/
-//	protected double[] computeMeans(boolean[] varIsNonZero, double[] valuesFor0Variance) {
-//		int nbOfTargets = getNbOfTargets();
-//		int nbOfInstances = getNbOfInstances();
-//		double[] means = new double[nbOfTargets];
-//		
-//		for (int iTarget = 0; iTarget < nbOfTargets; iTarget++){
-//
-//			if (!varIsNonZero[iTarget]) // Variance zero. Do not trust floating points
-//				means[iTarget] = valuesFor0Variance[iTarget];
-//			else {
-//				int nbOfValidValues = 0;
-//				means[iTarget] = 0;
-//				
-//				for (int iInstance = 0; iInstance < nbOfInstances; iInstance++){
-//					if (isValidValue(getTrueValue(iInstance,iTarget))){
-//						means[iTarget] += getTrueValue(iInstance,iTarget);;
-//						nbOfValidValues++;
-//					}
-//				}
-//			
-//				means[iTarget] /= nbOfValidValues;
-//			}
-//		}
-//		return means;
-//	}
-//	
-//	/** Compute normalization scaling factors for given values.
-//	 * To normalize the targets you should divide with 2* stddev (after shifting by - avg).
-//	 * After this transformation the mean should be about 0.0 and variance about 0.25
-//	 * (and standard deviation 0.5). Thus 95% of values should be between [-1,1] (assuming normal distribution).
-//	 * If stdDev would be zero, we return 0.5 (and thus the divider should be 2*0.5 = 1).
-//	 * Another option is to normalize with the variance (similar to RRMSE then).
-//	 * However, because in squared loss we are taking the normalization outside the loss function
-//	 * we have to take square of these, thus variance^2 and stddev^2
-//	 * @param means Precomputed means.
-//	 * @param valuesFor0Variance 
-//	 * @param varIsNonZero 
-//	 * @return Standard deviations for targets of the data.*/
-//	private double[] computeOptNormFactors(double[] means, boolean[] varIsNonZero, double[] valuesFor0Variance) {
-//		int nbOfTargets = getNbOfTargets();
-//		int nbOfInstances = getNbOfInstances();
-//	
-//		double[] scaleFactor = new double[nbOfTargets];
-//		
-//		// Compute variances
-//		for (int jTarget = 0; jTarget < nbOfTargets; jTarget++) {
-//			double variance = 0;
-//			int nbOfValidValues = 0;
-//			
-//			if (!varIsNonZero[jTarget]) // Variance zero. Do not trust floating points
-//				variance = 0;
-//			else {
-//				for (int iInstance = 0; iInstance < nbOfInstances; iInstance++) {
-//	
-//					// The following could be done by numTypes.isMissing(tuple)
-//					// also, but seems to be equivalent
-//					if (isValidValue(getTrueValue(iInstance,jTarget))) {// Value not given
-//						variance += Math.pow(getTrueValue(iInstance,jTarget) - means[jTarget], 2.0);
-//						nbOfValidValues++;
-//					}
-//				}
-//			}
-//			
-//			// Divide with the number of examples
-//			if (variance == 0) {
-//				// If variance is zero, all the values are the same, so division
-//				// is not needed.
-//				variance = 0.25; // And the divider will be 2*sqrt(1/4)= 1
-//			} else {
-//				variance /= nbOfValidValues;
-//			}
-//
-//			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES_VARIANCE)
-//				scaleFactor[jTarget] = Math.pow(variance,2.0);
-//			else
-//				scaleFactor[jTarget] = 4*variance;
-//				
-//			
-////			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES)
-////				scaleFactor[jTarget] = 2*Math.sqrt(variance);
-////			else //Settings.OPT_NORMALIZATION_YES_VARIANCE
-////				scaleFactor[jTarget] = variance;
-//				
-//		}
-//
-//		return scaleFactor;
-//	}
-	
-	
 	/** Initializes means with global means, this is not always done, sometimes mean = 0 */
 	private double[] initMeans() {
 		double[] means = new double[getNbOfTargets()];
@@ -1050,7 +870,6 @@ public class OptProbl {
 	}
 	
 	/** Returns boolean array of rule covering */
-//	protected WAHBitSet getRuleCovers(int iRule) {
 	final protected BitSet getRuleCovers(int iRule) {
 		return m_RulePred[iRule].m_cover;
 	}

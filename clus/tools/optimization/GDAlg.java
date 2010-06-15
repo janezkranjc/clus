@@ -101,18 +101,6 @@ public class GDAlg extends OptAlg{
 
 		m_weights = m_GDProbl.getInitialWeightVector();
 
-//		// If normalization is not used and rules are not omitted the first rule should be the average
-//		// Thus starting from weight 1 is the best way.
-//		if (getSettings().getRulePredictionMethod() == Settings.RULE_PREDICTION_METHOD_GD_OPTIMIZED &&
-//				!getSettings().isOptOmitRulePredictions() &&
-//				getSettings().getNormalizeData() == Settings.NORMALIZE_DATA_NONE &&
-//				!getSettings().isOptNormalization()) {
-//			// If rule predictions are omitted, the default rule prediction is not useful anymore.
-//			// Also if normalization is used, default rule should be 0 anyway
-//			m_weights.set(0,1.0); // default rule
-//			m_GDProbl.computeCovariancesIfNeeded(0);
-//		}
-
 		// Oscillation detection
 		m_prevChange = null;
 		m_iPrevDimension = null;
@@ -169,14 +157,7 @@ public class GDAlg extends OptAlg{
 			if (Settings.VERBOSE > 0 && nbOfIterations % (Math.ceil(getSettings().getOptGDMaxIter()/50.0)) == 0) 
 				System.out.print(".");
 			if (nbOfIterations % m_earlyStopStep == 0) {
-				
-//				// Is lower bound already reached if dyn step size used
-//				boolean dynStepSizeLowerBoundWasNotReachedAlready = false;
-//				// Drop step size always
-//				if (getSettings().isOptGDIsDynStepsize()) {
-//					dynStepSizeLowerBoundWasNotReachedAlready = m_GDProbl.dropStepDynamicStepSize();
-//				}
-				
+					
 				if (getSettings().getOptGDEarlyStopAmount() > 0 &&
 						m_GDProbl.isEarlyStop(m_weights))
 				{
@@ -185,11 +166,6 @@ public class GDAlg extends OptAlg{
 
 					if (Settings.VERBOSE > 0) System.out.print("\n\tOverfitting after " + nbOfIterations + " iterations.");
 
-//					// If dynamic step size, only restore previous weights. Step size is already dropped
-//					if (getSettings().isOptGDIsDynStepsize() && dynStepSizeLowerBoundWasNotReachedAlready) {
-//						m_GDProbl.restoreBestWeight(m_weights); // restoring the weight with minimum fitness
-//						m_GDProbl.fullGradientComputation(m_weights);					
-//					} else 
 					if (!getSettings().isOptGDIsDynStepsize() &&
 							m_earlyStopStepsizeReducedNb < getSettings().getOptGDNbOfStepSizeReduce()){
 						m_earlyStopStepsizeReducedNb++;
@@ -206,13 +182,6 @@ public class GDAlg extends OptAlg{
 				}
 			}
 	
-			// Following does not seem to affect the accuracy at all (should affect only very minorly in theory also)
-			// However, seems to increase computational time about 10%
-//			else if (nbOfIterations % (10*m_earlyStopStep) == 0 && nbOfIterations > 0){
-//				// Let's compute gradients gradients from scratch again now and again.
-//				m_GDProbl.fullGradientComputation(m_weights);
-//			}
-
 			// Print
 			OutputLog(nbOfIterations, wrt_log); //Weights
  
