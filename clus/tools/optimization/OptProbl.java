@@ -215,12 +215,116 @@ public class OptProbl {
 //				boolean[] varIsNonZero = checkZeroVariance(valuesFor0Variance);
 //				double[] means = computeMeans(varIsNonZero, valuesFor0Variance);
 //				m_TargetNormFactor = computeOptNormFactors(means, varIsNonZero, valuesFor0Variance);
-				m_TargetNormFactor = initNormFactors();
+				m_TargetNormFactor = initNormFactors(getNbOfTargets(), getSettings());
 				if (getSettings().getOptNormalization() != Settings.OPT_NORMALIZATION_ONLY_SCALING)
-					m_TargetAvg = initMeans();
+					m_TargetAvg = initMeans(getNbOfTargets());
 			}
 		}
 	}
+	
+	/** Splits data into validation and training sets randomly */
+	static protected void splitDataIntoValAndTrainSet(ClusStatManager stat_mgr, OptParam origData,
+			OptParam valData, OptParam trainData) {
+
+		   Settings set = stat_mgr.getSettings();
+		   int nbRows = origData.m_trueValues.length;
+
+			int nbDataTest = (int)Math.ceil(nbRows * set.getOptGDEarlyStopAmount());
+
+			// For random sample
+			Random randGen = new Random(0);
+
+			// Copy the prediction and true value references (no cloning)
+
+			/** All the test set instances are added here so no duplication occurs */
+			boolean[] selectedInstances = new boolean[nbRows];
+
+			for (int iTestSetInstance = 0; iTestSetInstance < nbDataTest; iTestSetInstance++){
+
+				// Take a random index
+				// random number between [0,still available dataset[
+				int newIndex = randGen.nextInt(nbRows-iTestSetInstance);
+
+				
+				
+				
+				/** Instance index in the data set to be added for test set */
+				int iNewTestInstance = 0;
+				// Search for the real index when duplicates are not taken into account
+				// Thus skip the instance in indexOfUnUsedInstance if it is already taken
+				for (int indexOfUnUsedInstance = 0; indexOfUnUsedInstance < newIndex; iNewTestInstance++) {
+					if (!selectedInstances[iNewTestInstance])
+
+						indexOfUnUsedInstance++;
+				}
+				// Still if we ended up to selected index, skip all the selected
+				while (selectedInstances[iNewTestInstance])
+					iNewTestInstance++;
+
+				// Here we should have in iNewTestInstance the 'newIndex'th unused instance
+				selectedInstances[iNewTestInstance] = true;
+
+				valData.m_trueValues[iTestSetInstance] = origData.m_trueValues[iNewTestInstance];
+				// To be safe, put original reference to null
+				origData.m_trueValues[iNewTestInstance] = null;
+
+				// Add the new instance for all the rules
+				for (int iNonRule = 0; iNonRule < origData.m_baseFuncPredictions.length;iNonRule++){
+					valData.m_baseFuncPredictions[iNonRule][iTestSetInstance] = origData.m_baseFuncPredictions[iNonRule][iNewTestInstance];
+					// 	To be safe, put original reference to null
+					origData.m_baseFuncPredictions[iNonRule][iNewTestInstance] = null;
+				}
+
+				for (int iRule = 0; iRule < origData.m_rulePredictions.length;iRule++){
+					if (origData.m_rulePredictions[iRule].m_cover.get(iNewTestInstance))
+						valData.m_rulePredictions[iRule].m_cover.set(iTestSetInstance);
+
+				}
+
+			}
+
+			/** Index for the rest array */
+			int iInstanceRestIndex = 0;
+			int nbOfInstances = nbRows;
+			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++){
+
+				if (!selectedInstances[iInstance]) {
+					// Not used as test instance - add it
+					trainData.m_trueValues[iInstanceRestIndex] =	origData.m_trueValues[iInstance];
+
+					for (int iRule = 0; iRule < origData.m_baseFuncPredictions.length;iRule++){
+						trainData.m_baseFuncPredictions[iRule][iInstanceRestIndex] =	origData.m_baseFuncPredictions[iRule][iInstance];
+					}
+
+					for (int iRule = 0; iRule < origData.m_rulePredictions.length;iRule++){
+
+						if (origData.m_rulePredictions[iRule].m_cover.get(iInstance))
+							trainData.m_rulePredictions[iRule].m_cover.set(iInstanceRestIndex);
+					}
+
+					iInstanceRestIndex++;
+				}
+			}
+
+			for (int iRule = 0; iRule < origData.m_rulePredictions.length; iRule++){			
+				trainData.m_rulePredictions[iRule].m_prediction = origData.m_rulePredictions[iRule].m_prediction;
+				valData.m_rulePredictions[iRule].m_prediction = origData.m_rulePredictions[iRule].m_prediction;
+			}
+
+			if (iInstanceRestIndex != trainData.m_trueValues.length) {
+				System.err.println("GDProbl error. Wrong amount of early stop data added");
+				System.exit(1);
+			}
+
+			// Give the same std devs for this smaller part of data.
+
+			// We are using Fitness function of  the problem. Let us put the reg penalty to 0 because we do not
+			// want to use it
+			set.setOptRegPar(0);
+			set.setOptNbZeroesPar(0);
+		
+	}
+
 	
 	/**
 	 * Fitness function over all targets.
@@ -549,11 +653,11 @@ public class OptProbl {
 					                           -prediction[iInstance][jTarget],2);
 				}
 
-				loss += ((double)1)/numberOfTargets*attributeLoss;
-				
 				if (getSettings().isOptNormalization()) {
-					loss /= getNormFactor(jTarget);
+					attributeLoss /= getNormFactor(jTarget);
 				}
+
+				loss += ((double)1)/(2*numberOfTargets)*attributeLoss;			
 			}
 		}
 		return loss/numberOfInstances; // Average loss over instances
@@ -835,9 +939,9 @@ public class OptProbl {
 	}
 
 	/** Initializes means with global means, this is not always done, sometimes mean = 0 */
-	private double[] initMeans() {
-		double[] means = new double[getNbOfTargets()];
-		for (int iTarget = 0; iTarget < getNbOfTargets(); iTarget++) {
+	static protected double[] initMeans(int nbTargs) {
+		double[] means = new double[nbTargs];
+		for (int iTarget = 0; iTarget < nbTargs; iTarget++) {
 			means[iTarget] = RuleNormalization.getTargMean(iTarget);
 		}
 		return means;
@@ -846,10 +950,10 @@ public class OptProbl {
 	/** Initializes norm factors based on precomputed std dev values. Norm factor is always
 	 * a square of normalization factor of SINGLE term (because this is used for normalizing product
 	 * of two terms) */
-	private double[] initNormFactors() {
-		double[] scaleFactor = new double[getNbOfTargets()];
-		for (int iTarget = 0; iTarget < getNbOfTargets(); iTarget++) {
-			if (getSettings().getOptNormalization() == Settings.OPT_NORMALIZATION_YES_VARIANCE)
+	static protected double[] initNormFactors(int nbTargs, Settings sett) {
+		double[] scaleFactor = new double[nbTargs];
+		for (int iTarget = 0; iTarget < nbTargs; iTarget++) {
+			if (sett.getOptNormalization() == Settings.OPT_NORMALIZATION_YES_VARIANCE)
 				scaleFactor[iTarget] = Math.pow(RuleNormalization.getTargStdDev(iTarget),4); //Math.pow(variance,2.0);
 			else // std dev
 				scaleFactor[iTarget] = 4*Math.pow(RuleNormalization.getTargStdDev(iTarget),2); //4*variance;

@@ -30,6 +30,7 @@ import java.text.NumberFormat;
 import java.util.*;
 
 import clus.main.*;
+import clus.tools.optimization.OptProbl.OptParam;
 import clus.util.ClusFormat;
 
 // Created 28.11.2008 from previous DeProbl class
@@ -105,8 +106,8 @@ public class GDProbl extends OptProbl {
 //	protected double[][] m_predictorMeans;
 	
 	
-	/** Separate test set for early stopping */
-	protected OptParam m_dataEarlyStop;
+//	/** Separate test set for early stopping */
+//	protected OptParam m_dataEarlyStop;
 
 	/** New problem for computing fitness function with the early stop data */
 	protected OptProbl m_earlyStopProbl;
@@ -130,109 +131,20 @@ public class GDProbl extends OptProbl {
 		if (getSettings().getOptGDEarlyStopAmount() > 0) {
 
 			int nbDataTest = (int)Math.ceil(getNbOfInstances() * getSettings().getOptGDEarlyStopAmount());
-
-			// For random sample
-			Random randGen = new Random(0);
-
-
+			
 			// Create the early stopping data variables.
-			m_dataEarlyStop = new OptParam(optInfo.m_rulePredictions.length,
+			OptParam dataEarlyStop = new OptParam(optInfo.m_rulePredictions.length,
 					optInfo.m_baseFuncPredictions.length,
 					nbDataTest,
 					getNbOfTargets(), optInfo.m_implicitLinearTerms);
-			OptParam rest = new OptParam(optInfo.m_rulePredictions.length,
+			OptParam trainingSet = new OptParam(optInfo.m_rulePredictions.length,
 					optInfo.m_baseFuncPredictions.length,
 					getNbOfInstances()-nbDataTest,
 					getNbOfTargets(), optInfo.m_implicitLinearTerms);
-
-			// Copy the prediction and true value references (no cloning)
-
-			/** All the test set instances are added here so no duplication occurs */
-			boolean[] selectedInstances = new boolean[getNbOfInstances()];
-
-			for (int iTestSetInstance = 0; iTestSetInstance < nbDataTest; iTestSetInstance++){
-
-				// Take a random index
-				// random number between [0,still available dataset[
-				int newIndex = randGen.nextInt(getNbOfInstances()-iTestSetInstance);
-
-				/** Instance index in the data set to be added for test set */
-				int iNewTestInstance = 0;
-				// Search for the real index when duplicates are not taken into account
-				// Thus skip the instance in indexOfUnUsedInstance if it is already taken
-				for (int indexOfUnUsedInstance = 0; indexOfUnUsedInstance < newIndex; iNewTestInstance++) {
-					if (!selectedInstances[iNewTestInstance])
-						
-						indexOfUnUsedInstance++;
-				}
-				// Still if we ended up to selected index, skip all the selected
-				while (selectedInstances[iNewTestInstance])
-					iNewTestInstance++;
-
-				// Here we should have in iNewTestInstance the 'newIndex'th unused instance
-				selectedInstances[iNewTestInstance] = true;
-
-				m_dataEarlyStop.m_trueValues[iTestSetInstance] = optInfo.m_trueValues[iNewTestInstance];
-				// To be safe, put original reference to null
-				optInfo.m_trueValues[iNewTestInstance] = null;
-
-				// Add the new instance for all the rules
-				for (int iNonRule = 0; iNonRule < optInfo.m_baseFuncPredictions.length;iNonRule++){
-					m_dataEarlyStop.m_baseFuncPredictions[iNonRule][iTestSetInstance] = optInfo.m_baseFuncPredictions[iNonRule][iNewTestInstance];
-					// 	To be safe, put original reference to null
-					optInfo.m_baseFuncPredictions[iNonRule][iNewTestInstance] = null;
-				}
-				
-				for (int iRule = 0; iRule < optInfo.m_rulePredictions.length;iRule++){
-					if (optInfo.m_rulePredictions[iRule].m_cover.get(iNewTestInstance))
-						m_dataEarlyStop.m_rulePredictions[iRule].m_cover.set(iTestSetInstance);
-
-				}
-
-			}
-
-			/** Index for the rest array */
-			int iInstanceRestIndex = 0;
-			int nbOfInstances = getNbOfInstances();
-			for (int iInstance = 0; iInstance < nbOfInstances; iInstance++){
-
-				if (!selectedInstances[iInstance]) {
-					// Not used as test instance - add it
-					rest.m_trueValues[iInstanceRestIndex] =	optInfo.m_trueValues[iInstance];
-
-					for (int iRule = 0; iRule < optInfo.m_baseFuncPredictions.length;iRule++){
-						rest.m_baseFuncPredictions[iRule][iInstanceRestIndex] =	optInfo.m_baseFuncPredictions[iRule][iInstance];
-					}
-					
-					for (int iRule = 0; iRule < optInfo.m_rulePredictions.length;iRule++){
-
-						if (optInfo.m_rulePredictions[iRule].m_cover.get(iInstance))
-							rest.m_rulePredictions[iRule].m_cover.set(iInstanceRestIndex);
-					}
-					
-					iInstanceRestIndex++;
-				}
-			}
-			
-			for (int iRule = 0; iRule < optInfo.m_rulePredictions.length; iRule++){			
-				rest.m_rulePredictions[iRule].m_prediction = optInfo.m_rulePredictions[iRule].m_prediction;
-				m_dataEarlyStop.m_rulePredictions[iRule].m_prediction = optInfo.m_rulePredictions[iRule].m_prediction;
-			}
-
-			if (iInstanceRestIndex != rest.m_trueValues.length) {
-				System.err.println("GDProbl error. Wrong amount of early stop data added");
-				System.exit(1);
-			}
-
-			changeData(rest);  // Change data for super class
-
-			m_earlyStopProbl = new OptProbl(stat_mgr, m_dataEarlyStop);
-			// Give the same std devs for this smaller part of data.
-
-			// We are using Fitness function of  the problem. Let us put the reg penalty to 0 because we do not
-			// want to use it
-			getSettings().setOptRegPar(0);
-			getSettings().setOptNbZeroesPar(0);
+			splitDataIntoValAndTrainSet(stat_mgr, optInfo, dataEarlyStop, trainingSet);
+		
+			changeData(trainingSet);  // Change data for super class
+			m_earlyStopProbl = new OptProbl(stat_mgr, dataEarlyStop);
 		}
 
 
@@ -762,7 +674,7 @@ public class GDProbl extends OptProbl {
 				continue;
 			}
 			if (Math.abs(m_gradients[iCopy]) >= minAllowed
-					&& (!maxNbOfWeightReached || m_isWeightNonZero[iCopy] || iCopy == 0)) {
+					&& (!maxNbOfWeightReached || m_isWeightNonZero[iCopy]) || iCopy == 0) {
 				iMaxGradients.add(iCopy);
 				// If the treshold is 1, we only want to change one dimension at time
 				// Default rule is not counted
