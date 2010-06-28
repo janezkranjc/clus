@@ -119,9 +119,48 @@ print OUT @lines;
 close(OUT);
 system("rm -f $appl.tmp");
 
+# newick with labels
+
+print "Producing newick format with all splits listed...\n";
+
+open(IN,"$appl.clus-phy_tree");
+open(OUT,">$appl.clus-phy_newick_labels") or die "can not open $appl.clus-phy_newick_labels!\n";
+$line=<IN>;
+while ($line !~ /Phylogenetic tree with all splits listed/)
+{
+	$line=<IN>;
+}
+$line=<IN>;
+&produce_newick_string_with_labels();
+print OUT ";";
+
+close(IN);
+close(OUT);
+
+print "Done!\n";
 
 # subroutines
 
+sub produce_newick_string_with_labels {
+	my $line=<IN>;
+	if (($line =~ /\+--\S+:\s+(p\d+.*)$/) or ($line =~ /^(p\d+.*)$/))
+	{
+		my $name = "$1\n";
+		chomp($name);
+		print OUT "(";
+		&produce_newick_string_with_labels();
+		print OUT ",";
+		&produce_newick_string_with_labels();
+		print OUT ")\'$name\'";
+	}
+	else
+	{
+		$line =~ /\+--\S+:\s+(\S+)$/ or die "wrong format sequence line: $line\n";		
+		my $seqs = $1;
+		@sequences = split(" ",$seqs);
+		produce_sequences(@sequences);
+	}
+}
 
 sub produce_newick_string {
 	my $line=<IN>;
@@ -135,7 +174,7 @@ sub produce_newick_string {
 	}
 	else
 	{
-		$line =~ /\+--\s+(\S.+)$/;
+		$line =~ /\+--\s+(\S.+)$/ or die "wrong format sequence line: $line\n";
 		@sequences = split(" ",$1);
 		produce_sequences(@sequences);
 	}
