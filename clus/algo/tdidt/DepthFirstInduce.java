@@ -104,58 +104,6 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 		}
 	}
 
-	public void filterAlternativeSplits2(ClusNode node, RowData data, RowData[] subsets) {
-		boolean removed = false;
-		CurrentBestTestAndHeuristic best = m_FindBestTest.getBestTest();
-		int arity = node.getTest().updateArity();
-		ArrayList v = best.getAlternativeBest(); // alternatives: all tests that result in same heuristic value
-		for (int k = 0; k < v.size(); k++) {
-			NodeTest nt = (NodeTest) v.get(k);
-			int altarity = nt.updateArity();
-			// remove alternatives that have different arity than besttest
-			if (altarity != arity) {
-				v.remove(k);
-				k--;
-				System.out.println("Alternative split with different arity: " + nt.getString());
-				removed = true;
-			} else {
-				boolean okay = true;
-				for (int l = 0; l < altarity; l++) {
-					if (okay) {
-						RowData altrd = data.applyWeighted(nt, l);
-						// remove alternatives that result in subsets with different nb of tuples than besttest
-						if (subsets[l].getNbRows()!=altrd.getNbRows()) {
-							v.remove(k);
-							k--;
-							System.out.println("Alternative split with different nb in subsets: " + nt.getString());
-							removed = true;
-							okay = false;
-						} else {
-							for (int m=0; m<subsets[l].getNbRows(); m++) {
-								if (okay) {
-									// remove alternatives that result in subsets with different tuples than besttest
-									if (!subsets[l].getTuple(m).equals(altrd.getTuple(m))) {
-										v.remove(k);
-										k--;
-										System.out.println("Alternative split with different ex in subsets: " + nt.getString());
-										removed = true;
-										okay = false;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		node.setAlternatives(v);
-//		if (removed) System.out.println("Alternative splits were possible");
-	}
-	
-	
-	
-	
-	
 	
 	public void filterAlternativeSplits(ClusNode node, RowData data, RowData[] subsets) {
 		boolean removed = false;
@@ -190,7 +138,15 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 								nbsame++;
 							}
 						}
-						if (nbsame == nbsubset0) same = true;
+						if (nbsame == nbsubset0) { 
+							same = true;
+							if (l!=0) {
+								// we have the same subsets, but the opposite split, hence we change the test to not(test) 
+								String test = v.get(k).toString();
+								String newtest = "not(" + test + ")";
+								v.set(k, new String(newtest));
+							}
+						}
 					}
 				}
 				if (!same) {
