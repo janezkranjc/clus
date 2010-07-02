@@ -1100,9 +1100,9 @@ public class Settings implements Serializable {
 	/** GD Treshold [0,1] for changing the gradient. This portion of maximum gradients are affecting.
  	 * A value between [0,1].If 1 (default) this is simliar to L1 regularization (Lasso) and 0 similar to L2.*/
 	protected INIFileDouble m_OptGDGradTreshold;
-	/** GD Initial step size ]0,1] for each iteration. */
+	/** GD Initial step size ]0,1] for each iteration. If m_OptGDIsDynStepsize is true, this is not used. */
 	protected INIFileDouble m_OptGDStepSize;
-	/** GD Compute lower limit of step size based on the predictions */
+	/** GD Compute lower limit of step size based on the predictions. Default Yes. */
 	protected INIFileBool m_OptGDIsDynStepsize;
 	/** GD Maximum number of nonzero weights. If the number reached, only old ones are altered.
 	 * If = 0, no limit for nonzero weights.*/
@@ -1123,7 +1123,7 @@ public class Settings implements Serializable {
 	/** GD How many different parameter combinations we try for T. Values between [m_OptGDGradTreshold,1] */
 	protected INIFileInt m_OptGDNbOfTParameterTry;
 	/** GD When running from T=1 down, do we stop if the error starts to increase. Should make optimization
-	 * a lot faster, but may decrease the accuracy.*/
+	 * a lot faster, but may decrease the accuracy. Default Yes.*/
 	protected INIFileBool m_OptGDEarlyTTryStop;
 
 	public INIFileNominalOrDoubleOrVector getDispersionWeights() {
@@ -2185,7 +2185,7 @@ public class Settings implements Serializable {
 		m_SectionRules.addNode(m_OptGDNbOfStepSizeReduce = new INIFileStringOrInt("OptGDNbOfStepSizeReduce", INFINITY_STRING));
 		m_SectionRules.addNode(m_OptGDExternalMethod = new INIFileNominal("OptGDExternalMethod",GD_EXTERNAL_METHOD_VALUES, 0));
 		m_SectionRules.addNode(m_OptGDMTGradientCombine = new INIFileNominal("OptGDMTGradientCombine",OPT_GD_MT_COMBINE_GRADIENTS, 0));
-		m_SectionRules.addNode(m_OptGDNbOfTParameterTry = new INIFileInt("OptGDNbOfTParameterTry",0));
+		m_SectionRules.addNode(m_OptGDNbOfTParameterTry = new INIFileInt("OptGDNbOfTParameterTry",1));
 		m_SectionRules.addNode(m_OptGDEarlyTTryStop = new INIFileBool("OptGDEarlyTTryStop",true));
 		m_SectionRules.setEnabled(false);
 
