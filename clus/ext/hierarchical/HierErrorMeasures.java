@@ -287,9 +287,9 @@ public class HierErrorMeasures extends ClusError {
 		computeAll();
 		out.println();
 		out.println("      Average AUROC:            "+m_AverageAUROC);
-		out.println("      Average AURPC:            "+m_AverageAUPRC);
-		out.println("      Average AURPC (weighted): "+m_WAvgAUPRC);
-		out.println("      Pooled AURPC:             "+m_PooledAUPRC);
+		out.println("      Average AUPRC:            "+m_AverageAUPRC);
+		out.println("      Average AUPRC (weighted): "+m_WAvgAUPRC);
+		out.println("      Pooled AUPRC:             "+m_PooledAUPRC);
 		if (m_RecallValues != null) {
 			int nbRecalls = m_RecallValues.length;
 			for (int i = 0; i < nbRecalls; i++) {
