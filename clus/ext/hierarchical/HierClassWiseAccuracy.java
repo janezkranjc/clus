@@ -56,6 +56,7 @@ public class HierClassWiseAccuracy extends ClusError {
 	}
 
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
+		//System.out.println("tuple: "+tuple.toString());
 		ClassesTuple tp = (ClassesTuple)tuple.getObjVal(0);
 		boolean[] predarr = ((WHTDStatistic)pred).getDiscretePred();
 		for (int i = 0; i < m_Dim; i++) {
