@@ -23,6 +23,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	protected double[] m_SumDistWithCompl; // for each sequence in the current node store the sum of the pairwise distances with the complement data
 	protected int m_SampleSize=20; // sample size
 	protected boolean m_Sampling=false; // whether sampling is switched on
+	protected String[][] m_Sequences; // the sequences (needed to calculate entropy)
 
 	public long m_SetDataTimer=0;
 	public long m_HeurTimer=0;
@@ -45,6 +46,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			m_DistMatrix = new MSymMatrix(m_OerData.getNbRows());
 			System.out.println("  Calculating Distance Matrix (Size: "+m_OerData.getNbRows()+")");
 			GeneticDistanceStat gstat = (GeneticDistanceStat)stat;
+			m_Sequences = new String[m_OerData.getNbRows()][gstat.m_NbTarget];
 			for (int i=0; i<m_OerData.getNbRows(); i++) {
 				DataTuple tuple1 = m_OerData.getTuple(i);
 				int row = tuple1.getIndex();
@@ -52,6 +54,8 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 				for (int t=0; t<gstat.m_NbTarget; t++) {
 					int nomvalue1 = gstat.m_Attrs[t].getNominal(tuple1);
 					str1[t] = gstat.m_Attrs[t].getValueOrMissing(nomvalue1);
+					m_Sequences[i][t] = str1[t];
+	//				System.out.println(str1[t] + " " + str1[t].hashCode());
 				}
 
 				for (int j=i+1; j<m_OerData.getNbRows(); j++) {
@@ -100,7 +104,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	// executed each time a node has to be split
 	public void setData(RowData data) {
 		m_Data = data;
-		if (data.getNbRows() > 2) {
+//		if (data.getNbRows() > 2) {
 		
 		//long start_time = System.currentTimeMillis();
 
@@ -113,7 +117,13 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		//long stop_time = System.currentTimeMillis();
 		//long elapsed = stop_time - start_time;
 		//m_SetDataTimer += elapsed;
-		}
+		
+		double avg =  m_SumAllDistances / m_DataIndices.length;
+		System.out.println("Avg PW distance = " + avg);
+		double ent = getSumOfEntropyWithin(m_DataIndices);
+		System.out.println("Sum Entropy = " + ent);
+		
+//		}
 		
 		if (m_Data.getNbRows() == m_OerData.getNbRows()) {
 			m_OerSumAllDistances = m_SumAllDistances;
@@ -172,6 +182,52 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		}
 		return sum;
 	}
+	
+	public double getSumOfEntropyWithin(int[] indices) {
+		double entropy = 0;
+		for (int t=0; t<m_Sequences[0].length; t++) {
+			int counters[] = new int[95];
+			int nbnongaps = 0;
+			double columnentropy = 0;
+			for (int i=0; i<indices.length; i++) {
+				int row = indices[i];
+//				if (! m_Sequences[row][t].equals("-"))
+//				{
+					int code = m_Sequences[row][t].hashCode();
+					counters[code]++;
+					nbnongaps++;
+//				}
+				
+			}
+			for (int i=0; i<95; i++)
+			{
+				if (counters[i] != 0)
+				{
+					double p = (double) counters[i] / nbnongaps;
+					double log = log2(p);
+					double product = p*log;
+					//System.out.println("counters " + counters[i] + " nbnongaps " + nbnongaps + " p " + p + " log " + log + " product: " + product);
+					columnentropy -= product;
+				}
+			}
+			//System.out.println("colentr: " + columnentropy);
+			entropy += columnentropy;
+		}
+		return entropy;
+	}
+
+    /**
+     * Calculate base 2 logarithm
+     *
+     * @param x value to take log of
+     *
+     * @return base 2 logarithm.
+     */
+    private static double log2( double x )
+        {
+        // Math.log is base e, natural log, ln
+        return Math.log( x ) / Math.log( 2 );
+        }
 
 
 	public double calcHeuristic(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
@@ -374,8 +430,8 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			double n_compl = m_ComplDataIndices.length;
 
 			// for the exact total branch length:
-			// double compdist = getSumOfDistancesWithin(m_ComplDataIndices); // if you want to compute exact total branch lengths, add this to result
-			// result = ((sumDistNegToCompl / (n_neg*n_compl)) + (sumDistPosToCompl / (n_pos*n_compl)) + (m_SumAllDistances / (n_pos*n_neg)) + (getSumOfDistancesWithin(posindices) * (2*n_neg - 1) / (n_pos*n_neg)) + (getSumOfDistancesWithin(negindices) * (2*n_pos - 1) / (n_pos*n_neg)))/2 + (compdist / n_compl);
+			//double compdist = getSumOfDistancesWithin(m_ComplDataIndices); // if you want to compute exact total branch lengths, add this to result
+			 //result = ((sumDistNegToCompl / (n_neg*n_compl)) + (sumDistPosToCompl / (n_pos*n_compl)) + (m_SumAllDistances / (n_pos*n_neg)) + (getSumOfDistancesWithin(posindices) * (2*n_neg - 1) / (n_pos*n_neg)) + (getSumOfDistancesWithin(negindices) * (2*n_pos - 1) / (n_pos*n_neg)))/2 + (compdist / n_compl);
 
 			// otherwise (finds same splits, but less computations):
 			result = (sumDistNegToCompl / (n_neg*n_compl)) + (sumDistPosToCompl / (n_pos*n_compl)) + (m_SumAllDistances / (n_pos*n_neg)) + (poswithin * (2*n_neg - 1) / (n_pos*n_neg)) + (negwithin * (2*n_pos - 1) / (n_pos*n_neg));
