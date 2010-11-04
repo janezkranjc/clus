@@ -17,7 +17,7 @@ cp data/cleanall release/Clus/data/
 cp data/.cvsignore release/Clus/data/
 cd release/Clus/
 . addon/script/killspace
-. compile.sh
+./compile.sh
 cd bin
 jar xvf ../jars/commons-math-1.0.jar
 jar xvf ../jars/jgap.jar
