@@ -1840,6 +1840,7 @@ public class Settings implements Serializable {
 	public static INIFileNominal m_PhylogenyCriterion;
 	public static INIFileNominal m_PhylogenySequence;
 	public static INIFileString m_PhylogenyDistanceMatrix;
+	public static INIFileDouble m_PhylogenyEntropyStop;
 
 	public String getPhylogenyDistanceMatrix() {
 		return m_PhylogenyDistanceMatrix.getValue();
@@ -1851,6 +1852,10 @@ public class Settings implements Serializable {
 
 	public void setSectionPhylogenyEnabled(boolean enable) {
 		m_SectionPhylogeny.setEnabled(enable);
+	}
+	
+	public double getPhylogenyEntropyStop() {
+		return m_PhylogenyEntropyStop.getValue();
 	}
 	
 
@@ -2251,6 +2256,7 @@ public class Settings implements Serializable {
 		m_SectionPhylogeny.addNode(m_PhylogenyCriterion=new INIFileNominal("OptimizationCriterion", PHYLOGENY_CRITERION,0));
 		m_SectionPhylogeny.addNode(m_PhylogenySequence=new INIFileNominal("Sequence", PHYLOGENY_SEQUENCE,0));
 		m_SectionPhylogeny.addNode(m_PhylogenyDistanceMatrix = new INIFileString("DistanceMatrix", "dist"));
+		m_SectionPhylogeny.addNode(m_PhylogenyEntropyStop = new INIFileDouble("EntropyStopCriterion", 0));
 		m_SectionPhylogeny.setEnabled(false);
 
 		m_SectionEnsembles = new INIFileSection("Ensemble");

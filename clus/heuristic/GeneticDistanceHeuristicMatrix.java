@@ -24,11 +24,13 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	protected int m_SampleSize=20; // sample size
 	protected boolean m_Sampling=false; // whether sampling is switched on
 	protected String[][] m_Sequences; // the sequences (needed to calculate entropy)
+	protected double m_SumEntropy; // sum of entropy (over all columns) for the data in the current node
 
 	public long m_SetDataTimer=0;
 	public long m_HeurTimer=0;
 	
 	protected double m_OerSumAllDistances; // sum of pairwise distances in the complete dataset
+	protected double m_OerSumEntropy; // sum of entropy (over all columns) in the complete dataset
 
 	// executed once, when splitting the root node
 	public void setInitialData(ClusStatistic stat, RowData data) {
@@ -118,15 +120,16 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		//long elapsed = stop_time - start_time;
 		//m_SetDataTimer += elapsed;
 		
-		double avg =  m_SumAllDistances / m_DataIndices.length;
-		System.out.println("Avg PW distance = " + avg);
-		double ent = getSumOfEntropyWithin(m_DataIndices);
-		System.out.println("Sum Entropy = " + ent);
+//		double avg =  m_SumAllDistances / m_DataIndices.length;
+//		System.out.println("Avg PW distance = " + avg);
+		m_SumEntropy = getSumOfEntropyWithin(m_DataIndices);
+//		System.out.println("Sum Entropy = " + ent);
 		
 //		}
 		
 		if (m_Data.getNbRows() == m_OerData.getNbRows()) {
 			m_OerSumAllDistances = m_SumAllDistances;
+			m_OerSumEntropy = m_SumEntropy;
 		}
 	}
 
@@ -367,6 +370,10 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		// If only 2 sequences left and one is pos and one is neg (the latter is automatically true, since the last test passed), we don't need to calculate anything
 		if ((n_pos+n_neg) == 2*Settings.MINIMAL_WEIGHT) {
 			return Double.POSITIVE_INFINITY;
+		}
+		
+		if (m_SumEntropy < m_OerSumEntropy * Settings.m_PhylogenyEntropyStop.getValue()) {
+			return Double.NEGATIVE_INFINITY;
 		}
 		
 		//-----------
