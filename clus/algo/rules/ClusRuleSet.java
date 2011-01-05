@@ -47,7 +47,7 @@ import clus.tools.optimization.OptProbl;
 import clus.util.*;
 
 /**
- * Set of predictive rules.
+ * Class representing a set of predictive clustering rules.
  *
  */
 public class ClusRuleSet implements ClusModel, Serializable {
