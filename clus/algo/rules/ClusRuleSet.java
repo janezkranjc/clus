@@ -49,7 +49,6 @@ import clus.util.*;
 /**
  * Set of predictive rules.
  *
- *
  */
 public class ClusRuleSet implements ClusModel, Serializable {
 
