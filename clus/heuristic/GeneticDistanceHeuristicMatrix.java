@@ -19,6 +19,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 
 	protected MSymMatrix m_DistMatrix; // the distance matrix (read or computed)
 	protected double m_SumAllDistances; // the sum of all pairwise distances in the data in the current node
+	protected double m_SumEntropyWithin; // the sum of entropies within the data in the current node
 	protected HashMap m_HeurComputed = new HashMap(); // keep track of what has been computed before
 	protected double[] m_SumDistWithCompl; // for each sequence in the current node store the sum of the pairwise distances with the complement data
 	protected int m_SampleSize=20; // sample size
@@ -29,6 +30,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	public long m_HeurTimer=0;
 	
 	protected double m_OerSumAllDistances; // sum of pairwise distances in the complete dataset
+	protected double m_OerSumEntropyWithin; // sum of entropies in the complete dataset
 
 	// executed once, when splitting the root node
 	public void setInitialData(ClusStatistic stat, RowData data) {
@@ -111,6 +113,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		m_HeurComputed.clear();
 		m_DataIndices = constructIndexVector(m_Data);
 		m_SumAllDistances = getSumOfDistancesWithin(m_DataIndices);
+		m_SumEntropyWithin = getSumOfEntropyWithin(m_DataIndices);
 		m_ComplDataIndices = constructComplIndexVector(m_OerData, m_DataIndices);
 		m_SumDistWithCompl = constructComplDistVector(m_DataIndices, m_ComplDataIndices);
 
@@ -121,6 +124,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		
 		if (m_Data.getNbRows() == m_OerData.getNbRows()) {
 			m_OerSumAllDistances = m_SumAllDistances;
+			m_OerSumEntropyWithin = m_SumEntropyWithin;
 		}
 	}
 
@@ -361,6 +365,10 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		// If only 2 sequences left and one is pos and one is neg (the latter is automatically true, since the last test passed), we don't need to calculate anything
 		if ((n_pos+n_neg) == 2*Settings.MINIMAL_WEIGHT) {
 			return Double.POSITIVE_INFINITY;
+		}
+		
+		if (m_SumEntropyWithin / m_OerSumEntropyWithin < m_OerData.getSchema().getSettings().getPhylogenyEntropyStop()) {
+			return Double.NEGATIVE_INFINITY;
 		}
 		
 		//-----------
