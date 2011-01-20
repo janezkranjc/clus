@@ -117,6 +117,8 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		m_ComplDataIndices = constructComplIndexVector(m_OerData, m_DataIndices);
 		m_SumDistWithCompl = constructComplDistVector(m_DataIndices, m_ComplDataIndices);
 
+		System.out.println("Entropy: " + m_SumEntropyWithin);
+		
 		//long stop_time = System.currentTimeMillis();
 		//long elapsed = stop_time - start_time;
 		//m_SetDataTimer += elapsed;	
@@ -361,14 +363,14 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		if (n_pos + n_neg != m_Data.getNbRows()) {
 			return Double.NEGATIVE_INFINITY;
 		}
+
+		if (m_SumEntropyWithin / m_OerSumEntropyWithin < m_OerData.getSchema().getSettings().getPhylogenyEntropyStop()) {
+			return Double.NEGATIVE_INFINITY;
+		}
 		
 		// If only 2 sequences left and one is pos and one is neg (the latter is automatically true, since the last test passed), we don't need to calculate anything
 		if ((n_pos+n_neg) == 2*Settings.MINIMAL_WEIGHT) {
 			return Double.POSITIVE_INFINITY;
-		}
-		
-		if (m_SumEntropyWithin / m_OerSumEntropyWithin < m_OerData.getSchema().getSettings().getPhylogenyEntropyStop()) {
-			return Double.NEGATIVE_INFINITY;
 		}
 		
 		//-----------
