@@ -1,8 +1,9 @@
 ###########################################################################################
 #
 # This script postprocesses the .out file. It extracts the tree from it and produces
-# two files: .clus-phy_tree (that contains the tree in two formats) and .clus-phy_newick
-# (that contains the tree in newick format).
+# three files: .clus-phy_tree (that contains the tree in two formats), .clus-phy_newick
+# (that contains the tree in newick format), and .clusters (that lists the leaf node
+# clusters, one per line, only relevant if a stop criterion is used).
 #
 # USAGE:
 # run "perl postprocess_tree.pl appl" 
@@ -98,12 +99,13 @@ print "Producing newick format...\n";
 
 open(IN,"$appl.clus-phy_tree");
 open(OUT,">$appl.clus-phy_newick") or die "can not open $appl.clus-phy_newick!\n";
+open(CLUS,">$appl.clusters") or die "can not open $appl.clusters!\n";
 $line=<IN>;
-&produce_newick_string();
+&produce_newick_string_and_clustering();
 print OUT ";";
-
 close(IN);
 close(OUT);
+close(CLUS);
 
 
 # full tree
@@ -155,26 +157,27 @@ sub produce_newick_string_with_labels {
 	}
 	else
 	{
-		$line =~ /\+--\S+:\s+(\S+)$/ or die "wrong format sequence line: $line\n";		
+		$line =~ /\+--\S+:\s+(\S.+)$/ or die "wrong format sequence line: $line\n";		
 		my $seqs = $1;
 		@sequences = split(" ",$seqs);
 		produce_sequences(@sequences);
 	}
 }
 
-sub produce_newick_string {
+sub produce_newick_string_and_clustering {
 	my $line=<IN>;
 	if (($line =~ /CLUSTER/) or ($line =~ /^\n$/))
 	{
 		print OUT "(";
-		&produce_newick_string();
+		&produce_newick_string_and_clustering();
 		print OUT ",";
-		&produce_newick_string();
+		&produce_newick_string_and_clustering();
 		print OUT ")";
 	}
 	else
 	{
 		$line =~ /\+--\s+(\S.+)$/ or die "wrong format sequence line: $line\n";
+		print CLUS "$1\n";
 		@sequences = split(" ",$1);
 		produce_sequences(@sequences);
 	}
