@@ -117,7 +117,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		m_ComplDataIndices = constructComplIndexVector(m_OerData, m_DataIndices);
 		m_SumDistWithCompl = constructComplDistVector(m_DataIndices, m_ComplDataIndices);
 
-		System.out.println("Entropy: " + m_SumEntropyWithin);
+		System.out.println("Entropy: " + m_SumEntropyWithin + ", SumPWDistances: " + m_SumAllDistances);
 		
 		//long stop_time = System.currentTimeMillis();
 		//long elapsed = stop_time - start_time;
