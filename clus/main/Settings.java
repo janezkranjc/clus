@@ -1841,6 +1841,7 @@ public class Settings implements Serializable {
 	public static INIFileNominal m_PhylogenySequence;
 	public static INIFileString m_PhylogenyDistanceMatrix;
 	public static INIFileDouble m_PhylogenyEntropyStop;
+	public static INIFileDouble m_PhylogenyDistancesStop;
 
 	public String getPhylogenyDistanceMatrix() {
 		return m_PhylogenyDistanceMatrix.getValue();
@@ -1858,12 +1859,16 @@ public class Settings implements Serializable {
 		return m_PhylogenyEntropyStop.getValue();
 	}
 	
+	public double getPhylogenyDistancesStop() {
+		return m_PhylogenyDistancesStop.getValue();
+	}
+	
 
 /***********************************************************************
  * Section: Ensemble methods                                           *
  ***********************************************************************/
 
-	public final static String[] ENSEMBLE_TYPE = {"Bagging", "RForest", "RSubspaces", "BagSubspaces", "Boosting", "NoBagRForest"};
+	public final static String[] ENSEMBLE_TYPE = {"Bagging", "RForest", "RSubspaces", "BagSubspaces", "Boosting", "RFeatSelection", "Pert"};
 
 	public final static int ENSEMBLE_BAGGING = 0;
 	public final static int ENSEMBLE_RFOREST = 1; 
@@ -1873,6 +1878,7 @@ public class Settings implements Serializable {
 	public final static int ENSEMBLE_BAGSUBSPACES = 3;
 	public final static int ENSEMBLE_BOOSTING = 4;
 	public final static int ENSEMBLE_NOBAGRFOREST = 5;
+	public final static int ENSEMBLE_PERT = 6;
 
 	public final static String[] VOTING_TYPE={"Majority","ProbabilityDistribution"};
 
@@ -2257,6 +2263,7 @@ public class Settings implements Serializable {
 		m_SectionPhylogeny.addNode(m_PhylogenySequence=new INIFileNominal("Sequence", PHYLOGENY_SEQUENCE,0));
 		m_SectionPhylogeny.addNode(m_PhylogenyDistanceMatrix = new INIFileString("DistanceMatrix", "dist"));
 		m_SectionPhylogeny.addNode(m_PhylogenyEntropyStop = new INIFileDouble("EntropyStopCriterion", 0));
+		m_SectionPhylogeny.addNode(m_PhylogenyDistancesStop = new INIFileDouble("SumPWDistancesStopCriterion", 0));
 		m_SectionPhylogeny.setEnabled(false);
 
 		m_SectionEnsembles = new INIFileSection("Ensemble");

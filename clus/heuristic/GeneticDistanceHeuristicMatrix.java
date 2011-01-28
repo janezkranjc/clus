@@ -368,6 +368,10 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			return Double.NEGATIVE_INFINITY;
 		}
 		
+		if (m_SumAllDistances / m_OerSumAllDistances < m_OerData.getSchema().getSettings().getPhylogenyDistancesStop()) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		
 		// If only 2 sequences left and one is pos and one is neg (the latter is automatically true, since the last test passed), we don't need to calculate anything
 		if ((n_pos+n_neg) == 2*Settings.MINIMAL_WEIGHT) {
 			return Double.POSITIVE_INFINITY;
