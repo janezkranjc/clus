@@ -19,6 +19,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 
 	protected MSymMatrix m_DistMatrix; // the distance matrix (read or computed)
 	protected double m_SumAllDistances; // the sum of all pairwise distances in the data in the current node
+	protected double m_AvgAllDistances; // the avg of all pairwise distances in the data in the current node
 	protected double m_SumEntropyWithin; // the sum of entropies within the data in the current node
 	protected HashMap m_HeurComputed = new HashMap(); // keep track of what has been computed before
 	protected double[] m_SumDistWithCompl; // for each sequence in the current node store the sum of the pairwise distances with the complement data
@@ -29,28 +30,29 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	public long m_SetDataTimer=0;
 	public long m_HeurTimer=0;
 	
-	protected double m_OerSumAllDistances; // sum of pairwise distances in the complete dataset
-	protected double m_OerSumEntropyWithin; // sum of entropies in the complete dataset
+	protected double m_RootSumAllDistances; // sum of pairwise distances in the complete dataset
+	protected double m_RootAvgAllDistances; // avg of pairwise distances in the complete dataset
+	protected double m_RootSumEntropyWithin; // sum of entropies in the complete dataset
 
 	// executed once, when splitting the root node
 	public void setInitialData(ClusStatistic stat, RowData data) {
-		m_OerData = data;
-		m_OerData.addIndices();
+		m_RootData = data;
+		m_RootData.addIndices();
 		constructMatrix(stat);
 	}
 	
 	// try to read distance matrix; if not present, compute it
 	public void constructMatrix(ClusStatistic stat) {
 		try {
-			m_DistMatrix = read(m_OerData.getSchema().getSettings());
+			m_DistMatrix = read(m_RootData.getSchema().getSettings());
 		}
 		catch (IOException e) {
-			m_DistMatrix = new MSymMatrix(m_OerData.getNbRows());
-			System.out.println("  Calculating Distance Matrix (Size: "+m_OerData.getNbRows()+")");
+			m_DistMatrix = new MSymMatrix(m_RootData.getNbRows());
+			System.out.println("  Calculating Distance Matrix (Size: "+m_RootData.getNbRows()+")");
 			GeneticDistanceStat gstat = (GeneticDistanceStat)stat;
-			m_Sequences = new String[m_OerData.getNbRows()][gstat.m_NbTarget];
-			for (int i=0; i<m_OerData.getNbRows(); i++) {
-				DataTuple tuple1 = m_OerData.getTuple(i);
+			m_Sequences = new String[m_RootData.getNbRows()][gstat.m_NbTarget];
+			for (int i=0; i<m_RootData.getNbRows(); i++) {
+				DataTuple tuple1 = m_RootData.getTuple(i);
 				int row = tuple1.getIndex();
 				String[] str1 = new String[gstat.m_NbTarget];
 				for (int t=0; t<gstat.m_NbTarget; t++) {
@@ -60,8 +62,8 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	//				System.out.println(str1[t] + " " + str1[t].hashCode());
 				}
 
-				for (int j=i+1; j<m_OerData.getNbRows(); j++) {
-					DataTuple tuple2 = m_OerData.getTuple(j);
+				for (int j=i+1; j<m_RootData.getNbRows(); j++) {
+					DataTuple tuple2 = m_RootData.getTuple(j);
 					int col = tuple2.getIndex();
 					String[] str2 = new String[gstat.m_NbTarget];
 					for (int t=0; t<gstat.m_NbTarget; t++) {
@@ -74,7 +76,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			}
 		}
 		/*System.out.println("Distance matrix: ");
-		for (int i=0; i<m_OerData.getNbRows(); i++) {
+		for (int i=0; i<m_RootData.getNbRows(); i++) {
 			for (int j=0; j<=i; j++) {
 				System.out.print(m_DistMatrix.get(i, j) + "  ");
 			}
@@ -113,8 +115,9 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		m_HeurComputed.clear();
 		m_DataIndices = constructIndexVector(m_Data);
 		m_SumAllDistances = getSumOfDistancesWithin(m_DataIndices);
+		m_AvgAllDistances = getAvgOfDistancesWithin(m_DataIndices);
 		m_SumEntropyWithin = getSumOfEntropyWithin(m_DataIndices);
-		m_ComplDataIndices = constructComplIndexVector(m_OerData, m_DataIndices);
+		m_ComplDataIndices = constructComplIndexVector(m_RootData, m_DataIndices);
 		m_SumDistWithCompl = constructComplDistVector(m_DataIndices, m_ComplDataIndices);
 
 		System.out.println("Entropy: " + m_SumEntropyWithin + ", SumPWDistances: " + m_SumAllDistances);
@@ -124,9 +127,10 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		//m_SetDataTimer += elapsed;	
 //		}
 		
-		if (m_Data.getNbRows() == m_OerData.getNbRows()) {
-			m_OerSumAllDistances = m_SumAllDistances;
-			m_OerSumEntropyWithin = m_SumEntropyWithin;
+		if (m_Data.getNbRows() == m_RootData.getNbRows()) {
+			m_RootSumAllDistances = m_SumAllDistances;
+			m_RootAvgAllDistances = m_AvgAllDistances;
+			m_RootSumEntropyWithin = m_SumEntropyWithin;
 		}
 	}
 
@@ -171,7 +175,6 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	// calculate the sum of the pairwise distances within a set
 	public double getSumOfDistancesWithin(int[] indices) {
 		int nb_ex = indices.length;
-		int nb_pairs = (nb_ex * (nb_ex-1))/2;
 		double sum = 0.0;
 		for (int i=0; i<nb_ex; i++) {
 			int row = indices[i];
@@ -181,6 +184,14 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			}
 		}
 		return sum;
+	}
+	
+	// calculate the average pairwise distance within a set
+	public double getAvgOfDistancesWithin(int[] indices) {
+		double dist = getSumOfDistancesWithin(indices);
+		int nb_ex = indices.length;
+		double nb_pairs = (nb_ex * (nb_ex-1))/2;
+		return (dist / nb_pairs);
 	}
 	
 	public double getSumOfEntropyWithin(int[] indices) {
@@ -278,6 +289,20 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
 			return Double.NEGATIVE_INFINITY;
 		}
+		
+		if (m_SumEntropyWithin / m_RootSumEntropyWithin < m_RootData.getSchema().getSettings().getPhylogenyEntropyStop()) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		
+		if (m_AvgAllDistances / m_RootAvgAllDistances < m_RootData.getSchema().getSettings().getPhylogenyDistancesStop()) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		
+		// If only 2 sequences left and one is pos and one is neg (the latter is automatically true, since the last test passed), we don't need to calculate anything
+		if ((n_pos+n_neg) == 2*Settings.MINIMAL_WEIGHT) {
+			return Double.POSITIVE_INFINITY;
+		}
+		
 		//-----------
 
 		int[] posindices = constructIndexVector(m_Data, pstat);
@@ -364,11 +389,11 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			return Double.NEGATIVE_INFINITY;
 		}
 
-		if (m_SumEntropyWithin / m_OerSumEntropyWithin < m_OerData.getSchema().getSettings().getPhylogenyEntropyStop()) {
+		if (m_SumEntropyWithin / m_RootSumEntropyWithin < m_RootData.getSchema().getSettings().getPhylogenyEntropyStop()) {
 			return Double.NEGATIVE_INFINITY;
 		}
 		
-		if (m_SumAllDistances / m_OerSumAllDistances < m_OerData.getSchema().getSettings().getPhylogenyDistancesStop()) {
+		if (m_AvgAllDistances / m_RootAvgAllDistances < m_RootData.getSchema().getSettings().getPhylogenyDistancesStop()) {
 			return Double.NEGATIVE_INFINITY;
 		}
 		
@@ -419,7 +444,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 
 		double result;
 		// root of the tree
-		if (m_Data.getNbRows() == m_OerData.getNbRows()) {
+		if (m_Data.getNbRows() == m_RootData.getNbRows()) {
 			result = (m_SumAllDistances + (n_neg-1) * poswithin + (n_pos-1) * negwithin) / (n_pos*n_neg);
 		}
 

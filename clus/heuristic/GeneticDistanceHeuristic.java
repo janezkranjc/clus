@@ -10,7 +10,7 @@ import java.util.*;
 public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 
 	protected RowData m_Data; // the data at the current node
-	protected RowData m_OerData; // the complete data set at the root of the tree, this is needed for taking the complement of the data in the current node
+	protected RowData m_RootData; // the complete data set at the root of the tree, this is needed for taking the complement of the data in the current node
 	protected int[] m_DataIndices; // the indices (in the original dataset) of the data at the current node
 	protected int[] m_ComplDataIndices; // the indices (in the original dataset) of the data in the complement of the data at the current node
 
@@ -22,7 +22,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 	public void setData(RowData data) {
 		m_Data = data;
 		m_DataIndices = constructIndexVector(m_Data);
-		m_ComplDataIndices = constructComplIndexVector(m_OerData, m_DataIndices);
+		m_ComplDataIndices = constructComplIndexVector(m_RootData, m_DataIndices);
 	}
 
 	public int[] constructIndexVector(RowData data) {
@@ -312,8 +312,8 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 	public int getOriginalIndex(DataTuple tuple) {
 		//System.out.println("target tuple: " + tuple.toString());
 		String str = tuple.toString();
-		for(int i=0; i<m_OerData.getNbRows(); i++) {
-			DataTuple oertuple = m_OerData.getTuple(i);
+		for(int i=0; i<m_RootData.getNbRows(); i++) {
+			DataTuple oertuple = m_RootData.getTuple(i);
 			String oerstr = oertuple.toString();
 			//System.out.println("tuple: " + i + " : " + oertuple.toString());
 			if (str.equals(oerstr))
@@ -724,7 +724,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		double posdist = calculatePairwiseDistanceWithin(pstat,m_Data);
 		double negdist = calculatePairwiseDistanceWithin(nstat,m_Data);
 
-		if (m_Data.getNbRows() == m_OerData.getNbRows()) { // root of the tree
+		if (m_Data.getNbRows() == m_RootData.getNbRows()) { // root of the tree
 			double betweendist = calculatePairwiseDistance(pstat, m_Data, nstat, m_Data);
 			double result = betweendist + posdist + negdist;
 
