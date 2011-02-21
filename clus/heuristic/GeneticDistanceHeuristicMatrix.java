@@ -153,6 +153,22 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	}	
 	
 	// calculate the sum of the pairwise distances between two sets
+	public double getMinPairwiseDistanceBetween(int[] posindices, int[] negindices) {
+		double mindist = Double.POSITIVE_INFINITY;
+		for (int i=0; i<posindices.length; i++) {
+			int row = posindices[i];
+			for (int j=0; j<negindices.length; j++) {
+				int col = negindices[j];
+				double dist = m_DistMatrix.get(row,col);
+				if (dist<mindist) {
+					mindist = dist;
+				}
+			}
+		}
+		return mindist;
+	}	
+	
+	// calculate the sum of the pairwise distances between two sets
 	public double getSumPairwiseDistanceBetween(int[] posindices, int[] negindices) {
 		double dist = 0.0;
 		for (int i=0; i<posindices.length; i++) {
@@ -247,6 +263,8 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			return calcHeuristicBranchLengths(c_tstat, c_pstat, null);
 		case Settings.PHYLOGENY_CRITERION_MAXAVGPWDIST:
 			return calcHeuristicArslan(c_tstat, c_pstat, null);
+		case Settings.PHYLOGENY_CRITERION_MAXMINPWDIST:
+			return calcHeuristicMaxMinDistance(c_tstat, c_pstat, null);
 		}
 		return 0.0; // never executed
 	}
@@ -259,6 +277,8 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			return calcHeuristicBranchLengths(c_tstat, p_stat, part_stat);
 		case Settings.PHYLOGENY_CRITERION_MAXAVGPWDIST:
 			return calcHeuristicArslan(c_tstat, p_stat, null);
+		case Settings.PHYLOGENY_CRITERION_MAXMINPWDIST:
+			return calcHeuristicMaxMinDistance(c_tstat, p_stat, null);		
 		}
 		return 0.0; // never executed
 	}
@@ -313,7 +333,55 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		return result;
 	}
 
-	
+	/*
+	 * Heuristic that calculates the minimal pairwise distance between elements from the positive and negative set.
+	 * The test that yields the largest heuristic will be chosen in the end (maximal minimum pairwise distance).
+	 */
+	public double calcHeuristicMaxMinDistance(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
+
+		// first create all needed statistics and data
+		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
+		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
+		GeneticDistanceStat nstat = (GeneticDistanceStat)tstat.cloneStat();
+		nstat.copy(tstat);
+		nstat.subtractFromThis(pstat);
+
+		double n_pos = pstat.m_SumWeight;
+		double n_neg = nstat.m_SumWeight;
+
+		// Acceptable test?
+		if (n_pos < Settings.MINIMAL_WEIGHT || n_neg < Settings.MINIMAL_WEIGHT) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		
+		// If position missing for some sequence, don't use it in split (probably this approach is not optimal)
+		if (Math.round(n_pos) != n_pos || Math.round(n_neg) != n_neg) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		
+		if (m_SumEntropyWithin / m_RootSumEntropyWithin < m_RootData.getSchema().getSettings().getPhylogenyEntropyStop()) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		
+		if (m_AvgAllDistances / m_RootAvgAllDistances < m_RootData.getSchema().getSettings().getPhylogenyDistancesStop()) {
+			return Double.NEGATIVE_INFINITY;
+		}
+		
+		// If only 2 sequences left and one is pos and one is neg (the latter is automatically true, since the last test passed), we don't need to calculate anything
+		if ((n_pos+n_neg) == 2*Settings.MINIMAL_WEIGHT) {
+			return Double.POSITIVE_INFINITY;
+		}
+		
+		//-----------
+
+		int[] posindices = constructIndexVector(m_Data, pstat);
+		int[] negindices = constructIndexVector(m_Data, nstat);
+
+
+		double result = getMinPairwiseDistanceBetween(posindices, negindices);
+		return result;
+	}
+		
 	/* 
 	 * Efficiency improvement:
 	 * Here we calculate the sum of distances within posindices and negindices in the context of a 2-nucleotide 

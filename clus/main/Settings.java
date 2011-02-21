@@ -1830,10 +1830,11 @@ public class Settings implements Serializable {
 	public final static int PHYLOGENY_SEQUENCE_AMINO = 1;
 	public final static int PHYLOGENY_SEQUENCE_ANY = 2;
 
-	public final static String[] PHYLOGENY_CRITERION={"MinTotBranchLength", "MaxAvgPWDistance"};
+	public final static String[] PHYLOGENY_CRITERION={"MinTotBranchLength", "MaxAvgPWDistance", "MaxMinPWDistance"};
 
 	public final static int PHYLOGENY_CRITERION_BRANCHLENGTHS = 0;
 	public final static int PHYLOGENY_CRITERION_MAXAVGPWDIST = 1;
+	public final static int PHYLOGENY_CRITERION_MAXMINPWDIST = 2;
 
 	INIFileSection m_SectionPhylogeny;
 	public static INIFileNominal m_PhylogenyDM;
