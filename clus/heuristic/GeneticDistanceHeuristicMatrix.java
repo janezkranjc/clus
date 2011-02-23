@@ -115,8 +115,13 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		m_HeurComputed.clear();
 		m_DataIndices = constructIndexVector(m_Data);
 		m_SumAllDistances = getSumOfDistancesWithin(m_DataIndices);
-		m_AvgAllDistances = getAvgOfDistancesWithin(m_DataIndices);
-		m_SumEntropyWithin = getSumOfEntropyWithin(m_DataIndices);
+		if (m_RootData.getSchema().getSettings().getPhylogenyDistancesStop() > 0) {
+			m_AvgAllDistances = getAvgOfDistancesWithin(m_DataIndices);
+		}
+		if (m_RootData.getSchema().getSettings().getPhylogenyEntropyStop() > 0) {
+			m_SumEntropyWithin = getSumOfEntropyWithin(m_DataIndices);
+		}
+		
 		m_ComplDataIndices = constructComplIndexVector(m_RootData, m_DataIndices);
 		m_SumDistWithCompl = constructComplDistVector(m_DataIndices, m_ComplDataIndices);
 
@@ -310,12 +315,16 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			return Double.NEGATIVE_INFINITY;
 		}
 		
-		if (m_SumEntropyWithin / m_RootSumEntropyWithin < m_RootData.getSchema().getSettings().getPhylogenyEntropyStop()) {
-			return Double.NEGATIVE_INFINITY;
+		if (m_RootData.getSchema().getSettings().getPhylogenyEntropyStop() > 0) {
+			if (m_SumEntropyWithin / m_RootSumEntropyWithin < m_RootData.getSchema().getSettings().getPhylogenyEntropyStop()) {
+				return Double.NEGATIVE_INFINITY;
+			}
 		}
 		
-		if (m_AvgAllDistances / m_RootAvgAllDistances < m_RootData.getSchema().getSettings().getPhylogenyDistancesStop()) {
-			return Double.NEGATIVE_INFINITY;
+		if (m_RootData.getSchema().getSettings().getPhylogenyDistancesStop() > 0) {
+			if (m_AvgAllDistances / m_RootAvgAllDistances < m_RootData.getSchema().getSettings().getPhylogenyDistancesStop()) {
+				return Double.NEGATIVE_INFINITY;
+			}
 		}
 		
 		// If only 2 sequences left and one is pos and one is neg (the latter is automatically true, since the last test passed), we don't need to calculate anything
@@ -359,13 +368,18 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			return Double.NEGATIVE_INFINITY;
 		}
 		
-		if (m_SumEntropyWithin / m_RootSumEntropyWithin < m_RootData.getSchema().getSettings().getPhylogenyEntropyStop()) {
-			return Double.NEGATIVE_INFINITY;
+		if (m_RootData.getSchema().getSettings().getPhylogenyEntropyStop() > 0) {
+			if (m_SumEntropyWithin / m_RootSumEntropyWithin < m_RootData.getSchema().getSettings().getPhylogenyEntropyStop()) {
+				return Double.NEGATIVE_INFINITY;
+			}
 		}
 		
-		if (m_AvgAllDistances / m_RootAvgAllDistances < m_RootData.getSchema().getSettings().getPhylogenyDistancesStop()) {
-			return Double.NEGATIVE_INFINITY;
+		if (m_RootData.getSchema().getSettings().getPhylogenyDistancesStop() > 0) {
+			if (m_AvgAllDistances / m_RootAvgAllDistances < m_RootData.getSchema().getSettings().getPhylogenyDistancesStop()) {
+				return Double.NEGATIVE_INFINITY;
+			}
 		}
+
 		
 		// If only 2 sequences left and one is pos and one is neg (the latter is automatically true, since the last test passed), we don't need to calculate anything
 		if ((n_pos+n_neg) == 2*Settings.MINIMAL_WEIGHT) {
@@ -457,12 +471,16 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			return Double.NEGATIVE_INFINITY;
 		}
 
-		if (m_SumEntropyWithin / m_RootSumEntropyWithin < m_RootData.getSchema().getSettings().getPhylogenyEntropyStop()) {
-			return Double.NEGATIVE_INFINITY;
+		if (m_RootData.getSchema().getSettings().getPhylogenyEntropyStop() > 0) {
+			if (m_SumEntropyWithin / m_RootSumEntropyWithin < m_RootData.getSchema().getSettings().getPhylogenyEntropyStop()) {
+				return Double.NEGATIVE_INFINITY;
+			}
 		}
 		
-		if (m_AvgAllDistances / m_RootAvgAllDistances < m_RootData.getSchema().getSettings().getPhylogenyDistancesStop()) {
-			return Double.NEGATIVE_INFINITY;
+		if (m_RootData.getSchema().getSettings().getPhylogenyDistancesStop() > 0) {
+			if (m_AvgAllDistances / m_RootAvgAllDistances < m_RootData.getSchema().getSettings().getPhylogenyDistancesStop()) {
+				return Double.NEGATIVE_INFINITY;
+			}
 		}
 		
 		// If only 2 sequences left and one is pos and one is neg (the latter is automatically true, since the last test passed), we don't need to calculate anything
