@@ -171,17 +171,13 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			  //only for testset necessary!
 			  m_PredProb = new double[1][size][hier.getTotal()];
 
-			  //for (int k = 0; k < size; k++) {
-			  //  Arrays.fill(m_PredProb[k], Double.MAX_VALUE);
-			  //}
-			  
 		      //read predictions in from a file
 		      String file = cargs.getOptionValue("loadPredictions");
 			  RowData rw = ARFFFile.readArff(file);
 			  ClusSchema schema = rw.getSchema();
 			  NumericAttrType[] na = schema.getNumericAttrUse(0); //0 = alle attributen
 		   
-			  // make mapping between classes once and for all
+			  // make mapping between classes
 			  int[] mapping_classes = new int[schema.getNbAttributes()];
 			  for (int y=0;y<na.length;y++) {
 				String label = na[y].getName();
@@ -200,7 +196,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			  
 			  RowData testset = cr.getDataSet(ClusModelInfoList.TESTSET);
 			  
-			  //make mapping between examples once and for all
+			  /*//make mapping between examples
 			  int[] mapping_examples = new int[rw.getNbRows()];
 			  StringAttrType ex_key = (StringAttrType)rw.m_Schema.getAttrType(0);
 			  for (int x=0;x<rw.getNbRows();x++) {
@@ -216,7 +212,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				  if (!found) {
 				      throw new ClusException("Error: example "+ex_key.getString(tuple)+" not found.");
 				    }
-			  }
+			  }*/
 			  
 			  //check			  
 			  System.out.println("Number of rows in predictions-file: "+rw.getNbRows());
@@ -227,22 +223,26 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 			  
 			  //store predictions in predProb-matrix
 			  //ClusAttrType[] keys = schema.getAllAttrUse(ClusAttrType.ATTR_USE_KEY);
+			  /* weggedaan 25/2 
 			  StringAttrType key = (StringAttrType)schema.getAttrType(0);
+			  */
 			  //System.out.println("Lengte van key array: "+keys.length);
 			  //StringAttrType key = (StringAttrType)keys[0];
 			  for (int x=0;x<rw.getNbRows();x++) {
 				//for (int y=0;y<schema.getNbAttributes();y++) {
 			    DataTuple tuple = rw.getTuple(x);
-			    int z = mapping_examples[x];
-			    DataTuple tuple_test = testset.getTuple(z);
+			    /*Leander 25/2/2011 int z = mapping_examples[x];
+			    DataTuple tuple_test = testset.getTuple(z);*/
+			    DataTuple tuple_test = testset.getTuple(x);
 			    //System.out.println("Tuple: "+tuple_test.toString());
-			    if (!key.getString(tuple).equals(key.getString(tuple_test))) {
+			    /*if (!key.getString(tuple).equals(key.getString(tuple_test))) {
 			    	throw new ClusException("Key attributes do not match: "+key.getString(tuple)+" <> "+key.getString(tuple_test)+" at line "+x);
-			    }
+			    } weggedaan 25/2*/
 				for (int y=0;y<na.length;y++) {
 			      int a = mapping_classes[y];
 			      //System.out.println("Storing "+na[y].getNumeric(tuple)+" in example "+z+" for class "+a);
-			      m_PredProb[0][z][a] = na[y].getNumeric(tuple); //na[0]: eerste attribuut (klasse);
+			      /*m_PredProb[0][z][a] = na[y].getNumeric(tuple); //na[0]: eerste attribuut (klasse);*/
+			      m_PredProb[0][x][a] = na[y].getNumeric(tuple);
 			    }
 			  }
 			  //m_predProb: datasets i, example j, klasse k (dataset moet enkel testset zijn)
@@ -284,10 +284,7 @@ public class HMCAverageSingleClass implements CMDLineArgsProvider {
 				if (test != null) {
 					test.addIndices();
 					//orig_model.setDataSet(ClusModelInfoList.TESTSET);
-					m_Clus.calcError(test.getIterator(), ClusModelInfo.TEST_ERR, cr);
-					//hier lukt iets niet!!! TODO 4/7/2010
-					//System.out.println("Gebeurt dit?");
-					
+					m_Clus.calcError(test.getIterator(), ClusModelInfo.TEST_ERR, cr);					
 				}
 				// Add model for each threshold to clusrun
 				if (class_thr.isVector()) {
