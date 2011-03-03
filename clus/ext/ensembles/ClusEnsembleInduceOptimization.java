@@ -74,7 +74,8 @@ public class ClusEnsembleInduceOptimization {
 			DataTuple train_tuple = train.readTuple();
 			while (train_tuple != null){
 				int position = locateTuple(train_tuple);
-				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(train_tuple);
+//				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(train_tuple);
+				ClusStatistic stat = model.predictWeighted(train_tuple);
 				m_AvgPredictions[position] = stat.getNumericPred();
 				train_tuple = train.readTuple();
 			}
@@ -85,7 +86,8 @@ public class ClusEnsembleInduceOptimization {
 			DataTuple test_tuple = test.readTuple();
 			while (test_tuple != null){
 				int position = locateTuple(test_tuple);
-				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(test_tuple);
+//				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(test_tuple);
+				ClusStatistic stat = model.predictWeighted(test_tuple);
 				m_AvgPredictions[position] = stat.getNumericPred();
 				test_tuple = test.readTuple();
 			}
@@ -99,7 +101,8 @@ public class ClusEnsembleInduceOptimization {
 			DataTuple train_tuple = train.readTuple();
 			while (train_tuple != null){
 				int position = locateTuple(train_tuple);
-				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(train_tuple);
+//				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(train_tuple);
+				ClusStatistic stat = model.predictWeighted(train_tuple);
 				m_AvgPredictions[position] = incrementPredictions(m_AvgPredictions[position], stat.getNumericPred(), nb_models);
 				train_tuple = train.readTuple();
 			}
@@ -110,7 +113,8 @@ public class ClusEnsembleInduceOptimization {
 			DataTuple test_tuple = test.readTuple();
 			while (test_tuple != null){
 				int position = locateTuple(test_tuple);
-				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(test_tuple);
+//				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(test_tuple);
+				ClusStatistic stat = model.predictWeighted(test_tuple);
 				m_AvgPredictions[position] = incrementPredictions(m_AvgPredictions[position], stat.getNumericPred(), nb_models);
 				test_tuple = test.readTuple();
 			}

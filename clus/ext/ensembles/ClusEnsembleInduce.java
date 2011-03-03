@@ -89,7 +89,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		m_BagClus = clus;
 		m_Mode = getStatManager().getMode();
 		//optimize if not XVAL and HMC
-		m_OptMode = (Settings.shouldOptimizeEnsemble() && !Settings.IS_XVAL && (m_Mode == ClusStatManager.MODE_HIERARCHICAL));
+		m_OptMode = (Settings.shouldOptimizeEnsemble() && !Settings.IS_XVAL && ((m_Mode == ClusStatManager.MODE_HIERARCHICAL)||(m_Mode == ClusStatManager.MODE_REGRESSION)));
 		m_OutEnsembleAt = sett.getNbBaggingSets().getIntVectorSorted();
 		m_NbMaxBags = m_OutEnsembleAt[m_OutEnsembleAt.length-1];
 		m_FeatRank = sett.shouldPerformRanking() && !Settings.IS_XVAL;

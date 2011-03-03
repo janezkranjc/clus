@@ -219,9 +219,11 @@ public class ClusForest implements ClusModel, Serializable{
 		int position = ClusEnsembleInduceOptimization.locateTuple(tuple);
 		int predlength = ClusEnsembleInduceOptimization.getPredictionLength(position);
 		m_Stat.reset();
-		((WHTDStatistic)m_Stat).m_Means = new double[predlength];
+//		((WHTDStatistic)m_Stat).m_Means = new double[predlength];s
+		((RegressionStatBase)m_Stat).m_Means = new double[predlength];
 		for (int j = 0; j < predlength; j++){
-			((WHTDStatistic)m_Stat).m_Means[j] = ClusEnsembleInduceOptimization.getPredictionValue(position, j);
+//			((WHTDStatistic)m_Stat).m_Means[j] = ClusEnsembleInduceOptimization.getPredictionValue(position, j);
+			((RegressionStatBase)m_Stat).m_Means[j] = ClusEnsembleInduceOptimization.getPredictionValue(position, j);
 		}
 		m_Stat.computePrediction();
 		return m_Stat;
