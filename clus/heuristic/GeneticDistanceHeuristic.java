@@ -205,7 +205,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
  *************************************************************************************/
 
 
-	public double calculateStarDistance(GeneticDistanceStat stat, RowData data) {
+/*	public double calculateStarDistance(GeneticDistanceStat stat, RowData data) {
 		int nb_tg = stat.m_NbTarget;
 		double nb_ex = stat.m_SumWeight;
 		double dist = 0.0;
@@ -219,9 +219,9 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 			dist = 0.0;
 		else dist = dist / (nb_ex-1);
 		return dist;
-	}
+	}*/
 
-	public double calculatePairwiseDistanceWithin(GeneticDistanceStat stat, RowData data) {
+/*	public double calculatePairwiseDistanceWithin(GeneticDistanceStat stat, RowData data) {
 		int nb_tg = stat.m_NbTarget;
 		double nb_ex = stat.m_SumWeight;
 		double dist = 0.0;
@@ -233,7 +233,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		}
 		dist = dist / nb_ex;
 		return dist;
-	}
+	}*/
 
 /*	public double calculatePairwiseDistance(GeneticDistanceStat pstat, RowData pdata, GeneticDistanceStat nstat, RowData ndata) {
 		boolean useSampling = false;
@@ -309,7 +309,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		return dist;
 	}*/
 
-	public int getOriginalIndex(DataTuple tuple) {
+/*	public int getOriginalIndex(DataTuple tuple) {
 		//System.out.println("target tuple: " + tuple.toString());
 		String str = tuple.toString();
 		for(int i=0; i<m_RootData.getNbRows(); i++) {
@@ -321,9 +321,9 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		}
 		System.out.println("*************** original tupleindex not found *****************");
 		return -1;
-	}
+	}*/
 
-	public double calculateMutations(int nbtargets, GeneticDistanceStat pstat, RowData pdata, GeneticDistanceStat nstat, RowData ndata) {
+/*	public double calculateMutations(int nbtargets, GeneticDistanceStat pstat, RowData pdata, GeneticDistanceStat nstat, RowData ndata) {
 		double nbmutations = 0;
 		double n_pos = pstat.m_SumWeight;
 		double n_neg = nstat.m_SumWeight;
@@ -371,10 +371,10 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		}
 
 		return nbmutations;
-	}
+	}*/
 
 
-	public int calculateMutationsWithin(int nbtargets, GeneticDistanceStat stat, RowData data) {
+/*	public int calculateMutationsWithin(int nbtargets, GeneticDistanceStat stat, RowData data) {
 		int nbmutations = 0;
 		double nb_ex = stat.m_SumWeight;
 		HashMap[] hash = new HashMap[nbtargets];
@@ -400,35 +400,20 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 			nbmutations += mutationsatposition;
 		}
 		return nbmutations;
-	}
+	}*/
 
 
-	public double calculateTotalDistanceToPrototype(int nbtargets, GeneticDistanceStat stat, RowData data) {
+/*	public double calculateTotalDistanceToPrototype(int nbtargets, GeneticDistanceStat stat, RowData data) {
 		double dist = 0.0;
 		double dist2 = 0.0;
 
 //		double[][] protomatrix = stat.getProbabilityPrediction();
-
-		/*System.out.println("protomatrix");
-		for (int j=0; j<nbtargets; j++) {
-			for (int k=0; k<5; k++) {
-				System.out.print(protomatrix[j][k] + " ");
-			}
-			System.out.println();
-		}
-		System.out.println();*/
 
 
 		String[] proto = new String[nbtargets];
 		for (int i=0; i<nbtargets; i++) {
 			proto[i] = stat.getPredictedClassName(i);
 		}
-
-		/*System.out.print("proto: ");
-		for (int j=0;j<proto.length; j++)
-			System.out.print(proto[j]+" ");
-		System.out.println();
-		System.out.println();*/
 
 		double nb_ex = stat.m_SumWeight;
 		for (int i=0; i<nb_ex; i++) {
@@ -441,32 +426,18 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 				ch[p] = stat.m_Attrs[p].getValueOrMissing(nomvalue);
 			}
 			dist2 += getDistance(proto,ch);
-
-			/*System.out.print("seq: ");
-			for (int j=0;j<ch.length; j++)
-				System.out.print(ch[j]+" ");
-			System.out.println();*/
 		}
 	//	System.out.println("dist: " + dist + " dist2: " + dist2);
 		return dist;
 		//return dist2;
-	}
+	}*/
 
 
-	public double calculateTotalDistanceBetweenPrototypeMatrices(int nbtargets, GeneticDistanceStat stat1, GeneticDistanceStat stat2) {
+/*	public double calculateTotalDistanceBetweenPrototypeMatrices(int nbtargets, GeneticDistanceStat stat1, GeneticDistanceStat stat2) {
 		double dist = 0.0;
 
 //		double[][] protomatrix1 = stat1.getProbabilityPrediction();
 //		double[][] protomatrix2 = stat2.getProbabilityPrediction();
-
-		/*System.out.println("protomatrix");
-		for (int j=0; j<nbtargets; j++) {
-			for (int k=0; k<5; k++) {
-				System.out.print(protomatrix[j][k] + " ");
-			}
-			System.out.println();
-		}
-		System.out.println();*/
 
 		for (int j=0; j<nbtargets; j++) {
 			for (int k=0; k<5; k++) {
@@ -475,11 +446,11 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 			}
 		}
 		return dist;
-	}
+	}*/
 
 
 
-	public int maxArrayIndex(int[] t) {
+/*	public int maxArrayIndex(int[] t) {
 	    int maximum = t[0];
 	    int maxindex = 0;
 	    for (int i=1; i<t.length; i++) {
@@ -489,9 +460,9 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 	        }
 	    }
 	    return maxindex;
-	}
+	}*/
 
-	public boolean emptyStringIntersection(Set set1, Set set2) {
+/*	public boolean emptyStringIntersection(Set set1, Set set2) {
 		Object[] arr1 = set1.toArray();
 		Object[] arr2 = set2.toArray();
 		for (int i=0; i<arr1.length; i++) {
@@ -503,9 +474,9 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 			}
 		}
 		return true;
-	}
+	}*/
 
-	public int intersectionSize(Set set1, Set set2) {
+/*	public int intersectionSize(Set set1, Set set2) {
 		int intersectionnb = 0;
 		Object[] arr1 = set1.toArray();
 		Object[] arr2 = set2.toArray();
@@ -518,9 +489,9 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 			}
 		}
 		return intersectionnb;
-	}
+	}*/
 
-	public double calculateDistance(int nbtargets, GeneticDistanceStat pstat, RowData pdata, int randompos, GeneticDistanceStat nstat, RowData ndata, int randomneg) {
+/*	public double calculateDistance(int nbtargets, GeneticDistanceStat pstat, RowData pdata, int randompos, GeneticDistanceStat nstat, RowData ndata, int randomneg) {
 		int posindex = pstat.getTupleIndex(randompos);
 		int negindex = nstat.getTupleIndex(randomneg);
 
@@ -541,13 +512,10 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		}
 		return getDistance(posstring, negstring);
 
-		/*int row = getOriginalIndex(postuple);
-		int col = getOriginalIndex(negtuple);
-		return getMatrixElement(row, col);*/
-	}
+	}*/
 
 
-	public double calculatePrototypeDistance(GeneticDistanceStat pstat, GeneticDistanceStat nstat) {
+/*	public double calculatePrototypeDistance(GeneticDistanceStat pstat, GeneticDistanceStat nstat) {
 		// Equal for all target attributes
 		int nb = pstat.m_NbTarget;
 		double n_pos = pstat.m_SumWeight;
@@ -565,7 +533,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		}
 
 		return getDistance(proto_pos,proto_neg);
-	}
+	}*/
 	
 	// The test that yields the largest heuristic will be chosen in the end. Since we want to minimize the total branch length,
 	// we maximize the inverse of it.
@@ -634,7 +602,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 	}
 */
 
-	public double calcPWSLDistance(int[] posindices, int[] negindices) {
+/*	public double calcPWSLDistance(int[] posindices, int[] negindices) {
 		// look for 2 ancestors with minimal distance
 		double dist = Double.MAX_VALUE;
 		int posanc = Integer.MAX_VALUE;
@@ -653,10 +621,10 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		}
 		return dist;
 
-	}
+	}*/
 
 
-	public double calcTotalDistanceWithSlAsProto(int[] posindices, int[] negindices) {
+/*	public double calcTotalDistanceWithSlAsProto(int[] posindices, int[] negindices) {
 		// look for 2 ancestors with minimal distance
 		double dist = Double.MAX_VALUE;
 		int posanc = Integer.MAX_VALUE;
@@ -690,7 +658,7 @@ public abstract class GeneticDistanceHeuristic extends ClusHeuristic {
 		return result;
 
 	}
-
+*/
 
 	
 	

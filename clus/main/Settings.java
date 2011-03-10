@@ -1841,8 +1841,10 @@ public class Settings implements Serializable {
 	public static INIFileNominal m_PhylogenyCriterion;
 	public static INIFileNominal m_PhylogenySequence;
 	public static INIFileString m_PhylogenyDistanceMatrix;
-	public static INIFileDouble m_PhylogenyEntropyStop;
-	public static INIFileDouble m_PhylogenyDistancesStop;
+	public static INIFileDouble m_PhylogenyEntropyVsRootStop;
+	public static INIFileDouble m_PhylogenyDistancesVsRootStop;
+	public static INIFileDouble m_PhylogenyEntropyVsParentStop;
+	public static INIFileDouble m_PhylogenyDistancesVsParentStop;
 
 	public String getPhylogenyDistanceMatrix() {
 		return m_PhylogenyDistanceMatrix.getValue();
@@ -1856,12 +1858,20 @@ public class Settings implements Serializable {
 		m_SectionPhylogeny.setEnabled(enable);
 	}
 	
-	public double getPhylogenyEntropyStop() {
-		return m_PhylogenyEntropyStop.getValue();
+	public double getPhylogenyEntropyVsRootStop() {
+		return m_PhylogenyEntropyVsRootStop.getValue();
 	}
 	
-	public double getPhylogenyDistancesStop() {
-		return m_PhylogenyDistancesStop.getValue();
+	public double getPhylogenyDistancesVsRootStop() {
+		return m_PhylogenyDistancesVsRootStop.getValue();
+	}
+	
+	public double getPhylogenyEntropyVsParentStop() {
+		return m_PhylogenyEntropyVsParentStop.getValue();
+	}
+	
+	public double getPhylogenyDistancesVsParentStop() {
+		return m_PhylogenyDistancesVsParentStop.getValue();
 	}
 	
 
@@ -2263,8 +2273,10 @@ public class Settings implements Serializable {
 		m_SectionPhylogeny.addNode(m_PhylogenyCriterion=new INIFileNominal("OptimizationCriterion", PHYLOGENY_CRITERION,0));
 		m_SectionPhylogeny.addNode(m_PhylogenySequence=new INIFileNominal("Sequence", PHYLOGENY_SEQUENCE,0));
 		m_SectionPhylogeny.addNode(m_PhylogenyDistanceMatrix = new INIFileString("DistanceMatrix", "dist"));
-		m_SectionPhylogeny.addNode(m_PhylogenyEntropyStop = new INIFileDouble("EntropyStopCriterion", 0));
-		m_SectionPhylogeny.addNode(m_PhylogenyDistancesStop = new INIFileDouble("SumPWDistancesStopCriterion", 0));
+		m_SectionPhylogeny.addNode(m_PhylogenyEntropyVsRootStop = new INIFileDouble("EntropyVsRootStopCriterion", 0));
+		m_SectionPhylogeny.addNode(m_PhylogenyDistancesVsRootStop = new INIFileDouble("SumPWDistancesVsRootStopCriterion", 0));
+		m_SectionPhylogeny.addNode(m_PhylogenyEntropyVsParentStop = new INIFileDouble("EntropyVsParentStopCriterion", 0));
+		m_SectionPhylogeny.addNode(m_PhylogenyDistancesVsParentStop = new INIFileDouble("SumPWDistancesVsParentStopCriterion", 0));
 		m_SectionPhylogeny.setEnabled(false);
 
 		m_SectionEnsembles = new INIFileSection("Ensemble");
