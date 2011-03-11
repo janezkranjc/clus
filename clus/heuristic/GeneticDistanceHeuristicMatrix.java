@@ -44,7 +44,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	// try to read distance matrix; if not present, compute it
 	public void constructMatrix(ClusStatistic stat) {
 		try {
-			m_DistMatrix = read(m_RootData.getSchema().getSettings());
+			m_DistMatrix = read(m_RootData.getSchema().getSettings(), stat);
 		}
 		catch (IOException e) {
 			m_DistMatrix = new MSymMatrix(m_RootData.getNbRows());
@@ -85,7 +85,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	}
 	
 	// reading distance matrix (default name is "dist")
-	public MSymMatrix read(Settings sett) throws IOException {
+	public MSymMatrix read(Settings sett, ClusStatistic stat) throws IOException {
 		String filename = sett.getPhylogenyDistanceMatrix();
 		ClusReader reader = new ClusReader(filename, sett);
 		int nb = (int) reader.readFloat();
@@ -102,6 +102,23 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 		}
 		reader.close();
 		System.out.println("  Matrix loaded");
+		
+		// if entropy stopcriterion will be used, we need to know the sequence information
+		if ((m_RootData.getSchema().getSettings().getPhylogenyEntropyVsRootStop() > 0) || (m_RootData.getSchema().getSettings().getPhylogenyEntropyVsParentStop() > 0)) {
+			GeneticDistanceStat gstat = (GeneticDistanceStat)stat;
+			m_Sequences = new String[m_RootData.getNbRows()][gstat.m_NbTarget];
+			for (int i=0; i<m_RootData.getNbRows(); i++) {
+				DataTuple tuple1 = m_RootData.getTuple(i);
+				int row = tuple1.getIndex();
+				String[] str1 = new String[gstat.m_NbTarget];
+				for (int t=0; t<gstat.m_NbTarget; t++) {
+					int nomvalue1 = gstat.m_Attrs[t].getNominal(tuple1);
+					str1[t] = gstat.m_Attrs[t].getValueOrMissing(nomvalue1);
+					m_Sequences[i][t] = str1[t];
+				}
+			}
+		}
+
 		return matrix;
 	}		
 
