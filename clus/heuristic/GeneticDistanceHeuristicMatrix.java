@@ -224,6 +224,9 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 	
 	// calculate the average pairwise distance within a set
 	public double getAvgPWDistancesWithin(int[] indices) {
+		if (indices.length <= 1) {
+			return 0.0;
+		}
 		double dist = getSumPWDistancesWithin(indices);
 		int nb_ex = indices.length;
 		double nb_pairs = (nb_ex * (nb_ex-1))/2;
