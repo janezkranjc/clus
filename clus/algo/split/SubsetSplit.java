@@ -73,6 +73,7 @@ public class SubsetSplit extends NominalSplit {
 		double unk_freq = 0.0;
 		int nbvalues = type.getNbValues();
 		boolean isin[] = new boolean[nbvalues];
+		boolean acceptable = true; // can only be changed for phylogenetic trees
 		// If has missing values?
 		if (type.hasMissing()) {
 			ClusStatistic unknown = node.m_TestStat[nbvalues];
@@ -189,6 +190,7 @@ public class SubsetSplit extends NominalSplit {
 							bvalue = j;
 							// Calculate pos freq (of current best one)
 							pos_freq = m_CStat.m_SumWeight / m_MStat.m_SumWeight;
+							node.checkAcceptable(m_MStat, m_CStat);
 						}
 					}
 				}
@@ -263,4 +265,42 @@ public class SubsetSplit extends NominalSplit {
     node.m_TestType = CurrentBestTestAndHeuristic.TYPE_TEST;
     node.m_BestTest = new SubsetTest(type, card, isin, pos_freq);
   }
+  
+  // makes a random subsetsplit for a given attribute, where the subset includes one value and excludes another value
+  // used in PERT trees
+  public void findRandomPertSplit(CurrentBestTestAndHeuristic node, NominalAttrType type, Random rn, int valueincl, int valueexcl) {
+	    int nbvalues = type.getNbValues();
+	    boolean isin[] = new boolean[nbvalues];
+
+	    //	Generate non-empty and non-full subset
+	    int card = 0;
+	    double pos_freq = 0.0;
+	    while (true) {
+	      for (int i = 0; i < isin.length; i++) {
+	        isin[i] = rn.nextBoolean();
+	      }
+	      isin[valueincl] = true;
+	      isin[valueexcl] = false;
+	      int sum = 0;
+	      for (int i = 0; i < isin.length; i++) {
+	        if (isin[i]) {
+	          sum++;
+	        }
+	      }
+	      if (!((sum == 0) || (sum == nbvalues))) {
+	        card = sum;
+	        break;
+	      }
+	    }
+	    // Calculate statistics ...
+	    m_PStat.reset();
+	    for (int j = 0; j < nbvalues; j++) {
+	      if (isin[j]) {
+	         	m_PStat.add(node.m_TestStat[j]);
+	      }
+	    }
+	    node.m_TestType = CurrentBestTestAndHeuristic.TYPE_TEST;
+	    node.m_BestTest = new SubsetTest(type, card, isin, pos_freq);
+	  }
+  
 }

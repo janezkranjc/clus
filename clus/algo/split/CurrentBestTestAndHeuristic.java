@@ -59,6 +59,7 @@ public class CurrentBestTestAndHeuristic {
 	public double m_UnknownFreq;
 	public ClusAttrType m_SplitAttr;
 	public ArrayList m_AlternativeBest = new ArrayList();
+	public boolean m_IsAcceptable = true;
 
 	// Cache for numeric attributes
 	public double m_BestSplit;
@@ -76,7 +77,7 @@ public class CurrentBestTestAndHeuristic {
 	}
 
 	public final boolean hasBestTest() {
-		return m_TestType != TYPE_NONE;
+		return (m_IsAcceptable == true) && (m_TestType != TYPE_NONE);
 	}
 
 	public final String getTestString() {
@@ -90,6 +91,9 @@ public class CurrentBestTestAndHeuristic {
 		} else if (m_TestType == TYPE_INVERSE_NUMERIC) {
 			m_TestType = TYPE_TEST;
 			m_BestTest = new InverseNumericTest(m_SplitAttr.getType(), m_BestSplit, m_PosFreq);
+		}
+		if (m_BestTest == null) {
+			System.out.println("Best test is null");
 		}
 		m_BestTest.preprocess(ClusDecisionTree.DEPTH_FIRST);
 		m_BestTest.setUnknownFreq(m_UnknownFreq);
@@ -312,6 +316,10 @@ public class CurrentBestTestAndHeuristic {
 
 	public final double getHeuristicValue() {
 		return m_BestHeur;
+	}
+	
+	public void checkAcceptable(ClusStatistic tot, ClusStatistic pos) {
+		m_IsAcceptable = m_Heuristic.isAcceptable(tot, pos, m_MissingStat);
 	}
 
 /***************************************************************************

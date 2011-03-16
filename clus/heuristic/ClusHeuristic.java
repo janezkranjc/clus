@@ -86,4 +86,14 @@ public abstract class ClusHeuristic {
 	public void setStopCriterion(ClusStopCriterion stop) {
 		m_StopCrit = stop;
 	}
+	
+	/*
+	* Flag that indicates whether the corresponding split is acceptable. The flag will only be checked after the best test was chosen.
+	* Useful e.g. if you want to find the best split according to the heuristic, but only keep that split if it is acceptable, and otherwise make it a leaf.
+	* The other stop criteria are checked before the best test is chosen.
+	* Is set to true by default. Overridden in the phylogeny framework.
+	*/
+	public boolean isAcceptable(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
+		return true;
+	}
 }

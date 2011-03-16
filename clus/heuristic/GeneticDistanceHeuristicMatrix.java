@@ -541,6 +541,28 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 			return Double.NEGATIVE_INFINITY;
 		}
 
+		// If only 2 sequences left and one goes to pos (left) branch and one goes to neg (right) branch (the latter is automatically true, since the "minimal weight" test passed), we don't need to calculate anything
+		// Every such split will be equally good (note that we return POS infinity here, instead of NEG infinity)
+		if ((n_pos+n_neg) == 2*Settings.MINIMAL_WEIGHT) {
+			return Double.POSITIVE_INFINITY;
+		}
+		
+		return 0.0; // stopping criterion does not hold
+
+	}
+	
+	
+	public boolean isAcceptable(ClusStatistic c_tstat, ClusStatistic c_pstat, ClusStatistic missing) {
+		GeneticDistanceStat tstat = (GeneticDistanceStat)c_tstat;
+		GeneticDistanceStat pstat = (GeneticDistanceStat)c_pstat;
+
+		GeneticDistanceStat nstat = (GeneticDistanceStat)tstat.cloneStat();
+		nstat.copy(tstat);
+		nstat.subtractFromThis(pstat);
+		
+		double n_pos = pstat.m_SumWeight;
+		double n_neg = tstat.m_SumWeight - pstat.m_SumWeight;
+		
 		// if the sum of entropies in the current node is small enough w.r.t. the root node, then stop
 		// LARGE threshold means SMALL trees
 		if (m_RootData.getSchema().getSettings().getPhylogenyEntropyVsRootStop() > 0) {
@@ -548,7 +570,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 				if (m_RootData.getSchema().getSettings().getVerbose() > 2) {
 					System.out.println("STOP: entropy at current node = " + m_SumEntropyWithin + ", at root = " + m_RootSumEntropyWithin);
 				}
-				return Double.NEGATIVE_INFINITY;
+				return false;
 			}
 		}
 		
@@ -559,7 +581,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 				if (m_RootData.getSchema().getSettings().getVerbose() > 2) {
 					System.out.println("STOP: AvgPWDistance at current node = " + m_AvgAllDistances + ", at root = " + m_RootAvgAllDistances);
 				}
-				return Double.NEGATIVE_INFINITY;
+				return false;
 			}
 		}
 		
@@ -574,7 +596,7 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 				if (m_RootData.getSchema().getSettings().getVerbose() > 2) {
 					System.out.println("STOP: weighted sum of AvgPWDistances in children = " + ((n_pos*poswithin + n_neg*negwithin)/(n_pos+n_neg)) + ", AvgPWDistance at node = " + m_AvgAllDistances);
 				}
-				return Double.NEGATIVE_INFINITY;
+				return false;
 			}
 		}
 		
@@ -589,19 +611,11 @@ public class GeneticDistanceHeuristicMatrix extends GeneticDistanceHeuristic {
 				if (m_RootData.getSchema().getSettings().getVerbose() > 2) {
 					System.out.println("STOP: weighted sum of SumEntropies in children = " + ((n_pos*poswithin + n_neg*negwithin)/(n_pos+n_neg)) + ", SumEntropies at node = " + m_SumEntropyWithin);
 				}
-				return Double.NEGATIVE_INFINITY;
+				return false;
 			}
 		}
 		
-		
-		// If only 2 sequences left and one goes to pos (left) branch and one goes to neg (right) branch (the latter is automatically true, since the "minimal weight" test passed), we don't need to calculate anything
-		// Every such split will be equally good (note that we return POS infinity here, instead of NEG infinity)
-		if ((n_pos+n_neg) == 2*Settings.MINIMAL_WEIGHT) {
-			return Double.POSITIVE_INFINITY;
-		}
-		
-		return 0.0; // stopping criterion does not hold
-
+		return true;
 	}
 
 
