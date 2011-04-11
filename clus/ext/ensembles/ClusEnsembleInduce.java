@@ -571,7 +571,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	public void postProcessForest(ClusRun cr) throws ClusException{
 		ClusModelInfo def_info = cr.addModelInfo("Default");
 		if (m_OptMode) m_DForest = null;
-		def_info.setModel(m_DForest);
+		def_info.setModel(ClusDecisionTree.induceDefault(cr));
 		
 		ClusModelInfo orig_info = cr.addModelInfo("Original");
 		orig_info.setModel(m_OForest);
