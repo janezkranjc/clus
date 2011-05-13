@@ -40,6 +40,17 @@ public class BaggingSelection extends ClusSelection {
 		}
 	}
 
+	public BaggingSelection(int nbrows, int nbselected) {
+	       super(nbrows);
+	       m_Counts = new int[nbrows];
+	       for (int i = 0; i < nbselected; i++) {
+	           m_Counts[ClusRandom.nextInt(ClusRandom.RANDOM_SELECTION, nbrows)]++;
+	       }
+	       for (int i = 0; i < nbrows; i++) {
+	           if (m_Counts[i] != 0) m_NbSel++;
+	       }
+	   }
+	
 	public boolean changesDistribution() {
 		return true;
 	}
