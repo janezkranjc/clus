@@ -354,7 +354,7 @@ public class ClusReader {
 			boolean is_ts=false;
 			Reader reader = m_Token.getReader();
 			int ch = getNextChar(reader);
-			while (ch != -1 && ch != ',') {
+			while (ch != -1 && ch != ',' && ch != '}') {
 				if (ch != ' ' && ch != '\t' && ch != 10 && ch != 13) {
 					if (ch=='['){
 						is_ts=true;
@@ -378,6 +378,12 @@ public class ClusReader {
 				prev=ch;
 				ch = reader.read();
 			}
+			/*
+			 * if last attribute of sparse representation is disabled, this method
+			 * will skip over closing '}' bracket, so we need to store this for the
+			 * isNextChar method
+			 */
+			if(ch == '}') m_LastChar = ch;
 			return ch != -1;
 	}
 
