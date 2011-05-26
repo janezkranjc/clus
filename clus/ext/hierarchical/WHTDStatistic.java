@@ -180,22 +180,27 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 	}
 	
 	public void calcMean(double[] means) {
-		if (m_Training == null || m_Compatibility <= Settings.COMPATIBILITY_MLJ08) {
-			// Use trivial definition (no m-estimate)
-			for (int i = 0; i < m_NbAttrs; i++) {			
-				means[i] = m_SumWeight != 0.0 ? m_SumValues[i] / m_SumWeight : 0.0;
-			}
-		} else {
+		if (Settings.useMEstimate() && m_Training != null) {
 			// Use m-estimate
 			for (int i = 0; i < m_NbAttrs; i++) {			
 				means[i] = (m_SumValues[i] + m_Training.m_Means[i]) / (m_SumWeight+1.0);
+			}
+		} else {
+			// Use default definition (no m-estimate)
+			for (int i = 0; i < m_NbAttrs; i++) {			
+				means[i] = m_SumWeight != 0.0 ? m_SumValues[i] / m_SumWeight : 0.0;
 			}			
 		}
 	}
 	
 	public double getMean(int i) {
-		if (m_Training == null || m_Compatibility <= Settings.COMPATIBILITY_MLJ08) return m_SumWeight != 0.0 ? m_SumValues[i] / m_SumWeight : 0.0;
-		else return (m_SumValues[i] + m_Training.m_Means[i]) / (m_SumWeight+1.0);
+		if (Settings.useMEstimate() && m_Training != null) {
+			// Use m-estimate		
+			return (m_SumValues[i] + m_Training.m_Means[i]) / (m_SumWeight+1.0);
+		} else {
+			// Use default definition (no m-estimate)
+			return m_SumWeight != 0.0 ? m_SumValues[i] / m_SumWeight : 0.0;
+		}
 	}
 
 	public void calcMean() {

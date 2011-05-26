@@ -1555,6 +1555,7 @@ public class Settings implements Serializable {
 	protected INIFileNominalOrDoubleOrVector m_HierClassThreshold;
 	protected INIFileNominalOrDoubleOrVector m_RecallValues;
 	protected INIFileString m_HierEvalClasses;
+	protected static INIFileBool m_HierUseMEstimate;
 
 	public void setSectionHierarchicalEnabled(boolean enable) {
 		m_SectionHierarchical.setEnabled(enable);
@@ -1623,6 +1624,10 @@ public class Settings implements Serializable {
 	public void initHierarchical() {
 		ClassesValue.setHSeparator(m_HierSep.getValue());
 		ClassesValue.setEmptySetIndicator(m_HierEmptySetIndicator.getValue());
+	}
+	
+	public static boolean useMEstimate() {
+		return m_HierUseMEstimate.getValue();
 	}
 
 /***********************************************************************
@@ -2230,6 +2235,7 @@ public class Settings implements Serializable {
 		m_SectionHierarchical.addNode(m_RecallValues = new INIFileNominalOrDoubleOrVector("RecallValues", NONELIST));
 		m_RecallValues.setNominal(0);		
 		m_SectionHierarchical.addNode(m_HierEvalClasses = new INIFileString("EvalClasses", NONE));
+		m_SectionHierarchical.addNode(m_HierUseMEstimate = new INIFileBool("MEstimate", false));
 		m_SectionHierarchical.setEnabled(false);
 		
 		
