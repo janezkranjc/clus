@@ -82,7 +82,22 @@ public class MSNominalError extends ClusNominalError {
 		return value*value;
 	}
 
+	// note from celine: somehow the code below (now in comments) does not work in combination with ensembles and out of bag estimates...
 	public void addExample(DataTuple tuple, ClusStatistic pred) {
+		ClusStatistic stat = pred.getClassificationStat();
+		for (int i = 0; i < m_Dim; i++) {
+			NominalAttrType type = m_Attrs[i];
+			int value = type.getNominal(tuple);
+			for (int j = 0; j < type.getNbValues(); j++) {
+				double zeroOne = (value == j) ? 1.0 : 0.0;
+				double err = sqr(zeroOne - stat.getCount(i, j)/stat.getTotalWeight());
+				m_SumErr[i] += err;
+				m_SumSqErr[i] += sqr(err);
+			}
+		}
+	}
+	
+	/*public void addExample(DataTuple tuple, ClusStatistic pred) {
 		ClassificationStat stat = pred.getClassificationStat();
 		for (int i = 0; i < m_Dim; i++) {
 			NominalAttrType type = m_Attrs[i];
@@ -95,7 +110,7 @@ public class MSNominalError extends ClusNominalError {
 				m_SumSqErr[i] += sqr(err);
 			}
 		}
-	}
+	}*/
 
 	public void addInvalid(DataTuple tuple) {
 	}
