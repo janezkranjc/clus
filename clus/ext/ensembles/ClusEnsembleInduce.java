@@ -22,12 +22,8 @@
 
 package clus.ext.ensembles;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Random;
 
 import jeans.resource.ResourceInfo;
 
@@ -89,7 +85,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		m_BagClus = clus;
 		m_Mode = getStatManager().getMode();
 		//optimize if not XVAL and HMC
-		m_OptMode = (Settings.shouldOptimizeEnsemble() && !Settings.IS_XVAL && ((m_Mode == ClusStatManager.MODE_HIERARCHICAL)||(m_Mode == ClusStatManager.MODE_REGRESSION)));
+		m_OptMode = (Settings.shouldOptimizeEnsemble() && !Settings.IS_XVAL && ((m_Mode == ClusStatManager.MODE_HIERARCHICAL)||(m_Mode == ClusStatManager.MODE_REGRESSION) || (m_Mode == ClusStatManager.MODE_CLASSIFY)));
 		m_OutEnsembleAt = sett.getNbBaggingSets().getIntVectorSorted();
 		m_NbMaxBags = m_OutEnsembleAt[m_OutEnsembleAt.length-1];
 		m_FeatRank = sett.shouldPerformRanking() && !Settings.IS_XVAL;
@@ -170,8 +166,16 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			train_iterator = cr.getTrainIter();
 			if (m_BagClus.hasTestSet()){
 				test_iterator = cr.getTestSet().getIterator();
-				m_Optimization = new ClusEnsembleInduceOptimization(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
-			} else m_Optimization = new ClusEnsembleInduceOptimization(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());	
+				if (m_Mode == ClusStatManager.MODE_HIERARCHICAL || m_Mode == ClusStatManager.MODE_REGRESSION)
+					m_Optimization = new ClusEnsembleInduceOptRegHMLC(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
+				if (m_Mode == ClusStatManager.MODE_CLASSIFY)
+					m_Optimization = new ClusEnsembleInduceOptClassification(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
+			} else {
+				if (m_Mode == ClusStatManager.MODE_HIERARCHICAL || m_Mode == ClusStatManager.MODE_REGRESSION)
+					m_Optimization = new ClusEnsembleInduceOptRegHMLC(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());	
+				if (m_Mode == ClusStatManager.MODE_CLASSIFY)
+					m_Optimization = new ClusEnsembleInduceOptClassification(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());
+			}
 			m_Optimization.initPredictions(m_OForest.getStat());
 		}
 		for (int i = 1; i <= m_NbMaxBags; i++) {
@@ -196,8 +200,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 			else{
 				m_OForest.addModelToForest(model);
-				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
-				m_DForest.addModelToForest(defmod);
+//				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
+//				m_DForest.addModelToForest(defmod);
 			}
 			//Valid only when test set is supplied
 			if (m_OptMode && (i != m_NbMaxBags) && checkToOutEnsemble(i)){
@@ -224,8 +228,17 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			train_iterator = cr.getTrainIter();
 			if (m_BagClus.hasTestSet()){
 				test_iterator = cr.getTestSet().getIterator();
-				m_Optimization = new ClusEnsembleInduceOptimization(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
-			} else m_Optimization = new ClusEnsembleInduceOptimization(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());	
+				if (m_Mode == ClusStatManager.MODE_HIERARCHICAL || m_Mode == ClusStatManager.MODE_REGRESSION)
+					m_Optimization = new ClusEnsembleInduceOptRegHMLC(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
+				if (m_Mode == ClusStatManager.MODE_CLASSIFY)
+					m_Optimization = new ClusEnsembleInduceOptClassification(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
+
+			} else {
+				if (m_Mode == ClusStatManager.MODE_HIERARCHICAL || m_Mode == ClusStatManager.MODE_REGRESSION)
+					m_Optimization = new ClusEnsembleInduceOptRegHMLC(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());
+				if (m_Mode == ClusStatManager.MODE_CLASSIFY)
+					m_Optimization = new ClusEnsembleInduceOptClassification(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());
+			}
 			m_Optimization.initPredictions(m_OForest.getStat());
 		}
 		for (int i = 1; i <= m_NbMaxBags; i++) {
@@ -251,8 +264,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			}
 			else{
 				m_OForest.addModelToForest(model);
-				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
-				m_DForest.addModelToForest(defmod);
+//				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
+//				m_DForest.addModelToForest(defmod);
 			}
 			//Valid only when test set is supplied
 			if (m_OptMode && (i != m_NbMaxBags) && checkToOutEnsemble(i)){
@@ -285,8 +298,16 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			train_iterator = cr.getTrainIter();
 			if (m_BagClus.hasTestSet()){
 				test_iterator = cr.getTestSet().getIterator();
-				m_Optimization = new ClusEnsembleInduceOptimization(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
-			}else m_Optimization = new ClusEnsembleInduceOptimization(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());	
+				if (m_Mode == ClusStatManager.MODE_HIERARCHICAL || m_Mode == ClusStatManager.MODE_REGRESSION)
+					m_Optimization = new ClusEnsembleInduceOptRegHMLC(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
+				if (m_Mode == ClusStatManager.MODE_CLASSIFY)
+					m_Optimization = new ClusEnsembleInduceOptClassification(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
+			}else {
+				if (m_Mode == ClusStatManager.MODE_HIERARCHICAL || m_Mode == ClusStatManager.MODE_REGRESSION)
+					m_Optimization = new ClusEnsembleInduceOptRegHMLC(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());
+				if (m_Mode == ClusStatManager.MODE_CLASSIFY)
+					m_Optimization = new ClusEnsembleInduceOptClassification(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());
+			}
 			m_Optimization.initPredictions(m_OForest.getStat());
 		}
 		// We store the old maxDepth to this if needed. Thus we get the right depth to .out files etc.
@@ -368,7 +389,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		}
 		
 		if (m_FeatRank){
-			ArrayList attests = new ArrayList();
+			ArrayList<String> attests = new ArrayList<String>();
 			m_FeatureRanking.fillWithAttributesInTree((ClusNode)model, attests);
 			RowData tdata = (RowData)((RowData)cr.getTrainingSet()).deepCloneData();
 			double oob_err = m_FeatureRanking.calcAverageError((RowData)tdata.selectFrom(oob_sel), model);
@@ -378,9 +399,9 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 				double type = info[0];
 				double position = info[1];
 				RowData permuted = m_FeatureRanking.createRandomizedOOBdata(oob_sel, (RowData)tdata.selectFrom(oob_sel), (int)type, (int)position);
-				if (getStatManager().getMode() == ClusStatManager.MODE_REGRESSION){//increase in error rate (oob_err -> MSError)
+				if (ClusStatManager.getMode() == ClusStatManager.MODE_REGRESSION){//increase in error rate (oob_err -> MSError)
 					info[2] += (m_FeatureRanking.calcAverageError((RowData)permuted, model) - oob_err)/oob_err;
-				}else if (getStatManager().getMode() == ClusStatManager.MODE_CLASSIFY){//decrease in accuracy (oob_err -> Accuracy)
+				}else if (ClusStatManager.getMode() == ClusStatManager.MODE_CLASSIFY){//decrease in accuracy (oob_err -> Accuracy)
 					info[2] += (oob_err - m_FeatureRanking.calcAverageError((RowData)permuted, model))/oob_err;
 				}
 				m_FeatureRanking.putAttributeInfo(current_attribute, info);
@@ -395,8 +416,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		else{
 			m_OForest.addModelToForest(model);
 			
-			ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
-			m_DForest.addModelToForest(defmod);
+//			ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
+//			m_DForest.addModelToForest(defmod);
 		}
 		
 		//print paths (-- celine; just testing sth)
@@ -504,8 +525,16 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			train_iterator = cr.getTrainIter();
 			if (m_BagClus.hasTestSet()){
 				test_iterator = cr.getTestSet().getIterator();
-				m_Optimization = new ClusEnsembleInduceOptimization(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
-			}else m_Optimization = new ClusEnsembleInduceOptimization(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());	
+				if (m_Mode == ClusStatManager.MODE_HIERARCHICAL || m_Mode == ClusStatManager.MODE_REGRESSION)
+				m_Optimization = new ClusEnsembleInduceOptRegHMLC(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
+				if (m_Mode == ClusStatManager.MODE_CLASSIFY)
+					m_Optimization = new ClusEnsembleInduceOptClassification(train_iterator, test_iterator, cr.getTrainingSet().getNbRows()+cr.getTestSet().getNbRows());
+			}else {
+				if (m_Mode == ClusStatManager.MODE_HIERARCHICAL || m_Mode == ClusStatManager.MODE_REGRESSION)
+				m_Optimization = new ClusEnsembleInduceOptRegHMLC(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());
+				if (m_Mode == ClusStatManager.MODE_CLASSIFY)
+					m_Optimization = new ClusEnsembleInduceOptClassification(train_iterator, test_iterator, cr.getTrainingSet().getNbRows());
+			}
 			m_Optimization.initPredictions(m_OForest.getStat());
 		}
 		for (int i = 1; i <= m_NbMaxBags; i++) {
@@ -571,8 +600,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	public void postProcessForest(ClusRun cr) throws ClusException{
 		ClusModelInfo def_info = cr.addModelInfo("Default");
 		if (m_OptMode) m_DForest = null;
-		def_info.setModel(ClusDecisionTree.induceDefault(cr));
-		
+		def_info.setModel(ClusDecisionTree.induceDefault(cr)); 
+
 		ClusModelInfo orig_info = cr.addModelInfo("Original");
 		orig_info.setModel(m_OForest);
 	
