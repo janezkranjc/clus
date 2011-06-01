@@ -107,16 +107,16 @@ public class ClusOOBErrorEstimate {
 		if (m_Mode == ClusStatManager.MODE_REGRESSION){
 			//for Regression we store the averages
 			RegressionStat stat = (RegressionStat)model.predictWeighted(tuple);
-			m_OOBPredictions.put(tuple.hashCode(),stat.getNumericPred());
+			m_OOBPredictions.put(tuple.hashCode(), stat.getNumericPred());
 		}
 
 		if (m_Mode == ClusStatManager.MODE_CLASSIFY){
 			//this should have a [][].for each attribute we store: Majority: the winning class, for Probability distribution, the class distribution
 			ClassificationStat stat = (ClassificationStat)model.predictWeighted(tuple);
 			switch (Settings.m_ClassificationVoteType.getValue()){//default is Majority Vote
-				case 0: m_OOBPredictions.put(tuple.hashCode(), transformToMajority(stat.m_ClassCounts));break;
-				case 1: m_OOBPredictions.put(tuple.hashCode(), transformToProbabilityDistribution(stat.m_ClassCounts));break;
-				default: m_OOBPredictions.put(tuple.hashCode(), transformToMajority(stat.m_ClassCounts));
+				case 0: m_OOBPredictions.put(tuple.hashCode(), ClusEnsembleInduceOptimization.transformToMajority(stat.m_ClassCounts));break;
+				case 1: m_OOBPredictions.put(tuple.hashCode(), ClusEnsembleInduceOptimization.transformToProbabilityDistribution(stat.m_ClassCounts));break;
+				default: m_OOBPredictions.put(tuple.hashCode(), ClusEnsembleInduceOptimization.transformToMajority(stat.m_ClassCounts));
 			}
 		}
 	}
@@ -149,9 +149,9 @@ public class ClusOOBErrorEstimate {
 			ClassificationStat stat =(ClassificationStat) model.predictWeighted(tuple);
 			double[][] predictions = stat.m_ClassCounts.clone();
 			switch (Settings.m_ClassificationVoteType.getValue()){//default is Majority Vote
-				case 0: predictions = transformToMajority(predictions);break;
-				case 1: predictions = transformToProbabilityDistribution(predictions);break;
-				default: predictions = transformToMajority(predictions);
+				case 0: predictions = ClusEnsembleInduceOptimization.transformToMajority(predictions);break;
+				case 1: predictions = ClusEnsembleInduceOptimization.transformToProbabilityDistribution(predictions);break;
+				default: predictions = ClusEnsembleInduceOptimization.transformToMajority(predictions);
 			}
 			double[][] sum_predictions = (double[][])m_OOBPredictions.get(tuple.hashCode());
 			sum_predictions = ClusEnsembleInduceOptimization.incrementPredictions(sum_predictions, predictions);
@@ -202,42 +202,6 @@ public class ClusOOBErrorEstimate {
 		m_OOBCalculation = value;
 	}
 	
-	//transform the class counts to majority vote (the one with max votes gets 1)
-	public static double[][] transformToMajority(double[][] m_Counts){
-		int[] maxPerTarget = new int[m_Counts.length];
-		for (int i = 0; i < m_Counts.length; i++){
-			maxPerTarget[i] = -1;
-			double m_max = Double.NEGATIVE_INFINITY;
-			for (int j = 0; j < m_Counts[i].length;j++){
-				if (m_Counts[i][j]>m_max){
-					maxPerTarget[i] = j;
-					m_max = m_Counts[i][j];
-				}
-			}
-		}
-		double[][] result = new double[m_Counts.length][];
-		for (int m = 0; m < m_Counts.length; m++){
-			result[m] = new double[m_Counts[m].length];
-			result[m][maxPerTarget[m]] ++; //the positions of max class will be 1
-		}
-		return result;
-	}
 
-	//transform the class counts to probability distributions
-	public static double[][] transformToProbabilityDistribution(double[][] m_Counts){
-		double[] sumPerTarget = new double[m_Counts.length];
-		for (int i = 0; i < m_Counts.length; i++)
-			for (int j = 0; j < m_Counts[i].length;j++)
-				sumPerTarget[i] += m_Counts[i][j];
-		double[][] result = new double[m_Counts.length][];
-
-		for (int m = 0; m < m_Counts.length; m++){
-			result[m] = new double[m_Counts[m].length];
-			for (int n = 0; n < m_Counts[m].length; n++){
-				result[m][n] = m_Counts[m][n]/sumPerTarget[m];
-			}
-		}
-		return result;
-	}
 	
 }

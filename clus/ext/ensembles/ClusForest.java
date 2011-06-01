@@ -57,7 +57,7 @@ public class ClusForest implements ClusModel, Serializable{
 	boolean m_PrintModels;
 	String m_AttributeList;
 	String m_AppName;
-
+	
 	public ClusForest(){
 		m_Forest = new ArrayList();
 //		m_PrintModels = false;
@@ -205,13 +205,13 @@ public class ClusForest implements ClusModel, Serializable{
 		m_Stat.reset();
 
 		((ClassificationStat)m_Stat).m_ClassCounts = new double[predictions.length][];
-			for (int m = 0; m < predictions.length; m++){
-				((ClassificationStat)m_Stat).m_ClassCounts[m] = new double[predictions[m].length];
-				for (int n = 0; n < predictions[m].length; n++){
-					((ClassificationStat)m_Stat).m_ClassCounts[m][n] = predictions[m][n];
-				}
+		for (int m = 0; m < predictions.length; m++){
+			((ClassificationStat)m_Stat).m_ClassCounts[m] = new double[predictions[m].length];
+			for (int n = 0; n < predictions[m].length; n++){
+				((ClassificationStat)m_Stat).m_ClassCounts[m][n] = predictions[m][n];
 			}
-			m_Stat.computePrediction();
+		}
+		m_Stat.computePrediction();
 		return m_Stat;
 	}
 
@@ -219,14 +219,26 @@ public class ClusForest implements ClusModel, Serializable{
 		int position = ClusEnsembleInduceOptimization.locateTuple(tuple);
 		int predlength = ClusEnsembleInduceOptimization.getPredictionLength(position);
 		m_Stat.reset();
-//		((WHTDStatistic)m_Stat).m_Means = new double[predlength];s
-		((RegressionStatBase)m_Stat).m_Means = new double[predlength];
-		for (int j = 0; j < predlength; j++){
-//			((WHTDStatistic)m_Stat).m_Means[j] = ClusEnsembleInduceOptimization.getPredictionValue(position, j);
-			((RegressionStatBase)m_Stat).m_Means[j] = ClusEnsembleInduceOptimization.getPredictionValue(position, j);
+		if (ClusStatManager.getMode() == ClusStatManager.MODE_REGRESSION || ClusStatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL){
+			((RegressionStatBase)m_Stat).m_Means = new double[predlength];
+			for (int i = 0; i < predlength; i++){
+				((RegressionStatBase)m_Stat).m_Means[i] = ClusEnsembleInduceOptimization.getPredictionValue(position, i);
+			}
+			m_Stat.computePrediction();
+			return m_Stat;
 		}
-		m_Stat.computePrediction();
-		return m_Stat;
+		if (ClusStatManager.getMode() == ClusStatManager.MODE_CLASSIFY){
+			((ClassificationStat)m_Stat).m_ClassCounts = new double[predlength][];
+			for (int j = 0; j < predlength; j++){
+				((ClassificationStat)m_Stat).m_ClassCounts[j] = ClusEnsembleInduceOptimization.getPredictionValueClassification(position, j);
+			}
+			m_Stat.computePrediction();
+			for (int k = 0; k < m_Stat.getNbAttributes(); k++)
+			((ClassificationStat)m_Stat).m_SumWeights[k] = 1.0;
+//			m_Stat.setTrainingStat(ClusEnsembleInduceOptClassification.getTrainingStat());
+			return m_Stat;
+		}
+		return null;
 	}
 
 	public void printModel(PrintWriter wrt) {

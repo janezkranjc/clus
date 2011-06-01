@@ -1,11 +1,11 @@
 package clus.ext.ensembles;
 
-import java.io.IOException;
+import java.io.IOException;  
 import java.util.ArrayList;
 
 import clus.data.rows.DataTuple;
 import clus.data.rows.TupleIterator;
-import clus.ext.hierarchical.WHTDStatistic;
+import clus.main.ClusStatManager;
 import clus.model.ClusModel;
 import clus.statistic.ClusStatistic;
 import clus.util.ClusException;
@@ -13,7 +13,6 @@ import clus.util.ClusException;
 public class ClusEnsembleInduceOptimization {
 
 	static int[] m_HashCodeTuple;
-	static double[][] m_AvgPredictions;
 	
 	public ClusEnsembleInduceOptimization(TupleIterator train, TupleIterator test, int nb_tuples) throws IOException, ClusException{
 		m_HashCodeTuple = new int[nb_tuples];
@@ -37,6 +36,7 @@ public class ClusEnsembleInduceOptimization {
 			}
 		}
 	}
+
 
 	public ClusEnsembleInduceOptimization(TupleIterator train, TupleIterator test) throws IOException, ClusException{
 		ArrayList<Integer> tuple_hash = new ArrayList<Integer>();
@@ -64,66 +64,7 @@ public class ClusEnsembleInduceOptimization {
 			m_HashCodeTuple[k] = tuple_hash.get(k);
 	}
 
-	public void initPredictions(ClusStatistic stat){
-		m_AvgPredictions = new double[m_HashCodeTuple.length][stat.getNbAttributes()];
-	}
-
-	public void initModelPredictionForTuples(ClusModel model, TupleIterator train, TupleIterator test) throws IOException, ClusException{
-		if (train != null){
-			train.init();
-			DataTuple train_tuple = train.readTuple();
-			while (train_tuple != null){
-				int position = locateTuple(train_tuple);
-//				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(train_tuple);
-				ClusStatistic stat = model.predictWeighted(train_tuple);
-				m_AvgPredictions[position] = stat.getNumericPred();
-				train_tuple = train.readTuple();
-			}
-			train.init();
-		}
-		if (test != null){
-			test.init();
-			DataTuple test_tuple = test.readTuple();
-			while (test_tuple != null){
-				int position = locateTuple(test_tuple);
-//				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(test_tuple);
-				ClusStatistic stat = model.predictWeighted(test_tuple);
-				m_AvgPredictions[position] = stat.getNumericPred();
-				test_tuple = test.readTuple();
-			}
-			test.init();
-		}
-	}
-
-	public void addModelPredictionForTuples(ClusModel model, TupleIterator train, TupleIterator test, int nb_models) throws IOException, ClusException{
-		if (train != null){
-			train.init();
-			DataTuple train_tuple = train.readTuple();
-			while (train_tuple != null){
-				int position = locateTuple(train_tuple);
-//				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(train_tuple);
-				ClusStatistic stat = model.predictWeighted(train_tuple);
-				m_AvgPredictions[position] = incrementPredictions(m_AvgPredictions[position], stat.getNumericPred(), nb_models);
-				train_tuple = train.readTuple();
-			}
-			train.init();
-		}
-		if (test != null){
-			test.init();
-			DataTuple test_tuple = test.readTuple();
-			while (test_tuple != null){
-				int position = locateTuple(test_tuple);
-//				WHTDStatistic stat = (WHTDStatistic) model.predictWeighted(test_tuple);
-				ClusStatistic stat = model.predictWeighted(test_tuple);
-				m_AvgPredictions[position] = incrementPredictions(m_AvgPredictions[position], stat.getNumericPred(), nb_models);
-				test_tuple = test.readTuple();
-			}
-			test.init();
-		}
-	}
-
-	
-	public static int locateTuple(DataTuple tuple){
+	public static int locateTuple(DataTuple tuple){ 
 		int position = -1;
 		boolean found  = false;
 		int i = 0;
@@ -137,6 +78,17 @@ public class ClusEnsembleInduceOptimization {
 		}
 		return position;
 	}
+	
+	public void initPredictions(ClusStatistic stat){	 
+	}
+
+	public void initModelPredictionForTuples(ClusModel model, TupleIterator train, TupleIterator test) throws IOException, ClusException{
+	
+	}
+
+	public void addModelPredictionForTuples(ClusModel model, TupleIterator train, TupleIterator test, int nb_models) throws IOException, ClusException{
+
+	}
 
 	public static double[] incrementPredictions(double[] avg_predictions, double[] predictions, double nb_models){
 		//the current averages are stored in the avg_predictions
@@ -147,6 +99,18 @@ public class ClusEnsembleInduceOptimization {
 		return result;
 	}
 
+	public static double[][] incrementPredictions(double[][] sum_predictions, double[][] predictions, int nb_models){
+		//the current sums are stored in sum_predictions
+		double[][] result = new double[sum_predictions.length][];
+		for (int i = 0; i < sum_predictions.length; i++){
+			result[i] = new double[sum_predictions[i].length];
+			for (int j = 0; j < sum_predictions[i].length; j++){
+				result[i][j] = sum_predictions[i][j] + (predictions[i][j] - sum_predictions[i][j])/nb_models;
+			}
+		}
+		return result;
+	}
+	
 	public static double[][] incrementPredictions(double[][] sum_predictions, double[][] predictions){
 		//the current sums are stored in sum_predictions
 		double[][] result = new double[sum_predictions.length][];
@@ -159,12 +123,64 @@ public class ClusEnsembleInduceOptimization {
 		return result;
 	}
 	
-	public static int getPredictionLength(int tuple){
-		return m_AvgPredictions[tuple].length;
-	}
-	
-	public static double getPredictionValue(int tuple, int attribute){
-		return m_AvgPredictions[tuple][attribute];
+	//transform the class counts to majority vote (the one with max votes gets 1)
+	public static double[][] transformToMajority(double[][] m_Counts){
+		int[] maxPerTarget = new int[m_Counts.length];
+		for (int i = 0; i < m_Counts.length; i++){
+			maxPerTarget[i] = -1;
+			double m_max = Double.NEGATIVE_INFINITY;
+			for (int j = 0; j < m_Counts[i].length;j++){
+				if (m_Counts[i][j]>m_max){
+					maxPerTarget[i] = j;
+					m_max = m_Counts[i][j];
+				}
+			}
+		}
+		double[][] result = new double[m_Counts.length][];//all values set to zero
+		for (int m = 0; m < m_Counts.length; m++){
+			result[m] = new double[m_Counts[m].length];
+			result[m][maxPerTarget[m]] ++; //the positions of max class will be 1
+		}
+		return result;
 	}
 
+	//transform the class counts to probability distributions
+	public static double[][] transformToProbabilityDistribution(double[][] m_Counts){
+		double[] sumPerTarget = new double[m_Counts.length];
+		for (int i = 0; i < m_Counts.length; i++)
+			for (int j = 0; j < m_Counts[i].length;j++)
+				sumPerTarget[i] += m_Counts[i][j];
+		double[][] result = new double[m_Counts.length][];
+
+		for (int m = 0; m < m_Counts.length; m++){
+			result[m] = new double[m_Counts[m].length];
+			for (int n = 0; n < m_Counts[m].length; n++){
+				result[m][n] = m_Counts[m][n]/sumPerTarget[m];
+			}
+		}
+		return result;
+	}
+	
+	public static int getPredictionLength(int tuple){//i.e., get number of targets
+		if (ClusStatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL || ClusStatManager.getMode() == ClusStatManager.MODE_REGRESSION)
+		return ClusEnsembleInduceOptRegHMLC.getPredictionLength(tuple);
+		if (ClusStatManager.getMode() == ClusStatManager.MODE_CLASSIFY)
+			return ClusEnsembleInduceOptClassification.getPredictionLength(tuple);
+		return -1;
+	}
+	
+	
+	public static double getPredictionValue(int tuple, int attribute){
+		if (ClusStatManager.getMode() == ClusStatManager.MODE_HIERARCHICAL || ClusStatManager.getMode() == ClusStatManager.MODE_REGRESSION)
+			return ClusEnsembleInduceOptRegHMLC.getPredictionValue(tuple, attribute);
+		return -1;
+	}
+
+	public static double[] getPredictionValueClassification(int tuple, int attribute){
+		if (ClusStatManager.getMode() == ClusStatManager.MODE_CLASSIFY)
+			return ClusEnsembleInduceOptClassification.getPredictionValueClassification(tuple, attribute);
+		return null;
+	}
+
+	
 }
