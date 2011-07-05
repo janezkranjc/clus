@@ -346,8 +346,9 @@ public class ClassificationStat extends ClusStatistic {
 	public double gini(int attr) {
 		double total = m_SumWeights[attr];
 		if (total <= MathUtil.C1E_9) {
-			// no examples -> assume training set distribution
-			return m_Training.gini(attr);
+			// no examples -> assume training set distribution			
+			// return m_Training.gini(attr); // gives error with HSC script
+			return 0.0;
 		} else {
 			double sum = 0.0;
 			double[] clcts = m_ClassCounts[attr];
