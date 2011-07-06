@@ -38,7 +38,8 @@ public class ClusModelInfo implements Serializable {
 	public final static int TRAIN_ERR = 0;
 	public final static int TEST_ERR = 1;
 	public final static int VALID_ERR = 2;
-
+	public final static int XVAL_PREDS = 3;
+	
 	protected String m_Name;
 	protected boolean m_HasName = false;
 	protected boolean m_ShouldSave = true;
@@ -50,7 +51,8 @@ public class ClusModelInfo implements Serializable {
 	public ClusErrorList m_TrainErr, m_TestErr, m_ValidErr, m_ExtraErr;
 	protected ClusStatManager m_Manager;
 	protected transient ModelProcessorCollection m_TrainModelProc, m_TestModelProc, m_ValidModelProc;
-
+	protected transient ClusEnsemblePredictionWriter m_TrainPreds, m_TestPreds;//, m_XVALPreds;
+	
 	public ClusModelInfo(String name) {
 		m_Name = name;
 		m_HasName = false;
@@ -129,6 +131,11 @@ public class ClusModelInfo implements Serializable {
 		coll.addModelProcessor(proc);
 	}
 
+	public final void addEnsemblePredictionWriter(int type,ClusEnsemblePredictionWriter wrtr){
+		if (type == ClusModelInfo.TEST_ERR)m_TestPreds = wrtr;
+		if (type == ClusModelInfo.TRAIN_ERR)m_TrainPreds = wrtr;
+	}
+	
 	public final void addCheckModelProcessor(int type, ClusModelProcessor proc) {
 		ModelProcessorCollection coll = getAddModelProcessors(type);
 		if (coll.addCheckModelProcessor(proc)) proc.addModelInfo(this);
@@ -157,6 +164,24 @@ public class ClusModelInfo implements Serializable {
 		}
 	}
 
+	public final ClusEnsemblePredictionWriter getEnsemblePredictionWriter(int type){
+		if (type == TEST_ERR) return m_TestPreds;
+		if (type == TRAIN_ERR) return m_TrainPreds;
+		return null;
+	}
+	
+	public final void initEnsemblePredictionWriter(int type){
+		String fname = "";
+		if (type == ClusModelInfo.TEST_ERR && m_TestPreds == null) {
+			fname = getSettings().getAppName()+".ens.test.preds";
+			m_TestPreds = new ClusEnsemblePredictionWriter(fname, getSchema(), getSettings());
+		}
+		if (type == ClusModelInfo.TRAIN_ERR && m_TrainPreds == null) {
+			fname = getSettings().getAppName()+".ens.train.preds";
+			m_TrainPreds = new ClusEnsemblePredictionWriter(fname, getSchema(), getSettings());
+		}
+	}
+	
 	public final void initModelProcessors(int type, ClusSchema schema) throws IOException, ClusException {
 		ModelProcessorCollection coll = getModelProcessors(type);
 		if (coll != null) coll.initialize(m_Model, schema);
@@ -175,6 +200,11 @@ public class ClusModelInfo implements Serializable {
 	public final void termAllModelProcessors(int type) throws IOException {
 		ModelProcessorCollection coll = getModelProcessors(type);
 		if (coll != null) coll.terminateAll();
+	}
+	
+	public final void terminateEnsemblePredictionWriter(int type){
+		if (type == TEST_ERR) m_TestPreds.closeWriter();	
+		if (type == TRAIN_ERR) m_TrainPreds.closeWriter();
 	}
 
 	public final void copyModelProcessors(ClusModelInfo target) {

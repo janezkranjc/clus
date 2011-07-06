@@ -671,11 +671,20 @@ public class Clus implements CMDLineArgsProvider {
 	}
 
 	/** Compute either test or train error */
-	public final void calcError(TupleIterator iter, int type, ClusRun cr) throws IOException, ClusException {
+	public final void calcError(TupleIterator iter, int type, ClusRun cr, ClusEnsemblePredictionWriter ens_pred) throws IOException, ClusException {
 		iter.init();
 		ClusSchema mschema = iter.getSchema();
 		if (iter.shouldAttach()) attachModels(mschema, cr);
 		cr.initModelProcessors(type, mschema);
+		boolean wr_ens_tr_preds = (getSettings().shouldWritePredictionsFromEnsemble() && !getSettings().IS_XVAL) || (getSettings().IS_XVAL && cr.getTestSet() == null);
+		wr_ens_tr_preds = wr_ens_tr_preds && (type == ClusModelInfo.TRAIN_ERR);
+		boolean wr_ens_te_preds = (getSettings().shouldWritePredictionsFromEnsemble() && !getSettings().IS_XVAL && cr.getTestSet() != null );
+		wr_ens_te_preds = wr_ens_te_preds && (type == ClusModelInfo.TEST_ERR);
+//		boolean wr_ens_xval_preds = (getSettings().shouldWritePredictionsFromEnsemble() && getSettings().IS_XVAL && type == ClusModelInfo.TEST_ERR);
+//		wr_ens_xval_preds = wr_ens_xval_preds && cr.getIndex() ;
+		if (wr_ens_tr_preds || wr_ens_te_preds)cr.initEnsemblePredictionsWriter(type);
+//		if (wr_ens_xval_preds && (cr.getIndex() == 1)) cr.initEnsemblePredictionsWriter(ClusModelInfo.XVAL_PREDS);//initialize only for the first fold
+		
 		ModelProcessorCollection allcoll = cr.getAllModelsMI().getAddModelProcessors(type);
 		DataTuple tuple = iter.readTuple();
 		while (tuple != null) {
@@ -696,6 +705,10 @@ public class Clus implements CMDLineArgsProvider {
 						}
 						coll.exampleUpdate(tuple, pred);
 					}
+					if ((wr_ens_tr_preds || wr_ens_te_preds) && i == ClusModel.ORIGINAL)
+						(mi.getEnsemblePredictionWriter(type)).writePredictionsForTuple(tuple, pred);					
+					if ((ens_pred != null) && (i == ClusModel.ORIGINAL) && (type == ClusModelInfo.TEST_ERR))
+						ens_pred.writePredictionsForTuple(tuple, pred);
 				}
 			}
 			allcoll.exampleDone();
@@ -703,6 +716,9 @@ public class Clus implements CMDLineArgsProvider {
 		}
 		iter.close();
 		cr.termModelProcessors(type);
+		if (wr_ens_tr_preds || wr_ens_te_preds){
+			cr.termEnsemblePredictionsWriter(type);
+		}	
 	}
 
 	public void addModelErrorMeasures(ClusRun cr) {
@@ -745,7 +761,7 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
-	public final void calcError(ClusRun cr, ClusSummary summary) throws IOException, ClusException {
+	public final void calcError(ClusRun cr, ClusSummary summary, ClusEnsemblePredictionWriter ens_pred) throws IOException, ClusException {
 		cr.copyAllModelsMIs();
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			if (cr.getModelInfo(i) != null && !m_Sett.shouldShowModel(i)) {
@@ -758,16 +774,16 @@ public class Clus implements CMDLineArgsProvider {
 		}		
 		if (m_Sett.isOutTrainError()) {
 			if (Settings.VERBOSE > 0) System.out.println("Computing training error");
-			calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr);
+			calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr, ens_pred);
 		}
 		TupleIterator tsiter = cr.getTestIter();
 		if (m_Sett.isOutTestError () && tsiter != null) {
 			if (Settings.VERBOSE > 0) System.out.println("Computing testing error");
-			calcError(tsiter, ClusModelInfo.TEST_ERR, cr);
+			calcError(tsiter, ClusModelInfo.TEST_ERR, cr, ens_pred);
 		}			
 		if (m_Sett.isOutValidError() && cr.getPruneSet() != null) {
 			if (Settings.VERBOSE > 0) System.out.println("Computing validation error");
-			calcError(cr.getPruneIter(), ClusModelInfo.VALID_ERR, cr);
+			calcError(cr.getPruneIter(), ClusModelInfo.VALID_ERR, cr, ens_pred);
 		}
 		if (summary != null) {
 			summary.addSummary(cr);
@@ -1088,7 +1104,7 @@ public class Clus implements CMDLineArgsProvider {
 		getSchema().attachModel(res);
 		getClassifier().pruneAll(cr);
 		getClassifier().postProcess(cr);
-		calcError(cr, null);
+		calcError(cr, null, null);
 		out.writeHeader();
 		out.writeOutput(cr, true, m_Sett.isOutTrainError());
 		out.close();
@@ -1186,7 +1202,7 @@ public class Clus implements CMDLineArgsProvider {
 			addModelErrorMeasures(cr);
 		}
 		// Calc error
-		calcError(cr, null);
+		calcError(cr, null, null);
 		if (summ != null) {
 			for (int i = 0; i < cr.getNbModels(); i++) {
 				ClusModelInfo info = cr.getModelInfo(i);
@@ -1283,7 +1299,7 @@ public class Clus implements CMDLineArgsProvider {
 			XValMainSelection sel = getXValSelection();
 			ClusModelCollectionIO io = new ClusModelCollectionIO();
 			m_Summary.setTotalRuns(sel.getNbFolds());
-			ClusRun cr = doOneFold(fold, clss, sel, io, wrt, output, null);
+			ClusRun cr = doOneFold(fold, clss, sel, io, wrt, output, null, null);
 			wrt.close();
 			output.close();
 			// Write summary of this run to a file
@@ -1300,7 +1316,7 @@ public class Clus implements CMDLineArgsProvider {
 
 	public final ClusRun doOneFold(int fold, ClusInductionAlgorithmType clss,
 			XValMainSelection sel, ClusModelCollectionIO io,
-			PredictionWriter wrt, ClusOutput output, ClusErrorOutput errOutput)
+			PredictionWriter wrt, ClusOutput output, ClusErrorOutput errOutput, ClusEnsemblePredictionWriter ens_pred)
 			throws IOException, ClusException {
 		XValSelection msel = new XValSelection(sel, fold);
 		ClusRun cr = partitionData(msel, fold + 1);
@@ -1338,7 +1354,7 @@ public class Clus implements CMDLineArgsProvider {
 			addModelErrorMeasures(cr);
 		}
 		// Calc error
-		calcError(cr, m_Summary);
+		calcError(cr, m_Summary, ens_pred);
 		if (errOutput != null) {
 			// Write errors to ARFF file
 			errOutput.writeOutput(cr, false, false, getStatManager()
@@ -1380,10 +1396,15 @@ public class Clus implements CMDLineArgsProvider {
 		output.writeHeader();
 		XValMainSelection sel = getXValSelection();
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
+		ClusEnsemblePredictionWriter ens_pred = null;
+		if (getSettings().shouldWritePredictionsFromEnsemble())
+			ens_pred = new ClusEnsemblePredictionWriter(getStatManager().getSettings().getAppName()+".ens.xval.preds", getStatManager().getSchema(), getStatManager().getSettings());
+		
 		for (int fold = 0; fold < sel.getNbFolds(); fold++) {
 			doOneFold(fold, clss, sel, io, testPredWriter, output,
-					errFileOutput);
+					errFileOutput, ens_pred);
 		}
+		ens_pred.closeWriter();
 		output.writeSummary(m_Summary);
 		output.close();
 		if (testPredWriter != null)
@@ -1414,7 +1435,7 @@ public class Clus implements CMDLineArgsProvider {
 			ClusModelInfo mi = cr.getModelInfo(ClusModel.PRUNED);
 			mi.addModelProcessor(ClusModelInfo.TEST_ERR, wrt);
 			induce(cr, clss); // Induce tree
-			calcError(cr, m_Summary); // Calc error
+			calcError(cr, m_Summary, null); // Calc error
 			if (m_Sett.isOutputFoldModels())
 				output.writeOutput(cr, false); // Write output to file
 		}

@@ -215,6 +215,11 @@ public abstract class ClusModelInfoList implements Serializable {
 		}
 	}
 
+	public void initEnsemblePredictionsWriter(int type){
+		ClusModelInfo mi = getModelInfo(ClusModel.ORIGINAL); // for ensembles we consider only the original at thsi point
+		mi.initEnsemblePredictionWriter(type);
+	}
+
 	public void termModelProcessors(int type)  throws IOException, ClusException {
 		ClusModelInfo allmi = getAllModelsMI();
 		allmi.termAllModelProcessors(type);
@@ -222,6 +227,11 @@ public abstract class ClusModelInfoList implements Serializable {
 			ClusModelInfo mi = getModelInfo(i);
 			if (mi != null) mi.termModelProcessors(type);
 		}
+	}
+
+	public void termEnsemblePredictionsWriter(int type){
+		ClusModelInfo mi = getModelInfo(ClusModel.ORIGINAL); // for ensembles we consider only the original at thsi point
+		mi.terminateEnsemblePredictionWriter(type);
 	}
 
 /***************************************************************************

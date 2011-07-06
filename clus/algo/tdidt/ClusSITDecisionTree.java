@@ -81,7 +81,7 @@ public class ClusSITDecisionTree extends ClusDecisionTree{
 			ClusRun cr = m_Clus.partitionDataBasic(trset, msel, pruneset, summ, i+1);
 			ClusModel pruned = m_Class.induceSingle(cr);
 			cr.addModelInfo(ClusModel.PRUNED).setModel(pruned);
-			m_Clus.calcError(cr, summ);
+			m_Clus.calcError(cr, summ, null);
 
 		}
 		ClusModelInfo mi = summ.getModelInfo(ClusModel.PRUNED);

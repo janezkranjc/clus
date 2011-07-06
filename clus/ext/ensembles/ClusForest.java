@@ -28,6 +28,7 @@ import jeans.util.*;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.ClusModelInfo;
+import clus.model.processor.ClusEnsemblePredictionWriter;
 import clus.algo.rules.ClusRuleSet;
 import clus.algo.rules.ClusRulesFromTree;
 import clus.algo.tdidt.ClusNode;
@@ -162,6 +163,7 @@ public class ClusForest implements ClusModel, Serializable{
 //			if (tuple.getWeight() != 1.0) System.out.println("Tuple "+tuple.getIndex()+" = "+tuple.getWeight());
 		}
 		m_Stat.vote(votes);
+		ClusEnsemblePredictionWriter.setVotes(votes);
 		return m_Stat;
 	}
 

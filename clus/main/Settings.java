@@ -1918,6 +1918,7 @@ public class Settings implements Serializable {
 	/** Estimate error with time & memory optimization */
 	public static INIFileBool m_EnsembleOOBestimate;
 	protected INIFileBool m_FeatureRanking;
+	protected INIFileBool m_WriteEnsemblePredictions;
 	protected INIFileNominalOrIntOrVector m_BagSelection;
 
 	/** Do we want to use different random depth for different iterations of ensemble.
@@ -2007,6 +2008,10 @@ public class Settings implements Serializable {
 
 	public static boolean shouldOptimizeEnsemble( ){
 		return m_EnsembleShouldOpt.getValue();
+	}
+
+	public boolean shouldWritePredictionsFromEnsemble(){
+		return m_WriteEnsemblePredictions.getValue();
 	}
 
 	public static boolean shouldEstimateOOB( ){
@@ -2295,6 +2300,7 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_EnsembleShouldOpt = new INIFileBool("Optimize", false));
 		m_SectionEnsembles.addNode(m_EnsembleOOBestimate = new INIFileBool("OOBestimate", false));
 		m_SectionEnsembles.addNode(m_FeatureRanking = new INIFileBool("FeatureRanking", false));
+		m_SectionEnsembles.addNode(m_WriteEnsemblePredictions = new INIFileBool("WriteEnsemblePredictions", false));
 		m_SectionEnsembles.addNode(m_EnsembleRandomDepth = new INIFileBool("EnsembleRandomDepth", false));
 		m_SectionEnsembles.addNode(m_BagSelection = new INIFileNominalOrIntOrVector("BagSelection", NONELIST));
 		m_BagSelection.setInt(-1);

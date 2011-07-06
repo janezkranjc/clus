@@ -166,7 +166,7 @@ public class ARFFFile {
 					wrt.println();
 			}
 		}
-		wrt.println();
+		if(!schema.getSettings().shouldWritePredictionsFromEnsemble()) wrt.println();
 	}
 
 	public static RowData readArff(String fname) throws IOException, ClusException {

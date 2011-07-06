@@ -636,7 +636,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		ClusOutput output = new ClusOutput(sett.getAppName() + addname +".out", schema, sett);
 		ClusSummary summary = cr.getSummary();
 		getStatManager().computeTrainSetStat((RowData)cr.getTrainingSet());
-		cl.calcError(cr, null); // Calc error
+		cl.calcError(cr, null,null); // Calc error
 		if (summary != null) {
 			for (int i = ClusModel.ORIGINAL; i < cr.getNbModels(); i++) {
 				ClusModelInfo summ_info = cr.getModelInfo(i);
