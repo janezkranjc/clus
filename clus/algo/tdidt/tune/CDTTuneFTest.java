@@ -131,7 +131,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 			avgSize = model.getModelSize();
 			cr.addModelInfo(ClusModel.ORIGINAL).setModel(model);
 			cr.addModelInfo(ClusModel.ORIGINAL).setTestError(createTuneError(mgr));
-			m_Clus.calcError(pruneset.getIterator(), ClusModelInfo.TEST_ERR, cr);
+			m_Clus.calcError(pruneset.getIterator(), ClusModelInfo.TEST_ERR, cr, null);
 			summ.addSummary(cr);
 		} else {
 			// Next does not always use same partition!
@@ -147,7 +147,7 @@ public class CDTTuneFTest extends ClusDecisionTree {
 				avgSize += model.getModelSize();
 				cr.addModelInfo(ClusModel.ORIGINAL).setModel(model);
 				cr.addModelInfo(ClusModel.ORIGINAL).setTestError(createTuneError(mgr));
-				m_Clus.calcError(cr.getTestIter(), ClusModelInfo.TEST_ERR, cr);
+				m_Clus.calcError(cr.getTestIter(), ClusModelInfo.TEST_ERR, cr, null);
 				summ.addSummary(cr);
 			}
 			avgSize /= nbfolds;
