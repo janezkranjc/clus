@@ -1430,7 +1430,7 @@ public class Clus implements CMDLineArgsProvider {
 		int nbsets = m_Sett.getBaggingSets();
 		int nbrows = m_Data.getNbRows();
 		for (int i = 0; i < nbsets; i++) {
-			BaggingSelection msel = new BaggingSelection(nbrows);
+			BaggingSelection msel = new BaggingSelection(nbrows, getSettings().getEnsembleBagSize());
 			ClusRun cr = partitionData(msel, i + 1);
 			ClusModelInfo mi = cr.getModelInfo(ClusModel.PRUNED);
 			mi.addModelProcessor(ClusModelInfo.TEST_ERR, wrt);

@@ -22,8 +22,11 @@
 
 package jeans.io.range;
 
-public class IntRangeCheck implements ValueCheck {
+import java.io.Serializable;
 
+public class IntRangeCheck implements ValueCheck, Serializable {
+
+	private static final long serialVersionUID = -4723124353605331288L;
 	protected int m_MinInt, m_MaxInt;
 
 	public IntRangeCheck(int min, int max) {

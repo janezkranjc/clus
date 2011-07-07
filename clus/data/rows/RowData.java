@@ -704,7 +704,31 @@ public class RowData extends ClusData implements MSortable, Serializable {
 		}
 	}
 
-
+	/**
+	 * Create a random sample with replacement of this RowData.
+	 * Uses the ClusRandom.RANDOM_SAMPLE random generator
+	 * 
+	 * 
+	 * @param N The size of the random subset
+	 * @return If N > 0:  a new RowData containing the random sample of size N
+	 * 		   If N == 0: a copy of this RowData object (i.e. no sampling)
+	 * @throws IllegalArgumentException if N < 0
+	 */
+	public RowData sample(int N) {
+		if(N < 0) throw new IllegalArgumentException("N should be larger than or equal to zero");
+		int nbRows = getNbRows();
+		if(N == 0) return new RowData(this);
+		ArrayList<DataTuple> res = new ArrayList<DataTuple>();
+		// sample with replacement
+		int i;
+		for(int size = 0; size < N; size++) {
+			i = ClusRandom.nextInt(ClusRandom.RANDOM_SAMPLE,nbRows);
+			res.add(getTuple(i));
+		}
+		return new RowData(res, getSchema().cloneSchema());
+	}
+	
+	
 	public RowData sampleWeighted(Random random) {
 		return sampleWeighted(random, getNbRows());
 	}

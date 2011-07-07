@@ -31,7 +31,7 @@ public class ClusRandom {
 	public static int m_Preset;
 	public static boolean m_IsPreset;
 
-	public final static int NB_RANDOM = 6;
+	public final static int NB_RANDOM = 7;
 	public final static int RANDOM_TEST_DIR = 0;
 	public final static int RANDOM_SELECTION = 1;
 	public final static int RANDOM_PARAM_TUNE = 2;
@@ -40,6 +40,8 @@ public class ClusRandom {
 	/** Used for random forest random tree depth, because RANDOM_ALGO_INTERNAL may already be used somewhere else
 	 * for tree ensemble induce. @author Timo Aho*/
 	public final static int RANDOM_INT_RANFOR_TREE_DEPTH = 5;
+	/** Used for sampling in RowData */
+	public final static int RANDOM_SAMPLE = 6;
 
 	public static Random[] m_Random;
 

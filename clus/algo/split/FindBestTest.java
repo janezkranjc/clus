@@ -40,6 +40,7 @@ public class FindBestTest {
 	protected ClusStatManager m_StatManager;
 	protected NominalSplit m_Split;	
 	protected int m_MaxStats;
+	
 
 	public FindBestTest(ClusStatManager mgr) {
 		m_StatManager = mgr;
@@ -79,14 +80,14 @@ public class FindBestTest {
 	public void findNominal(NominalAttrType at, RowData data) {
 		// Reset positive statistic
 //		long start_time = System.currentTimeMillis();
-		
+		RowData sample = createSample(data);
 		int nbvalues = at.getNbValues();
 		m_BestTest.reset(nbvalues + 1);
-		int nb_rows = data.getNbRows();
+		int nb_rows = sample.getNbRows();
 		if (nbvalues == 2 && !at.hasMissing()) {
 			// Only count ones for binary attributes (optimization)
 			for (int i = 0; i < nb_rows; i++) {
-				DataTuple tuple = data.getTuple(i);
+				DataTuple tuple = sample.getTuple(i);
 				int value = at.getNominal(tuple);
 				// The value "1" has index 0 in the list of attribute values
 				if (value == 0) {
@@ -99,7 +100,7 @@ public class FindBestTest {
 		} else {
 			// Regular code for non-binary attributes
 			for (int i = 0; i < nb_rows; i++) {
-				DataTuple tuple = data.getTuple(i);
+				DataTuple tuple = sample.getTuple(i);
 				int value = at.getNominal(tuple);
 				m_BestTest.m_TestStat[value].updateWeighted(tuple, i);
 			}
@@ -118,12 +119,13 @@ public class FindBestTest {
 
 	public void findNominalRandom(NominalAttrType at, RowData data, Random rn) {
 		// Reset positive statistic
+		RowData sample = createSample(data);
 		int nbvalues = at.getNbValues();
 		m_BestTest.reset(nbvalues + 1);
 		// For each attribute value
-		int nb_rows = data.getNbRows();
+		int nb_rows = sample.getNbRows();
 		for (int i = 0; i < nb_rows; i++) {
-			DataTuple tuple = data.getTuple(i);
+			DataTuple tuple = sample.getTuple(i);
 			int value = at.getNominal(tuple);
 			m_BestTest.m_TestStat[value].updateWeighted(tuple, i);
 		}
@@ -132,21 +134,22 @@ public class FindBestTest {
 	}
 
 	public void findNumeric(NumericAttrType at, RowData data) {
+		RowData sample = createSample(data);
 		DataTuple tuple;
 		if (at.isSparse()) {
-			data.sortSparse(at, m_SortHelper);
+			sample.sortSparse(at, m_SortHelper);
 		} else {
-			data.sort(at);
+			sample.sort(at);
 		}
 		m_BestTest.reset(2);
 		// Missing values
 		int first = 0;
-		int nb_rows = data.getNbRows();
+		int nb_rows = sample.getNbRows();
 		// Copy total statistic into corrected total
 		m_BestTest.copyTotal();
 		if (at.hasMissing()) {
 			// Because of sorting, all missing values are in the front :-)
-			while (first < nb_rows && at.isMissing(tuple = data.getTuple(first))) {
+			while (first < nb_rows && at.isMissing(tuple = sample.getTuple(first))) {
 				m_BestTest.m_MissingStat.updateWeighted(tuple, first);
 				first++;
 			}
@@ -154,7 +157,7 @@ public class FindBestTest {
 		}
 		double prev = Double.NaN;
 		for (int i = first; i < nb_rows; i++) {
-			tuple = data.getTuple(i);
+			tuple = sample.getTuple(i);
 			double value = at.getNumeric(tuple);
 			if (value != prev) {
 				if (value != Double.NaN) {
@@ -169,17 +172,32 @@ public class FindBestTest {
 	
 	// for sparse attributes (already sorted)
 	public void findNumeric(NumericAttrType at, ArrayList data) {
+		ArrayList sample;
+		if(getSettings().getTreeSplitSampling() > 0) {
+			RowData tmp = new RowData(data, getSchema());
+			RowData smpl = createSample(tmp);
+			if(at.isSparse()) {
+				smpl.sortSparse(at, getSortHelper());
+			}
+			else {
+				smpl.sort(at);
+			}
+			sample = smpl.toArrayList();
+		}
+		else {
+			sample = data;
+		}
 		DataTuple tuple;
 		m_BestTest.reset(2);
 		// Missing values
 		int first = 0;
-		int nb_rows = data.size();
+		int nb_rows = sample.size();
 		// Copy total statistic into corrected total
 		m_BestTest.copyTotal();
 		if (at.hasMissing()) {
 			// Because of sorting, all missing values are in the front :-)
-			while (first < nb_rows && at.isMissing((DataTuple)data.get(first))) {
-				tuple = (DataTuple)data.get(first);
+			while (first < nb_rows && at.isMissing((DataTuple)sample.get(first))) {
+				tuple = (DataTuple)sample.get(first);
 				m_BestTest.m_MissingStat.updateWeighted(tuple, first);
 				first++;
 			}
@@ -188,7 +206,7 @@ public class FindBestTest {
 		double prev = Double.NaN;
 		
 		for (int i = first; i < nb_rows; i++) {
-			tuple = (DataTuple)data.get(i);
+			tuple = (DataTuple)sample.get(i);
 			double value = at.getNumeric(tuple);
 			if (value != prev) {
 				if (value != Double.NaN) {
@@ -203,6 +221,7 @@ public class FindBestTest {
 	}
 	
 	public void findNumericRandom(NumericAttrType at, RowData data, RowData orig_data, Random rn) {
+		// TODO: if this method gets completed, sampling of the RowDatas must be included as well
 		DataTuple tuple;
 		int idx = at.getArrayIndex();
 		// Sort values from large to small
@@ -273,4 +292,9 @@ public class FindBestTest {
 	public void setInitialData(ClusStatistic total, RowData data) throws ClusException {
 		m_BestTest.setInitialData(total,data);
 	}
+	
+	private RowData createSample(RowData original) {
+		return original.sample(getSettings().getTreeSplitSampling());
+	}
+
 }

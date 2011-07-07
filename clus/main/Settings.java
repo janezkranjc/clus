@@ -23,6 +23,7 @@
 package clus.main;
 
 import jeans.io.ini.*;
+import jeans.io.range.IntRangeCheck;
 import jeans.util.cmdline.*;
 import jeans.util.*;
 import jeans.resource.*;
@@ -698,7 +699,10 @@ public class Settings implements Serializable {
 	protected INIFileDouble m_M5PruningMult;
 	/** Do we transform leaves or all nodes of tree to rules */
 	protected INIFileNominal m_RulesFromTree;
-	protected INIFileNominal m_TreeOptimize;	
+	protected INIFileNominal m_TreeOptimize;
+	/** Amount of datapoints to include for calculating split heuristic
+	 *  Datapoints will be selected randomly **/
+	protected INIFileInt m_TreeSplitSampling;
 
 	public void setSectionTreeEnabled(boolean enable) {
 		m_SectionTree.setEnabled(enable);
@@ -720,6 +724,24 @@ public class Settings implements Serializable {
 		return m_TreeMaxDepth.getValue();
 	}
 
+	/**
+	 * To find the best split, heuristic can be calculated on a
+	 * random sample of the training set to conserve time
+	 * @return the size the random sample should be
+	 */
+	public int getTreeSplitSampling() {
+		return m_TreeSplitSampling.getValue();
+	}
+	
+	/**
+	 * To find the best split, heuristic can be calculated on a
+	 * random sample of the training set to conserve time
+	 * @param value the size the random sample should be
+	 */
+	public void setTreeSplitSampling(int value) {
+		m_TreeSplitSampling.setValue(value);
+	}
+	
 	/** For tree to rules procedure, we want to induce a tree without maximum
 	 * depth
 	 */
@@ -1926,6 +1948,8 @@ public class Settings implements Serializable {
 	 */
 	protected INIFileBool m_EnsembleRandomDepth;
 
+	
+	protected INIFileInt m_EnsembleBagSize;
 
 	public boolean isEnsembleMode() {
 		return m_EnsembleMode;
@@ -2028,6 +2052,24 @@ public class Settings implements Serializable {
 	public boolean isEnsembleRandomDepth() {
 		return m_EnsembleRandomDepth.getValue();
 	}
+	
+	/**
+	 * Gets the size of bags for ensembles in a bagging scheme
+	 * @return the bag size
+	 */
+	public int getEnsembleBagSize() {
+		return m_EnsembleBagSize.getValue();
+	}
+	
+	/**
+	 * Sets the size of bags for ensembles in a bagging scheme
+	 * @param value the size of the training set for individual bags
+	 */
+	public void setEnsembleBagSize(int value) {
+		m_EnsembleBagSize.setValue(value);
+	}
+	
+	
 
 /***********************************************************************
  * Section: KNN                                                        *
@@ -2161,7 +2203,9 @@ public class Settings implements Serializable {
 		m_SectionTree.addNode(m_AlternativeSplits = new INIFileBool("AlternativeSplits", false));
 		m_SectionTree.addNode(m_TreeOptimize = new INIFileNominal("Optimize", TREE_OPTIMIZE_VALUES, TREE_OPTIMIZE_NONE));
 		m_SectionTree.addNode(m_MSENominal = new INIFileBool("MSENominal", false));
-
+		m_SectionTree.addNode(m_TreeSplitSampling = new INIFileInt("SplitSampling",0));
+		m_TreeSplitSampling.setValueCheck(new IntRangeCheck(0,Integer.MAX_VALUE));
+		
 		m_SectionRules = new INIFileSection("Rules");
 		m_SectionRules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));
 		m_SectionRules.addNode(m_PredictionMethod = new INIFileNominal("PredictionMethod", RULE_PREDICTION_METHODS, 0));
@@ -2304,6 +2348,8 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_EnsembleRandomDepth = new INIFileBool("EnsembleRandomDepth", false));
 		m_SectionEnsembles.addNode(m_BagSelection = new INIFileNominalOrIntOrVector("BagSelection", NONELIST));
 		m_BagSelection.setInt(-1);
+		m_SectionEnsembles.addNode(m_EnsembleBagSize = new INIFileInt("BagSize", 0));
+		m_EnsembleBagSize.setValueCheck(new IntRangeCheck(0, Integer.MAX_VALUE));
 		m_SectionEnsembles.setEnabled(false);
 
 		m_SectionKNN = new INIFileSection("kNN");
@@ -2352,6 +2398,7 @@ public class Settings implements Serializable {
 	public void initNamedValues() {
 		m_TreeMaxDepth.setNamedValue(-1, "Infinity");
 		m_TreeMaxSize.setNamedValue(-1, "Infinity");
+		m_TreeSplitSampling.setNamedValue(0, "None");
 	}
 
 	public void updateTarget(ClusSchema schema) {

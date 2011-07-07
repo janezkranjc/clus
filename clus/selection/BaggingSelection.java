@@ -29,20 +29,26 @@ public class BaggingSelection extends ClusSelection {
 	protected int[] m_Counts;
 	protected int m_NbSel;
 
-	public BaggingSelection(int nbrows) {
-		super(nbrows);
-		m_Counts = new int[nbrows];
-		for (int i = 0; i < nbrows; i++) {
-			m_Counts[ClusRandom.nextInt(ClusRandom.RANDOM_SELECTION, nbrows)]++;
-		}
-		for (int i = 0; i < nbrows; i++) {
-			if (m_Counts[i] != 0) m_NbSel++;
-		}
-	}
+	/**
+	 * Creates a new bagging selection of size <code>nbrows</code> from a total of <code>nbrows</code> instances.
+	 * This constructor does NOT take in to account the BagSize setting users can set in the settings file. If you
+	 * want to take this in to account, you should use <code>BaggingSelection(nbrows, getSettings().getEnsembleBagSize())</code>
+	 * instead.
+	 * @param nbrows the number of instances
+	 * @see clus.main.Settings#getEnsembleBagSize()
+	 */
 
+
+	/**
+	 * Create a new bagging selection of size <code>nbselected</code> from a total of <code>nbrows</code> instances.
+	 * If <code>nbselected</code> == 0, a bagging selection of size <code>nbrows</code> is created
+	 * @param nbrows the total number of instances
+	 * @param nbselected the size of the bagging selection
+	 */
 	public BaggingSelection(int nbrows, int nbselected) {
 	       super(nbrows);
 	       m_Counts = new int[nbrows];
+	       if(nbselected == 0) nbselected = nbrows;
 	       for (int i = 0; i < nbselected; i++) {
 	           m_Counts[ClusRandom.nextInt(ClusRandom.RANDOM_SELECTION, nbrows)]++;
 	       }

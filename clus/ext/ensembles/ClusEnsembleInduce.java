@@ -323,7 +323,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		if (bagSelections[0] == -1) {
 			// normal bagging procedure
 			for (int i = 1; i <= m_NbMaxBags; i++) {
-			    msel = new BaggingSelection(nbrows);
+			    msel = new BaggingSelection(nbrows, getSettings().getEnsembleBagSize());
 				if (Settings.shouldEstimateOOB()){		//OOB estimate is on
 					oob_sel = new OOBSelection(msel);
 					if (i == 1){ //initialization
@@ -342,10 +342,10 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			// or because we want to add a number of trees to an existing forest.
 			for (int i=1; i<bagSelections[0]; i++) {
 				// we eventually want the same bags as when computing them sequentially.
-				msel = new BaggingSelection(nbrows);
+				msel = new BaggingSelection(nbrows,getSettings().getEnsembleBagSize());
 			}
 			for (int i=bagSelections[0]; i<=bagSelections[1]; i++) {
-				msel = new BaggingSelection(nbrows);
+				msel = new BaggingSelection(nbrows,getSettings().getEnsembleBagSize());
 				if (Settings.shouldEstimateOOB()){		//OOB estimate is on
 					oob_sel = new OOBSelection(msel);
 				}
@@ -476,7 +476,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 				}
 				if (Settings.shouldEstimateOOB()){		//OOB estimate is on
 					// the same bags will be generated for the corresponding models!!!
-					msel = new BaggingSelection(cr.getTrainingSet().getNbRows());
+					msel = new BaggingSelection(cr.getTrainingSet().getNbRows(), getSettings().getEnsembleBagSize());
 					oob_sel = new OOBSelection(msel);
 					if (i == 1){ //initialization
 						oob_total = new OOBSelection(msel);
@@ -540,7 +540,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 		for (int i = 1; i <= m_NbMaxBags; i++) {
 			long one_bag_time = ResourceInfo.getTime();
 			if (Settings.VERBOSE > 0) System.out.println("Bag: " + i);
-			BaggingSelection msel = new BaggingSelection(nbrows);
+			BaggingSelection msel = new BaggingSelection(nbrows, getSettings().getEnsembleBagSize());
 			ClusRun crSingle = m_BagClus.partitionDataBasic(cr.getTrainingSet(),msel,cr.getSummary(),i);
 			ClusEnsembleInduce.setRandomSubspaces(cr.getStatManager().getSchema().getDescriptiveAttributes(), cr.getStatManager().getSettings().getNbRandomAttrSelected());
 			DepthFirstInduce ind;
