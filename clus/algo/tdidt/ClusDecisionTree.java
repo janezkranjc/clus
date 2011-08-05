@@ -34,6 +34,7 @@ import clus.algo.rules.*;
 import clus.data.rows.*;
 import clus.data.type.*;
 import clus.ext.ilevelc.*;
+import clus.ext.bestfirst.*;
 import clus.*;
 
 import jeans.util.cmdline.*;
@@ -53,6 +54,7 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 	}
 
 	public ClusInductionAlgorithm createInduce(ClusSchema schema, Settings sett, CMDLineArgs cargs) throws ClusException, IOException {
+		
 		if (sett.hasConstraintFile()) {
 			boolean fillin = cargs.hasOption("fillin");
 			return new ConstraintDFInduce(schema, sett, fillin);
@@ -61,7 +63,11 @@ public class ClusDecisionTree extends ClusInductionAlgorithmType {
 		} else if (schema.isSparse()) {
 			return new DepthFirstInduceSparse(schema, sett);
 		} else {
-			return new DepthFirstInduce(schema, sett);
+			if(sett.checkInductionOrder("DepthFirst")){
+				return new DepthFirstInduce(schema, sett);
+			}else{
+				return new BestFirstInduce(schema, sett);
+			}
 		}
 	}
 
