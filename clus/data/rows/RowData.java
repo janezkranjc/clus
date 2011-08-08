@@ -691,6 +691,13 @@ public class RowData extends ClusData implements MSortable, Serializable {
 		return false;
 	}
 
+	public void add(DataTuple tuple) {
+		setNbRows(getNbRows() + 1);
+		DataTuple[] newdata = Arrays.copyOf(m_Data, getNbRows());
+		newdata[getNbRows() - 1] = tuple.cloneTuple();
+		m_Data = newdata;
+	}
+	
 	public void addAll(RowData data1, RowData data2) {
 		int size = data1.getNbRows() + data2.getNbRows();
 		setNbRows(size);

@@ -670,6 +670,10 @@ public class Clus implements CMDLineArgsProvider {
 		return err;
 	}
 
+	public final void calcError(TupleIterator iter, int type, ClusRun cr) throws IOException, ClusException {
+		calcError(iter, type, cr, null);
+	}
+	
 	/** Compute either test or train error */
 	public final void calcError(TupleIterator iter, int type, ClusRun cr, ClusEnsemblePredictionWriter ens_pred) throws IOException, ClusException {
 		iter.init();
@@ -761,6 +765,9 @@ public class Clus implements CMDLineArgsProvider {
 		}
 	}
 
+	public final void calcError(ClusRun cr, ClusSummary summary) throws IOException, ClusException {
+		calcError(cr, summary);
+	}
 	public final void calcError(ClusRun cr, ClusSummary summary, ClusEnsemblePredictionWriter ens_pred) throws IOException, ClusException {
 		cr.copyAllModelsMIs();
 		for (int i = 0; i < cr.getNbModels(); i++) {

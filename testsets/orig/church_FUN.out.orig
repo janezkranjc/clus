@@ -135,9 +135,9 @@ Hierarchical accuracy by class
 Hierarchical error measures
    Original: 
       Average AUROC:            0.7468306469041637
-      Average AURPC:            0.046017073064631396
-      Average AURPC (weighted): 0.15621952170785336
-      Pooled AURPC:             0.20604611653694246
+      Average AUPRC:            0.046017073064631396
+      Average AUPRC (weighted): 0.15621952170785336
+      Pooled AUPRC:             0.20604611653694246
       P1R: 12.10688086067641
       P10R: 7.914257582243055
       P20R: 6.252984494459997
@@ -643,9 +643,9 @@ Hierarchical accuracy by class
 Hierarchical error measures
    Original: 
       Average AUROC:            0.5638964268863914
-      Average AURPC:            0.029157137081063104
-      Average AURPC (weighted): 0.1294877332719558
-      Pooled AURPC:             0.1704738923637073
+      Average AUPRC:            0.029157137081063104
+      Average AUPRC (weighted): 0.1294877332719558
+      Pooled AUPRC:             0.1704738923637073
       P1R: 4.553507400974608
       P10R: 4.018825230798935
       P20R: 3.5431298044797255

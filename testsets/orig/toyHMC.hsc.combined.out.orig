@@ -118,9 +118,9 @@ Number of examples: 10
 Hierarchical error measures
    Original: 
       Average AUROC:            0.8833333333333334
-      Average AURPC:            0.9791666666666666
-      Average AURPC (weighted): 0.9851190476190477
-      Pooled AURPC:             0.9975340136054422
+      Average AUPRC:            0.9791666666666666
+      Average AUPRC (weighted): 0.9851190476190477
+      Pooled AUPRC:             0.9975340136054422
       0: rec, AUROC: 0.5, AUPRC: 1, Freq: 1
       1: rec/auto, AUROC: 1, AUPRC: 1, Freq: 0.2
       2: rec/sport, AUROC: 1, AUPRC: 1, Freq: 0.8
@@ -134,9 +134,9 @@ Number of examples: 5
 Hierarchical error measures
    Original: 
       Average AUROC:            0.8833333333333334
-      Average AURPC:            0.9833333333333334
-      Average AURPC (weighted): 0.9880952380952381
-      Pooled AURPC:             0.9976190476190476
+      Average AUPRC:            0.9833333333333334
+      Average AUPRC (weighted): 0.9880952380952381
+      Pooled AUPRC:             0.9976190476190476
       0: rec, AUROC: 0.5, AUPRC: 1, Freq: 1
       1: rec/auto, AUROC: 1, AUPRC: 1, Freq: 0.2
       2: rec/sport, AUROC: 1, AUPRC: 1, Freq: 0.8
