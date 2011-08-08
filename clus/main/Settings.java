@@ -687,6 +687,17 @@ public class Settings implements Serializable {
 	public final static int TREE_OPTIMIZE_NO_CLUSTERING_STATS = 0;
 	public final static int TREE_OPTIMIZE_NO_INODE_STATS = 1;
 	
+	// Added by Eduardo Costa - 06/06/2011
+	
+	public final static String[] INDUCTION_ORDER = { "DepthFirst", "BestFirst"};
+	public final static int DEPTH_FIRST = 0;
+	public final static int BEST_FIRST = 1;
+	
+	protected INIFileNominal m_InductionOrder;
+	
+	// end block added by Eduardo
+	
+	
 	protected INIFileSection m_SectionTree;
 	protected INIFileNominal m_Heuristic;
 	protected INIFileInt m_TreeMaxDepth;
@@ -720,6 +731,23 @@ public class Settings implements Serializable {
 		return m_Heuristic.getStringSingle().equals(value);
 	}
 
+	// added by Eduardo
+	public int getInductionOrder() {
+		return m_InductionOrder.getValue();
+	}
+
+	public void setInductionOrder(int value) {
+		m_InductionOrder.setSingleValue(value);
+	}
+
+	public boolean checkInductionOrder(String value) {
+		return m_InductionOrder.getStringSingle().equals(value);
+	}
+	// end block added by Eduardo
+	
+	
+	
+	
 	public int getTreeMaxDepth() {
 		return m_TreeMaxDepth.getValue();
 	}
@@ -2205,6 +2233,12 @@ public class Settings implements Serializable {
 		m_SectionTree.addNode(m_MSENominal = new INIFileBool("MSENominal", false));
 		m_SectionTree.addNode(m_TreeSplitSampling = new INIFileInt("SplitSampling",0));
 		m_TreeSplitSampling.setValueCheck(new IntRangeCheck(0,Integer.MAX_VALUE));
+		
+		// added by Eduardo Costa 06/06/2011
+		m_SectionTree.addNode(m_InductionOrder = new INIFileNominal("InductionOrder", INDUCTION_ORDER, 0));
+		
+		
+		
 		
 		m_SectionRules = new INIFileSection("Rules");
 		m_SectionRules.addNode(m_CoveringMethod = new INIFileNominal("CoveringMethod", COVERING_METHODS, 0));
