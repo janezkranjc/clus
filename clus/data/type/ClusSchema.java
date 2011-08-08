@@ -171,9 +171,17 @@ public class ClusSchema implements Serializable {
 	public final ClusAttrType[] getDescriptiveAttributes() {
 		return m_AllAttrUse[ClusAttrType.ATTR_USE_DESCRIPTIVE];
 	}
+	
+	public final ClusAttrType[] getKeyAttribute() {
+		return m_AllAttrUse[ClusAttrType.ATTR_USE_KEY];
+	}
 
 	public final int getNbDescriptiveAttributes() {
 		return getNbAllAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE);
+	}
+	
+	public final ClusAttrType[] getTargetAttributes() {
+		return m_AllAttrUse[ClusAttrType.ATTR_USE_TARGET];
 	}
 
 	public final int getNbTargetAttributes() {
@@ -676,7 +684,9 @@ public class ClusSchema implements Serializable {
 				ClusAttrType type = getAttrType(i);
 				if (type.isDescriptive() && type.getTypeIndex() == NumericAttrType.THIS_TYPE) {
 					SparseNumericAttrType nt = new SparseNumericAttrType((NumericAttrType)type);
+					nt.setStatus(type.getStatus()); //********************
 					nt.setDescriptive(true);
+//					nt.setClustering(true); //******************** //CV: added because of sparse Pert(?), removed because method ClusStatManager.check() gave error (2 types set in hierarchical context)
 					setAttrType(nt, i);
 					nbSparse++;
 				} else {
