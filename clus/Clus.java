@@ -676,10 +676,10 @@ public class Clus implements CMDLineArgsProvider {
 		ClusSchema mschema = iter.getSchema();
 		if (iter.shouldAttach()) attachModels(mschema, cr);
 		cr.initModelProcessors(type, mschema);
-		boolean wr_ens_tr_preds = (getSettings().shouldWritePredictionsFromEnsemble() && !getSettings().IS_XVAL) || (getSettings().IS_XVAL && cr.getTestSet() == null);
-		wr_ens_tr_preds = wr_ens_tr_preds && (type == ClusModelInfo.TRAIN_ERR);
-		boolean wr_ens_te_preds = (getSettings().shouldWritePredictionsFromEnsemble() && !getSettings().IS_XVAL && cr.getTestSet() != null );
-		wr_ens_te_preds = wr_ens_te_preds && (type == ClusModelInfo.TEST_ERR);
+		boolean wr_ens_tr_preds = (!getSettings().IS_XVAL) || (getSettings().IS_XVAL && cr.getTestSet() == null);
+		wr_ens_tr_preds = wr_ens_tr_preds && (type == ClusModelInfo.TRAIN_ERR) && (getSettings().shouldWritePredictionsFromEnsemble());
+		boolean wr_ens_te_preds = (!getSettings().IS_XVAL && cr.getTestSet() != null );
+		wr_ens_te_preds = wr_ens_te_preds && (type == ClusModelInfo.TEST_ERR) && (getSettings().shouldWritePredictionsFromEnsemble());
 //		boolean wr_ens_xval_preds = (getSettings().shouldWritePredictionsFromEnsemble() && getSettings().IS_XVAL && type == ClusModelInfo.TEST_ERR);
 //		wr_ens_xval_preds = wr_ens_xval_preds && cr.getIndex() ;
 		if (wr_ens_tr_preds || wr_ens_te_preds)cr.initEnsemblePredictionsWriter(type);
@@ -1404,7 +1404,7 @@ public class Clus implements CMDLineArgsProvider {
 			doOneFold(fold, clss, sel, io, testPredWriter, output,
 					errFileOutput, ens_pred);
 		}
-		ens_pred.closeWriter();
+		if (getSettings().shouldWritePredictionsFromEnsemble()) ens_pred.closeWriter();
 		output.writeSummary(m_Summary);
 		output.close();
 		if (testPredWriter != null)
