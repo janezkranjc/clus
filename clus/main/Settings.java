@@ -872,7 +872,7 @@ public class Settings implements Serializable {
 
 	public final static String[] PRUNING_METHODS = { "Default", "None", "C4.5",
 		"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB",
-		"CartVSB", "CartMaxSize" };
+		"CartVSB", "CartMaxSize", "EncodingCost" };
 
 	public final static int PRUNING_METHOD_DEFAULT = 0;
 	public final static int PRUNING_METHOD_NONE = 1;
@@ -884,6 +884,7 @@ public class Settings implements Serializable {
 	public final static int PRUNING_METHOD_GAROFALAKIS_VSB = 7;
 	public final static int PRUNING_METHOD_CART_VSB = 8;
 	public final static int PRUNING_METHOD_CART_MAXSIZE = 9;
+	public final static int PRUNING_METHOD_ENCODING_COST = 10;
 
 /***********************************************************************
  * Section: Rules                                                      *

@@ -241,14 +241,14 @@ public class BestFirstInduce extends ClusInductionAlgorithm {
 		
 			listNodes.add(node);
 			
-			EncodingCost EncCost = new EncodingCost(dataLeaves,attrs);
+			//EncodingCost EncCost = new EncodingCost(dataLeaves,attrs);
 			
-			System.out.print("Encoding cost is  \t\t\t\t\t"+EncCost.getEncodingCostValue()+"\n");
+			//System.out.print("Encoding cost is  \t\t\t\t\t"+EncCost.getEncodingCostValue()+"\n");
 			
 			induce(listNodes,subsets, dataLeaves, 0);
 			
-			EncCost = new EncodingCost(dataLeaves,attrs);
-			System.out.print("Encoding cost is  \t\t\t\t\t"+EncCost.getEncodingCostValue()+"\n");
+			//EncCost = new EncodingCost(dataLeaves,attrs);
+			//System.out.print("Encoding cost is  \t\t\t\t\t"+EncCost.getEncodingCostValue()+"\n");
 			
 			
 			
@@ -386,9 +386,9 @@ public class BestFirstInduce extends ClusInductionAlgorithm {
 			
 			//System.out.print("CU Modified is  \t\t\t\t\t\t\t"+CU.getModifiedCategoryUtilityValue()+"\n");
 			
-			EncodingCost EncCost = new EncodingCost(dataLeaves,attrs);
+			//EncodingCost EncCost = new EncodingCost(dataLeaves,attrs);
 			
-			System.out.print("Encoding cost is  \t\t\t\t\t"+EncCost.getEncodingCostValue()+"\n");
+			//System.out.print("Encoding cost is  \t\t\t\t\t"+EncCost.getEncodingCostValue()+"\n");
 			
 			bestTestIndex = getBestNodeToSplit(listNodes);
 			induce(listNodes, subsets,dataLeaves,bestTestIndex);	

@@ -322,6 +322,7 @@ public class ClusStatManager implements Serializable {
 		int nb_types = 0;
 		int nb_nom = m_Schema.getNbNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		int nb_num = m_Schema.getNbNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
+		System.out.println("check " + nb_nom + " " + nb_num);
 		if (nb_nom > 0 && nb_num > 0) {
 			m_Mode = MODE_CLASSIFY_AND_REGRESSION;
 			nb_types++;
@@ -376,7 +377,6 @@ public class ClusStatManager implements Serializable {
 	}
 
 	public ClusStatistic createSuitableStat(NumericAttrType[] num, NominalAttrType[] nom) {
-		//System.out.println("creating stat");
 		if (num.length == 0) {
 			if (m_Mode == MODE_PHYLO) {
 				//switch (Settings.m_PhylogenyProtoComlexity.getValue()) {
@@ -658,6 +658,8 @@ public class ClusStatManager implements Serializable {
 				getSettings().setHeuristic(Settings.HEURISTIC_GAIN);
 			}
 		}
+		else {
+		}
 	}
 
 	public void initStopCriterion() {
@@ -671,6 +673,7 @@ public class ClusStatManager implements Serializable {
 		} else {
 			double minW = getSettings().getMinimalWeight();
 			stop = new ClusStopCriterionMinWeight(minW);
+			
 		}
 		m_Heuristic.setStopCriterion(stop);
 	}
@@ -868,6 +871,10 @@ public class ClusStatManager implements Serializable {
 			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_M5) {
 				double mult = sett.getM5PruningMult();
 				return new M5Pruner(m_NormalizationWeights, mult);
+			}
+		} else if (m_Mode == MODE_PHYLO) {
+			if (sett.getPruningMethod() == Settings.PRUNING_METHOD_ENCODING_COST) {
+				return new EncodingCostPruning();
 			}
 		}
 		sett.setPruningMethod(Settings.PRUNING_METHOD_NONE);

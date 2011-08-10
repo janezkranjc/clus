@@ -15,11 +15,11 @@ public class EncodingCost {
 
 	protected ArrayList<RowData> data;
 	protected ArrayList<ClusNode> nodes;
-	ClusAttrType[] attributes;
+	protected ClusAttrType[] attributes;
 	
 	//Blocks9 model
-	double[] m_MixtureValues = {0.178091, 0.056591, 0.0960191, 0.0781233, 0.0834977, 0.0904123, 0.114468, 0.0682132, 0.234585}; 
-	double[][] m_AlphaValues = { 	
+	protected double[] m_MixtureValues = {0.178091, 0.056591, 0.0960191, 0.0781233, 0.0834977, 0.0904123, 0.114468, 0.0682132, 0.234585}; 
+	protected double[][] m_AlphaValues = { 	
 			{1.18065,  0.270671,  0.039848,  0.017576,  0.016415,  0.014268,  0.131916,  0.012391,  0.022599,  0.020358,  0.030727,  0.015315,  0.048298, 0.053803,  0.020662,  0.023612, 0.216147, 0.147226, 0.065438, 0.003758, 0.009621},
 			{1.35583, 0.021465, 0.0103, 0.011741, 0.010883, 0.385651, 0.016416, 0.076196, 0.035329, 0.013921, 0.093517, 0.022034, 0.028593, 0.013086, 0.023011, 0.018866, 0.029156, 0.018153, 0.0361, 0.07177, 0.419641},
 			{6.66436, 0.561459, 0.045448, 0.438366, 0.764167, 0.087364, 0.259114, 0.21494, 0.145928, 0.762204, 0.24732, 0.118662, 0.441564, 0.174822, 0.53084, 0.465529, 0.583402, 0.445586, 0.22705, 0.02951, 0.12109},
@@ -33,8 +33,8 @@ public class EncodingCost {
 	
 	
 	//Recode4 model
-	double[] m_MixtureValuesRecode4 = {0.383048,0.174635,0.0852555,0.0594628,0.0406419,0.0398597,0.0297682,0.0280806,0.0242095,0.019244,0.0178775,0.0174343,0.0168758,0.0139663,0.0123711,0.0123012,0.0111316,0.00698083,0.00365577,0.00320122};
-	double[][] m_AlphaValuesRecode4 = {
+	protected double[] m_MixtureValuesRecode4 = {0.383048,0.174635,0.0852555,0.0594628,0.0406419,0.0398597,0.0297682,0.0280806,0.0242095,0.019244,0.0178775,0.0174343,0.0168758,0.0139663,0.0123711,0.0123012,0.0111316,0.00698083,0.00365577,0.00320122};
+	protected double[][] m_AlphaValuesRecode4 = {
 	    { 4.04735, 0.335796, 0.0276254, 0.270793, 0.348046, 0.0863198,
 	      0.225768, 0.115656, 0.120617, 0.395388, 0.21713, 0.0692591,
 	      0.22952, 0.159096, 0.25475, 0.307135, 0.275135, 0.265742,
@@ -117,17 +117,55 @@ public class EncodingCost {
 	      0.456531, 0.0947103, 0.0563106 }
 	};
 	
+	protected double[] m_ZAlpha;
 	
 	public EncodingCost(ArrayList<ClusNode> listNodes, ArrayList<RowData> subsets, ClusAttrType[] attrs){
 		data = subsets;
 		nodes = listNodes;
 		attributes = attrs;
+		
+		// we do it here because we do not need to calculate it again every time
+		m_ZAlpha = new double[m_AlphaValues.length];
+		
+		for(int k=0;k<m_AlphaValues.length;k++){
+			// here we use 1 as the start and 20 as the end
+			// remember that the first index (0 - zero) contains the sum of the vector
+			m_ZAlpha[k] = functionZ(m_AlphaValues[k],1,20);
+		}		
 	}
 
 	
 	
 	public EncodingCost(ArrayList<RowData> subsets, ClusAttrType[] attrs){
 		data = subsets;
+		attributes = attrs;
+		
+		// we do it here because we do not need to calculate it again every time
+		m_ZAlpha = new double[m_AlphaValues.length];
+		
+		for(int k=0;k<m_AlphaValues.length;k++){
+			// here we use 1 as the start and 20 as the end
+			// remember that the first index (0 - zero) contains the sum of the vector
+			m_ZAlpha[k] = functionZ(m_AlphaValues[k],1,20);
+		}		
+	}
+	
+	public EncodingCost(){
+		// we do it here because we do not need to calculate it again every time
+		m_ZAlpha = new double[m_AlphaValues.length];
+		
+		for(int k=0;k<m_AlphaValues.length;k++){
+			// here we use 1 as the start and 20 as the end
+			// remember that the first index (0 - zero) contains the sum of the vector
+			m_ZAlpha[k] = functionZ(m_AlphaValues[k],1,20);
+		}		
+	}
+	
+	public void setClusters(ArrayList<RowData> clusters) {
+		data = clusters;
+	}
+	
+	public void setAttributes(ClusAttrType[] attrs) {
 		attributes = attrs;
 	}
 	
@@ -451,20 +489,9 @@ public class EncodingCost {
 		
 		int nbSubsets = data.size();
 		
-		printInstanceLabels(nbSubsets);
+//		printInstanceLabels(nbSubsets);
 		
 		double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
-		
-		// we do it here because we do not need to calculate it again every time
-		double[] zAlpha = new double[m_AlphaValues.length];
-		
-		for(int k=0;k<m_AlphaValues.length;k++){
-			// here we use 1 as the start and 20 as the end
-			// remember that the first index (0 - zero) contains the sum of the vector
-			zAlpha[k] = functionZ(m_AlphaValues[k],1,20);
-		}		
-
-		
 		
 		// we are going to produce a matrix with the frequency of occurrence of each amino acid
 		// the columns are going to be the amino acids
@@ -482,7 +509,7 @@ public class EncodingCost {
 			for(int i=0;i<nbSubsets;i++){
 					
 					// calculate probability
-					double[] logPJ = new double[9];
+					double[] logPJ = new double[m_AlphaValues.length];
 					double normalizer=0;
 					
 					for(int k=0;k<m_AlphaValues.length;k++){
@@ -492,7 +519,7 @@ public class EncodingCost {
 							double logZAlphaFreq;
 							logZAlphaFreq = functionLogZ(addAlphaVectorAndFrequencyvector(m_AlphaValues[k], frequency[i]));
 							
-							logPJ[k] = Math.log(mixture)+logZAlphaFreq-Math.log(zAlpha[k]);
+							logPJ[k] = Math.log(mixture)+logZAlphaFreq-Math.log(m_ZAlpha[k]);
 		
 							// Calculating normalizer
 							if(k==0){
