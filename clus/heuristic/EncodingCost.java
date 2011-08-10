@@ -537,7 +537,11 @@ public class EncodingCost {
 						sumAllPJ = sumAllPJ+convertingBackValue;
 					}
 					
-					double logProb = Math.log(sumAllPJ)+normalizer;
+					// log base 2
+					double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+
+					// log base 10
+					//double logProb = Math.log(sumAllPJ)+normalizer;
 					
 					encodingCostValue = encodingCostValue- logProb;
 			}
