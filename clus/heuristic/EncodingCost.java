@@ -118,6 +118,8 @@ public class EncodingCost {
 	};
 	
 	protected double[] m_ZAlpha;
+	public long[] m_Duration = new long[3];
+	protected double[][] m_LogGammaAlpha;
 	
 	public EncodingCost(ArrayList<ClusNode> listNodes, ArrayList<RowData> subsets, ClusAttrType[] attrs){
 		data = subsets;
@@ -133,8 +135,6 @@ public class EncodingCost {
 			m_ZAlpha[k] = functionZ(m_AlphaValues[k],1,20);
 		}		
 	}
-
-	
 	
 	public EncodingCost(ArrayList<RowData> subsets, ClusAttrType[] attrs){
 		data = subsets;
@@ -158,7 +158,28 @@ public class EncodingCost {
 			// here we use 1 as the start and 20 as the end
 			// remember that the first index (0 - zero) contains the sum of the vector
 			m_ZAlpha[k] = functionZ(m_AlphaValues[k],1,20);
-		}		
+		}
+		
+		calculateLogGammaAlphaValues();
+		
+		
+	}
+	
+	public void calculateLogGammaAlphaValues() {
+		m_LogGammaAlpha = new double[m_AlphaValues.length][m_AlphaValues[0].length];
+		for (int j=0;j<m_LogGammaAlpha.length;j++) {
+			for (int i=0;i<m_LogGammaAlpha[0].length;i++) {
+				m_LogGammaAlpha[j][i] = Gamma.logGamma(m_AlphaValues[j][i]);
+			}
+		}
+	}
+	
+	public void printDuration() {
+		System.out.print("Timings: ");
+		for (int i=0; i<m_Duration.length; i++){
+			System.out.print(m_Duration[i] + " ");
+		}
+		System.out.println();
 	}
 	
 	public void setClusters(ArrayList<RowData> clusters) {
@@ -405,16 +426,10 @@ public class EncodingCost {
 	// This function adds a line of the alpha matrix with the vector ncs
 	// and returns a vector containing the sum of these vectors
 	// Observe that the returned vector has only 20 positions
-	protected double[] addAlphaVectorAndFrequencyvector(double[] alphaVector, int[] frequencyVector){
-		
+	protected double[] addAlphaVectorAndFrequencyvector(double[] alphaVector, int[] frequencyVector){	
 		double[] addedVector = new double[20];
-		
-		int j=0;
-		
 		for(int i=1;i<21;i++){
-			addedVector[j]=frequencyVector[i]+alphaVector[i];
-			j++;
-			
+			addedVector[i-1]=frequencyVector[i]+alphaVector[i];			
 		}
 		return addedVector;
 		
@@ -481,9 +496,8 @@ public class EncodingCost {
 	
 	
 	
-	
-	public double getEncodingCostValueWithNormalizer(){
-		
+	public double getEncodingCostValueWithNormalizerSlower(){
+		long start = System.currentTimeMillis();
 		
 		int nbAttr = attributes.length;
 		
@@ -501,9 +515,12 @@ public class EncodingCost {
 		// iterating over all attributes
 		for(int j=0;j<nbAttr;j++){
 	
+			long freqstart = System.currentTimeMillis();
 			//System.out.print("Column "+j+"\n");
 				int [ ] [ ] frequency = calculateFrequency(j,nbSubsets);
 			//printMatrix(frequency);
+			long freqstop = System.currentTimeMillis();
+			m_Duration[1] += (freqstop-freqstart); 
 			
 			//System.out.print("Attribute "+j+"\n");
 			for(int i=0;i<nbSubsets;i++){
@@ -515,9 +532,12 @@ public class EncodingCost {
 					for(int k=0;k<m_AlphaValues.length;k++){
 							double mixture = m_MixtureValues[k];
 						
+							long logzafstart = System.currentTimeMillis();
 							//calculate log(z(alpha+frequency))
 							double logZAlphaFreq;
 							logZAlphaFreq = functionLogZ(addAlphaVectorAndFrequencyvector(m_AlphaValues[k], frequency[i]));
+							long logzafstop = System.currentTimeMillis();
+							m_Duration[2] += (logzafstop-logzafstart); 
 							
 							logPJ[k] = Math.log(mixture)+logZAlphaFreq-Math.log(m_ZAlpha[k]);
 		
@@ -532,8 +552,79 @@ public class EncodingCost {
 					}
 					
 					double sumAllPJ=0;
+			//		System.out.println("start boe ");
 					for(int k=0;k<m_AlphaValues.length;k++){
 						double convertingBackValue = Math.exp(logPJ[k]-normalizer);
+						sumAllPJ = sumAllPJ+convertingBackValue;
+			//			System.out.print("boe " + j + " " + i + " " + k + " " + logPJ[k] + " " + normalizer + " ");
+					}
+					
+					// log base 2
+					double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+
+					// log base 10
+					// double logProb = Math.log(sumAllPJ)+normalizer;
+					
+					encodingCostValue = encodingCostValue- logProb;
+			}
+		}
+		
+		long stop = System.currentTimeMillis();
+		m_Duration[0] += (stop-start); 
+		
+		return encodingCostValue;
+	}
+	
+	
+	
+	public double getEncodingCostValueWithNormalizer(){
+		int nbAttr = attributes.length;	
+		int nbSubsets = data.size();
+		
+		double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
+		
+		// iterating over all columns
+		for(int c=0;c<nbAttr;c++){
+			// we are going to produce a matrix with the frequency of occurrence of each amino acid
+			// the columns are going to be the amino acids
+			// the lines are going to be the subsets
+			int[][] frequency = calculateFrequency(c,nbSubsets);
+			//printMatrix(frequency);
+			
+			// iterating over all subsets
+			for(int s=0;s<nbSubsets;s++){
+					
+					// calculate probability
+					double[] logP = new double[m_MixtureValues.length];
+					double normalizer=Double.NEGATIVE_INFINITY;
+					
+					for(int j=0;j<m_MixtureValues.length;j++){
+						double tmp=0;
+						for (int i=1;i<m_AlphaValues[0].length;i++) {
+							if (frequency[s][i]>0) {
+								tmp += (Gamma.logGamma(m_AlphaValues[j][i]+frequency[s][i]) - m_LogGammaAlpha[j][i]);
+							}
+						}
+						
+						double[] sumVectors = addAlphaVectorAndFrequencyvector(m_AlphaValues[j], frequency[s]);
+						double sum=0;
+						for (int x=0;x<sumVectors.length;x++) {
+							sum+=sumVectors[x];
+						}
+						double tmp2 = m_LogGammaAlpha[j][0] - Gamma.logGamma(sum);
+						
+						logP[j] = Math.log(m_MixtureValues[j])+tmp+tmp2;
+		
+						// Calculating normalizer
+						if(logP[j] > normalizer){
+							normalizer=logP[j];
+						}	
+
+					}
+					
+					double sumAllPJ=0;
+					for(int j=0;j<m_MixtureValues.length;j++){
+						double convertingBackValue = Math.exp(logP[j]-normalizer);
 						sumAllPJ = sumAllPJ+convertingBackValue;
 					}
 					
@@ -541,7 +632,7 @@ public class EncodingCost {
 					double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
 
 					// log base 10
-					//double logProb = Math.log(sumAllPJ)+normalizer;
+					// double logProb = Math.log(sumAllPJ)+normalizer;
 					
 					encodingCostValue = encodingCostValue- logProb;
 			}

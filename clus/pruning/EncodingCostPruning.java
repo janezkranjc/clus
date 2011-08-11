@@ -53,6 +53,11 @@ public class EncodingCostPruning extends PruneTree {
 	}
 	
 	public void prune(ClusNode node) throws ClusException {
+		doPrune(node);
+		//m_EC.printDuration();
+	}
+	
+	public void doPrune(ClusNode node) throws ClusException {
 		System.out.println("Pruning!");
 		m_Ecc = calculateEncodingCost(node,m_Data);
 		System.out.println(" -> orig ecc = " + m_Ecc);
@@ -62,7 +67,7 @@ public class EncodingCostPruning extends PruneTree {
 			m_BestNodeToPrune.makeLeaf();
 			m_EccGain = 0;
 			m_BestNodeToPrune = null;
-			prune(node);
+			doPrune(node);
 		}
 	}
 	
