@@ -53,6 +53,9 @@ public class EncodingCostPruning extends PruneTree {
 	}
 	
 	public void prune(ClusNode node) throws ClusException {
+		node.numberCompleteTree();
+		int totalNbNodes = node.getTotalTreeSize();
+		m_EC.initializeLogPMatrix(totalNbNodes);
 		doPrune(node);
 		//m_EC.printDuration();
 	}
@@ -73,8 +76,9 @@ public class EncodingCostPruning extends PruneTree {
 	
 	public double calculateEncodingCost(ClusNode node, RowData data) {
 		ArrayList<RowData> clusters = new ArrayList<RowData>();
-		getLeafClusters(node, data, clusters);
-		m_EC.setClusters(clusters);
+		ArrayList<Integer> clusterIds = new ArrayList<Integer>();
+		getLeafClusters(node, data, clusters, clusterIds);
+		m_EC.setClusters(clusters, clusterIds);
 		double ecv = m_EC.getEncodingCostValue();
 		return ecv;
 	}
@@ -150,16 +154,18 @@ public class EncodingCostPruning extends PruneTree {
 	}
 	
 	
-	public void getLeafClusters(ClusNode node, RowData data, ArrayList<RowData> clusters) {
+	public void getLeafClusters(ClusNode node, RowData data, ArrayList<RowData> clusters, ArrayList<Integer> clusterIds) {
 		if (!node.atBottomLevel()) {
 			int arity = node.getNbChildren();
 			for (int i = 0; i < arity; i++) {
 				RowData subset = data.applyWeighted(node.getTest(), i);
-				getLeafClusters((ClusNode)node.getChild(i), subset, clusters);
+				getLeafClusters((ClusNode)node.getChild(i), subset, clusters, clusterIds);
 			}
 		}
 		else {
 			clusters.add(data);
+			clusterIds.add(new Integer(node.getID()-1));
+			//System.out.println("cluster = " + (node.getID()-1));
 		}
 	}
 	

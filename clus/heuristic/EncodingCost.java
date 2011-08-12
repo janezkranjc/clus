@@ -14,6 +14,7 @@ import org.apache.commons.math.special.Gamma;
 public class EncodingCost {
 
 	protected ArrayList<RowData> data;
+	protected ArrayList<Integer> m_ClusterIds;
 	protected ArrayList<ClusNode> nodes;
 	protected ClusAttrType[] attributes;
 	
@@ -120,6 +121,7 @@ public class EncodingCost {
 	protected double[] m_ZAlpha;
 	public long[] m_Duration = new long[3];
 	protected double[][] m_LogGammaAlpha;
+	protected double[][] m_LogPMatrix;
 	
 	public EncodingCost(ArrayList<ClusNode> listNodes, ArrayList<RowData> subsets, ClusAttrType[] attrs){
 		data = subsets;
@@ -165,6 +167,10 @@ public class EncodingCost {
 		
 	}
 	
+	public void initializeLogPMatrix(int nbnodes) {
+		m_LogPMatrix = new double[nbnodes][attributes.length];
+	}
+	
 	public void calculateLogGammaAlphaValues() {
 		m_LogGammaAlpha = new double[m_AlphaValues.length][m_AlphaValues[0].length];
 		for (int j=0;j<m_LogGammaAlpha.length;j++) {
@@ -182,8 +188,9 @@ public class EncodingCost {
 		System.out.println();
 	}
 	
-	public void setClusters(ArrayList<RowData> clusters) {
+	public void setClusters(ArrayList<RowData> clusters, ArrayList<Integer> clusterIds) {
 		data = clusters;
+		m_ClusterIds = clusterIds;
 	}
 	
 	public void setAttributes(ClusAttrType[] attrs) {
@@ -578,6 +585,75 @@ public class EncodingCost {
 	
 	
 	public double getEncodingCostValueWithNormalizer(){
+		int nbAttr = attributes.length;	
+		int nbSubsets = data.size();
+		
+		double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
+		
+		// iterating over all columns
+		for(int c=0;c<nbAttr;c++){
+			// we are going to produce a matrix with the frequency of occurrence of each amino acid
+			// the columns are going to be the amino acids
+			// the lines are going to be the subsets
+			int[][] frequency = calculateFrequency(c,nbSubsets);
+			//printMatrix(frequency);
+			
+			// iterating over all subsets
+			for(int s=0;s<nbSubsets;s++){
+				double logProb;	
+				if (m_LogPMatrix[m_ClusterIds.get(s).intValue()][c] != 0.0) {
+					logProb = m_LogPMatrix[m_ClusterIds.get(s).intValue()][c];
+				}
+				else {
+					// calculate probability
+					double[] logP = new double[m_MixtureValues.length];
+					double normalizer=Double.NEGATIVE_INFINITY;
+					
+					for(int j=0;j<m_MixtureValues.length;j++){
+						double tmp=0;
+						for (int i=1;i<m_AlphaValues[0].length;i++) {
+							if (frequency[s][i]>0) {
+								tmp += (Gamma.logGamma(m_AlphaValues[j][i]+frequency[s][i]) - m_LogGammaAlpha[j][i]);
+							}
+						}
+						
+						double[] sumVectors = addAlphaVectorAndFrequencyvector(m_AlphaValues[j], frequency[s]);
+						double sum=0;
+						for (int x=0;x<sumVectors.length;x++) {
+							sum+=sumVectors[x];
+						}
+						double tmp2 = m_LogGammaAlpha[j][0] - Gamma.logGamma(sum);
+						
+						logP[j] = Math.log(m_MixtureValues[j])+tmp+tmp2;
+		
+						// Calculating normalizer
+						if(logP[j] > normalizer){
+							normalizer=logP[j];
+						}	
+
+					}
+					
+					double sumAllPJ=0;
+					for(int j=0;j<m_MixtureValues.length;j++){
+						double convertingBackValue = Math.exp(logP[j]-normalizer);
+						sumAllPJ = sumAllPJ+convertingBackValue;
+					}
+					
+					// log base 2
+					logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+
+					// log base 10
+					// logProb = Math.log(sumAllPJ)+normalizer;
+					
+					m_LogPMatrix[m_ClusterIds.get(s).intValue()][c] = logProb;
+				}
+				encodingCostValue = encodingCostValue - logProb;
+			}
+		}
+		return encodingCostValue;
+	}
+	
+	public double getEncodingCostValueWithNormalizerComputeEverything(){
 		int nbAttr = attributes.length;	
 		int nbSubsets = data.size();
 		

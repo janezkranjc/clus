@@ -576,6 +576,33 @@ public class ClusNode extends MyNode implements ClusModel {
 		}
 	}
 
+	public final void numberCompleteTree() {
+		numberCompleteTree(new IntObject(1,null));
+	}
+	
+	public final void numberCompleteTree(IntObject count) {
+		m_ID = count.getValue();
+		count.incValue();
+		int arity = getNbChildren();
+		for (int i = 0; i < arity; i++) {
+			ClusNode child = (ClusNode)getChild(i);
+			child.numberCompleteTree(count);
+		}
+	}
+	
+	/*
+	 * Returns the total number of nodes (incl leaves) in the tree rooted at this node
+	 */
+	public final int getTotalTreeSize() {
+		int childrensize = 0;
+		int arity = getNbChildren();
+		for (int i = 0; i < arity; i++) {
+			ClusNode child = (ClusNode)getChild(i);
+			childrensize += child.getTotalTreeSize();
+		}
+		return (childrensize + 1);
+	}
+	
 	public final void addChildStats() {
 		int nb_c = getNbChildren();
 		if (nb_c > 0) {
@@ -815,21 +842,32 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	// only binary trees supported
 	// no "unknown" branches supported
-	public final void printPaths(PrintWriter writer, String prefix, RowData examples, OOBSelection oob_sel) {
+	public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples, OOBSelection oob_sel) {
 		//writer.flush();
 		//writer.println("nb ex: " + examples.getNbRows());
+		String newnumberprefix;
+		if (numberprefix.equals("")) {
+			newnumberprefix = "" + getID();
+		}
+		else {
+			newnumberprefix = numberprefix+"_"+getID();
+		}
 		int arity = getNbChildren();
 		if (arity > 0) {
 			if (arity == 2) {
 
 				RowData examples0 = null;
 				RowData examples1 = null;
+				RowData examplesMin1 = null;
 				if (examples!=null){
 					examples0 = examples.apply(m_Test, 0);
 					examples1 = examples.apply(m_Test, 1);
-				}			
-				((ClusNode)getChild(YES)).printPaths(writer, prefix+"0",examples0,oob_sel);
-				((ClusNode)getChild(NO)).printPaths(writer, prefix+"1",examples1,oob_sel);
+					examplesMin1 = examples.apply(m_Test, -1); // ook -1 testen en die toevoegen aan zowel examples0 en examples1 voor missingvalues
+				}	
+				examples0.add(examplesMin1);
+				examples1.add(examplesMin1);
+				((ClusNode)getChild(YES)).printPaths(writer, pathprefix+"0", newnumberprefix, examples0,oob_sel);
+				((ClusNode)getChild(NO)).printPaths(writer, pathprefix+"1", newnumberprefix, examples1,oob_sel);
 				
 			} else {
 				System.out.println("PrintPaths error: only binary trees supported");
@@ -840,10 +878,16 @@ public class ClusNode extends MyNode implements ClusModel {
                 String prediction = m_TargetStat.getPredictString();
                 for (int i=0; i<examples.getNbRows(); i++) {
                         int exampleindex = examples.getTuple(i).getIndex();
+                        if (oob_sel != null) {
                         boolean oob = oob_sel.isSelected(exampleindex);
                         if (oob)
-                                writer.println(exampleindex + "  " + prefix + " " + prediction + "  OOB");
-                        else writer.println(exampleindex + "  " + prefix + " " + prediction);
+                               // writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction + "  OOB");
+                        		writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + "  OOB");
+                       // else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction);
+                        else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix);
+                        }
+                       // else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction);
+                        else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix);
                         writer.flush();
                 }	
 			}
@@ -852,21 +896,32 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 	
 	// printing test exs
-	public final void printPaths(PrintWriter writer, String prefix, RowData examples) {
+	public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples) {
 		//writer.flush();
 		//writer.println("nb ex: " + examples.getNbRows());
+		String newnumberprefix;
+		if (numberprefix.equals("")) {
+			newnumberprefix = "" + getID();
+		}
+		else {
+			newnumberprefix = numberprefix+"_"+getID();
+		}
 		int arity = getNbChildren();
 		if (arity > 0) {
 			if (arity == 2) {
 
 				RowData examples0 = null;
 				RowData examples1 = null;
+				RowData examplesMin1 = null;
 				if (examples!=null){
 					examples0 = examples.apply(m_Test, 0);
 					examples1 = examples.apply(m_Test, 1);
-				}			
-				((ClusNode)getChild(YES)).printPaths(writer, prefix+"0",examples0);
-				((ClusNode)getChild(NO)).printPaths(writer, prefix+"1",examples1);
+					examplesMin1 = examples.apply(m_Test, -1);
+				}		
+				examples0.add(examplesMin1);
+				examples1.add(examplesMin1);
+				((ClusNode)getChild(YES)).printPaths(writer, pathprefix+"0", newnumberprefix, examples0);
+				((ClusNode)getChild(NO)).printPaths(writer, pathprefix+"1", newnumberprefix, examples1);
 				
 			} else {
 				System.out.println("PrintPaths error: only binary trees supported");
@@ -877,15 +932,16 @@ public class ClusNode extends MyNode implements ClusModel {
                 String prediction = m_TargetStat.getPredictString();
                 for (int i=0; i<examples.getNbRows(); i++) {
                         int exampleindex = examples.getTuple(i).getIndex();
-                        writer.println(exampleindex + "  " + prefix + " " + prediction + "  TEST");
+                        if (exampleindex < 8192) {  // added because test and unlabeled set were put together in one testfile
+                       // writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction + "  TEST");
+                        writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + "  TEST");
                         writer.flush();
+                        }
                 }	
 			}
 
 		}
 	}
-	
-	
 	
 	
 
