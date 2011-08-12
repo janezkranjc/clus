@@ -490,8 +490,12 @@ public class EncodingCost {
 		
 							probability = probability + mixture*(ZAlphaFreq/zAlpha[k]);
 					}
-		
-					double logProb = Math.log(probability)/Math.log(2);
+
+					//log2	
+					//double logProb = Math.log(probability)/Math.log(2);
+					
+					//log10
+					double logProb = Math.log(probability);
 					
 					encodingCostValue = encodingCostValue- logProb;
 			}
@@ -567,10 +571,10 @@ public class EncodingCost {
 					}
 					
 					// log base 2
-					double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+					//double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
 
 					// log base 10
-					// double logProb = Math.log(sumAllPJ)+normalizer;
+					 double logProb = Math.log(sumAllPJ)+normalizer;
 					
 					encodingCostValue = encodingCostValue- logProb;
 			}
@@ -640,10 +644,10 @@ public class EncodingCost {
 					}
 					
 					// log base 2
-					logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+					//logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
 
 					// log base 10
-					// logProb = Math.log(sumAllPJ)+normalizer;
+					logProb = Math.log(sumAllPJ)+normalizer;
 					
 					m_LogPMatrix[m_ClusterIds.get(s).intValue()][c] = logProb;
 				}
@@ -705,10 +709,10 @@ public class EncodingCost {
 					}
 					
 					// log base 2
-					double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+					//double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
 
 					// log base 10
-					// double logProb = Math.log(sumAllPJ)+normalizer;
+					 double logProb = Math.log(sumAllPJ)+normalizer;
 					
 					encodingCostValue = encodingCostValue- logProb;
 			}
