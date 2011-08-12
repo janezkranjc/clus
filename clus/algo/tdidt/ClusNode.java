@@ -842,7 +842,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	
 	// only binary trees supported
 	// no "unknown" branches supported
-	public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples, OOBSelection oob_sel) {
+	/*public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples, OOBSelection oob_sel) {
 		//writer.flush();
 		//writer.println("nb ex: " + examples.getNbRows());
 		String newnumberprefix;
@@ -893,10 +893,10 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 
 		}
-	}
+	}*/
 	
 	// printing test exs
-	public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples) {
+	/*public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples) {
 		//writer.flush();
 		//writer.println("nb ex: " + examples.getNbRows());
 		String newnumberprefix;
@@ -941,7 +941,7 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 
 		}
-	}
+	}*/
 	
 	
 
