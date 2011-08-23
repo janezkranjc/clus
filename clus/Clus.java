@@ -110,20 +110,20 @@ public class Clus implements CMDLineArgsProvider {
 		ResourceInfo.loadLibrary(test);
 		// Load settings file
 		ARFFFile arff = null;
-		System.out.println("Loading '" + m_Sett.getAppName() + "'");
+		if(m_Sett.getVerbose() > 0) System.out.println("Loading '" + m_Sett.getAppName() + "'");
 		ClusRandom.initialize(m_Sett);
 		ClusReader reader = new ClusReader(m_Sett.getDataFile(), m_Sett);
-		System.out.println();
+		if(m_Sett.getVerbose() > 0) System.out.println();
 		if (cargs.hasOption("c45")) {
-			System.out.println("Reading C45 .names/.data");
+			if(m_Sett.getVerbose() > 0) System.out.println("Reading C45 .names/.data");
 		} else {
-			System.out.println("Reading ARFF Header");
+			if(m_Sett.getVerbose() > 0) System.out.println("Reading ARFF Header");
 			arff = new ARFFFile(reader);
 			m_Schema = arff.read(m_Sett);
 		}
 		// Count rows and move to data segment
-		System.out.println();
-		System.out.println("Reading CSV Data");
+		if(m_Sett.getVerbose() > 0) System.out.println();
+		if(m_Sett.getVerbose() > 0) System.out.println("Reading CSV Data");
 		// Updata schema based on settings
 		
 		m_Sett.updateTarget(m_Schema);
@@ -140,10 +140,10 @@ public class Clus implements CMDLineArgsProvider {
 		ClusView view = m_Schema.createNormalView();
 		m_Data = view.readData(reader, m_Schema);
 		reader.close();
-		System.out.println("Found " + m_Data.getNbRows() + " rows");
+		if(m_Sett.getVerbose() > 0) System.out.println("Found " + m_Data.getNbRows() + " rows");
 
 		if (getSettings().getNormalizeData() != Settings.NORMALIZE_DATA_NONE) {
-			System.out.println("Normalizing numerical data");
+			if(m_Sett.getVerbose() > 0) System.out.println("Normalizing numerical data");
 			m_Data = returnNormalizedData(m_Data);
 		}
 
@@ -181,13 +181,13 @@ public class Clus implements CMDLineArgsProvider {
 		m_Induce.initializeHeuristic();
 		loadConstraintFile();
 		initializeSummary(clss);
-		System.out.println();
+		if(m_Sett.getVerbose() > 0) System.out.println();
 		// Sample data
 		if (cargs.hasOption("sample")) {
 			String svalue = cargs.getOptionValue("sample");
 			sample(svalue);
 		}
-		System.out.println("Has missing values: " + m_Schema.hasMissing());
+		if(m_Sett.getVerbose() > 0) System.out.println("Has missing values: " + m_Schema.hasMissing());
 		if (ResourceInfo.isLibLoaded()) {
 			System.out.println("Memory usage: loading data took "
 					+ (ClusStat.m_LoadedMemory - ClusStat.m_InitialMemory)
