@@ -26,3 +26,4 @@ ClassificationThreshold = [90,95]
 WType = ExpAvgParentWeight
 HSeparator = /
 RecallValues = [0.01, 0.10, 0.20, 0.50, 0.80, 1.00]
+MEstimate = Yes
