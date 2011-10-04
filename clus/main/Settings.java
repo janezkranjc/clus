@@ -698,6 +698,19 @@ public class Settings implements Serializable {
 	// end block added by Eduardo
 	
 	
+	// Added by Eduardo Costa - 27/09/2011
+	
+	public final static String[] ENTROPY_TYPE = { "StandardEntropy", "ModifiedEntropy"};
+	public final static int STANDARD_ENTROPY = 0;
+	public final static int MODIFIED_ENTROPY = 1;
+		
+	protected INIFileNominal m_EntropyType;
+	
+	protected INIFileBool m_ConsiderUnlableInstancesInIGCalc;
+	
+	// end block added by Eduardo
+	
+	
 	protected INIFileSection m_SectionTree;
 	protected INIFileNominal m_Heuristic;
 	protected INIFileInt m_TreeMaxDepth;
@@ -745,6 +758,26 @@ public class Settings implements Serializable {
 	}
 	// end block added by Eduardo
 	
+	
+	
+	// added by Eduardo - 27/09/2011
+	public int getEntropyType() {
+		return m_EntropyType.getValue();
+	}
+
+	public void setEntropyType(int value) {
+		m_EntropyType.setSingleValue(value);
+	}
+
+	public boolean checkEntropyType(String value) {
+		return m_EntropyType.getStringSingle().equals(value);
+	}
+	
+	public boolean considerUnlableInstancesInIGCalc() {
+		return m_ConsiderUnlableInstancesInIGCalc.getValue();
+	}
+	
+	// end block added by Eduardo
 	
 	
 	
@@ -872,7 +905,7 @@ public class Settings implements Serializable {
 
 	public final static String[] PRUNING_METHODS = { "Default", "None", "C4.5",
 		"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB",
-		"CartVSB", "CartMaxSize", "EncodingCost" };
+		"CartVSB", "CartMaxSize", "EncodingCost", "CategoryUtility" };
 
 	public final static int PRUNING_METHOD_DEFAULT = 0;
 	public final static int PRUNING_METHOD_NONE = 1;
@@ -885,7 +918,8 @@ public class Settings implements Serializable {
 	public final static int PRUNING_METHOD_CART_VSB = 8;
 	public final static int PRUNING_METHOD_CART_MAXSIZE = 9;
 	public final static int PRUNING_METHOD_ENCODING_COST = 10;
-
+	public final static int PRUNING_METHOD_CATEGORY_UTILITY = 11;
+	
 /***********************************************************************
  * Section: Rules                                                      *
  ***********************************************************************/
@@ -2238,6 +2272,11 @@ public class Settings implements Serializable {
 		// added by Eduardo Costa 06/06/2011
 		m_SectionTree.addNode(m_InductionOrder = new INIFileNominal("InductionOrder", INDUCTION_ORDER, 0));
 		
+		// added by Eduardo Costa 29/09/2011
+		m_SectionTree.addNode(m_EntropyType = new INIFileNominal("EntropyType", ENTROPY_TYPE, 0));
+		m_SectionTree.addNode(m_ConsiderUnlableInstancesInIGCalc = new INIFileBool("ConsiderUnlableInstancesInIGCalc", false));		
+		
+		 
 		
 		
 		
