@@ -45,16 +45,43 @@ public class GainHeuristic extends ClusHeuristic {
 		}
 		ClassificationStat tstat = (ClassificationStat)c_tstat;
 		ClassificationStat pstat = (ClassificationStat)c_pstat;
+		
 		// Equal for all target attributes
 		double n_tot = tstat.getTotalWeight();
 		double n_pos = pstat.getTotalWeight();
 		double n_neg = n_tot - n_pos;
+		
+		
+		//System.out.print("Total nb examples "+n_tot+"\n");
+		//System.out.print("Pos nb examples "+n_pos+"\n");
+		//System.out.print("Neg nb examples "+n_neg+"\n");
+
+		
+	
+		
 		// Initialize entropy's
+		//System.out.print("\nTotal\n");
 		double tot_ent = tstat.entropy();
+		//System.out.print("\nPositive\n");
 		double pos_ent = pstat.entropy();
 		double neg_ent = tstat.entropyDifference(pstat);
-		// Gain?
-		double value = tot_ent - (n_pos*pos_ent + n_neg*neg_ent)/n_tot;
+		
+		double value=0;
+		if(!tstat.getAttribute(0).getSchema().getSettings().considerUnlableInstancesInIGCalc()){
+			// Gain?
+			value = tot_ent - (n_pos*pos_ent + n_neg*neg_ent)/n_tot;
+		}else{
+			double n_tot_label = tstat.getSumWeights(0);
+			double n_pos_label = pstat.getSumWeights(0);
+		
+			double n_neg_label = n_tot_label-n_pos_label;
+			
+			//System.out.print("Total nb labeled examples "+n_tot_label+"\n");
+			//System.out.print("Pos nb labeled examples "+n_pos_label+"\n");
+
+			value = tot_ent - ((n_pos-n_pos_label)*pos_ent + (n_neg-n_neg_label)*neg_ent)/(n_tot-n_tot_label);
+		}
+		
 		if (value < MathUtil.C1E_6) return Double.NEGATIVE_INFINITY;
 		if (m_GainRatio) {
 			double si = ClassificationStat.computeSplitInfo(n_tot, n_pos, n_neg);
@@ -73,6 +100,9 @@ public class GainHeuristic extends ClusHeuristic {
 		ClassificationStat tstat = (ClassificationStat)c_tstat;
 		double n_tot = tstat.getTotalWeight();
 		double value = tstat.entropy();
+		
+		
+		
 		// Subset entropy
 		for (int i = 0; i < nbsplit; i++) {
 			ClassificationStat pstat = (ClassificationStat)c_pstat[i];
