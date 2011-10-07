@@ -68,7 +68,12 @@ public class ClusNode extends MyNode implements ClusModel {
 		ClusNode clone = new ClusNode();
 		clone.m_Test = m_Test;
 		clone.m_ClusteringStat = m_ClusteringStat;
-		clone.m_TargetStat = m_TargetStat;
+		//clone.m_TargetStat = m_TargetStat;
+		// Celine replaced previous line by following three lines (07/10/2011)
+		// reason: subtree raising in C45 pruning did not output correct nb of examples in each leaf of the original tree
+		clone.m_TargetStat = m_TargetStat.cloneStat();
+		clone.m_TargetStat.copy(m_TargetStat);
+		clone.m_TargetStat.calcMean();
 		clone.m_Alternatives = m_Alternatives;
 		return clone;
 	}
@@ -541,6 +546,15 @@ public class ClusNode extends MyNode implements ClusModel {
 			subset.calcTotalStatBitVector(m_TargetStat);
 		}
 	}
+	
+	/*public final void reInitTargetStat(RowData subset) {	
+		if (m_TargetStat != null) {
+			ClusStatistic st = m_TargetStat.cloneStat();
+			st.reset();
+			subset.calcTotalStatBitVector(st);
+			m_TargetStat = st;
+		}
+	}*/
 
 	public final void reInitClusteringStat(RowData subset) {
 		if (m_ClusteringStat != null) {
@@ -840,9 +854,12 @@ public class ClusNode extends MyNode implements ClusModel {
 		}
 	}
 	
-	// only binary trees supported
-	// no "unknown" branches supported
-	/*public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples, OOBSelection oob_sel) {
+	/*
+	 * Prints for each example the path that is followed in the tree, both with node identifiers, and in boolean format
+	 * (used in ICDM 2011 paper on "random forest feature induction")
+	 * only binary trees are supported
+	 */
+	public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples, OOBSelection oob_sel) {
 		//writer.flush();
 		//writer.println("nb ex: " + examples.getNbRows());
 		String newnumberprefix;
@@ -893,10 +910,15 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 
 		}
-	}*/
+	}
 	
-	// printing test exs
-	/*public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples) {
+	/*
+	 * Prints for each example the path that is followed in the tree, both with node identifiers, and in boolean format
+	 * (used in ICDM 2011 paper on "random forest feature induction")
+	 * only binary trees are supported
+	 * this version is used for the test examples
+	 */
+	public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples) {
 		//writer.flush();
 		//writer.println("nb ex: " + examples.getNbRows());
 		String newnumberprefix;
@@ -941,7 +963,7 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 
 		}
-	}*/
+	}
 	
 	
 
