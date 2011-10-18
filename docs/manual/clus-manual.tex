@@ -2,7 +2,7 @@
 \usepackage{geometry}
 \usepackage{graphics}
 \usepackage{ifpdf}
-\usepackage{makeidx}
+% \usepackage{makeidx}
 \usepackage{fancyhdr}
 \usepackage{fancyvrb}
 \usepackage{amsmath, amsthm, amssymb}
@@ -627,6 +627,8 @@ rules/linear terms, used for learning rule ensembles \cite{Aho2009}. If we have 
 	\item {\tt OOBestimate = $y$} : If \texttt{Yes}, out-of-bag estimate of the performance of the ensemble will be done. The default setting is \texttt{No}.
 	\item {\tt FeatureRanking = $y$} : If \texttt{Yes}, feature ranking via random forests will be performed. The default setting is \texttt{No}.
 	\item {\tt EnsembleRandomDepth = $y$} : If \texttt{Yes}, different random depth for each base-level model is selected. Used, e.g., in rule ensembles. The \texttt{MaxDepth} setting from \texttt{[Tree]} section is used as average. The default setting is \texttt{No}.
+	\item {\tt PrintPaths = $y$} : If \texttt{Yes}, for each tree, the path that is followed by each instance in that tree will be printed to a file named {\tt tree\_i.path}.  The default setting is \texttt{No}. Currently, the setting is only implemented for bagging and random forests. See \cite{Vens2011} for details. 
+
 %BagSelection = -1
 	% 'Quasi' parallel implementation for ensembles
 	% its value is an integer ranging from -1 to the number of trees in the ensemble

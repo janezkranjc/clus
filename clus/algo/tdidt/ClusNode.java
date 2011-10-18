@@ -859,9 +859,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	 * (used in ICDM 2011 paper on "random forest feature induction")
 	 * only binary trees are supported
 	 */
-	public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples, OOBSelection oob_sel) {
-		//writer.flush();
-		//writer.println("nb ex: " + examples.getNbRows());
+	public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples, OOBSelection oob_sel, boolean testset) {
 		String newnumberprefix;
 		if (numberprefix.equals("")) {
 			newnumberprefix = "" + getID();
@@ -883,27 +881,26 @@ public class ClusNode extends MyNode implements ClusModel {
 				}	
 				examples0.add(examplesMin1);
 				examples1.add(examplesMin1);
-				((ClusNode)getChild(YES)).printPaths(writer, pathprefix+"0", newnumberprefix, examples0,oob_sel);
-				((ClusNode)getChild(NO)).printPaths(writer, pathprefix+"1", newnumberprefix, examples1,oob_sel);
+				((ClusNode)getChild(YES)).printPaths(writer, pathprefix+"0", newnumberprefix, examples0, oob_sel, testset);
+				((ClusNode)getChild(NO)).printPaths(writer, pathprefix+"1", newnumberprefix, examples1, oob_sel, testset);
 				
 			} else {
 				System.out.println("PrintPaths error: only binary trees supported");
 			}
-		} else {//on the leaves
+		} else { //at the leaves
 			if (examples!=null){
-				//writer.println("LEAF");
-                String prediction = m_TargetStat.getPredictString();
-                for (int i=0; i<examples.getNbRows(); i++) {
+                 for (int i=0; i<examples.getNbRows(); i++) {
                         int exampleindex = examples.getTuple(i).getIndex();
-                        if (oob_sel != null) {
-                        boolean oob = oob_sel.isSelected(exampleindex);
-                        if (oob)
-                               // writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction + "  OOB");
-                        		writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + "  OOB");
-                       // else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction);
-                        else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix);
+                        if (testset) {
+                        	writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + "  TEST");
                         }
-                       // else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction);
+                        else if (oob_sel != null) {
+	                        boolean oob = oob_sel.isSelected(exampleindex);
+	                        if (oob) {
+	                        	writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + "  OOB");
+	                        }
+	                        else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix);
+                        }
                         else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix);
                         writer.flush();
                 }	
@@ -911,60 +908,6 @@ public class ClusNode extends MyNode implements ClusModel {
 
 		}
 	}
-	
-	/*
-	 * Prints for each example the path that is followed in the tree, both with node identifiers, and in boolean format
-	 * (used in ICDM 2011 paper on "random forest feature induction")
-	 * only binary trees are supported
-	 * this version is used for the test examples
-	 */
-	public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples) {
-		//writer.flush();
-		//writer.println("nb ex: " + examples.getNbRows());
-		String newnumberprefix;
-		if (numberprefix.equals("")) {
-			newnumberprefix = "" + getID();
-		}
-		else {
-			newnumberprefix = numberprefix+"_"+getID();
-		}
-		int arity = getNbChildren();
-		if (arity > 0) {
-			if (arity == 2) {
-
-				RowData examples0 = null;
-				RowData examples1 = null;
-				RowData examplesMin1 = null;
-				if (examples!=null){
-					examples0 = examples.apply(m_Test, 0);
-					examples1 = examples.apply(m_Test, 1);
-					examplesMin1 = examples.apply(m_Test, -1);
-				}		
-				examples0.add(examplesMin1);
-				examples1.add(examplesMin1);
-				((ClusNode)getChild(YES)).printPaths(writer, pathprefix+"0", newnumberprefix, examples0);
-				((ClusNode)getChild(NO)).printPaths(writer, pathprefix+"1", newnumberprefix, examples1);
-				
-			} else {
-				System.out.println("PrintPaths error: only binary trees supported");
-			}
-		} else {//on the leaves
-			if (examples!=null){
-				//writer.println("LEAF");
-                String prediction = m_TargetStat.getPredictString();
-                for (int i=0; i<examples.getNbRows(); i++) {
-                        int exampleindex = examples.getTuple(i).getIndex();
-                        if (exampleindex < 8192) {  // added because test and unlabeled set were put together in one testfile
-                       // writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction + "  TEST");
-                        writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + "  TEST");
-                        writer.flush();
-                        }
-                }	
-			}
-
-		}
-	}
-	
 	
 
 	/*to print the tree directly into an IDB : Elisa Fromont 13/06/2007*/

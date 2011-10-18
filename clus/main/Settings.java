@@ -1997,6 +1997,7 @@ public class Settings implements Serializable {
 	protected INIFileInt m_RandomAttrSelected;
 	public static INIFileBool m_PrintAllModels;
 	public static INIFileBool m_PrintAllModelFiles;
+	public static INIFileBool m_PrintPaths;
 	public static boolean m_EnsembleMode = false;
 	/** Time & memory optimization */
 	public static INIFileBool m_EnsembleShouldOpt;
@@ -2091,6 +2092,10 @@ public class Settings implements Serializable {
 	
 	public static boolean isPrintEnsembleModelFiles( ){
 		return m_PrintAllModelFiles.getValue();
+	}
+	
+	public boolean isPrintEnsemblePaths( ){
+		return m_PrintPaths.getValue();
 	}
 
 	public static boolean shouldOptimizeEnsemble( ){
@@ -2415,6 +2420,7 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_RandomAttrSelected = new INIFileInt("SelectRandomSubspaces", 0));
 		m_SectionEnsembles.addNode(m_PrintAllModels = new INIFileBool("PrintAllModels", false));
 		m_SectionEnsembles.addNode(m_PrintAllModelFiles = new INIFileBool("PrintAllModelFiles", false));
+		m_SectionEnsembles.addNode(m_PrintPaths = new INIFileBool("PrintPaths", false));
 		m_SectionEnsembles.addNode(m_EnsembleShouldOpt = new INIFileBool("Optimize", false));
 		m_SectionEnsembles.addNode(m_EnsembleOOBestimate = new INIFileBool("OOBestimate", false));
 		m_SectionEnsembles.addNode(m_FeatureRanking = new INIFileBool("FeatureRanking", false));
