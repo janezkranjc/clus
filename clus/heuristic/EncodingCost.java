@@ -623,15 +623,10 @@ public class EncodingCost {
 		
 		
 		
-		//System.out.print("Nb of descreptive attributes is "+nbAttr+"\n");
 		
-		//System.out.print("Nb of sequences is "+m_nbSequences+"\n");
-		//System.out.print("Nb of clusters is "+nbSubsets+"\n");
 		
 		double encodingCostValue= m_nbSequences*(Math.log(nbSubsets)/Math.log(2));
-		//double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
-		//System.out.print("First part of encoding cost is "+encodingCostValue+"\n");
-		
+				
 		// iterating over all columns
 		for(int c=0;c<nbAttr;c++){
 			// we are going to produce a matrix with the frequency of occurrence of each amino acid
@@ -690,19 +685,11 @@ public class EncodingCost {
 					m_LogPMatrix[m_ClusterIds.get(s).intValue()][c] = logProb;
 				}
 				encodingCostValue = encodingCostValue - logProb;
-				//System.out.print("Subtract "+logProb+"\n");
-				//System.out.print("Partial encoding cost is "+encodingCostValue+"\n");
-				/*try {
-					System.in.read();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}*/
+		
 				
 			}
 		}
 		
-		//System.out.print("Final encoding cost is "+encodingCostValue+"\n");
 		
 		return encodingCostValue;
 	}
@@ -711,7 +698,7 @@ public class EncodingCost {
 		int nbAttr = attributes.length;	
 		int nbSubsets = data.size();
 		
-		//System.out.print("Nb of descreptive attributes is "+nbAttr+"\n");
+
 		
 		printInstanceLabels(nbSubsets);
 		
