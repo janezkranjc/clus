@@ -1,5 +1,6 @@
 package clus.heuristic;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import clus.algo.tdidt.ClusNode;
@@ -17,6 +18,7 @@ public class EncodingCost {
 	protected ArrayList<Integer> m_ClusterIds;
 	protected ArrayList<ClusNode> nodes;
 	protected ClusAttrType[] attributes;
+	protected int m_nbSequences;
 	
 	//Blocks9 model
 	protected double[] m_MixtureValues = {0.178091, 0.056591, 0.0960191, 0.0781233, 0.0834977, 0.0904123, 0.114468, 0.0682132, 0.234585}; 
@@ -167,7 +169,14 @@ public class EncodingCost {
 		
 	}
 	
+	public void setNbSequences(int nbSeq){
+	
+		m_nbSequences = nbSeq;
+		
+	}
+	
 	public void initializeLogPMatrix(int nbnodes) {
+		System.out.print("Initializing matrix with "+nbnodes+" lines and "+attributes.length+" columns\n");
 		m_LogPMatrix = new double[nbnodes][attributes.length];
 	}
 	
@@ -192,6 +201,24 @@ public class EncodingCost {
 		data = clusters;
 		m_ClusterIds = clusterIds;
 	}
+	
+	public void setNodeClusters(ArrayList<ClusNode> listNodes,ArrayList<RowData> clusters) {
+		data = clusters;
+		nodes = listNodes;
+	}
+	
+	public void generateAndSetClusterIDs(ArrayList<ClusNode> listNodes) {
+
+		ArrayList<Integer> clusterIds = new ArrayList<Integer>();
+		for(int i=0;i<listNodes.size();i++){
+			
+			clusterIds.add(new Integer(listNodes.get(i).getID()-1));
+			m_ClusterIds = clusterIds;
+		
+		}
+	}
+	
+
 	
 	public void setAttributes(ClusAttrType[] attrs) {
 		attributes = attrs;
@@ -450,8 +477,10 @@ public class EncodingCost {
 		
 		int nbAttr = attributes.length;
 		int nbSubsets = data.size();
-		double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
+		double encodingCostValue= m_nbSequences*(Math.log(nbSubsets)/Math.log(2));
 
+		System.out.print("\n\nNb of sequences is "+m_nbSequences+"\n\n");
+		
 		double[] zAlpha = new double[m_AlphaValues.length];
 
 		
@@ -492,10 +521,10 @@ public class EncodingCost {
 					}
 
 					//log2	
-					//double logProb = Math.log(probability)/Math.log(2);
+					double logProb = Math.log(probability)/Math.log(2);
 					
 					//log10
-					double logProb = Math.log(probability);
+					//double logProb = Math.log(probability);
 					
 					encodingCostValue = encodingCostValue- logProb;
 			}
@@ -516,7 +545,7 @@ public class EncodingCost {
 		
 //		printInstanceLabels(nbSubsets);
 		
-		double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
+		double encodingCostValue= m_nbSequences*(Math.log(nbSubsets)/Math.log(2));
 		
 		// we are going to produce a matrix with the frequency of occurrence of each amino acid
 		// the columns are going to be the amino acids
@@ -571,10 +600,10 @@ public class EncodingCost {
 					}
 					
 					// log base 2
-					//double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+					double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
 
 					// log base 10
-					 double logProb = Math.log(sumAllPJ)+normalizer;
+					// double logProb = Math.log(sumAllPJ)+normalizer;
 					
 					encodingCostValue = encodingCostValue- logProb;
 			}
@@ -592,7 +621,16 @@ public class EncodingCost {
 		int nbAttr = attributes.length;	
 		int nbSubsets = data.size();
 		
-		double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
+		
+		
+		//System.out.print("Nb of descreptive attributes is "+nbAttr+"\n");
+		
+		//System.out.print("Nb of sequences is "+m_nbSequences+"\n");
+		//System.out.print("Nb of clusters is "+nbSubsets+"\n");
+		
+		double encodingCostValue= m_nbSequences*(Math.log(nbSubsets)/Math.log(2));
+		//double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
+		//System.out.print("First part of encoding cost is "+encodingCostValue+"\n");
 		
 		// iterating over all columns
 		for(int c=0;c<nbAttr;c++){
@@ -644,16 +682,28 @@ public class EncodingCost {
 					}
 					
 					// log base 2
-					//logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+					logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
 
-					// log base 10
-					logProb = Math.log(sumAllPJ)+normalizer;
+					// log base e
+					//logProb = Math.log(sumAllPJ)+normalizer;
 					
 					m_LogPMatrix[m_ClusterIds.get(s).intValue()][c] = logProb;
 				}
 				encodingCostValue = encodingCostValue - logProb;
+				//System.out.print("Subtract "+logProb+"\n");
+				//System.out.print("Partial encoding cost is "+encodingCostValue+"\n");
+				/*try {
+					System.in.read();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}*/
+				
 			}
 		}
+		
+		//System.out.print("Final encoding cost is "+encodingCostValue+"\n");
+		
 		return encodingCostValue;
 	}
 	
@@ -661,7 +711,11 @@ public class EncodingCost {
 		int nbAttr = attributes.length;	
 		int nbSubsets = data.size();
 		
-		double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
+		//System.out.print("Nb of descreptive attributes is "+nbAttr+"\n");
+		
+		printInstanceLabels(nbSubsets);
+		
+		double encodingCostValue= m_nbSequences*(Math.log(nbSubsets)/Math.log(2));
 		
 		// iterating over all columns
 		for(int c=0;c<nbAttr;c++){
@@ -709,10 +763,10 @@ public class EncodingCost {
 					}
 					
 					// log base 2
-					//double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+					double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
 
-					// log base 10
-					 double logProb = Math.log(sumAllPJ)+normalizer;
+					// log base e
+					// double logProb = Math.log(sumAllPJ)+normalizer;
 					
 					encodingCostValue = encodingCostValue- logProb;
 			}
@@ -723,6 +777,8 @@ public class EncodingCost {
 	
 	public double getEncodingCostValue(){
 	
+		//System.out.print("\n\nNb of sequences is "+m_nbSequences+"\n\n");
+		
 		return getEncodingCostValueWithNormalizer();
 		//return getEncodingCostValueStandard();
 	}
