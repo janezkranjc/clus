@@ -462,6 +462,37 @@ public class RowData extends ClusData implements MSortable, Serializable {
 		return res;
 	}
 
+	public final RowData applyAllAlternativeTests(NodeTest orig, NodeTest[] tests, NodeTest[] opposites, int branch) {
+		// remark: we assume there are only 2 branches
+		ArrayList<DataTuple> al = new ArrayList<DataTuple>(); // will be used to create final RowData
+		for (int i = 0; i < m_NbRows; i++) {
+			int[] counts = new int[2]; // to count the number of yes and no predictions
+			//original test
+			int pred = orig.predictWeighted(m_Data[i]); // pred is 0 or 1
+			counts[pred]++;
+			// alternative tests
+			for (int t=0; t<tests.length; t++)
+			{
+				pred = tests[t].predictWeighted(m_Data[i]); // pred is 0 or 1
+				counts[pred]++;
+			}
+			// opposite alternatives tests
+			for (int t=0; t<opposites.length; t++)
+			{
+				pred = opposites[t].predictWeighted(m_Data[i]); // pred is 0 or 1
+				counts[(pred+1)%2]++; // 0->1 and 1->0
+			}
+			int finalpred;
+			if (counts[0]>counts[1]) finalpred = 0;
+			else finalpred = 1;
+			if (finalpred == branch) {
+				al.add(m_Data[i]);
+			}
+		}
+		RowData res = new RowData(al, m_Schema);
+		return res;
+	}
+	
 	public final RowData apply(NodeTest test, int branch) {
 		int nb = 0;
 		for (int i = 0; i < m_NbRows; i++) {

@@ -62,8 +62,10 @@ public class ClusNode extends MyNode implements ClusModel {
 	public ClusStatistic m_TargetStat;
 	public transient Object m_Visitor;
 	public long m_Time;
-	public String[] m_Alternatives;
-
+	public NodeTest[] m_Alternatives; // contains all alternatives to m_Test that give the same split
+	public NodeTest[] m_OppositeAlternatives; // contains all alternatives to m_Test that give the opposite split
+	public String m_AlternativesString; // contains a string of true and opposite alternatives, sorted according to attribute number
+	
 	public MyNode cloneNode() {
 		ClusNode clone = new ClusNode();
 		clone.m_Test = m_Test;
@@ -75,6 +77,8 @@ public class ClusNode extends MyNode implements ClusModel {
 		clone.m_TargetStat.copy(m_TargetStat);
 		clone.m_TargetStat.calcMean();
 		clone.m_Alternatives = m_Alternatives;
+		clone.m_OppositeAlternatives = m_OppositeAlternatives;
+		clone.m_AlternativesString = m_AlternativesString;
 		return clone;
 	}
 
@@ -204,7 +208,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 
 	/***************************************************************************
-	 * Insprectors concenring test
+	 * Inspectors concerning test
 	 ***************************************************************************/
 
 	public final boolean hasBestTest() {
@@ -239,8 +243,12 @@ public class ClusNode extends MyNode implements ClusModel {
 		return m_Test.hasUnknownBranch();
 	}
 
-	public String[] getAlternatives() {
+	public NodeTest[] getAlternatives() {
 		return m_Alternatives;
+	}
+	
+	public NodeTest[] getOppositeAlternatives() {
+		return m_OppositeAlternatives;
 	}
 
 	/***************************************************************************
@@ -313,14 +321,23 @@ public class ClusNode extends MyNode implements ClusModel {
 			info.updateTree();
 		}
 	}
-
-	public void setAlternatives(ArrayList alt) {
-		m_Alternatives = new String[alt.size()];
-		for (int i=0; i<alt.size(); i++) {
-			m_Alternatives[i] = alt.get(i).toString();
-		}
+	 
+	public void setAlternatives(ArrayList<NodeTest> alt) {
+		 m_Alternatives = new NodeTest[alt.size()];
+		 for (int i=0; i<alt.size(); i++)
+			 m_Alternatives[i] = (NodeTest) alt.get(i);
 	}
-
+	
+	public void setOppositeAlternatives(ArrayList<NodeTest> alt) {
+		 m_OppositeAlternatives = new NodeTest[alt.size()];
+		 for (int i=0; i<alt.size(); i++)
+			 m_OppositeAlternatives[i] = (NodeTest) alt.get(i);
+	}
+	
+	public void setAlternativesString(String str) {
+		m_AlternativesString = str;
+	}
+		 
 	/***************************************************************************
 	 * Code for safe package clus.pruning the tree
 	 ***************************************************************************/
@@ -800,14 +817,22 @@ public class ClusNode extends MyNode implements ClusModel {
 			int delta = hasUnknownBranch() ? 1 : 0;
 			if (arity - delta == 2) {
 				writer.print(m_Test.getTestString());
-
+				showAlternatives(writer);
+				
 				RowData examples0 = null;
 				RowData examples1 = null;
 				if (examples!=null){
-					examples0 = examples.apply(m_Test, 0);
-					examples1 = examples.apply(m_Test, 1);
+					if ((m_Alternatives != null) || (m_OppositeAlternatives != null)) {
+						// in the case of alternative tests, the classification is done based on how many of the total tests predict left or right branch
+						examples0 = examples.applyAllAlternativeTests(m_Test, m_Alternatives, m_OppositeAlternatives, 0);
+						examples1 = examples.applyAllAlternativeTests(m_Test, m_Alternatives, m_OppositeAlternatives, 1);
+					}
+					else {
+						examples0 = examples.apply(m_Test, 0);
+						examples1 = examples.apply(m_Test, 1);
+					}			
 				}			
-				showAlternatives(writer);
+				
 				writeDistributionForInternalNode(writer, info);
 				writer.print(prefix + "+--yes: ");
 				((ClusNode)getChild(YES)).printTree(writer, info, prefix+"|       ",examples0);
@@ -850,7 +875,6 @@ public class ClusNode extends MyNode implements ClusModel {
 				writer.println(prefix+"Summary:");
 				writer.println(examples.getSummary(prefix));
 			}
-
 		}
 	}
 	
@@ -1000,9 +1024,8 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 
 	public final void showAlternatives(PrintWriter writer) {
-		if (m_Alternatives == null) return;
-		for (int i = 0; i < m_Alternatives.length; i++) {
-			writer.print(" and " + m_Alternatives[i]);
+		if (m_AlternativesString != null) {
+			writer.print(m_AlternativesString);	
 		}
 	}
 

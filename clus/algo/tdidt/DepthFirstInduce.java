@@ -89,6 +89,7 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			case Settings.ENSEMBLE_RFOREST:
 				ClusAttrType[] attrsAll = schema.getDescriptiveAttributes();
 				ClusEnsembleInduce.setRandomSubspaces(attrsAll, schema.getSettings().getNbRandomAttrSelected());
+				//ClusEnsembleInduce.setRandomSubspacesProportionalToSparsity(attrsAll, schema.getSettings().getNbRandomAttrSelected());
 				return ClusEnsembleInduce.getRandomSubspaces();
 			case Settings.ENSEMBLE_RSUBSPACES:
 				return ClusEnsembleInduce.getRandomSubspaces();
@@ -109,25 +110,28 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 		boolean removed = false;
 		CurrentBestTestAndHeuristic best = m_FindBestTest.getBestTest();
 		int arity = node.getTest().updateArity();
-		ArrayList v = best.getAlternativeBest(); // alternatives: all tests that result in same heuristic value
-		for (int k = 0; k < v.size(); k++) {
-			NodeTest nt = (NodeTest) v.get(k);
+		ArrayList<NodeTest> alternatives = best.getAlternativeBest(); // alternatives: all tests that result in same heuristic value, in the end this will contain all true alternatives
+		ArrayList<NodeTest> oppositeAlternatives = new ArrayList<NodeTest>(); // this will contain all tests that are alternatives, but where the left and right branches are switched
+		String alternativeString = new String(); // this will contain the string of alternative tests (regular and opposite), sorted according to position
+		for (int k = 0; k < alternatives.size(); k++) {
+			NodeTest nt = (NodeTest) alternatives.get(k);
 			int altarity = nt.updateArity();
 			// remove alternatives that have different arity than besttest
 			if (altarity != arity) {
-				v.remove(k);
+				alternatives.remove(k);
 				k--;
 				System.out.println("Alternative split with different arity: " + nt.getString());
 				removed = true;
 			} 
 			else {
-				// arity altijd 2 hier
-				// exampleindices van subset[0] bijhouden, van alle alternatives zowel van subset[0] als subset[1] kijken of de indices gelijk zijn
+				// we assume the arity is 2 here
+				// exampleindices of one branch are stored
 				int nbsubset0 = subsets[0].getNbRows();
 				int indices[] = new int[nbsubset0];
 				for (int m=0; m<nbsubset0; m++) {
 					indices[m] = subsets[0].getTuple(m).getIndex();
 				}
+				// check for all (=2) alternative branches one of them contains the same indices
 				boolean same = false;
 				for (int l = 0; l < altarity; l++) {
 					RowData altrd = data.applyWeighted(nt, l);
@@ -139,18 +143,24 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 							}
 						}
 						if (nbsame == nbsubset0) { 
+							// same subsets found
 							same = true;
 							if (l!=0) {
-								// we have the same subsets, but the opposite split, hence we change the test to not(test) 
-								String test = v.get(k).toString();
-								String newtest = "not(" + test + ")";
-								v.set(k, new String(newtest));
+								// the same subsets, but the opposite split, hence we add the test to the opposite alternatives 
+								alternativeString = alternativeString + " and not(" + alternatives.get(k).toString() + ")";
+								alternatives.remove(k);
+								k--;
+								oppositeAlternatives.add(nt);							
+							}
+							else {
+								// the same subsets, and the same split
+								alternativeString = alternativeString + " and " + alternatives.get(k).toString();
 							}
 						}
 					}
 				}
 				if (!same) {
-					v.remove(k);
+					alternatives.remove(k);
 					k--;
 					System.out.println("Alternative split with different ex in subsets: " + nt.getString());
 					removed = true;
@@ -158,7 +168,9 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 				
 				}
 			}
-		node.setAlternatives(v);
+		node.setAlternatives(alternatives);
+		node.setOppositeAlternatives(oppositeAlternatives);
+		node.setAlternativesString(alternativeString);
 //		if (removed) System.out.println("Alternative splits were possible");
 	}
 
@@ -214,7 +226,6 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 				node.setClusteringStat(null);
 				node.setTargetStat(null);
 			}
-
 			for (int j = 0; j < arity; j++) {
 				ClusNode child = new ClusNode();
 				node.setChild(child, j);
@@ -227,6 +238,76 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 		}
 	}
 
+/*	public void inducePert(ClusNode node, RowData data) {			
+		//System.out.println("nonsparse inducePert");
+		// Initialize selector and perform various stopping criteria
+		if (initSelectorAndStopCrit(node, data)) {
+			makeLeaf(node);
+			return;
+		}
+		// Find best test
+		
+//		System.out.println("Schema: " + getSchema().toString());
+		
+		ArrayList<Integer> tuplelist = data.getPertTuples();
+		if (tuplelist.size()<2) {
+			makeLeaf(node);
+			return;
+		}
+		// we only check the first two tuples. In case of multi-class classification, this corresponds to two random(?) classes to split.
+		int tuple1index = tuplelist.get(0);
+		DataTuple tuple1 = data.getTuple(tuple1index);
+		int tuple2index = tuplelist.get(1);
+		DataTuple tuple2 = data.getTuple(tuple2index);
+//		System.out.println("tuples chosen: " + tuple1index + " " + tuple1.m_Index + " and " + tuple2index + " " + tuple2.m_Index);
+		ClusAttrType attr = tuple1.findDiscriminatingAttribute(tuple2);
+//		System.out.println("attribute chosen: " + attr.toString());
+		if (attr != null) {
+			m_FindBestTest.findPert(attr, tuple1, tuple2);
+		}
+		else {
+			// no discriminating attribute can be found, should not occur
+			System.out.println("No discriminating attribute found for the two selected tuples. Making leaf...");
+			makeLeaf(node);
+			return;
+		}
+		
+		// Partition data + recursive calls
+		CurrentBestTestAndHeuristic best = m_FindBestTest.getBestTest();
+		if (best.hasBestTest()) {
+//			start_time = System.currentTimeMillis();
+			
+			node.testToNode(best);
+			// Output best test
+			if (Settings.VERBOSE > 0) System.out.println("Test: "+node.getTestString()+" -> "+best.getHeuristicValue());
+			// Create children
+			int arity = node.updateArity();
+			NodeTest test = node.getTest();
+			RowData[] subsets = new RowData[arity];
+			for (int j = 0; j < arity; j++) {
+				subsets[j] = data.applyWeighted(test, j);
+			}
+			if (getSettings().showAlternativeSplits()) {
+				filterAlternativeSplits(node, data, subsets);
+			}
+			if (node != m_Root && getSettings().hasTreeOptimize(Settings.TREE_OPTIMIZE_NO_INODE_STATS)) {
+				// Don't remove statistics of root node; code below depends on them
+				node.setClusteringStat(null);
+				node.setTargetStat(null);
+			}
+			for (int j = 0; j < arity; j++) {
+				ClusNode child = new ClusNode();
+				node.setChild(child, j);
+				child.initClusteringStat(m_StatManager, m_Root.getClusteringStat(), subsets[j]);
+				child.initTargetStat(m_StatManager, m_Root.getTargetStat(), subsets[j]);
+				inducePert(child, subsets[j]);
+			}
+		} else {
+			makeLeaf(node);
+		}
+	}*/
+	
+	
 	public void rankFeatures(ClusNode node, RowData data) throws IOException {
 		// Find best test
 		PrintWriter wrt = new PrintWriter(new OutputStreamWriter(new FileOutputStream("ranking.csv")));
@@ -273,7 +354,13 @@ public class DepthFirstInduce extends ClusInductionAlgorithm {
 			initSelectorAndSplit(m_Root.getClusteringStat());
 			setInitialData(m_Root.getClusteringStat(),data);
 			// Induce the tree
+			data.addIndices();
+			/*if (getSettings().isEnsembleMode() && getSettings().getEnsembleMethod() == getSettings().ENSEMBLE_PERT) {
+				inducePert(m_Root, data);
+			}
+			else {*/
 			induce(m_Root, data);
+			/*}*/
 			// rankFeatures(m_Root, data);
 			// Refinement finished
 			if (Settings.EXACT_TIME == false) break;
