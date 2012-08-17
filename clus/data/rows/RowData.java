@@ -483,7 +483,10 @@ public class RowData extends ClusData implements MSortable, Serializable {
 				counts[(pred+1)%2]++; // 0->1 and 1->0
 			}
 			int finalpred;
-			if (counts[0]>counts[1]) finalpred = 0;
+			int totalcounts = counts[0]+counts[1];
+			//counts[0] = yes branch, counts[1] = no branch
+			if (counts[0] >= 0.25 * totalcounts) finalpred = 0;
+			//if (counts[0]>counts[1]) finalpred = 0;
 			else finalpred = 1;
 			if (finalpred == branch) {
 				al.add(m_Data[i]);
