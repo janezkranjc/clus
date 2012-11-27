@@ -627,7 +627,11 @@ rules/linear terms, used for learning rule ensembles \cite{Aho2009}. If we have 
 	\item {\tt OOBestimate = $y$} : If \texttt{Yes}, out-of-bag estimate of the performance of the ensemble will be done. The default setting is \texttt{No}.
 	\item {\tt FeatureRanking = $y$} : If \texttt{Yes}, feature ranking via random forests will be performed. The default setting is \texttt{No}.
 	\item {\tt EnsembleRandomDepth = $y$} : If \texttt{Yes}, different random depth for each base-level model is selected. Used, e.g., in rule ensembles. The \texttt{MaxDepth} setting from \texttt{[Tree]} section is used as average. The default setting is \texttt{No}.
-	\item {\tt PrintPaths = $y$} : If \texttt{Yes}, for each tree, the path that is followed by each instance in that tree will be printed to a file named {\tt tree\_i.path}.  The default setting is \texttt{No}. Currently, the setting is only implemented for bagging and random forests. See \cite{Vens2011} for details. 
+	\item {\tt PrintPaths = $y$} : If \texttt{Yes}, for each tree, the path that is followed by each instance in that tree will be printed to a file named {\tt tree\_i.path}.  The default setting is \texttt{No}. Currently, the setting is only implemented for bagging and random forests. This setting was used in random forest based feature induction, see \cite{Vens2011} for details, and the following directory for an example:  
+\begin{flushleft}
+\verb^$CLUS_DIR/data/rfbfi/.^
+\end{flushleft}
+
 
 %BagSelection = -1
 	% 'Quasi' parallel implementation for ensembles
@@ -1137,9 +1141,9 @@ Here we only provide a rough guide to the \clus\ code by listing some of the key
 The research involved in development of this software was supported by the Research Foundation Flanders (FWO-Vlaanderen) and the Slovenian Research Agency. We thank all our collaborators who have contributed to the development of \clus{}, and in particular (in inverse alphabetical order) L. Schietgat, I. Slavkov, D. Kocev, V. Gjorgjioski, E. Fromont and T. Aho.
 
 \appendix
-\chapter{Constructing Phylogenetic Trees Using Clus}
+\chapter{Constructing Phylogenetic Trees or Protein Subfamilies Using Clus}
 
-In this appendix, we describe the use of \clusphy{}, a method for phylogenetic tree reconstruction \cite{Vens10:proc}.
+In this appendix, we describe the use of \clusphy{}, a method for phylogenetic tree reconstruction \cite{Vens10:proc}, which can also be used for identifying protein subfamilies \cite{Costa2012}.
 Example files can be found in the following directory:  
 \begin{flushleft}
 \verb^$CLUS_DIR/data/phylo/.^
@@ -1154,13 +1158,13 @@ Moreover, \clusphy{} requires a string attribute, that contains an identifier fo
 Perl scripts for converting PHY and FASTA files into the ARFF file format are available in the {\tt data/phylo/} directory.
 
 \section{Settings File}
-In order to construct phylogenetic trees, the settings file looks like the one shown in Fig.~\ref{phylosettingsreq:fig}. Apart from the settings shown in the figure, there are a number of extra settings, specific for phylogenetic tree reconstruction (see Fig.~\ref{phylosettingsopt:fig}). We discuss them in detail.
+In order to construct phylogenetic trees or protein subfamilies, the settings file looks like the one shown in Fig.~\ref{phylosettingsreq:fig}. The {\tt PruningMethod} parameter defines which one of the two tasks is chosen. Apart from the settings shown in the figure, there are a number of extra settings that can be set (see Fig.~\ref{phylosettingsopt:fig}). We discuss them in detail.
 
 \begin{figure}[tb]
 \hrule\vspace{1em}
 \begin{verbatim}
 [Tree]
-PruningMethod = None    
+PruningMethod = None    	% To construct phylogenetic trees (use value EncodingCost for subfamily identification)
 FTest = 1.0    
 AlternativeSplits = true    % Gives a listing of all equivalent mutations in the nodes 
 Heuristic = GeneticDistance
@@ -1182,7 +1186,7 @@ TrainErrors = No
 PrintModelAndExamples = true
 \end{verbatim}
 \hrule
-\caption{Required settings for learning phylogenetic trees}
+\caption{Required settings for learning phylogenetic trees or protein subfamilies}
 \label{phylosettingsreq:fig}
 \end{figure}
 
@@ -1196,13 +1200,13 @@ DistanceMatrix = mydistancematrix
 DistanceMeasure = JC
 \end{verbatim}
 \hrule
-\caption{Optional settings for learning phylogenetic trees}
+\caption{Optional settings for learning phylogenetic trees or protein subfamilies}
 \label{phylosettingsopt:fig}
 \end{figure}
 
 \begin{itemize}
 \item {\tt Sequence = $o$} : defines which type of sequences is used. Possible values for $o$ are {\tt DNA}, {\tt Protein}, or {\tt Any}. The latter can be used in case a different alphabet than nucleotides or amino acids is used. The default value for $o$ is {\tt DNA}.
-\item {\tt OptimizationCriterion = $o$} : defines which criterion is optimized in the phylogenetic tree heuristic. Possible values for $o$ are {\tt MinTotBranchLength}, for minimizing the total branch length of the tree, and {\tt MaxAvgPWDistance}, for maximizing the average pairwise distance between two subclusters (i.e., as done in the PTDC algorithm \cite{Arslan07:proc}). The default value for $o$ is {\tt MinTotBranchLength}.
+\item {\tt OptimizationCriterion = $o$} : defines which criterion is optimized in the phylogenetic tree heuristic. Possible values for $o$ are {\tt MinTotBranchLength}, for minimizing the total branch length of the tree, and {\tt MaxAvgPWDistance} and {\tt MaxMinPWDistance}, for maximizing the average or minimum pairwise distance between two subclusters (e.g., as done in the PTDC algorithm \cite{Arslan07:proc}). The default value for $o$ is {\tt MinTotBranchLength}.
 \item {\tt DistanceMatrix = $s$} : $s$ is the name of the optional pairwise distance matrix file. This file has to be formatted in the same way as in the Phylip software package \cite{Phylip3.6-08:misc}, i.e., the first line contains the number of sequences, and then for each sequence there is a line starting with its identifier and listing the pairwise distances to all the other sequences. See the example in the file \texttt{mydistancematrix}. The rows in the distance matrix need to have the same ordering as the rows in the ARFF file.
 \item {\tt DistanceMeasure = $o$} : defines which genetic distance is used between pairs of sequences, in the case no distance matrix is given. Possible values for $o$ are {\tt Edit} for edit distance, {\tt PDist} for p-distance, i.e., the same as edit distance, with positions with gaps or missing values discarded, {\tt JC} for Jukes-Cantor distance, {\tt Kimura} for Kimura distance, and {\tt AminoKimura} for Kimura distance between amino acid sequences. See the Phylip documentation \cite{Phylip3.6-08:misc} for details.
 \end{itemize}
