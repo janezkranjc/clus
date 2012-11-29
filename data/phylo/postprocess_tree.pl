@@ -4,7 +4,7 @@
 # four files: .clus-phy_tree (that contains the tree in two formats), .clus-phy_newick
 # (that contains the tree in newick format), .clus-phy_newick_labels (that contains the
 # tree in newick format with the tests in the internal nodels of the tree), and .clusters
-# (that lists the leaf node clusters, one per line, only relevant if a stop criterion is used).
+# (that lists the leaf node clusters, one per line, only relevant if a pruning method is used).
 #
 # USAGE:
 # run "perl postprocess_tree.pl appl"
