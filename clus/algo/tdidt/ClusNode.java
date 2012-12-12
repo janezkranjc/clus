@@ -1004,9 +1004,9 @@ public class ClusNode extends MyNode implements ClusModel {
 		if (arity > 0) {
 			int delta = hasUnknownBranch() ? 1 : 0;
 			if (arity - delta == 2) {
-				writer.println(prefix+"if " +m_Test.getTestString()+":");
+				writer.println(prefix+"IF " +m_Test.getPythonTestString()+":");
 				((ClusNode)getChild(YES)).printTreeToPythonScript(writer, prefix+"\t");
-				writer.println(prefix + "else: ");
+				writer.println(prefix + "ELSE: ");
 				if (hasUnknownBranch()) {
 					//TODO anything to do???
 				} else {
@@ -1017,7 +1017,7 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 		} else {
 			if (m_TargetStat != null) {
-				writer.println(prefix+"return "+m_TargetStat.getArrayOfStatistic());
+				writer.println(prefix+"RETURN "+m_TargetStat.getArrayOfStatistic());
 				System.out.println(m_TargetStat.getClass());
 			}
 		}
