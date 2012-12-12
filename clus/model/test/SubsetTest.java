@@ -81,6 +81,26 @@ public class SubsetTest extends NodeTest {
 		}
 	}
 
+	public String getPythonString() {
+		if (m_Values.length == 1) {
+			return m_Type.getName()+" == '"+m_Type.getValue(m_Values[0]) + "'";
+		} else {
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(m_Type.getName());
+			if (m_Values.length == 0) {
+				buffer.append(" in ?");
+			} else {
+				buffer.append(" in (");
+				for (int i = 0; i < m_Values.length; i++) {
+					if (i != 0) buffer.append(",");
+					buffer.append("'" + m_Type.getValue(m_Values[i]) + "'");
+				}
+				buffer.append(")");
+			}
+			return buffer.toString();
+		}
+	}
+	
 	public boolean hasConstants() {
 		return m_Values.length > 0;
 	}

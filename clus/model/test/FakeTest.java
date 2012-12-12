@@ -65,6 +65,10 @@ public class FakeTest extends NodeTest {
 		return m_Line;
 	}
 
+	public String getPythonString() {
+		return getString();
+	}
+	
 	public int getNbLines() {
 		return m_Lines.size();
 	}
