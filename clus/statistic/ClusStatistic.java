@@ -307,6 +307,11 @@ public abstract class ClusStatistic implements Serializable {
 	public String getPredictWriterString(DataTuple tuple) {
 		return getPredictWriterString();
 	}
+	
+	public String getPredictWriterStringSparse() {
+		System.err.println(getClass().getName() + " does not implement getPredictWriterStringSparse");
+		return getPredictWriterString();
+	}
 
 	public void predictTuple(DataTuple prediction) {
 		System.err.println(getClass().getName()+" does not implement predictTuple()");

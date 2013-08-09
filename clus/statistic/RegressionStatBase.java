@@ -301,6 +301,27 @@ public abstract class RegressionStatBase extends ClusStatistic {
 		}
 		return buf.toString();
 	}
+	
+	public String getPredictWriterStringSparse() {
+		StringBuffer buf = new StringBuffer();
+		buf.append("{");
+		boolean first = true;
+		for (int i = 0; i < m_NbAttrs; i++) {
+			if (m_Means != null) {
+				if(m_Means[i] != 0.0) {
+					if(!first) buf.append(",");
+					buf.append((i+1) + " " + m_Means[i]);
+					first = false;
+				}
+			} else {
+				if(!first) buf.append(",");
+				buf.append((i+1) + " ?");
+				first = false;
+			}
+		}
+		buf.append("}");
+		return buf.toString();
+	}
 
 	public void predictTuple(DataTuple prediction) {
 		for (int i = 0; i < m_NbAttrs; i++) {
