@@ -21,7 +21,7 @@ import clus.statistic.ClassificationStat;
 import clus.statistic.ClusStatistic;
 import clus.statistic.RegressionStat;
 import clus.util.ClusException;
-
+ 
 public class ClusOOBErrorEstimate {
 	
 	static HashMap m_OOBPredictions;
