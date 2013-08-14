@@ -20,50 +20,38 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.kNN;
+package clus.algo.kNN.methods.bfMethod;
 
-import clus.data.type.ClusAttrType;
-import clus.data.type.NumericAttrType;
+import clus.algo.kNN.methods.NNStack; 
+import clus.algo.kNN.methods.SearchAlgorithm;
+import clus.algo.kNN.distance.SearchDistance;
 import clus.data.rows.DataTuple;
-import clus.main.Settings;
+import clus.main.ClusRun;
+import clus.util.ClusException;
+import java.io.IOException;
+import java.util.LinkedList;
 
 /**
- * This class represents the distance between 2 values
- * of a certain Numerical Attribute type.
+ * @author Mitja Pugelj
  */
-public class NumericalBasicDistance extends BasicDistance {
+public class BrutForce extends SearchAlgorithm{
+//	private static final long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	private DataTuple[] m_List;
+	private NNStack m_Stack;
 
-	public NumericalBasicDistance(){
+	public BrutForce(ClusRun run, SearchDistance dist){
+		super(run,dist);
 	}
 
-	/**
-	 * Returns the distance for given tuples for given (Numerical) Attribute
-	 * Require
-	 *		type : must be a NumericAttrType object
+	public void build() throws ClusException, IOException {
+		// does nothing at all
+		m_List = getRun().getDataSet(ClusRun.TRAINSET).m_Data;
+	}
 
-	 */
-	public double getDistance(ClusAttrType type,DataTuple t1,DataTuple t2){
-		NumericAttrType at = (NumericAttrType) type;
-		double x = at.getNumeric(t1); //returns the attribute value for given attribute in tuple t1
-
-		//Check if missing value
-		if (x == Double.NaN){
-			x = at.getStatistic().mean();
-		}
-		double y = at.getNumeric(t2); //same for t2
-		//Check if missing value
-		if (y == Double.NaN){
-			y = at.getStatistic().mean();
-		}
-		//normalize if wanted
-		if (Settings.kNN_normalized.getValue()){
-			NumericStatistic numStat = at.getStatistic();
-			double min = numStat.min();
-			double max = numStat.max();
-			double dif = max - min;
-			x = (x - min)/dif;
-			y = (y - min)/dif;
-		}
-		return Math.abs(x-y);
+	public LinkedList<DataTuple> returnNNs(DataTuple tuple, int k) {
+		m_Stack = new NNStack(k);
+		for (DataTuple d : m_List )
+			m_Stack.addToStack(d, getDistance().calcDistance(tuple, d));
+		return m_Stack.returnStack();
 	}
 }

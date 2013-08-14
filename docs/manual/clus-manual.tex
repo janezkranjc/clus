@@ -620,7 +620,13 @@ rules/linear terms, used for learning rule ensembles \cite{Aho2009}. If we have 
 		\item \texttt{ProbabilityDistribution}: each base-level model casts probability distributions for each target attribute, does not work for regression.
 	\end{itemize}
 	The default value is \texttt{Majority}, Bauer and Kohavi \cite{BauerKohavi1999} recommend \texttt{ProbabilityDistribution}.
-	\item \texttt{SelectRandomSubspaces = $n$} : $n$ defines size of feature subset for random forests, random subspaces and bagging of subspaces. Default setting is 0, which means $\mathrm{floor}(\log_2(\mathrm{number\ of\ descriptive\ attributes} +1))$ as recommended by Breiman \cite{Breiman2001}.
+	\item \texttt{SelectRandomSubspaces = $o$} : $o$ is an element of \{\texttt{log, sqrt, 0, int, double}\} and defines size of feature subset for random forests, random subspaces and bagging of subspaces. 
+	\begin{itemize}
+		\item \texttt{log} or \texttt{0}: the feature subset size is set to $\lceil{\log_2(\mathrm{number\ of\ descriptive\ attributes})}\rceil$ as recommended by Breiman \cite{Breiman2001}. This is the default value.
+		\item \texttt{sqrt}: the feature subset size is set to $\lceil{\sqrt{\mathrm{number\ of\ descriptive\ attributes}}}\rceil$.
+		\item \texttt{int}: an integer number that specifies the feature subset size (the maximum allowed is the $\mathrm{number\ of\ descriptive\ attributes}$).
+		\item \texttt{double}: an double value $dval$ from the range (0,1) that specifies the fraction of the descriptive attributes used as feature sub set (the maximum allowed is 1.0), i.e., the feature subset value is set to $[{dval \cdot (\mathrm{number\ of\ descriptive\ attributes})}]$ .
+	\end{itemize}
 	\item {\tt PrintAllModels = $y$} : If \texttt{Yes}, \clus\ will print all base-level models of an ensemble in the output file. The default setting is \texttt{No}.
 	\item {\tt PrintAllModelFiles = $y$}: If \texttt{Yes}, \clus\ will save all base-level models of an ensemble in the model file. The default setting is \texttt{No}, which prevents from creating very large model files.
 	\item {\tt Optimize = $y$} : If \texttt{Yes}, \clus\ will optimize memory usage during learning. The default setting is \texttt{No}.

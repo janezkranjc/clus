@@ -20,40 +20,33 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.kNN;
+package clus.algo.kNN.distance;
 
+import clus.data.rows.DataTuple; 
 import clus.data.type.ClusAttrType;
-import clus.data.type.NominalAttrType;
-import clus.data.rows.DataTuple;
+import clus.main.Settings;
+import clus.statistic.ClusDistance;
 
 /**
- * This class represents the distance between 2 values
- * of a certain Nominal Attribute type.
+ * @author Mitja Pugelj
  */
-public class NominalBasicDistance extends BasicDistance {
 
-	public NominalBasicDistance(){
-		super();
-	}
-	/**
-	 * Returns the distance for given tuples for given (Nominal) Attribute
-	 * Require
-	 *		type : must be a NominalAttrType object
-	 */
-	public double getDistance(ClusAttrType type,DataTuple t1,DataTuple t2){
-		NominalAttrType at = (NominalAttrType) type;
-		int x = at.getNominal(t1); //returns the attribute value for given attribute in tuple t1
-		//Check if missing value
-		if (x == at.getNbValues()){
-			x = at.getStatistic().mean();
-		}
-		int y = at.getNominal(t2); //same for t2
-		//Check if missing value
-		if (y == at.getNbValues()){
-			y = at.getStatistic().mean();
-		}
-		if (x!=y) return 1;
-		else return 0;
+public class ManhattanDistance extends ClusDistance{
+	private static final long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	private SearchDistance m_Search;
+
+	public ManhattanDistance(SearchDistance search){
+		m_Search = search;
 	}
 
+	public double calcDistance(DataTuple t1, DataTuple t2) {
+		double dist = 0;
+		for( ClusAttrType attr : t1.getSchema().getAllAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE) )
+			dist += m_Search.calcDistanceOnAttr(t1,t2,attr);
+		return dist;
+	}
+
+	public String getName() {
+		return "Manhattan distance";
+	}
 }

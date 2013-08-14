@@ -1,5 +1,5 @@
 /*************************************************************************
- * Clus - Software for Predictive Clustering                             *
+ * Clus - Software for Predictive Clustering                             * 
  * Copyright (C) 2007                                                    *
  *    Katholieke Universiteit Leuven, Leuven, Belgium                    *
  *    Jozef Stefan Institute, Ljubljana, Slovenia                        *
@@ -20,12 +20,33 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.kNN;
+package clus.algo.kNN.distance;
+
+import clus.data.rows.DataTuple;
+import clus.data.type.ClusAttrType;
+import clus.main.Settings;
+import clus.statistic.ClusDistance;
 
 /**
- * This class represents an object containing useful statistics for
- * an attribute of certain data.
- * (kind and amaunt of statistics depend on attributetype)
+ * @author Mitja Pugelj
  */
-public abstract class AttributeStatistic {
+public class ChebyshevDistance extends ClusDistance{
+	private static final long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	private SearchDistance m_Search;
+
+	public ChebyshevDistance(SearchDistance search){
+		m_Search = search;
+	}
+
+	public double calcDistance(DataTuple t1, DataTuple t2) {
+		double dist = 0;
+		for( ClusAttrType attr : t1.getSchema().getAllAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE))
+			dist = Math.max(dist, m_Search.calcDistanceOnAttr(t1, t2, attr));
+		return dist;
+	}
+
+	public String getName() {
+		return "Chebyshev distance";
+	}
+
 }

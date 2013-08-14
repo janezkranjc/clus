@@ -1,5 +1,5 @@
 /*************************************************************************
- * Clus - Software for Predictive Clustering                             *
+ * Clus - Software for Predictive Clustering                             * 
  * Copyright (C) 2007                                                    *
  *    Katholieke Universiteit Leuven, Leuven, Belgium                    *
  *    Jozef Stefan Institute, Ljubljana, Slovenia                        *
@@ -20,50 +20,42 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.kNN;
 
-import clus.data.type.ClusAttrType;
+package clus.algo.kNN.distance.distanceWeighting;
+
+import clus.algo.kNN.methods.SearchAlgorithm;
 import clus.data.rows.DataTuple;
+import java.util.LinkedList;
 
 /**
- * This class represents distances between DataTuples
+ *
+ * @author Mitja Pugelj
  */
+public abstract class DistanceWeighting {
 
-public abstract class VectorDistance {
+    /** Nearest k tuples found */
+    protected LinkedList<DataTuple> nearest;
+    /** Search algorithm used; contains distance used */
+    protected SearchAlgorithm search;
+    /** Tuple to be classified */
+    protected DataTuple tuple;
+    
+    /**
+     * Inicialize new distance weigthing schem for set of tuples, selected algorithm and interested tuple.
+     * @param nearest k nearest tuples to tuple
+     * @param search algorithm used
+     * @param tuple for which nearest tuples are found
+     */
+    public DistanceWeighting(LinkedList<DataTuple> nearest, SearchAlgorithm search, DataTuple tuple){
+        this.nearest = nearest;
+        this.search = search;
+        this.tuple = tuple;
+    }
 
-	private ClusAttrType[] $attrs;
-	private double[] $weights;
-
-	public VectorDistance(ClusAttrType[] attrs,double[] weights){
-		setAttribs(attrs);
-		$weights = weights;
-	}
-
-
-
-	public int amountAttribs(){
-		return $attrs.length;
-	}
-	public void setAttribs(ClusAttrType[] attrs){
-		$attrs = attrs;
-	}
-	/**
-	 * Returns index'th attribute.
-	 * Require index :  0 <= index < amountAttribs()
-	 */
-
-	public ClusAttrType getAttrib(int idx){
-		return $attrs[idx];
-	}
-
-	public double getWeight(int idx){
-		return $weights[idx];
-	}
-
-	/**
-	 * Returns the distance between the 2 given tuples
-	 */
-	public abstract double getDistance(DataTuple a,DataTuple b);
-
-	public abstract String toString();
+    /**
+     * Return distance weight for tuple el.
+     * @param el
+     * @return weight
+     */
+    public abstract double weight(DataTuple el);
 }

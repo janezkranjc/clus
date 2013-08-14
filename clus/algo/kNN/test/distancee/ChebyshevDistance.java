@@ -20,41 +20,33 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.kNN;
+package clus.algo.kNN.test.distancee;
+
+import clus.data.rows.DataTuple;
+import clus.data.type.ClusAttrType;
+import clus.data.type.NominalAttrType;
+import clus.data.type.NumericAttrType;
 
 /**
- * This class stores some useful statistics for a Numeric Attribute
- * of certain data.
+ * @author Mitja Pugelj
  */
-public class NumericStatistic extends AttributeStatistic{
+public class ChebyshevDistance extends SearchDistance{
 
-	private double $mean,$variance,$min,$max;
-
-	public NumericStatistic(){
+	public double calcDistance(DataTuple t1, DataTuple t2) {
+		double dist = 0;
+		for( ClusAttrType attr : t1.getSchema().getAllAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE))
+			dist = Math.max(dist, this.calcDistanceOnAttr(t1, t2, attr));
+		return dist;
 	}
 
-	public double mean(){
-		return $mean;
+	public double calcDistanceOnAttr(DataTuple t1, DataTuple t2, ClusAttrType attr) {
+		if( attr instanceof NumericAttrType ){
+			return Math.abs(attr.getNumeric(t2)- attr.getNumeric(t1));
+		}else if( attr instanceof NominalAttrType ){
+			return attr.getNominal(t2) == attr.getNominal(t1) ? 0 : 1;
+		}else{
+			throw new IllegalArgumentException(this.getClass().getName() + "calcDistanceOnAttr() - Distance is not supported!");
+		}
 	}
-	public void setMean(double m){
-		$mean = m;
-	}
-	public double variance(){
-		return $variance;
-	}
-	public void setVariance(double v){
-		$variance = v;
-	}
-	public double min(){
-		return $min;
-	}
-	public void setMin(double m){
-		$min = m;
-	}
-	public double max(){
-		return $max;
-	}
-	public void setMax(double m){
-		$max = m;
-	}
+
 }

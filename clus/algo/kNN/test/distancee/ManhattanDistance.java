@@ -20,23 +20,34 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.kNN;
+package clus.algo.kNN.test.distancee;
 
-import clus.data.type.ClusAttrType;
 import clus.data.rows.DataTuple;
+import clus.data.type.ClusAttrType;
+import clus.data.type.NominalAttrType;
+import clus.data.type.NumericAttrType;
 
 /**
- * This class represents the distance between values
- * of a certain attribute type.
+ * @author Mitja Pugelj
  */
 
-public abstract class BasicDistance {
 
-	public BasicDistance(){
+public class ManhattanDistance extends SearchDistance{
+
+	public double calcDistance(DataTuple t1, DataTuple t2) {
+		double dist = 0;
+		for( ClusAttrType attr : t1.getSchema().getAllAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE) )
+			dist += calcDistanceOnAttr(t1,t2,attr);
+		return dist;
 	}
 
-	/**
-	 * Returns the distance for given tuples for given Attribute
-	 */
-	public abstract double getDistance(ClusAttrType type,DataTuple t1,DataTuple t2);
+	public double calcDistanceOnAttr(DataTuple t1, DataTuple t2, ClusAttrType attr) {
+		if( attr instanceof NumericAttrType ){
+			return Math.abs(attr.getNumeric(t2)- attr.getNumeric(t1));
+		}else if( attr instanceof NominalAttrType ){
+			return attr.getNominal(t2) == attr.getNominal(t1) ? 0 : 1;
+		}else{
+			throw new IllegalArgumentException(this.getClass().getName() + "calcDistanceOnAttr() - Distance is not supported!");
+		}
+	}
 }

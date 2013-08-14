@@ -20,40 +20,31 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.kNN;
+package clus.algo.kNN.test.distancee;
 
 import clus.data.rows.DataTuple;
 import clus.data.type.ClusAttrType;
+import clus.data.type.NominalAttrType;
+import clus.data.type.NumericAttrType;
 
 /**
- * This class represents Manhattan distances between DataTuples.
+ * @author Mitja Pugelj
  */
 
-public class ManhattanDistance extends VectorDistance {
 
-	public ManhattanDistance(ClusAttrType[] attrs,double[] weights){
-		super(attrs,weights);
-	}
+public abstract class SearchDistance {
 
-	/**
-	 * Returns the (Manhattan) distance between the 2 given tuples
-	 */
-	public double getDistance(DataTuple t1,DataTuple t2){
-		double dist = 0;
-		double curDist;
+	public abstract double calcDistance(DataTuple t1, DataTuple t2);
+	public abstract double calcDistanceOnAttr(DataTuple t1, DataTuple t2, ClusAttrType attr);
 
-		for (int i = 0; i < amountAttribs();i++){
-			//calculate distance for current attribute
-			curDist = getAttrib(i).getBasicDistance(t1,t2);
-			//add to total
-			//if(){
-				dist += getWeight(i) * curDist;
-			//}
-			//dist += curDist;
+	public double getValue(DataTuple t1, ClusAttrType attr) {
+		if( attr instanceof NumericAttrType )
+			return attr.getNumeric(t1);
+		else if( attr instanceof NominalAttrType )
+			return attr.getNominal(t1);
+		else{
+			System.out.println(attr);
+			throw new IllegalArgumentException("Attribute type is not supported.");
 		}
-		return dist;
-	}
-	public String toString(){
-		return "Manhattan";
 	}
 }

@@ -20,40 +20,57 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.kNN;
+package clus.algo.kNN.test.distancee;
 
 import clus.data.rows.DataTuple;
 import clus.data.type.ClusAttrType;
+import clus.data.type.NominalAttrType;
+import clus.data.type.NumericAttrType;
+
+// todo: implement distance for ordinary attributes
 
 /**
- * This class represents Euclidian distances between DataTuples.
+ * @author Mitja Pugelj
  */
 
-public class EuclidianDistance extends VectorDistance {
+/**
+ * EuclideanDistance works on all type of attributes.
+ * For real attributes distance is defined as normal euclidean distance in normalized space.
+ * For nominal attributes it is 1 if they are different and 0 otherwise.
+ * Ordinary attributes are not yet implemented.
+ */
+public class EuclideanDistanceFaster extends SearchDistance{
 
-	public EuclidianDistance(ClusAttrType[] attrs,double[] weights){
-		super(attrs,weights);
+	/**
+	 * Return square of euclidean distance.
+	 * @param t1
+	 * @param t2
+	 * @return
+	 */
+	public double calcDistance(DataTuple t1, DataTuple t2) {
+		// @todo: use this Euclidean distance only where all attributes are numerical
+		return t1.euclDistance(t2);
+		// double dist = 0;
+		// for( ClusAttrType attr : t1.getSchema().getAllAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE))
+		// dist += Math.pow(this.calcDistanceOnAttr(t1, t2, attr),2);
+		// return dist;
 	}
 
 	/**
-	 * Returns the (Euclidian) distance between the 2 given tuples
+	 * Returns square of distance between two tuples along dimension attr.
+	 * @param t1
+	 * @param t2
+	 * @param attr
+	 * @return
 	 */
-	public double getDistance(DataTuple t1,DataTuple t2){
-		double dist = 0;
-		double curDist;
-		for (int i = 0; i < amountAttribs();i++){
-			//calculate distance for current attribute
-			curDist = getAttrib(i).getBasicDistance(t1,t2);
-			//add to total
-			//if(){
-				dist += getWeight(i) * Math.pow(curDist,2);
-			//}
-			//dist += Math.pow(curDist,2);
-		}
-		return Math.sqrt(dist);
-	}
-
-	public String toString(){
-		return "Euclidian";
+	public double calcDistanceOnAttr(DataTuple t1, DataTuple t2, ClusAttrType attr){
+		if( attr instanceof NumericAttrType ){
+			return attr.getNumeric(t2)- attr.getNumeric(t1);
+		}else
+			if( attr instanceof NominalAttrType ){
+				return attr.getNominal(t2) == attr.getNominal(t1) ? 0 : 1;
+			}else{
+				throw new IllegalArgumentException(this.getClass().getName() + "calcDistanceOnAttr() - Distance is not supported!");
+			}
 	}
 }

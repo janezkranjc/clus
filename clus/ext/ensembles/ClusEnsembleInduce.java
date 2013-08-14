@@ -715,4 +715,8 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	public static boolean isOptimized(){
 		return m_OptMode;
 	}
+	
+	public ClusEnsembleFeatureRanking getEnsembleFeatureRanking(){
+		return m_FeatureRanking;
+	}
 }

@@ -1,5 +1,5 @@
 /*************************************************************************
- * Clus - Software for Predictive Clustering                             *
+ * Clus - Software for Predictive Clustering                             *   
  * Copyright (C) 2007                                                    *
  *    Katholieke Universiteit Leuven, Leuven, Belgium                    *
  *    Jozef Stefan Institute, Ljubljana, Slovenia                        *
@@ -20,24 +20,47 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.algo.kNN;
+package clus.algo.kNN.distance;
+
+import clus.data.rows.DataTuple; 
+import clus.data.type.ClusAttrType;
+import clus.main.Settings;
+import clus.statistic.ClusDistance;
+
+// todo: implement distance for ordinary attributes
 
 /**
- * This class stores some useful statistics for a Nominal Attribute
- * of certain data.
+ * @author Mitja Pugelj
  */
-public class NominalStatistic extends AttributeStatistic{
 
-	private int $mean;
+/**
+ * EuclideanDistance works on all type of attributes.
+ * It takes sqrt of sum over all differences in attributes values. It depends on
+ * difference defined in SearchDistance.calcDistanceOnAttr().
+ */
+public class EuclideanDistance extends ClusDistance{
+	private static final long serialVersionUID = Settings.SERIAL_VERSION_ID;
+    private SearchDistance m_Search;
 
-	public NominalStatistic(){
-	}
+    public EuclideanDistance(SearchDistance search){
+    	m_Search = search;
+    }
 
-	public int mean(){
-		return $mean;
-	}
-	public void setMean(int m){
-		$mean = m;
-	}
+    /**
+     * Returns the Euclidean distance between given tuples.
+     * @param t1
+     * @param t2
+     * @return
+     */
+    public double calcDistance(DataTuple t1, DataTuple t2) {
+        double dist = 0;
+        for( ClusAttrType attr : t1.getSchema().getAllAttrUse(ClusAttrType.ATTR_USE_DESCRIPTIVE))
+            dist += Math.pow(m_Search.calcDistanceOnAttr(t1, t2, attr),2);
+        return Math.sqrt(dist);
+    }
+
+    public String getName() {
+        return "Euclidean distance";
+    }
 
 }
