@@ -71,10 +71,6 @@ public class SoftNumericTest extends SoftTest {
 		return buff.toString();
 	}
 
-	public String getPythonString() {
-		return getString();
-	}
-	
 	public int foldSetIntersects2(DataTuple data, int[] folds) {
 		int[] dfolds = data.m_Folds;
 		for (int i = 0; i < folds.length; i++) {

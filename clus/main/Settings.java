@@ -698,19 +698,6 @@ public class Settings implements Serializable {
 	// end block added by Eduardo
 	
 	
-	// Added by Eduardo Costa - 27/09/2011
-	
-	public final static String[] ENTROPY_TYPE = { "StandardEntropy", "ModifiedEntropy"};
-	public final static int STANDARD_ENTROPY = 0;
-	public final static int MODIFIED_ENTROPY = 1;
-		
-	protected INIFileNominal m_EntropyType;
-	
-	protected INIFileBool m_ConsiderUnlableInstancesInIGCalc;
-	
-	// end block added by Eduardo
-	
-	
 	protected INIFileSection m_SectionTree;
 	protected INIFileNominal m_Heuristic;
 	protected INIFileInt m_TreeMaxDepth;
@@ -758,26 +745,6 @@ public class Settings implements Serializable {
 	}
 	// end block added by Eduardo
 	
-	
-	
-	// added by Eduardo - 27/09/2011
-	public int getEntropyType() {
-		return m_EntropyType.getValue();
-	}
-
-	public void setEntropyType(int value) {
-		m_EntropyType.setSingleValue(value);
-	}
-
-	public boolean checkEntropyType(String value) {
-		return m_EntropyType.getStringSingle().equals(value);
-	}
-	
-	public boolean considerUnlableInstancesInIGCalc() {
-		return m_ConsiderUnlableInstancesInIGCalc.getValue();
-	}
-	
-	// end block added by Eduardo
 	
 	
 	
@@ -905,7 +872,7 @@ public class Settings implements Serializable {
 
 	public final static String[] PRUNING_METHODS = { "Default", "None", "C4.5",
 		"M5", "M5Multi", "ReducedErrorVSB", "Garofalakis", "GarofalakisVSB",
-		"CartVSB", "CartMaxSize", "EncodingCost", "CategoryUtility" };
+		"CartVSB", "CartMaxSize", "EncodingCost" };
 
 	public final static int PRUNING_METHOD_DEFAULT = 0;
 	public final static int PRUNING_METHOD_NONE = 1;
@@ -918,8 +885,7 @@ public class Settings implements Serializable {
 	public final static int PRUNING_METHOD_CART_VSB = 8;
 	public final static int PRUNING_METHOD_CART_MAXSIZE = 9;
 	public final static int PRUNING_METHOD_ENCODING_COST = 10;
-	public final static int PRUNING_METHOD_CATEGORY_UTILITY = 11;
-	
+
 /***********************************************************************
  * Section: Rules                                                      *
  ***********************************************************************/
@@ -1994,11 +1960,9 @@ public class Settings implements Serializable {
 	public static INIFileNominal m_ClassificationVoteType;
 	/** Size of the feature set used during tree induction. Used for random forests, random 
 	 * subspaces and bagging of subspaces. If left to default 0, floor(log_2 #DescAttr) + 1 is used.*/
-	protected INIFileString m_RandomAttrSelected;
-	protected int m_SubsetSize;
+	protected INIFileInt m_RandomAttrSelected;
 	public static INIFileBool m_PrintAllModels;
 	public static INIFileBool m_PrintAllModelFiles;
-	public static INIFileBool m_PrintPaths;
 	public static boolean m_EnsembleMode = false;
 	/** Time & memory optimization */
 	public static INIFileBool m_EnsembleShouldOpt;
@@ -2064,69 +2028,23 @@ public class Settings implements Serializable {
 	}
 
 	public int getNbRandomAttrSelected() {
-		return m_SubsetSize;
-	}
-
-	public String getNbRandomAttrString() {
 		return m_RandomAttrSelected.getValue();
 	}
-	
+
 	public INIFileNominalOrIntOrVector getBagSelection() {
 		return m_BagSelection;
 	}
 
 	public void updateNbRandomAttrSelected(ClusSchema schema){
-		int fsize = -1;
-		String value = getNbRandomAttrString();
-		if (value.contains("-")){
-			System.err.println("The number of subspaces can't be negative.");
-			System.err.println("\t Setting this value to default (log2).");
-			value = "0";
-		}
-		
-		if (value.equalsIgnoreCase("SQRT")){
-			fsize = (int) Math.ceil(Math.sqrt(schema.getNbDescriptiveAttributes()));//upper bound of sqrt
-		} else if (value.equalsIgnoreCase("LOG") || value.equalsIgnoreCase("0")){// the 0 is to keep the previous setting
-			fsize = (int) Math.ceil(Math.log(schema.getNbDescriptiveAttributes())/Math.log(2));//upper bound of log2
-		} else {
-			try {
-				int val = Integer.parseInt(value);
-				if (val > schema.getNbDescriptiveAttributes()){
-					System.err.println("The size of the subset can't be larger than the number of descriptive attributes.");
-					System.err.println("\t Setting this value to the number of attributes, i.e., to bagging.");
-					val = schema.getNbDescriptiveAttributes();
-				}
-				fsize = val;
-			}catch (NumberFormatException e) {//not an integer
-				try{
-				double val = Double.parseDouble(value);
-				if (val > 1.0){
-					System.err.println("The fraction of the features used can't be larger than 1.");
-					System.err.println("\t Setting this value to 1, i.e., to bagging.");
-					val = 1.0;
-				}
-				fsize = (int) Math.round(val*schema.getNbDescriptiveAttributes()); //upper bound on the fraction number;
-				}catch (Exception e2) {
-					System.err.println("Error while setting the feature subset size!");
-					System.err.println("The set of possible values include:");
-					System.err.println("\t 0 or log for taking the log2,");
-					System.err.println("\t sqrt for taking the sqrt,");
-					System.err.println("\t integer for taking the absolute number of attributes,");
-					System.err.println("\t double (0,1) for taking the fraction values.");
-					System.exit(-1);
-				}
-			}
-		}
-		
-//		if (getNbRandomAttrSelected() == 0)
-//			fsize = (int) (Math.log(schema.getNbDescriptiveAttributes())/Math.log(2) + 1);
-//		else fsize = getNbRandomAttrSelected();
+		int fsize;
+		if (getNbRandomAttrSelected() == 0)
+			fsize = (int) (Math.log(schema.getNbDescriptiveAttributes())/Math.log(2) + 1);
+		else fsize = getNbRandomAttrSelected();
 		setNbRandomAttrSelected(fsize);
 	}
 
 	public void setNbRandomAttrSelected(int value) {
-		m_SubsetSize = value;
-		m_RandomAttrSelected.setValue(value+"");
+		m_RandomAttrSelected.setValue(value);
 	}
 
 	public void setBagSelection(int value) {
@@ -2139,10 +2057,6 @@ public class Settings implements Serializable {
 	
 	public static boolean isPrintEnsembleModelFiles( ){
 		return m_PrintAllModelFiles.getValue();
-	}
-	
-	public boolean isPrintEnsemblePaths( ){
-		return m_PrintPaths.getValue();
 	}
 
 	public static boolean shouldOptimizeEnsemble( ){
@@ -2191,103 +2105,16 @@ public class Settings implements Serializable {
  ***********************************************************************/
 
 	INIFileSection m_SectionKNN;
-	public static INIFileString kNN_k;
-    public static INIFileString kNN_distance;
-    public static INIFileString kNN_method;
-    public static INIFileString kNN_distanceWeight;
-    public static INIFileString kNN_attrWeight;
+	public static INIFileInt kNN_k;
+	public static INIFileString kNN_vectDist;
+	public static INIFileBool kNN_distWeighted;
+	public static INIFileBool kNN_normalized;
+	public static INIFileBool kNN_attrWeighted;
 
-    public void setSectionKNNEnabled(boolean enable) {
+	public void setSectionKNNEnabled(boolean enable) {
 		m_SectionKNN.setEnabled(enable);
 	}
 
-    public boolean isKNN(){
-    	return m_SectionKNN.isEnabled();
-    }
-    
-    public String getKnnMethod(){
-        return this.kNN_method.getStringValue();
-    }
-	
-//	INIFileSection m_SectionKNN;
-//	public final static String[] kNN_METHODS = {"VP-tree", "KD-tree", "BrutForce"};
-//	public final static int kNN_VP = 0;
-//	public final static int kNN_KD = 1;
-//	public final static int kNN_BF = 2;
-//	
-//	public final static String[] kNN_DISTANCES = {"Euclidean", "Manhattan", "Chebyshev"};
-//	public final static int kNN_EUCLIDEAN = 0;
-//	public final static int kNN_MANHATTAN = 1;
-//	public final static int kNN_CHEBYSHEV = 2;
-//	
-//	public final static String[] kNN_DIST_WEIGHTS = {"None", "1/d", "1-d"};
-//	public final static int kNN_DIST_WEIGHT_NONE = 0;
-//	public final static int kNN_DIST_WEIGHT_INVERSE = 1;
-//	public final static int kNN_DIST_WEIGHT_SUBSTRACT = 2;
-//	
-//	public static INIFileString m_kNN_k;
-//	public static INIFileNominal m_kNNdistance;
-//	public static INIFileNominal m_kNNmethod;
-//	public static INIFileNominal m_kNNdistanceWeight;
-//	public static INIFileString m_kNNattrWeight;
-//	
-//	public void setSectionKNNEnabled(boolean enable) {
-//		m_SectionKNN.setEnabled(enable);
-//	}
-//	
-//	public void setKNNNbNeighbors(String value){
-//		m_kNN_k.setValue(value);
-//	}
-//	
-//   public String getKnnNbNeighbors(){
-//		return m_kNN_k.getStringValue();
-//  }
-//    
-//	
-//	public void setKNNMethod(String value){
-//		m_kNNmethod.setValue(value);
-//	}
-//	
-//    public int getKnnMethod(){
-//		return m_kNNmethod.getValue();
-//    }
-//    
-//    public String getKnnMethodName(){
-//		return m_kNNmethod.getStringValue();
-//    }
-//    
-//    public boolean isKNN(){
-//    	return m_SectionKNN.isEnabled();
-//    }
-//    
-//    public void setkNNDistance(String value){
-//    	m_kNNdistance.setValue(value);
-//    }
-//    
-//    public int getkNNDistance(){
-//    	return m_kNNdistance.getValue();
-//    }
-//    
-//    public void setkNNDistanceWeighting(String value){
-//    	m_kNNdistanceWeight.setValue(value);
-//    }
-//    
-//    public String getkNNDistanceName(){
-//    	return m_kNNdistance.getStringValue();
-//    }
-//    
-//    public int getkNNDistanceWeighting(){
-//    	return m_kNNdistanceWeight.getValue();
-//    }
-//
-//    public void setkNNAttributeWeighting(String value){
-//    	m_kNNattrWeight.setValue(value);
-//    }
-//    
-//    public String getkNNAttributeWeighting(){
-//    	return m_kNNattrWeight.getValue();
-//    }
-    
 /***********************************************************************
  * Section: KNN Trees                                                  *
  ***********************************************************************/
@@ -2298,8 +2125,7 @@ public class Settings implements Serializable {
 	public static INIFileBool kNNT_distWeighted;
 	public static INIFileBool kNNT_normalized;
 	public static INIFileBool kNNT_attrWeighted;
-	
-	
+
 	public void setSectionKNNTEnabled(boolean enable) {
 		m_SectionKNNT.setEnabled(enable);
 	}
@@ -2412,11 +2238,6 @@ public class Settings implements Serializable {
 		// added by Eduardo Costa 06/06/2011
 		m_SectionTree.addNode(m_InductionOrder = new INIFileNominal("InductionOrder", INDUCTION_ORDER, 0));
 		
-		// added by Eduardo Costa 29/09/2011
-		m_SectionTree.addNode(m_EntropyType = new INIFileNominal("EntropyType", ENTROPY_TYPE, 0));
-		m_SectionTree.addNode(m_ConsiderUnlableInstancesInIGCalc = new INIFileBool("ConsiderUnlableInstancesInIGCalc", false));		
-		
-		 
 		
 		
 		
@@ -2552,10 +2373,9 @@ public class Settings implements Serializable {
 		m_SectionEnsembles.addNode(m_NbBags = new INIFileNominalOrIntOrVector("Iterations", NONELIST));
 		m_SectionEnsembles.addNode(m_EnsembleMethod =new INIFileNominal("EnsembleMethod", ENSEMBLE_TYPE,0));
 		m_SectionEnsembles.addNode(m_ClassificationVoteType =new INIFileNominal("VotingType", VOTING_TYPE,0));
-		m_SectionEnsembles.addNode(m_RandomAttrSelected = new INIFileString("SelectRandomSubspaces", "0"));
+		m_SectionEnsembles.addNode(m_RandomAttrSelected = new INIFileInt("SelectRandomSubspaces", 0));
 		m_SectionEnsembles.addNode(m_PrintAllModels = new INIFileBool("PrintAllModels", false));
 		m_SectionEnsembles.addNode(m_PrintAllModelFiles = new INIFileBool("PrintAllModelFiles", false));
-		m_SectionEnsembles.addNode(m_PrintPaths = new INIFileBool("PrintPaths", false));
 		m_SectionEnsembles.addNode(m_EnsembleShouldOpt = new INIFileBool("Optimize", false));
 		m_SectionEnsembles.addNode(m_EnsembleOOBestimate = new INIFileBool("OOBestimate", false));
 		m_SectionEnsembles.addNode(m_FeatureRanking = new INIFileBool("FeatureRanking", false));
@@ -2567,28 +2387,13 @@ public class Settings implements Serializable {
 		m_EnsembleBagSize.setValueCheck(new IntRangeCheck(0, Integer.MAX_VALUE));
 		m_SectionEnsembles.setEnabled(false);
 
-//		m_SectionKNN = new INIFileSection("kNN");
-//		m_SectionKNN.addNode(kNN_k = new INIFileInt("k", 3));
-//		m_SectionKNN.addNode(kNN_vectDist = new INIFileString("VectorDistance", "Euclidian"));
-//		m_SectionKNN.addNode(kNN_distWeighted = new INIFileBool("DistanceWeighted", false));
-//		m_SectionKNN.addNode(kNN_normalized = new INIFileBool("Normalizing", true));
-//		m_SectionKNN.addNode(kNN_attrWeighted = new INIFileBool("AttributeWeighted", false));
-//		m_SectionKNN.setEnabled(false);
-
 		m_SectionKNN = new INIFileSection("kNN");
-		m_SectionKNN.addNode(kNN_k = new INIFileString("k", "1,3"));
-		m_SectionKNN.addNode(kNN_method = new INIFileString("method","kd-tree"));
-		m_SectionKNN.addNode(kNN_distance = new INIFileString("distance","euclidean"));
-		m_SectionKNN.addNode(kNN_distanceWeight = new INIFileString("distanceWeighting","none"));
-		m_SectionKNN.addNode(kNN_attrWeight = new INIFileString("attributeWeighting","none"));
+		m_SectionKNN.addNode(kNN_k = new INIFileInt("k", 3));
+		m_SectionKNN.addNode(kNN_vectDist = new INIFileString("VectorDistance", "Euclidian"));
+		m_SectionKNN.addNode(kNN_distWeighted = new INIFileBool("DistanceWeighted", false));
+		m_SectionKNN.addNode(kNN_normalized = new INIFileBool("Normalizing", true));
+		m_SectionKNN.addNode(kNN_attrWeighted = new INIFileBool("AttributeWeighted", false));
 		m_SectionKNN.setEnabled(false);
-		
-//		m_SectionKNN = new INIFileSection("kNN");
-//		m_SectionKNN.addNode(m_kNN_k = new INIFileString("k", "1,3"));
-//		m_SectionKNN.addNode(m_kNNmethod = new INIFileNominal("SearchMethod", kNN_METHODS, 0));
-//		m_SectionKNN.addNode(m_kNNdistance = new INIFileNominal("Distance", kNN_DISTANCES, 0));
-//		m_SectionKNN.addNode(m_kNNdistanceWeight = new INIFileNominal("DistanceWeighting", kNN_DIST_WEIGHTS, 0));
-//		m_SectionKNN.addNode(m_kNNattrWeight = new INIFileString("attributeWeighting","none"));
 
 		m_SectionKNNT = new INIFileSection("kNNTree");
 		m_SectionKNNT.addNode(kNNT_k = new INIFileInt("k", 3));
@@ -2597,7 +2402,7 @@ public class Settings implements Serializable {
 		m_SectionKNNT.addNode(kNNT_normalized = new INIFileBool("Normalizing", true));
 		m_SectionKNNT.addNode(kNNT_attrWeighted = new INIFileBool("AttributeWeighted", false));
 		m_SectionKNNT.setEnabled(false);
-		
+
 		INIFileSection exper = new INIFileSection("Experimental");
 		exper.addNode(m_SetsData = new INIFileInt("NumberBags", 25));
 		exper.addNode(m_ShowForest = new INIFileBool("XValForest", false));

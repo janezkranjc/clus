@@ -79,10 +79,6 @@ public class NumericTest extends NodeTest {
 		return m_Type.getName() + " > " + value;
 	}
 
-	public String getPythonString() {
-		return getString();
-	}
-		
 	public boolean hasConstants() {
 		return m_Bound != Double.NEGATIVE_INFINITY;
 	}

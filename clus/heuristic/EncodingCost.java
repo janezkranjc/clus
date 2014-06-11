@@ -1,6 +1,5 @@
 package clus.heuristic;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import clus.algo.tdidt.ClusNode;
@@ -11,13 +10,13 @@ import clus.data.type.ClusAttrType;
 import org.apache.commons.math.special.Gamma;
 
 
+
 public class EncodingCost {
 
 	protected ArrayList<RowData> data;
 	protected ArrayList<Integer> m_ClusterIds;
 	protected ArrayList<ClusNode> nodes;
 	protected ClusAttrType[] attributes;
-	protected int m_nbSequences;
 	
 	//Blocks9 model
 	protected double[] m_MixtureValues = {0.178091, 0.056591, 0.0960191, 0.0781233, 0.0834977, 0.0904123, 0.114468, 0.0682132, 0.234585}; 
@@ -162,15 +161,13 @@ public class EncodingCost {
 			// remember that the first index (0 - zero) contains the sum of the vector
 			m_ZAlpha[k] = functionZ(m_AlphaValues[k],1,20);
 		}
+		
 		calculateLogGammaAlphaValues();
-	}
-	
-	public void setNbSequences(int nbSeq){
-		m_nbSequences = nbSeq;
+		
+		
 	}
 	
 	public void initializeLogPMatrix(int nbnodes) {
-		System.out.print("Initializing matrix with "+nbnodes+" lines and "+attributes.length+" columns\n");
 		m_LogPMatrix = new double[nbnodes][attributes.length];
 	}
 	
@@ -196,19 +193,6 @@ public class EncodingCost {
 		m_ClusterIds = clusterIds;
 	}
 	
-	public void setNodeClusters(ArrayList<ClusNode> listNodes,ArrayList<RowData> clusters) {
-		data = clusters;
-		nodes = listNodes;
-	}
-	
-	public void generateAndSetClusterIDs(ArrayList<ClusNode> listNodes) {
-		ArrayList<Integer> clusterIds = new ArrayList<Integer>();
-		for(int i=0;i<listNodes.size();i++){
-			clusterIds.add(new Integer(listNodes.get(i).getID()-1));
-			m_ClusterIds = clusterIds;
-		}
-	}
-	
 	public void setAttributes(ClusAttrType[] attrs) {
 		attributes = attrs;
 	}
@@ -219,7 +203,9 @@ public class EncodingCost {
 	}	
 
 	
+	
 	public int printAlphaValues(){
+	
 		// Iterating over rows
 		for(int i=0;i<m_AlphaValues.length;i++){
 			// Iterating over columns
@@ -230,6 +216,8 @@ public class EncodingCost {
 		}
 		return 0;
 	}
+	
+	
 	
 	private int printMatrix(int[][] frequency ){
 		// Iterating over rows
@@ -242,6 +230,82 @@ public class EncodingCost {
 		}
 		return 0;
 	}
+	
+	
+	// This method returns the index for alpha value matrix given in the constructor
+	// Note that it assumes that the following order was follow in the matrix
+	// {Sum, A, C, D, E, F, G, H, I , K, L , M , N, P , Q , R , T , V, W, Y}
+	/*private int returnIndexAlphaMatrix(char character){
+
+		int index=0;
+		
+		switch(character){
+			case 'A':
+				index=1;
+				break;
+			case 'C':
+				index=2;
+				break;
+			case 'D':
+				index=3;
+				break;
+			case 'E':
+				index=4;
+				break;
+			case 'F':
+				index=5;
+				break;
+			case 'G':
+				index=6;
+				break;
+			case 'H':
+				index=7;
+				break;
+			case 'I':
+				index=8;
+				break;
+			case 'K':
+				index=9;
+				break;
+			case 'L':
+				index=10;
+				break;
+			case 'M':
+				index=11;
+				break;
+			case 'N':
+				index=12;
+				break;
+			case 'P':
+				index=13;
+				break;
+			case 'Q':
+				index=14;
+				break;
+			case 'R':
+				index=15;
+				break;
+			case 'S':
+				index=16;
+				break;
+			case 'T':
+				index=17;
+				break;
+			case 'V':
+				index=18;
+				break;
+			case 'W':
+				index=19;
+				break;
+			case 'Y':
+				index=20;
+				break;
+		}
+
+		return index;
+		
+	}*/
+		
 	
 	// This is currently being used to generate the output
 	private int printInstanceLabels(int nbSubsets){
@@ -289,6 +353,7 @@ public class EncodingCost {
 				
 			}
 		}
+		
 		return frequency;
 	}
 	
@@ -299,34 +364,46 @@ public class EncodingCost {
 		return Math.exp(Gamma.logGamma(x));
 	}
 	
+	
 	// returns value for the function Z defined in the SCI-PHY encoding cost function
 	// it allows to specify the range of the vector that is going to be given as input
 	// to the function
 	protected double functionZ(double[] vector, int start, int end){
+		
 		double valueFunction=1;
 		double sum=0;
+		
 		for(int i=start;i<=end;i++){
 			valueFunction=valueFunction*functionGamma(vector[i]);	
 			sum=sum+vector[i];
 		}
+		
 		valueFunction = valueFunction/functionGamma(sum);
+		
 		return valueFunction;
 	}
-
+	
+	
 	
 	// This function uses the log properties to deal with the large values 
 	// outputted by the gamma function 
 	protected double functionZAlternative(double[] vector){
+		
 		double valueFunction=1;
 		double sum=0;
+		
 		double logpart1=0;
+
 		// log(prod(X))=log(X1)+log(X2)+.........+log(Xn)	
 		for(int i=0;i<vector.length;i++){
 			logpart1=logpart1+Gamma.logGamma(vector[i]);	
 			sum=sum+vector[i];
 		}
+		
 		double logpart2 = Gamma.logGamma(sum);
+		
 		valueFunction = Math.exp(logpart1-logpart2);
+		
 		return valueFunction;
 	}
 	
@@ -334,16 +411,21 @@ public class EncodingCost {
 	// This function does not return the value of the function Z
 	// but instead it returns the value of log(function Z)
 	protected double functionLogZ(double[] vector){
+	
 		double valueFunction;
 		double sum=0;
 		double logpart1=0;
+	
 		// log(prod(X))=log(X1)+log(X2)+.........+log(Xn)	
 		for(int i=0;i<vector.length;i++){
 			logpart1=logpart1+Gamma.logGamma(vector[i]);	
 			sum=sum+vector[i];
 		}	
+	
 		double logpart2 = Gamma.logGamma(sum);
+	
 		valueFunction = logpart1-logpart2;
+	
 		return valueFunction;
 	}
 	
@@ -357,14 +439,161 @@ public class EncodingCost {
 			addedVector[i-1]=frequencyVector[i]+alphaVector[i];			
 		}
 		return addedVector;
+		
 	}
+	
+	
+	
+	// function without mathematical tricks using normalizers
+	// It does not return exactly the same value as when we use normalizers
+	public double getEncodingCostValueStandard(){
+		
+		int nbAttr = attributes.length;
+		int nbSubsets = data.size();
+		double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
+
+		double[] zAlpha = new double[m_AlphaValues.length];
+
+		
+		//printIntanceLabels(nbSubsets);
+		
+		// calculating function z for alpha vectors
+		for(int k=0;k<m_AlphaValues.length;k++){
+			// here we use 1 as the start and 20 as the end
+			// remember that the first index (0 - zero) contains the sum of the vector
+			zAlpha[k] = functionZ(m_AlphaValues[k],1,20);
+		}		
+
+		// we are going to produce a matrix with the frequency of occurrence of each amino acid
+		// the columns are going to be the amino acids
+		// the lines are going to be the subsets
+
+		// iterating over all attributes
+		for(int j=0;j<nbAttr;j++){
+			int [ ] [ ] frequency = calculateFrequency(j,nbSubsets);
+			//printMatrix(frequency);
+			
+			//System.out.print("Attribute "+j+"\n");
+			for(int i=0;i<nbSubsets;i++){
+
+				// calculate probability
+					double probability=0;
+				
+					for(int k=0;k<m_AlphaValues.length;k++){
+						
+							double mixture = m_MixtureValues[k];
+						
+							//calculate z(alpha+frequency)
+							double ZAlphaFreq;
+							ZAlphaFreq = functionZAlternative(addAlphaVectorAndFrequencyvector(m_AlphaValues[k], frequency[i]));
+							//System.out.print("ZAlphaFreq is "+ZAlphaFreq+"\n");
+		
+							probability = probability + mixture*(ZAlphaFreq/zAlpha[k]);
+					}
+
+					//log2	
+					//double logProb = Math.log(probability)/Math.log(2);
+					
+					//log10
+					double logProb = Math.log(probability);
+					
+					encodingCostValue = encodingCostValue- logProb;
+			}
+		}
+		
+		return encodingCostValue;
+		
+	}
+	
+	
+	
+	public double getEncodingCostValueWithNormalizerSlower(){
+		long start = System.currentTimeMillis();
+		
+		int nbAttr = attributes.length;
+		
+		int nbSubsets = data.size();
+		
+//		printInstanceLabels(nbSubsets);
+		
+		double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
+		
+		// we are going to produce a matrix with the frequency of occurrence of each amino acid
+		// the columns are going to be the amino acids
+		// the lines are going to be the subsets
+		
+	
+		// iterating over all attributes
+		for(int j=0;j<nbAttr;j++){
+	
+			long freqstart = System.currentTimeMillis();
+			//System.out.print("Column "+j+"\n");
+				int [ ] [ ] frequency = calculateFrequency(j,nbSubsets);
+			//printMatrix(frequency);
+			long freqstop = System.currentTimeMillis();
+			m_Duration[1] += (freqstop-freqstart); 
+			
+			//System.out.print("Attribute "+j+"\n");
+			for(int i=0;i<nbSubsets;i++){
+					
+					// calculate probability
+					double[] logPJ = new double[m_AlphaValues.length];
+					double normalizer=0;
+					
+					for(int k=0;k<m_AlphaValues.length;k++){
+							double mixture = m_MixtureValues[k];
+						
+							long logzafstart = System.currentTimeMillis();
+							//calculate log(z(alpha+frequency))
+							double logZAlphaFreq;
+							logZAlphaFreq = functionLogZ(addAlphaVectorAndFrequencyvector(m_AlphaValues[k], frequency[i]));
+							long logzafstop = System.currentTimeMillis();
+							m_Duration[2] += (logzafstop-logzafstart); 
+							
+							logPJ[k] = Math.log(mixture)+logZAlphaFreq-Math.log(m_ZAlpha[k]);
+		
+							// Calculating normalizer
+							if(k==0){
+								normalizer=logPJ[k];
+							}else{
+								if(normalizer<logPJ[k]){
+									normalizer=logPJ[k];
+								}	
+							}
+					}
+					
+					double sumAllPJ=0;
+			//		System.out.println("start boe ");
+					for(int k=0;k<m_AlphaValues.length;k++){
+						double convertingBackValue = Math.exp(logPJ[k]-normalizer);
+						sumAllPJ = sumAllPJ+convertingBackValue;
+			//			System.out.print("boe " + j + " " + i + " " + k + " " + logPJ[k] + " " + normalizer + " ");
+					}
+					
+					// log base 2
+					//double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+
+					// log base 10
+					 double logProb = Math.log(sumAllPJ)+normalizer;
+					
+					encodingCostValue = encodingCostValue- logProb;
+			}
+		}
+		
+		long stop = System.currentTimeMillis();
+		m_Duration[0] += (stop-start); 
+		
+		return encodingCostValue;
+	}
+	
 	
 	
 	public double getEncodingCostValueWithNormalizer(){
 		int nbAttr = attributes.length;	
 		int nbSubsets = data.size();
-		double encodingCostValue= m_nbSequences*(Math.log(nbSubsets)/Math.log(2));
-		double totalLogProb = 0;
+		
+		double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
+		
 		// iterating over all columns
 		for(int c=0;c<nbAttr;c++){
 			// we are going to produce a matrix with the frequency of occurrence of each amino acid
@@ -372,7 +601,7 @@ public class EncodingCost {
 			// the lines are going to be the subsets
 			int[][] frequency = calculateFrequency(c,nbSubsets);
 			//printMatrix(frequency);
-			double totalLogProbCol = 0;
+			
 			// iterating over all subsets
 			for(int s=0;s<nbSubsets;s++){
 				double logProb;	
@@ -387,10 +616,11 @@ public class EncodingCost {
 					for(int j=0;j<m_MixtureValues.length;j++){
 						double tmp=0;
 						for (int i=1;i<m_AlphaValues[0].length;i++) {
-							if (frequency[s][i]>0) {								
+							if (frequency[s][i]>0) {
 								tmp += (Gamma.logGamma(m_AlphaValues[j][i]+frequency[s][i]) - m_LogGammaAlpha[j][i]);
 							}
 						}
+						
 						double[] sumVectors = addAlphaVectorAndFrequencyvector(m_AlphaValues[j], frequency[s]);
 						double sum=0;
 						for (int x=0;x<sumVectors.length;x++) {
@@ -404,6 +634,7 @@ public class EncodingCost {
 						if(logP[j] > normalizer){
 							normalizer=logP[j];
 						}	
+
 					}
 					
 					double sumAllPJ=0;
@@ -413,24 +644,87 @@ public class EncodingCost {
 					}
 					
 					// log base 2
-					logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+					//logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
 
-					// log base e
-					//logProb = Math.log(sumAllPJ)+normalizer;
+					// log base 10
+					logProb = Math.log(sumAllPJ)+normalizer;
 					
 					m_LogPMatrix[m_ClusterIds.get(s).intValue()][c] = logProb;
 				}
-				totalLogProbCol += logProb;
+				encodingCostValue = encodingCostValue - logProb;
 			}
-			totalLogProb += totalLogProbCol;
 		}
-		encodingCostValue = encodingCostValue - totalLogProb;
+		return encodingCostValue;
+	}
+	
+	public double getEncodingCostValueWithNormalizerComputeEverything(){
+		int nbAttr = attributes.length;	
+		int nbSubsets = data.size();
+		
+		double encodingCostValue= nbSubsets*(Math.log(nbSubsets)/Math.log(2));
+		
+		// iterating over all columns
+		for(int c=0;c<nbAttr;c++){
+			// we are going to produce a matrix with the frequency of occurrence of each amino acid
+			// the columns are going to be the amino acids
+			// the lines are going to be the subsets
+			int[][] frequency = calculateFrequency(c,nbSubsets);
+			//printMatrix(frequency);
+			
+			// iterating over all subsets
+			for(int s=0;s<nbSubsets;s++){
+					
+					// calculate probability
+					double[] logP = new double[m_MixtureValues.length];
+					double normalizer=Double.NEGATIVE_INFINITY;
+					
+					for(int j=0;j<m_MixtureValues.length;j++){
+						double tmp=0;
+						for (int i=1;i<m_AlphaValues[0].length;i++) {
+							if (frequency[s][i]>0) {
+								tmp += (Gamma.logGamma(m_AlphaValues[j][i]+frequency[s][i]) - m_LogGammaAlpha[j][i]);
+							}
+						}
+						
+						double[] sumVectors = addAlphaVectorAndFrequencyvector(m_AlphaValues[j], frequency[s]);
+						double sum=0;
+						for (int x=0;x<sumVectors.length;x++) {
+							sum+=sumVectors[x];
+						}
+						double tmp2 = m_LogGammaAlpha[j][0] - Gamma.logGamma(sum);
+						
+						logP[j] = Math.log(m_MixtureValues[j])+tmp+tmp2;
+		
+						// Calculating normalizer
+						if(logP[j] > normalizer){
+							normalizer=logP[j];
+						}	
+
+					}
+					
+					double sumAllPJ=0;
+					for(int j=0;j<m_MixtureValues.length;j++){
+						double convertingBackValue = Math.exp(logP[j]-normalizer);
+						sumAllPJ = sumAllPJ+convertingBackValue;
+					}
+					
+					// log base 2
+					//double logProb = (Math.log(sumAllPJ)/Math.log(2))+normalizer;					
+
+					// log base 10
+					 double logProb = Math.log(sumAllPJ)+normalizer;
+					
+					encodingCostValue = encodingCostValue- logProb;
+			}
+		}
 		return encodingCostValue;
 	}
 	
 	
 	public double getEncodingCostValue(){
+	
 		return getEncodingCostValueWithNormalizer();
+		//return getEncodingCostValueStandard();
 	}
 	
 

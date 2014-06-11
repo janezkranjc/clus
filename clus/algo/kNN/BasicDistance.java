@@ -20,56 +20,23 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.model.test;
+package clus.algo.kNN;
 
-import jeans.util.*;
+import clus.data.type.ClusAttrType;
+import clus.data.rows.DataTuple;
 
-import clus.data.rows.*;
-import clus.data.type.*;
-import clus.main.Settings;
+/**
+ * This class represents the distance between values
+ * of a certain attribute type.
+ */
 
-public class FakeTest extends NodeTest {
+public abstract class BasicDistance {
 
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-
-	protected MyArray m_Lines = new MyArray();
-	protected String m_Line;
-
-	public FakeTest() {
+	public BasicDistance(){
 	}
 
-	public void setLine(String line) {
-		m_Line = line;
-	}
-
-	public void addLine(String line) {
-		m_Lines.addElement(line);
-	}
-
-	public int predictWeighted(DataTuple tuple) {
-		return -1;
-	}
-
-	public boolean equals(NodeTest test) {
-		return false;
-	}
-
-	public ClusAttrType getType() {
-		return null;
-	}
-
-	public void setType(ClusAttrType type) {
-	}
-
-	public String getString() {
-		return m_Line;
-	}
-
-	public int getNbLines() {
-		return m_Lines.size();
-	}
-
-	public String getLine(int i) {
-		return (String)m_Lines.elementAt(i);
-	}
+	/**
+	 * Returns the distance for given tuples for given Attribute
+	 */
+	public abstract double getDistance(ClusAttrType type,DataTuple t1,DataTuple t2);
 }

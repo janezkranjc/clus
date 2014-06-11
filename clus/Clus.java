@@ -22,9 +22,10 @@
 
 package clus;
 
-import clus.tools.debug.Debug;   
+import clus.tools.debug.Debug;
 
 import clus.gui.*;
+import clus.io.ClusSerializable;
 import clus.algo.ClusInductionAlgorithm;
 import clus.algo.ClusInductionAlgorithmType;
 import clus.algo.tdidt.*;
@@ -67,7 +68,6 @@ import clus.model.processor.*;
 import clus.model.modelio.*;
 
 import clus.algo.kNN.*;
-import clus.algo.kNN.test.*;
 import clus.algo.rules.*;
 
 // import clus.weka.*;
@@ -76,22 +76,19 @@ public class Clus implements CMDLineArgsProvider {
 
 	public final static boolean m_UseHier = true;
 
-	public final static String VERSION = "2.11";
+	public final static String VERSION = "2.12";
 
 	// exhaustive was added the 1/08/2006
 	public final static String[] OPTION_ARGS = { "exhaustive", "xval", "oxval",
 			"target", "disable", "silent", "lwise", "c45", "info", "sample",
 			"debug", "tuneftest", "load", "soxval", "bag", "obag", "show",
-			"knn", "knnTEST", "knnTree", "beam", "gui", "fillin", "rules", "weka",
+			"knn", "knnTree", "beam", "gui", "fillin", "rules", "weka",
 			"corrmatrix", "tunesize", "out2model", "test", "normalize",
 			"tseries", "writetargets", "fold", "forest", "copying", "sit", "tc" };
 
-	public final static int[] OPTION_ARITIES = { 0, 0, 0, 
-			1, 1, 0, 0, 0, 0, 1,
-			0, 0, 1, 0, 0, 0, 0, 
-			0, 0, 0, 0, 0, 0, 0, 1, 
-			0, 0, 1, 1, 0, 
-			0, 0, 1, 0, 0, 0, 0 };
+	public final static int[] OPTION_ARITIES = { 0, 0, 0, 1, 1, 0, 0, 0, 0, 1,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1,
+			0, 0, 0, 0 };
 
 	protected Settings m_Sett = new Settings();
 	protected ClusSummary m_Summary = new ClusSummary();
@@ -785,13 +782,11 @@ public class Clus implements CMDLineArgsProvider {
 		if (m_Sett.isOutTrainError()) {
 			if (Settings.VERBOSE > 0) System.out.println("Computing training error");
 			calcError(cr.getTrainIter(), ClusModelInfo.TRAIN_ERR, cr, ens_pred);
-			oTestKnnModel.setTest(true);//used for kNNtest
 		}
 		TupleIterator tsiter = cr.getTestIter();
 		if (m_Sett.isOutTestError () && tsiter != null) {
 			if (Settings.VERBOSE > 0) System.out.println("Computing testing error");
 			calcError(tsiter, ClusModelInfo.TEST_ERR, cr, ens_pred);
-			oTestKnnModel.setTest(false);//used for kNNtest
 		}			
 		if (m_Sett.isOutValidError() && cr.getPruneSet() != null) {
 			if (Settings.VERBOSE > 0) System.out.println("Computing validation error");
@@ -1108,19 +1103,13 @@ public class Clus implements CMDLineArgsProvider {
 	public final void testModel(String fname) throws IOException,
 			ClusException, ClassNotFoundException {
 		ClusModelCollectionIO io = ClusModelCollectionIO.load(fname);
-		ClusModel res = io.getModel("Original");
+		ClusNode res = (ClusNode) io.getModel("Original");
 		String test_name = m_Sett.getAppName() + ".test";
 		ClusOutput out = new ClusOutput(test_name, m_Schema, m_Sett);
 		ClusRun cr = partitionData();
-		for (int i=io.getNbModels()-1; i >=0 ; i--){
-			ClusModelInfo mod_info = io.getModelInfo(i);
-			ClusModelInfo def_info = cr.addModelInfo(mod_info.getModelInfo());
-			def_info.setModel(io.getModel(i));	
-		}	
-		
 		getStatManager().updateStatistics(res);
 		getSchema().attachModel(res);
-//		getClassifier().pruneAll(cr);
+		getClassifier().pruneAll(cr);
 		getClassifier().postProcess(cr);
 		calcError(cr, null, null);
 		out.writeHeader();
@@ -1168,9 +1157,7 @@ public class Clus implements CMDLineArgsProvider {
 		ClusModelCollectionIO io = new ClusModelCollectionIO();
 		m_Summary.setTotalRuns(1);
 		ClusRun run = singleRunMain(clss, null);
-		if (!getSettings().isKNN()){
-			saveModels(run, io);
-		}
+		saveModels(run, io);
 		// io.save(getSettings().getFileAbsolute(m_Sett.getAppName() +
 		// ".model"));
 		if (ClusEnsembleInduce.isOptimized()
@@ -1434,11 +1421,8 @@ public class Clus implements CMDLineArgsProvider {
 		/* Cross-validation now includes a single run */
 		ClusRandom.initialize(m_Sett);
 		ClusRun run = singleRunMain(clss, m_Summary);
-		//this should not be on for KNN
-		if (!getSettings().isKNN()){
-			saveModels(run, io);
-			io.save(getSettings().getFileAbsolute(m_Sett.getAppName() + ".model"));
-		}
+		saveModels(run, io);
+		io.save(getSettings().getFileAbsolute(m_Sett.getAppName() + ".model"));
 	}
 
 	public final void baggingRun(ClusInductionAlgorithmType clss)
@@ -1637,18 +1621,11 @@ public class Clus implements CMDLineArgsProvider {
 				 */
 				if (cargs.hasOption("knn")) {
 					clus.getSettings().setSectionKNNEnabled(true);
-//					clus.getSettings().setSectionTreeEnabled(false);
-					clss = new KnnClassifier(clus);
-					
-				} else if (cargs.hasOption("knnTEST")) {
-                    clus.getSettings().setSectionKNNEnabled(true);
-                    clss = new oTestKnnClassifier(clus);
-					TestKnnModel.debugInfo(clus);
-				}else if (cargs.hasOption("knnTree")) {
-					System.err.println("The option argument 'knnTree' has been discontinued!");
-					System.exit(-1);					
-//					clus.getSettings().setSectionKNNTEnabled(true);
-//					clss = new KNNTreeClassifier(clus);
+					clus.getSettings().setSectionTreeEnabled(false);
+					clss = new KNNClassifier(clus);
+				} else if (cargs.hasOption("knnTree")) { // new
+					clus.getSettings().setSectionKNNTEnabled(true);
+					clss = new KNNTreeClassifier(clus);
 				} else if (cargs.hasOption("rules")) {
 					clus.getSettings().setSectionBeamEnabled(true);
 					clus.getSettings().setSectionRulesEnabled(true);

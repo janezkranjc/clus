@@ -1,17 +1,13 @@
 ###########################################################################################
 #
 # This script postprocesses the .out file. It extracts the tree from it and produces
-# four files: .clus-phy_tree (that contains the tree in two formats), .clus-phy_newick
-# (that contains the tree in newick format), .clus-phy_newick_labels (that contains the
-# tree in newick format with the tests in the internal nodels of the tree), and .clusters
-# (that lists the leaf node clusters, one per line, only relevant if a pruning method is used).
+# three files: .clus-phy_tree (that contains the tree in two formats), .clus-phy_newick
+# (that contains the tree in newick format), and .clusters (that lists the leaf node
+# clusters, one per line, only relevant if a stop criterion is used).
 #
 # USAGE:
-# run "perl postprocess_tree.pl appl"
+# run "perl postprocess_tree.pl appl" 
 # where "appl" is the name of the settings file without ".s".
-#
-# The script is going to look first for the pruned tree
-# If the pruned tree is not there, then it will look for the original tree
 #
 ###########################################################################################
 
@@ -28,45 +24,30 @@ print "Producing phylogenetic tree structure...\n";
 print POST "Phylogenetic tree structure:\n\n";
 
 $line=<OUT>;
-$PrunedTree=1;
-while (($line !~ /Pruned Model/) & (!eof(OUT)))
+while ($line !~ /Original Model/)
 {
 	$line=<OUT>;
-}
-if(eof(OUT)){
-  $PrunedTree=0;
-  close(OUT);
-  open(OUT,"$appl.out") or die "$appl.out file was not found!\n";
-  $line=<OUT>;
-  while (($line !~ /Original Model/) & (!eof(OUT)))
-  {
-	$line=<OUT>;
-  }
 }
 $line=<OUT>;
 $line=<OUT>;
 
-while ($line=<OUT>)
+while ($line=<OUT> and $line !~ /Pruned Model/)
 {
-
-
-	if (($line =~ /(.*)LEAF : (.+) sequence/)|(($line =~ /(.+)\[.*\] \[.*\]: (\d+)/)))
+	if ($line =~ /(.+)LEAF : (.+) sequence/)
 	{
-
-		$prefix = $1;
+		$prefix = $1;   
 		$nbseq = $2;
-
-		# For the case when no tree is induced
-		# The sequences remain all in one cluster
-		if(!($prefix =~ /\+--/)){
-			$prefix = "\+--yes: ";
+		
+		if ($nbseq > 1)
+		{
+			print "Warning: more than one sequence found in a leaf!\n";
 		}
-
+		
 		print TMP "$prefix";
 		$prefix =~ s/yes:/ /g;
 		$prefix =~ s/no://g;
 		print POST "$prefix";
-
+		
 		for $i (1..$nbseq)
 		{
 			$line=<OUT>;
@@ -112,27 +93,20 @@ close(OUT);
 close(POST);
 close(TMP);
 
-
 # newick
-
-if(1){
 
 print "Producing newick format...\n";
 
 open(IN,"$appl.clus-phy_tree");
 open(OUT,">$appl.clus-phy_newick") or die "can not open $appl.clus-phy_newick!\n";
-
-if($PrunedTree){
-  open(CLUS,">$appl.clusters") or die "can not open $appl.clusters!\n";
-}
+open(CLUS,">$appl.clusters") or die "can not open $appl.clusters!\n";
 $line=<IN>;
 &produce_newick_string_and_clustering();
 print OUT ";";
 close(IN);
 close(OUT);
-if($PrunedTree){
-  close(CLUS);
-}
+close(CLUS);
+
 
 # full tree
 
@@ -167,14 +141,10 @@ close(OUT);
 
 print "Done!\n";
 
-
-}
-
 # subroutines
 
 sub produce_newick_string_with_labels {
 	my $line=<IN>;
-
 	if (($line =~ /\+--\S+:\s+(p\d+.*)$/) or ($line =~ /^(p\d+.*)$/))
 	{
 		my $name = "$1\n";
@@ -187,7 +157,7 @@ sub produce_newick_string_with_labels {
 	}
 	else
 	{
-		$line =~ /\+--\S+:\s+(\S.+)$/ or die "wrong format sequence line: $line\n";
+		$line =~ /\+--\S+:\s+(\S.+)$/ or die "wrong format sequence line: $line\n";		
 		my $seqs = $1;
 		@sequences = split(" ",$seqs);
 		produce_sequences(@sequences);
@@ -196,8 +166,6 @@ sub produce_newick_string_with_labels {
 
 sub produce_newick_string_and_clustering {
 	my $line=<IN>;
-
-
 	if (($line =~ /CLUSTER/) or ($line =~ /^\n$/))
 	{
 		print OUT "(";
@@ -209,13 +177,9 @@ sub produce_newick_string_and_clustering {
 	else
 	{
 		$line =~ /\+--\s+(\S.+)$/ or die "wrong format sequence line: $line\n";
-
-		if($PrunedTree){
-		  print CLUS "$1\n";
-		}
+		print CLUS "$1\n";
 		@sequences = split(" ",$1);
 		produce_sequences(@sequences);
-
 	}
 }
 
@@ -224,15 +188,15 @@ sub produce_sequences {
 	$nbseq = @seqs;
 	if ($nbseq == 1)
 	{
+		#$seqs[0] =~ s/_//g;
 		print OUT $seqs[0];
 	}
 	else
 	{
-		print OUT "$seqs[0]";
-		for($i=1;$i<$nbseq;$i++){
-		    print OUT "/$seqs[$i]";
-		}
-		print OUT "";
-
+		#$seqs[0] =~ s/_//g;
+		print OUT "($seqs[0],";
+		shift(@seqs);
+		&produce_sequences(@seqs);
+		print OUT ")";
 	}
 }

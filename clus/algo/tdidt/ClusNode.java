@@ -62,23 +62,14 @@ public class ClusNode extends MyNode implements ClusModel {
 	public ClusStatistic m_TargetStat;
 	public transient Object m_Visitor;
 	public long m_Time;
-	public NodeTest[] m_Alternatives; // contains all alternatives to m_Test that give the same split
-	public NodeTest[] m_OppositeAlternatives; // contains all alternatives to m_Test that give the opposite split
-	public String m_AlternativesString; // contains a string of true and opposite alternatives, sorted according to attribute number
-	
+	public String[] m_Alternatives;
+
 	public MyNode cloneNode() {
 		ClusNode clone = new ClusNode();
 		clone.m_Test = m_Test;
 		clone.m_ClusteringStat = m_ClusteringStat;
-		//clone.m_TargetStat = m_TargetStat;
-		// Celine replaced previous line by following three lines (07/10/2011)
-		// reason: subtree raising in C45 pruning did not output correct nb of examples in each leaf of the original tree
-		clone.m_TargetStat = m_TargetStat.cloneStat();
-		clone.m_TargetStat.copy(m_TargetStat);
-		clone.m_TargetStat.calcMean();
+		clone.m_TargetStat = m_TargetStat;
 		clone.m_Alternatives = m_Alternatives;
-		clone.m_OppositeAlternatives = m_OppositeAlternatives;
-		clone.m_AlternativesString = m_AlternativesString;
 		return clone;
 	}
 
@@ -208,7 +199,7 @@ public class ClusNode extends MyNode implements ClusModel {
 	}
 
 	/***************************************************************************
-	 * Inspectors concerning test
+	 * Insprectors concenring test
 	 ***************************************************************************/
 
 	public final boolean hasBestTest() {
@@ -243,12 +234,8 @@ public class ClusNode extends MyNode implements ClusModel {
 		return m_Test.hasUnknownBranch();
 	}
 
-	public NodeTest[] getAlternatives() {
+	public String[] getAlternatives() {
 		return m_Alternatives;
-	}
-	
-	public NodeTest[] getOppositeAlternatives() {
-		return m_OppositeAlternatives;
 	}
 
 	/***************************************************************************
@@ -321,23 +308,14 @@ public class ClusNode extends MyNode implements ClusModel {
 			info.updateTree();
 		}
 	}
-	 
-	public void setAlternatives(ArrayList<NodeTest> alt) {
-		 m_Alternatives = new NodeTest[alt.size()];
-		 for (int i=0; i<alt.size(); i++)
-			 m_Alternatives[i] = (NodeTest) alt.get(i);
+
+	public void setAlternatives(ArrayList alt) {
+		m_Alternatives = new String[alt.size()];
+		for (int i=0; i<alt.size(); i++) {
+			m_Alternatives[i] = alt.get(i).toString();
+		}
 	}
-	
-	public void setOppositeAlternatives(ArrayList<NodeTest> alt) {
-		 m_OppositeAlternatives = new NodeTest[alt.size()];
-		 for (int i=0; i<alt.size(); i++)
-			 m_OppositeAlternatives[i] = (NodeTest) alt.get(i);
-	}
-	
-	public void setAlternativesString(String str) {
-		m_AlternativesString = str;
-	}
-		 
+
 	/***************************************************************************
 	 * Code for safe package clus.pruning the tree
 	 ***************************************************************************/
@@ -563,15 +541,6 @@ public class ClusNode extends MyNode implements ClusModel {
 			subset.calcTotalStatBitVector(m_TargetStat);
 		}
 	}
-	
-	/*public final void reInitTargetStat(RowData subset) {	
-		if (m_TargetStat != null) {
-			ClusStatistic st = m_TargetStat.cloneStat();
-			st.reset();
-			subset.calcTotalStatBitVector(st);
-			m_TargetStat = st;
-		}
-	}*/
 
 	public final void reInitClusteringStat(RowData subset) {
 		if (m_ClusteringStat != null) {
@@ -817,22 +786,14 @@ public class ClusNode extends MyNode implements ClusModel {
 			int delta = hasUnknownBranch() ? 1 : 0;
 			if (arity - delta == 2) {
 				writer.print(m_Test.getTestString());
-				showAlternatives(writer);
-				
+
 				RowData examples0 = null;
 				RowData examples1 = null;
 				if (examples!=null){
-					if ((m_Alternatives != null) || (m_OppositeAlternatives != null)) {
-						// in the case of alternative tests, the classification is done based on how many of the total tests predict left or right branch
-						examples0 = examples.applyAllAlternativeTests(m_Test, m_Alternatives, m_OppositeAlternatives, 0);
-						examples1 = examples.applyAllAlternativeTests(m_Test, m_Alternatives, m_OppositeAlternatives, 1);
-					}
-					else {
-						examples0 = examples.apply(m_Test, 0);
-						examples1 = examples.apply(m_Test, 1);
-					}			
+					examples0 = examples.apply(m_Test, 0);
+					examples1 = examples.apply(m_Test, 1);
 				}			
-				
+				showAlternatives(writer);
 				writeDistributionForInternalNode(writer, info);
 				writer.print(prefix + "+--yes: ");
 				((ClusNode)getChild(YES)).printTree(writer, info, prefix+"|       ",examples0);
@@ -875,15 +836,15 @@ public class ClusNode extends MyNode implements ClusModel {
 				writer.println(prefix+"Summary:");
 				writer.println(examples.getSummary(prefix));
 			}
+
 		}
 	}
 	
-	/*
-	 * Prints for each example the path that is followed in the tree, both with node identifiers, and in boolean format
-	 * (used in ICDM 2011 paper on "random forest feature induction")
-	 * only binary trees are supported
-	 */
-	public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples, OOBSelection oob_sel, boolean testset) {
+	// only binary trees supported
+	// no "unknown" branches supported
+	/*public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples, OOBSelection oob_sel) {
+		//writer.flush();
+		//writer.println("nb ex: " + examples.getNbRows());
 		String newnumberprefix;
 		if (numberprefix.equals("")) {
 			newnumberprefix = "" + getID();
@@ -905,33 +866,83 @@ public class ClusNode extends MyNode implements ClusModel {
 				}	
 				examples0.add(examplesMin1);
 				examples1.add(examplesMin1);
-				((ClusNode)getChild(YES)).printPaths(writer, pathprefix+"0", newnumberprefix, examples0, oob_sel, testset);
-				((ClusNode)getChild(NO)).printPaths(writer, pathprefix+"1", newnumberprefix, examples1, oob_sel, testset);
+				((ClusNode)getChild(YES)).printPaths(writer, pathprefix+"0", newnumberprefix, examples0,oob_sel);
+				((ClusNode)getChild(NO)).printPaths(writer, pathprefix+"1", newnumberprefix, examples1,oob_sel);
 				
 			} else {
 				System.out.println("PrintPaths error: only binary trees supported");
 			}
-		} else { //at the leaves
+		} else {//on the leaves
 			if (examples!=null){
-                 for (int i=0; i<examples.getNbRows(); i++) {
+				//writer.println("LEAF");
+                String prediction = m_TargetStat.getPredictString();
+                for (int i=0; i<examples.getNbRows(); i++) {
                         int exampleindex = examples.getTuple(i).getIndex();
-                        if (testset) {
-                        	writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + "  TEST");
+                        if (oob_sel != null) {
+                        boolean oob = oob_sel.isSelected(exampleindex);
+                        if (oob)
+                               // writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction + "  OOB");
+                        		writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + "  OOB");
+                       // else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction);
+                        else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix);
                         }
-                        else if (oob_sel != null) {
-	                        boolean oob = oob_sel.isSelected(exampleindex);
-	                        if (oob) {
-	                        	writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + "  OOB");
-	                        }
-	                        else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix);
-                        }
+                       // else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction);
                         else writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix);
                         writer.flush();
                 }	
 			}
 
 		}
-	}
+	}*/
+	
+	// printing test exs
+	/*public final void printPaths(PrintWriter writer, String pathprefix, String numberprefix, RowData examples) {
+		//writer.flush();
+		//writer.println("nb ex: " + examples.getNbRows());
+		String newnumberprefix;
+		if (numberprefix.equals("")) {
+			newnumberprefix = "" + getID();
+		}
+		else {
+			newnumberprefix = numberprefix+"_"+getID();
+		}
+		int arity = getNbChildren();
+		if (arity > 0) {
+			if (arity == 2) {
+
+				RowData examples0 = null;
+				RowData examples1 = null;
+				RowData examplesMin1 = null;
+				if (examples!=null){
+					examples0 = examples.apply(m_Test, 0);
+					examples1 = examples.apply(m_Test, 1);
+					examplesMin1 = examples.apply(m_Test, -1);
+				}		
+				examples0.add(examplesMin1);
+				examples1.add(examplesMin1);
+				((ClusNode)getChild(YES)).printPaths(writer, pathprefix+"0", newnumberprefix, examples0);
+				((ClusNode)getChild(NO)).printPaths(writer, pathprefix+"1", newnumberprefix, examples1);
+				
+			} else {
+				System.out.println("PrintPaths error: only binary trees supported");
+			}
+		} else {//on the leaves
+			if (examples!=null){
+				//writer.println("LEAF");
+                String prediction = m_TargetStat.getPredictString();
+                for (int i=0; i<examples.getNbRows(); i++) {
+                        int exampleindex = examples.getTuple(i).getIndex();
+                        if (exampleindex < 8192) {  // added because test and unlabeled set were put together in one testfile
+                       // writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + " " + prediction + "  TEST");
+                        writer.println(exampleindex + "  " + pathprefix + " " + newnumberprefix + "  TEST");
+                        writer.flush();
+                        }
+                }	
+			}
+
+		}
+	}*/
+	
 	
 
 	/*to print the tree directly into an IDB : Elisa Fromont 13/06/2007*/
@@ -1004,9 +1015,9 @@ public class ClusNode extends MyNode implements ClusModel {
 		if (arity > 0) {
 			int delta = hasUnknownBranch() ? 1 : 0;
 			if (arity - delta == 2) {
-				writer.println(prefix+"IF " +m_Test.getPythonTestString()+":");
+				writer.println(prefix+"if " +m_Test.getTestString()+":");
 				((ClusNode)getChild(YES)).printTreeToPythonScript(writer, prefix+"\t");
-				writer.println(prefix + "ELSE: ");
+				writer.println(prefix + "else: ");
 				if (hasUnknownBranch()) {
 					//TODO anything to do???
 				} else {
@@ -1017,15 +1028,16 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 		} else {
 			if (m_TargetStat != null) {
-				writer.println(prefix+"RETURN "+m_TargetStat.getArrayOfStatistic());
+				writer.println(prefix+"return "+m_TargetStat.getArrayOfStatistic());
 				System.out.println(m_TargetStat.getClass());
 			}
 		}
 	}
 
 	public final void showAlternatives(PrintWriter writer) {
-		if (m_AlternativesString != null) {
-			writer.print(m_AlternativesString);	
+		if (m_Alternatives == null) return;
+		for (int i = 0; i < m_Alternatives.length; i++) {
+			writer.print(" and " + m_Alternatives[i]);
 		}
 	}
 

@@ -20,56 +20,40 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.model.test;
+package clus.algo.kNN;
 
-import jeans.util.*;
-
-import clus.data.rows.*;
+import clus.model.ClusModel;
+import clus.model.processor.ClusModelProcessor;
 import clus.data.type.*;
-import clus.main.Settings;
+import clus.data.rows.DataTuple;
 
-public class FakeTest extends NodeTest {
+import java.io.IOException;
 
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+/**
+ * This class represents a ModelProcessor that is used for storing tuples in
+ * the nodes of a KNNTree which are used for prediction of target values.
+ */
+public class StoreExampleProcessor extends ClusModelProcessor {
 
-	protected MyArray m_Lines = new MyArray();
-	protected String m_Line;
-
-	public FakeTest() {
+	public void initialize(ClusModel model, ClusSchema schema) throws IOException{
+		//does nothing
 	}
 
-	public void setLine(String line) {
-		m_Line = line;
+	public void terminate(ClusModel model) throws IOException{
+		//does nothing
 	}
 
-	public void addLine(String line) {
-		m_Lines.addElement(line);
+	/**
+	 * This method adds the given tuple to the given KNNTree.
+	 * is used in the correct way by the method applyModelProcessors in ClusNode
+	 * Required
+	 *		model: instance of KNNTree
+	 */
+	public void modelUpdate(DataTuple tuple, ClusModel model) throws IOException {
+		//this fails when model isn't a KNNTree
+		KNNTree tree_node = (KNNTree) model;
+		//add the tuple to the node (leaf).
+		tree_node.addTuple(tuple);
 	}
 
-	public int predictWeighted(DataTuple tuple) {
-		return -1;
-	}
-
-	public boolean equals(NodeTest test) {
-		return false;
-	}
-
-	public ClusAttrType getType() {
-		return null;
-	}
-
-	public void setType(ClusAttrType type) {
-	}
-
-	public String getString() {
-		return m_Line;
-	}
-
-	public int getNbLines() {
-		return m_Lines.size();
-	}
-
-	public String getLine(int i) {
-		return (String)m_Lines.elementAt(i);
-	}
 }

@@ -22,7 +22,7 @@
 
 package clus.data.type;
 
-import java.io.*; 
+import java.io.*;
 
 import clus.io.*;
 import clus.main.Settings;
@@ -31,6 +31,8 @@ import clus.data.rows.*;
 import clus.data.cols.*;
 import clus.data.cols.attribute.*;
 import clus.data.io.ClusReader;
+
+import clus.algo.kNN.NumericStatistic;
 
 /**
  * Attribute of numeric (continuous) value.
@@ -159,5 +161,15 @@ public class NumericAttrType extends ClusAttrType {
 		}
 	}
 
+	//new for knn
+
+	public void setStatistic(NumericStatistic stat){
+		$stat = stat;
+	}
+	public NumericStatistic getStatistic(){
+		return $stat;
+	}
+
+	private NumericStatistic $stat;
 }
 

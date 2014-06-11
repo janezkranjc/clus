@@ -287,24 +287,13 @@ public class ClassificationStat extends ClusStatistic {
 	public double entropy() {
 		double sum = 0.0;
 		for (int i = 0; i < m_NbTarget; i++) {
-			if(getAttribute(i).getSchema().getSettings().checkEntropyType("StandardEntropy")){
-			
-				sum += entropy(i);
-			
-			}else{
-				
-				sum += modifiedEntropy(i);
-				
-			}
+			sum += entropy(i);
 		}
 		return sum;
 	}
 
 	public double entropy(int attr) {
 		double total = m_SumWeights[attr];
-		
-		
-		
 		if (total < 1e-6) {
 			return 0.0;
 		} else {
@@ -319,46 +308,16 @@ public class ClassificationStat extends ClusStatistic {
 			return -acc/MathUtil.M_LN2;
 		}
 	}
-	
-	
-	// The idea here is ....
-	public double modifiedEntropy(int attr) {
-		
-		double total = m_SumWeights[attr];
-		
-		//System.out.print("Class has "+total+" examples\n");
-		
-		if (total < 1e-6) {
-			return 0.0;
-		} else {
-			double acc = 0.0;
-			double[] clcts = m_ClassCounts[attr];
-			for (int i = 0; i < clcts.length; i++) {
-				if (clcts[i] != 0.0) {
-					 
-					double prob = (clcts[i]+1)/(total+clcts.length);
-					acc += prob*Math.log(prob);
-				}
-			}
-			return -acc/MathUtil.M_LN2;
-		}
-	}
-	
 
 	public double entropyDifference(ClassificationStat other) {
 		double sum = 0.0;		
 		for (int i = 0; i < m_NbTarget; i++) {			
-			if(other.getAttribute(i).getSchema().getSettings().checkEntropyType("StandardEntropy")){
-				sum += entropyDifference(i, other);
-			}else{
-				sum += modifiedEntropyDifference(i, other);				
-			}
+			sum += entropyDifference(i, other);
 		}
 		return sum;
 	}
 
 	public double entropyDifference(int attr, ClassificationStat other) {
-		
 		double acc = 0.0;
 		double[] clcts = m_ClassCounts[attr];
 		double[] otcts = other.m_ClassCounts[attr];
@@ -369,22 +328,6 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		return -acc/MathUtil.M_LN2;
 	}
-	
-	
-	public double modifiedEntropyDifference(int attr, ClassificationStat other) {
-			
-		double acc = 0.0;
-		double[] clcts = m_ClassCounts[attr];
-		double[] otcts = other.m_ClassCounts[attr];
-		double total = m_SumWeights[attr] - other.m_SumWeights[attr];
-		for (int i = 0; i < clcts.length; i++) {
-			double diff = clcts[i] - otcts[i];
-			if (diff != 0.0) acc += ((diff+1)/(total+clcts.length))*Math.log((diff+1)/(total+clcts.length));
-		}
-		return -acc/MathUtil.M_LN2;
-	}
-	
-	
 	
 	public double getSumWeight(int attr) {
 		return m_SumWeights[attr];
@@ -407,7 +350,6 @@ public class ClassificationStat extends ClusStatistic {
 			// return m_Training.gini(attr); // gives error with HSC script
 			return 0.0;
 		} else {
-			//System.err.println(": here2");
 			double sum = 0.0;
 			double[] clcts = m_ClassCounts[attr];
 			for (int i = 0; i < clcts.length; i++) {
@@ -697,7 +639,6 @@ public class ClassificationStat extends ClusStatistic {
 	}
 
 	public double getSVarS(ClusAttributeWeights scale) {
-		//System.err.println(": here");
 		double result = 0.0;
 		double sum = m_SumWeight;
 		for (int i = 0; i < m_NbTarget; i++) {
@@ -849,10 +790,5 @@ public class ClassificationStat extends ClusStatistic {
 		}
 		return result/m_NbTarget;
 	}
-	
-	public double getSumWeights(int attr){
-		return (m_SumWeights[attr]);
-	}
-	
 
 }

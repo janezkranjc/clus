@@ -322,7 +322,7 @@ public class ClusStatManager implements Serializable {
 		int nb_types = 0;
 		int nb_nom = m_Schema.getNbNominalAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
 		int nb_num = m_Schema.getNbNumericAttrUse(ClusAttrType.ATTR_USE_CLUSTERING);
-		System.out.println("check " + nb_nom + " " + nb_num);
+		//System.out.println("check " + nb_nom + " " + nb_num);
 		if (nb_nom > 0 && nb_num > 0) {
 			m_Mode = MODE_CLASSIFY_AND_REGRESSION;
 			nb_types++;

@@ -20,56 +20,40 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.model.test;
+package clus.algo.kNN;
 
-import jeans.util.*;
+import clus.data.rows.DataTuple;
+import clus.data.type.ClusAttrType;
 
-import clus.data.rows.*;
-import clus.data.type.*;
-import clus.main.Settings;
+/**
+ * This class represents Euclidian distances between DataTuples.
+ */
 
-public class FakeTest extends NodeTest {
+public class EuclidianDistance extends VectorDistance {
 
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-
-	protected MyArray m_Lines = new MyArray();
-	protected String m_Line;
-
-	public FakeTest() {
+	public EuclidianDistance(ClusAttrType[] attrs,double[] weights){
+		super(attrs,weights);
 	}
 
-	public void setLine(String line) {
-		m_Line = line;
+	/**
+	 * Returns the (Euclidian) distance between the 2 given tuples
+	 */
+	public double getDistance(DataTuple t1,DataTuple t2){
+		double dist = 0;
+		double curDist;
+		for (int i = 0; i < amountAttribs();i++){
+			//calculate distance for current attribute
+			curDist = getAttrib(i).getBasicDistance(t1,t2);
+			//add to total
+			//if(){
+				dist += getWeight(i) * Math.pow(curDist,2);
+			//}
+			//dist += Math.pow(curDist,2);
+		}
+		return Math.sqrt(dist);
 	}
 
-	public void addLine(String line) {
-		m_Lines.addElement(line);
-	}
-
-	public int predictWeighted(DataTuple tuple) {
-		return -1;
-	}
-
-	public boolean equals(NodeTest test) {
-		return false;
-	}
-
-	public ClusAttrType getType() {
-		return null;
-	}
-
-	public void setType(ClusAttrType type) {
-	}
-
-	public String getString() {
-		return m_Line;
-	}
-
-	public int getNbLines() {
-		return m_Lines.size();
-	}
-
-	public String getLine(int i) {
-		return (String)m_Lines.elementAt(i);
+	public String toString(){
+		return "Euclidian";
 	}
 }

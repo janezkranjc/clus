@@ -61,16 +61,6 @@ public class NominalTest extends NodeTest {
 		}
 	}
 
-	public String getPythonString() {
-		if (m_Type.getNbValues() > 2) {
-			return m_Type.getName();
-		} else {
-			String val = m_Type.getValue(0);
-			if (hasBranchLabels()) return m_Type.getName();
-			else return m_Type.getName() + " == " + "'" + val + "'";
-		}
-	}
-	
 	public boolean equals(NodeTest test) {
 		return m_Type == test.getType();
 	}

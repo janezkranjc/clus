@@ -24,7 +24,6 @@ package clus.ext.ensembles;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.io.*;
 
 import jeans.resource.ResourceInfo;
 
@@ -128,14 +127,9 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 			induceBaggingSubspaces(cr);
 			break;
 			}
-		case 5: {  //RForest without bagging (setting: RFeatSelection)
+		case 5: {  //RForest without bagging
 			System.out.println("Ensemble Method: Random Forest without Bagging");
 			induceRForestNoBagging(cr);
-			break;
-		}
-		case 6: {  //PERT in combination with bagging
-			System.out.println("Ensemble Method: PERT (in combination with Bagging)");
-			induceBagging(cr);
 			break;
 		}
 		}
@@ -209,7 +203,6 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 //				ClusModel defmod = ClusDecisionTree.induceDefault(crSingle);
 //				m_DForest.addModelToForest(defmod);
 			}
-			
 			//Valid only when test set is supplied
 			if (m_OptMode && (i != m_NbMaxBags) && checkToOutEnsemble(i)){
 				crSingle.setInductionTime(summ_time);
@@ -290,7 +283,7 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 
 	public void induceBagging(ClusRun cr) throws ClusException, IOException {
 		int nbrows = cr.getTrainingSet().getNbRows();
-		((RowData)cr.getTrainingSet()).addIndices(); // necessary to be able to print paths
+		((RowData)cr.getTrainingSet()).addIndices();
 		if ((RowData)cr.getTestSet() != null) {
 			((RowData)cr.getTestSet()).addIndices();
 		}
@@ -427,13 +420,11 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 //			m_DForest.addModelToForest(defmod);
 		}
 		
-		// printing paths taken by each example in each tree (used in ICDM'11 paper on "Random forest based feature induction")				
-		if (getSettings().isPrintEnsemblePaths()) {
-		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("tree_"+i+".path")));		
-		((ClusNode)model).numberCompleteTree();
-		((ClusNode)model).printPaths(pw, "", "", (RowData)cr.getTrainingSet(), oob_sel, false);
-		if ((RowData)cr.getTestSet() != null) ((ClusNode)model).printPaths(pw, "", "", (RowData)cr.getTestSet(), null, true);
-		}
+		//print paths (-- celine; just testing sth)
+		/*PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream("tree_"+i+".path")));		
+		((ClusNode)model).printPaths(pw, "", (RowData)cr.getTrainingSet(), oob_sel);
+		if ((RowData)cr.getTestSet() != null) ((ClusNode)model).printPaths(pw, "", (RowData)cr.getTestSet());
+		 */
 		
 		//Valid only when test set is supplied
 		if (checkToOutEnsemble(i) && (getSettings().getBagSelection().getIntVectorSorted()[0] == -1)){
@@ -714,9 +705,5 @@ public class ClusEnsembleInduce extends ClusInductionAlgorithm {
 	 */
 	public static boolean isOptimized(){
 		return m_OptMode;
-	}
-	
-	public ClusEnsembleFeatureRanking getEnsembleFeatureRanking(){
-		return m_FeatureRanking;
 	}
 }

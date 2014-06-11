@@ -20,56 +20,50 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.model.test;
+package clus.algo.kNN;
 
-import jeans.util.*;
-
-import clus.data.rows.*;
-import clus.data.type.*;
+import clus.data.type.ClusAttrType;
+import clus.data.type.NumericAttrType;
+import clus.data.rows.DataTuple;
 import clus.main.Settings;
 
-public class FakeTest extends NodeTest {
+/**
+ * This class represents the distance between 2 values
+ * of a certain Numerical Attribute type.
+ */
+public class NumericalBasicDistance extends BasicDistance {
 
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-
-	protected MyArray m_Lines = new MyArray();
-	protected String m_Line;
-
-	public FakeTest() {
+	public NumericalBasicDistance(){
 	}
 
-	public void setLine(String line) {
-		m_Line = line;
-	}
+	/**
+	 * Returns the distance for given tuples for given (Numerical) Attribute
+	 * Require
+	 *		type : must be a NumericAttrType object
 
-	public void addLine(String line) {
-		m_Lines.addElement(line);
-	}
+	 */
+	public double getDistance(ClusAttrType type,DataTuple t1,DataTuple t2){
+		NumericAttrType at = (NumericAttrType) type;
+		double x = at.getNumeric(t1); //returns the attribute value for given attribute in tuple t1
 
-	public int predictWeighted(DataTuple tuple) {
-		return -1;
-	}
-
-	public boolean equals(NodeTest test) {
-		return false;
-	}
-
-	public ClusAttrType getType() {
-		return null;
-	}
-
-	public void setType(ClusAttrType type) {
-	}
-
-	public String getString() {
-		return m_Line;
-	}
-
-	public int getNbLines() {
-		return m_Lines.size();
-	}
-
-	public String getLine(int i) {
-		return (String)m_Lines.elementAt(i);
+		//Check if missing value
+		if (x == Double.NaN){
+			x = at.getStatistic().mean();
+		}
+		double y = at.getNumeric(t2); //same for t2
+		//Check if missing value
+		if (y == Double.NaN){
+			y = at.getStatistic().mean();
+		}
+		//normalize if wanted
+		if (Settings.kNN_normalized.getValue()){
+			NumericStatistic numStat = at.getStatistic();
+			double min = numStat.min();
+			double max = numStat.max();
+			double dif = max - min;
+			x = (x - min)/dif;
+			y = (y - min)/dif;
+		}
+		return Math.abs(x-y);
 	}
 }

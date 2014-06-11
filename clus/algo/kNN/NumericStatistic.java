@@ -20,56 +20,41 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.model.test;
+package clus.algo.kNN;
 
-import jeans.util.*;
+/**
+ * This class stores some useful statistics for a Numeric Attribute
+ * of certain data.
+ */
+public class NumericStatistic extends AttributeStatistic{
 
-import clus.data.rows.*;
-import clus.data.type.*;
-import clus.main.Settings;
+	private double $mean,$variance,$min,$max;
 
-public class FakeTest extends NodeTest {
-
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
-
-	protected MyArray m_Lines = new MyArray();
-	protected String m_Line;
-
-	public FakeTest() {
+	public NumericStatistic(){
 	}
 
-	public void setLine(String line) {
-		m_Line = line;
+	public double mean(){
+		return $mean;
 	}
-
-	public void addLine(String line) {
-		m_Lines.addElement(line);
+	public void setMean(double m){
+		$mean = m;
 	}
-
-	public int predictWeighted(DataTuple tuple) {
-		return -1;
+	public double variance(){
+		return $variance;
 	}
-
-	public boolean equals(NodeTest test) {
-		return false;
+	public void setVariance(double v){
+		$variance = v;
 	}
-
-	public ClusAttrType getType() {
-		return null;
+	public double min(){
+		return $min;
 	}
-
-	public void setType(ClusAttrType type) {
+	public void setMin(double m){
+		$min = m;
 	}
-
-	public String getString() {
-		return m_Line;
+	public double max(){
+		return $max;
 	}
-
-	public int getNbLines() {
-		return m_Lines.size();
-	}
-
-	public String getLine(int i) {
-		return (String)m_Lines.elementAt(i);
+	public void setMax(double m){
+		$max = m;
 	}
 }

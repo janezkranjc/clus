@@ -462,39 +462,6 @@ public class RowData extends ClusData implements MSortable, Serializable {
 		return res;
 	}
 
-	public final RowData applyAllAlternativeTests(NodeTest orig, NodeTest[] tests, NodeTest[] opposites, int branch) {
-		// remark: we assume there are only 2 branches
-		ArrayList<DataTuple> al = new ArrayList<DataTuple>(); // will be used to create final RowData
-		for (int i = 0; i < m_NbRows; i++) {
-			int[] counts = new int[2]; // to count the number of yes and no predictions
-			//original test
-			int pred = orig.predictWeighted(m_Data[i]); // pred is 0 or 1
-			counts[pred]++;
-			// alternative tests
-			for (int t=0; t<tests.length; t++)
-			{
-				pred = tests[t].predictWeighted(m_Data[i]); // pred is 0 or 1
-				counts[pred]++;
-			}
-			// opposite alternatives tests
-			for (int t=0; t<opposites.length; t++)
-			{
-				pred = opposites[t].predictWeighted(m_Data[i]); // pred is 0 or 1
-				counts[(pred+1)%2]++; // 0->1 and 1->0
-			}
-			int finalpred;
-			int totalcounts = counts[0]+counts[1];
-			//counts[0] = yes branch, counts[1] = no branch
-			if (counts[0] >= 0.5 * totalcounts) finalpred = 0;
-			else finalpred = 1;
-			if (finalpred == branch) {
-				al.add(m_Data[i]);
-			}
-		}
-		RowData res = new RowData(al, m_Schema);
-		return res;
-	}
-	
 	public final RowData apply(NodeTest test, int branch) {
 		int nb = 0;
 		for (int i = 0; i < m_NbRows; i++) {
@@ -747,20 +714,6 @@ public class RowData extends ClusData implements MSortable, Serializable {
 			m_Data[i+data1.getNbRows()] = data2.getTuple(i).cloneTuple();
 		}
 	}
-	
-	public void add(RowData data1) {
-		DataTuple[] oldData = m_Data;
-		int size = getNbRows() + data1.getNbRows();
-		setNbRows(size);
-		m_Data = new DataTuple[size];
-		for (int i = 0; i < oldData.length; i++) {
-			m_Data[i] = oldData[i].cloneTuple();
-		}
-		for (int i = 0; i < data1.getNbRows(); i++) {
-			data1.getTuple(i).cloneTuple();
-			m_Data[i+oldData.length] = data1.getTuple(i).cloneTuple();
-		}
-	}
 
 	/**
 	 * Create a random sample with replacement of this RowData.
@@ -815,57 +768,4 @@ public class RowData extends ClusData implements MSortable, Serializable {
 		}
 		return new RowData(res, getSchema());
 	}
-	
-	// returns an array list with for a random target, for each target label a random example
-	/*public ArrayList getPertTuples() {
-		Random rnd = new Random();
-		HashMap<Integer,ArrayList> classhash = new HashMap();
-		
-		ClusAttrType[] targets = getSchema().getTargetAttributes();
-		// pick one of the random targets
-		int rndtarget = rnd.nextInt(targets.length);
-		ClusAttrType target = targets[rndtarget];
-		int targettype = target.getValueType();
-		if (targettype != ClusAttrType.VALUE_TYPE_INT) {
-			System.out.println("Target not nominal: ClusAttrType " + targettype);
-		}
-		else {
-			for (int i = 0; i < getNbRows(); i++) {
-				DataTuple dt = getTuple(i);			
-				int classid = target.getNominal(dt);
-				
-				if (classhash.containsKey(classid)) {
-					((ArrayList)classhash.get(classid)).add(i);
-				}
-				else {
-					ArrayList<Integer> al = new ArrayList<Integer>();
-					al.add(i);
-					classhash.put(classid,al);
-				}
-			}
-		}
-		Set<Integer> keys = classhash.keySet();
-		Iterator<Integer> keysit = keys.iterator();
-		//System.out.println("Printing " + getNbRows() + " tuples");
-		ArrayList<Integer> result = new ArrayList<Integer>();
-		while (keysit.hasNext())
-		{
-			Integer key = keysit.next();
-			ArrayList tuples = (ArrayList) classhash.get(key);
-			
-			// pick random element of ArrayList
-			
-			int rndint = rnd.nextInt(tuples.size());
-			result.add((Integer)tuples.get(rndint));
-			
-			//Object[] intarray = tuples.toArray();
-			//System.out.print("Class " + key + ": ");
-			//for (int j=0;j<intarray.length;j++) {
-			//	System.out.print(intarray[j].toString()+" ");
-			//}
-			//System.out.println();
-		}
-		return result;
-	}*/
-	
 }

@@ -34,12 +34,10 @@ import clus.model.test.NodeTest;
 public class EncodingCostPruning extends PruneTree {
 	
 	public double m_Ecc; // encoding cost
-	public double m_EccGain = Double.NEGATIVE_INFINITY;
-	public double m_BestEcc = Double.MAX_VALUE; // during pruning we keep track of the best ecc value found
-	public ClusNode m_BestTreeSoFar; // tree corresponding to best ecc value found
-	public ClusNode m_BestNodeToPrune; // best node to prune (locally in each pruning step)
+	public double m_EccGain = 0;
+	public ClusNode m_BestNodeToPrune;
 	public RowData m_Data; // RowData at root node of original tree
-	public EncodingCost m_EC;	
+	public EncodingCost m_EC;
 	
 	public EncodingCostPruning() {
 		m_EC = new EncodingCost();
@@ -55,70 +53,32 @@ public class EncodingCostPruning extends PruneTree {
 	}
 	
 	public void prune(ClusNode node) throws ClusException {
-		System.out.println("Encoding cost pruning started");
 		node.numberCompleteTree();
 		int totalNbNodes = node.getTotalTreeSize();
 		m_EC.initializeLogPMatrix(totalNbNodes);
 		doPrune(node);
-		System.out.println("Encoding cost pruning resulted in the following clusters (1 per line):");
-		printInstanceLabels(node,m_Data);
 		//m_EC.printDuration();
 	}
 	
 	public void doPrune(ClusNode node) throws ClusException {
+		System.out.println("Pruning!");
 		m_Ecc = calculateEncodingCost(node,m_Data);
-		//System.out.println(" -> orig ecc = " + m_Ecc);
-		if (m_Ecc < m_BestEcc) {
-			m_BestEcc = m_Ecc;
-			m_BestTreeSoFar = node.cloneTreeWithVisitors();
-		}
+		System.out.println(" -> orig ecc = " + m_Ecc);
 		traverseTreeAndRecordEncodingCostIfLeafChildren(node, node, m_Data);
-		if (m_BestNodeToPrune != null) {
+		if ((m_EccGain > 0) && (m_BestNodeToPrune != null)) {
 			System.out.println("Pruning node such that ECC drops with " + m_EccGain);
 			m_BestNodeToPrune.makeLeaf();
-			m_EccGain = Double.NEGATIVE_INFINITY;
+			m_EccGain = 0;
 			m_BestNodeToPrune = null;
 			doPrune(node);
 		}
-		else {
-			// pruned until the root, now reset node to the best tree found in the pruning process
-			node.setTest(m_BestTreeSoFar.getTest());
-			ClusNode[] children = m_BestTreeSoFar.getChildren();
-			for (int i=0; i<children.length; i++) {
-				node.addChild(children[i]);
-			}
-		}
 	}
-	
-	public int printInstanceLabels(ClusNode node, RowData data){
-	       
-        ArrayList<RowData> clusters = new ArrayList<RowData>();
-        ArrayList<Integer> clusterIds = new ArrayList<Integer>();
-        getLeafClusters(node, data, clusters, clusterIds);
-        for(int i=0;i<clusters.size();i++){
-            int nbRows = clusters.get(i).getNbRows();
-            String key =
-            	clusters.get(i).getSchema().getKeyAttribute()[0].getString(clusters.get(i).getTuple(0));
-            	                System.out.print(key);
-            for(int r=1;r<nbRows;r++){
-                key =
-clusters.get(i).getSchema().getKeyAttribute()[0].getString(clusters.get(i).getTuple(r));
-                System.out.print(" "+key);
-                           
-            }
-            System.out.print("\n");
-        }
-        return 0;
-    }
-
-	
 	
 	public double calculateEncodingCost(ClusNode node, RowData data) {
 		ArrayList<RowData> clusters = new ArrayList<RowData>();
 		ArrayList<Integer> clusterIds = new ArrayList<Integer>();
 		getLeafClusters(node, data, clusters, clusterIds);
 		m_EC.setClusters(clusters, clusterIds);
-		m_EC.setNbSequences(data.getNbRows());
 		double ecv = m_EC.getEncodingCostValue();
 		return ecv;
 	}
@@ -135,19 +95,19 @@ clusters.get(i).getSchema().getKeyAttribute()[0].getString(clusters.get(i).getTu
 				ClusNode child = (ClusNode)node.getChild(i);
 				nbLeafChildren += traverseTreeAndRecordEncodingCostIfLeafChildren(child, rootNode, rootData);
 			}
-			if (nbLeafChildren == arity) { // all children are leaves
+			if (nbLeafChildren == arity) {
 				// make leaf node
 				ClusNode[] children = node.getChildren();
 				NodeTest test = node.getTest();
 				node.makeLeaf();
 				// calculate ecc
 				double ecc = calculateEncodingCost(rootNode,rootData);
-				//System.out.println("new ecc = " + ecc);
+				System.out.println("new ecc = " + ecc);
 				double eccGain = m_Ecc - ecc;
 				if (eccGain > m_EccGain) {
 					m_EccGain = eccGain;
 					m_BestNodeToPrune = node;
-					//System.out.println("better!");
+					System.out.println("better!");
 				}
 				// reset node
 				node.setTest(test);
@@ -155,10 +115,10 @@ clusters.get(i).getSchema().getKeyAttribute()[0].getString(clusters.get(i).getTu
 					node.addChild(children[i]);
 				}
 			}
-			return 0; // return 0 for internal node
+			return 0;
 		}
 		else {
-			return 1; // return 1 for leaf
+			return 1;
 		}
 
 	}

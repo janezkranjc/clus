@@ -215,9 +215,6 @@ public abstract class NodeTest implements Serializable {
 	// String representation
 	public abstract String getString();
 
-	// String representation for Python
-	public abstract String getPythonString();
-	
 	// String representation (for branch - not used for binary)
 	public String getBranchString(int i) {
 		return null;
@@ -272,21 +269,6 @@ public abstract class NodeTest implements Serializable {
 		return str;
 	}
 
-	public final String getPythonTestString() {
-		String str = getPythonString();
-		if (Settings.SHOW_BRANCH_FREQ) {
-			if (getPosFreq() != Double.NEGATIVE_INFINITY) {
-				String bfr = ClusFormat.ONE_AFTER_DOT.format(getPosFreq()*100);
-				str += " (" + bfr + "%)";
-			}
-		}
-		if (Settings.SHOW_UNKNOWN_FREQ) {
-			String unk = ClusFormat.ONE_AFTER_DOT.format(getUnknownFreq()*100);
-			str += " (miss: " + unk + "%)";
-		}
-		return str;
-	}
-	
 	public final String getTestString(int idx) {
 		String str = getBranchString(idx);
 		if (Settings.SHOW_BRANCH_FREQ) {

@@ -20,56 +20,50 @@
  * Contact information: <http://www.cs.kuleuven.be/~dtai/clus/>.         *
  *************************************************************************/
 
-package clus.model.test;
+package clus.algo.kNN;
 
-import jeans.util.*;
+import clus.data.type.ClusAttrType;
+import clus.data.rows.DataTuple;
 
-import clus.data.rows.*;
-import clus.data.type.*;
-import clus.main.Settings;
+/**
+ * This class represents distances between DataTuples
+ */
 
-public class FakeTest extends NodeTest {
+public abstract class VectorDistance {
 
-	public final static long serialVersionUID = Settings.SERIAL_VERSION_ID;
+	private ClusAttrType[] $attrs;
+	private double[] $weights;
 
-	protected MyArray m_Lines = new MyArray();
-	protected String m_Line;
-
-	public FakeTest() {
+	public VectorDistance(ClusAttrType[] attrs,double[] weights){
+		setAttribs(attrs);
+		$weights = weights;
 	}
 
-	public void setLine(String line) {
-		m_Line = line;
+
+
+	public int amountAttribs(){
+		return $attrs.length;
+	}
+	public void setAttribs(ClusAttrType[] attrs){
+		$attrs = attrs;
+	}
+	/**
+	 * Returns index'th attribute.
+	 * Require index :  0 <= index < amountAttribs()
+	 */
+
+	public ClusAttrType getAttrib(int idx){
+		return $attrs[idx];
 	}
 
-	public void addLine(String line) {
-		m_Lines.addElement(line);
+	public double getWeight(int idx){
+		return $weights[idx];
 	}
 
-	public int predictWeighted(DataTuple tuple) {
-		return -1;
-	}
+	/**
+	 * Returns the distance between the 2 given tuples
+	 */
+	public abstract double getDistance(DataTuple a,DataTuple b);
 
-	public boolean equals(NodeTest test) {
-		return false;
-	}
-
-	public ClusAttrType getType() {
-		return null;
-	}
-
-	public void setType(ClusAttrType type) {
-	}
-
-	public String getString() {
-		return m_Line;
-	}
-
-	public int getNbLines() {
-		return m_Lines.size();
-	}
-
-	public String getLine(int i) {
-		return (String)m_Lines.elementAt(i);
-	}
+	public abstract String toString();
 }
