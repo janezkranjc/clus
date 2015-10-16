@@ -539,6 +539,7 @@ public class Settings implements Serializable {
 	protected INIFileNominal m_WritePredictions;
 	protected INIFileBool m_WriteErrorFile;
 	protected INIFileBool m_ModelIDFiles;
+	protected INIFileBool m_OutputXMLModel;
 	protected INIFileBool m_OutputPythonModel;
 	protected INIFileBool m_OutputDatabaseQueries;
 	protected INIFileBool m_WriteCurves;	
@@ -601,6 +602,14 @@ public class Settings implements Serializable {
 
 	public boolean isOutputPythonModel() {
 		return m_OutputPythonModel.getValue();
+	}
+	
+	public void setOutputXMLModel(boolean value) {		
+		m_OutputXMLModel.setValue(value);
+	}
+	
+	public boolean isOutputXMLModel() {		
+		return m_OutputXMLModel.getValue();
 	}
 
 	public boolean isOutputDatabaseQueries() {
@@ -897,7 +906,7 @@ public class Settings implements Serializable {
 		m_SectionRules.setEnabled(enable);
 	}
 
-	public static boolean isPrintAllRules(){
+	public static boolean isPrintAllRules(){		
 		return m_PrintAllRules.getValue();
 	}
 
@@ -2206,6 +2215,7 @@ public class Settings implements Serializable {
 		//output.addNode(m_ModelIDFiles = new INIFileBool("WriteModelIDFiles", false));
 		output.addNode(m_ModelIDFiles = new INIFileBool("ModelIDFiles", false));
 		output.addNode(m_WriteCurves = new INIFileBool("WriteCurves", false));
+		output.addNode(m_OutputXMLModel = new INIFileBool("OutputXMLModel", false));
 		output.addNode(m_OutputPythonModel = new INIFileBool("OutputPythonModel", false));
 		output.addNode(m_OutputDatabaseQueries = new INIFileBool("OutputDatabaseQueries", false));
 
@@ -2479,7 +2489,7 @@ public class Settings implements Serializable {
 		}
 		if (cargs.hasOption("silent")) {
 			VERBOSE = 0;
-		}
+		}		
 	}
 
 	public void update(ClusSchema schema) {

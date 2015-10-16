@@ -91,6 +91,7 @@ public class ClassHierarchy implements Serializable {
 
 	public final void print(PrintWriter wrt, double[] counts, double[] weights) {
 		m_Root.print(0, wrt, counts, weights);
+		m_Root.printToXML();
 	}
 
 	public final void print(PrintWriter wrt, double[] counts) {

@@ -33,6 +33,9 @@ import jeans.util.StringUtils;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import clus.main.ClusStatManager;
 import clus.main.Settings;
@@ -252,6 +255,7 @@ public class RegressionStat extends RegressionStatBase {
 	public String getString(StatisticPrintInfo info) {
 		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
 		StringBuffer buf = new StringBuffer();
+		
 		buf.append("[");
 		for (int i = 0; i < m_NbAttrs; i++) {
 			if (i != 0) buf.append(",");
@@ -305,5 +309,27 @@ public class RegressionStat extends RegressionStatBase {
 		}
 		return result;
 	}
-	
+
+	@Override
+	public Element getPredictElement(Document doc) {
+		Element stats = doc.createElement("RegressionStat");
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+		Attr examples = doc.createAttribute("examples");
+		examples.setValue(fr.format(m_SumWeight));
+		
+		stats.setAttributeNode(examples);
+		for (int i = 0; i < m_NbAttrs; i++) {			
+			Element attr = doc.createElement("Target");
+			Attr name = doc.createAttribute("name");
+			name.setValue(m_Attrs[i].getName());
+			attr.setAttributeNode(name);
+			
+			double tot = getSumWeights(i);
+			if (tot == 0) attr.setTextContent("?");
+			else attr.setTextContent(fr.format(getSumValues(i)/tot));			
+			
+			stats.appendChild(attr);
+		}
+		return stats;
+	}	
 }

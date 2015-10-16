@@ -22,13 +22,18 @@
 
 package clus.statistic;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
-import jeans.list.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import jeans.list.*;
 import clus.data.cols.*;
 import clus.data.rows.*;
 import clus.main.Settings;
+import clus.util.ClusFormat;
 
 public class BitVectorStat extends ClusStatistic {
 
@@ -133,5 +138,15 @@ public class BitVectorStat extends ClusStatistic {
 
 	public void vote(ArrayList votes) {
 		System.err.println(getClass().getName() + "BitVectorStat: vote not implemented");
+	}
+
+	@Override
+	public Element getPredictElement(Document doc) {
+		Element stats = doc.createElement("BitVectorStat");
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+		Attr examples = doc.createAttribute("examples");
+		examples.setValue(fr.format(m_SumWeight));
+		stats.setAttributeNode(examples);
+		return stats;
 	}
 }

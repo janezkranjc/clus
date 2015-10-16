@@ -28,13 +28,15 @@ package clus.weka;
 import java.io.*;
 import java.util.*;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import jeans.io.*;
 import jeans.util.*;
 import clus.data.rows.*;
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.statistic.*;
-
 import weka.classifiers.*;
 import weka.core.*;
 
@@ -110,4 +112,10 @@ public class ClusWekaModel implements ClusModel {
 
     public void retrieveStatistics(ArrayList list) {
     }
+
+	@Override
+	public Element printModelToXML(Document doc, StatisticPrintInfo info,
+			RowData examples) {		
+		return doc.createElement("ClusWekaModel");
+	}
 }

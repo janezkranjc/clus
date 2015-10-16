@@ -23,7 +23,6 @@
 package clus;
 
 import clus.tools.debug.Debug;
-
 import clus.gui.*;
 import clus.io.ClusSerializable;
 import clus.algo.ClusInductionAlgorithm;
@@ -33,7 +32,6 @@ import clus.algo.tdidt.processor.NodeExampleCollector;
 import clus.algo.tdidt.processor.NodeIDWriter;
 import clus.algo.tdidt.tune.CDTTuneFTest;
 import clus.algo.tdidt.tune.CDTuneSizeConstrPruning;
-
 import jeans.io.*;
 import jeans.util.*;
 import jeans.util.cmdline.*;
@@ -61,12 +59,10 @@ import clus.ext.ensembles.*;
 import clus.ext.exhaustivesearch.*;
 import clus.ext.constraint.*;
 import clus.pruning.*;
-
 import clus.model.ClusModel;
 import clus.model.ClusModelInfo;
 import clus.model.processor.*;
 import clus.model.modelio.*;
-
 import clus.algo.kNN.*;
 import clus.algo.rules.*;
 
@@ -84,11 +80,12 @@ public class Clus implements CMDLineArgsProvider {
 			"debug", "tuneftest", "load", "soxval", "bag", "obag", "show",
 			"knn", "knnTree", "beam", "gui", "fillin", "rules", "weka",
 			"corrmatrix", "tunesize", "out2model", "test", "normalize",
-			"tseries", "writetargets", "fold", "forest", "copying", "sit", "tc" };
+			"tseries", "writetargets", "fold", "forest", "copying", "sit", "tc",
+			"xml"};
 
 	public final static int[] OPTION_ARITIES = { 0, 0, 0, 1, 1, 0, 0, 0, 0, 1,
 			0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1,
-			0, 0, 0, 0 };
+			0, 0, 0, 0, 0};
 
 	protected Settings m_Sett = new Settings();
 	protected ClusSummary m_Summary = new ClusSummary();
@@ -1221,6 +1218,7 @@ public class Clus implements CMDLineArgsProvider {
 		calcExtraTrainingSetErrors(cr);
 		output.writeHeader();
 		output.writeOutput(cr, true, m_Sett.isOutTrainError());
+		new File("hierarchy.xml").delete();
 		output.close();
 		clss.saveInformation(m_Sett.getAppName());
 		return cr;
@@ -1600,13 +1598,13 @@ public class Clus implements CMDLineArgsProvider {
 				System.out.println();
 				System.out.println("Expected main argument");
 				System.exit(0);
-			}
-			if (cargs.allOK()) {
+			}			
+			if (cargs.allOK()) {				
 				sett.setDate(new Date());
 				sett.setAppName(cargs.getMainArg(0));
 				clus.initSettings(cargs);
 				ClusInductionAlgorithmType clss = null;
-
+				
 				/**
 				 * There are two groups of command line parameters of type
 				 * -<parameter>. From both of them at most one can be used. The
@@ -1663,8 +1661,10 @@ public class Clus implements CMDLineArgsProvider {
 					if (sett.getFTestArray().isVector())
 						clss = new CDTTuneFTest(clss, sett.getFTestArray()
 								.getDoubleVector());
+				}				
+				if (cargs.hasOption("xml")) {					
+					clus.getSettings().setOutputXMLModel(true);							
 				}
-
 				/**
 				 * The second group of command line parameters is for
 				 * miscellaneous action. The options are corrmatrix, info,
@@ -1680,7 +1680,7 @@ public class Clus implements CMDLineArgsProvider {
 					cmp.printMatrixTeX();
 				} else if (cargs.hasOption("info")) {
 					clus.initialize(cargs, clss);
-					clus.showInfo();
+					clus.showInfo();					
 				} else if (cargs.hasOption("writetargets")) {
 					clus.initialize(cargs, clss);
 					clus.writeTargets();
@@ -1717,8 +1717,8 @@ public class Clus implements CMDLineArgsProvider {
 					clus.getSettings().setSectionTimeSeriesEnabled(true);
 					clus.initialize(cargs, clss);
 					clus.singleRun(clss);
-				} else {
-					clus.initialize(cargs, clss);
+				} else {					
+					clus.initialize(cargs, clss);					
 					clus.singleRun(clss);
 				}
 			}

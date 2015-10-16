@@ -31,6 +31,9 @@ import java.util.*;
 
 import org.apache.commons.math.distribution.*;
 import org.apache.commons.math.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import clus.data.attweights.ClusAttributeWeights;
 import clus.data.rows.*;
@@ -39,7 +42,6 @@ import clus.ext.timeseries.TimeSeries;
 import clus.main.*;
 import clus.statistic.*;
 import clus.util.*;
-
 import jeans.util.array.*;
 
 public class WHTDStatistic extends RegressionStatBinaryNomiss {
@@ -325,6 +327,46 @@ public class WHTDStatistic extends RegressionStatBinaryNomiss {
 			}
 			return buf.toString();
 		}
+	}
+	
+	@Override
+	public Element getPredictElement(Document doc) {		
+		Element stats = doc.createElement("WHTDStat");
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+		Attr examples = doc.createAttribute("examples");
+		examples.setValue(fr.format(m_SumWeight));
+		stats.setAttributeNode(examples);
+		if (m_Threshold >= 0.0) {
+			String pred = computePrintTuple().toStringHuman(getHier());			
+			Element predictions = doc.createElement("Predictions");			
+			stats.appendChild(predictions);
+			String[] predictionS = pred.split(",");			
+			for(String prediction: predictionS)
+			{
+				Element attr = doc.createElement("Prediction");
+				predictions.appendChild(attr);				
+				attr.setTextContent(prediction);				
+			}			
+		}
+		else
+		{
+			for (int i = 0; i < m_NbAttrs; i++) {			
+				Element attr = doc.createElement("Target");
+				Attr name = doc.createAttribute("name");			
+				name.setValue(m_Attrs[i].getName());
+				attr.setAttributeNode(name);
+				if (m_SumWeight == 0.0)
+				{
+					attr.setTextContent("?");
+				}
+				else
+				{
+					attr.setTextContent(fr.format(getMean(i)));						
+				}
+				stats.appendChild(attr);
+			}
+		}				
+		return stats;
 	}
 
 	public String getPredictString() {

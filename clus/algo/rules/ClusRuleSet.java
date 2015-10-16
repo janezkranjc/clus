@@ -30,6 +30,9 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import jeans.util.*;
 //import clus.algo.kNN.KNNStatistics;
 //import clus.algo.kNN.NumericStatistic;
@@ -515,6 +518,13 @@ public class ClusRuleSet implements ClusModel, Serializable {
 			wrt.println();
 		}
 		wrt.println("Default = "+(m_TargetStat == null ? "None" : m_TargetStat.getString()));
+	}
+	
+	@Override
+	public Element printModelToXML(Document doc, StatisticPrintInfo info,
+			RowData examples) {
+		// TODO Auto-generated method stub
+		return doc.createElement("RuleSet");
 	}
 
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
@@ -1334,5 +1344,5 @@ public class ClusRuleSet implements ClusModel, Serializable {
 		
 		ClusRuleLinearTerm.DeleteImplicitLinearTerms(); // Not needed anymore
 
-	}
+	}	
 }

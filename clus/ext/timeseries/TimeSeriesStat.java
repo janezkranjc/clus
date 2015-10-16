@@ -25,6 +25,9 @@ package clus.ext.timeseries;
 import java.text.NumberFormat;
 import java.util.*;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import clus.data.attweights.*;
 import clus.data.rows.*;
 import clus.data.type.*;
@@ -264,6 +267,22 @@ public class TimeSeriesStat extends SumPairwiseDistancesStat {
 		buf.append("; ");
 */
 		return buf.toString();
+	}
+	
+	@Override
+	public Element getPredictElement(Document doc) 
+	{
+		Element stat = doc.createElement("TimeseriesStat");
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+		stat.setAttribute("examples", fr.format(m_SumWeight));
+		Element mean = doc.createElement("Mean");
+		mean.setTextContent(m_RepresentativeMean.toString());
+		Element median = doc.createElement("Median");
+		median.setTextContent(m_RepresentativeMedoid.toString());
+		median.setAttribute("distances", fr.format(m_AvgDistances));
+		stat.appendChild(mean);
+		stat.appendChild(median);
+		return stat;
 	}
 
 	public void addPredictWriterSchema(String prefix, ClusSchema schema) {

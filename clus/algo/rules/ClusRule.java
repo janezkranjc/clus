@@ -29,6 +29,9 @@ import java.io.*;
 import java.text.NumberFormat;
 import java.util.*;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import jeans.util.*;
 import clus.algo.tdidt.ClusNode;
 import clus.data.attweights.ClusAttributeWeights;
@@ -505,6 +508,13 @@ public class ClusRule implements ClusModel, Serializable {
 		}
 
 		commonPrintForRuleTypes(wrt, info);
+	}
+	
+	@Override
+	public Element printModelToXML(Document doc, StatisticPrintInfo info,
+			RowData examples) {
+		// TODO Auto-generated method stub
+		return doc.createElement("Rule");
 	}
 	
 	/** Print for also nonregular rules */

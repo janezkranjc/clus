@@ -23,10 +23,17 @@
 package clus.ext.ilevelc;
 
 
+import java.text.NumberFormat;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import clus.data.rows.*;
 import clus.data.type.NumericAttrType;
 import clus.main.Settings;
 import clus.statistic.*;
+import clus.util.ClusFormat;
 
 public class ILevelCStatistic extends RegressionStat {
 
@@ -66,5 +73,30 @@ public class ILevelCStatistic extends RegressionStat {
 			DataTuple tuple = data.getTuple(i);
 			clusters[tuple.getIndex()] = getClusterID();
 		}
+	}
+	@Override
+	public Element getPredictElement(Document doc) {
+		Element stats = doc.createElement("Cluster");
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+		Attr examples = doc.createAttribute("examples");
+		examples.setValue(fr.format(m_SumWeight));		
+		stats.setAttributeNode(examples);
+		
+		Attr cluster = doc.createAttribute("cluster");
+		cluster.setValue(getClusterID()+"");		
+		stats.setAttributeNode(cluster);
+		for (int i = 0; i < m_NbAttrs; i++) {			
+			Element attr = doc.createElement("Target");
+			Attr name = doc.createAttribute("name");
+			name.setValue(m_Attrs[i].getName());
+			attr.setAttributeNode(name);
+			
+			double tot = getSumWeights(i);
+			if (tot == 0) attr.setTextContent("?");
+			else attr.setTextContent(fr.format(getSumValues(i)/tot));			
+			
+			stats.appendChild(attr);
+		}
+		return stats;
 	}
 }

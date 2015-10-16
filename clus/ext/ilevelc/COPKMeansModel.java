@@ -23,9 +23,15 @@
 package clus.ext.ilevelc;
 
 import java.io.PrintWriter;
+import java.util.HashSet;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import clus.algo.tdidt.*;
 import clus.data.rows.*;
+import clus.data.type.ClusAttrType;
 import clus.main.*;
 import clus.statistic.*;
 
@@ -72,6 +78,84 @@ public class COPKMeansModel extends ClusNode {
 				wrt.println("  "+m_Clusters[j].getCenter().getString(info));
 			}
 		}
+	}
+	@Override
+	public Element printModelToXML(Document doc, StatisticPrintInfo info,
+			RowData examples)
+	{		
+		Element kmeans = doc.createElement("COPKMeans");
+		Attr clusters = doc.createAttribute("clusters");
+		Attr iter = doc.createAttribute("iter");
+		Attr max = doc.createAttribute("max");
+		Attr csets = doc.createAttribute("csets");
+		kmeans.setAttributeNode(clusters);
+		kmeans.setAttributeNode(iter);
+		kmeans.setAttributeNode(max);
+		kmeans.setAttributeNode(csets);
+		clusters.setValue(m_K+"");
+		iter.setValue(m_Iterations+"");
+		max.setValue(m_AvgIter+"");
+		csets.setValue(m_CSets+"");
+		
+		if(!m_Illegal)
+		{
+			Element stats = doc.createElement("ILevelCStat");
+			kmeans.appendChild(stats);
+			for (int j = 0; j < m_K; j++) {
+				Element predict = m_Clusters[j].getCenter().getPredictElement(doc);
+				stats.appendChild(predict);
+			}	
+		}
+		else
+		{
+			Element unkn = doc.createElement("UnknownStat");
+			kmeans.appendChild(unkn);
+		}
+		
+		if (examples!=null && examples.getNbRows()>0)
+		{
+			Element examplesEl = doc.createElement("Examples");				
+			kmeans.appendChild(examplesEl);
+			Attr n_examples = doc.createAttribute("examples");
+			n_examples.setValue(examples.getNbRows()+"");
+			examplesEl.setAttributeNode(n_examples);
+			String[] attributes = examples.getSchema().toString().split(",");
+			ClusAttrType[] targets = examples.getSchema().getTargetAttributes();
+			HashSet<Integer> targetIds = new HashSet<Integer>();
+			for(ClusAttrType t:targets)
+			{
+				targetIds.add(t.getIndex());
+			}
+			for(int i=0;i<examples.getNbRows();i++)
+			{					
+				Element example = doc.createElement("Example");
+				examplesEl.appendChild(example);					
+				String[] values = examples.getTuple(i).toString().split(",");
+				
+				for(int j=0;j<values.length;j++)
+				{
+					Element attribute = doc.createElement("Attribute");
+					example.appendChild(attribute);
+					Attr name = doc.createAttribute("name");
+					attribute.setAttributeNode(name);
+					Attr type = doc.createAttribute("type");
+					attribute.setAttributeNode(type);
+					if(targetIds.contains(j))
+					{
+						//target attribute
+						type.setValue("class");
+					}
+					else
+					{
+						//regular attribute
+						type.setValue("regular");
+					}
+					name.setValue(attributes[j]+"");
+					attribute.setTextContent(values[j]);
+				}					
+			}				
+		}
+		return kmeans;
 	}
 
 	public String getModelInfo() {

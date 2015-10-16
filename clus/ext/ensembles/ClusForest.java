@@ -24,7 +24,6 @@ package clus.ext.ensembles;
 
 
 import jeans.util.*;
-
 import clus.main.*;
 import clus.model.ClusModel;
 import clus.model.ClusModelInfo;
@@ -40,9 +39,12 @@ import clus.ext.hierarchical.HierSingleLabelStat;
 import clus.statistic.*;
 import clus.util.*;
 
-
 import java.io.*;
 import java.util.*;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Ensemble of decision trees.
@@ -274,6 +276,23 @@ public class ClusForest implements ClusModel, Serializable{
 		}else	wrt.write("Forest with "+getNbModels()+" models\n");
 
 	}
+	
+	@Override
+	public Element printModelToXML(Document doc, StatisticPrintInfo info,
+			RowData examples) {
+		Element forest = doc.createElement("ClusForest");
+		ClusModel model;
+		for (int i = 0; i < m_Forest.size(); i++){
+			model = (ClusModel)m_Forest.get(i);
+			if (m_PrintModels) thresholdToModel(i, getThreshold());			
+			Element mod = model.printModelToXML(doc, info, examples);
+			Attr id = doc.createAttribute("modelId");
+			mod.setAttributeNode(id);
+			id.setValue((i+1)+"");
+			forest.appendChild(mod);
+		}
+		return forest;
+	}
 
 	public void printModelAndExamples(PrintWriter wrt, StatisticPrintInfo info, RowData examples) {
 		ClusModel model;
@@ -450,5 +469,4 @@ public class ClusForest implements ClusModel, Serializable{
 				+ cr.getModelInfo(ClusModel.ORIGINAL).getName());
 		rules_info.setModel(ruleSet);
 	}
-	
 }

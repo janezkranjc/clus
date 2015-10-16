@@ -34,6 +34,9 @@ import clus.ext.timeseries.TimeSeries;
 import java.io.*;
 import java.util.ArrayList;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 /**
  * Statistics about the data set. Target attributes, nominal or real attributes, weights etc.
  *
@@ -127,6 +130,8 @@ public abstract class ClusStatistic implements Serializable {
 	public String getPredictString() {
 		return getString();
 	}
+	
+	public abstract Element getPredictElement(Document doc);
 
 	public abstract void reset();
 

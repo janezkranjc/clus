@@ -25,6 +25,10 @@ package clus.error.multiscore;
 import java.text.*;
 import java.util.ArrayList;
 
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import clus.main.Settings;
 import clus.statistic.*;
 import clus.util.*;
@@ -68,6 +72,28 @@ public class MultiScoreStat extends ClusStatistic {
 		buf.append("]");
 		return buf.toString();
 
+	}
+	
+	@Override
+	public Element getPredictElement(Document doc) {
+		Element stats = doc.createElement("MultiScoreStat");
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;
+		Attr examples = doc.createAttribute("examples");
+		examples.setValue(fr.format(m_SumWeight));
+		stats.setAttributeNode(examples);
+		for (int i = 0; i < m_NbTarget; i++) {
+			Element target = doc.createElement("Target");
+			stats.appendChild(target);
+			
+			Attr score = doc.createAttribute("score");
+			target.setAttributeNode(score);
+			score.setValue((1-m_Score[i])+"");
+			
+			Attr mean = doc.createAttribute("mean");
+			target.setAttributeNode(mean);
+			mean.setValue((m_MeanValues[i])+"");
+		}
+		return stats;
 	}
 
 	public String getPredictedClassName(int idx) {

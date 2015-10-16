@@ -25,10 +25,23 @@ package clus.ext.hierarchical;
 import java.io.*;
 import java.util.*;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import jeans.math.*;
 import jeans.util.*;
 import jeans.util.compound.*;
-
 import jeans.tree.*;
 import clus.util.*;
 import clus.main.*;
@@ -188,11 +201,11 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 
 	public final void print(int tabs, PrintWriter wrt, double[] counts, double[] weights) {
 		for (int i = 0; i < m_SubTerms.size(); i++) {
-			ClassTerm subterm = (ClassTerm)m_SubTerms.get(i);
+			ClassTerm subterm = (ClassTerm)m_SubTerms.get(i);			
 			wrt.print(StringUtils.makeString(' ', tabs)+subterm.getID());
 			int nb_par = subterm.getNbParents();
 			if (nb_par > 1) {
-				// DAG mode: node has more than one parent
+				// DAG mode: node has more than one parent				
 				int p_idx = 0;
 				StringBuffer buf = new StringBuffer();
 				buf.append("(p: ");
@@ -223,6 +236,60 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 			wrt.println();
 			subterm.print(tabs+6, wrt, counts, weights);
 		}
+	}
+	
+	public void printToXML()
+	{			
+		try 
+		{
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+			Document doc = docBuilder.newDocument();
+			Element rootElement = doc.createElement("Hierarchy");
+			doc.appendChild(rootElement);							
+			nextID=0;
+			ArrayList<Element> hierarchyRoots = printNodeToXML(doc);
+			for(Element child: hierarchyRoots)
+			{
+				rootElement.appendChild(child);
+			}			
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();			
+			DOMSource source = new DOMSource(doc);
+			String xml_fname = "hierarchy.xml";						
+			StreamResult result = new StreamResult(new File(xml_fname));						
+			transformer.transform(source, result);
+		} 
+		catch (ParserConfigurationException e) 
+		{			
+			System.out.println("XML parser configuration exception: "+e.getMessage());
+		} 
+		catch (TransformerException e) 
+		{			
+			System.out.println("XML transformer configuration exception: "+e.getMessage());
+		}
+				
+	}
+	
+	private static int nextID = -1;
+	
+	public ArrayList<Element> printNodeToXML(Document doc)
+	{		
+		ArrayList<Element> output = new ArrayList<Element>();		
+		for (int i = 0; i < m_SubTerms.size(); i++) 
+		{
+			Element node = doc.createElement("Node");
+			output.add(node);
+			node.setAttribute("id", "H"+String.valueOf(nextID));
+			nextID++;
+			ClassTerm subterm = (ClassTerm)m_SubTerms.get(i);
+			node.setAttribute("name", subterm.getID());
+			for(Element child: subterm.printNodeToXML(doc))
+			{
+				node.appendChild(child);				
+			}			
+		}
+		return output;
 	}
 
 	public void fillVectorNodeAndAncestors(double[] array) {
@@ -355,5 +422,5 @@ public class ClassTerm extends IndexedItem implements Node, Comparable {
 		} else {
 			return toPathString();
 		}
-	}
+	}	
 }

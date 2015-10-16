@@ -29,8 +29,9 @@ import jeans.util.compound.*;
 import java.util.*;
 import java.io.*;
 
-// import weka.classifiers.trees.j48.NoSplit;
-// import weka.core.Utils;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import clus.util.*;
 import clus.main.ClusRun;
@@ -44,6 +45,7 @@ import clus.model.test.*;
 import clus.statistic.*;
 import clus.algo.split.CurrentBestTestAndHeuristic;
 import clus.data.rows.*;
+import clus.data.type.ClusAttrType;
 import clus.data.attweights.*;
 import clus.error.multiscore.*;
 import clus.selection.OOBSelection;
@@ -782,17 +784,16 @@ public class ClusNode extends MyNode implements ClusModel {
 
 	public final void printTree(PrintWriter writer, StatisticPrintInfo info, String prefix, RowData examples) {
 		int arity = getNbChildren();
-		if (arity > 0) {
+		if (arity > 0) {			
 			int delta = hasUnknownBranch() ? 1 : 0;
 			if (arity - delta == 2) {
 				writer.print(m_Test.getTestString());
-
 				RowData examples0 = null;
 				RowData examples1 = null;
 				if (examples!=null){
 					examples0 = examples.apply(m_Test, 0);
 					examples1 = examples.apply(m_Test, 1);
-				}			
+				}				
 				showAlternatives(writer);
 				writeDistributionForInternalNode(writer, info);
 				writer.print(prefix + "+--yes: ");
@@ -805,8 +806,8 @@ public class ClusNode extends MyNode implements ClusModel {
 				} else {
 					((ClusNode)getChild(NO)).printTree(writer, info, prefix+"        ",examples1);
 				}
-			} else {
-				writer.println(m_Test.getTestString());
+			} else {				
+				writer.println(m_Test.getTestString());				
 				for (int i = 0; i < arity; i++) {
 					ClusNode child = (ClusNode)getChild(i);
 					String branchlabel = m_Test.getBranchLabel(i);
@@ -826,11 +827,11 @@ public class ClusNode extends MyNode implements ClusModel {
 		} else {//on the leaves
 			if (m_TargetStat == null) {
 				writer.print("?");
-			} else {
-				writer.print(m_TargetStat.getString(info));
+			} else {				
+				writer.print(m_TargetStat.getString(info));				
 			}
 			if (getID() != 0 && info.SHOW_INDEX) writer.println(" ("+getID()+")");
-			else writer.println();
+			else writer.println();			
 			if (examples!=null && examples.getNbRows()>0){
 				writer.println(examples.toString(prefix));
 				writer.println(prefix+"Summary:");
@@ -838,6 +839,173 @@ public class ClusNode extends MyNode implements ClusModel {
 			}
 
 		}
+	}
+	
+	@Override
+	public Element printModelToXML(Document doc, StatisticPrintInfo info,
+			RowData examples)
+	{	
+		int arity = getNbChildren();
+		if (arity > 0)
+		{			
+			Element node = doc.createElement("Node");
+			Attr test = doc.createAttribute("test");
+			String testString = m_Test.getTestString();
+			if (m_Alternatives != null)
+			{
+				for (int i = 0; i < m_Alternatives.length; i++) {
+					testString += " and " + m_Alternatives[i];
+				}
+			}			
+			test.setValue(testString);	
+			node.setAttributeNode(test);
+			if(m_TargetStat!=null)
+			{				
+				Element stats = m_TargetStat.getPredictElement(doc);
+				node.appendChild(stats);	
+			}
+			else
+			{
+				Element unkn = doc.createElement("UnknownStat");
+				node.appendChild(unkn);
+			}		
+			int delta = hasUnknownBranch() ? 1 : 0;
+			if (arity - delta == 2)
+			{				
+				RowData examples0 = null;
+				RowData examples1 = null;
+				if (examples!=null){
+					examples0 = examples.apply(m_Test, 0);
+					examples1 = examples.apply(m_Test, 1);
+				}	
+								
+				Element yesElement = ((ClusNode)getChild(YES)).printModelToXML(doc, info, examples0);
+				Attr yes = doc.createAttribute("choice");
+				yes.setValue("yes");
+				yesElement.setAttributeNode(yes);
+				node.appendChild(yesElement);
+				
+				Element noElement = ((ClusNode)getChild(NO)).printModelToXML(doc, info, examples1);
+				Attr no = doc.createAttribute("choice");
+				no.setValue("no");
+				noElement.setAttributeNode(no);
+				node.appendChild(noElement);
+				
+				if (hasUnknownBranch()) {
+					Element unkElement = ((ClusNode)getChild(UNK)).printModelToXML(doc, info, examples0);
+					Attr unk = doc.createAttribute("choice");
+					unk.setValue("unk");
+					unkElement.setAttributeNode(unk);
+					node.appendChild(unkElement);					
+				}
+			}
+			else
+			{							
+				for (int i = 0; i < arity; i++) {
+					ClusNode child = (ClusNode)getChild(i);
+					String branchlabel = m_Test.getBranchLabel(i);
+					RowData examplesi = null;
+					if (examples!=null){
+						examplesi = examples.apply(m_Test, i);
+					}
+					Element element = child.printModelToXML(doc, info, examplesi);
+					Attr choice = doc.createAttribute("choice");
+					choice.setValue(branchlabel);
+					element.setAttributeNode(choice);
+					node.appendChild(element);										
+				}
+			}
+			return node;
+		}
+		else
+		{
+			Element leaf = doc.createElement("Leaf");
+			if(m_TargetStat!=null)
+			{
+				Element stats = m_TargetStat.getPredictElement(doc);
+				leaf.appendChild(stats);	
+			}
+			else
+			{
+				Element unkn = doc.createElement("UnknownStat");
+				leaf.appendChild(unkn);
+			}
+			if (getID() != 0)
+			{
+				Attr id = doc.createAttribute("id");
+				id.setValue(getID()+"");
+				leaf.setAttributeNode(id);
+			}
+			if (examples!=null && examples.getNbRows()>0)
+			{
+				Element examplesEl = doc.createElement("Examples");				
+				leaf.appendChild(examplesEl);
+				Attr n_examples = doc.createAttribute("examples");
+				n_examples.setValue(examples.getNbRows()+"");
+				examplesEl.setAttributeNode(n_examples);
+				String[] attributes = examples.getSchema().toString().split(",");				
+				ClusAttrType[] targets = examples.getSchema().getTargetAttributes();
+				HashSet<Integer> targetIds = new HashSet<Integer>();
+				for(ClusAttrType t:targets)
+				{
+					targetIds.add(t.getIndex());
+				}
+				for(int i=0;i<examples.getNbRows();i++)
+				{					
+					Element example = doc.createElement("Example");
+					examplesEl.appendChild(example);					
+					String[] valuesTmp = examples.getTuple(i).toString().split(",");
+					ArrayList<String> vals = new ArrayList<String>();
+					String together = "";
+					for(int j=0;j<valuesTmp.length;j++)
+					{
+						if(valuesTmp[j].contains("["))
+						{
+							together+=valuesTmp[j];
+						}
+						else if(valuesTmp[j].contains("]"))
+						{
+							together+=","+valuesTmp[j];
+							vals.add(together);
+							together = "";
+						}
+						else if(together.equals(""))
+						{
+							vals.add(valuesTmp[j]);
+						}
+						else
+						{
+							together += ","+valuesTmp[j];
+						}
+					}
+					String[] values = vals.toArray(new String[]{});
+					for(int j=0;j<values.length;j++)
+					{
+						Element attribute = doc.createElement("Attribute");
+						example.appendChild(attribute);
+						Attr name = doc.createAttribute("name");
+						attribute.setAttributeNode(name);
+						Attr type = doc.createAttribute("type");
+						attribute.setAttributeNode(type);
+						if(targetIds.contains(j))
+						{
+							//target attribute
+							type.setValue("class");
+						}
+						else
+						{
+							//regular attribute
+							type.setValue("regular");
+						}
+						name.setValue(attributes[j]+"");
+
+						attribute.setTextContent(values[j]);
+												
+					}					
+				}				
+			}
+			return leaf;
+		}		
 	}
 	
 	// only binary trees supported
@@ -1091,5 +1259,5 @@ public class ClusNode extends MyNode implements ClusModel {
 		// recompute statistics
 		reInitTargetStat(data);
 		reInitClusteringStat(data);
-	}
+	}	
 }

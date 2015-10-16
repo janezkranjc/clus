@@ -43,8 +43,8 @@ public class CMDLineArgs {
 		String[] options = $prov.getOptionArgs();
 		int[] arities = $prov.getOptionArgArities();
 		while (idx < args.length && !done) {
-			String arg = args[idx];
-			if (arg.charAt(0) == '-' && arg.length() > 1) {
+			String arg = args[idx];			
+			if (arg.charAt(0) == '-' && arg.length() > 1) {				
 				idx++;
 				arg = arg.substring(1);
 				boolean found = false;

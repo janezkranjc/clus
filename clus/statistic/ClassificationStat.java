@@ -33,6 +33,9 @@ import java.util.Arrays;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import clus.main.*;
 import clus.util.*;
@@ -501,7 +504,7 @@ public class ClassificationStat extends ClusStatistic {
 		else {
 			buf.append("?");
 		}
-		if (info.SHOW_DISTRIBUTION) {
+		if (info.SHOW_DISTRIBUTION) {			
 			for (int j = 0; j < m_NbTarget; j++) {
 				buf.append(" [");
 				for (int i = 0; i < m_ClassCounts[j].length; i++) {
@@ -789,6 +792,51 @@ public class ClassificationStat extends ClusStatistic {
 			result += distance / these[i].length;
 		}
 		return result/m_NbTarget;
+	}
+
+	@Override
+	public Element getPredictElement(Document doc) {
+		NumberFormat fr = ClusFormat.SIX_AFTER_DOT;	
+		Element stats = doc.createElement("ClassificationStat");
+		Attr examples = doc.createAttribute("examples");
+		examples.setValue(fr.format(m_SumWeight));
+		stats.setAttributeNode(examples);
+		Element majorities = doc.createElement("MajorityClasses");
+		stats.appendChild(majorities);
+		if (m_MajorityClasses != null) {			
+			for (int i = 0; i < m_NbTarget; i++) {
+				Element majority = doc.createElement("Target");
+				majorities.appendChild(majority);
+				
+				majority.setTextContent(m_Attrs[i].getValue(m_MajorityClasses[i]));
+							
+				Attr name = doc.createAttribute("name");
+				name.setValue(m_Attrs[i].getName());
+				majority.setAttributeNode(name);
+			}			
+		}
+		else {
+			Element majority = doc.createElement("Attribute");
+			majorities.appendChild(majority);
+		}
+		Element distribution = doc.createElement("Distributions");
+		stats.appendChild(distribution);		
+		for (int j = 0; j < m_NbTarget; j++) {	
+			Element target = doc.createElement("Target");
+			distribution.appendChild(target);
+			Attr name = doc.createAttribute("name");
+			name.setValue(m_Attrs[j]+"");
+			target.setAttributeNode(name);
+			for (int i = 0; i < m_ClassCounts[j].length; i++) {
+				Element value = doc.createElement("Value");
+				target.appendChild(value);
+				name = doc.createAttribute("name");
+				name.setValue(m_Attrs[j].getValue(i));
+				value.setAttributeNode(name);
+				value.setTextContent(m_ClassCounts[j][i]+"");								
+			}			
+		}						
+		return stats;
 	}
 
 }

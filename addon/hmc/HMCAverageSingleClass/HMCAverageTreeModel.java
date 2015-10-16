@@ -29,9 +29,12 @@ package addon.hmc.HMCAverageSingleClass;
 import java.io.*;
 import java.util.*;
 
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import jeans.util.MyArray;
 import jeans.util.array.*;
-
 import clus.ext.hierarchical.*;
 import clus.data.rows.*;
 import clus.main.*;
@@ -104,5 +107,19 @@ public class HMCAverageTreeModel implements ClusModel {
 
 	public void setDataSet(int set) {
 		m_DataSet = set;
+	}
+
+	@Override
+	public Element printModelToXML(Document doc, StatisticPrintInfo info,
+			RowData examples) {
+		Element model = doc.createElement("HMCAverageTreeModel");
+		Attr trees = doc.createAttribute("Trees");
+		model.setAttributeNode(trees);
+		Attr nodes = doc.createAttribute("Nodes");
+		model.setAttributeNode(nodes);
+		
+		trees.setValue(m_Trees+"");
+		nodes.setValue(m_TotSize+"");
+		return model;
 	}
 }

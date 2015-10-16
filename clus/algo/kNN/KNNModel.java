@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import jeans.util.MyArray;
 
 public class KNNModel implements ClusModel {
@@ -148,4 +151,11 @@ public class KNNModel implements ClusModel {
 
   public void retrieveStatistics(ArrayList list) {
   }
+
+@Override
+public Element printModelToXML(Document doc, StatisticPrintInfo info,
+		RowData examples) {
+	
+	return doc.createElement("KNNModel");
+}
 }

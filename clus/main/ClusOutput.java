@@ -26,9 +26,23 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
 import jeans.resource.ResourceInfo;
 import jeans.util.*;
-
 import clus.model.ClusModel;
 import clus.model.ClusModelInfo;
 import clus.statistic.StatisticPrintInfo;
@@ -132,7 +146,7 @@ public class ClusOutput {
 		m_Writer.println("FTValue (FTest): "+m_Sett.getFTest());
 		double tsec = (double)cr.getInductionTime()/1000.0;
 		double tpru = (double)cr.getPruneTime()/1000.0;
-		// Prepare models for printing if required
+		// Prepare models for printing if required		
 		for (int i = 0; i < cr.getNbModels(); i++) {
 			ClusModelInfo mi = cr.getModelInfo(i);
 			if (mi != null) {
@@ -216,9 +230,80 @@ public class ClusOutput {
 					RowData pex = (RowData)cr.getTrainingSet();
 					System.out.println(te_err);
 					if (te_err != null) pex = (RowData)cr.getTestSet();
-					root.printModelAndExamples(m_Writer, info, pex);
+					root.printModelAndExamples(m_Writer, info, pex);					
 				} else {
-					root.printModel(m_Writer, info);
+					root.printModel(m_Writer, info);					
+				}
+				if(getSettings().isOutputXMLModel())
+				{
+					RowData pex = (RowData)cr.getTrainingSet();
+					DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+					try {
+						DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+						Document doc = docBuilder.newDocument();
+						Element rootElement = doc.createElement("Model");
+						doc.appendChild(rootElement);
+						
+						Attr name = doc.createAttribute("name");						
+						name.setValue(modelname);
+						rootElement.setAttributeNode(name);						
+						
+						Element modelRoot = root.printModelToXML(doc, info, pex);
+						rootElement.appendChild(modelRoot);
+						TransformerFactory transformerFactory = TransformerFactory.newInstance();
+						Transformer transformer = transformerFactory.newTransformer();
+						DOMSource source = new DOMSource(doc);
+						String xml_fname = m_Sett.getFileAbsolute(m_Sett.getAppName() + "_" + 
+									modelname.toLowerCase().replace(" ", "_") + ".xml");
+						//check existence of hierarchy.xml
+						StreamResult result = new StreamResult(new File("tmp.xml"));						
+						transformer.transform(source, result);
+						File f = new File("hierarchy.xml");
+						if(f.exists() && !f.isDirectory()) 
+						{							
+							File main = new File(xml_fname);
+							PrintWriter writer = new PrintWriter(new FileWriter(main));
+							BufferedReader reader = new BufferedReader(new FileReader(new File("tmp.xml")));
+							String text = null;
+							while ((text = reader.readLine()) != null) {
+						    	text = text.replace("</Model>", "");
+						        writer.println(text);
+						    }
+							reader.close();
+							reader = new BufferedReader(new FileReader(f));						   
+						    while ((text = reader.readLine()) != null) {
+						    	text = text.replace("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>", "");
+						        writer.println(text);
+						    }
+						    writer.println("</Model>");
+						    writer.close();
+						    reader.close();
+						    new File("tmp.xml").delete();
+							//f.delete();
+						}
+						else
+						{
+							File main = new File(xml_fname);
+							PrintWriter writer = new PrintWriter(new FileWriter(main));
+							BufferedReader reader = new BufferedReader(new FileReader(new File("tmp.xml")));
+							String text = null;
+							while ((text = reader.readLine()) != null) {						    	
+						        writer.println(text);
+						    }
+							reader.close();							
+						    writer.close();
+						    reader.close();
+						    new File("tmp.xml").delete();
+						}
+						System.out.println("XML output written to: "+xml_fname);																		
+					} catch (ParserConfigurationException e) {						
+						System.out.println("XML parser configuration exception: "+e.getMessage());
+					} catch (TransformerConfigurationException e) {						
+						System.out.println("XML transformer configuration exception: "+e.getMessage());
+					} catch (TransformerException e) {
+						System.out.println("XML transformer exception: "+e.getMessage());
+					}
+					
 				}
 				m_Writer.println();
 				if (getSettings().isOutputPythonModel()) {
