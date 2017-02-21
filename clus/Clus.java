@@ -763,7 +763,7 @@ public class Clus implements CMDLineArgsProvider {
 	}
 
 	public final void calcError(ClusRun cr, ClusSummary summary) throws IOException, ClusException {
-		calcError(cr, summary);
+		calcError(cr, summary, null);
 	}
 	public final void calcError(ClusRun cr, ClusSummary summary, ClusEnsemblePredictionWriter ens_pred) throws IOException, ClusException {
 		cr.copyAllModelsMIs();
