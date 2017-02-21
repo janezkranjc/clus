@@ -51,7 +51,17 @@ public class HierSingleLabelStat extends WHTDStatistic {
 		return new HierSingleLabelStat(m_Hier, false, m_Compatibility);
 	}
 
-	
+	public ClusStatistic cloneSimple() {
+		HierSingleLabelStat res = new HierSingleLabelStat(m_Hier, true, m_Compatibility);
+		res.m_Threshold = m_Threshold;
+		res.m_Training = m_Training;
+		if (m_Validation != null) {
+			res.m_Validation = (HierSingleLabelStat)m_Validation.cloneSimple();
+			res.m_Global = m_Global;
+			res.m_SigLevel = m_SigLevel;
+		}
+		return res;
+	}
 	
 	public void addPredictWriterSchema(String prefix, ClusSchema schema) {
 		float biggest = 0;
