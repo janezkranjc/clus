@@ -641,11 +641,9 @@ rules/linear terms, used for learning rule ensembles \cite{Aho2009}. If we have 
 
 %BagSelection = -1
 	% 'Quasi' parallel implementation for ensembles
-	% its value is an integer ranging from -1 to the number of trees in the ensemble
 	% if set to -1, then the parallel implementation is discarded
 	% if set to 0, then CLUS combines the predictions from the different bags
-	% if set to i, i in 1..EnsembleSize, then CLUS learns the model for the i-th bag
-	% if set as interval [val1-val2], this means to learn all bags between val1 and val2, including val1 and val2
+	% if set as interval [val,val2], this means to learn all bags between val1 and val2, including val1 and val2
 	
 	 
 \end{itemize}
