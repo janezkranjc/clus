@@ -1,0 +1,502 @@
+
+# /
+/dist
+/bin
+/build
+
+# /addon/
+/addon/.svn
+
+# /addon/ILevelC/
+/addon/ILevelC/bin
+/addon/ILevelC/bin2
+/addon/ILevelC/.classpath
+/addon/ILevelC/.project
+/addon/ILevelC/.settings
+/addon/ILevelC/*.so
+/addon/ILevelC/*.class
+/addon/ILevelC/.svn
+/addon/ILevelC/Clus
+/addon/ILevelC/ClusHMC.jar
+/addon/ILevelC/Clus.zip
+/addon/ILevelC/update.txt
+/addon/ILevelC/diff*
+
+# /addon/ILevelC/ilevelc/
+/addon/ILevelC/ilevelc/bin
+/addon/ILevelC/ilevelc/bin2
+/addon/ILevelC/ilevelc/.classpath
+/addon/ILevelC/ilevelc/.project
+/addon/ILevelC/ilevelc/.settings
+/addon/ILevelC/ilevelc/*.so
+/addon/ILevelC/ilevelc/*.class
+/addon/ILevelC/ilevelc/.svn
+/addon/ILevelC/ilevelc/Clus
+/addon/ILevelC/ilevelc/ClusHMC.jar
+/addon/ILevelC/ilevelc/Clus.zip
+/addon/ILevelC/ilevelc/update.txt
+/addon/ILevelC/ilevelc/diff*
+
+# /addon/hmc/
+/addon/hmc/.svn
+
+# /addon/hmc/ClusAmandaRules/
+/addon/hmc/ClusAmandaRules/*.class
+
+# /addon/hmc/HMCAverageSingleClass/
+/addon/hmc/HMCAverageSingleClass/bin
+/addon/hmc/HMCAverageSingleClass/bin2
+/addon/hmc/HMCAverageSingleClass/.classpath
+/addon/hmc/HMCAverageSingleClass/.project
+/addon/hmc/HMCAverageSingleClass/.settings
+/addon/hmc/HMCAverageSingleClass/*.so
+/addon/hmc/HMCAverageSingleClass/*.class
+/addon/hmc/HMCAverageSingleClass/.svn
+/addon/hmc/HMCAverageSingleClass/Clus
+/addon/hmc/HMCAverageSingleClass/ClusHMC.jar
+/addon/hmc/HMCAverageSingleClass/Clus.zip
+/addon/hmc/HMCAverageSingleClass/update.txt
+/addon/hmc/HMCAverageSingleClass/diff*
+
+# /addon/hmc/HMCConvertDAGData/
+/addon/hmc/HMCConvertDAGData/*.class
+
+# /addon/hmc/HMCConvertToSC/
+/addon/hmc/HMCConvertToSC/*.class
+
+# /addon/hmc/HMCNodeWiseModels/
+/addon/hmc/HMCNodeWiseModels/bin
+/addon/hmc/HMCNodeWiseModels/.svn
+
+# /addon/hmc/HMCNodeWiseModels/hmcnwmodels/
+/addon/hmc/HMCNodeWiseModels/hmcnwmodels/*.class
+
+# /addon/script/
+/addon/script/.svn
+
+# /clus/
+/clus/*.class
+/clus/.svn
+
+# /clus/algo/
+/clus/algo/.svn
+/clus/algo/*.class
+
+# /clus/algo/induce/
+/clus/algo/induce/*.class
+/clus/algo/induce/.svn
+
+# /clus/algo/kNN/
+/clus/algo/kNN/*.class
+/clus/algo/kNN/.svn
+
+# /clus/algo/rules/
+/clus/algo/rules/*.class
+/clus/algo/rules/.svn
+
+# /clus/algo/split/
+/clus/algo/split/*.class
+
+# /clus/algo/tdidt/
+/clus/algo/tdidt/*.class
+
+# /clus/algo/tdidt/processor/
+/clus/algo/tdidt/processor/*.class
+
+# /clus/algo/tdidt/tune/
+/clus/algo/tdidt/tune/*.class
+
+# /clus/data/
+/clus/data/.svn
+/clus/data/*.class
+
+# /clus/data/attweights/
+/clus/data/attweights/.svn
+/clus/data/attweights/*.class
+
+# /clus/data/cols/
+/clus/data/cols/*.class
+/clus/data/cols/.svn
+
+# /clus/data/cols/attribute/
+/clus/data/cols/attribute/*.class
+/clus/data/cols/attribute/.svn
+
+# /clus/data/io/
+/clus/data/io/*.class
+
+# /clus/data/rows/
+/clus/data/rows/*.class
+/clus/data/rows/.svn
+
+# /clus/data/type/
+/clus/data/type/*.class
+/clus/data/type/.svn
+
+# /clus/error/
+/clus/error/*.class
+/clus/error/.svn
+
+# /clus/error/multiscore/
+/clus/error/multiscore/*.class
+/clus/error/multiscore/.svn
+
+# /clus/ext/
+/clus/ext/*.class
+/clus/ext/.svn
+
+# /clus/ext/beamsearch/
+/clus/ext/beamsearch/*.class
+/clus/ext/beamsearch/.svn
+
+# /clus/ext/bestfirst/
+/clus/ext/bestfirst/*.class
+
+# /clus/ext/constraint/
+/clus/ext/constraint/.svn
+/clus/ext/constraint/*.class
+
+# /clus/ext/ensembles/
+/clus/ext/ensembles/*.class
+
+# /clus/ext/exhaustivesearch/
+/clus/ext/exhaustivesearch/*.class
+
+# /clus/ext/hierarchical/
+/clus/ext/hierarchical/*.class
+/clus/ext/hierarchical/.svn
+/clus/ext/hierarchical/old
+
+# /clus/ext/ilevelc/
+/clus/ext/ilevelc/*.class
+
+# /clus/ext/ootind/
+/clus/ext/ootind/*.class
+/clus/ext/ootind/.svn
+
+# /clus/ext/optxval/
+/clus/ext/optxval/*.class
+/clus/ext/optxval/.svn
+
+# /clus/ext/semisupervised/
+/clus/ext/semisupervised/*.class
+
+# /clus/ext/sspd/
+/clus/ext/sspd/*.class
+/clus/ext/sspd/.svn
+
+# /clus/ext/timeseries/
+/clus/ext/timeseries/*.class
+/clus/ext/timeseries/.svn
+
+# /clus/gui/
+/clus/gui/*.class
+/clus/gui/.svn
+
+# /clus/gui/statvis/
+/clus/gui/statvis/*.class
+/clus/gui/statvis/.svn
+
+# /clus/heuristic/
+/clus/heuristic/*.class
+/clus/heuristic/.svn
+
+# /clus/io/
+/clus/io/*.class
+/clus/io/.svn
+
+# /clus/main/
+/clus/main/*.class
+/clus/main/.svn
+
+# /clus/model/
+/clus/model/*.class
+/clus/model/.svn
+
+# /clus/model/modelio/
+/clus/model/modelio/*.class
+/clus/model/modelio/.svn
+
+# /clus/model/modelio/pmml/
+/clus/model/modelio/pmml/*.class
+/clus/model/modelio/pmml/.svn
+
+# /clus/model/modelio/tilde/
+/clus/model/modelio/tilde/*.class
+/clus/model/modelio/tilde/.svn
+
+# /clus/model/pmml/
+/clus/model/pmml/*.class
+/clus/model/pmml/.svn
+
+# /clus/model/pmml/tildepmml/
+/clus/model/pmml/tildepmml/*.class
+/clus/model/pmml/tildepmml/.svn
+
+# /clus/model/processor/
+/clus/model/processor/*.class
+/clus/model/processor/.svn
+
+# /clus/model/test/
+/clus/model/test/*.class
+/clus/model/test/.svn
+
+# /clus/nominal/
+/clus/nominal/*.class
+/clus/nominal/.svn
+
+# /clus/nominal/split/
+/clus/nominal/split/*.class
+/clus/nominal/split/.svn
+
+# /clus/pruning/
+/clus/pruning/*.class
+/clus/pruning/.svn
+
+# /clus/selection/
+/clus/selection/*.class
+/clus/selection/.svn
+
+# /clus/statistic/
+/clus/statistic/*.class
+/clus/statistic/.svn
+
+# /clus/tools/
+/clus/tools/*.class
+/clus/tools/.svn
+
+# /clus/tools/backup/
+/clus/tools/backup/*.java
+
+# /clus/tools/debug/
+/clus/tools/debug/*.class
+/clus/tools/debug/.svn
+
+# /clus/tools/hier/
+/clus/tools/hier/*.class
+/clus/tools/hier/.svn
+
+# /clus/tools/optimization/
+/clus/tools/optimization/*.class
+/clus/tools/optimization/.svn
+
+# /clus/tools/optimization/de/
+/clus/tools/optimization/de/*.class
+/clus/tools/optimization/de/.svn
+
+# /clus/tools/resourceinfo/
+/clus/tools/resourceinfo/*.class
+/clus/tools/resourceinfo/.svn
+
+# /clus/tools/script/
+/clus/tools/script/.svn
+/clus/tools/script/*.class
+
+# /clus/tools/textproc/
+/clus/tools/textproc/*.class
+/clus/tools/textproc/.svn
+
+# /clus/util/
+/clus/util/*.class
+/clus/util/.svn
+
+# /clus/weka/
+/clus/weka/*.class
+/clus/weka/.svn
+
+# /data/
+/data/*.out
+/data/*.model
+/data/*.xval
+/data/*.test.pred
+/data/debug.txt
+/data/prune.dat
+/data/hierarchy.txt
+/data/*.pdf
+
+# /data/church_FUN/
+/data/church_FUN/AUC_average
+/data/church_FUN/.gle
+/data/church_FUN/prcurves.pdf
+/data/church_FUN/*.out*
+/data/church_FUN/*.xval*
+/data/church_FUN/*.tree
+/data/church_FUN/*.model
+/data/church_FUN/hierarchy.*
+/data/church_FUN/*.test*
+/data/church_FUN/*.id*
+/data/church_FUN/*.pred
+/data/church_FUN/.svn
+/data/church_FUN/*.class
+/data/church_FUN/beam.back
+/data/church_FUN/beam.log
+/data/church_FUN/beamstats.dat
+/data/church_FUN/iris.beam
+/data/church_FUN/iris.bmstats
+/data/church_FUN/iris.model
+/data/church_FUN/iris.test.pred
+/data/church_FUN/iris.val
+
+# /data/church_FUN/areas/
+/data/church_FUN/areas/pdfs
+
+# /data/iris/
+/data/iris/*.out*
+/data/iris/*.xval*
+/data/iris/*.tree
+/data/iris/*.model
+/data/iris/hierarchy.*
+/data/iris/*.test*
+/data/iris/*.id*
+/data/iris/*.pred
+/data/iris/.svn
+/data/iris/*.class
+/data/iris/beam.back
+/data/iris/beam.log
+/data/iris/beamstats.dat
+/data/iris/iris.beam
+/data/iris/iris.bmstats
+/data/iris/iris.model
+/data/iris/iris.test.pred
+/data/iris/iris.val
+
+# /data/multitest/
+/data/multitest/*.distr
+/data/multitest/*.out*
+/data/multitest/*.xval*
+/data/multitest/*.tree
+/data/multitest/*.model
+/data/multitest/hierarchy.*
+/data/multitest/*.test*
+/data/multitest/*.id*
+/data/multitest/*.pred
+/data/multitest/.svn
+/data/multitest/*.class
+
+# /data/numerictest/
+/data/numerictest/*.pred
+/data/numerictest/*.out*
+/data/numerictest/*.xval*
+/data/numerictest/*.tree
+/data/numerictest/*.model
+/data/numerictest/hierarchy.*
+/data/numerictest/*.test*
+/data/numerictest/*.id*
+/data/numerictest/.svn
+/data/numerictest/*.class
+
+# /data/release/
+/data/release/.svn
+
+# /data/release/3cluster/
+/data/release/3cluster/.svn
+/data/release/3cluster/*.out
+/data/release/3cluster/*.model
+
+# /data/soybean/
+/data/soybean/*.out*
+/data/soybean/*.xval*
+/data/soybean/*.tree
+/data/soybean/hierarchy.*
+/data/soybean/*.test*
+/data/soybean/*.id*
+/data/soybean/.svn
+/data/soybean/*.class
+/data/soybean/beam.log
+/data/soybean/beamstats.dat
+/data/soybean/beamstats.eps
+/data/soybean/beamstats.gle
+/data/soybean/debug.txt
+/data/soybean/soybean.beamnocontr
+/data/soybean/soyean.model
+
+# /data/sspd/
+/data/sspd/*.out*
+/data/sspd/*.xval*
+/data/sspd/*.tree
+/data/sspd/hierarchy.*
+/data/sspd/*.test*
+/data/sspd/*.id*
+/data/sspd/.svn
+/data/sspd/*.class
+
+# /data/test_m5_prune/
+/data/test_m5_prune/*.model
+/data/test_m5_prune/*.out
+/data/test_m5_prune/*.xval
+/data/test_m5_prune/.svn
+/data/test_m5_prune/*.class
+
+# /data/toyHMC/
+/data/toyHMC/AUC_average
+/data/toyHMC/.gle
+/data/toyHMC/prcurves.pdf
+/data/toyHMC/*.out*
+/data/toyHMC/*.xval*
+/data/toyHMC/*.tree
+/data/toyHMC/*.model
+/data/toyHMC/hierarchy.*
+/data/toyHMC/*.test*
+/data/toyHMC/*.id*
+/data/toyHMC/*.pred
+/data/toyHMC/.svn
+/data/toyHMC/*.class
+/data/toyHMC/beam.back
+/data/toyHMC/beam.log
+/data/toyHMC/beamstats.dat
+/data/toyHMC/iris.beam
+/data/toyHMC/iris.bmstats
+/data/toyHMC/iris.model
+/data/toyHMC/iris.test.pred
+/data/toyHMC/iris.val
+
+# /data/weather/
+/data/weather/*.model
+/data/weather/*.distr
+/data/weather/*.bmstats
+/data/weather/*.out*
+/data/weather/*.xval*
+/data/weather/*.tree
+/data/weather/hierarchy.*
+/data/weather/*.test*
+/data/weather/*.id*
+/data/weather/.svn
+/data/weather/*.class
+
+# /docs/
+/docs/.svn
+/docs/*.class
+
+# /docs/devel/
+/docs/devel/.svn
+
+# /docs/manual/
+/docs/manual/.svn
+/docs/manual/*.aux
+/docs/manual/*.toc
+/docs/manual/*.idx
+/docs/manual/*.log
+/docs/manual/*.dvi
+/docs/manual/*.ps
+/docs/manual/*.gz
+/docs/manual/*.pdf
+/docs/manual/*.bbl
+/docs/manual/*.blg
+/docs/manual/*.ilg
+/docs/manual/*.ind
+/docs/manual/*.out
+/docs/manual/*_commands.tex
+/docs/manual/*_settings.tex
+/docs/manual/ACEuser
+/docs/manual/predefpreds.tex
+
+# /docs/manual/fig/
+/docs/manual/fig/*.class
+/docs/manual/fig/.svn
+
+# /jars/
+/jars/commons-math3-3.4.1.jar
+
+# /jeans/
+/jeans/.svn
+/jeans/*.class
